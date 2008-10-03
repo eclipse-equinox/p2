@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -49,7 +51,7 @@ public class FeaturesActionTest extends ActionTest {
 	}
 
 	public void testStuff() throws Exception {
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyRepositoryContents();
 		debug("Completed FeaturesAction."); //$NON-NLS-1$
 	}

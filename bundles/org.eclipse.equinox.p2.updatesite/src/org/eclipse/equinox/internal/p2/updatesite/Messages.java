@@ -26,6 +26,7 @@ public class Messages extends NLS {
 	public static String InvalidRepositoryLocation;
 	public static String MalformedArchiveURL;
 	public static String PlatformAdminNotRegistered;
+	public static String Error_Generation;
 
 	public static String io_failedRead;
 	public static String repo_loading;

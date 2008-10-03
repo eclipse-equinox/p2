@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.publisher;
 import java.io.File;
 import java.net.MalformedURLException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
@@ -186,7 +187,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		long before = System.currentTimeMillis();
 		IPublisherAction[] actions = createActions();
 		Publisher publisher = createPublisher(info);
-		IStatus result = publisher.publish(actions);
+		IStatus result = publisher.publish(actions, new NullProgressMonitor());
 		long after = System.currentTimeMillis();
 
 		if (result.isOK()) {

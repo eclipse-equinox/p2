@@ -64,7 +64,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -85,7 +85,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -104,7 +104,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -123,7 +123,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -144,7 +144,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -166,7 +166,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -185,7 +185,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -203,7 +203,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -221,7 +221,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
@@ -252,7 +252,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			updatesite.loadFeatures();
+			updatesite.loadFeatures(new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			fail("0.4", e);
 		}
@@ -319,7 +319,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(0, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
@@ -337,7 +337,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
@@ -355,7 +355,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(2, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
@@ -373,7 +373,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(2, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
@@ -391,7 +391,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
@@ -409,7 +409,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			int featureCount = updatesite.loadFeatures().length;
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(2, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");

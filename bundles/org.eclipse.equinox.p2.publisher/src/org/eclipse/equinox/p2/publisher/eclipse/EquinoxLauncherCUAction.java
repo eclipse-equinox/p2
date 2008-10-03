@@ -6,13 +6,13 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.util.Collection;
 import java.util.Iterator;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
@@ -40,7 +40,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		this.configSpecs = configSpecs;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		publishCU(ORG_ECLIPSE_EQUINOX_LAUNCHER, null, info, results);
 		publishLauncherFragmentCUs(info, results);
 		return Status.OK_STATUS;

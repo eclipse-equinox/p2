@@ -68,7 +68,7 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		URL localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
-			IMetadataRepository repository = factory.load(localRepositoryURL, null);
+			IMetadataRepository repository = factory.load(localRepositoryURL, monitor);
 			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
 				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
@@ -82,21 +82,26 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 	}
 
 	public void initializeRepository(IMetadataRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
-		UpdateSite updateSite = UpdateSite.load(location, null);
+		UpdateSite updateSite = UpdateSite.load(location, monitor);
 		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
-		generateMetadata(updateSite, repository);
+		IStatus status = generateMetadata(updateSite, repository, monitor);
+		if (monitor.isCanceled())
+			throw new OperationCanceledException();
+		if (!status.isOK())
+			throw new ProvisionException(status);
+
 	}
 
-	private void generateMetadata(UpdateSite updateSite, IMetadataRepository repository) {
+	private IStatus generateMetadata(UpdateSite updateSite, IMetadataRepository repository, IProgressMonitor monitor) {
 		PublisherInfo info = new PublisherInfo();
 		info.setMetadataRepository(repository);
 		IPublisherAction[] actions = new IPublisherAction[] {new RemoteUpdateSiteAction(updateSite)};
 		Publisher publisher = new Publisher(info);
-		publisher.publish(actions);
+		return publisher.publish(actions, monitor);
 	}
 
 }

@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -38,23 +39,19 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	private UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
+	private URL location;
 
 	public SiteXMLAction(URL location) {
-		try {
-			updateSite = UpdateSite.load(location, new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		initialize();
+		this.location = location;
 	}
 
 	public SiteXMLAction(UpdateSite updateSite) {
 		this.updateSite = updateSite;
-		initialize();
 	}
 
 	private void initialize() {
+		if (defaultCategory != null)
+			return;
 		defaultCategory = new SiteCategory();
 		defaultCategory.setDescription("Default category for otherwise uncategorized features"); //$NON-NLS-1$
 		defaultCategory.setLabel("Uncategorized"); //$NON-NLS-1$
@@ -63,15 +60,26 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		defaultCategorySet.add(defaultCategory);
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		generateCategories(info, results);
-		return Status.OK_STATUS;
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+		if (updateSite == null) {
+			try {
+				updateSite = UpdateSite.load(location, monitor);
+			} catch (ProvisionException e) {
+				return new Status(IStatus.ERROR, Activator.ID, "Error generating site xml action.", e);
+			} catch (OperationCanceledException e) {
+				return Status.CANCEL_STATUS;
+			}
+		}
+		initialize();
+		return generateCategories(info, results, monitor);
 	}
 
-	private void generateCategories(IPublisherInfo info, IPublisherResult results) {
+	private IStatus generateCategories(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		Map categoriesToFeatureIUs = new HashMap();
 		Map featuresToCategories = getFeatureToCategoryMappings(info);
 		for (Iterator i = featuresToCategories.keySet().iterator(); i.hasNext();) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 			SiteFeature feature = (SiteFeature) i.next();
 			IInstallableUnit iu = getFeatureIU(feature, results);
 			Set categories = (Set) featuresToCategories.get(feature);
@@ -89,6 +97,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 		generateCategoryIUs(categoriesToFeatureIUs, results);
+		return Status.OK_STATUS;
 	}
 
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherResult results) {

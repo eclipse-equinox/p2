@@ -6,13 +6,13 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -45,16 +45,21 @@ public class RootFilesAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherResult innerResult = new PublisherResult();
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = info.getConfigurations();
-		for (int i = 0; i < configSpecs.length; i++)
+		for (int i = 0; i < configSpecs.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 			generateRootFileIUs(configSpecs[i], info, innerResult);
+		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
 		publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
 		return Status.OK_STATUS;
 	}
 
@@ -71,7 +76,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 * Generates IUs and CUs for the files that make up the root files for a given
 	 * ws/os/arch combination.
 	 */
-	protected void generateRootFileIUs(String configSpec, IPublisherInfo info, IPublisherResult result) {
+	private void generateRootFileIUs(String configSpec, IPublisherInfo info, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);

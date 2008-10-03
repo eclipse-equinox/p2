@@ -6,9 +6,9 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
-
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -133,16 +133,26 @@ public class Publisher {
 		this.results = results;
 	}
 
-	public IStatus publish(IPublisherAction[] actions) {
-		// run all the actions
-		MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null);
-		for (int i = 0; i < actions.length; i++) {
-			IStatus status = actions[i].perform(info, results);
-			finalStatus.merge(status);
-		}
-		if (!finalStatus.isOK())
-			return finalStatus;
+	public IStatus publish(IPublisherAction[] actions, IProgressMonitor monitor) {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 
+		SubMonitor sub = SubMonitor.convert(monitor, actions.length);
+		try {
+			// run all the actions
+			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+			for (int i = 0; i < actions.length; i++) {
+				if (sub.isCanceled())
+					return Status.CANCEL_STATUS;
+				IStatus status = actions[i].perform(info, results, monitor);
+				finalStatus.merge(status);
+				sub.worked(1);
+			}
+			if (!finalStatus.isOK())
+				return finalStatus;
+		} finally {
+			sub.done();
+		}
 		// if there were no errors, publish all the ius.
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {

@@ -6,16 +6,16 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * A publishing action that processes a remote (URL-based) update site and generates
@@ -34,24 +34,24 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 		this.source = source;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
-		for (int i = 0; i < actions.length; i++)
-			actions[i].perform(info, results);
+		MultiStatus finalStatus = new MultiStatus(this.getClass().getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toExternalForm() : "Unknown")), null); //$NON-NLS-1$
+		for (int i = 0; i < actions.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			finalStatus.merge(actions[i].perform(info, results, monitor));
+		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		return Status.OK_STATUS;
 	}
 
 	protected IPublisherAction[] createActions() {
-		try {
-			ArrayList result = new ArrayList();
-			result.add(new RemoteFeaturesAction(updateSite.loadFeatures()));
-			result.add(createSiteXMLAction());
-			return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
-		} catch (ProvisionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new IPublisherAction[0];
+		ArrayList result = new ArrayList();
+		result.add(new RemoteFeaturesAction(updateSite));
+		result.add(createSiteXMLAction());
+		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createSiteXMLAction() {

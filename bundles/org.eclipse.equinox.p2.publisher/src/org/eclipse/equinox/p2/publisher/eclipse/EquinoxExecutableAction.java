@@ -6,14 +6,14 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
@@ -46,7 +46,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult result) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
 		// TODO temporary measure for handling the Eclipse launcher feature files.
 		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
 		publishExecutableIU(info, brandedExecutables, result);

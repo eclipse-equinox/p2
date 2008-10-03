@@ -6,11 +6,11 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.publisher.*;
 
 public class MergeResultsAction extends AbstractPublisherAction {
@@ -23,13 +23,18 @@ public class MergeResultsAction extends AbstractPublisherAction {
 		this.mode = mode;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+		MultiStatus finalStatus = new MultiStatus(MergeResultsAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 			IPublisherAction action = actions[i];
 			IPublisherResult result = new PublisherResult();
-			action.perform(info, result);
+			finalStatus.merge(action.perform(info, result, monitor));
 			results.merge(result, mode);
 		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		return Status.OK_STATUS;
 	}
 }

@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -13,6 +14,7 @@ import static org.easymock.EasyMock.expect;
 
 import java.io.File;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
@@ -43,7 +45,7 @@ public class ConfigCUsActionTest extends ActionTest {
 	}
 
 	public void testAction() throws Exception {
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyAction();
 		debug("Completed ConfigCUsAction test."); //$NON-NLS-1$
 	}

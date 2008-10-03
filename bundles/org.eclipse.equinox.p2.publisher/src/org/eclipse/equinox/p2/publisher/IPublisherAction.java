@@ -6,14 +6,15 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 public interface IPublisherAction {
 
-	IStatus perform(IPublisherInfo info, IPublisherResult results);
+	IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor);
 
 }

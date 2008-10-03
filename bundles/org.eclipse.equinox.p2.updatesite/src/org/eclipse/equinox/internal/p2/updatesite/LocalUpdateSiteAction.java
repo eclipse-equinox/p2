@@ -6,19 +6,19 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
-
-import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * A publishing action that processes a local (File-based) update site and generates
@@ -39,10 +39,16 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 		this.updateSite = updateSite;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
-		for (int i = 0; i < actions.length; i++)
-			actions[i].perform(info, results);
+		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toExternalForm() : "Unknown")), null); //$NON-NLS-1$
+		for (int i = 0; i < actions.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			finalStatus.merge(actions[i].perform(info, results, monitor));
+		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		return Status.OK_STATUS;
 	}
 

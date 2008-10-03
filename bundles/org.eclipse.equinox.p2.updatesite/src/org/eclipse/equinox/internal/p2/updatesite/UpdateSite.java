@@ -155,6 +155,8 @@ public class UpdateSite {
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
 				transferResult = getTransport().download(actualLocation.toExternalForm(), destination, monitor);
 			}
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
 			if (transferResult.isOK()) {
 				// successful. If the siteFile is the download of a remote site.xml it will get cleaned up later
 				deleteSiteFile = false;
@@ -176,7 +178,7 @@ public class UpdateSite {
 	 * Parse the feature.xml specified by the given input stream and return the feature object.
 	 * In case of failure, the failure is logged and null is returned
 	 */
-	private static Feature parseFeature(FeatureParser featureParser, URL featureURL) {
+	private static Feature parseFeature(FeatureParser featureParser, URL featureURL, IProgressMonitor monitor) {
 		File featureFile = null;
 		if (PROTOCOL_FILE.equals(featureURL.getProtocol())) {
 			featureFile = new File(featureURL.getPath());
@@ -187,11 +189,15 @@ public class UpdateSite {
 			IStatus transferResult = null;
 			//try the download twice in case of transient network problems
 			for (int i = 0; i < RETRY_COUNT; i++) {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
-				transferResult = getTransport().download(featureURL.toExternalForm(), destination, null);
+				transferResult = getTransport().download(featureURL.toExternalForm(), destination, monitor);
 				if (transferResult.isOK())
 					break;
 			}
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
 			if (!transferResult.isOK()) {
 				LogHelper.log(new ProvisionException(transferResult));
 				return null;
@@ -371,20 +377,20 @@ public class UpdateSite {
 	/*
 	 * Load and return the features references in this update site.
 	 */
-	public synchronized Feature[] loadFeatures() throws ProvisionException {
-		Feature[] result = loadFeaturesFromDigest();
-		return result == null ? loadFeaturesFromSite() : result;
+	public synchronized Feature[] loadFeatures(IProgressMonitor monitor) throws ProvisionException {
+		if (!featureCache.isEmpty())
+			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
+		Feature[] result = loadFeaturesFromDigest(monitor);
+		return result == null ? loadFeaturesFromSite(monitor) : result;
 	}
 
 	/*
 	 * Try and load the feature information from the update site's
 	 * digest file, if it exists.
 	 */
-	private Feature[] loadFeaturesFromDigest() {
+	private Feature[] loadFeaturesFromDigest(IProgressMonitor monitor) {
 		File digestFile = null;
 		boolean local = false;
-		if (!featureCache.isEmpty())
-			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 		try {
 			URL digestURL = getDigestURL();
 			if (PROTOCOL_FILE.equals(digestURL.getProtocol())) {
@@ -395,17 +401,21 @@ public class UpdateSite {
 			} else {
 				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-				IStatus result = getTransport().download(digestURL.toExternalForm(), destination, null);
+				IStatus result = getTransport().download(digestURL.toExternalForm(), destination, monitor);
+				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
+					throw new OperationCanceledException();
 				if (!result.isOK())
 					return null;
 			}
 			Feature[] features = new DigestParser().parse(digestFile);
 			if (features == null)
 				return null;
+			Map tmpFeatureCache = new HashMap(features.length);
 			for (int i = 0; i < features.length; i++) {
 				String key = features[i].getId() + VERSION_SEPARATOR + features[i].getVersion();
-				featureCache.put(key, features[i]);
+				tmpFeatureCache.put(key, features[i]);
 			}
+			featureCache = tmpFeatureCache;
 			return features;
 		} catch (FileNotFoundException fnfe) {
 			// we do not track FNF exceptions as we will fall back to the 
@@ -438,19 +448,24 @@ public class UpdateSite {
 	 * Load and return the features that are referenced by this update site. Note this
 	 * requires downloading and parsing the feature manifest locally.
 	 */
-	private Feature[] loadFeaturesFromSite() throws ProvisionException {
+	private Feature[] loadFeaturesFromSite(IProgressMonitor monitor) throws ProvisionException {
 		SiteFeature[] siteFeatures = site.getFeatures();
 		FeatureParser featureParser = new FeatureParser();
+		Map tmpFeatureCache = new HashMap(siteFeatures.length);
+
 		for (int i = 0; i < siteFeatures.length; i++) {
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
 			SiteFeature siteFeature = siteFeatures[i];
 			String key = null;
 			if (siteFeature.getFeatureIdentifier() != null && siteFeature.getFeatureVersion() != null) {
 				key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
-				if (featureCache.containsKey(key))
+				if (tmpFeatureCache.containsKey(key))
 					continue;
 			}
 			URL featureURL = getSiteFeatureURL(siteFeature);
-			Feature feature = parseFeature(featureParser, featureURL);
+			Feature feature = parseFeature(featureParser, featureURL, monitor);
 			if (feature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 			} else {
@@ -459,33 +474,36 @@ public class UpdateSite {
 					siteFeature.setFeatureVersion(feature.getVersion());
 					key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
 				}
-				featureCache.put(key, feature);
-				loadIncludedFeatures(feature, featureParser);
+				tmpFeatureCache.put(key, feature);
+				loadIncludedFeatures(feature, featureParser, tmpFeatureCache, monitor);
 			}
 		}
+		featureCache = tmpFeatureCache;
 		return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 	}
 
 	/*
 	 * Load the features that are included by the given feature.
 	 */
-	private void loadIncludedFeatures(Feature feature, FeatureParser featureParser) throws ProvisionException {
+	private void loadIncludedFeatures(Feature feature, FeatureParser featureParser, Map features, IProgressMonitor monitor) throws ProvisionException {
 		FeatureEntry[] featureEntries = feature.getEntries();
 		for (int i = 0; i < featureEntries.length; i++) {
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
 			FeatureEntry entry = featureEntries[i];
 			if (entry.isRequires() || entry.isPlugin())
 				continue;
 			String key = entry.getId() + VERSION_SEPARATOR + entry.getVersion();
-			if (featureCache.containsKey(key))
+			if (features.containsKey(key))
 				continue;
 
 			URL includedFeatureURL = getFeatureURL(entry.getId(), entry.getVersion());
-			Feature includedFeature = parseFeature(featureParser, includedFeatureURL);
+			Feature includedFeature = parseFeature(featureParser, includedFeatureURL, monitor);
 			if (includedFeature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL)));
 			} else {
-				featureCache.put(key, includedFeature);
-				loadIncludedFeatures(includedFeature, featureParser);
+				features.put(key, includedFeature);
+				loadIncludedFeatures(includedFeature, featureParser, features, monitor);
 			}
 		}
 	}

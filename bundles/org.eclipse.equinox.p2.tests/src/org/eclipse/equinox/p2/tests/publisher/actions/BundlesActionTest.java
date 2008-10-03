@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -16,8 +17,7 @@ import java.io.FileInputStream;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -80,7 +80,7 @@ public class BundlesActionTest extends ActionTest {
 		setupPublisherResult();
 		setupPublisherInfo();
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		verifyBundlesAction();
 		cleanup();
 		debug("Completed BundlesActionTest.");//$NON-NLS-1$

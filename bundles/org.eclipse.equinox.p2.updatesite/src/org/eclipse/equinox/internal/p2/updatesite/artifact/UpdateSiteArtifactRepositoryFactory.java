@@ -52,7 +52,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 		URL localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
-			IArtifactRepository repository = factory.load(localRepositoryURL, null);
+			IArtifactRepository repository = factory.load(localRepositoryURL, monitor);
 			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
 				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
@@ -66,7 +66,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 	}
 
 	public void initializeRepository(IArtifactRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
-		UpdateSite updateSite = UpdateSite.load(location, null);
+		UpdateSite updateSite = UpdateSite.load(location, monitor);
 		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
@@ -75,11 +75,11 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 			repository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
-		generateArtifactDescriptors(updateSite, repository);
+		generateArtifactDescriptors(updateSite, repository, monitor);
 	}
 
-	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository) throws ProvisionException {
-		Feature[] features = updateSite.loadFeatures();
+	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		Feature[] features = updateSite.loadFeatures(monitor);
 		Set allSiteArtifacts = new HashSet();
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];

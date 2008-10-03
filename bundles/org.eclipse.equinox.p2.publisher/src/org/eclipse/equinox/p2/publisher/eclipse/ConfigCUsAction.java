@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -14,8 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -90,12 +90,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		this.version = version;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherResult innerResult = new PublisherResult();
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = info.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 			String configSpec = configSpecs[i];
 			Collection configAdvice = info.getAdvice(configSpec, false, null, null, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);

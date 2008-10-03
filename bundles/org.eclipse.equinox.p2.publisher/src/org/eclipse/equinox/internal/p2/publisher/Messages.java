@@ -27,6 +27,7 @@ public class Messages extends NLS {
 	public static String message_generatingMetadata;
 	public static String message_generationCompleted;
 
+	public static String error_rootIU_generation;
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

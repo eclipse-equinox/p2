@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -635,13 +636,17 @@ public class BundlesAction extends AbstractPublisherAction {
 		this.bundles = bundles;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		if (bundles == null && locations == null)
 			throw new IllegalStateException("No bundles or locations provided");
-		if (bundles == null)
-			bundles = getBundleDescriptions(expandLocations(locations));
-		generateBundleIUs(bundles, results, info);
-		bundles = null;
+		try {
+			if (bundles == null)
+				bundles = getBundleDescriptions(expandLocations(locations), monitor);
+			generateBundleIUs(bundles, results, info, monitor);
+			bundles = null;
+		} catch (OperationCanceledException e) {
+			return Status.CANCEL_STATUS;
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -688,7 +693,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IPublisherInfo info) {
+	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IPublisherInfo info, IProgressMonitor monitor) {
 		// Computing the path for localized property files in a NL fragment bundle
 		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
 		// so a first pass is done over all the bundles to cache this value as well as the tags
@@ -699,6 +704,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		Set localizationIUs = new HashSet(32);
 		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {
 			for (int i = 0; i < bundles.length; i++) {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
+
 				BundleDescription bd = bundles[i];
 				// A bundle may be null if the associated plug-in does not have a manifest file -
 				// for example, org.eclipse.jdt.launching.j9
@@ -801,7 +809,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	// TODO reconsider the special cases here for the configurators.  Perhaps these should be in their own actions.
-	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
+	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
 		boolean addSimpleConfigurator = false;
@@ -818,8 +826,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (scIn)
 			addSimpleConfigurator = false;
 		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
-		for (int i = 0; i < bundleLocations.length; i++)
+		for (int i = 0; i < bundleLocations.length; i++) {
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
 			result[i] = createBundleDescription(bundleLocations[i]);
+		}
 		if (addSimpleConfigurator) {
 			// Add simple configurator to the list of bundles
 			try {

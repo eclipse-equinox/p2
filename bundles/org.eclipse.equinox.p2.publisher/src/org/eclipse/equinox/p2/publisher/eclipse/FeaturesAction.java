@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -125,7 +124,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		this.features = features;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		if (features == null && locations == null)
 			throw new IllegalStateException("No features or locations provided");
 		if (features == null)
@@ -260,7 +259,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo info) {
 		File location = new File(feature.getLocation());
-		Properties props = loadProperties(location, "build.properties");
+		Properties props = loadProperties(location, "build.properties"); //$NON-NLS-1$
 		return generateRootFileIUs(feature.getId(), feature.getVersion(), props, location, result, info);
 	}
 

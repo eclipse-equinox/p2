@@ -6,11 +6,14 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - Progress monitor handling and error handling
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -18,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 /**
@@ -38,21 +42,20 @@ public class RootIUAction extends AbstractPublisherAction {
 		this.name = name;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		this.info = info;
-		generateRootIU(results);
-		return Status.OK_STATUS;
+		return generateRootIU(results);
 	}
 
-	protected void generateRootIU(IPublisherResult result) {
+	protected IStatus generateRootIU(IPublisherResult result) {
 		Collection children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
 		processCapabilityAdvice(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
-			return;
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
 		result.addIU(rootIU, IPublisherResult.NON_ROOT);
-
+		return Status.OK_STATUS;
 		// TODO why do we create a category here?
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}

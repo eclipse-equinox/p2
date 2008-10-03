@@ -6,10 +6,12 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
 import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
@@ -25,7 +27,7 @@ public class DefaultCUsActionTest extends ActionTest {
 
 		setupPublisherResult();
 		setupPublisherInfo();
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		verifyDefaultCUs();
 		debug("Completed DefaultCUsActionTest."); //$NON-NLS-1$
 	}

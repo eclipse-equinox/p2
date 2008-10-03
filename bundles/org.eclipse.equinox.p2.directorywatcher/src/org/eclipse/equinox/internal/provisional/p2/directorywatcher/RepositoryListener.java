@@ -14,8 +14,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -177,7 +176,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private boolean publish(IPublisherAction action, boolean isAddition) {
 		IPublisherResult result = isAddition ? iusToAdd : iusToChange;
-		return action.perform(info, result).isOK();
+		return action.perform(info, result, new NullProgressMonitor()).isOK();
 	}
 
 	public boolean isInterested(File file) {

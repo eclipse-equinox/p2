@@ -6,13 +6,13 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -48,11 +48,17 @@ public class EclipseInstallAction implements IPublisherAction {
 		this.start = start;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		this.info = info;
 		IPublisherAction[] actions = createActions();
-		for (int i = 0; i < actions.length; i++)
-			actions[i].perform(info, results);
+		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+		for (int i = 0; i < actions.length; i++) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			finalStatus.merge(actions[i].perform(info, results, monitor));
+		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		return Status.OK_STATUS;
 	}
 

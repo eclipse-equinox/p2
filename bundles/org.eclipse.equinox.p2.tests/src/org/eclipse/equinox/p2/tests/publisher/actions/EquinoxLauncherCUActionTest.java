@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -13,6 +14,7 @@ import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.Map;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ProvidedCapability;
@@ -40,7 +42,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	}
 
 	public void testEquinoxLauncherCUAction() throws Exception {
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults();
 		debug("Completed EquinoxLauncherCUAction test.");//$NON-NLS-1$
 	}

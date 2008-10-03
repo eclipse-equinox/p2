@@ -6,13 +6,13 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -54,14 +54,19 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		this.location = location;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		// Create the basic actions and run them putting the IUs in a temporary result
 		Collection actions = createActions(info);
 		createAdvice(info, results);
 		IPublisherResult innerResult = new PublisherResult();
-		for (Iterator i = actions.iterator(); i.hasNext();)
-			((IPublisherAction) i.next()).perform(info, innerResult);
-
+		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+		for (Iterator i = actions.iterator(); i.hasNext();) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			finalStatus.merge(((IPublisherAction) i.next()).perform(info, innerResult, monitor));
+		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
 		publishApplicationLauncherIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);

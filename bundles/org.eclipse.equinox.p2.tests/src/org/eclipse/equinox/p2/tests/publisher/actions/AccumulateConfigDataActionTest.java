@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
@@ -45,7 +47,7 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	}
 
 	public void testAccumulateConfigDataAction() throws Exception {
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyConfigAdvice();
 		verifyLaunchAdvice();
 		debug("Completed AccumulateConfigDataActionTest."); //$NON-NLS-1$

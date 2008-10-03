@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -13,6 +14,7 @@ import static org.easymock.EasyMock.expect;
 
 import java.io.File;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -66,7 +68,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private void testExecutableAction(String idBase, String osArg, String config, File exec) {
 		executablesDescriptor = ExecutablesDescriptor.createDescriptor(osArg, EXECUTABLE_NAME, exec);
 		testAction = new EquinoxExecutableAction(executablesDescriptor, config, idBase, version, flavorArg);
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(idBase, config);
 		debug("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$		
 	}

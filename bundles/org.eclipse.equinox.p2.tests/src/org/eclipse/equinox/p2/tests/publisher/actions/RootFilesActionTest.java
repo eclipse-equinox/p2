@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -14,8 +15,7 @@ import static org.easymock.EasyMock.expect;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -56,7 +56,7 @@ public class RootFilesActionTest extends ActionTest {
 			setupPublisherInfo();
 			setupPublisherResult();
 			testAction = new RootFilesAction(publisherInfo, idArg, versionArg, flavorArg);
-			assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+			assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 			verifyRepositoryContents(i);
 			cleanup();
 		}

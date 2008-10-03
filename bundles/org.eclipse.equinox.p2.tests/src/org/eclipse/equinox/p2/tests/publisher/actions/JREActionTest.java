@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -14,6 +15,7 @@ import static org.easymock.EasyMock.expect;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -45,7 +47,7 @@ public class JREActionTest extends ActionTest {
 		if (true)
 			return;
 		testAction = new JREAction(publisherInfo, J14);
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(92, new Version("1.4.0")); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -55,14 +57,14 @@ public class JREActionTest extends ActionTest {
 		if (true)
 			return;
 		testAction = new JREAction(publisherInfo, J15);
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(119, new Version("1.5.0")); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void test16() throws Exception {
 		testAction = new JREAction(publisherInfo, J16);
-		testAction.perform(publisherInfo, publisherResult);
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(117, new Version("1.6.0")); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}

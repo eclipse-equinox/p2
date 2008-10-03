@@ -6,13 +6,13 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
@@ -249,7 +249,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		}
 	}
 
-	public abstract IStatus perform(IPublisherInfo info, IPublisherResult results);
+	public abstract IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor);
 
 	/**
 	 * Add all of the advised provided and required capabilities for the given installable unit.

@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -13,6 +14,7 @@ import static org.easymock.EasyMock.expect;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
@@ -48,7 +50,7 @@ public class RootIUActionTest extends ActionTest {
 		setupPublisherInfo();
 		testAction = new RootIUAction(rootIU, versionArg, rootIU);
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		confirmResultRequired(EMPTY);
 		cleanup();
 	}
@@ -61,7 +63,7 @@ public class RootIUActionTest extends ActionTest {
 		setupPublisherInfo();
 		testAction = new RootIUAction(rootIU, versionArg, rootIU);
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		confirmResultRequired(EMPTY);
 		cleanup();
 	}
@@ -78,7 +80,7 @@ public class RootIUActionTest extends ActionTest {
 		setupPublisherInfo();
 		testAction = new RootIUAction(rootIU, versionArg, rootIU);
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		confirmResultRequired(CONTAINS_A);
 		cleanup();
 	}
@@ -201,7 +203,7 @@ public class RootIUActionTest extends ActionTest {
 		debug(toResultString(PUBLISHER_RESULT, publisherResult));
 		testAction = new RootIUAction(rootIU, versionArg, rootIU);
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, this.publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, this.publisherResult, new NullProgressMonitor()));
 		confirmResultRequired(advice & metadataRepository | advice & publisherResult);
 		cleanup();
 	}
@@ -219,7 +221,7 @@ public class RootIUActionTest extends ActionTest {
 		debug(toResultString(PUBLISHER_RESULT, publisherResult));
 		testAction = new RootIUAction(rootIU, versionArg, rootIU);
 
-		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, this.publisherResult));
+		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, this.publisherResult, new NullProgressMonitor()));
 		confirmResultRequired(advice & publisherResult);
 		cleanup();
 	}

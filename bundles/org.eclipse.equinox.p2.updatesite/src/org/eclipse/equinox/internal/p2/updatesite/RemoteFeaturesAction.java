@@ -6,11 +6,14 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.util.Dictionary;
 import java.util.Properties;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -18,11 +21,31 @@ import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.util.NLS;
 
 public class RemoteFeaturesAction extends FeaturesAction {
+	private UpdateSite updateSite;
+
+	public RemoteFeaturesAction(UpdateSite updateSite) {
+		super((Feature[]) null);
+		this.updateSite = updateSite;
+	}
 
 	public RemoteFeaturesAction(Feature[] features) {
 		super(features);
+		throw new IllegalArgumentException();
+	}
+
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+		try {
+			features = updateSite.loadFeatures(monitor);
+			return super.perform(info, results, monitor);
+		} catch (ProvisionException e) {
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Error_Generation, updateSite), e);
+		} catch (OperationCanceledException e) {
+			return Status.CANCEL_STATUS;
+		}
+
 	}
 
 	protected void generateFeatureIUs(Feature[] features, IPublisherResult result, IPublisherInfo info) {

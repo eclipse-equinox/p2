@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
@@ -67,7 +68,7 @@ public class PublisherTask extends Task {
 		}
 		createVersionAdvice();
 		IPublisherAction[] actions = createActions();
-		IStatus result = new Publisher(getInfo()).publish(actions);
+		IStatus result = new Publisher(getInfo()).publish(actions, new NullProgressMonitor());
 
 		// TODO hack assignments to keep the compiler from whining about the unreferenced privates.
 		Object o = bundles;

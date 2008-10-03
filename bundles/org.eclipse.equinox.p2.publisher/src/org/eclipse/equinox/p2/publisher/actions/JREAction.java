@@ -6,8 +6,11 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import java.io.*;
 import java.util.*;
@@ -156,7 +159,7 @@ public class JREAction extends AbstractPublisherAction {
 		this.location = location;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IArtifactDescriptor artifact = createJREData(location, results);
 		if (artifact != null)
 			publishArtifact(artifact, new File[] {location}, null, info, createRootPrefixComputer(location));
