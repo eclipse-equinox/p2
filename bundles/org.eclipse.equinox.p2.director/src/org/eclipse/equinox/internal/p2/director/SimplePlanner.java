@@ -238,7 +238,7 @@ public class SimplePlanner implements IPlanner {
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(allIUs, availableIUs, newSelectionContext);
-			IQueryable slice = slicer.slice(allIUs, monitor);
+			IQueryable slice = slicer.slice(allIUs, sub.newChild(ExpandWork / 4));
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus());
 			Projector projector = new Projector(slice, newSelectionContext);
