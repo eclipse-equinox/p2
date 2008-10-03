@@ -68,7 +68,7 @@ public class UpdateAction extends ProfileModificationAction {
 		for (int i = 0; i < ius.length; i++) {
 			UpdateEvent event = new UpdateEvent(targetProfileId, new IInstallableUnit[] {ius[i]});
 			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
-			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, null).iterator();
+			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, monitor).iterator();
 			if (iter.hasNext())
 				toBeUpdated.add(ius[i]);
 			ArrayList currentReplacements = new ArrayList();

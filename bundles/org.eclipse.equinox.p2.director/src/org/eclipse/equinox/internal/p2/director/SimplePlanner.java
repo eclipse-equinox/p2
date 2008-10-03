@@ -193,6 +193,9 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
+
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
@@ -241,6 +244,8 @@ public class SimplePlanner implements IPlanner {
 			Projector projector = new Projector(slice, newSelectionContext);
 			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
+			if (s.getSeverity() == IStatus.CANCEL)
+				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				//log the error from the new solver so it is not lost
@@ -268,6 +273,8 @@ public class SimplePlanner implements IPlanner {
 			Collection oldState = oldStateHelper.attachCUs(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 			return generateProvisioningPlan(s, oldState, newState, profileChangeRequest);
+		} catch (OperationCanceledException e) {
+			return new ProvisioningPlan(Status.CANCEL_STATUS);
 		} finally {
 			sub.done();
 		}
@@ -381,6 +388,8 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new UpdateQuery(toUpdate), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {

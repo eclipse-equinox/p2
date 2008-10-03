@@ -52,9 +52,11 @@ public class Slicer {
 			validateInput(ius);
 			considered = new HashSet(Arrays.asList(ius));
 			toProcess = new LinkedList(considered);
-			while (!toProcess.isEmpty())
+			while (!toProcess.isEmpty()) {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
 				processIU((IInstallableUnit) toProcess.removeFirst());
-
+			}
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
