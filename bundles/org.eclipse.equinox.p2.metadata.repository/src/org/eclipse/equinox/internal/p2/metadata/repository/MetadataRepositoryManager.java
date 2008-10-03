@@ -130,6 +130,8 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
 			try {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
 				loadRepository(locations[i], sub.newChild(9)).query(query, collector, sub.newChild(1));
 			} catch (ProvisionException e) {
 				//ignore this repository for this query
