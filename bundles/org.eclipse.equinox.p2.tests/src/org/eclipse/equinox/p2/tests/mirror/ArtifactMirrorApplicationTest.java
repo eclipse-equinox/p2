@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -34,7 +35,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
 
-	private IArtifactRepositoryManager getArtifactRepositoryManager() {
+	private IArtifactRepositoryManager getManager() {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
@@ -59,11 +60,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	protected void tearDown() throws Exception {
 		//remove all the repositories
-		getArtifactRepositoryManager().removeRepository(destRepoLocation.toURL());
-		getArtifactRepositoryManager().removeRepository(sourceRepoLocation.toURL());
-		getArtifactRepositoryManager().removeRepository(sourceRepo2Location.toURL());
-		getArtifactRepositoryManager().removeRepository(sourceRepo3Location.toURL());
-		getArtifactRepositoryManager().removeRepository(sourceRepo4Location.toURL());
+		getManager().removeRepository(destRepoLocation.toURL());
+		getManager().removeRepository(sourceRepoLocation.toURL());
+		getManager().removeRepository(sourceRepo2Location.toURL());
+		getManager().removeRepository(sourceRepo3Location.toURL());
+		getManager().removeRepository(sourceRepo4Location.toURL());
 
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -156,7 +157,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup ensure setup completes successfully
-			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		} catch (MalformedURLException e) {
@@ -178,7 +179,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		} catch (MalformedURLException e) {
@@ -200,7 +201,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		} catch (MalformedURLException e) {
@@ -222,7 +223,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		} catch (MalformedURLException e) {
@@ -244,7 +245,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		} catch (MalformedURLException e) {
@@ -256,8 +257,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContains(message + ".5", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains(message + ".6", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains(message + ".5", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains(message + ".6", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".7", e);
 		} catch (MalformedURLException e) {
@@ -277,14 +278,14 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		File emptyRepository = new File(getTempFolder(), getUniqueString());
 		try {
 			//Setup: remove repository if it exists
-			getArtifactRepositoryManager().removeRepository(emptyRepository.toURL());
+			getManager().removeRepository(emptyRepository.toURL());
 		} catch (MalformedURLException e1) {
 			fail(message + ".0", e1);
 		}
 		//Setup: delete any data that may be in the folder
 		delete(emptyRepository);
 		try {
-			getArtifactRepositoryManager().createRepository(emptyRepository.toURL(), "Empty Repository", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getManager().createRepository(emptyRepository.toURL(), "Empty Repository", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail(message + ".1", e);
 		} catch (MalformedURLException e) {
@@ -317,7 +318,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("1.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("1.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("1.2", e);
 		} catch (MalformedURLException e) {
@@ -336,7 +337,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("2.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("2.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("2.2", e);
 		} catch (MalformedURLException e) {
@@ -355,7 +356,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("3.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("3.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("3.2", e);
 		} catch (MalformedURLException e) {
@@ -374,7 +375,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("4.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("4.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("4.2", e);
 		} catch (MalformedURLException e) {
@@ -393,10 +394,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("5.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("5.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("5.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("5.2", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
+			assertEquals("5.3", getManager().loadRepository(sourceRepoLocation.toURL(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo2Location.toURL(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("5.4", e);
 		} catch (MalformedURLException e) {
@@ -415,7 +416,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("6.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("6.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("6.2", e);
 		} catch (MalformedURLException e) {
@@ -434,7 +435,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("7.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("7.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("7.2", e);
 		} catch (MalformedURLException e) {
@@ -453,7 +454,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("8.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("8.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("8.2", e);
 		} catch (MalformedURLException e) {
@@ -472,7 +473,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("9.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("9.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("9.2", e);
 		} catch (MalformedURLException e) {
@@ -491,7 +492,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("10.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("10.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("10.2", e);
 		} catch (MalformedURLException e) {
@@ -510,10 +511,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("11.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("11.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("11.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("11.2", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURL(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
+			assertEquals("11.3", getManager().loadRepository(sourceRepo2Location.toURL(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo3Location.toURL(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("11.4", e);
 		} catch (MalformedURLException e) {
@@ -532,7 +533,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("12.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("12.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("12.2", e);
 		} catch (MalformedURLException e) {
@@ -590,9 +591,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			//Setup: create a URL pointing to an unmodifiable place
 			URL invalidDestRepository = new URL("http://foobar.com/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository, true);
-			//We expect the UnsupportedOperationException to be thrown
-			fail("15.0 UnsupportedOperationException not thrown");
-		} catch (UnsupportedOperationException e) {
+			//We expect the ProvisionException to be thrown
+			fail("15.0 ProvisionException not thrown");
+		} catch (ProvisionException e) {
 			return; //correct type of exception was thrown
 		} catch (Exception e) {
 			fail("15.2", e);
@@ -610,7 +611,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("16.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("16.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("16.2", e);
 		} catch (MalformedURLException e) {
@@ -620,7 +621,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Cleanup
 		try {
 			//remove the emptyRepository
-			getArtifactRepositoryManager().removeRepository(emptyRepository.toURL());
+			getManager().removeRepository(emptyRepository.toURL());
 		} catch (MalformedURLException e1) {
 			//delete any leftover data
 			delete(emptyRepository);
@@ -641,8 +642,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("17.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContentEquals("17.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("17.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("17.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("17.3", e);
 		} catch (MalformedURLException e) {
@@ -652,7 +653,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Cleanup
 		try {
 			//remove the empty repository
-			getArtifactRepositoryManager().removeRepository(emptyRepository.toURL());
+			getManager().removeRepository(emptyRepository.toURL());
 		} catch (MalformedURLException e1) {
 			//delete any leftover data
 			delete(emptyRepository);
@@ -673,7 +674,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("18.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("18.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("18.2", e);
 		} catch (MalformedURLException e) {
@@ -683,7 +684,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Cleanup
 		try {
 			//remove the empty repository
-			getArtifactRepositoryManager().removeRepository(emptyRepository.toURL());
+			getManager().removeRepository(emptyRepository.toURL());
 		} catch (MalformedURLException e1) {
 			//delete any leftover data
 			delete(emptyRepository);
@@ -708,7 +709,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("19.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("19.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 		} catch (ProvisionException e) {
 			fail("19.3", e);
 		} catch (MalformedURLException e) {
@@ -731,10 +732,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("20.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("20.3", getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURL(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("20.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("20.3", getManager().loadRepository(sourceRepo4Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURL(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
+			assertEquals("20.4", getManager().loadRepository(sourceRepoLocation.toURL(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo4Location.toURL(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURL(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("20.5", e);
 		} catch (MalformedURLException e) {
@@ -803,6 +804,55 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("23.1", e);
+		}
+	}
+
+	/**
+	 * Ensures that a repository created by the mirror application is a copy of the source
+	 */
+	public void testNewArtifactRepoProperties() {
+		//run mirror application with source not preexisting
+		artifactMirrorToEmpty("24.0", true);
+
+		try {
+			IArtifactRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURL(), null);
+			IArtifactRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
+			assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
+		} catch (ProvisionException e) {
+			fail("24.3", e);
+		} catch (MalformedURLException e) {
+			fail("24.4", e);
+		}
+	}
+
+	/**
+	 * Ensures that a repository created before the mirror application is run does not have its properties changed
+	 */
+	public void testExistingArtifactRepoProperties() {
+		//Setup: create the destination
+		String name = "Destination Name";
+		Map properties = null; //default properties
+		try {
+			//create the repository and get the resulting properties
+			properties = getManager().createRepository(destRepoLocation.toURL(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
+		} catch (ProvisionException e) {
+			fail("25.0", e);
+		} catch (MalformedURLException e) {
+			fail("25.1", e);
+		}
+
+		//run the mirror application
+		artifactMirrorToEmpty("25.2", true);
+
+		try {
+			IArtifactRepository repository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			assertEquals("25.3", name, repository.getName());
+			assertRepositoryProperties("25.4", properties, repository.getProperties());
+		} catch (ProvisionException e) {
+			fail("25.5", e);
+		} catch (MalformedURLException e) {
+			fail("25.6", e);
 		}
 	}
 }

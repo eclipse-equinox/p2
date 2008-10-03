@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -826,6 +827,55 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("23.1", e);
+		}
+	}
+
+	/**
+	 * Ensures that a repository created by the mirror application is a copy of the source
+	 */
+	public void testNewArtifactRepoProperties() {
+		//run mirror application with source not preexisting
+		metadataMirrorToEmpty("24.0", true);
+
+		try {
+			IMetadataRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURL(), null);
+			IMetadataRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
+			assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
+		} catch (ProvisionException e) {
+			fail("24.3", e);
+		} catch (MalformedURLException e) {
+			fail("24.4", e);
+		}
+	}
+
+	/**
+	 * Ensures that a repository created before the mirror application is run does not have its properties changed
+	 */
+	public void testExistingArtifactRepoProperties() {
+		//Setup: create the destination
+		String name = "Destination Name";
+		Map properties = null; //default properties
+		try {
+			//create the repository and get the resulting properties
+			properties = getManager().createRepository(destRepoLocation.toURL(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
+		} catch (ProvisionException e) {
+			fail("25.0", e);
+		} catch (MalformedURLException e) {
+			fail("25.1", e);
+		}
+
+		//run the mirror application
+		metadataMirrorToEmpty("25.2", true);
+
+		try {
+			IMetadataRepository repository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			assertEquals("25.3", name, repository.getName());
+			assertRepositoryProperties("25.4", properties, repository.getProperties());
+		} catch (ProvisionException e) {
+			fail("25.5", e);
+		} catch (MalformedURLException e) {
+			fail("25.6", e);
 		}
 	}
 }

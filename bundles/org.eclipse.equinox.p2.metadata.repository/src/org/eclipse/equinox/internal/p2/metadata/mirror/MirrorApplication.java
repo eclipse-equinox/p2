@@ -82,8 +82,9 @@ public class MirrorApplication implements IApplication {
 		//TODO modify the contains statement once the API is available
 		destinationLoaded = getManager().contains(destinationLocation);
 
-		destination = initializeDestination();
+		//must execute before initializeDestination is called
 		source = getManager().loadRepository(sourceLocation, null);
+		destination = initializeDestination();
 	}
 
 	/*
@@ -116,8 +117,10 @@ public class MirrorApplication implements IApplication {
 		} catch (ProvisionException e) {
 			//fall through and create repo
 		}
-		String repositoryName = destinationLocation + " - metadata"; //$NON-NLS-1$
-		return getManager().createRepository(destinationLocation, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		//This code assumes source has been successfully loaded before this point
+		//No existing repository; create a new repository at destinationLocation but with source's attributes.
+		// TODO for now create a Simple repo by default.
+		return getManager().createRepository(destinationLocation, source.getName(), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
 	}
 
 	/* (non-Javadoc)

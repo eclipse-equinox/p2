@@ -1056,4 +1056,21 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		return true;
 	}
+
+	/**
+	 * Ensures 2 inputed Maps representing repository properties are equivalent
+	 * A special assert is needed as the time stamp is expected to change
+	 */
+	protected static void assertRepositoryProperties(String message, Map expected, Map actual) {
+		if (expected == null && actual == null)
+			return;
+		if (expected == null || actual == null)
+			fail(message);
+		Object[] expectedArray = expected.keySet().toArray();
+		for (int i = 0; i < expectedArray.length; i++) {
+			assertTrue(message, actual.containsKey(expectedArray[i])); //Ensure the key exists
+			if (!expectedArray[i].equals("p2.timestamp")) //time stamp value is expected to change
+				assertEquals(message, expected.get(expectedArray[i]), actual.get(expectedArray[i]));
+		}
+	}
 }

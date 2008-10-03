@@ -82,14 +82,14 @@ public class MirrorApplication implements IApplication {
 		//TODO modify the contains statement once the API is available
 		destinationLoaded = getManager().contains(destinationLocation);
 
-		destination = initializeDestination();
+		//must execute before initializeDestination is called
 		source = getManager().loadRepository(sourceLocation, null);
+		destination = initializeDestination();
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
-		IArtifactRepositoryManager manager = getManager();
 		try {
-			IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
+			IArtifactRepository repository = getManager().loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Artifact repository not modifiable: " + destinationLocation); //$NON-NLS-1$
 			if (!append)
@@ -98,10 +98,10 @@ public class MirrorApplication implements IApplication {
 		} catch (ProvisionException e) {
 			//fall through and create a new repository below
 		}
-		// 	the given repo location is not an existing repo so we have to create something
+		//This code assumes source has been successfully loaded before this point
+		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
-		return manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		return getManager().createRepository(destinationLocation, source.getName(), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
 	}
 
 	/* (non-Javadoc)
