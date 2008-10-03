@@ -27,8 +27,6 @@ public class AddProfileOperation extends ProfileOperation {
 
 	public AddProfileOperation(String label, IProfile profile) {
 		super(label, new IProfile[0]);
-		this.profileId = profile.getProfileId();
-		this.profileProperties = profile.getProperties();
 	}
 
 	public AddProfileOperation(String label, String profileId, Map profileProperties) {

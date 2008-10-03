@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -82,7 +81,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 */
 	public IQueryable getQueryable() {
 		if (queryable == null)
-			return getMetadataRepository(new NullProgressMonitor());
+			return getMetadataRepository(null);
 		return queryable;
 	}
 
