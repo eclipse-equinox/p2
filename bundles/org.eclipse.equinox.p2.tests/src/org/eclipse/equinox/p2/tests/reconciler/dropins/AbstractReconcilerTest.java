@@ -17,17 +17,24 @@ import java.util.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.osgi.framework.Version;
 
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	private static File output;
 	protected static Set toRemove = new HashSet();
+	private static boolean initialized = false;
 
 	/*
 	 * Constructor for the class.
@@ -42,6 +49,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * automatically when the clients use a ReconcilerTestSuite.
 	 */
 	public void initialize() throws Exception {
+		initialized = false;
 		File file = getPlatformZip();
 		output = getUniqueFolder();
 		toRemove.add(output);
@@ -55,6 +63,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		} else {
 			untar("1.0", file);
 		}
+		initialized = true;
+	}
+
+	public void assertInitialized() {
+		assertTrue("Test suite not initialized, check log for previous errors.", initialized);
 	}
 
 	/*
@@ -391,5 +404,18 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			}
 		}
 		assertTrue(message, found);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the IU with the given ID and version
+	 * is installed. We do this by loading the profile registry and seeing if it is there.
+	 */
+	public boolean isInstalled(String id, String version) {
+		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
+		IProfile[] profiles = registry.getProfiles();
+		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
+		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
+		return !collector.isEmpty();
 	}
 }

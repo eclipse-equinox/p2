@@ -57,6 +57,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	 * Basic add and remove tests for directory-based bundles.
 	 */
 	public void testDirectoryBasedPlugin() {
+		assertInitialized();
 		assertDoesNotExistInBundlesInfo("1.0", "directoryBased");
 		File dir = getTestData("1.1", "testData/reconciler/plugins/directoryBased_1.0.0");
 		add("1.2", "dropins", dir);
@@ -72,6 +73,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	 * Basic add and remove operations for non-singleton bundles.
 	 */
 	public void testNonSingleton() {
+		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		// copy bundle to dropins and reconcile
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
@@ -118,6 +120,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	 * of a singleton bundle.
 	 */
 	public void testSingleton() {
+		assertInitialized();
 		// empty state
 		assertDoesNotExistInBundlesInfo("1.0", "mySingletonBundle");
 
