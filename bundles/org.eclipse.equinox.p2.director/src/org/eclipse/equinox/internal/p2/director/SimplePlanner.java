@@ -193,7 +193,7 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
-				if (monitor.isCanceled())
+				if (sub.isCanceled())
 					throw new OperationCanceledException();
 
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));

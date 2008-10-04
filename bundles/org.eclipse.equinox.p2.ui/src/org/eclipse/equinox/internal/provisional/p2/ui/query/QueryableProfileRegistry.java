@@ -34,13 +34,16 @@ public class QueryableProfileRegistry implements IQueryable {
 		IProfile[] profiles = profileRegistry.getProfiles();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
-		for (int i = 0; i < profiles.length; i++) {
-			if (query.isMatch(profiles[i]))
-				result.accept(profiles[i]);
-			monitor.worked(1);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
+		try {
+			for (int i = 0; i < profiles.length; i++) {
+				if (query.isMatch(profiles[i]))
+					result.accept(profiles[i]);
+				sub.worked(1);
+			}
+		} finally {
+			sub.done();
 		}
-		monitor.done();
 		return result;
 	}
 }

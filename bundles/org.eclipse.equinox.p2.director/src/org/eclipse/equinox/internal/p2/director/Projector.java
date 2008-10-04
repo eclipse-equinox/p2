@@ -88,8 +88,10 @@ public class Projector {
 				iusToEncode = iusToOrder.iterator();
 			}
 			while (iusToEncode.hasNext()) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
+					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
+				}
 				processIU((IInstallableUnit) iusToEncode.next());
 			}
 			createConstraintsForSingleton();
@@ -624,8 +626,6 @@ public class Projector {
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
-		if (monitor.isCanceled())
-			return Status.CANCEL_STATUS;
 		IPBSolver solver = SolverFactory.newEclipseP2();
 		solver.setTimeoutOnConflicts(1000);
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
@@ -635,6 +635,8 @@ public class Projector {
 			System.out.println("Invoking solver: " + start); //$NON-NLS-1$
 		FileReader fr = null;
 		try {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 			fr = new FileReader(problemFile);
 			IProblem problem = reader.parseInstance(fr);
 			if (problem.isSatisfiable()) {

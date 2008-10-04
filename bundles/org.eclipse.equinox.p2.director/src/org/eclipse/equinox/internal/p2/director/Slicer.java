@@ -53,8 +53,10 @@ public class Slicer {
 			considered = new HashSet(Arrays.asList(ius));
 			toProcess = new LinkedList(considered);
 			while (!toProcess.isEmpty()) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
+					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
+				}
 				processIU((IInstallableUnit) toProcess.removeFirst());
 			}
 			if (DEBUG) {
