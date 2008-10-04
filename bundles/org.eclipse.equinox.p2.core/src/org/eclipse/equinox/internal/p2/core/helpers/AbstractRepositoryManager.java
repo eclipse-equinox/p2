@@ -426,7 +426,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			if (checkNotFound(location))
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
-			SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
+			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
 			try {
