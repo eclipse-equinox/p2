@@ -431,6 +431,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			added = addRepository(location, true, false);
 			try {
 				for (int i = 0; i < suffixes.length; i++) {
+					if (sub.isCanceled())
+						throw new OperationCanceledException();
 					result = loadRepository(location, suffixes[i], type, sub.newChild(100));
 					if (result != null) {
 						addRepository(result, false, suffixes[i]);
