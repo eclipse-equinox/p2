@@ -354,7 +354,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		protected void finished() {
-			scopes.add(children.getRequiredCapabilities());
+			if (children != null) {
+				scopes.add(children.getRequiredCapabilities());
+			}
 		}
 	}
 
