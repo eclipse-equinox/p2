@@ -18,14 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Version;
 
@@ -75,10 +73,6 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	public void testGetActualLocationCompressed3() throws MalformedURLException {
 		URL base = new URL("http://localhost/artifactRepository/artifacts.jar");
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
-	}
-
-	private IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
 	public void testCompressedRepository() throws MalformedURLException, ProvisionException {

@@ -646,7 +646,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
-	private static IArtifactRepositoryManager getArtifactRepositoryManager() {
+	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
@@ -657,7 +657,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
-	private static IMetadataRepositoryManager getMetadataRepositoryManager() {
+	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 	}
 
