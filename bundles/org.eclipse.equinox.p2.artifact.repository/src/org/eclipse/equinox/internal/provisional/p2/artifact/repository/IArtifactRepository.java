@@ -64,7 +64,7 @@ public interface IArtifactRepository extends IRepository {
 	public boolean contains(IArtifactKey key);
 
 	/**
-	 * Fill the given stream with the described artifact. Sets status accordingly. 
+	 * Write to the given output stream the bytes represented by the artifact descriptor processed by the processing steps of the given descriptor.
 	 */
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
