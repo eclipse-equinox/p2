@@ -16,9 +16,13 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class defines commonly used status objects for communicating issues
@@ -53,6 +57,25 @@ public class PlanStatusHelper {
 	public static IStatus computeStatus(ProvisioningPlan plan, IInstallableUnit[] ius) {
 		if (plan == null)
 			return getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null);
+		// If the plan requires install handler support, we want to open the old update UI and
+		// cancel this operation
+		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.PlanStatusHelper_UpdateManagerPromptTitle, null, ProvUIMessages.PlanStatusHelper_PromptForUpdateManagerUI, MessageDialog.WARNING, new String[] {ProvUIMessages.PlanStatusHelper_Launch, IDialogConstants.CANCEL_LABEL}, 0);
+					if (dialog.open() == 0)
+						BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+							public void run() {
+								UpdateManagerCompatibility.openInstaller();
+							}
+						});
+				}
+
+			});
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.PlanStatusHelper_RequiresUpdateManager);
+		}
+
 		// If the plan is ok or cancel, no further analysis is needed
 		if (plan.getStatus().isOK() || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
