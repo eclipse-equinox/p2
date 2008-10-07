@@ -39,20 +39,21 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
-		//		suite.addTest(new ConfigurationTests("testDiscoverOne"));
-		//		suite.addTest(new ConfigurationTests("test_247095"));
-		//		suite.addTest(new ConfigurationTests("test_247095b"));
+		suite.addTest(new ConfigurationTests("testDiscoverOne"));
+		suite.addTest(new ConfigurationTests("test_247095"));
+		suite.addTest(new ConfigurationTests("test_247095b"));
 		suite.addTest(new ConfigurationTests("test_249607"));
+		suite.addTest(new ConfigurationTests("test_249898"));
 		return suite;
 	}
 
 	public void testDiscoverOne() {
 		// copy feature and bundle to dropins and reconcile
 		assertInitialized();
-		File file = getTestData("2.0", "testData/reconciler/features/myFeature_1.0.0");
-		add("2.2", "dropins/features", file);
-		file = getTestData("2.3", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		add("2.4", "dropins/plugins", file);
+		File featureFile = getTestData("2.0", "testData/reconciler/features/myFeature_1.0.0");
+		add("2.2", "dropins/features", featureFile);
+		File bundleFile = getTestData("2.3", "testData/reconciler/plugins/myBundle_1.0.0.jar");
+		add("2.4", "dropins/plugins", bundleFile);
 		assertDoesNotExistInBundlesInfo("2.5", "myBundle");
 		assertFalse("2.6", isInstalled("myBundle", "1.0.0"));
 		reconcile("2.7");
@@ -60,6 +61,15 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		// make sure the feature is listed in a site in the configuration
 		Configuration config = getConfiguration();
 		assertFeatureExists("3.0", config, "myFeature", "1.0.0");
+
+		// cleanup
+		remove("99.0", "dropins/plugins", bundleFile.getName());
+		remove("99.1", "dropins/features", featureFile.getName());
+		reconcile("99.2");
+		config = getConfiguration();
+		assertFalse("99.4", !isInstalled("myFeature.feature", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("99.5", "myBundle");
+		assertFalse("99.6", !isInstalled("myBundle", "1.0.0"));
 	}
 
 	/*
@@ -230,5 +240,49 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertFalse("99.5", isInstalled("bbb", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("99.6", "ccc", "1.0.0");
 		assertFalse("99.7", isInstalled("ccc", "1.0.0"));
+	}
+
+	/*
+	 * Add a site to the platform.xml, reconcile, ensure its contents are installed, remove the site,
+	 * reconcile, ensure the contents are uninstalled.
+	 */
+	public void test_249898() {
+		assertInitialized();
+		Configuration configuration = getConfiguration();
+		File temp = getTempFolder();
+		toRemove.add(temp);
+		String siteLocation = null;
+		try {
+			siteLocation = new File(temp, "eclipse").toURL().toExternalForm();
+		} catch (MalformedURLException e) {
+			fail("0.9", e);
+		}
+
+		// copy the data to the temp folder
+		File source = getTestData("1.0", "testData/reconciler/247095");
+		copy("1.1", source, temp);
+
+		Site site = createSite(Site.POLICY_USER_INCLUDE, true, false, siteLocation, new String[] {"plugins/bbb_1.0.0.jar,plugins/ccc_1.0.0.jar"});
+		Feature feature = createFeature(site, "bbb.feature", "1.0.0", "features/bbb.feature_1.0.0/");
+		site.addFeature(feature);
+		configuration.add(site);
+		save("5.0", configuration);
+		reconcile("6.0");
+		assertExistsInBundlesInfo("7.0", "bbb", "1.0.0");
+		assertTrue("7.1", isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("7.2", "ccc", "1.0.0");
+		assertTrue("7.3", isInstalled("ccc", "1.0.0"));
+		configuration = getConfiguration();
+		assertFeatureExists("8.0", configuration, "bbb.feature", "1.0.0");
+
+		// remove the site from the platform.xml
+		configuration = getConfiguration();
+		assertTrue("9.0", removeSite(configuration, siteLocation));
+		save("9.1", configuration);
+		reconcile("10.0");
+		assertDoesNotExistInBundlesInfo("10.1", "bbb", "1.0.0");
+		assertFalse("10.2", isInstalled("bbb", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("10.3", "ccc", "1.0.0");
+		assertFalse("10.4", isInstalled("ccc", "1.0.0"));
 	}
 }
