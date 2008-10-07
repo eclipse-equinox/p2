@@ -194,7 +194,14 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					URL location = new URL(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
-					properties.put(SiteListener.SITE_LIST, toString(site.getFeatures(), site.getList()));
+
+					// In a "USER-INCLUDE" we add the site's features to the list
+					// this is done to support backwards compatibility where previously features were not really installed.
+					// One can always directly add the features to this list. This might be useful for excluding a particular feature
+					// in a "USER-EXCLUDE" site. 
+					Feature[] listFeatures = site.getPolicy().equals(Site.POLICY_USER_INCLUDE) ? site.getFeatures() : null;
+
+					properties.put(SiteListener.SITE_LIST, toString(listFeatures, site.getList()));
 					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 
 					// deal with the metadata repository
