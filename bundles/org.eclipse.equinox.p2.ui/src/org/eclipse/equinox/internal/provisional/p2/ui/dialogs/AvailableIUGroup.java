@@ -96,6 +96,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	Job lastRequestedLoadJob;
 
 	/**
+	 * @deprecated temp hack for PDE UI
+	 */
+	public AvailableIUGroup(Composite parent, Object hack, Font font, Object hack2) {
+		this(parent);
+	}
+
+	/**
 	 * Create a group that represents the available IU's but does not use any of the
 	 * view menu or check box capabilities.
 	 * 

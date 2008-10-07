@@ -98,7 +98,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getURLValidator(org.eclipse.swt.widgets.Shell)
 	 */
-	public URLValidator getURLValidator(Shell shell) {
+	public URLValidator getRepositoryURLValidator(Shell shell) {
 		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
 		validator.setKnownRepositoriesFlag(policy.getQueryContext().getMetadataRepositoryFlags());
 		return validator;
