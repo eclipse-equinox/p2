@@ -14,7 +14,9 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.commands.ExecutionException;
+import java.util.List;
+import org.eclipse.core.commands.*;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -25,9 +27,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -51,6 +54,12 @@ public class ProvUI {
 	private static final int DEFAULT_COLUMN_WIDTH = 200;
 	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, DEFAULT_COLUMN_WIDTH)};
 	private static final List reposNotFound = Collections.synchronizedList(new ArrayList());
+
+	// These values rely on the command markup in org.eclipse.ui.ide that defines the update commands
+	private static final String UPDATE_MANAGER_FIND_AND_INSTALL = "org.eclipse.ui.update.findAndInstallUpdates"; //$NON-NLS-1$
+	private static final String UPDATE_MANAGER_MANAGE_CONFIGURATION = "org.eclipse.ui.update.manageConfiguration"; //$NON-NLS-1$
+	// This value relies on the command markup in org.eclipse.ui 
+	private static final String INSTALLATION_DIALOG = "org.eclipse.ui.help.installationDialog"; //$NON-NLS-1$
 
 	public static Shell getShell(IAdaptable uiInfo) {
 		Shell shell;
@@ -116,15 +125,19 @@ public class ProvUI {
 	public static void reportStatus(IStatus status, int style) {
 		// workaround for
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211933
-		if ((style & StatusManager.BLOCK) == StatusManager.BLOCK) {
+		// Note we'd rather have a proper looking dialog than get the 
+		// blocking right.
+		if ((style & StatusManager.BLOCK) == StatusManager.BLOCK || (style & StatusManager.SHOW) == StatusManager.SHOW) {
 			if (status.getSeverity() == IStatus.INFO) {
 				MessageDialog.openInformation(null, ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
-				// unset the block bit
+				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
+				style = style & ~StatusManager.SHOW;
 			} else if (status.getSeverity() == IStatus.WARNING) {
 				MessageDialog.openWarning(null, ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
-				// unset the block bit
+				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
+				style = style & ~StatusManager.SHOW;
 			}
 		}
 		if (style != 0)
@@ -308,7 +321,7 @@ public class ProvUI {
 	 * 
 	 * @return an IAdaptable that will return the specified shell.
 	 */
-	static IAdaptable getUIInfoAdapter(final Shell shell) {
+	public static IAdaptable getUIInfoAdapter(final Shell shell) {
 		return new IAdaptable() {
 			public Object getAdapter(Class clazz) {
 				if (clazz == Shell.class) {
@@ -333,5 +346,43 @@ public class ProvUI {
 
 	public static void endBatchOperation() {
 		ProvUIActivator.getDefault().signalBatchOperationComplete();
+	}
+
+	public static void openUpdateManagerInstaller(Event event) {
+		runCommand(UPDATE_MANAGER_FIND_AND_INSTALL, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenFindAndInstall, event);
+	}
+
+	public static void openUpdateManagerConfigurationManager(Event event) {
+		runCommand(UPDATE_MANAGER_MANAGE_CONFIGURATION, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenManageConfiguration, event);
+	}
+
+	public static void openInstallationDialog(Event event) {
+		runCommand(INSTALLATION_DIALOG, ProvUIMessages.ProvUI_InstallDialogError, event);
+	}
+
+	private static void runCommand(String commandId, String errorMessage, Event event) {
+		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = commandService.getCommand(commandId);
+		if (!command.isDefined()) {
+			return;
+		}
+		IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class);
+		try {
+			handlerService.executeCommand(commandId, event);
+		} catch (ExecutionException e) {
+			reportFail(errorMessage, e);
+		} catch (NotDefinedException e) {
+			reportFail(errorMessage, e);
+		} catch (NotEnabledException e) {
+			reportFail(errorMessage, e);
+		} catch (NotHandledException e) {
+			reportFail(errorMessage, e);
+		}
+	}
+
+	private static void reportFail(String message, Throwable t) {
+		Status failStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, message, t);
+		reportStatus(failStatus, StatusManager.BLOCK | StatusManager.LOG);
+
 	}
 }

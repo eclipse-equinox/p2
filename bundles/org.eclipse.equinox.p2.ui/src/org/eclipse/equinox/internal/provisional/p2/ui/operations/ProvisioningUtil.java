@@ -18,16 +18,17 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Utility methods for clients using the provisioning UI
@@ -65,6 +66,10 @@ public class ProvisioningUtil {
 	}
 
 	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		//hack
+		if (Display.getCurrent() != null) {
+			throw new RuntimeException("oops, loading in UI thread");
+		}
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -246,14 +251,19 @@ public class ProvisioningUtil {
 	}
 
 	/*
-	 * Get sizing info for the specified IU's
+	 * Get sizing info for the specified plan
 	 */
-	public static Sizing getSizeInfo(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
+	public static long getSize(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
+		// If there is nothing to size, return 0
+		if (plan == null)
+			return IUElement.SIZE_NOTAPPLICABLE;
+		if (plan.getOperands().length == 0)
+			return 0;
 		SizingPhaseSet set = new SizingPhaseSet();
 		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), null, monitor);
 		if (status.isOK())
-			return set.getSizing();
-		return null;
+			return set.getSizing().getDiskSize();
+		return IUElement.SIZE_UNAVAILABLE;
 	}
 
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {

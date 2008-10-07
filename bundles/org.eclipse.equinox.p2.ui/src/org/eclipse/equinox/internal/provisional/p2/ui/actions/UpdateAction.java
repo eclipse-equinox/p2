@@ -16,42 +16,38 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 public class UpdateAction extends ProfileModificationAction {
 
 	ArrayList allReplacements; // cache all the replacements found to seed the wizard
 	HashMap latestReplacements;
+	boolean resolveIsVisible = true;
 
-	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
-		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, policies, shell);
+	public UpdateAction(Policy policy, ISelectionProvider selectionProvider, String profileId, boolean resolveIsVisible) {
+		super(policy, ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
+		this.resolveIsVisible = resolveIsVisible;
 	}
 
-	protected int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		// Caches should have been created while formulating the plan
 		Assert.isNotNull(latestReplacements);
 		Assert.isNotNull(allReplacements);
 		Assert.isNotNull(plan);
 
-		UpdateWizard wizard = new UpdateWizard(targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
@@ -59,23 +55,22 @@ public class UpdateAction extends ProfileModificationAction {
 		return dialog.open();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
-		// Here we create a provisioning plan by finding the latest version available for any replacement.
-		// TODO to be smarter, we could check older versions if a new version made a plan invalid.
+	protected ProfileChangeRequest getProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor) {
+		// Here we create a profile change request by finding the latest version available for any replacement.
 		ArrayList toBeUpdated = new ArrayList();
 		latestReplacements = new HashMap();
 		allReplacements = new ArrayList();
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, ius.length);
 		for (int i = 0; i < ius.length; i++) {
-			UpdateEvent event = new UpdateEvent(targetProfileId, new IInstallableUnit[] {ius[i]});
-			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
-			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, monitor).iterator();
+			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(new Updates(targetProfileId, new IInstallableUnit[] {ius[i]}));
+			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, sub).iterator();
 			if (iter.hasNext())
 				toBeUpdated.add(ius[i]);
 			ArrayList currentReplacements = new ArrayList();
 			while (iter.hasNext()) {
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 				if (iu != null) {
-					AvailableUpdateElement element = new AvailableUpdateElement(iu, ius[i], targetProfileId);
+					AvailableUpdateElement element = new AvailableUpdateElement(null, iu, ius[i], targetProfileId);
 					currentReplacements.add(element);
 					allReplacements.add(element);
 				}
@@ -87,9 +82,12 @@ public class UpdateAction extends ProfileModificationAction {
 				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
 					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
 			}
+			sub.worked(1);
 		}
 		if (toBeUpdated.size() <= 0) {
-			return new ProvisioningPlan(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, IStatusCodes.NOTHING_TO_UPDATE, ProvUIMessages.UpdateOperation_NothingToUpdate, null));
+			status.add(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, IStatusCodes.NOTHING_TO_UPDATE, ProvUIMessages.UpdateOperation_NothingToUpdate, null));
+			sub.done();
+			return null;
 		}
 
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
@@ -99,8 +97,8 @@ public class UpdateAction extends ProfileModificationAction {
 		iter = latestReplacements.values().iterator();
 		while (iter.hasNext())
 			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
-		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
-		return plan;
+		sub.done();
+		return request;
 	}
 
 	protected boolean isEnabledFor(Object[] selectionArray) {
@@ -135,5 +133,9 @@ public class UpdateAction extends ProfileModificationAction {
 
 	protected String getTaskName() {
 		return ProvUIMessages.UpdateIUProgress;
+	}
+
+	protected boolean isResolveUserVisible() {
+		return resolveIsVisible;
 	}
 }

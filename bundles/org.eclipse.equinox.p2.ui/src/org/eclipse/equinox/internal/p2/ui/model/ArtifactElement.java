@@ -23,7 +23,8 @@ public class ArtifactElement extends ProvElement {
 	IArtifactKey key;
 	IArtifactRepository repo;
 
-	public ArtifactElement(IArtifactKey key, IArtifactRepository repo) {
+	public ArtifactElement(Object parent, IArtifactKey key, IArtifactRepository repo) {
+		super(parent);
 		this.key = key;
 		this.repo = repo;
 	}
@@ -35,15 +36,6 @@ public class ArtifactElement extends ProvElement {
 	 */
 	protected String getImageId(Object obj) {
 		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
-	 */
-	public Object getParent(Object o) {
-		return repo;
 	}
 
 	public String getLabel(Object o) {

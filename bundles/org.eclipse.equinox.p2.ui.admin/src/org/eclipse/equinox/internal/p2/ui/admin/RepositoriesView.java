@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
+
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
@@ -82,7 +84,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes(), ProvAdminUIActivator.getDefault().getQueryProvider());
+		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes());
 		ProvUI.addProvisioningListener(listener);
 	}
 
@@ -156,7 +158,7 @@ abstract class RepositoriesView extends ProvView {
 	}
 
 	protected IContentProvider getContentProvider() {
-		return new RepositoryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+		return new RepositoryContentProvider();
 
 	}
 
@@ -174,7 +176,9 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract String getRemoveCommandTooltip();
 
-	protected abstract boolean isRepository(Object element);
+	protected boolean isRepository(Object element) {
+		return element instanceof IRepositoryElement;
+	}
 
 	protected abstract int getListenerEventTypes();
 

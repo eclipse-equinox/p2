@@ -11,29 +11,28 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.AvailableIUCollector;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 import org.osgi.framework.Version;
 
 /**
  * Tests for {@link AvailableIUCollector}.
  */
-public class AvailableIUCollectorTest extends AbstractProvisioningTest {
+public class AvailableIUCollectorTest extends QueryTest {
 	protected AvailableIUCollector createCollector() {
 		return createCollector(true);
 	}
 
 	protected AvailableIUCollector createCollector(boolean makeCategories) {
-		return new AvailableIUCollector(new MockQueryProvider(new IUPropertyQuery("key", "value")), new MockQueryable(), null, makeCategories);
+		return new AvailableIUCollector(new MockQueryable(), null, makeCategories);
 	}
 
 	/**
@@ -136,5 +135,9 @@ public class AvailableIUCollectorTest extends AbstractProvisioningTest {
 		assertEquals("1.1", 1, collector.size());
 		Object iuElement = collector.iterator().next();
 		assertEquals("1.2", notInstalled, getIU(iuElement));
+	}
+
+	protected Query getMockQuery() {
+		return new IUPropertyQuery("key", "value");
 	}
 }

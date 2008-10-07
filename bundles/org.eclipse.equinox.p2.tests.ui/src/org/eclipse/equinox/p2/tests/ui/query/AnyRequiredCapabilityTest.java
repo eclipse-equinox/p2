@@ -13,19 +13,19 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.query.AnyRequiredCapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.AnyRequiredCapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
  * Tests for {@link AnyRequiredCapabilityQuery}.
  */
-public class AnyRequiredCapabilityTest extends AbstractProvisioningTest {
+public class AnyRequiredCapabilityTest extends QueryTest {
 	public void testMatchOtherObjects() {
 		RequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
 		AnyRequiredCapabilityQuery query = new AnyRequiredCapabilityQuery(requires);
@@ -49,8 +49,9 @@ public class AnyRequiredCapabilityTest extends AbstractProvisioningTest {
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {location});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(location);
+		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
 		RequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
 		AnyRequiredCapabilityQuery query = new AnyRequiredCapabilityQuery(requires);
 		Collector result = manager.query(query, new Collector(), getMonitor());

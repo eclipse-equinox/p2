@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
+
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Content provider for provisioning repositories. The repositories are the
@@ -23,10 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  * 
  */
 public class RepositoryContentProvider extends DeferredQueryContentProvider {
-
-	public RepositoryContentProvider(IQueryProvider queryProvider) {
-		super(queryProvider);
-	}
 
 	public Object[] getChildren(final Object parent) {
 		Object[] children = super.getChildren(parent);

@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.ProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -86,7 +87,7 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvAdminUIActivator.getDefault().getQueryProvider());
+		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUI.addProvisioningListener(listener);
 	}
 
@@ -97,7 +98,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, ProvAdminUIActivator.getDefault().getPolicies());
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(ProvAdminUIActivator.getDefault().getPolicy(), treeViewer);
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
@@ -137,9 +138,9 @@ public class ProfilesView extends ProvView {
 		super.makeActions();
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
-		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
-		updateAction = new UpdateAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
+		uninstallAction = new UninstallAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null);
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
+		updateAction = new UpdateAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null, true);
 
 		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), propertiesAction);
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -178,15 +179,15 @@ public class ProfilesView extends ProvView {
 	}
 
 	protected IContentProvider getContentProvider() {
-		return new DeferredQueryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+		return new ProvElementContentProvider();
 	}
 
 	protected Object getInput() {
 		return new Profiles();
 	}
 
-	IProfileChooser getProfileChooser() {
-		return new IProfileChooser() {
+	ProfileChooser getProfileChooser() {
+		return new ProfileChooser() {
 			public String getProfileId(Shell shell) {
 				Object firstElement = getSelection().getFirstElement();
 				if (firstElement instanceof InstalledIUElement) {
@@ -196,10 +197,6 @@ public class ProfilesView extends ProvView {
 				if (profile != null)
 					return profile.getProfileId();
 				return null;
-			}
-
-			public String getLabel() {
-				return ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle;
 			}
 		};
 	}

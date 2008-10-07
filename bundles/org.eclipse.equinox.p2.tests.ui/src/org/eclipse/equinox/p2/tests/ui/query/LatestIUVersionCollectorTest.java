@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
+import org.eclipse.equinox.internal.p2.ui.query.LatestIUVersionCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.AvailableIUCollector;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.LatestIUVersionCollector;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 import org.osgi.framework.Version;
 
@@ -25,7 +24,7 @@ import org.osgi.framework.Version;
 public class LatestIUVersionCollectorTest extends AvailableIUCollectorTest {
 
 	protected AvailableIUCollector createCollector(boolean makeCategories) {
-		return new LatestIUVersionCollector(new MockQueryProvider(new IUPropertyQuery("key", "value")), new MockQueryable(), null, makeCategories);
+		return new LatestIUVersionCollector(new MockQueryable(), null, makeCategories);
 	}
 
 	/**

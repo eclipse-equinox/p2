@@ -27,15 +27,16 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.sdk.ProvPolicies;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.PlanValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
@@ -48,36 +49,39 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AutomaticUpdater implements IUpdateListener {
 
 	/**
+	 * Overridden so that we can use the profile change request computations,
+	 * but we hide the resolution from the user and optionally suppress the
+	 * wizard if we are resolving for reasons other than user request.
+	 * 
 	 * @since 3.4
 	 *
 	 */
 	final class AutomaticUpdateAction extends UpdateAction {
-		ProvisioningPlan currentPlan;
 
-		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
-			super(selectionProvider, profileId, chooser, policies, shell);
+		private boolean suppressWizard = false;
+
+		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId) {
+			super(Policy.getDefault(), selectionProvider, profileId, false);
 		}
 
-		public void initializePlan() {
-			try {
-				currentPlan = getProvisioningPlan(iusWithUpdates, profileId, new NullProgressMonitor());
-			} catch (ProvisionException e) {
-				// ignore
+		void suppressWizard(boolean suppress) {
+			suppressWizard = suppress;
+		}
+
+		protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+			if (suppressWizard) {
+				setUpdateAffordanceState(plan != null && plan.getStatus().isOK());
+				return Window.OK;
 			}
+			return super.performAction(ius, targetProfileId, plan);
 		}
 
-		protected ProvisioningPlan getProvisioningPlan() {
-			if (currentPlan != null)
-				return currentPlan;
-			return super.getProvisioningPlan();
-		}
-
-		protected IPlanValidator getPlanValidator() {
-			return new IPlanValidator() {
+		protected PlanValidator getPlanValidator() {
+			return new PlanValidator() {
 				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
 					if (alreadyValidated)
 						return true;
-					// In all other cases we return false, because the clicking the popup will actually run the action.
+					// In all other cases we return false, because clicking the popup will actually run the action.
 					// We are just checking prefs to determine whether to to show the popup or not.
 					String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 					if (plan != null) {
@@ -145,7 +149,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		// showing the user that updates are available.
 		try {
 			if (download) {
-				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
+				ElementQueryDescriptor descriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new Updates(event.getProfileId(), event.getIUs()));
 				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable.query(descriptor.query, descriptor.collector, null).toArray(IInstallableUnit.class);
 				if (replacements.length > 0) {
 					ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(event.getProfileId());
@@ -159,10 +163,10 @@ public class AutomaticUpdater implements IUpdateListener {
 							IStatus status = jobEvent.getResult();
 							if (status.isOK()) {
 								createUpdateAction();
-								updateAction.initializePlan();
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										updateAction.run();
+										updateAction.suppressWizard(true);
+										updateAction.performAction(iusWithUpdates, event.getProfileId(), plan);
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
@@ -173,9 +177,9 @@ public class AutomaticUpdater implements IUpdateListener {
 				}
 			} else {
 				createUpdateAction();
-				updateAction.initializePlan();
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
+						updateAction.suppressWizard(true);
 						updateAction.run();
 					}
 				});
@@ -331,7 +335,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void createUpdateAction() {
 		if (updateAction == null)
-			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId, null, ProvPolicies.getDefault(), null);
+			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId);
 	}
 
 	void clearUpdatesAvailable() {
@@ -386,6 +390,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	public void launchUpdate() {
 		alreadyValidated = true;
+		updateAction.suppressWizard(false);
 		updateAction.run();
 	}
 
@@ -455,8 +460,8 @@ public class AutomaticUpdater implements IUpdateListener {
 					clearUpdatesAvailable();
 				else {
 					createUpdateAction();
-					updateAction.initializePlan();
-					setUpdateAffordanceState(updateAction.getProvisioningPlan().getStatus().isOK());
+					updateAction.suppressWizard(true);
+					updateAction.run();
 				}
 				return Status.OK_STATUS;
 			}

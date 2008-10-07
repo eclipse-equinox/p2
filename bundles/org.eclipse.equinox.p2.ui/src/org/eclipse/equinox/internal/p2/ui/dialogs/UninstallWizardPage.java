@@ -11,25 +11,25 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 public class UninstallWizardPage extends ProfileModificationWizardPage {
 
-	public UninstallWizardPage(IInstallableUnit[] ius, String profileId, ProvisioningPlan plan) {
-		super("UninstallWizard", ius, profileId, plan); //$NON-NLS-1$
+	public UninstallWizardPage(Policy policy, IInstallableUnit[] ius, String profileId, ProvisioningPlan plan) {
+		super(policy, "UninstallWizard", ius, profileId, plan); //$NON-NLS-1$
 		setTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
-	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
+	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 		request.removeInstallableUnits(elementsToIUs(selectedElements));
-		return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
+		return request;
 	}
 
 	protected String getOperationLabel() {

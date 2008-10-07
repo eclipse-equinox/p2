@@ -29,6 +29,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 
+	private Object parent;
+
+	public ProvElement(Object parent) {
+		this.parent = parent;
+	}
+
 	public Object getAdapter(Class adapter) {
 		if (adapter == IWorkbenchAdapter.class)
 			return this;
@@ -96,5 +102,13 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 			return false;
 		}
 		return children.length > 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
+	 */
+	public Object getParent(Object o) {
+		return parent;
 	}
 }

@@ -11,6 +11,10 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -20,8 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;

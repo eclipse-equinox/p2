@@ -13,18 +13,20 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -38,29 +40,30 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationWizardPage extends WizardPage {
-	private static final int DEFAULT_HEIGHT = 15;
-	private static final int DEFAULT_WIDTH = 120;
-	private static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
-	private static final int DEFAULT_COLUMN_WIDTH = 60;
-	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private static final String NESTING_INDENT = "  "; //$NON-NLS-1$
 	private static final IStatus NULL_PLAN_STATUS = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
-	private IInstallableUnit[] ius;
+	protected IInstallableUnit[] ius;
 	ProvisioningPlan currentPlan;
 	IStatus currentStatus;
 	private String profileId;
-	CheckboxTableViewer listViewer;
+	protected Policy policy;
+	TableViewer tableViewer;
 	Text detailsArea;
 	StaticContentProvider contentProvider;
 	protected Display display;
 
-	protected ProfileModificationWizardPage(String id, IInstallableUnit[] ius, String profileID, ProvisioningPlan initialPlan) {
+	protected ProfileModificationWizardPage(Policy policy, String id, IInstallableUnit[] ius, String profileID, ProvisioningPlan initialPlan) {
 		super(id);
+		this.policy = policy;
 		this.ius = ius;
 		this.profileId = profileID;
 		this.currentPlan = initialPlan;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
@@ -76,13 +79,11 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		gridLayout.marginHeight = 0;
 		composite.setLayout(gridLayout);
 
-		// The viewer allows selection of IU's for browsing the details,
-		// and checking to include in the provisioning operation.
-		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		tableViewer = createTableViewer(composite);
 		data = new GridData(GridData.FILL_BOTH);
-		data.heightHint = convertHeightInCharsToPixels(DEFAULT_HEIGHT);
-		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
-		Table table = listViewer.getTable();
+		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
+		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
+		Table table = tableViewer.getTable();
 		table.setLayoutData(data);
 		table.setHeaderVisible(true);
 		IUColumnConfig[] columns = getColumnConfig();
@@ -92,33 +93,32 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			tc.setText(columns[i].columnTitle);
 			if (columns[i].columnField == IUColumnConfig.COLUMN_SIZE) {
 				tc.setAlignment(SWT.RIGHT);
-				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_SMALL_COLUMN_WIDTH));
+				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
 			} else
-				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
+				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
 		}
-		final List list = new ArrayList(ius.length);
-		makeElements(getIUs(), list);
 
-		listViewer.addCheckStateListener(new ICheckStateListener() {
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				checkedIUsChanged();
-			}
-		});
+		final List list;
+		if (ius != null) {
+			list = new ArrayList(ius.length);
+			makeElements(getIUs(), list);
+		} else
+			list = new ArrayList();
 
-		listViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateStatus();
 			}
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		listViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
-		listViewer.setComparer(new ProvElementComparer());
+		tableViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		tableViewer.setComparer(new ProvElementComparer());
 
 		contentProvider = new StaticContentProvider(list.toArray());
-		listViewer.setContentProvider(contentProvider);
-		listViewer.setInput(new Object());
-		listViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), getShell()));
+		tableViewer.setContentProvider(contentProvider);
+		tableViewer.setInput(new Object());
+		tableViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), getShell()));
 		setInitialCheckState();
 		// If the initial provisioning plan was already calculated,
 		// no need to repeat it until the user changes selections
@@ -150,14 +150,14 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	protected void createDetailsArea(Composite parent) {
 		detailsArea = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.heightHint = convertHeightInCharsToPixels(DEFAULT_DESCRIPTION_HEIGHT);
-		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
+		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
+		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
 		detailsArea.setLayoutData(data);
 	}
 
 	protected void makeElements(IInstallableUnit[] iusToShow, List list) {
 		for (int i = 0; i < iusToShow.length; i++) {
-			list.add(new AvailableIUElement(iusToShow[i], getProfileId()));
+			list.add(new AvailableIUElement(this, iusToShow[i], getProfileId()));
 		}
 	}
 
@@ -170,12 +170,27 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return false;
 	}
 
+	/*
+	 * Override this method if overriding createTableViewer()
+	 */
 	protected Object[] getCheckedElements() {
-		return listViewer.getCheckedElements();
+		return ((CheckboxTableViewer) tableViewer).getCheckedElements();
+	}
+
+	protected TableViewer getTableViewer() {
+		return tableViewer;
+	}
+
+	public IInstallableUnit[] getSelectedIUs() {
+		return elementsToIUs(getCheckedElements());
+	}
+
+	public ProvisioningPlan getCurrentPlan() {
+		return currentPlan;
 	}
 
 	protected Object[] getSelectedElements() {
-		return ((IStructuredSelection) listViewer.getSelection()).toArray();
+		return ((IStructuredSelection) tableViewer.getSelection()).toArray();
 	}
 
 	protected IInstallableUnit[] elementsToIUs(Object[] elements) {
@@ -214,15 +229,21 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
-						try {
-							currentPlan = computeProvisioningPlan(selections, monitor);
+
+						currentPlan = null;
+						currentStatus = NULL_PLAN_STATUS;
+						MultiStatus status = PlanStatusHelper.getProfileChangeAlteredStatus();
+						ProfileChangeRequest request = computeProfileChangeRequest(selections, status, monitor);
+						if (request != null) {
+							PlannerResolutionOperation op = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, elementsToIUs(selections), getProfileId(), request, status, false);
+							try {
+								op.execute(monitor, ProvUI.getUIInfoAdapter(getShell()));
+							} catch (ExecutionException e) {
+								currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+							}
+							currentPlan = op.getProvisioningPlan();
 							if (currentPlan != null)
-								currentStatus = PlanStatusHelper.computeStatus(currentPlan, elementsToIUs(selections));
-							else
-								currentStatus = NULL_PLAN_STATUS;
-						} catch (ProvisionException e) {
-							currentPlan = null;
-							currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+								currentStatus = currentPlan.getStatus();
 						}
 					}
 				});
@@ -239,13 +260,13 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return new ProfileModificationOperation(getOperationLabel(), profileId, plan);
 	}
 
-	protected abstract ProvisioningPlan computeProvisioningPlan(Object[] checkedElements, IProgressMonitor monitor) throws ProvisionException;
+	protected abstract ProfileChangeRequest computeProfileChangeRequest(Object[] checkedElements, MultiStatus additionalStatus, IProgressMonitor monitor);
 
 	protected void setInitialCheckState() {
 		// The default is to check everything because 
 		// in most cases, the user has selected exactly
 		// what they want before this page opens.
-		listViewer.setAllChecked(true);
+		((CheckboxTableViewer) tableViewer).setAllChecked(true);
 	}
 
 	// We currently create an empty provisioning context, but
@@ -257,6 +278,8 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	protected abstract String getOperationLabel();
 
 	void updateStatus() {
+		if (detailsArea == null || detailsArea.isDisposed())
+			return;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
 		if (currentStatus != null && !currentStatus.isOK()) {
@@ -341,5 +364,21 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		if (description == null)
 			description = ""; //$NON-NLS-1$
 		return description;
+	}
+
+	/*
+	 * If this method is overridden, you must also override 
+	 * getCheckedElements and setInitialCheckState
+	 */
+	protected TableViewer createTableViewer(Composite parent) {
+		// The viewer allows selection of IU's for browsing the details,
+		// and checking to include in the provisioning operation.
+		CheckboxTableViewer v = CheckboxTableViewer.newCheckList(parent, SWT.BORDER | SWT.FULL_SELECTION);
+		v.addCheckStateListener(new ICheckStateListener() {
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				checkedIUsChanged();
+			}
+		});
+		return v;
 	}
 }

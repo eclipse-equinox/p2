@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
+
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+
 import java.net.URL;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.jface.viewers.IElementComparer;
 
 public class ProvElementComparer implements IElementComparer {

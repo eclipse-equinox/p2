@@ -17,16 +17,19 @@ import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -44,10 +47,9 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static BundleContext context;
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
-	private IQueryProvider queryProvider;
-	private SimpleLicenseManager licenseManager;
-	private IPlanValidator planValidator;
 	private ServiceRegistration certificateUIRegistration;
+
+	private IPropertyChangeListener preferenceListener;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
 
@@ -89,8 +91,21 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
+		initializePolicies();
 		readLicenseRegistry();
 		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
+		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
+	}
+
+	private IPropertyChangeListener getPreferenceListener() {
+		if (preferenceListener == null) {
+			preferenceListener = new IPropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					updateWithPreferences(Policy.getDefault().getQueryContext());
+				}
+			};
+		}
+		return preferenceListener;
 	}
 
 	private void readLicenseRegistry() {
@@ -100,7 +115,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (f.exists()) {
 			try {
 				stream = new BufferedInputStream(new FileInputStream(f));
-				getLicenseManager().read(stream);
+				Policy.getDefault().getLicenseManager().read(stream);
 				stream.close();
 			} catch (IOException e) {
 				ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e), StatusManager.LOG);
@@ -109,14 +124,14 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private void writeLicenseRegistry() {
-		if (!getLicenseManager().hasAcceptedLicenses())
+		if (!Policy.getDefault().getLicenseManager().hasAcceptedLicenses())
 			return;
 		IPath location = getStateLocation().append(LICENSE_STORAGE);
 		File f = location.toFile();
 		BufferedOutputStream stream = null;
 		try {
 			stream = new BufferedOutputStream(new FileOutputStream(f, false));
-			getLicenseManager().write(stream);
+			Policy.getDefault().getLicenseManager().write(stream);
 			stream.close();
 		} catch (IOException e) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e), StatusManager.LOG);
@@ -135,6 +150,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		}
 		plugin = null;
 		certificateUIRegistration.unregister();
+		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
 	}
 
@@ -188,66 +204,69 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return new Status(IStatus.WARNING, PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
 	}
 
-	public IQueryProvider getQueryProvider() {
-		if (queryProvider == null)
-			queryProvider = new ProvSDKQueryProvider();
-		return queryProvider;
-	}
+	private void initializePolicies() {
+		Policy policy = new Policy();
+		policy.setProfileChooser(new ProfileChooser() {
+			public String getProfileId(Shell shell) {
+				try {
+					return getSelfProfileId();
+				} catch (ProvisionException e) {
+					return IProfileRegistry.SELF;
+				}
+			}
+		});
+		policy.setPlanValidator(new PlanValidator() {
+			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+				if (plan == null)
+					return false;
+				if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+					return false;
 
-	public SimpleLicenseManager getLicenseManager() {
-		if (licenseManager == null)
-			licenseManager = new SimpleLicenseManager();
-		return licenseManager;
-	}
-
-	public IPlanValidator getPlanValidator() {
-		if (planValidator == null)
-			planValidator = new IPlanValidator() {
-				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-					if (plan == null)
-						return false;
-					if (plan.getStatus().getSeverity() == IStatus.CANCEL)
-						return false;
-					// If the plan requires install handler support, we want to open the old update UI
-					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
-						MessageDialog dialog = new MessageDialog(shell, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureTitle, null, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureMessage, MessageDialog.WARNING, new String[] {ProvSDKMessages.ProvSDKUIActivator_LaunchUpdateManager, IDialogConstants.CANCEL_LABEL}, 0);
-						if (dialog.open() == 0)
-							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
-								public void run() {
-									UpdateManagerCompatibility.openInstaller();
-								}
-							});
-						return false;
-					}
-
-					// Special case those statuses where we would never want to open a wizard
-					if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
-						ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
-						return false;
-					}
-
-					// Allow the wizard to open if there is no error
-					if (plan.getStatus().getSeverity() != IStatus.ERROR)
-						return true;
-
-					// There is an error.  Check the preference to see whether to continue.
-					String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
-					if (MessageDialogWithToggle.ALWAYS.equals(openPlan)) {
-						return true;
-					}
-					if (MessageDialogWithToggle.NEVER.equals(openPlan)) {
-						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
-						return false;
-					}
-					MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
-
-					// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
-					if (dialog.getReturnCode() == IDialogConstants.NO_ID)
-						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
-					return dialog.getReturnCode() == IDialogConstants.YES_ID;
+				// Special case those statuses where we would never want to open a wizard
+				if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
+					ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
+					return false;
 				}
 
-			};
-		return planValidator;
+				// Allow the wizard to open if there is no error
+				if (plan.getStatus().getSeverity() != IStatus.ERROR)
+					return true;
+
+				// There is an error.  Check the preference to see whether to continue.
+				String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
+				if (MessageDialogWithToggle.ALWAYS.equals(openPlan)) {
+					return true;
+				}
+				if (MessageDialogWithToggle.NEVER.equals(openPlan)) {
+					ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
+					return false;
+				}
+				MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
+
+				// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
+				if (dialog.getReturnCode() == IDialogConstants.NO_ID)
+					ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
+				return dialog.getReturnCode() == IDialogConstants.YES_ID;
+			}
+		});
+		// Start with the default query context and configure some settings
+		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		policy.setQueryContext(queryContext);
+		updateWithPreferences(queryContext);
+		Policy.setDefaultPolicy(policy);
+	}
+
+	void updateWithPreferences(IUViewQueryContext queryContext) {
+		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
+			try {
+				queryContext.hideAlreadyInstalled(getSelfProfileId());
+			} catch (ProvisionException e) {
+				// nothing to do
+			}
+		queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
+		queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
+		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}
 }

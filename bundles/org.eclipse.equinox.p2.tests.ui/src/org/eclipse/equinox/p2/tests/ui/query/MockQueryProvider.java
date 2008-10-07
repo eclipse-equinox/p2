@@ -10,23 +10,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.DefaultQueryProvider;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
 /**
  * A fake query provider for unit testing.
  */
-public class MockQueryProvider implements IQueryProvider {
+public class MockQueryProvider extends DefaultQueryProvider {
 	private Query query;
 
 	public MockQueryProvider(Query query) {
+		super(Policy.getDefault());
 		this.query = query;
 	}
 
-	public ElementQueryDescriptor getQueryDescriptor(Object element, int queryType) {
+	public ElementQueryDescriptor getQueryDescriptor(QueriedElement element) {
 		return new ElementQueryDescriptor(new MockQueryable(element), query, new Collector());
 	}
 }

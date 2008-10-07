@@ -14,9 +14,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ArtifactRepositories;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.swt.widgets.Shell;
@@ -37,9 +38,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		ArtifactRepositories input = new ArtifactRepositories();
-		input.setQueryProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
-		return input;
+		return new ArtifactRepositories();
 	}
 
 	protected String getAddCommandLabel() {
@@ -67,14 +66,10 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
 	}
 
-	protected boolean isRepository(Object element) {
-		return element instanceof ArtifactRepositoryElement;
-	}
-
 	protected int getRepoFlags() {
 		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
-			return IArtifactRepositoryManager.REPOSITORIES_NON_SYSTEM;
-		return IArtifactRepositoryManager.REPOSITORIES_ALL;
+			return IRepositoryManager.REPOSITORIES_NON_SYSTEM;
+		return IRepositoryManager.REPOSITORIES_ALL;
 	}
 
 	/*

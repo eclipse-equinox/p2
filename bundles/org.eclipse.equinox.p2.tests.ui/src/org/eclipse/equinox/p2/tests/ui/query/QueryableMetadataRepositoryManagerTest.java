@@ -15,18 +15,19 @@ import java.net.URL;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.Version;
 
 /**
  * Tests for {@link QueryableMetadataRepositoryManager}.
  */
-public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioningTest {
+public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	/**
 	 * Tests querying against a non-existent repository
 	 */
@@ -38,8 +39,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {brokenRepo});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(brokenRepo);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
 		manager.loadAll(getMonitor());
@@ -59,8 +61,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {location});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(location);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
 		manager.loadAll(new CancelingProgressMonitor());
@@ -79,8 +82,11 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {existing, nonExisting, broken});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(existing);
+		metadataRepositoryManager.addRepository(nonExisting);
+		metadataRepositoryManager.addRepository(broken);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
 		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
 		assertEquals("1.0", 0, result.size());
@@ -98,8 +104,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {location});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(location);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
 		manager.loadAll(getMonitor());
@@ -119,25 +126,16 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {existing, nonExisting});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(existing);
+		metadataRepositoryManager.addRepository(nonExisting);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
 		manager.loadAll(getMonitor());
 
 		//false because the non-existent repository is not loaded
 		assertTrue("1.1", !manager.areRepositoriesLoaded());
-	}
-
-	/**
-	 * When QueryableMetadataRepositoryManager has a null set of repositories, it uses all known repositories
-	 */
-	public void testNullRepositories() {
-		MetadataRepositories repos = new MetadataRepositories();
-		repos.setIncludeDisabledRepositories(true);
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
-		manager.loadAll(getMonitor());
-		manager.areRepositoriesLoaded();
 	}
 
 	public void testQuery() {
@@ -150,8 +148,11 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 			fail("0.99", e);
 			return;
 		}
-		MetadataRepositories repos = new MetadataRepositories(new URL[] {existing, nonExisting, broken});
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(repos);
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(existing);
+		metadataRepositoryManager.addRepository(nonExisting);
+		metadataRepositoryManager.addRepository(broken);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
 		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), getMonitor());
 		assertEquals("1.0", 1, result.size());
@@ -165,5 +166,15 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractProvisioning
 		assertTrue("2.1", resultCollection.contains(existing));
 		assertTrue("2.1", resultCollection.contains(nonExisting));
 		assertTrue("2.1", resultCollection.contains(broken));
+
+		// null IUPropertyQuery collects all IUs
+		result = manager.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		int iuCount = result.size();
+		result = manager.query(new IUPropertyQuery(null, null), new Collector(), getMonitor());
+		assertEquals("2.2", iuCount, result.size());
+	}
+
+	private QueryableMetadataRepositoryManager getQueryableManager() {
+		return new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
 	}
 }

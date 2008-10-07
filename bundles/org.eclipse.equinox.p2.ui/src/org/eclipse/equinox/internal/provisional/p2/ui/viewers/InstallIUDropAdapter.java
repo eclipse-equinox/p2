@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -19,11 +20,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Defines drop behavior for selected IUs to mean install the IU on the target
@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
-	Policies policies;
+	Policy policy;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -43,10 +43,9 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
-	public InstallIUDropAdapter(StructuredViewer viewer, Policies policies) {
+	public InstallIUDropAdapter(Policy policy, StructuredViewer viewer) {
 		super(viewer);
-		Assert.isNotNull(policies);
-		this.policies = policies;
+		this.policy = policy;
 	}
 
 	/**
@@ -77,13 +76,6 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 			return ((InstalledIUElement) mouseTarget).getProfileId();
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the shell
-	 */
-	private Shell getShell() {
-		return getViewer().getControl().getShell();
 	}
 
 	/**
@@ -146,7 +138,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(selectionProvider, profileId, null, policies, getShell());
+			InstallAction action = new InstallAction(policy, selectionProvider, profileId);
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

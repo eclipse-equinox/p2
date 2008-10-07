@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -33,11 +33,10 @@ import org.eclipse.swt.widgets.*;
  */
 public abstract class StructuredIUGroup {
 
-	private IQueryProvider queryProvider;
-	private ProvisioningContext context;
 	private FontMetrics fm;
 	protected StructuredViewer viewer;
 	private Composite composite;
+	private Policy policy;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -49,9 +48,8 @@ public abstract class StructuredIUGroup {
 	 * not managed by the receiver.
 	 * @param context the ProvisioningContext describing the context for provisioning.
 	 */
-	protected StructuredIUGroup(Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
-		this.queryProvider = queryProvider;
-		this.context = context;
+	protected StructuredIUGroup(Policy policy, Composite parent, Font font) {
+		this.policy = policy;
 		// Set up a fontmetrics for calculations
 		GC gc = new GC(parent);
 		gc.setFont(font);
@@ -70,10 +68,14 @@ public abstract class StructuredIUGroup {
 
 		viewer = createViewer(composite);
 
+		viewer.getControl().setLayoutData(getViewerGridData());
+	}
+
+	protected GridData getViewerGridData() {
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
 		data.grabExcessVerticalSpace = true;
-		viewer.getControl().setLayoutData(data);
+		return data;
 	}
 
 	protected abstract StructuredViewer createViewer(Composite parent);
@@ -90,10 +92,12 @@ public abstract class StructuredIUGroup {
 		return viewer;
 	}
 
-	protected IInstallableUnit[] getSelectedIUs() {
-		List elements = ((IStructuredSelection) viewer.getSelection()).toList();
-		List iusList = new ArrayList(elements.size());
+	public IInstallableUnit[] getSelectedIUs() {
+		return elementsToIUs(((IStructuredSelection) viewer.getSelection()).toList());
+	}
 
+	protected IInstallableUnit[] elementsToIUs(List elements) {
+		List iusList = new ArrayList(elements.size());
 		for (int i = 0; i < elements.size(); i++) {
 			IInstallableUnit iu = getIU(elements.get(i));
 			if (iu != null)
@@ -106,16 +110,20 @@ public abstract class StructuredIUGroup {
 		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 	}
 
-	protected ProvisioningContext getProvisioningContext() {
-		return context;
-	}
-
 	protected int convertHorizontalDLUsToPixels(int dlus) {
 		return Dialog.convertHorizontalDLUsToPixels(fm, dlus);
 	}
 
-	protected IQueryProvider getQueryProvider() {
-		return queryProvider;
+	protected int convertVerticalDLUsToPixels(int dlus) {
+		return Dialog.convertVerticalDLUsToPixels(fm, dlus);
+	}
+
+	protected QueryProvider getQueryProvider() {
+		return policy.getQueryProvider();
+	}
+
+	protected Policy getPolicy() {
+		return policy;
 	}
 
 	protected Control getDefaultFocusControl() {

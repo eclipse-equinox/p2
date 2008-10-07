@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
-import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 
 /**
  * Element class that represents some collection of metadata repositories.
@@ -30,16 +29,20 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRep
  */
 public class MetadataRepositories extends RemoteQueriedElement {
 
-	private URL[] metadataRepositories = null;
 	private boolean includeDisabled = false;
-	private int repoFlags = IMetadataRepositoryManager.REPOSITORIES_ALL;
+	private int repoFlags = IRepositoryManager.REPOSITORIES_ALL;
+	private IUViewQueryContext queryContext;
+	private Policy policy;
 
-	public MetadataRepositories() {
-		super();
+	public MetadataRepositories(Policy policy) {
+		this(policy.getQueryContext(), policy, null);
 	}
 
-	public MetadataRepositories(URL[] metadataRepositories) {
-		this.metadataRepositories = metadataRepositories;
+	public MetadataRepositories(IUViewQueryContext queryContext, Policy policy, QueryableMetadataRepositoryManager queryable) {
+		super(null);
+		this.queryContext = queryContext;
+		this.policy = policy;
+		this.queryable = queryable;
 	}
 
 	/**
@@ -88,6 +91,23 @@ public class MetadataRepositories extends RemoteQueriedElement {
 		this.repoFlags = flags;
 	}
 
+	/**
+	 * Set the query context that is used when querying the receiver.
+	 * 
+	 * @param queryContext the query context to use
+	 */
+	public void setQueryContext(IUViewQueryContext context) {
+		queryContext = context;
+	}
+
+	public IUViewQueryContext getQueryContext() {
+		return queryContext;
+	}
+
+	public Policy getPolicy() {
+		return policy;
+	}
+
 	/*
 	 * Overridden to check the query context.  We might
 	 * be showing repositories, or we might be flattening the 
@@ -95,25 +115,14 @@ public class MetadataRepositories extends RemoteQueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
 	 */
-	protected int getQueryType() {
+	public int getQueryType() {
 		if (queryContext == null)
 			return getDefaultQueryType();
 		return queryContext.getQueryType();
 	}
 
 	protected int getDefaultQueryType() {
-		return IQueryProvider.METADATA_REPOS;
-	}
-
-	/**
-	 * Return the array of URLs for the metadata repositories that
-	 * this element represents.  A value of <code>null</code> means
-	 * all repositories are represented.  
-	 * 
-	 * @return the array of repositories, or <code>null</code>.
-	 */
-	public URL[] getMetadataRepositories() {
-		return metadataRepositories;
+		return QueryProvider.METADATA_REPOS;
 	}
 
 	/*
@@ -150,7 +159,7 @@ public class MetadataRepositories extends RemoteQueriedElement {
 		// We use the superclass implementation if we don't have a queryable or
 		// don't recognize it.  Also, if we are merely iterating sites rather
 		// than loading them to obtain further results, use the superclass
-		if (queryable == null || !(queryable instanceof QueryableMetadataRepositoryManager) || getQueryType() == IQueryProvider.METADATA_REPOS)
+		if (queryable == null || !(queryable instanceof QueryableMetadataRepositoryManager) || getQueryType() == QueryProvider.METADATA_REPOS)
 			return super.hasQueryable();
 		return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
 	}

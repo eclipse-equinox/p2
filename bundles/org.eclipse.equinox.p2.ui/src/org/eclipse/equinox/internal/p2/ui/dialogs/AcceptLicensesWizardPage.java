@@ -20,9 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
@@ -46,13 +46,13 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	Button declineButton;
 	private IInstallableUnit[] originalIUs;
 	private IInstallableUnit[] iusWithUnacceptedLicenses;
-	private LicenseManager licenseManager;
+	private Policy policy;
 	private static final int DEFAULT_COLUMN_WIDTH = 40;
 
-	public AcceptLicensesWizardPage(IInstallableUnit[] ius, LicenseManager licenseManager, ProvisioningPlan plan) {
+	public AcceptLicensesWizardPage(Policy policy, IInstallableUnit[] ius, ProvisioningPlan plan) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
-		this.licenseManager = licenseManager;
+		this.policy = policy;
 		update(ius, plan);
 	}
 
@@ -199,7 +199,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	public void update(IInstallableUnit[] theIUs, ProvisioningPlan currentPlan) {
 		this.originalIUs = theIUs;
-		this.iusWithUnacceptedLicenses = iusWithUnacceptedLicenses(theIUs, currentPlan);
+		if (theIUs == null)
+			this.iusWithUnacceptedLicenses = new IInstallableUnit[0];
+		else
+			this.iusWithUnacceptedLicenses = iusWithUnacceptedLicenses(theIUs, currentPlan);
 		setDescription();
 		setPageComplete(iusWithUnacceptedLicenses.length == 0);
 		if (getControl() != null) {
@@ -253,7 +256,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			License license = IUPropertyUtils.getLicense(iu);
 			// It has a license, is it already accepted?
 			if (license != null) {
-				if (licenseManager == null || !licenseManager.isAccepted(iu)) {
+				if (!policy.getLicenseManager().isAccepted(iu)) {
 					// Have we already found a license with this IU name?
 					License potentialDuplicate = (License) licensesByIUName.get(name);
 					// If we have no duplicate or the duplicate license doesn't match, add it
@@ -271,8 +274,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	private void rememberAcceptedLicenses() {
 		for (int i = 0; i < iusWithUnacceptedLicenses.length; i++) {
-			if (licenseManager != null)
-				licenseManager.accept(iusWithUnacceptedLicenses[i]);
+			policy.getLicenseManager().accept(iusWithUnacceptedLicenses[i]);
 		}
 	}
 

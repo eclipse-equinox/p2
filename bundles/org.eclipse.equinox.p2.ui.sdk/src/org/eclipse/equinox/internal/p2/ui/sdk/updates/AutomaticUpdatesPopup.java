@@ -56,7 +56,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	MouseListener clickListener;
 
 	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, Preferences prefs) {
-		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
+		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, true, false, false, ProvSDKMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();

@@ -156,6 +156,7 @@ abstract class ProvView extends ViewPart {
 		preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (getVisualProperties().contains(event.getProperty())) {
+					ProvAdminUIActivator.getDefault().initializePolicy();
 					ProvView.this.refreshAll();
 				}
 			}

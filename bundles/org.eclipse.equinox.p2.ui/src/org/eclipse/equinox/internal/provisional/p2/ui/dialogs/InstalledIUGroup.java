@@ -12,11 +12,11 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
@@ -40,18 +40,16 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	 * Create a group that represents the installed IU's.
 	 * 
 	 * @param parent the parent composite for the group
-	 * @param queryProvider the query provider that defines the queries used
-	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param context the ProvisioningContext describing the context for provisioning,
-	 * including information about which repositories should be used.
 	 * @param profileId the id of the profile whose content is being shown.
 	 */
-	public InstalledIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, String profileId) {
-		// This will evolve into a provisioning context
-		super(parent, queryProvider, font, context);
-		this.profileId = profileId;
+	public InstalledIUGroup(Policy policy, final Composite parent, Font font, String profileId) {
+		super(policy, parent, font);
+		if (profileId == null)
+			this.profileId = policy.getProfileChooser().getProfileId(ProvUI.getDefaultParentShell());
+		else
+			this.profileId = profileId;
 		createGroupComposite(parent);
 	}
 
@@ -64,7 +62,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		installedIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(getQueryProvider()));
+		installedIUViewer.setContentProvider(new DeferredQueryContentProvider());
 
 		// Now the visuals, columns before labels.
 		setTableColumns(installedIUViewer.getTable());
@@ -73,7 +71,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		// Input last.
 		installedIUViewer.setInput(getInput());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, getQueryProvider());
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -96,8 +94,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	}
 
 	Object getInput() {
-		ProfileElement element = new ProfileElement(profileId);
-		element.setQueryProvider(getQueryProvider());
+		ProfileElement element = new ProfileElement(null, profileId);
 		return element;
 	}
 

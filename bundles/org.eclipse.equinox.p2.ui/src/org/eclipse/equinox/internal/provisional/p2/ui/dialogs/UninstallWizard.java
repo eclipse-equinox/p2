@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.UninstallWizardPage;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.Wizard;
 
 /**
@@ -23,12 +24,14 @@ import org.eclipse.jface.wizard.Wizard;
 public class UninstallWizard extends Wizard {
 
 	UninstallWizardPage page;
+	Policy policy;
 	String profileId;
 	IInstallableUnit[] ius;
 	ProvisioningPlan plan;
 
-	public UninstallWizard(String profileId, IInstallableUnit[] ius, ProvisioningPlan initialProvisioningPlan) {
+	public UninstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, ProvisioningPlan initialProvisioningPlan) {
 		super();
+		this.policy = policy;
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 		this.profileId = profileId;
@@ -37,7 +40,7 @@ public class UninstallWizard extends Wizard {
 	}
 
 	public void addPages() {
-		page = new UninstallWizardPage(ius, profileId, plan);
+		page = new UninstallWizardPage(policy, ius, profileId, plan);
 		addPage(page);
 	}
 

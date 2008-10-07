@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
+
+import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
+
+import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
+
 import java.security.cert.Certificate;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.TrustCertificateDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;

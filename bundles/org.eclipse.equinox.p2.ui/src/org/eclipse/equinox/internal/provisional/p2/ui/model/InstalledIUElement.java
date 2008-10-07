@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
@@ -26,7 +27,8 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 	String profileId;
 	IInstallableUnit iu;
 
-	public InstalledIUElement(String profileId, IInstallableUnit iu) {
+	public InstalledIUElement(Object parent, String profileId, IInstallableUnit iu) {
+		super(parent);
 		this.profileId = profileId;
 		this.iu = iu;
 	}
@@ -80,8 +82,4 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 		return true;
 	}
 
-	public Object getParent(Object o) {
-		// we do not know the element
-		return null;
-	}
 }

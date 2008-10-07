@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
  * Element class that represents the root of an artifact
@@ -25,8 +25,12 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescript
  */
 public class ArtifactRepositories extends RemoteQueriedElement {
 
+	public ArtifactRepositories() {
+		super(null);
+	}
+
 	protected int getDefaultQueryType() {
-		return IQueryProvider.ARTIFACT_REPOS;
+		return QueryProvider.ARTIFACT_REPOS;
 	}
 
 	/*

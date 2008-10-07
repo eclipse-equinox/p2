@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -35,14 +35,13 @@ public class SizingTest extends AbstractProvisioningTest {
 			fail("0.99", e);
 			return;
 		}
-		Sizing sizing = null;
+		long size = IUElement.SIZE_NOTAPPLICABLE;
 		try {
-			sizing = ProvisioningUtil.getSizeInfo(plan, profileId, getMonitor());
+			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
-		assertEquals("1.0", 0, sizing.getDiskSize());
-		assertEquals("1.1", 0, sizing.getDlSize());
+		assertEquals("1.0", 0, size);
 	}
 
 	/**
@@ -61,13 +60,12 @@ public class SizingTest extends AbstractProvisioningTest {
 			fail("0.99", e);
 			return;
 		}
-		Sizing sizing = null;
+		long size = IUElement.SIZE_NOTAPPLICABLE;
 		try {
-			sizing = ProvisioningUtil.getSizeInfo(plan, profileId, getMonitor());
+			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
-		assertEquals("1.0", 0, sizing.getDiskSize());
-		assertEquals("1.1", 0, sizing.getDlSize());
+		assertEquals("1.0", 0, size);
 	}
 }

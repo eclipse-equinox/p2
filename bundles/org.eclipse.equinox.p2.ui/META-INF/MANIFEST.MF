@@ -33,6 +33,7 @@ Import-Package: com.ibm.icu.text,
 Export-Package: org.eclipse.equinox.internal.p2.ui;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.dialogs;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.model;x-internal:=true,
+ org.eclipse.equinox.internal.p2.ui.query;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.viewers;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.ui;
   x-friends:="org.eclipse.equinox.p2.ui.admin,
@@ -55,13 +56,18 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;x-internal:=true,
    org.eclipse.equinox.p2.ui.admin.rcp,
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.pde.p2.ui",
- org.eclipse.equinox.internal.provisional.p2.ui.policy;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.sdk",
- org.eclipse.equinox.internal.provisional.p2.ui.query;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.sdk",
+ org.eclipse.equinox.internal.provisional.p2.ui.policy;
+  x-friends:="org.eclipse.equinox.p2.ui.admin,
+   org.eclipse.equinox.p2.ui.admin.rcp,
+   org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.pde.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.ui.viewers;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.sdk"
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.eclipse.core.expressions, 
  org.eclipse.equinox.simpleconfigurator,
  org.eclipse.equinox.security.ui;bundle-version="[1.0.0,2.0.0)"
+ 
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1

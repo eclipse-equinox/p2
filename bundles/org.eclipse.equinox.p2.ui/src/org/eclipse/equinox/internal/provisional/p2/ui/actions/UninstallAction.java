@@ -11,28 +11,25 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 public class UninstallAction extends ProfileModificationAction {
 
-	public UninstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
-		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, policies, shell);
+	public UninstallAction(Policy policy, ISelectionProvider selectionProvider, String profileId) {
+		super(policy, ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profileId);
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
 	}
 
@@ -68,8 +65,8 @@ public class UninstallAction extends ProfileModificationAction {
 		return ProvUIMessages.UninstallIUProgress;
 	}
 
-	protected int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
-		UninstallWizard wizard = new UninstallWizard(targetProfileId, ius, plan);
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+		UninstallWizard wizard = new UninstallWizard(getPolicy(), targetProfileId, ius, plan);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
@@ -77,10 +74,16 @@ public class UninstallAction extends ProfileModificationAction {
 		return dialog.open();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
-		request.removeInstallableUnits(ius);
-		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+	protected ProfileChangeRequest getProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, 1);
+		ProfileChangeRequest request = null;
+		try {
+			request = ProfileChangeRequest.createByProfileId(targetProfileId);
+			request.removeInstallableUnits(ius);
+		} finally {
+			sub.done();
+		}
+		return request;
 	}
 
 }

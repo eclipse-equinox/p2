@@ -1,16 +1,18 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
+
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentListener;
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.IViewMenuProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentListener;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.PopupDialog;
@@ -45,7 +47,6 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	PatternFilter patternFilter;
 	IViewMenuProvider viewMenuProvider;
 	DeferredQueryContentProvider contentProvider;
-	boolean useCheckBoxTree = false;
 	InputSchedulingRule filterRule;
 	String savedFilterText;
 	Job loadJob;
@@ -53,6 +54,7 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	ControlEnableState enableState;
 	Object viewerInput;
 	ArrayList checkState = new ArrayList();
+	ContainerCheckedTreeViewer checkboxViewer;
 
 	class InputSchedulingRule implements ISchedulingRule {
 		Object input;
@@ -86,12 +88,11 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		}
 	}
 
-	public DeferredFetchFilteredTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display, boolean useCheckBoxViewer) {
+	public DeferredFetchFilteredTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display) {
 		super(parent);
 		this.display = display;
 		this.viewMenuProvider = viewMenuProvider;
 		this.patternFilter = filter;
-		this.useCheckBoxTree = useCheckBoxViewer;
 		init(treeStyle, filter);
 	}
 
@@ -110,32 +111,29 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	}
 
 	protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
-		if (useCheckBoxTree) {
-			final ContainerCheckedTreeViewer v = new ContainerCheckedTreeViewer(composite, style);
-			v.addCheckStateListener(new ICheckStateListener() {
-				public void checkStateChanged(CheckStateChangedEvent event) {
-					// We use an additive check state cache so we need to remove
-					// previously checked items if the user unchecked them.
-					if (!event.getChecked() && checkState != null) {
-						Iterator iter = checkState.iterator();
-						ArrayList toRemove = new ArrayList(1);
-						while (iter.hasNext()) {
-							Object element = iter.next();
-							if (v.getComparer().equals(element, event.getElement())) {
-								toRemove.add(element);
-								// Do not break out of the loop.  We may have duplicate equal
-								// elements in the cache.  Since the cache is additive, we want
-								// to be sure we've gotten everything.
-							}
+		checkboxViewer = new ContainerCheckedTreeViewer(composite, style);
+		checkboxViewer.addCheckStateListener(new ICheckStateListener() {
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				// We use an additive check state cache so we need to remove
+				// previously checked items if the user unchecked them.
+				if (!event.getChecked() && checkState != null) {
+					Iterator iter = checkState.iterator();
+					ArrayList toRemove = new ArrayList(1);
+					while (iter.hasNext()) {
+						Object element = iter.next();
+						if (checkboxViewer.getComparer().equals(element, event.getElement())) {
+							toRemove.add(element);
+							// Do not break out of the loop.  We may have duplicate equal
+							// elements in the cache.  Since the cache is additive, we want
+							// to be sure we've gotten everything.
 						}
-						checkState.removeAll(toRemove);
 					}
-
+					checkState.removeAll(toRemove);
 				}
-			});
-			return v;
-		}
-		return super.doCreateTreeViewer(composite, style);
+
+			}
+		});
+		return checkboxViewer;
 	}
 
 	protected Composite createFilterControls(Composite filterParent) {
@@ -449,8 +447,6 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	}
 
 	void rememberLeafCheckState() {
-		if (!useCheckBoxTree)
-			return;
 		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
 		Object[] checked = v.getCheckedElements();
 		if (checkState == null)
@@ -461,29 +457,30 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	}
 
 	void restoreLeafCheckState() {
-		if (!useCheckBoxTree)
-			return;
-		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
-		if (v == null || v.getTree().isDisposed())
+		if (checkboxViewer == null || checkboxViewer.getTree().isDisposed())
 			return;
 		if (checkState == null)
 			return;
 
-		v.setCheckedElements(new Object[0]);
-		v.setGrayedElements(new Object[0]);
+		checkboxViewer.setCheckedElements(new Object[0]);
+		checkboxViewer.setGrayedElements(new Object[0]);
 		// Now we are only going to set the check state of the leaf nodes
 		// and rely on our container checked code to update the parents properly.
 		Iterator iter = checkState.iterator();
 		Object element = null;
 		while (iter.hasNext()) {
 			element = iter.next();
-			if (!v.isExpandable(element)) {
+			if (!checkboxViewer.isExpandable(element)) {
 				// setChecked does an internal expand
-				v.setChecked(element, true);
+				checkboxViewer.setChecked(element, true);
 			}
 		}
 		// We are only firing one event, knowing that this is enough for our listeners.
 		if (element != null)
-			v.fireCheckStateChanged(element, true);
+			checkboxViewer.fireCheckStateChanged(element, true);
+	}
+
+	public CheckboxTreeViewer getCheckboxTreeViewer() {
+		return checkboxViewer;
 	}
 }

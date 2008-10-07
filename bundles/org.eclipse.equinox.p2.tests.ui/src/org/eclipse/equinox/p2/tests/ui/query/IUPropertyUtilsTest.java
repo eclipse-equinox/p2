@@ -20,14 +20,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * Tests for {@link IUPropertyUtils}.
  */
-public class IUPropertyUtilsTest extends AbstractProvisioningTest {
+public class IUPropertyUtilsTest extends QueryTest {
 	public void testFeatureProperties() {
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
@@ -48,7 +47,7 @@ public class IUPropertyUtilsTest extends AbstractProvisioningTest {
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 
-		Copyright copyright = IUPropertyUtils.getCopyright(unit);
+		Copyright copyright = org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils.getCopyright(unit);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
 		License license = IUPropertyUtils.getLicense(unit);
 		assertEquals("1.2", "Test License", license.getBody());

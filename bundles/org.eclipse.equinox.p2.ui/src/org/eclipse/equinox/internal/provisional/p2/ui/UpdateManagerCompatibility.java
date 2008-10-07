@@ -16,25 +16,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.xml.parsers.*;
-import org.eclipse.core.commands.*;
-import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -49,9 +44,6 @@ public class UpdateManagerCompatibility {
 
 	// This value was copied from MetadataGeneratorHelper.  Must be the same.
 	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
-	// These values rely on the command markup in org.eclipse.ui.ide that defines the update commands
-	private static final String UPDATE_MANAGER_FIND_AND_INSTALL = "org.eclipse.ui.update.findAndInstallUpdates"; //$NON-NLS-1$
-	private static final String UPDATE_MANAGER_MANAGE_CONFIGURATION = "org.eclipse.ui.update.manageConfiguration"; //$NON-NLS-1$
 	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
 	private static void parse(String fileName, Vector bookmarks) {
@@ -114,7 +106,7 @@ public class UpdateManagerCompatibility {
 
 		String sel = getAttribute(child, "selected"); //$NON-NLS-1$
 		boolean selected = (sel != null && sel.equals("true")); //$NON-NLS-1$
-		bookmarks.add(new MetadataRepositoryElement(url, selected));
+		bookmarks.add(new MetadataRepositoryElement(null, url, selected));
 	}
 
 	private static void createFolder(Node child, Vector bookmarks) {
@@ -245,7 +237,7 @@ public class UpdateManagerCompatibility {
 	 * without requiring those plug-ins.  Instead, we invoke a known command.
 	 */
 	public static void openInstaller() {
-		runCommand(UPDATE_MANAGER_FIND_AND_INSTALL, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenFindAndInstall);
+		ProvUI.openUpdateManagerInstaller(null);
 	}
 
 	/**
@@ -254,39 +246,12 @@ public class UpdateManagerCompatibility {
 	 * without requiring those plug-ins.  Instead, we invoke a known command.
 	 */
 	public static void openConfigurationManager() {
-		runCommand(UPDATE_MANAGER_MANAGE_CONFIGURATION, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenManageConfiguration);
-	}
-
-	private static void runCommand(String commandId, String errorMessage) {
-		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-		Command command = commandService.getCommand(commandId);
-		if (!command.isDefined()) {
-			return;
-		}
-		IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class);
-		try {
-			handlerService.executeCommand(commandId, null);
-		} catch (ExecutionException e) {
-			reportFail(errorMessage, e);
-		} catch (NotDefinedException e) {
-			reportFail(errorMessage, e);
-		} catch (NotEnabledException e) {
-			reportFail(errorMessage, e);
-		} catch (NotHandledException e) {
-			reportFail(errorMessage, e);
-		}
+		ProvUI.openUpdateManagerConfigurationManager(null);
 	}
 
 	private static void logFail(Throwable t) {
 		Status failStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, t.getLocalizedMessage(), t);
 		ProvUI.reportStatus(failStatus, StatusManager.LOG);
-
-	}
-
-	private static void reportFail(String message, Throwable t) {
-		Status failStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, message, t);
-		ProvUI.reportStatus(failStatus, StatusManager.BLOCK | StatusManager.LOG);
-
 	}
 
 	private static String getWritableXMLString(String value) {

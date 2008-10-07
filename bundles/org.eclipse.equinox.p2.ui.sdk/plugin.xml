@@ -87,6 +87,14 @@
             name="%Update.command"
             id="org.eclipse.equinox.p2.ui.sdk.update">
       </command>
+      <command
+            name="%Install.command"
+            id="org.eclipse.equinox.p2.ui.sdk.install">
+      </command>
+      <command
+            name="%TempInstallView.command"
+            id="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -94,6 +102,15 @@
             commandId="org.eclipse.equinox.p2.ui.sdk.update"
             class="org.eclipse.equinox.internal.p2.ui.sdk.UpdateHandler">
       </handler>
+      <handler
+            commandId="org.eclipse.equinox.p2.ui.sdk.install"
+            class="org.eclipse.equinox.internal.p2.ui.sdk.InstallNewSoftwareHandler">
+      </handler>
+      <handler
+            commandId="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo"
+            class="org.eclipse.equinox.internal.p2.ui.sdk.TempLaunchAboutDialogHandler">
+      </handler>
+   
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -103,6 +120,24 @@
                   commandId="org.eclipse.equinox.p2.ui.sdk.update"
             	  mnemonic="%Update.command.mnemonic"
                   id="org.eclipse.equinox.p2.ui.sdk.update">
+            </command>
+                        
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.update">
+            <command
+                  commandId="org.eclipse.equinox.p2.ui.sdk.install"
+            	  mnemonic="%Install.command.mnemonic"
+                  id="org.eclipse.equinox.p2.ui.sdk.install">
+            </command>
+                        
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.install">
+            <command
+                  commandId="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo"
+            	  mnemonic="%TempInstallView.mnemonic"
+                  id="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo">
             </command>
                         
       </menuContribution>
@@ -140,5 +175,17 @@
             class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ClassicUpdateInitializer">
       </initializer>
    </extension>
+     	<extension 
+   		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
+		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
+	</extension>
+      <extension
+         point="org.eclipse.ui.installationPages">
+              <page
+            name="%installedSoftwarePage"
+            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage"
+            id="org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
+      </page>
+      </extension>
 
 </plugin>

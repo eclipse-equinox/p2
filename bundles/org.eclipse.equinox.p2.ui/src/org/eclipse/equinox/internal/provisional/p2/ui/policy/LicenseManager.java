@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
+import java.io.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
@@ -26,4 +27,21 @@ public abstract class LicenseManager {
 	public abstract boolean isAccepted(IInstallableUnit iu);
 
 	public abstract boolean hasAcceptedLicenses();
+
+	/**
+	 * 
+	 * @param stream
+	 * @throws IOException 
+	 * @since 3.5
+	 */
+	public abstract void write(OutputStream stream) throws IOException;
+
+	/**
+	 * 
+	 * @param stream
+	 * @throws IOException 
+	 * @since 3.5
+	 */
+	public abstract void read(InputStream stream) throws IOException;
+
 }

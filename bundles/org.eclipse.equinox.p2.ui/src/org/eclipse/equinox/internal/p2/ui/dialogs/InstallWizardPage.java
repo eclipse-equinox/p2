@@ -11,28 +11,63 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 
-public class InstallWizardPage extends UpdateOrInstallWizardPage {
+public class InstallWizardPage extends ProfileModificationWizardPage {
+	InstallWizard wizard;
+	boolean useCheckbox;
 
-	public InstallWizardPage(IInstallableUnit[] ius, String profileId, ProvisioningPlan plan, UpdateOrInstallWizard wizard) {
-		super("InstallWizardPage", ius, profileId, plan, wizard); //$NON-NLS-1$
+	public InstallWizardPage(Policy policy, String profileId, IInstallableUnit[] selectedIUs, ProvisioningPlan plan, InstallWizard wizard) {
+		super(policy, "InstallWizardPage", selectedIUs, profileId, plan); //$NON-NLS-1$
+		useCheckbox = selectedIUs != null;
+		this.wizard = wizard;
 		setTitle(ProvUIMessages.InstallIUOperationLabel);
-		setDescription(ProvUIMessages.InstallDialog_InstallSelectionMessage);
+		if (useCheckbox)
+			setDescription(ProvUIMessages.InstallDialog_InstallSelectionMessage);
+		else
+			setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}
 
 	protected String getOperationLabel() {
 		return ProvUIMessages.InstallIUOperationLabel;
 	}
 
-	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
+	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
 		IInstallableUnit[] selected = elementsToIUs(selectedElements);
-		ProvisioningPlan plan = InstallAction.computeProvisioningPlan(selected, getProfileId(), monitor);
-		computeSizing(plan, getProfileId());
-		return plan;
+		return InstallAction.computeProfileChangeRequest(selected, getProfileId(), additionalStatus, monitor);
+	}
+
+	protected TableViewer createTableViewer(Composite parent) {
+		if (!useCheckbox)
+			return new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION);
+		return super.createTableViewer(parent);
+	}
+
+	protected Object[] getCheckedElements() {
+		if (!useCheckbox)
+			return wizard.getCheckedIUs();
+		return super.getCheckedElements();
+	}
+
+	protected void setInitialCheckState() {
+		if (!useCheckbox) {
+			return;
+		}
+		super.setInitialCheckState();
+	}
+
+	public void updateIUs() {
+		tableViewer.setInput(getCheckedElements());
+		super.checkedIUsChanged();
 	}
 }

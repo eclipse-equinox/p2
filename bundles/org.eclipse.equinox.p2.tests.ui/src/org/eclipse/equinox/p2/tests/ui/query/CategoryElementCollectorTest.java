@@ -10,27 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.internal.p2.ui.query.CategoryElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.CategoryElementCollector;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
 /**
  * Tests for {@link CategoryElementCollector}.
  */
-public class CategoryElementCollectorTest extends AbstractProvisioningTest {
+public class CategoryElementCollectorTest extends QueryTest {
 	private CategoryElementCollector createCollector(boolean showCategorized) {
 		IInstallableUnit category = createIU("default category");
-		Query query = new Query() {
-			public boolean isMatch(Object candidate) {
-				return true;
-			}
-		};
-		return new CategoryElementCollector(new MockQueryProvider(query), new MockQueryable(category), null, showCategorized);
+		return new CategoryElementCollector(new MockQueryable(category), null, showCategorized);
 	}
 
 	public void testCollectObject() {

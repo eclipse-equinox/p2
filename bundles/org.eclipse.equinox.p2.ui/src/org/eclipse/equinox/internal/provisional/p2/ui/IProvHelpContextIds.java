@@ -24,4 +24,10 @@ public interface IProvHelpContextIds {
 
 	public static final String INSTALL_WIZARD = PREFIX + "install_wizard_context"; //$NON-NLS-1$ 
 
+	public static final String REPOSITORY_MANIPULATION_DIALOG = PREFIX + "repository_manipulation_dialog_context"; //$NON-NLS-1$
+
+	public static final String INSTALLED_SOFTWARE = PREFIX + "installed_software_context"; //$NON-NLS-1$
+
+	public static final String AVAILABLE_SOFTWARE = PREFIX + "available_software_context"; //$NON-NLS-1$
+
 }

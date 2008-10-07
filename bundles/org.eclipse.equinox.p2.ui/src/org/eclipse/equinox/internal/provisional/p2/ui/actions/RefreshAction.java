@@ -27,7 +27,7 @@ public abstract class RefreshAction extends ProvisioningAction {
 	/**
 	 */
 	public RefreshAction(ISelectionProvider selectionProvider, Control control) {
-		super(ProvUIMessages.RefreshAction_Label, selectionProvider, control.getShell());
+		super(ProvUIMessages.RefreshAction_Label, selectionProvider);
 		setToolTipText(ProvUIMessages.RefreshAction_Tooltip);
 		hookKeyListener(control);
 		init();

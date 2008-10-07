@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -29,7 +29,8 @@ import org.eclipse.osgi.util.NLS;
 public class ProfileElement extends RemoteQueriedElement {
 	String profileId;
 
-	public ProfileElement(String profileId) {
+	public ProfileElement(Object parent, String profileId) {
+		super(parent);
 		this.profileId = profileId;
 	}
 
@@ -48,7 +49,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	protected int getDefaultQueryType() {
-		return IQueryProvider.INSTALLED_IUS;
+		return QueryProvider.INSTALLED_IUS;
 	}
 
 	public IQueryable getQueryable() {

@@ -11,18 +11,15 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.SelectionProviderAction;
 
 public abstract class ProvisioningAction extends SelectionProviderAction {
 
-	private Shell shell;
-
-	protected ProvisioningAction(String text, ISelectionProvider selectionProvider, Shell shell) {
+	protected ProvisioningAction(String text, ISelectionProvider selectionProvider) {
 		super(selectionProvider, text);
-		this.shell = shell;
 	}
 
 	/*
@@ -39,9 +36,7 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	}
 
 	protected Shell getShell() {
-		if (shell == null)
-			return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		return shell;
+		return ProvUI.getDefaultParentShell();
 	}
 
 	/*

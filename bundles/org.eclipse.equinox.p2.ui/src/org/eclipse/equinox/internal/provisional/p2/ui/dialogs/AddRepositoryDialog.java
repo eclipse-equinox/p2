@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
+
+import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
+
+import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.IStatus;

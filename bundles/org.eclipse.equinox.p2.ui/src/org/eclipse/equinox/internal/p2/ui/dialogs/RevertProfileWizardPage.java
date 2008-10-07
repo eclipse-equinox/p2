@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
+
+import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
+import org.eclipse.equinox.internal.p2.ui.model.RollbackRepositoryElement;
+
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,10 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.RollbackProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.RollbackRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -48,15 +50,13 @@ public class RevertProfileWizardPage extends WizardPage {
 	private TableViewer configsViewer;
 	private TableViewer configContentsViewer;
 	String profileId;
-	IQueryProvider queryProvider;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
-	public RevertProfileWizardPage(String profileId, IQueryProvider queryProvider) {
+	public RevertProfileWizardPage(String profileId) {
 		super("RevertConfiguration"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.RevertDialog_PageTitle);
 		setDescription(ProvUIMessages.RevertDialog_Description);
 		this.profileId = profileId;
-		this.queryProvider = queryProvider;
 
 	}
 
@@ -89,7 +89,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
 		configsViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		configsViewer.setContentProvider(new RepositoryContentProvider(queryProvider));
+		configsViewer.setContentProvider(new RepositoryContentProvider());
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
 			// We override the ViewerComparator so that we don't get the labels of the elements
@@ -130,7 +130,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		configContentsViewer = new TableViewer(composite, SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configContentsViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
 		configContentsViewer.setComparer(new ProvElementComparer());
-		configContentsViewer.setContentProvider(new DeferredQueryContentProvider(queryProvider));
+		configContentsViewer.setContentProvider(new DeferredQueryContentProvider());
 
 		// columns before labels or you get a blank table
 		setTableColumns(configContentsViewer.getTable());
@@ -144,7 +144,6 @@ public class RevertProfileWizardPage extends WizardPage {
 	private Object getInput() {
 		try {
 			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepositoryURL(), profileId);
-			element.setQueryProvider(queryProvider);
 			return element;
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, ProvUIMessages.RevertProfileWizardPage_ErrorRetrievingHistory, StatusManager.BLOCK | StatusManager.LOG);

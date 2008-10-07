@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
@@ -45,13 +44,11 @@ public class StructuredViewerProvisioningListener implements ProvisioningListene
 	int batchCount = 0;
 	StructuredViewer viewer;
 	Display display;
-	IQueryProvider queryProvider;
 
-	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes, IQueryProvider queryProvider) {
+	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes) {
 		this.viewer = viewer;
 		this.eventTypes = eventTypes;
 		this.display = viewer.getControl().getDisplay();
-		this.queryProvider = queryProvider;
 	}
 
 	public void notify(EventObject o) {
@@ -149,8 +146,7 @@ public class StructuredViewerProvisioningListener implements ProvisioningListene
 					return;
 				// We want to refresh the affected profile, so we
 				// construct a profile element on this profile.
-				ProfileElement element = new ProfileElement(profileId);
-				element.setQueryProvider(queryProvider);
+				ProfileElement element = new ProfileElement(null, profileId);
 				viewer.refresh(element);
 			}
 		});

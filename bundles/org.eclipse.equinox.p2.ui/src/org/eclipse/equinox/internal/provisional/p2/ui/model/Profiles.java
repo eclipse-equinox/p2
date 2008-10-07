@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
  * Element class that represents the root of a profile
@@ -30,15 +30,6 @@ public class Profiles extends QueriedElement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getParent(java.lang.Object)
-	 */
-	public Object getParent(Object o) {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
 	public String getLabel(Object o) {
@@ -49,7 +40,7 @@ public class Profiles extends QueriedElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
 	 */
 	protected int getDefaultQueryType() {
-		return IQueryProvider.PROFILES;
+		return QueryProvider.PROFILES;
 	}
 
 }

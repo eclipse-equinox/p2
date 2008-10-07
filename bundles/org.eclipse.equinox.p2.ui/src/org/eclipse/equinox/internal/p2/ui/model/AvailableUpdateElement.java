@@ -29,8 +29,8 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	IInstallableUnit iuToBeUpdated;
 
-	public AvailableUpdateElement(IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID) {
-		super(iu, profileID);
+	public AvailableUpdateElement(Object parent, IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID) {
+		super(parent, iu, profileID);
 		this.iuToBeUpdated = iuToBeUpdated;
 	}
 

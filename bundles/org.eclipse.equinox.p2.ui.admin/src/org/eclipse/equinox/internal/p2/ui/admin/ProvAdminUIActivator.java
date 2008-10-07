@@ -10,15 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
+import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ValidationDialogServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -34,11 +44,10 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.provisional.p2.ui.admin"; //$NON-NLS-1$
 	public static final String PERSPECTIVE_ID = "org.eclipse.equinox.internal.provisional.p2.ui.admin.ProvisioningPerspective"; //$NON-NLS-1$
 
-	private IQueryProvider queryProvider;
-	private LicenseManager licenseManager;
-	private IPlanValidator planValidator;
-	private Policies policies;
 	private ServiceRegistration certificateUIRegistration;
+	private IPropertyChangeListener preferenceListener;
+
+	Policy policy;
 
 	public static BundleContext getContext() {
 		return context;
@@ -78,69 +87,99 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvAdminUIActivator.context = bundleContext;
+		initializePolicy();
 		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
+		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
 		certificateUIRegistration.unregister();
+		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
+		policy = null;
 	}
 
-	public IQueryProvider getQueryProvider() {
-		if (queryProvider == null)
-			queryProvider = new ProvAdminQueryProvider();
-		return queryProvider;
-	}
-
-	public LicenseManager getLicenseManager() {
-		if (licenseManager == null)
-			licenseManager = new SimpleLicenseManager();
-		return licenseManager;
-	}
-
-	public IPlanValidator getPlanValidator() {
-		if (planValidator == null)
-			planValidator = new IPlanValidator() {
-				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-					if (plan == null)
-						return false;
-					// If the plan requires install handler support, we want to open the old update UI
-					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
-						MessageDialog dialog = new MessageDialog(shell, ProvAdminUIMessages.ProvAdminUIActivator_UnsupportedInstallHandler, null, ProvAdminUIMessages.ProvAdminUIActivator_UnsupportedInstallHandlerMessage, MessageDialog.WARNING, new String[] {ProvAdminUIMessages.ProvAdminUIActivator_LaunchUpdateManager, ProvAdminUIMessages.ProvAdminUIActivator_ContinueAnyway, IDialogConstants.CANCEL_LABEL}, 0);
-						int ret = dialog.open();
-						if (ret == 1) // continue anyway
-							return true;
-						if (ret == 0)
-							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
-								public void run() {
-									UpdateManagerCompatibility.openInstaller();
-								}
-							});
-						return false;
-					}
-					return true;
-				}
-			};
-		return planValidator;
-	}
-
-	public Policies getPolicies() {
-		if (policies == null) {
-			policies = new Policies() {
-				public LicenseManager getLicenseManager() {
-					return ProvAdminUIActivator.this.getLicenseManager();
-				}
-
-				public IPlanValidator getPlanValidator() {
-					return ProvAdminUIActivator.this.getPlanValidator();
-				}
-
-				public IQueryProvider getQueryProvider() {
-					return ProvAdminUIActivator.this.getQueryProvider();
+	private IPropertyChangeListener getPreferenceListener() {
+		if (preferenceListener == null) {
+			preferenceListener = new IPropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					updateForPreferences(getPolicy().getQueryContext());
 				}
 			};
 		}
-		return policies;
+		return preferenceListener;
+	}
+
+	void updateForPreferences(IUViewQueryContext queryContext) {
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
+			queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
+		else
+			queryContext.setVisibleAvailableIUProperty(null);
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
+			queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
+		else
+			queryContext.setVisibleInstalledIUProperty(null);
+
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {
+			queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		} else {
+			queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+		}
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES))
+			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
+		else
+			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
+
+	}
+
+	void initializePolicy() {
+		policy = new Policy();
+		// Manipulate the default query context according to our preferences
+		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
+		policy.setQueryContext(queryContext);
+		updateForPreferences(queryContext);
+		policy.setPlanValidator(new PlanValidator() {
+			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+				if (plan == null)
+					return false;
+				return true;
+			}
+		});
+		policy.setProfileChooser(new ProfileChooser() {
+			public String getProfileId(Shell shell) {
+				// TODO would be nice if the profile chooser dialog let you
+				// create a new profile
+				ProvElementContentProvider provider = new ProvElementContentProvider();
+				if (provider.getElements(new Profiles()).length == 0) {
+					AddProfileDialog dialog = new AddProfileDialog(shell, new String[0]);
+					if (dialog.open() == Window.OK) {
+						return dialog.getAddedProfileId();
+					}
+					return null;
+				}
+
+				ListDialog dialog = new ListDialog(shell);
+				dialog.setTitle(ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle);
+				dialog.setLabelProvider(new ProvElementLabelProvider());
+				dialog.setInput(new Profiles());
+				dialog.setContentProvider(provider);
+				dialog.open();
+				Object[] result = dialog.getResult();
+				if (result != null && result.length > 0) {
+					IProfile profile = (IProfile) ProvUI.getAdapter(result[0], IProfile.class);
+					if (profile != null)
+						return profile.getProfileId();
+				}
+				return null;
+			}
+		});
+	}
+
+	public Policy getPolicy() {
+		return policy;
 	}
 }
