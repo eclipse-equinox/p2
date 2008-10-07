@@ -11,77 +11,113 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationAction extends ProvisioningAction {
 	public static final int ACTION_NOT_RUN = -1;
-	private String profileId;
-	private String userChosenProfileId;
-	IProfileChooser profileChooser;
-	Policies policies;
+	String profileId;
+	String userChosenProfileId;
+	Policy policy;
 	int result = ACTION_NOT_RUN;
 
-	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, String profileId, IProfileChooser profileChooser, Policies policies, Shell shell) {
-		super(text, selectionProvider, shell);
+	protected ProfileModificationAction(Policy policy, String text, ISelectionProvider selectionProvider, String profileId) {
+		super(text, selectionProvider);
+		this.policy = policy;
 		this.profileId = profileId;
-		this.profileChooser = profileChooser;
-		this.policies = policies;
 		init();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan() {
-		final String id = getProfileId(true);
+	public void run() {
+		// Determine which IUs and which profile are involved
+		IInstallableUnit[] ius = getSelectedIUs();
+		String id = getProfileId(true);
 		// We could not figure out a profile to operate on, so return
-		if (id == null) {
-			return null;
+		if (id == null || ius.length == 0) {
+			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NoProfileToModify), StatusManager.SHOW);
+			runCanceled();
+			return;
 		}
-
-		final IInstallableUnit[] ius = getSelectedIUs();
-		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				try {
-					plan[0] = getProvisioningPlan(ius, id, monitor);
-				} catch (ProvisionException e) {
-					ProvUI.handleException(e, ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
-				}
-			}
-		};
-		try {
-			new ProgressMonitorDialog(getShell()).run(true, true, runnable);
-		} catch (InterruptedException e) {
-			// don't report thread interruption
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
-		}
-		return plan[0];
+		run(ius, id);
 	}
 
-	public void run() {
-		ProvisioningPlan plan = getProvisioningPlan();
-		if (validatePlan(plan))
-			result = performOperation(getSelectedIUs(), getProfileId(true), plan);
-		else
-			result = Window.CANCEL;
-		userChosenProfileId = null;
+	protected void run(final IInstallableUnit[] ius, final String id) {
+		// Get a profile change request.  Supply a multi-status so that information
+		// about the request can be provided along the way.
+		final MultiStatus additionalStatus = getProfileChangeAlteredStatus();
+		final ProfileChangeRequest[] request = new ProfileChangeRequest[1];
+		// TODO even getting a profile change request can be expensive
+		// when updating, because we are looking for updates.  For now, most
+		// clients work around this by preloading repositories in a job.
+		// Consider something different here.  We'll pass a fake progress monitor
+		// into the profile change request method so that later we can do
+		// something better here.
+		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+			public void run() {
+				request[0] = getProfileChangeRequest(ius, id, additionalStatus, new NullProgressMonitor());
+			}
+		});
+		// If we couldn't build a request, then report an error and bail.
+		// Hopefully the provider of the request gave an explanation in the status.
+		if (request[0] == null) {
+			IStatus failureStatus;
+			if (additionalStatus.getChildren().length > 0) {
+				if (additionalStatus.getChildren().length == 1)
+					failureStatus = additionalStatus.getChildren()[0];
+				else {
+					MultiStatus nullRequestStatus = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, additionalStatus.getChildren(), ProvUIMessages.ProfileModificationAction_NoChangeRequestProvided, null);
+					nullRequestStatus.addAll(additionalStatus);
+					failureStatus = nullRequestStatus;
+				}
+			} else {
+				// No explanation for failure was provided.  It shouldn't happen, but...
+				failureStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NoExplanationProvided);
+			}
+			ProvUI.reportStatus(failureStatus, StatusManager.SHOW);
+			runCanceled();
+			return;
+		}
+		// We have a profile change request, let's get a plan for it.  This could take awhile.
+		final PlannerResolutionOperation operation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationAction_ResolutionOperationLabel, ius, id, request[0], additionalStatus, isResolveUserVisible());
+		// Since we are resolving asynchronously, our job is done.  Setting this allows
+		// callers to decide to close the launching window.
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
+		result = Window.OK;
+		Job job = ProvisioningOperationRunner.schedule(operation, getShell(), StatusManager.SHOW);
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				// Do we have a plan??
+				final ProvisioningPlan plan = operation.getProvisioningPlan();
+				if (plan != null) {
+					if (PlatformUI.isWorkbenchRunning()) {
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								if (validatePlan(plan))
+									performAction(ius, getProfileId(true), plan);
+								userChosenProfileId = null;
+							}
+						});
+					}
+				}
+			}
+		});
 	}
 
 	/**
@@ -121,9 +157,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	/*
 	 * Get a provisioning plan for this action.
 	 */
-	protected abstract ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException;
+	protected abstract ProfileChangeRequest getProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor);
 
-	protected abstract int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
+	protected abstract int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
 
 	protected abstract String getTaskName();
 
@@ -146,19 +182,23 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected LicenseManager getLicenseManager() {
-		return policies.getLicenseManager();
+		return policy.getLicenseManager();
 	}
 
-	protected IQueryProvider getQueryProvider() {
-		return policies.getQueryProvider();
+	protected QueryProvider getQueryProvider() {
+		return policy.getQueryProvider();
 	}
 
-	protected IPlanValidator getPlanValidator() {
-		return policies.getPlanValidator();
+	protected PlanValidator getPlanValidator() {
+		return policy.getPlanValidator();
 	}
 
-	protected Policies getPolicies() {
-		return policies;
+	protected ProfileChooser getProfileChooser() {
+		return policy.getProfileChooser();
+	}
+
+	protected Policy getPolicy() {
+		return policy;
 	}
 
 	protected final void checkEnablement(Object[] selections) {
@@ -204,10 +244,25 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 			return profileId;
 		if (userChosenProfileId != null)
 			return userChosenProfileId;
-		if (chooseProfile && profileChooser != null) {
-			userChosenProfileId = profileChooser.getProfileId(getShell());
+		if (chooseProfile && getProfileChooser() != null) {
+			userChosenProfileId = getProfileChooser().getProfileId(getShell());
 			return userChosenProfileId;
 		}
 		return null;
+	}
+
+	private void runCanceled() {
+		// The action was canceled, do any cleanup needed before
+		// it is run again.
+		userChosenProfileId = null;
+		result = Window.CANCEL;
+	}
+
+	protected MultiStatus getProfileChangeAlteredStatus() {
+		return PlanStatusHelper.getProfileChangeAlteredStatus();
+	}
+
+	protected boolean isResolveUserVisible() {
+		return true;
 	}
 }
