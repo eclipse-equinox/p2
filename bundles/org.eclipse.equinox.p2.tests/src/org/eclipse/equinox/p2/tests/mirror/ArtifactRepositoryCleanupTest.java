@@ -33,7 +33,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	protected File bystanderRepoLocation; //anotherfeature
 
 	//TODO change to an abstracted type when API is available
-	private ArtifactRepositoryManager getArtifactRepositoryManager() {
+	private ArtifactRepositoryManager getConcreteArtifactRepositoryManager() {
 		return (ArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
@@ -122,9 +122,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("1.1", e);
 		}
@@ -152,9 +152,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("2.3", e);
 		}
@@ -168,7 +168,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 		try {
 			//Load (by creating) the destination
 			String repositoryName = destRepoLocation.toURL() + " - artifacts"; //$NON-NLS-1$
-			getArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getConcreteArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail("3.0", e);
 		} catch (MalformedURLException e) {
@@ -183,9 +183,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("3.3", e);
 		}
@@ -199,9 +199,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 		try {
 			//Load (by creating) the destination
 			String repositoryName = destRepoLocation.toURL() + " - artifacts"; //$NON-NLS-1$
-			getArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getConcreteArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			//Load the source
-			getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
 		} catch (ProvisionException e) {
 			fail("4.0", e);
 		} catch (MalformedURLException e) {
@@ -216,9 +216,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("4.3", e);
 		}
@@ -233,7 +233,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testArtifactMirrorRemovesReposWithBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
 		} catch (ProvisionException e) {
 			fail("5.0", e);
 		} catch (MalformedURLException e) {
@@ -248,12 +248,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//Ensure bystander was not effected by the mirror application
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("5.3", e);
 		}
@@ -268,9 +268,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testArtifactMirrorRemovesReposWithSourceAndBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
 			//Load the source
-			getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
 		} catch (ProvisionException e) {
 			fail("6.0", e);
 		} catch (MalformedURLException e) {
@@ -285,12 +285,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//Ensure bystander was not effected by the mirror application
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("6.3", e);
 		}
@@ -323,12 +323,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertFalse(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertFalse(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//Ensure bystander was not effected by the mirror application
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("7.3", e);
 		}
@@ -343,12 +343,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testArtifactMirrorRemovesReposWithBothAndBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
 			//Load (by creating) the destination
 			String repositoryName = destRepoLocation.toURL() + " - artifacts"; //$NON-NLS-1$
-			getArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getConcreteArtifactRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			//Load the source
-			getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getConcreteArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
 		} catch (ProvisionException e) {
 			fail("8.0", e);
 		} catch (MalformedURLException e) {
@@ -363,12 +363,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 
 		try {
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(destRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(destRepoLocation.toURL()));
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(sourceRepoLocation.toURL()));
 			//Ensure bystander was not effected by the mirror application
 			//TODO modify the contains statement once the API is available
-			assertTrue(getArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
+			assertTrue(getConcreteArtifactRepositoryManager().contains(bystanderRepoLocation.toURL()));
 		} catch (MalformedURLException e) {
 			fail("8.3", e);
 		}
