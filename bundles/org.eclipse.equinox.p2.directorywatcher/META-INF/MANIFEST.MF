@@ -7,6 +7,7 @@ Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata,
+ org.eclipse.equinox.internal.p2.update,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,

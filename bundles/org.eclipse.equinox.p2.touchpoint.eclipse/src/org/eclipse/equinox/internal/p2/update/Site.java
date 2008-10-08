@@ -20,6 +20,7 @@ public class Site {
 	public final static String POLICY_MANAGED_ONLY = "MANAGED-ONLY"; //$NON-NLS-1$
 	public final static String POLICY_USER_EXCLUDE = "USER-EXCLUDE"; //$NON-NLS-1$
 	public final static String POLICY_USER_INCLUDE = "USER-INCLUDE"; //$NON-NLS-1$
+	public final static String PROP_LINK_FILE = "org.eclipse.update.site.linkFile"; //$NON-NLS-1$
 
 	private String policy;
 	private boolean enabled = true;

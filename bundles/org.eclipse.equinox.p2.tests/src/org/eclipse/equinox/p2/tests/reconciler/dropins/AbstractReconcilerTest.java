@@ -168,6 +168,38 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		copy(message, file, new File(destinationParent, file.getName()));
 	}
 
+	/*
+	 * Create a link file in the links folder. Point it to the given extension location.
+	 */
+	public void createLinkFile(String message, String filename, String extensionLocation) {
+		File file = new File(output, "eclipse/links/" + filename + ".link");
+		file.getParentFile().mkdirs();
+		Properties properties = new Properties();
+		properties.put("path", extensionLocation);
+		OutputStream stream = null;
+		try {
+			stream = new BufferedOutputStream(new FileOutputStream(file));
+			properties.store(stream, null);
+		} catch (IOException e) {
+			fail(message, e);
+		} finally {
+			try {
+				if (stream != null)
+					stream.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	/*
+	 * Delete the link file with the given name from the links folder.
+	 */
+	public void removeLinkFile(String message, String filename) {
+		File file = new File(output, "eclipse/links/" + filename + ".link");
+		file.delete();
+	}
+
 	public void add(String message, String target, File[] files) {
 		assertNotNull(files);
 		for (int i = 0; i < files.length; i++)

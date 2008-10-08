@@ -14,6 +14,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.osgi.framework.Version;
 
@@ -47,6 +48,10 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 	}
 
 	void setProperties(File location, long timestamp, URL reference) {
+		setProperties(location, timestamp, reference, null);
+	}
+
+	void setProperties(File location, long timestamp, URL reference, String linkFile) {
 		if (reference == null)
 			artifactProps.remove(RepositoryListener.ARTIFACT_REFERENCE);
 		else
@@ -58,6 +63,8 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 		artifactProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
 		metadataProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
 		metadataProps.setProperty(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(timestamp));
+		if (linkFile != null)
+			metadataProps.setProperty(Site.PROP_LINK_FILE, linkFile);
 	}
 
 	public Map getInstructions(File location) {

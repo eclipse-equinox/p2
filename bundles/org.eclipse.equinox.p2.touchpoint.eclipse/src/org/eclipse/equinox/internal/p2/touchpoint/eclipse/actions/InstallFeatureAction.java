@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -73,6 +74,6 @@ public class InstallFeatureAction extends ProvisioningAction {
 		String application = iu.getProperty(UPDATE_FEATURE_APPLICATION_PROP);
 		// TODO this isn't right... but we will leave it for now because we don't actually use the value in the install
 		String pluginVersion = artifactKey.getVersion().toString();
-		return configuration.addFeatureEntry(file, featureId, featureVersion, pluginId, pluginVersion, isPrimary, application, /*root*/null);
+		return configuration.addFeatureEntry(file, featureId, featureVersion, pluginId, pluginVersion, isPrimary, application, /*root*/null, iu.getProperty(Site.PROP_LINK_FILE));
 	}
 }

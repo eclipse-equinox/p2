@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -52,25 +53,33 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	public boolean added(File file) {
 		if (super.added(file))
 			return true;
-
-		URL repositoryURL = createRepositoryURL(file);
-		if (repositoryURL != null) {
-			getMetadataRepository(repositoryURL);
-			getArtifactRepository(repositoryURL);
-		}
+		addRepository(file);
 		return true;
 	}
 
 	public boolean changed(File file) {
 		if (super.changed(file))
 			return true;
-
-		URL repositoryURL = createRepositoryURL(file);
-		if (repositoryURL != null) {
-			getMetadataRepository(repositoryURL);
-			getArtifactRepository(repositoryURL);
-		}
+		addRepository(file);
 		return true;
+	}
+
+	private void addRepository(File file) {
+		URL repositoryURL = createRepositoryURL(file);
+		Properties properties = new Properties();
+		try {
+			// if the file pointed to a link file, keep track of the attribute
+			// so we can add it to the repo later
+			URL linkURL = getLinkRepository(file, false);
+			if (linkURL != null)
+				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
+		} catch (IOException e) {
+			// ignore
+		}
+		if (repositoryURL != null) {
+			getMetadataRepository(repositoryURL, properties);
+			getArtifactRepository(repositoryURL, properties);
+		}
 	}
 
 	private String getLinkPath(File file) {
@@ -155,13 +164,15 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return canonicalFile.toURL();
 	}
 
-	public void getMetadataRepository(URL repoURL) {
+	public void getMetadataRepository(URL repoURL, Properties extraProperties) {
 		try {
 			IMetadataRepository repository = null;
 			try {
 				ExtensionLocationMetadataRepository.validate(repoURL, null);
 				Map properties = new HashMap();
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				if (extraProperties != null)
+					properties.putAll(extraProperties);
 				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
 			} catch (ProvisionException e) {
 				repository = Activator.loadMetadataRepository(repoURL, null);
@@ -172,13 +183,15 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	public void getArtifactRepository(URL repoURL) {
+	public void getArtifactRepository(URL repoURL, Properties extraProperties) {
 		try {
 			IArtifactRepository repository = null;
 			try {
 				ExtensionLocationArtifactRepository.validate(repoURL, null);
 				Map properties = new HashMap();
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				if (extraProperties != null)
+					properties.putAll(extraProperties);
 				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
 				// fall through here and call the load which then adds the repo to the manager's list
 			} catch (ProvisionException ex) {

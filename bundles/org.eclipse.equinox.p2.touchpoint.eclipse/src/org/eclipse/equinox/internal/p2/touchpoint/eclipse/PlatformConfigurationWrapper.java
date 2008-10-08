@@ -159,7 +159,7 @@ public class PlatformConfigurationWrapper {
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#createFeatureEntry(java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.net.URL[])
 	 */
-	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root) {
+	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root, String linkFile) {
 		loadDelegate();
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
@@ -180,6 +180,8 @@ public class PlatformConfigurationWrapper {
 		Site site = getSite(fileURL);
 		if (site == null) {
 			site = createSite(fileURL, getDefaultPolicy());
+			if (linkFile != null)
+				site.setLinkFile(linkFile);
 			configuration.add(site);
 		} else {
 			// check to see if the feature already exists in this site

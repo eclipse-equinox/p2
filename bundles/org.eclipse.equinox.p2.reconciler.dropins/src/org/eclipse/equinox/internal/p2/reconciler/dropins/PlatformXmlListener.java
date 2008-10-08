@@ -190,6 +190,14 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			IMetadataRepository match = getMatchingRepo(Activator.getRepositories(), siteURL);
 			if (match == null) {
 				try {
+					String linkFile = site.getLinkFile();
+					if (linkFile != null && linkFile.length() > 0) {
+						File link = new File(linkFile);
+						if (!link.exists()) {
+							toBeRemoved.add(site);
+							continue;
+						}
+					}
 					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
 					URL location = new URL(eclipseExtensionURL);
 					Map properties = new HashMap();

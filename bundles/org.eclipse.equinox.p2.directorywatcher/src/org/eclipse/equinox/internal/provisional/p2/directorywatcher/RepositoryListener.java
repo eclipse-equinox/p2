@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -155,7 +156,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (bundleDescription == null)
 			return false;
 		try {
-			advice.setProperties(file, file.lastModified(), file.toURL());
+			advice.setProperties(file, file.lastModified(), file.toURL(), null);
 		} catch (MalformedURLException e) {
 			// should never happen
 		}
@@ -167,7 +168,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private boolean processFeature(File file, boolean isAddition) {
 		try {
-			advice.setProperties(file, file.lastModified(), file.toURL());
+			String link = (String) metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
+			advice.setProperties(file, file.lastModified(), file.toURL(), link);
 		} catch (MalformedURLException e) {
 			// should never happen
 		}
