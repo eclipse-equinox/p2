@@ -26,7 +26,6 @@ public class PatchTest2 extends AbstractProvisioningTest {
 	IInstallableUnitPatch p4;
 	IInstallableUnitPatch p5;
 	IInstallableUnitPatch p6;
-	IInstallableUnitPatch p7;
 
 	IProfile profile1;
 	IPlanner planner;
@@ -44,7 +43,6 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		p4 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, new RequiredCapability[][] { {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.6.0, 1.7.0]"), null, false, false, false)}, {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.3.0, 1.5.0]"), null, false, false, false)}}, null);
 		p5 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, new RequiredCapability[][] {{MetadataFactory.createRequiredCapability("foo", "bar", new VersionRange("[1.0.0, 2.0.0)"), null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.5.0]"), null, false, false, false)}}, null);
 		p6 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, new RequiredCapability[][] {}, null);
-		p7 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, null, null);
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, p1, p2, p3, p4, p5, p6});
 
 		profile1 = createProfile("TestProfile." + getName());
@@ -58,12 +56,6 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		req8.addInstallableUnits(new IInstallableUnit[] {a1, p6});
 		ProvisioningPlan plan8 = planner.getProvisioningPlan(req8, null, null);
 		assertEquals(IStatus.OK, plan8.getStatus().getSeverity());
-
-		//p7 does not apply therefore A should not be installable 
-		ProfileChangeRequest req7 = new ProfileChangeRequest(profile1);
-		req7.addInstallableUnits(new IInstallableUnit[] {a1, p7});
-		ProvisioningPlan plan7 = planner.getProvisioningPlan(req7, null, null);
-		assertEquals(IStatus.ERROR, plan7.getStatus().getSeverity());
 
 		//p5 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req6 = new ProfileChangeRequest(profile1);

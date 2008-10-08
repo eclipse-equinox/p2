@@ -153,17 +153,22 @@ public class MetadataFactory {
 	}
 
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
+
 		public void setRequirementChanges(RequirementChange[] changes) {
 			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
 		}
 
 		InstallableUnit unit() {
-			if (unit == null)
+			if (unit == null) {
 				unit = new InstallableUnitPatch();
+				((InstallableUnitPatch) unit()).setApplicabilityScope(new RequiredCapability[0][0]);
+			}
 			return unit;
 		}
 
 		public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+			if (applyTo == null)
+				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
