@@ -498,7 +498,7 @@ public class SimpleArtifactRepositoryIO {
 			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List processingSteps) {
 				super(parentHandler, PROCESSING_STEP_ELEMENT);
 				String[] attributeValues = parseAttributes(attributes, required, optional);
-				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[1], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[2]).booleanValue()));
+				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[2], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[1]).booleanValue()));
 			}
 
 			public void startElement(String name, Attributes attributes) {
