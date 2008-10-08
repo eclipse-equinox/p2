@@ -7,6 +7,6 @@ Bundle-Localization: plugin
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
-Export-Package: org.eclipse.equinox.internal.p2.jarprocessor;x-friends:="org.eclipse.equinox.p2.artifact.repository",
+Export-Package: org.eclipse.equinox.internal.p2.jarprocessor;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.pde.build",
  org.eclipse.equinox.internal.p2.jarprocessor.verifier;x-internal:=true,
- org.eclipse.internal.provisional.equinox.p2.jarprocessor;x-friends:="org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.artifact.repository"
+ org.eclipse.internal.provisional.equinox.p2.jarprocessor;x-friends:="org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.artifact.repository,org.eclipse.pde.build"
