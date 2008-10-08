@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -89,10 +88,6 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 					Object alreadyLoaded = loaded.get(url.toExternalForm());
 					IMetadataRepository repo;
 					if (alreadyLoaded == null) {
-						if (Display.getCurrent() != null) {
-							throw new RuntimeException("oops, loading in UI thread");
-						}
-
 						repo = manager.loadRepository(url, sub.newChild(1));
 					} else
 						repo = (IMetadataRepository) alreadyLoaded;
@@ -114,10 +109,6 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 	 * @param monitor the progress monitor that should be used
 	 */
 	public void loadAll(IProgressMonitor monitor) {
-		if (Display.getCurrent() != null) {
-			throw new RuntimeException("oops, loading in UI thread");
-		}
-
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);

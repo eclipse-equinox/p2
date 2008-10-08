@@ -28,7 +28,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * Utility methods for clients using the provisioning UI
@@ -66,10 +65,6 @@ public class ProvisioningUtil {
 	}
 
 	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		//hack
-		if (Display.getCurrent() != null) {
-			throw new RuntimeException("oops, loading in UI thread");
-		}
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
