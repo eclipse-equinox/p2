@@ -118,7 +118,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * @param parent the parent composite for the group
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param context the ProvisioningContext describing the context for provisioning,
+	 * @param queryContext the ProvisioningContext describing the context for provisioning,
 	 * including information about which repositories should be used.
 	 * @param columnConfig the description of the columns that should be shown.  If <code>null</code>, a default
 	 * will be used.

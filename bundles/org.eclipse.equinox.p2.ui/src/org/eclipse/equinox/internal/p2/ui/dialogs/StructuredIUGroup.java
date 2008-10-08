@@ -42,11 +42,8 @@ public abstract class StructuredIUGroup {
 	 * Create a group that represents the available IU's.
 	 * 
 	 * @param parent the parent composite for the group
-	 * @param queryProvider the query provider that defines the queries used
-	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param context the ProvisioningContext describing the context for provisioning.
 	 */
 	protected StructuredIUGroup(Policy policy, Composite parent, Font font) {
 		this.policy = policy;

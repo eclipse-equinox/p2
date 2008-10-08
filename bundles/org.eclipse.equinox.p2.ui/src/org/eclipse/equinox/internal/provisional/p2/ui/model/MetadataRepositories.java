@@ -94,7 +94,7 @@ public class MetadataRepositories extends RemoteQueriedElement {
 	/**
 	 * Set the query context that is used when querying the receiver.
 	 * 
-	 * @param queryContext the query context to use
+	 * @param context the query context to use
 	 */
 	public void setQueryContext(IUViewQueryContext context) {
 		queryContext = context;
