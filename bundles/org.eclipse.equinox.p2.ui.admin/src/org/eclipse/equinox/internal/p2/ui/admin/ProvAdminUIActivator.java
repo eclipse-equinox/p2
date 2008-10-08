@@ -128,10 +128,6 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 			queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		}
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES))
-			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		else
-			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
 
 	}

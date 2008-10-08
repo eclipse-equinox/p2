@@ -40,7 +40,6 @@ public class ProvisioningPrefPage extends FieldEditorPreferencePage implements I
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY, ProvAdminUIMessages.ProvisioningPrefPage_ShowInstallRootsOnly, getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS, ProvAdminUIMessages.ProvisioningPrefPage_HideSystemRepos, getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS, ProvAdminUIMessages.ProvisioningPrefPage_CollapseIUVersions, getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_USE_CATEGORIES, ProvAdminUIMessages.ProvisioningPrefPage_UseCategories, getFieldEditorParent()));
 	}
 
 	/*

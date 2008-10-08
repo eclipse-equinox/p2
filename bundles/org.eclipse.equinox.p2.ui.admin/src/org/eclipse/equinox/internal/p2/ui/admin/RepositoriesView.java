@@ -10,17 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
-
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
@@ -185,7 +183,6 @@ abstract class RepositoriesView extends ProvView {
 	protected List getVisualProperties() {
 		List list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
-		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
 		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		return list;
 	}
