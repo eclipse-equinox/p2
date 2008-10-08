@@ -74,5 +74,5 @@ public abstract class RepositoryManipulator {
 	 * @return the validator to be used.
 	 */
 
-	public abstract URLValidator getRepositoryURLValidator(Shell shell);
+	public abstract URLValidator getURLValidator(Shell shell);
 }

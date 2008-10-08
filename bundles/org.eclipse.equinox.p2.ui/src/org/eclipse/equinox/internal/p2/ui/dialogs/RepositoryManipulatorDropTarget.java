@@ -1,16 +1,17 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
+
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -53,7 +54,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				IStatus status = manipulator.getRepositoryURLValidator(control.getShell()).validateRepositoryURL(url[0], false, monitor);
+				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], false, monitor);
 				if (status.isOK()) {
 					ProvisioningOperation addOperation = manipulator.getAddOperation(url[0]);
 					ProvisioningOperationRunner.schedule(addOperation, control.getShell(), StatusManager.SHOW | StatusManager.LOG);

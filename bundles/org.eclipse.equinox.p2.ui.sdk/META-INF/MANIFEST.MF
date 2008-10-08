@@ -33,8 +33,7 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.osgi.service.packageadmin;version="1.2.0"
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.prefs;x-internal:=true,
- org.eclipse.equinox.internal.p2.ui.sdk.updates;x-internal:=true,
- org.eclipse.equinox.internal.provisional.p2.ui.sdk;x-friends:="org.eclipse.pde.p2.ui"
+ org.eclipse.equinox.internal.p2.ui.sdk.updates;x-internal:=true
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.ui
