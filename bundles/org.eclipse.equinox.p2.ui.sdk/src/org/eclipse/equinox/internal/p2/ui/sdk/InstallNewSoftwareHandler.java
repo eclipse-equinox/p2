@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -32,7 +33,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 
 	protected void doExecute(String profileId, QueryableMetadataRepositoryManager manager) {
 		InstallWizard wizard = new InstallWizard(Policy.getDefault(), profileId, null, null, manager);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
 

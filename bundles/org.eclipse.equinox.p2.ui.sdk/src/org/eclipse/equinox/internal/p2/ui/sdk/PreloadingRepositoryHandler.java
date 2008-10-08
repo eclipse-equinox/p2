@@ -15,11 +15,11 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -87,16 +87,15 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
 	protected abstract void doExecute(String profileId, QueryableMetadataRepositoryManager manager);
 
-	void openInstallWizard(String profileId, QueryableMetadataRepositoryManager manager) {
-		InstallWizard wizard = new InstallWizard(Policy.getDefault(), profileId, null, null, manager);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
-		dialog.create();
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
-
-		dialog.open();
-	}
-
 	protected boolean preloadRepositories() {
 		return true;
+	}
+
+	/**
+	 * Return a shell appropriate for parenting dialogs of this handler.
+	 * @return a Shell
+	 */
+	protected Shell getShell() {
+		return ProvUI.getDefaultParentShell();
 	}
 }
