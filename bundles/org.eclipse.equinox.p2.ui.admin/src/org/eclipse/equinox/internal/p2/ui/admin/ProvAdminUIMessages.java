@@ -45,12 +45,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProfilesView_RemoveProfileTooltip;
 	public static String RepositoriesView_RemoveCommandLabel;
 	// Preferences
-	public static String InstalledIUPropertyPage_NoInfoAvailable;
-	public static String ProvAdminQueryProvider_UpdateQueryError;
-	public static String ProvAdminUIActivator_ContinueAnyway;
-	public static String ProvAdminUIActivator_LaunchUpdateManager;
-	public static String ProvAdminUIActivator_UnsupportedInstallHandler;
-	public static String ProvAdminUIActivator_UnsupportedInstallHandlerMessage;
 	public static String ProvisioningPrefPage_HideSystemRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
@@ -65,9 +59,9 @@ public class ProvAdminUIMessages extends NLS {
 
 	public static String ProfileRootPropertyName;
 
-	public static String RepositoryGroup_NameColumnLabel;
-	public static String RepositoryGroup_PropertiesLabel;
-	public static String RepositoryGroup_ValueColumnLabel;
+	public static String RepositoryImplementationPropertyPage_NameColumnLabel;
+	public static String RepositoryImplementationPropertyPage_PropertiesLabel;
+	public static String RepositoryImplementationPropertyPage_ValueColumnLabel;
 
 	public static String IUGroup_ID;
 	public static String IUGroup_IU_ID_Required;
@@ -82,6 +76,8 @@ public class ProvAdminUIMessages extends NLS {
 	public static String IUPropertiesGroup_DescriptionPropertyLabel;
 	public static String IUPropertiesGroup_NamePropertyLabel;
 	public static String IUPropertiesGroup_ProviderPropertyLabel;
+	public static String InstalledIUPropertyPage_NoInfoAvailable;
+
 	public static String No_Property_Item_Selected;
 
 	public static String ProfileGroup_Browse;

@@ -31,7 +31,7 @@ public class RepositoryImplementationPropertyPage extends RepositoryPropertyPage
 		if (control instanceof Composite) {
 			Composite comp = (Composite) control;
 			Label propertiesLabel = new Label(comp, SWT.NONE);
-			propertiesLabel.setText(ProvAdminUIMessages.RepositoryGroup_PropertiesLabel);
+			propertiesLabel.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_PropertiesLabel);
 			GridData data = new GridData(GridData.FILL_HORIZONTAL);
 			data.horizontalSpan = 2;
 			propertiesLabel.setLayoutData(data);
@@ -43,9 +43,9 @@ public class RepositoryImplementationPropertyPage extends RepositoryPropertyPage
 			propertiesTable.setLayoutData(data);
 			propertiesTable.setHeaderVisible(true);
 			TableColumn nameColumn = new TableColumn(propertiesTable, SWT.NONE);
-			nameColumn.setText(ProvAdminUIMessages.RepositoryGroup_NameColumnLabel);
+			nameColumn.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_NameColumnLabel);
 			TableColumn valueColumn = new TableColumn(propertiesTable, SWT.NONE);
-			valueColumn.setText(ProvAdminUIMessages.RepositoryGroup_ValueColumnLabel);
+			valueColumn.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_ValueColumnLabel);
 
 			initializeTable();
 
