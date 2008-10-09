@@ -125,12 +125,12 @@ public class ProvUI {
 		// blocking right.
 		if ((style & StatusManager.BLOCK) == StatusManager.BLOCK || (style & StatusManager.SHOW) == StatusManager.SHOW) {
 			if (status.getSeverity() == IStatus.INFO) {
-				MessageDialog.openInformation(null, ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
+				MessageDialog.openInformation(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
 				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
 				style = style & ~StatusManager.SHOW;
 			} else if (status.getSeverity() == IStatus.WARNING) {
-				MessageDialog.openWarning(null, ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
+				MessageDialog.openWarning(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
 				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
 				style = style & ~StatusManager.SHOW;
