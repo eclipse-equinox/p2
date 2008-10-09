@@ -118,7 +118,7 @@ public class RepositoryMirroring {
 			if (verbose)
 				System.out.println("Mirroring artifact: " + descriptor);
 			// TODO Is that ok to ignore the result?
-			artifactSourceRepository.getArtifact(descriptor, repositoryStream, new NullProgressMonitor());
+			artifactSourceRepository.getRawArtifact(descriptor, repositoryStream, new NullProgressMonitor());
 		} finally {
 			if (repositoryStream != null)
 				try {
