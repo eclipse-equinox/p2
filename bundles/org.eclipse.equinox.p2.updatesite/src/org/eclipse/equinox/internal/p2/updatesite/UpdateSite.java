@@ -430,7 +430,7 @@ public class UpdateSite {
 					continue;
 			}
 			URI featureURI = getSiteFeatureURI(siteFeature);
-			Feature feature = parseFeature(featureParser, featureURI, null);
+			Feature feature = parseFeature(featureParser, featureURI, new NullProgressMonitor());
 			if (feature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI)));
 			} else {
