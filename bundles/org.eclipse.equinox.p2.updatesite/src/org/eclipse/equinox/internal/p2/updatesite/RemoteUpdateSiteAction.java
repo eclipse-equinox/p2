@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.publisher.*;
@@ -36,7 +36,7 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
-		MultiStatus finalStatus = new MultiStatus(this.getClass().getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toExternalForm() : "Unknown")), null); //$NON-NLS-1$
+		MultiStatus finalStatus = new MultiStatus(this.getClass().getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
@@ -59,8 +59,8 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 			return new SiteXMLAction(updateSite);
 		if (source != null) {
 			try {
-				return new SiteXMLAction(new URL(source + "/site.xml")); //$NON-NLS-1$
-			} catch (MalformedURLException e) {
+				return new SiteXMLAction(new URI(source + "/site.xml")); //$NON-NLS-1$
+			} catch (URISyntaxException e) {
 				// never happens
 				return null;
 			}

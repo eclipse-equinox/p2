@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
-	protected AbstractArtifactRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
+	protected AbstractArtifactRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
 		super(name, type, version, location, description, provider, properties);
 	}
 
@@ -43,7 +43,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		if (!isModifiable())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.repoReadOnly, getLocation().toExternalForm())));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.repoReadOnly, getLocation())));
 		return null;
 	}
 
@@ -74,7 +74,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 		if (!(o instanceof AbstractArtifactRepository)) {
 			return false;
 		}
-		if (URLUtil.sameURL(getLocation(), ((AbstractArtifactRepository) o).getLocation()))
+		if (URIUtil.sameURI(getLocation(), ((AbstractArtifactRepository) o).getLocation()))
 			return true;
 		return false;
 	}

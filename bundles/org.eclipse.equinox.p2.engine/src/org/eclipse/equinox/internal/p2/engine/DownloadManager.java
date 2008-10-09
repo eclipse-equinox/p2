@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -31,11 +31,11 @@ public class DownloadManager {
 	private static final Comparator LOCAL_FIRST_COMPARATOR = new Comparator() {
 
 		public int compare(Object arg0, Object arg1) {
-			Assert.isTrue(arg0 instanceof URL);
-			Assert.isTrue(arg1 instanceof URL);
+			Assert.isTrue(arg0 instanceof URI);
+			Assert.isTrue(arg1 instanceof URI);
 
-			String protocol0 = ((URL) arg0).getProtocol();
-			String protocol1 = ((URL) arg1).getProtocol();
+			String protocol0 = ((URI) arg0).getScheme();
+			String protocol1 = ((URI) arg1).getScheme();
 
 			if (protocol0.equals(FILE_PROTOCOL) && !protocol1.equals(FILE_PROTOCOL))
 				return -1;
@@ -84,7 +84,7 @@ public class DownloadManager {
 				return Status.OK_STATUS;
 
 			IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-			URL[] repositories = null;
+			URI[] repositories = null;
 			if (provContext == null || provContext.getArtifactRepositories() == null)
 				repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 			else
@@ -99,7 +99,7 @@ public class DownloadManager {
 		}
 	}
 
-	private void fetch(IArtifactRepositoryManager repoMgr, URL[] repositories, SubMonitor monitor) {
+	private void fetch(IArtifactRepositoryManager repoMgr, URI[] repositories, SubMonitor monitor) {
 		for (int i = 0; i < repositories.length && !requestsToProcess.isEmpty() && !monitor.isCanceled(); i++) {
 			try {
 				IArtifactRepository current = repoMgr.loadRepository(repositories[i], monitor.newChild(0));

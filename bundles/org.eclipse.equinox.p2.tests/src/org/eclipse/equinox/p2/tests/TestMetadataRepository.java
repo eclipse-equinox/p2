@@ -8,8 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,11 +37,11 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	private final List units = new ArrayList();
 	protected HashSet repositories = new HashSet();
 
-	private static URL createLocation() {
+	private static URI createLocation() {
 		try {
 			//Just need a unique URL - we don't need to read/write this location
-			return new URL("http://TestMetadataRepository.com/" + Long.toString(System.currentTimeMillis()));
-		} catch (MalformedURLException e) {
+			return new URI("http://TestMetadataRepository.com/" + Long.toString(System.currentTimeMillis()));
+		} catch (URISyntaxException e) {
 			Assert.fail(e.getMessage());
 		}
 		return null;
@@ -96,7 +96,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		this.repositories.addAll(Arrays.asList(state.Repositories));
 	}
 
-	public synchronized void addReference(URL repositoryLocation, int repositoryType, int options) {
+	public synchronized void addReference(URI repositoryLocation, int repositoryType, int options) {
 		assertModifiable();
 		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
 	}

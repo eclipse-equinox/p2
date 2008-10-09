@@ -13,8 +13,7 @@
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.*;
@@ -29,27 +28,21 @@ import org.eclipse.equinox.p2.publisher.*;
 public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
-	public static URL getLocalRepositoryLocation(URL location) throws ProvisionException {
-		URL localRepositoryURL = null;
-		try {
-			String stateDirName = Integer.toString(location.toExternalForm().hashCode());
-			File bundleData = Activator.getBundleContext().getDataFile(null);
-			File stateDir = new File(bundleData, stateDirName);
-			localRepositoryURL = stateDir.toURL();
-		} catch (MalformedURLException e) {
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
-		}
-		return localRepositoryURL;
+	public static URI getLocalRepositoryLocation(URI location) throws ProvisionException {
+		String stateDirName = Integer.toString(location.hashCode());
+		File bundleData = Activator.getBundleContext().getDataFile(null);
+		File stateDir = new File(bundleData, stateDirName);
+		return stateDir.toURI();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository create(URL location, String name, String type, Map properties) {
+	public IMetadataRepository create(URI location, String name, String type, Map properties) {
 		return null;
 	}
 
-	public IStatus validate(URL location, IProgressMonitor monitor) {
+	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
 			UpdateSite.validate(location, monitor);
 		} catch (ProvisionException e) {
@@ -58,14 +51,14 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		return Status.OK_STATUS;
 	}
 
-	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
 		return repository;
 	}
 
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		URL localRepositoryURL = getLocalRepositoryLocation(location);
+	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		URI localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
 			IMetadataRepository repository = factory.load(localRepositoryURL, monitor);
@@ -75,13 +68,13 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
+		String repositoryName = "update site: " + location; //$NON-NLS-1$
 		Properties props = new Properties();
 		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		return factory.create(localRepositoryURL, repositoryName, null, props);
 	}
 
-	public void initializeRepository(IMetadataRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
+	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, monitor);
 		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))

@@ -11,11 +11,12 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -35,13 +36,12 @@ import org.osgi.framework.Version;
  */
 public class SiteXMLAction extends AbstractPublisherAction {
 
-	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	private UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
-	private URL location;
+	private URI location;
 
-	public SiteXMLAction(URL location) {
+	public SiteXMLAction(URI location) {
 		this.location = location;
 	}
 
@@ -127,7 +127,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return mappings;
 
 		//copy mirror information from update site to p2 repositories
-		String mirrors = site.getMirrorsURL();
+		String mirrors = site.getMirrorsURI();
 		if (mirrors != null) {
 			//remove site.xml file reference
 			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
@@ -145,19 +145,16 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			for (int i = 0; i < associatedSites.length; i++)
 				generateSiteReference(associatedSites[i].getURL(), null, info.getMetadataRepository());
 
-		if (PROTOCOL_FILE.equals(updateSite.getLocation().getProtocol())) {
-			File siteFile = new File(updateSite.getLocation().getFile());
-			if (siteFile.exists()) {
-				File siteParent = siteFile.getParentFile();
-
-				List messageKeys = site.getMessageKeys();
-				if (siteParent.isDirectory()) {
-					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
-					site.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
-				} else if (siteFile.getName().endsWith(".jar")) { //$NON-NLS-1$
-					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
-					site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
-				}
+		File siteFile = URIUtil.toFile(updateSite.getLocation());
+		if (siteFile != null && siteFile.exists()) {
+			File siteParent = siteFile.getParentFile();
+			List messageKeys = site.getMessageKeys();
+			if (siteParent.isDirectory()) {
+				String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+				site.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
+			} else if (siteFile.getName().endsWith(".jar")) { //$NON-NLS-1$
+				String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+				site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
 			}
 		}
 
@@ -184,10 +181,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
 		try {
-			URL associateLocation = new URL(location);
+			URI associateLocation = new URI(location);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.ENABLED);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, IRepository.ENABLED);
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)
 				message = message + " in feature: " + featureId; //$NON-NLS-1$

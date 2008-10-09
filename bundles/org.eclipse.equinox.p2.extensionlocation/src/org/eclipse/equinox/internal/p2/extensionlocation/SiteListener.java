@@ -12,13 +12,13 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -42,7 +42,7 @@ public class SiteListener extends DirectoryChangeListener {
 
 	private String policy;
 	private String[] list;
-	private String url;
+	private String siteLocation;
 	private DirectoryChangeListener delegate;
 	private String[] managedFiles;
 	private String[] toBeRemoved;
@@ -97,7 +97,7 @@ public class SiteListener extends DirectoryChangeListener {
 		// read-only wrappers.
 		DirectoryChangeListener listener = new RepositoryListener(metadataRepository.metadataRepository, artifactRepository.artifactRepository);
 		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null)
-			listener = new SiteListener(metadataRepository.getProperties(), metadataRepository.getLocation().toExternalForm(), new BundlePoolFilteredListener(listener));
+			listener = new SiteListener(metadataRepository.getProperties(), metadataRepository.getLocation().toString(), new BundlePoolFilteredListener(listener));
 		watcher.addListener(listener);
 		watcher.poll();
 		artifactRepository.state(INITIALIZED);
@@ -108,7 +108,7 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Create a new site listener on the given site.
 	 */
 	public SiteListener(Map properties, String url, DirectoryChangeListener delegate) {
-		this.url = url;
+		this.siteLocation = url;
 		this.delegate = delegate;
 		this.policy = (String) properties.get(SITE_POLICY);
 		Collection listCollection = new HashSet();
@@ -219,7 +219,7 @@ public class SiteListener extends DirectoryChangeListener {
 				// ignore
 			}
 		}
-		String urlString = url;
+		String urlString = siteLocation;
 		if (urlString.endsWith(Constants.EXTENSION_LOCATION))
 			urlString = urlString.substring(0, urlString.length() - Constants.EXTENSION_LOCATION.length());
 		List result = new ArrayList();
@@ -244,15 +244,15 @@ public class SiteListener extends DirectoryChangeListener {
 		if (managedFiles != null)
 			return managedFiles;
 		List result = new ArrayList();
-		File siteLocation;
+		File siteFile;
 		try {
-			siteLocation = URLUtil.toFile(new URL(url));
-		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site location: " + url, e)); //$NON-NLS-1$
+			siteFile = URIUtil.toFile(new URI(siteLocation));
+		} catch (URISyntaxException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site location: " + siteLocation, e)); //$NON-NLS-1$
 			return new String[0];
 		}
-		Map pluginCache = getPlugins(siteLocation);
-		Map featureCache = getFeatures(siteLocation);
+		Map pluginCache = getPlugins(siteFile);
+		Map featureCache = getFeatures(siteFile);
 		for (Iterator iter = featureCache.keySet().iterator(); iter.hasNext();) {
 			File featureFile = (File) iter.next();
 			// add the feature path

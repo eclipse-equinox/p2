@@ -93,22 +93,20 @@ public interface IProfile extends IQueryable {
 	public String[] getSubProfileIds();
 
 	/**
-	 * 	Get the stored value associated with the given key.
-	 * 	If the profile is a sub-profile and there is no value
-	 * 	locally associated with the key, then the chain
-	 * 	of parent profiles will be traversed to get an associated
-	 *  value from the nearest ancestor.
+	 * Get the stored value associated with the given key.
+	 * If the profile is a sub-profile and there is no value
+	 * locally associated with the key, then the chain
+	 * of parent profiles will be traversed to get an associated
+	 * value from the nearest ancestor.
 	 *  
-	 *  <code>null</code> is return if none of this profile
-	 *  or its ancestors associates a value with the key.
+	 * <code>null</code> is return if none of this profile
+	 * or its ancestors associates a value with the key.
 	 */
 	public String getProperty(String key);
 
 	/**
-	 * 	Get the stored value associated with the given key
-	 * 	in this profile.
-	 * 	No traversal of the ancestor hierarchy is done
-	 * 	for sub-profiles.
+	 * Get the stored value associated with the given key in this profile.
+	 * No traversal of the ancestor hierarchy is done for sub-profiles.
 	 */
 	public String getLocalProperty(String key);
 

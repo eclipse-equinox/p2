@@ -11,7 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -172,7 +172,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.getDescription();
 	}
 
-	public URL getLocation() {
+	public URI getLocation() {
 		return innerRepo.getLocation();
 	}
 

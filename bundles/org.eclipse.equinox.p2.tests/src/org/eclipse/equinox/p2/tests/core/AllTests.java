@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(FileUtilsTest.class);
 		suite.addTestSuite(OrderedPropertiesTest.class);
+		suite.addTestSuite(URIUtilTest.class);
 		suite.addTestSuite(URLUtilTest.class);
 		return suite;
 	}

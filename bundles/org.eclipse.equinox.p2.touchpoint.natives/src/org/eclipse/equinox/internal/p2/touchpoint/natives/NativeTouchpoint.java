@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -162,7 +162,7 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	static private IFileArtifactRepository getDownloadCacheRepo() throws ProvisionException {
-		URL location = getDownloadCacheLocation();
+		URI location = getDownloadCacheLocation();
 		if (location == null)
 			throw new IllegalStateException(Messages.could_not_obtain_download_cache);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
@@ -185,9 +185,9 @@ public class NativeTouchpoint extends Touchpoint {
 		return downloadCache;
 	}
 
-	static private URL getDownloadCacheLocation() {
+	static private URI getDownloadCacheLocation() {
 		AgentLocation location = getAgentLocation();
-		return (location != null ? location.getArtifactRepositoryURL() : null);
+		return (location != null ? location.getArtifactRepositoryURI() : null);
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {

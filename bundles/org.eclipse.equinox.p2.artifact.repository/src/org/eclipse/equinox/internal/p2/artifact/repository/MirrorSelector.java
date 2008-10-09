@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.w3c.dom.*;
 
@@ -101,9 +103,9 @@ public class MirrorSelector {
 			if (base != null) {
 				this.baseURI = new URI(base);
 			} else {
-				URL repositoryURL = repository.getLocation();
-				if (repositoryURL != null)
-					this.baseURI = URLUtil.toURI(repositoryURL);
+				URI repositoryLocation = repository.getLocation();
+				if (repositoryLocation != null)
+					this.baseURI = repositoryLocation;
 			}
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
@@ -181,8 +183,8 @@ public class MirrorSelector {
 		if (Tracing.DEBUG_MIRRORS)
 			Tracing.debug("Selected mirror for artifact " + inputLocation + ": " + selectedMirror); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
-			return new URL(selectedMirror.locationString + relativeLocation.getPath()).toExternalForm();
-		} catch (MalformedURLException e) {
+			return new URI(selectedMirror.locationString + relativeLocation.getPath()).toString();
+		} catch (URISyntaxException e) {
 			log("Unable to make location " + inputLocation + " relative to mirror " + selectedMirror.locationString, e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return inputLocation;

@@ -11,18 +11,18 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
 
 /**
  * @since 3.4
  *
  */
-public class DefaultMetadataURLValidator extends URLValidator {
+public class DefaultMetadataURLValidator extends RepositoryLocationValidator {
 
 	protected int repoFlag;
 
@@ -37,16 +37,16 @@ public class DefaultMetadataURLValidator extends URLValidator {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
 	 */
-	public IStatus validateRepositoryURL(URL location, boolean contactRepositories, IProgressMonitor monitor) {
+	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
 		IStatus duplicateStatus = Status.OK_STATUS;
-		URL[] knownRepositories;
+		URI[] knownRepositories;
 		try {
 			knownRepositories = ProvisioningUtil.getMetadataRepositories(repoFlag);
 		} catch (ProvisionException e) {
-			knownRepositories = new URL[0];
+			knownRepositories = new URI[0];
 		}
 		for (int i = 0; i < knownRepositories.length; i++) {
-			if (knownRepositories[i].toExternalForm().equalsIgnoreCase(location.toExternalForm())) {
+			if (knownRepositories[i].equals(location)) {
 				duplicateStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
 				break;
 			}

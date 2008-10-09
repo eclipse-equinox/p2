@@ -39,7 +39,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 		tempWritableLocation = File.createTempFile("artifact", ".repo");
 		tempWritableLocation.delete();
 		tempWritableLocation.mkdirs();
-		sar = new SimpleArtifactRepository("name", tempWritableLocation.toURL(), null);
+		sar = new SimpleArtifactRepository("name", tempWritableLocation.toURI(), null);
 		destination = new Destination();
 		ak = new ArtifactKey("classifier", "id", new Version("1.0"));
 		ad = new ArtifactDescriptor(ak);

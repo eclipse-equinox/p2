@@ -74,7 +74,7 @@ public class MirrorRequest extends ArtifactRequest {
 					else if (ProcessingStepHandler.canProcess(descriptors[i]))
 						optimized = descriptors[i];
 				}
-				boolean chooseCanonical = source.getLocation().getProtocol().equals("file"); //$NON-NLS-1$
+				boolean chooseCanonical = source.getLocation().getScheme().equals("file"); //$NON-NLS-1$
 				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
 				descriptor = chooseCanonical ? canonical : optimized;
 				// if the descriptor is still null then we could not find our first choice of format so switch the logic.

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 
 /**
@@ -71,18 +71,20 @@ public class BasicLocation implements AgentLocation {
 		return lock;
 	}
 
-	public URL getArtifactRepositoryURL() {
+	public URI getArtifactRepositoryURI() {
 		//the cache is a co-located repository
-		return getMetadataRepositoryURL();
+		return getMetadataRepositoryURI();
 	}
 
-	public URL getMetadataRepositoryURL() {
+	public URI getMetadataRepositoryURI() {
 		try {
-			return new URL(getDataArea(Activator.ID), "cache/"); //$NON-NLS-1$
+			return URIUtil.toURI(new URL(getDataArea(Activator.ID), "cache/")); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
-			return null;
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
 		}
+		return null;
 	}
 
 	public URL getDataArea(String touchpointId) {

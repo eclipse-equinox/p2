@@ -10,8 +10,8 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -64,7 +64,7 @@ public class ProfileSynchronizer {
 		this.repositoryMap = new HashMap();
 		for (Iterator it = repositories.iterator(); it.hasNext();) {
 			IMetadataRepository repository = (IMetadataRepository) it.next();
-			repositoryMap.put(repository.getLocation().toExternalForm(), repository);
+			repositoryMap.put(repository.getLocation().toString(), repository);
 		}
 	}
 
@@ -204,13 +204,13 @@ public class ProfileSynchronizer {
 		ArrayList repoURLs = new ArrayList();
 		for (Iterator iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
 			try {
-				repoURLs.add(new URL((String) iterator.next()));
-			} catch (MalformedURLException e) {
+				repoURLs.add(new URI((String) iterator.next()));
+			} catch (URISyntaxException e) {
 				//ignore
 			}
 		}
-		ProvisioningContext result = new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
-		result.setArtifactRepositories(new URL[0]);
+		ProvisioningContext result = new ProvisioningContext((URI[]) repoURLs.toArray(new URI[repoURLs.size()]));
+		result.setArtifactRepositories(new URI[0]);
 		return result;
 	}
 
@@ -232,7 +232,7 @@ public class ProfileSynchronizer {
 		for (Iterator it = repositories.iterator(); it.hasNext();) {
 			String repositoryId = (String) it.next();
 			try {
-				IArtifactRepository repository = Activator.loadArtifactRepository(new URL(repositoryId), null);
+				IArtifactRepository repository = Activator.loadArtifactRepository(new URI(repositoryId), null);
 
 				if (repository instanceof IFileArtifactRepository) {
 					currentExtensions.add(repositoryId);
@@ -242,7 +242,7 @@ public class ProfileSynchronizer {
 				}
 			} catch (ProvisionException e) {
 				// ignore
-			} catch (MalformedURLException e) {
+			} catch (URISyntaxException e) {
 				// unexpected
 				e.printStackTrace();
 			}
@@ -263,7 +263,7 @@ public class ProfileSynchronizer {
 
 		Operand operand = new PropertyOperand(CACHE_EXTENSIONS, previousExtensionsProperty, currentExtensionsProperty);
 
-		return executeOperands(new ProvisioningContext(new URL[0]), new Operand[] {operand}, null);
+		return executeOperands(new ProvisioningContext(new URI[0]), new Operand[] {operand}, null);
 	}
 
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {

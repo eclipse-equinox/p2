@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -24,12 +24,12 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
 			throw new ProvisionException(status);
-		URL repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
+		URI repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
 		// unexpected
 		if (repoLocation == null)
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
@@ -43,7 +43,7 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 			// expected
 		}
 		if (failed) {
-			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
+			String msg = NLS.bind(Messages.repo_already_exists, location.toString());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IMetadataRepository repository = new SimpleMetadataRepositoryFactory().create(repoLocation, name, null, properties);
@@ -53,12 +53,12 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
 			throw new ProvisionException(status);
-		URL repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
+		URI repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
 		// unexpected
 		if (repoLocation == null)
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
@@ -74,7 +74,7 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IStatus validate(URL location, IProgressMonitor monitor) {
+	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
 			ExtensionLocationMetadataRepository.validate(location, monitor);
 		} catch (ProvisionException e) {

@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -32,22 +32,22 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		super(parentShell, repoFlags);
 	}
 
-	protected ProvisioningOperation getOperation(URL url) {
-		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url);
+	protected ProvisioningOperation getOperation(URI location) {
+		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, location);
 	}
 
-	protected URLValidator createURLValidator() {
-		return new URLValidator() {
-			public IStatus validateRepositoryURL(URL location, boolean contactRepositories, IProgressMonitor monitor) {
+	protected RepositoryLocationValidator createURLValidator() {
+		return new RepositoryLocationValidator() {
+			public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
 				IStatus duplicateStatus = Status.OK_STATUS;
-				URL[] knownRepositories;
+				URI[] knownRepositories;
 				try {
 					knownRepositories = ProvisioningUtil.getArtifactRepositories(repoFlag);
 				} catch (ProvisionException e) {
-					knownRepositories = new URL[0];
+					knownRepositories = new URI[0];
 				}
 				for (int i = 0; i < knownRepositories.length; i++) {
-					if (knownRepositories[i].toExternalForm().equalsIgnoreCase(location.toExternalForm())) {
+					if (knownRepositories[i].equals(location)) {
 						duplicateStatus = new Status(IStatus.ERROR, ProvAdminUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvAdminUIMessages.AddArtifactRepositoryDialog_DuplicateURL, null);
 						break;
 					}

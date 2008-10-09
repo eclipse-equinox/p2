@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-
-import java.net.URL;
-import org.eclipse.equinox.internal.p2.ui.model.*;
+import java.net.URI;
+import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.jface.viewers.IElementComparer;
 
 public class ProvElementComparer implements IElementComparer {
@@ -37,10 +35,10 @@ public class ProvElementComparer implements IElementComparer {
 		String p2 = getProfileId(b);
 		if (p1 != null && p2 != null)
 			return p1.equals(p2);
-		URL r1 = getRepositoryLocation(a);
-		URL r2 = getRepositoryLocation(b);
+		URI r1 = getRepositoryLocation(a);
+		URI r2 = getRepositoryLocation(b);
 		if (r1 != null && r2 != null)
-			return r1.toExternalForm().equals(r2.toExternalForm());
+			return r1.equals(r2);
 		return a.equals(b);
 	}
 
@@ -53,9 +51,9 @@ public class ProvElementComparer implements IElementComparer {
 		String profileId = getProfileId(element);
 		if (profileId != null)
 			return profileId.hashCode();
-		URL url = getRepositoryLocation(element);
-		if (url != null)
-			return url.toExternalForm().hashCode();
+		URI location = getRepositoryLocation(element);
+		if (location != null)
+			return location.hashCode();
 		return element.hashCode();
 	}
 
@@ -72,7 +70,7 @@ public class ProvElementComparer implements IElementComparer {
 		return profile.getProfileId();
 	}
 
-	private URL getRepositoryLocation(Object obj) {
+	private URI getRepositoryLocation(Object obj) {
 		if (obj instanceof IRepositoryElement)
 			return ((IRepositoryElement) obj).getLocation();
 		return null;

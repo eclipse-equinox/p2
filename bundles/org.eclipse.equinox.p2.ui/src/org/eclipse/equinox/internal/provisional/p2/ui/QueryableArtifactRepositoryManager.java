@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -58,13 +58,13 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		URL[] repoURLs = manager.getKnownRepositories(flags);
+		URI[] repoLocations = manager.getKnownRepositories(flags);
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoURLs.length);
-		for (int i = 0; i < repoURLs.length; i++) {
-			if (query == null || query.isMatch(repoURLs[i]))
-				result.accept(repoURLs[i]);
+		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoLocations.length);
+		for (int i = 0; i < repoLocations.length; i++) {
+			if (query == null || query.isMatch(repoLocations[i]))
+				result.accept(repoLocations[i]);
 			monitor.worked(1);
 		}
 		monitor.done();

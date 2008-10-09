@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-
-import java.net.URL;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
@@ -33,7 +32,7 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
 	}
 
-	protected ProvisioningOperation getOperation(URL url) {
+	protected ProvisioningOperation getOperation(URI url) {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
 	}
 }

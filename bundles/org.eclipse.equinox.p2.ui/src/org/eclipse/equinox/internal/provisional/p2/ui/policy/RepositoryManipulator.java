@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
@@ -40,13 +40,13 @@ public abstract class RepositoryManipulator {
 	/**
 	 * Return an array of URLs containing the repositories already known.
 	 */
-	public abstract URL[] getKnownRepositories();
+	public abstract URI[] getKnownRepositories();
 
 	/**
 	 * Return an operation that could be used to add the specified URL as
 	 * a repository.
 	 */
-	public abstract ProvisioningOperation getAddOperation(URL repoURL);
+	public abstract ProvisioningOperation getAddOperation(URI repoLocation);
 
 	/**
 	 * Return a String describing a possible add operation.  This is used 
@@ -58,7 +58,7 @@ public abstract class RepositoryManipulator {
 	 * Return an operation that could be used to remove the specified URL as
 	 * a repositories.
 	 */
-	public abstract ProvisioningOperation getRemoveOperation(URL[] repoURLs);
+	public abstract ProvisioningOperation getRemoveOperation(URI[] repoLocations);
 
 	/**
 	 * Return a String describing a possible remove operation.  This is used 
@@ -74,5 +74,5 @@ public abstract class RepositoryManipulator {
 	 * @return the validator to be used.
 	 */
 
-	public abstract URLValidator getURLValidator(Shell shell);
+	public abstract RepositoryLocationValidator getRepositoryLocationValidator(Shell shell);
 }

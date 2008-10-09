@@ -10,8 +10,7 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
@@ -48,7 +47,7 @@ public class Activator implements BundleActivator {
 	private final static Set repositories = new HashSet();
 
 	/**
-	 * Helper method to create an extension location metadata repository at the given URL. 
+	 * Helper method to create an extension location metadata repository at the given URI. 
 	 * If one already exists at that location then an exception will be thrown.
 	 * 
 	 * This method never returns <code>null</code>.
@@ -56,7 +55,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IMetadataRepository createExtensionLocationMetadataRepository(URL location, String name, Map properties) throws ProvisionException {
+	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map properties) throws ProvisionException {
 		BundleContext context = getContext();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
 		if (manager == null)
@@ -74,7 +73,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		BundleContext context = getContext();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
 		if (manager == null)
@@ -91,7 +90,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IArtifactRepository createExtensionLocationArtifactRepository(URL location, String name, Map properties) throws ProvisionException {
+	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map properties) throws ProvisionException {
 		BundleContext context = getContext();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
@@ -109,7 +108,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository loadArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		BundleContext context = getContext();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
@@ -364,10 +363,10 @@ public class Activator implements BundleActivator {
 		URL osgiInstallArea = getOSGiInstallArea();
 		if (osgiInstallArea == null)
 			return;
-		URL location = null;
+		URI location = null;
 		try {
-			location = new URL(getOSGiInstallArea(), ".pooled"); //$NON-NLS-1$
-		} catch (MalformedURLException e) {
+			location = new URI(getOSGiInstallArea().toString() + ".pooled"); //$NON-NLS-1$
+		} catch (URISyntaxException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while removing old repositories.", e)); //$NON-NLS-1$
 			return;
 		}

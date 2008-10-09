@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.AbstractRepositoryManager;
@@ -39,7 +39,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
 		Assert.isNotNull(name);
 		Assert.isNotNull(type);
 		boolean loaded = false;
@@ -67,7 +67,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return result;
 	}
 
-	protected IRepository factoryLoad(URL location, IExtension extension, SubMonitor monitor) throws ProvisionException {
+	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
@@ -82,7 +82,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return "content.xml"; //$NON-NLS-1$
 	}
 
-	public IMetadataRepository getRepository(URL location) {
+	public IMetadataRepository getRepository(URI location) {
 		return (IMetadataRepository) basicGetRepository(location);
 	}
 
@@ -101,7 +101,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return IRepository.TYPE_METADATA;
 	}
 
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IMetadataRepository) loadRepository(location, monitor, null);
 	}
 
@@ -126,7 +126,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	 * @return The collector argument
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		URL[] locations = getKnownRepositories(REPOSITORIES_ALL);
+		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
 			try {
@@ -141,17 +141,17 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return collector;
 	}
 
-	public IMetadataRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IMetadataRepository) basicRefreshRepository(location, monitor);
 	}
 
-	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {
+	public IStatus validateRepositoryLocation(URI location, IProgressMonitor monitor) {
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return Status.OK_STATUS;
 		String[] suffixes = getAllSuffixes();
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, suffixes.length * 100);
-		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
+		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toString()), null);
 		for (int i = 0; i < suffixes.length; i++) {
 			SubMonitor loopMonitor = sub.newChild(100);
 			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i], null);

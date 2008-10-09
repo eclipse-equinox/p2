@@ -10,21 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
-
-import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
-
-import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
+import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -50,7 +47,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url;
-	URLValidator urlValidator;
+	RepositoryLocationValidator urlValidator;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
@@ -115,7 +112,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText(URLValidator.makeFileURLString(path));
+					url.setText(RepositoryLocationValidator.makeFileURLString(path));
 					validateRepositoryURL(false);
 				}
 			}
@@ -132,7 +129,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText(URLValidator.makeJarURLString(path));
+					url.setText(RepositoryLocationValidator.makeJarURLString(path));
 					validateRepositoryURL(false);
 				}
 			}
@@ -142,13 +139,13 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		return comp;
 	}
 
-	protected URLValidator createURLValidator() {
+	protected RepositoryLocationValidator createURLValidator() {
 		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
 		validator.setKnownRepositoriesFlag(repoFlag);
 		return validator;
 	}
 
-	protected URLValidator getURLValidator() {
+	protected RepositoryLocationValidator getURLValidator() {
 		return urlValidator;
 	}
 
@@ -160,30 +157,30 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	/**
-	 * Get the URL as currently typed in by the user.  Return null if there
+	 * Get the repository location as currently typed in by the user.  Return null if there
 	 * is a problem with the URL.
 	 * 
 	 * @return the URL currently typed in by the user.
 	 */
-	protected URL getUserURL() {
-		URL userURL;
+	protected URI getUserLocation() {
+		URI userLocation;
 		try {
-			userURL = new URL(url.getText().trim());
-		} catch (MalformedURLException e) {
+			userLocation = URIUtil.fromString(url.getText().trim());
+		} catch (URISyntaxException e) {
 			return null;
 		}
-		return userURL;
+		return userLocation;
 	}
 
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
-			ProvisioningOperationRunner.schedule(getOperation(getUserURL()), getShell(), StatusManager.SHOW | StatusManager.LOG);
+			ProvisioningOperationRunner.schedule(getOperation(getUserLocation()), getShell(), StatusManager.SHOW | StatusManager.LOG);
 		}
 		return status;
 	}
 
-	protected abstract ProvisioningOperation getOperation(URL repoURL);
+	protected abstract ProvisioningOperation getOperation(URI repositoryLocation);
 
 	/**
 	 * Validate the repository URL, returning a status that is appropriate
@@ -195,16 +192,16 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
-		status[0] = URLValidator.getInvalidURLStatus(url.getText().trim());
-		final URL userURL = getUserURL();
+		status[0] = RepositoryLocationValidator.getInvalidURLStatus(url.getText().trim());
+		final URI userLocation = getUserLocation();
 		if (url.getText().length() == 0)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
-		else if (userURL == null)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryLocationValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
+		else if (userLocation == null)
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryLocationValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
 			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 				public void run() {
-					status[0] = getURLValidator().validateRepositoryURL(userURL, contactRepositories, null);
+					status[0] = getURLValidator().validateRepositoryLocation(userLocation, contactRepositories, null);
 				}
 			});
 

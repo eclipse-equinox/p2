@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -63,11 +63,11 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	protected void tearDown() throws Exception {
 		//remove all the repositories
-		getManager().removeRepository(destRepoLocation.toURL());
-		getManager().removeRepository(sourceRepoLocation.toURL());
-		getManager().removeRepository(sourceRepo2Location.toURL());
-		getManager().removeRepository(sourceRepo3Location.toURL());
-		getManager().removeRepository(sourceRepo4Location.toURL());
+		getManager().removeRepository(destRepoLocation.toURI());
+		getManager().removeRepository(sourceRepoLocation.toURI());
+		getManager().removeRepository(sourceRepo2Location.toURI());
+		getManager().removeRepository(sourceRepo3Location.toURI());
+		getManager().removeRepository(sourceRepo4Location.toURI());
 
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -121,9 +121,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * runs mirror application with default arguments. source is the source repo, destination is the destination repo, append is if the "-append" argument is needed
 	 */
-	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
+	private void basicRunMirrorApplication(String message, URI source, URI destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "-append" : ""};
+		String[] args = new String[] {"-source", source.toString(), "-destination", destination.toString(), append ? "-append" : ""};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -133,7 +133,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, File source, File destination, boolean append) {
 		try {
-			basicRunMirrorApplication(message, source.toURL(), destination.toURL(), append);
+			basicRunMirrorApplication(message, source.toURI(), destination.toURI(), append);
 		} catch (Exception e) {
 			fail(message, e);
 		}
@@ -181,11 +181,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: ensure setup completed successfully
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".3", e);
 		}
 
 		//mirror test data
@@ -204,11 +202,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".3", e);
 		}
 
 		//mirror test data
@@ -226,11 +222,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".3", e);
 		}
 
 		//mirror test data
@@ -248,11 +242,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".3", e);
 		}
 
 		//mirror duplicate data
@@ -270,11 +262,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".3", e);
 		}
 
 		//Setup: populate destination with duplicate metadata
@@ -282,12 +272,10 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContains(message + ".5", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains(message + ".6", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains(message + ".5", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains(message + ".6", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".7", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".8", e);
 		}
 
 		//mirror duplicate data
@@ -302,20 +290,14 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	private File metadataMirrorEmpty(String message, boolean append) {
 		//Setup: Create an empty repository
 		File emptyRepository = new File(getTempFolder(), getUniqueString());
-		try {
-			//Setup: remove repository if it exists
-			getManager().removeRepository(emptyRepository.toURL());
-		} catch (MalformedURLException e1) {
-			fail(message + ".0", e1);
-		}
+		//Setup: remove repository if it exists
+		getManager().removeRepository(emptyRepository.toURI());
 		//Setup: delete any data that may be in the folder
 		AbstractProvisioningTest.delete(emptyRepository);
 		try {
-			getManager().createRepository(emptyRepository.toURL(), "Empty Repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getManager().createRepository(emptyRepository.toURI(), "Empty Repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail(message + ".1", e);
-		} catch (MalformedURLException e) {
-			fail(message + ".2", e);
 		}
 
 		runMirrorApplication(message + ".0", emptyRepository, destRepoLocation, append);
@@ -344,11 +326,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("1.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("1.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("1.2", e);
-		} catch (MalformedURLException e) {
-			fail("1.3", e);
 		}
 	}
 
@@ -363,11 +343,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("2.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("2.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("2.2", e);
-		} catch (MalformedURLException e) {
-			fail("2.3", e);
 		}
 	}
 
@@ -382,11 +360,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("3.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("3.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("3.2", e);
-		} catch (MalformedURLException e) {
-			fail("3.3", e);
 		}
 	}
 
@@ -401,11 +377,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("4.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("4.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("4.2", e);
-		} catch (MalformedURLException e) {
-			fail("4.3", e);
 		}
 	}
 
@@ -420,14 +394,12 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("5.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("5.2", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("5.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("5.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo2Location.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("5.3", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("5.4", e);
-		} catch (MalformedURLException e) {
-			fail("5.5", e);
 		}
 	}
 
@@ -442,11 +414,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("6.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("6.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("6.2", e);
-		} catch (MalformedURLException e) {
-			fail("6.3", e);
 		}
 	}
 
@@ -461,11 +431,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("7.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("7.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("7.2", e);
-		} catch (MalformedURLException e) {
-			fail("7.3", e);
 		}
 	}
 
@@ -480,11 +448,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("8.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("8.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("8.2", e);
-		} catch (MalformedURLException e) {
-			fail("8.3", e);
 		}
 	}
 
@@ -499,11 +465,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("9.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("9.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("9.2", e);
-		} catch (MalformedURLException e) {
-			fail("9.3", e);
 		}
 	}
 
@@ -518,11 +482,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("10.1", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("10.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("10.2", e);
-		} catch (MalformedURLException e) {
-			fail("10.3", e);
 		}
 	}
 
@@ -537,14 +499,12 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("11.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("11.2", getManager().loadRepository(sourceRepo2Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("11.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("11.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getNumUnique(getManager().loadRepository(sourceRepo2Location.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo3Location.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("11.3", getNumUnique(getManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo3Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("11.4", e);
-		} catch (MalformedURLException e) {
-			fail("11.5", e);
 		}
 	}
 
@@ -559,11 +519,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("12.1", getManager().loadRepository(sourceRepo3Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("12.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("12.2", e);
-		} catch (MalformedURLException e) {
-			fail("12.3", e);
 		}
 	}
 
@@ -577,7 +535,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			basicRunMirrorApplication("13.1", invalidRepository.toURL(), destRepoLocation.toURL(), true);
+			basicRunMirrorApplication("13.1", invalidRepository.toURI(), destRepoLocation.toURI(), true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("13.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {
@@ -591,10 +549,10 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Tests MirrorApplication's behaviour when given an invalid destination repository with "-append"
 	 */
 	public void testMetadataMirrorToInvalid() {
-		URL invalidDestRepository;
+		URI invalidDestRepository;
 		try {
-			invalidDestRepository = new URL("http://foobar.com/abcdefg");
-			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository, true);
+			invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			basicRunMirrorApplication("14.1", sourceRepoLocation.toURI(), invalidDestRepository, true);
 			//we expect an illegal state exception to be thrown and should never get here
 			fail("14.0 IllegalStateExpection not thrown");
 		} catch (IllegalStateException e) {
@@ -612,8 +570,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			URL invalidDestRepository = new URL("http://foobar.com/abcdefg");
-			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository, true);
+			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			basicRunMirrorApplication("15.1", invalidRepository.toURI(), invalidDestRepository, true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("15.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {
@@ -634,22 +592,13 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("16.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("16.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("16.2", e);
-		} catch (MalformedURLException e) {
-			fail("16.3", e);
 		}
 
-		//Cleanup
-		try {
-			//remove the empty repository
-			getManager().removeRepository(emptyRepository.toURL());
-		} catch (MalformedURLException e) {
-			//delete any leftover data
-			delete(emptyRepository);
-			fail("16.4", e);
-		}
+		//remove the empty repository
+		getManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
@@ -665,23 +614,14 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("17.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContentEquals("17.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("17.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("17.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("17.3", e);
-		} catch (MalformedURLException e) {
-			fail("17.4", e);
 		}
 
-		//Cleanup
-		try {
-			//remove the empty repository
-			getManager().removeRepository(emptyRepository.toURL());
-		} catch (MalformedURLException e1) {
-			//delete any leftover data
-			delete(emptyRepository);
-			fail("17.5", e1);
-		}
+		//remove the empty repository
+		getManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
@@ -697,22 +637,13 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("18.1", getManager().loadRepository(emptyRepository.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("18.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("18.2", e);
-		} catch (MalformedURLException e) {
-			fail("18.3", e);
 		}
 
-		//Cleanup
-		try {
-			//remove the empty repository
-			getManager().removeRepository(emptyRepository.toURL());
-		} catch (MalformedURLException e1) {
-			//delete any leftover data
-			delete(emptyRepository);
-			fail("18.4", e1);
-		}
+		//remove the empty repository
+		getManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
@@ -732,11 +663,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("19.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContentEquals("19.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("19.3", e);
-		} catch (MalformedURLException e) {
-			fail("19.4", e);
 		}
 	}
 
@@ -755,14 +684,12 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("20.2", getManager().loadRepository(sourceRepoLocation.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
-			assertContains("20.3", getManager().loadRepository(sourceRepo4Location.toURL(), null), getManager().loadRepository(destRepoLocation.toURL(), null));
+			assertContains("20.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("20.3", getManager().loadRepository(sourceRepo4Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo4Location.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURL(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("20.4", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo4Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("20.5", e);
-		} catch (MalformedURLException e) {
-			fail("20.6", e);
 		}
 	}
 
@@ -834,18 +761,16 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Ensures that a repository created by the mirror application is a copy of the source
 	 */
 	public void testNewArtifactRepoProperties() {
-		//run mirror application with source not preexisting
+		//run mirror application with source not pre-existing
 		metadataMirrorToEmpty("24.0", true);
 
 		try {
-			IMetadataRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURL(), null);
-			IMetadataRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			IMetadataRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURI(), null);
+			IMetadataRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
 			assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
 		} catch (ProvisionException e) {
 			fail("24.3", e);
-		} catch (MalformedURLException e) {
-			fail("24.4", e);
 		}
 	}
 
@@ -858,24 +783,20 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		Map properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
-			properties = getManager().createRepository(destRepoLocation.toURL(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
+			properties = getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
 		} catch (ProvisionException e) {
 			fail("25.0", e);
-		} catch (MalformedURLException e) {
-			fail("25.1", e);
 		}
 
 		//run the mirror application
 		metadataMirrorToEmpty("25.2", true);
 
 		try {
-			IMetadataRepository repository = getManager().loadRepository(destRepoLocation.toURL(), null);
+			IMetadataRepository repository = getManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("25.3", name, repository.getName());
 			assertRepositoryProperties("25.4", properties, repository.getProperties());
 		} catch (ProvisionException e) {
 			fail("25.5", e);
-		} catch (MalformedURLException e) {
-			fail("25.6", e);
 		}
 	}
 }

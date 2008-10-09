@@ -14,7 +14,7 @@ import junit.framework.*;
 
 /**
  * To run the reconciler tests, you must perform some manual setup steps:
- * 1) Download the platform runtime binary zip (any build, such as 3.4.0).
+ * 1) Download the platform runtime binary zip (latest build or the one you want to test).
  * 2) Set the following system property to the file system path of the binary zip. For example:
  * 
  * -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/tmp/eclipse-platform-3.4-win32.zip

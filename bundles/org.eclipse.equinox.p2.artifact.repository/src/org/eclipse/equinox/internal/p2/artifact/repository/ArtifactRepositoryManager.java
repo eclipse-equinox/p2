@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
@@ -41,7 +41,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
+	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
 		synchronized (repositoryLock) {
 			boolean loaded = false;
 			try {
@@ -67,7 +67,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 	}
 
-	protected IRepository factoryLoad(URL location, IExtension extension, SubMonitor monitor) throws ProvisionException {
+	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
@@ -97,11 +97,11 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return IRepository.TYPE_ARTIFACT;
 	}
 
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) loadRepository(location, monitor, null);
 	}
 
-	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) basicRefreshRepository(location, monitor);
 	}
 
@@ -115,7 +115,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
-			loadRepository(location.getArtifactRepositoryURL(), null);
+			loadRepository(location.getArtifactRepositoryURI(), null);
 			return;
 		} catch (ProvisionException e) {
 			// log but still continue and try to create a new one
@@ -125,7 +125,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
+			createRepository(location.getArtifactRepositoryURI(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

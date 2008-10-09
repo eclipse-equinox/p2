@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -50,7 +50,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * the given location.
 	 * <p>
 	 * The resulting repository is added to the list of repositories tracked by
-	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
 	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
@@ -67,7 +67,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException;
+	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads the repository at the given location.  The location is expected to contain 
@@ -75,7 +75,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * already knows a repository at the given location then that repository is returned.
 	 * <p>
 	 * The resulting repository is added to the list of repositories tracked by
-	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
 	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
@@ -90,7 +90,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards
@@ -109,6 +109,6 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 }

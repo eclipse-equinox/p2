@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
 
@@ -109,7 +109,7 @@ public interface IRepository extends IAdaptable {
 	 * to be installed in Java.  Can the URL have any protocol?
 	 * @return the URL of the repository.
 	 */
-	public URL getLocation();
+	public URI getLocation();
 
 	/**
 	 * Returns the name of the repository.

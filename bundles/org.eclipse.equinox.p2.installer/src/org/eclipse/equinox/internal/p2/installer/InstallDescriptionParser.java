@@ -12,8 +12,7 @@
 package org.eclipse.equinox.internal.p2.installer;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -151,23 +150,23 @@ public class InstallDescriptionParser {
 	}
 
 	/**
-	 * Returns an array of URLs from the given comma-separated list
+	 * Returns an array of URIs from the given comma-separated list
 	 * of URLs. Returns null if the given spec does not contain any URLs.
-	 * @return An array of URLs in the given spec, or <code>null</code>
+	 * @return An array of URIs in the given spec, or <code>null</code>
 	 */
-	private static URL[] getURLs(String spec) {
+	private static URI[] getURLs(String spec) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
-				result.add(new URL(urlSpecs[i]));
-			} catch (MalformedURLException e) {
+				result.add(new URI(urlSpecs[i]));
+			} catch (URISyntaxException e) {
 				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpecs[i], e)); //$NON-NLS-1$
 			}
 		}
 		if (result.isEmpty())
 			return null;
-		return (URL[]) result.toArray(new URL[result.size()]);
+		return (URI[]) result.toArray(new URI[result.size()]);
 	}
 
 	private static void safeClose(InputStream in) {

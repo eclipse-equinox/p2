@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.update.*;
@@ -85,11 +84,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		try {
-			siteLocation = new File(temp, "eclipse").toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			fail("0.9", e);
-		}
+		siteLocation = new File(temp, "eclipse").toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -145,11 +140,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		try {
-			siteLocation = new File(temp, "eclipse").toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			fail("0.9", e);
-		}
+		siteLocation = new File(temp, "eclipse").toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -209,11 +200,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		try {
-			siteLocation = new File(temp, "eclipse").toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			fail("0.99", e);
-		}
+		siteLocation = new File(temp, "eclipse").toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -253,12 +240,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
-		String siteLocation = null;
-		try {
-			siteLocation = new File(temp, "eclipse").toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			fail("0.9", e);
-		}
+		String siteLocation = new File(temp, "eclipse").toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");

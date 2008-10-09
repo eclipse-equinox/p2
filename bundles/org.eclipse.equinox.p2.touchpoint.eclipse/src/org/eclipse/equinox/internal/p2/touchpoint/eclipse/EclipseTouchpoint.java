@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -87,7 +87,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
 		File configLocation = Util.getConfigurationFolder(profile);
-		URL poolURL = Util.getBundlePoolLocation(profile);
+		URI poolURL = Util.getBundlePoolLocation(profile);
 		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configLocation, poolURL, manipulator));
 		return null;
 	}

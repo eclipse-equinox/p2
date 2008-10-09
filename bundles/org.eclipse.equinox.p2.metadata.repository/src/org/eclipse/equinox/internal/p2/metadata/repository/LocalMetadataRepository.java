@@ -12,13 +12,12 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -46,18 +45,22 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	protected HashSet units = new LinkedHashSet();
 	protected HashSet repositories = new HashSet();
 
-	private static File getActualLocation(URL location, String extension) {
-		String spec = location.getFile();
-		if (spec.endsWith(CONTENT_FILENAME + extension))
-			return new File(spec + extension);
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += CONTENT_FILENAME;
+	private static File getActualLocation(URI location, String extension) {
+		File spec = URIUtil.toFile(location);
+		String path = spec.getAbsolutePath();
+		if (path.endsWith(CONTENT_FILENAME + extension)) {
+			//todo this is the old code that doesn't look right
+			//			return new File(spec + extension);
+			return spec;
+		}
+		if (path.endsWith("/")) //$NON-NLS-1$
+			path += CONTENT_FILENAME;
 		else
-			spec += "/" + CONTENT_FILENAME; //$NON-NLS-1$
-		return new File(spec + extension);
+			path += "/" + CONTENT_FILENAME; //$NON-NLS-1$
+		return new File(path + extension);
 	}
 
-	public static File getActualLocation(URL location) {
+	public static File getActualLocation(URI location) {
 		return getActualLocation(location, XML_EXTENSION);
 	}
 
@@ -73,9 +76,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * @param location The location of the repository
 	 * @param name The name of the repository
 	 */
-	public LocalMetadataRepository(URL location, String name, Map properties) {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
-		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
+	public LocalMetadataRepository(URI location, String name, Map properties) {
+		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+		if (!location.getScheme().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
@@ -88,7 +91,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public synchronized void addReference(URL repositoryLocation, int repositoryType, int options) {
+	public synchronized void addReference(URI repositoryLocation, int repositoryType, int options) {
 		assertModifiable();
 		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
 	}
@@ -131,7 +134,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public synchronized void initializeAfterLoad(URL aLocation) {
+	public synchronized void initializeAfterLoad(URI aLocation) {
 		this.location = aLocation;
 	}
 

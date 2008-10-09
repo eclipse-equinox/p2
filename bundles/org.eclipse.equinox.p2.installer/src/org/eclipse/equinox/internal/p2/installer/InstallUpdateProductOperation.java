@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -87,6 +87,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
+			properties.put(IProfile.PROP_NAME, installDescription.getProductName());
 			properties.putAll(installDescription.getProfileProperties());
 			IPath location = installDescription.getBundleLocation();
 			if (location != null)
@@ -249,7 +250,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void prepareArtifactRepositories() throws ProvisionException {
-		URL[] repos = installDescription.getArtifactRepositories();
+		URI[] repos = installDescription.getArtifactRepositories();
 		if (repos == null)
 			return;
 		for (int i = 0; i < repos.length; i++)
@@ -257,7 +258,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void prepareMetadataRepositories() throws ProvisionException {
-		URL[] repos = installDescription.getMetadataRepositories();
+		URI[] repos = installDescription.getMetadataRepositories();
 		if (repos == null)
 			return;
 		for (int i = 0; i < repos.length; i++)

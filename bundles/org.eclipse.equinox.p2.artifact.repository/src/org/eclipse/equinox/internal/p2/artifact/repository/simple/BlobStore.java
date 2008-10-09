@@ -11,10 +11,12 @@
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 
 /**
  * Blob store which maps UUIDs to blobs on disk. The UUID is mapped
@@ -22,7 +24,7 @@ import org.eclipse.core.runtime.Assert;
  * the blobs are split among 255 directories with the names 00 to FF.
  */
 public class BlobStore {
-	protected URL store;
+	protected URI store;
 
 	protected boolean fileBased;
 	/** Limits the range of directories' names. */
@@ -37,12 +39,12 @@ public class BlobStore {
 	 * This number must be power of 2 and do not exceed 256. The location
 	 * should be an existing valid directory.
 	 */
-	public BlobStore(URL store, int limit) {
+	public BlobStore(URI store, int limit) {
 		Assert.isNotNull(store);
 		this.store = store;
-		fileBased = "file".equalsIgnoreCase(store.getProtocol()); //$NON-NLS-1$
+		fileBased = "file".equalsIgnoreCase(store.getScheme()); //$NON-NLS-1$
 		if (fileBased)
-			Assert.isTrue(!new File(store.getPath()).isFile());
+			Assert.isTrue(!URIUtil.toFile(store).isFile());
 		Assert.isTrue(limit == 256 || limit == 128 || limit == 64 || limit == 32 || limit == 16 || limit == 8 || limit == 4 || limit == 2 || limit == 1);
 		mask = (byte) (limit - 1);
 	}

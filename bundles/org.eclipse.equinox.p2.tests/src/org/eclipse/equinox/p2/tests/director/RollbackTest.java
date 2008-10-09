@@ -8,13 +8,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
@@ -70,9 +70,12 @@ public class RollbackTest extends AbstractProvisioningTest {
 		try {
 			IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 			URL location = ((AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
-			return repoMan.loadRepository(new URL(location, "rollback"), null);
+			return repoMan.loadRepository(URIUtil.toURI(new URL(location, "rollback")), null);
 		} catch (MalformedURLException e) {
 			fail("0.02", e);
+			return null;
+		} catch (URISyntaxException e) {
+			fail("0.03", e);
 			return null;
 		}
 	}

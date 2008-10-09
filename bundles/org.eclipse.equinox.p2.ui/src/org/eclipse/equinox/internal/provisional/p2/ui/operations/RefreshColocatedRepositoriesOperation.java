@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -24,19 +24,19 @@ public class RefreshColocatedRepositoriesOperation extends RepositoryOperation {
 
 	/**
 	 * @param label
-	 * @param urls
+	 * @param locations
 	 */
-	public RefreshColocatedRepositoriesOperation(String label, URL[] urls) {
-		super(label, urls);
+	public RefreshColocatedRepositoriesOperation(String label, URI[] locations) {
+		super(label, locations);
 	}
 
 	public RefreshColocatedRepositoriesOperation(String label, int flags) {
-		super(label, new URL[0]);
+		super(label, new URI[0]);
 		try {
 			// We use the list of metadata repositories since this is what drives
 			// what the user sees, but we will refresh both the artifact and metadata
 			// repositories.
-			this.urls = ProvisioningUtil.getMetadataRepositories(flags);
+			this.locations = ProvisioningUtil.getMetadataRepositories(flags);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null, StatusManager.LOG);
 		}
@@ -45,8 +45,8 @@ public class RefreshColocatedRepositoriesOperation extends RepositoryOperation {
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		// Clear the not found cache so that repos not found are reported again.
 		ProvUI.clearRepositoriesNotFound();
-		ProvisioningUtil.refreshMetadataRepositories(urls, monitor);
-		ProvisioningUtil.refreshArtifactRepositories(urls, monitor);
+		ProvisioningUtil.refreshMetadataRepositories(locations, monitor);
+		ProvisioningUtil.refreshArtifactRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 

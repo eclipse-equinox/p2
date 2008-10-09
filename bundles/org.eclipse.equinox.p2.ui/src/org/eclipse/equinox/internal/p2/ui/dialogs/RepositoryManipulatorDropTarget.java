@@ -1,17 +1,16 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.URLValidator;
-
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -41,30 +40,30 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 
 	protected void handleDrop(String urlText, final DropTargetEvent event) {
 		event.detail = DND.DROP_NONE;
-		final URL[] url = new URL[1];
+		final URI[] location = new URI[1];
 		try {
-			url[0] = new URL(urlText);
-		} catch (MalformedURLException e) {
-			ProvUI.reportStatus(URLValidator.getInvalidURLStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
+			location[0] = new URI(urlText);
+		} catch (URISyntaxException e) {
+			ProvUI.reportStatus(RepositoryLocationValidator.getInvalidURLStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
-		if (url[0] == null)
+		if (location[0] == null)
 			return;
 
 		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], false, monitor);
+				IStatus status = manipulator.getRepositoryLocationValidator(control.getShell()).validateRepositoryLocation(location[0], false, monitor);
 				if (status.isOK()) {
-					ProvisioningOperation addOperation = manipulator.getAddOperation(url[0]);
+					ProvisioningOperation addOperation = manipulator.getAddOperation(location[0]);
 					ProvisioningOperationRunner.schedule(addOperation, control.getShell(), StatusManager.SHOW | StatusManager.LOG);
 					event.detail = DND.DROP_LINK;
-				} else if (status.getCode() == URLValidator.ALTERNATE_ACTION_TAKEN) {
+				} else if (status.getCode() == RepositoryLocationValidator.ALTERNATE_ACTION_TAKEN) {
 					event.detail = DND.DROP_COPY;
 				} else if (status.getSeverity() == IStatus.CANCEL) {
 					event.detail = DND.DROP_NONE;
 				} else {
-					status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] {status}, NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid, url[0].toExternalForm()), null);
+					status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] {status}, NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid, location[0]), null);
 					event.detail = DND.DROP_NONE;
 				}
 				return status;

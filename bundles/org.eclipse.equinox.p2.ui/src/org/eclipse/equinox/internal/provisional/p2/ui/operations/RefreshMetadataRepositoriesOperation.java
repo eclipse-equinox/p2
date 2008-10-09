@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -25,16 +25,16 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
 
 	/**
 	 * @param label
-	 * @param urls
+	 * @param locations
 	 */
-	public RefreshMetadataRepositoriesOperation(String label, URL[] urls) {
-		super(label, urls);
+	public RefreshMetadataRepositoriesOperation(String label, URI[] locations) {
+		super(label, locations);
 	}
 
 	public RefreshMetadataRepositoriesOperation(String label, int flags) {
-		super(label, new URL[0]);
+		super(label, new URI[0]);
 		try {
-			this.urls = ProvisioningUtil.getMetadataRepositories(flags);
+			this.locations = ProvisioningUtil.getMetadataRepositories(flags);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null, StatusManager.LOG);
 		}
@@ -43,7 +43,7 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		// Clear the not found cache so that repos not found are reported again.
 		ProvUI.clearRepositoriesNotFound();
-		ProvisioningUtil.refreshMetadataRepositories(urls, monitor);
+		ProvisioningUtil.refreshMetadataRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 

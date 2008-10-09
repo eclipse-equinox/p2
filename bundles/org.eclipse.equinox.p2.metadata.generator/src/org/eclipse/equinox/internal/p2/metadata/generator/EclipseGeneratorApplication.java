@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
@@ -21,6 +20,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -105,10 +105,10 @@ public class EclipseGeneratorApplication implements IApplication {
 		if (artifactLocation == null)
 			return;
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URL location;
+		URI location;
 		try {
-			location = new URL(artifactLocation);
-		} catch (MalformedURLException e) {
+			location = new URI(artifactLocation);
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
 		}
 
@@ -136,7 +136,7 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (provider.reuseExistingPack200Files())
 				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 			if (!provider.append()) {
-				File repoLocation = new File(location.getPath());
+				File repoLocation = URIUtil.toFile(location);
 				if (repoLocation.isFile())
 					repoLocation = repoLocation.getParentFile();
 				if (repoLocation.equals(provider.getBaseLocation()))
@@ -167,10 +167,10 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		if (metadataLocation == null)
 			return;
-		URL location;
+		URI location;
 		try {
-			location = new URL(metadataLocation);
-		} catch (MalformedURLException e) {
+			location = new URI(metadataLocation);
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, metadataLocation));
 		}
 

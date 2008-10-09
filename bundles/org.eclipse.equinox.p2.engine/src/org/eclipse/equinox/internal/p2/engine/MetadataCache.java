@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -29,14 +29,14 @@ public class MetadataCache {
 	static final private String REPOSITORY_NAME = "Agent Metadata Cache"; //$NON-NLS-1$
 	private ServiceReference busReference;
 	private IProvisioningEventBus bus;
-	private URL location;
+	private URI location;
 	//tracks the IUs that have been installed but not yet committed
 	//TODO: This will work if a single profile is being modified but we should consider how to handle multiple concurrent profile changes.OD
 	final ArrayList toAdd = new ArrayList();
 
 	public MetadataCache() {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-		location = (agentLocation != null ? agentLocation.getMetadataRepositoryURL() : null);
+		location = (agentLocation != null ? agentLocation.getMetadataRepositoryURI() : null);
 		hookListener();
 	}
 

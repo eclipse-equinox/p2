@@ -12,8 +12,8 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.TestCase;
@@ -55,7 +55,7 @@ public class JarURLRepositoryTest extends TestCase {
 		testRepo.mkdir();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
-		IMetadataRepository repo = manager.createRepository(testRepo.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		IMetadataRepository repo = manager.createRepository(testRepo.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
@@ -75,14 +75,14 @@ public class JarURLRepositoryTest extends TestCase {
 	}
 
 	public void testJarURLRepository() throws ProvisionException {
-		URL jarRepoURL = null;
+		URI jarRepoLocation = null;
 		try {
-			jarRepoURL = new URL("jar:" + testRepoJar.toURL().toString() + "!/");
-		} catch (MalformedURLException e) {
+			jarRepoLocation = new URI("jar:" + testRepoJar.toURI() + "!/");
+		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
-		IMetadataRepository repo = manager.loadRepository(jarRepoURL, null);
+		IMetadataRepository repo = manager.loadRepository(jarRepoLocation, null);
 		assertTrue(!repo.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
-		manager.removeRepository(jarRepoURL);
+		manager.removeRepository(jarRepoLocation);
 	}
 }

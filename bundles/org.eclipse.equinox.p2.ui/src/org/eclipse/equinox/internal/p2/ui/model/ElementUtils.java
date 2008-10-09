@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -34,24 +34,24 @@ public class ElementUtils {
 			public IStatus run(IProgressMonitor monitor) {
 				ProvUI.startBatchOperation();
 				try {
-					URL[] currentlyEnabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_ALL);
-					URL[] currentlyDisabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
+					URI[] currentlyEnabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_ALL);
+					URI[] currentlyDisabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
 					for (int i = 0; i < elements.length; i++) {
-						URL location = elements[i].getLocation();
+						URI location = elements[i].getLocation();
 						if (elements[i].isEnabled()) {
-							if (containsURL(currentlyDisabled, location))
+							if (containsURI(currentlyDisabled, location))
 								// It should be enabled and is not currently
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, true);
-							else if (!containsURL(currentlyEnabled, location)) {
+							else if (!containsURI(currentlyEnabled, location)) {
 								// It is not known as enabled or disabled.  Add it.
 								ProvisioningUtil.addMetadataRepository(location);
 								ProvisioningUtil.addArtifactRepository(location);
 							}
 						} else {
-							if (containsURL(currentlyEnabled, location))
+							if (containsURI(currentlyEnabled, location))
 								// It should be disabled, and is currently enabled
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
-							else if (!containsURL(currentlyDisabled, location)) {
+							else if (!containsURI(currentlyDisabled, location)) {
 								// It is not known as enabled or disabled.  Add it and then disable it.
 								ProvisioningUtil.addMetadataRepository(location);
 								ProvisioningUtil.addArtifactRepository(location);
@@ -70,9 +70,9 @@ public class ElementUtils {
 		job.schedule();
 	}
 
-	static boolean containsURL(URL[] locations, URL url) {
+	static boolean containsURI(URI[] locations, URI url) {
 		for (int i = 0; i < locations.length; i++)
-			if (locations[i].toExternalForm().equals(url.toExternalForm()))
+			if (locations[i].equals(url))
 				return true;
 		return false;
 	}

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.EventObject;
 import junit.framework.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -25,10 +25,10 @@ public class TestRepositoryListener implements ProvisioningListener {
 	public boolean lastEnablement;
 	public int lastKind;
 	public int lastRepoType;
-	private URL repoLocation;
+	private URI repoLocation;
 	private boolean wasCalled;
 
-	public TestRepositoryListener(URL location) {
+	public TestRepositoryListener(URI location) {
 		this.repoLocation = location;
 	}
 

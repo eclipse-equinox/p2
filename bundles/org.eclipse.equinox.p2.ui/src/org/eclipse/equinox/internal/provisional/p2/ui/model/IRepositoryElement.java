@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 
@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
  */
 public interface IRepositoryElement {
 
-	public URL getLocation();
+	public URI getLocation();
 
 	public String getName();
 

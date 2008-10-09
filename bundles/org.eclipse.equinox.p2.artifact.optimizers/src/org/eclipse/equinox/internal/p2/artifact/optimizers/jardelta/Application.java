@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public class Application implements IApplication {
 
-	private URL artifactRepositoryLocation;
+	private URI artifactRepositoryLocation;
 	private int width = 1;
 	private int depth = 1;
 
@@ -36,7 +36,7 @@ public class Application implements IApplication {
 		return null;
 	}
 
-	private IArtifactRepository setupRepository(URL location) throws ProvisionException {
+	private IArtifactRepository setupRepository(URI location) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
@@ -64,7 +64,7 @@ public class Application implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
-				artifactRepositoryLocation = new URL(arg);
+				artifactRepositoryLocation = new URI(arg);
 
 			if (args[i - 1].equalsIgnoreCase("-depth")) //$NON-NLS-1$
 				depth = Integer.parseInt(arg);

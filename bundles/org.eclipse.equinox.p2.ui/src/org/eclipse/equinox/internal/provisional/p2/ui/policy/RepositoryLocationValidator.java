@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -19,14 +19,14 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * 
- * URLValidator can be used to validate a repository URL.  Validation may
+ * RepositoryLocationValidator can be used to validate a repository URL.  Validation may
  * involve rules known by the validator itself or contact with a repository
  * manager.
  * 
  * @since 3.4
  *
  */
-public abstract class URLValidator {
+public abstract class RepositoryLocationValidator {
 	public static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 	public static final String FILE_PROTOCOL_PREFIX = "file:"; //$NON-NLS-1$
 	public static final String JAR_PATH_PREFIX = "jar:";//$NON-NLS-1$
@@ -41,8 +41,8 @@ public abstract class URLValidator {
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
 	}
 
-	public static boolean isFileURL(URL url) {
-		return url.getProtocol().equals(FILE_PROTOCOL);
+	public static boolean isFileURL(URI url) {
+		return url.getScheme().equals(FILE_PROTOCOL);
 	}
 
 	public static String makeJarURLString(String path) {
@@ -62,5 +62,5 @@ public abstract class URLValidator {
 		return result.toString();
 	}
 
-	public abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IProgressMonitor monitor);
+	public abstract IStatus validateRepositoryLocation(URI url, boolean contactRepositories, IProgressMonitor monitor);
 }

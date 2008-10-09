@@ -11,11 +11,11 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -32,7 +32,7 @@ public class PlatformConfigurationWrapper {
 	private Configuration configuration = null;
 	private Site poolSite = null;
 	private File configFile;
-	private URL poolURL;
+	private URI poolURI;
 	private Manipulator manipulator;
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
@@ -67,10 +67,10 @@ public class PlatformConfigurationWrapper {
 		return parentFolder.toFile();
 	}
 
-	public PlatformConfigurationWrapper(File configDir, URL featurePool, Manipulator manipulator) {
+	public PlatformConfigurationWrapper(File configDir, URI featurePool, Manipulator manipulator) {
 		this.configuration = null;
 		this.configFile = new File(configDir, "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
-		this.poolURL = featurePool;
+		this.poolURI = featurePool;
 		this.manipulator = manipulator;
 	}
 
@@ -88,12 +88,12 @@ public class PlatformConfigurationWrapper {
 			// TODO: Make this a real message
 			throw new IllegalStateException(Messages.error_parsing_configuration);
 		}
-		if (poolURL == null)
+		if (poolURI == null)
 			throw new IllegalStateException("Error creating platform configuration. No bundle pool defined."); //$NON-NLS-1$
 
-		poolSite = getSite(poolURL);
+		poolSite = getSite(poolURI);
 		if (poolSite == null) {
-			poolSite = createSite(poolURL, getDefaultPolicy());
+			poolSite = createSite(poolURI, getDefaultPolicy());
 			configuration.add(poolSite);
 		}
 	}
@@ -115,9 +115,9 @@ public class PlatformConfigurationWrapper {
 	/*
 	 * Create and return a site object based on the given location.
 	 */
-	private Site createSite(URL location, String policy) {
+	private Site createSite(URI location, String policy) {
 		Site result = new Site();
-		result.setUrl(location.toExternalForm());
+		result.setUrl(location.toString());
 		result.setPolicy(policy);
 		result.setEnabled(true);
 		return result;
@@ -127,13 +127,17 @@ public class PlatformConfigurationWrapper {
 	 * Look in the configuration and return the site object whose location matches
 	 * the given URL. Return null if there is no match.
 	 */
-	private Site getSite(URL url) {
+	private Site getSite(URI url) {
 		List sites = configuration.getSites();
+		File file = URIUtil.toFile(url);
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site nextSite = (Site) iter.next();
-			String nextURL = nextSite.getUrl();
-			if (new Path(nextURL).equals(new Path(url.toExternalForm()))) {
-				return nextSite;
+			try {
+				File nextFile = URIUtil.toFile(new URI(nextSite.getUrl()));
+				if (nextFile.equals(file))
+					return nextSite;
+			} catch (URISyntaxException e) {
+				//ignore incorrectly formed site
 			}
 		}
 		return null;
@@ -164,19 +168,15 @@ public class PlatformConfigurationWrapper {
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
 
-		URL fileURL = null;
-		try {
-			File featureDir = file.getParentFile();
-			if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
-				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
-			File locationDir = featureDir.getParentFile();
-			if (locationDir == null)
-				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
+		URI fileURL = null;
+		File featureDir = file.getParentFile();
+		if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
+		File locationDir = featureDir.getParentFile();
+		if (locationDir == null)
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
 
-			fileURL = locationDir.toURL();
-		} catch (MalformedURLException e) {
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_create_url_from_file, file.getAbsolutePath()), e);
-		}
+		fileURL = locationDir.toURI();
 		Site site = getSite(fileURL);
 		if (site == null) {
 			site = createSite(fileURL, getDefaultPolicy());

@@ -14,8 +14,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
@@ -64,24 +63,24 @@ public class Util {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	public static URL getBundlePoolLocation(IProfile profile) {
+	public static URI getBundlePoolLocation(IProfile profile) {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
-			try {
-				// create a file url
-				return new File(path).toURL();
-			} catch (MalformedURLException e) {
-				// unexpected, URLs should be pre-checked
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			}
+			return new File(path).toURI();
 		AgentLocation location = getAgentLocation();
 		if (location == null)
 			return null;
-		return location.getDataArea(Activator.ID);
+		try {
+			return URIUtil.toURI(location.getDataArea(Activator.ID));
+		} catch (URISyntaxException e) {
+			// unexpected, URLs should be pre-checked
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
-		URL location = getBundlePoolLocation(profile);
+		URI location = getBundlePoolLocation(profile);
 		if (location == null)
 			return null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
@@ -114,15 +113,12 @@ public class Util {
 			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 			if (sharedCache != null) {
 				try {
-					URL repoURL = new File(sharedCache).toURL();
-					IArtifactRepository repository = manager.loadRepository(repoURL, null);
+					URI repoLocation = new File(sharedCache).toURI();
+					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
 						bundleRepositories.add(repository);
 				} catch (ProvisionException e) {
 					//skip repository if it could not be read
-				} catch (MalformedURLException e) {
-					// unexpected, URLs should be pre-checked
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 				}
 			}
 		}
@@ -138,13 +134,13 @@ public class Util {
 			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
 				try {
 					String repo = (String) iterator.next();
-					URL repoURL = new URL(repo);
-					IArtifactRepository repository = manager.loadRepository(repoURL, null);
+					URI repoLocation = new URI(repo);
+					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
 						bundleRepositories.add(repository);
 				} catch (ProvisionException e) {
 					//skip repositories that could not be read
-				} catch (MalformedURLException e) {
+				} catch (URISyntaxException e) {
 					// unexpected, URLs should be pre-checked
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 				}

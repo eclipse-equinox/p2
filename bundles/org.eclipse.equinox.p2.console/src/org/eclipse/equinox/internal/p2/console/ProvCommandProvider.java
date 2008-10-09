@@ -10,8 +10,8 @@
 package org.eclipse.equinox.internal.p2.console;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -65,7 +65,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println();
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
+		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
 		if (ProvisioningHelper.addMetadataRepository(repoURL) == null)
@@ -79,7 +79,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println();
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
+		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
 		ProvisioningHelper.removeMetadataRepository(repoURL);
@@ -92,7 +92,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println();
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
+		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
 		if (ProvisioningHelper.addArtifactRepository(repoURL) == null)
@@ -106,7 +106,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println();
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
+		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
 		ProvisioningHelper.removeArtifactRepository(repoURL);
@@ -185,9 +185,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String urlString = processArgument(interpreter.nextArgument());
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
-		URL repoURL = null;
+		URI repoURL = null;
 		if (urlString != null && !urlString.equals(WILDCARD_ANY))
-			repoURL = toURL(interpreter, urlString);
+			repoURL = toURI(interpreter, urlString);
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
@@ -204,16 +204,16 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URL[] repositories = ProvisioningHelper.getMetadataRepositories();
+			URI[] repositories = ProvisioningHelper.getMetadataRepositories();
 			if (repositories != null)
 				for (int i = 0; i < repositories.length; i++)
 					interpreter.println(repositories[i]);
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
-		if (repoURL == null)
+		URI repoLocation = toURI(interpreter, urlString);
+		if (repoLocation == null)
 			return;
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoLocation, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -232,7 +232,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		} else {
-			URL repoURL = toURL(interpreter, urlString);
+			URI repoURL = toURI(interpreter, urlString);
 			if (repoURL == null)
 				return;
 			queryable = ProvisioningHelper.getMetadataRepository(repoURL);
@@ -254,14 +254,14 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provlar(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URL[] repositories = ProvisioningHelper.getArtifactRepositories();
+			URI[] repositories = ProvisioningHelper.getArtifactRepositories();
 			if (repositories == null)
 				return;
 			for (int i = 0; i < repositories.length; i++)
 				interpreter.println(repositories[i]);
 			return;
 		}
-		URL repoURL = toURL(interpreter, urlString);
+		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
@@ -294,10 +294,10 @@ public class ProvCommandProvider implements CommandProvider {
 	 * Returns the given string as an URL, or <code>null</code> if the string
 	 * could not be interpreted as an URL.
 	 */
-	private URL toURL(CommandInterpreter interpreter, String urlString) {
+	private URI toURI(CommandInterpreter interpreter, String urlString) {
 		try {
-			return new URL(urlString);
-		} catch (MalformedURLException e) {
+			return new URI(urlString);
+		} catch (URISyntaxException e) {
 			interpreter.print(e.getMessage());
 			interpreter.println();
 			return null;

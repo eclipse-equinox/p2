@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -1102,11 +1101,11 @@ public class Generator {
 	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
 		IMetadataRepository metadataRepo = info.getMetadataRepository();
 		try {
-			URL associateLocation = new URL(location);
+			URI associateLocation = new URI(location);
 			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)
 				message = message + " in feature: " + featureId; //$NON-NLS-1$

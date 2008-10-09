@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -27,7 +27,7 @@ public class Application implements IApplication {
 	private static final String ARTIFACT_REPOSITORY_ARG = "-artifactRepository"; //$NON-NLS-1$
 	private static final String ARTIFACT_REPOSITORY_SHORT_ARG = "-ar"; //$NON-NLS-1$
 
-	private URL artifactRepositoryLocation;
+	private URI artifactRepositoryLocation;
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
@@ -39,7 +39,7 @@ public class Application implements IApplication {
 		return null;
 	}
 
-	private IArtifactRepository setupRepository(URL location) throws ProvisionException {
+	private IArtifactRepository setupRepository(URI location) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
@@ -63,7 +63,7 @@ public class Application implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase(ARTIFACT_REPOSITORY_ARG) || args[i - 1].equalsIgnoreCase(ARTIFACT_REPOSITORY_SHORT_ARG))
-				artifactRepositoryLocation = new URL(arg);
+				artifactRepositoryLocation = new URI(arg);
 		}
 	}
 }

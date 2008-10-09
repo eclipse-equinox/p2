@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -25,12 +25,12 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IArtifactRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
+	public IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
 			throw new ProvisionException(status);
-		URL repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
+		URI repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
 		// unexpected
 		if (repoLocation == null)
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
@@ -44,7 +44,7 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 			// expected
 		}
 		if (failed) {
-			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
+			String msg = NLS.bind(Messages.repo_already_exists, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().create(repoLocation, name, type, properties);
@@ -54,12 +54,12 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
 			throw new ProvisionException(status);
-		URL repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
+		URI repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
 		// unexpected
 		if (repoLocation == null)
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
@@ -72,7 +72,7 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 		}
 	}
 
-	public IStatus validate(URL location, IProgressMonitor monitor) {
+	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
 			ExtensionLocationArtifactRepository.validate(location, monitor);
 		} catch (ProvisionException e) {

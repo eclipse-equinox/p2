@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import junit.framework.AssertionFailedError;
@@ -639,7 +640,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
-	protected IArtifactRepository createArtifactRepository(URL location, Map properties) throws ProvisionException {
+	protected IArtifactRepository createArtifactRepository(URI location, Map properties) throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(location, "artifact", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		artifactRepositoryManager.removeRepository(repo.getLocation());
@@ -650,7 +651,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	protected IMetadataRepository createMetadataRepository(URL location, Map properties) throws ProvisionException {
+	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		IMetadataRepository repo = metadataRepositoryManager.createRepository(location, "metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		metadataRepos.add(repo);
@@ -710,10 +711,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 			metadataRepos.clear();
 		}
-		URL[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		URI[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < urls.length; i++) {
 			try {
-				if (urls[i].toExternalForm().indexOf("cache") != -1 || urls[i].toExternalForm().indexOf("rollback") != -1)
+				if (urls[i].toString().indexOf("cache") != -1 || urls[i].toString().indexOf("rollback") != -1)
 					repoMan.loadRepository(urls[i], null).removeAll();
 			} catch (ProvisionException e) {
 				//if the repository didn't load, then it doesn't exist and we don't need to clear it up
@@ -793,7 +794,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
 		}

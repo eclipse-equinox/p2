@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -25,16 +25,16 @@ public class RefreshArtifactRepositoriesOperation extends RepositoryOperation {
 
 	/**
 	 * @param label
-	 * @param urls
+	 * @param locations
 	 */
-	public RefreshArtifactRepositoriesOperation(String label, URL[] urls) {
-		super(label, urls);
+	public RefreshArtifactRepositoriesOperation(String label, URI[] locations) {
+		super(label, locations);
 	}
 
 	public RefreshArtifactRepositoriesOperation(String label, int flags) {
-		super(label, new URL[0]);
+		super(label, new URI[0]);
 		try {
-			this.urls = ProvisioningUtil.getArtifactRepositories(flags);
+			this.locations = ProvisioningUtil.getArtifactRepositories(flags);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null, StatusManager.LOG);
 		}
@@ -45,7 +45,7 @@ public class RefreshArtifactRepositoriesOperation extends RepositoryOperation {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation#doBatchedExecute(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.core.runtime.IAdaptable)
 	 */
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		ProvisioningUtil.refreshArtifactRepositories(urls, monitor);
+		ProvisioningUtil.refreshArtifactRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 

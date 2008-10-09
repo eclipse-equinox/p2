@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -44,7 +44,7 @@ public class JarURLRepositoryTest extends TestCase {
 		TestActivator.getContext().ungetService(managerRef);
 	}
 
-	public void testJarURLRepository() throws ProvisionException {
+	public void testJarURLRepository() throws ProvisionException, URISyntaxException {
 		URL engineJar = TestActivator.getContext().getBundle().getEntry("/testData/enginerepo.jar");
 		URL jarRepoURL = null;
 		try {
@@ -52,7 +52,7 @@ public class JarURLRepositoryTest extends TestCase {
 		} catch (MalformedURLException e) {
 			fail(e.getMessage());
 		}
-		IArtifactRepository repo = manager.loadRepository(jarRepoURL, null);
+		IArtifactRepository repo = manager.loadRepository(URIUtil.toURI(jarRepoURL), null);
 		assertTrue(repo.contains(new ArtifactKey("osgi.bundle", "testdata", new Version("1.0.0.1"))));
 	}
 }

@@ -10,12 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 
 public class ProvisioningContext {
-	private URL[] metadataRepositories; //metadata repositories to consult
-	private URL[] artifactRepositories; //artifact repositories to consult
+	private URI[] metadataRepositories; //metadata repositories to consult
+	private URI[] artifactRepositories; //artifact repositories to consult
 	private Properties properties = new Properties();
 	private List extraIUs = new ArrayList();
 
@@ -25,7 +25,7 @@ public class ProvisioningContext {
 		artifactRepositories = null;
 	}
 
-	public ProvisioningContext(URL[] metadataRepositories) {
+	public ProvisioningContext(URI[] metadataRepositories) {
 		this.metadataRepositories = metadataRepositories;
 	}
 
@@ -33,15 +33,15 @@ public class ProvisioningContext {
 	 * Artifact repositories to consult when performing an operation.
 	 * @param artifactRepositories array of URLs
 	*/
-	public void setArtifactRepositories(URL[] artifactRepositories) {
+	public void setArtifactRepositories(URI[] artifactRepositories) {
 		this.artifactRepositories = artifactRepositories;
 	}
 
-	public URL[] getMetadataRepositories() {
+	public URI[] getMetadataRepositories() {
 		return metadataRepositories;
 	}
 
-	public URL[] getArtifactRepositories() {
+	public URI[] getArtifactRepositories() {
 		return artifactRepositories;
 	}
 

@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.installer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
@@ -89,14 +88,14 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 	 */
 	public void testLoadGoodDescription() {
 		InstallDescription description = loadDescription("good.properties");
-		URL[] artifactRepositories = description.getArtifactRepositories();
+		URI[] artifactRepositories = description.getArtifactRepositories();
 		assertEquals("1.0", 2, artifactRepositories.length);
-		assertEquals("1.1", "http://update.eclipse.org/eclipse/someUpdateSite/", artifactRepositories[0].toExternalForm());
-		assertEquals("1.1", "http://update.eclipse.org/eclipse/someArtifacts/", artifactRepositories[1].toExternalForm());
-		URL[] metadataRepositories = description.getMetadataRepositories();
+		assertEquals("1.1", "http://update.eclipse.org/eclipse/someUpdateSite/", artifactRepositories[0].toString());
+		assertEquals("1.1", "http://update.eclipse.org/eclipse/someArtifacts/", artifactRepositories[1].toString());
+		URI[] metadataRepositories = description.getMetadataRepositories();
 		assertEquals("1.2", 2, metadataRepositories.length);
-		assertEquals("1.3", "http://update.eclipse.org/eclipse/someUpdateSite/", metadataRepositories[0].toExternalForm());
-		assertEquals("1.3", "http://update.eclipse.org/eclipse/someMetadata/", metadataRepositories[1].toExternalForm());
+		assertEquals("1.3", "http://update.eclipse.org/eclipse/someUpdateSite/", metadataRepositories[0].toString());
+		assertEquals("1.3", "http://update.eclipse.org/eclipse/someMetadata/", metadataRepositories[1].toString());
 		assertEquals("1.4", "testFlavor", description.getProfileProperties().get("eclipse.p2.flavor"));
 		assertEquals("1.5", "Test Profile Name", description.getProductName());
 		assertEquals("1.5", "testLauncherName", description.getLauncherName());
@@ -137,12 +136,12 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 	 */
 	public void testLoadSDKDescription() {
 		InstallDescription description = loadDescription("sdk-installer.properties");
-		URL[] artifactRepositories = description.getArtifactRepositories();
+		URI[] artifactRepositories = description.getArtifactRepositories();
 		assertEquals("1.0", 1, artifactRepositories.length);
-		assertEquals("1.1", "http://update.eclipse.org/eclipse/testUpdates/", artifactRepositories[0].toExternalForm());
-		URL[] metadataRepositories = description.getMetadataRepositories();
+		assertEquals("1.1", "http://update.eclipse.org/eclipse/testUpdates/", artifactRepositories[0].toString());
+		URI[] metadataRepositories = description.getMetadataRepositories();
 		assertEquals("1.2", 1, metadataRepositories.length);
-		assertEquals("1.3", "http://update.eclipse.org/eclipse/testUpdates/", metadataRepositories[0].toExternalForm());
+		assertEquals("1.3", "http://update.eclipse.org/eclipse/testUpdates/", metadataRepositories[0].toString());
 		assertEquals("1.4", "tooling", description.getProfileProperties().get("eclipse.p2.flavor"));
 		assertEquals("1.5", "Eclipse SDK", description.getProductName());
 		assertEquals("1.5", "eclipse", description.getLauncherName());

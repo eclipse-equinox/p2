@@ -10,7 +10,7 @@
 package org.eclipse.equinox.p2.tests.publisher;
 
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.*;
@@ -112,7 +112,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		// Check if the artifact is already in this repository
 		if (contains(descriptor)) {
-			String msg = NLS.bind(Messages.available_already_in, getLocation().toExternalForm());
+			String msg = NLS.bind(Messages.available_already_in, getLocation());
 			throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.ARTIFACT_EXISTS, msg, null));
 		}
 		return new ArtifactOutputStream(new ByteArrayOutputStream(500), descriptor);
@@ -216,7 +216,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return description;
 	}
 
-	public URL getLocation() {
+	public URI getLocation() {
 		return null;
 	}
 
@@ -282,5 +282,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public byte[] getBytes(IArtifactDescriptor artifactDescriptor) {
 		return (byte[]) repo.get(artifactDescriptor);
+	}
+
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		return getArtifact(descriptor, destination, monitor);
 	}
 }

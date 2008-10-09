@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -195,10 +195,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 */
 	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
 		try {
-			URL associateLocation = new URL(location);
+			URI associateLocation = new URI(location);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.NONE);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, IRepository.NONE);
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)
 				message = message + " in feature: " + featureId; //$NON-NLS-1$

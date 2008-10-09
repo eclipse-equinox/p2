@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Arrays;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
@@ -25,9 +25,9 @@ import org.eclipse.equinox.p2.tests.*;
  */
 public class AddColocatedRepositoryOperationTest extends AbstractProvisioningTest {
 	public void testAddSingleRepository() {
-		URL repoLocation = null;
+		URI repoLocation = null;
 		try {
-			repoLocation = TestData.getFile("artifactRepo", "").toURL();
+			repoLocation = TestData.getFile("artifactRepo", "").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 		}
@@ -47,7 +47,7 @@ public class AddColocatedRepositoryOperationTest extends AbstractProvisioningTes
 		}
 
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repos = manager.getKnownRepositories(0);
+		URI[] repos = manager.getKnownRepositories(0);
 		assertTrue("2.0", Arrays.asList(repos).contains(repoLocation));
 		assertTrue("2.1", manager.isEnabled(repoLocation));
 
@@ -58,9 +58,9 @@ public class AddColocatedRepositoryOperationTest extends AbstractProvisioningTes
 	}
 
 	public void testUndoRedo() {
-		URL repoLocation = null;
+		URI repoLocation = null;
 		try {
-			repoLocation = TestData.getFile("artifactRepo", "").toURL();
+			repoLocation = TestData.getFile("artifactRepo", "").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 		}
@@ -83,7 +83,7 @@ public class AddColocatedRepositoryOperationTest extends AbstractProvisioningTes
 		}
 
 		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repos = metadataManager.getKnownRepositories(0);
+		URI[] repos = metadataManager.getKnownRepositories(0);
 		assertTrue("2.0", !Arrays.asList(repos).contains(repoLocation));
 		assertTrue("2.1", !metadataManager.isEnabled(repoLocation));
 

@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.xml.parsers.*;
@@ -96,10 +96,10 @@ public class UpdateManagerCompatibility {
 	}
 
 	private static void createSite(Node child, Vector bookmarks) {
-		URL url = null;
+		URI url = null;
 		try {
-			url = new URL(getAttribute(child, "url")); //$NON-NLS-1$
-		} catch (MalformedURLException e) {
+			url = new URI(getAttribute(child, "url")); //$NON-NLS-1$
+		} catch (URISyntaxException e) {
 			logFail(e);
 			return;
 		}

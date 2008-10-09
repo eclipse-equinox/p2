@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -24,10 +24,10 @@ public class MirrorApplication implements IApplication {
 	private static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	private String[] iuSpecs;
 	private String[] artifactSpecs;
-	private URL metadataSourceLocation;
-	private URL metadataDestinationLocation;
-	private URL artifactSourceLocation;
-	private URL artifactDestinationLocation;
+	private URI metadataSourceLocation;
+	private URI metadataDestinationLocation;
+	private URI artifactSourceLocation;
+	private URI artifactDestinationLocation;
 	private boolean referencedIUs = false;
 	private boolean raw = false;
 	private boolean overwrite = false;
@@ -112,21 +112,21 @@ public class MirrorApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
-				metadataSourceLocation = new URL(arg);
-				artifactSourceLocation = new URL(arg);
+				metadataSourceLocation = new URI(arg);
+				artifactSourceLocation = new URI(arg);
 			}
 			if (args[i - 1].equalsIgnoreCase("-destination")) { //$NON-NLS-1$
-				metadataDestinationLocation = new URL(arg);
-				artifactDestinationLocation = new URL(arg);
+				metadataDestinationLocation = new URI(arg);
+				artifactDestinationLocation = new URI(arg);
 			}
 			if (args[i - 1].equalsIgnoreCase("-metadatadestination")) //$NON-NLS-1$
-				metadataDestinationLocation = new URL(arg);
+				metadataDestinationLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-metadatasource")) //$NON-NLS-1$
-				metadataSourceLocation = new URL(arg);
+				metadataSourceLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-artifactdestination")) //$NON-NLS-1$
-				artifactDestinationLocation = new URL(arg);
+				artifactDestinationLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-artifactsource")) //$NON-NLS-1$
-				artifactSourceLocation = new URL(arg);
+				artifactSourceLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-ius")) //$NON-NLS-1$
 				if (arg.equalsIgnoreCase("all")) //$NON-NLS-1$ 
 					iuSpecs = new String[0];

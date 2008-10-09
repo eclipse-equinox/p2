@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
@@ -170,7 +170,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	public static IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
+	public static IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URI[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
 		Map resultsMap = new HashMap();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
@@ -228,7 +228,7 @@ public class SimplePlanner implements IPlanner {
 
 			IInstallableUnit[] allIUs = updatePlannerInfo(profileChangeRequest);
 
-			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
+			URI[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
 			List extraIUs = new ArrayList(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
@@ -381,7 +381,7 @@ public class SimplePlanner implements IPlanner {
 		Map resultsMap = new HashMap();
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		URL[] repositories = context.getMetadataRepositories();
+		URI[] repositories = context.getMetadataRepositories();
 		if (repositories == null)
 			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 

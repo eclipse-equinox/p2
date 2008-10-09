@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
@@ -34,16 +34,16 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 
 	protected abstract ProvisioningOperation getOperation();
 
-	protected URL[] getSelectedURLs(Object[] selectionArray) {
+	protected URI[] getSelectedLocations(Object[] selectionArray) {
 		List urls = new ArrayList();
 		for (int i = 0; i < selectionArray.length; i++) {
 			if (selectionArray[i] instanceof MetadataRepositoryElement)
 				urls.add(((MetadataRepositoryElement) selectionArray[i]).getLocation());
 		}
-		return (URL[]) urls.toArray(new URL[urls.size()]);
+		return (URI[]) urls.toArray(new URI[urls.size()]);
 	}
 
 	protected void checkEnablement(Object[] selectionArray) {
-		setEnabled(getSelectedURLs(selectionArray).length > 0);
+		setEnabled(getSelectedLocations(selectionArray).length > 0);
 	}
 }

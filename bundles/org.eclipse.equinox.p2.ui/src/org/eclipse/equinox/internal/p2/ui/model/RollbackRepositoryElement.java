@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  * Element wrapper class for a rollback repository.
@@ -21,8 +21,8 @@ public class RollbackRepositoryElement extends MetadataRepositoryElement {
 
 	String profileId;
 
-	public RollbackRepositoryElement(URL url, String profileId) {
-		super(null, url);
+	public RollbackRepositoryElement(URI location, String profileId) {
+		super(null, location);
 		this.profileId = profileId;
 	}
 

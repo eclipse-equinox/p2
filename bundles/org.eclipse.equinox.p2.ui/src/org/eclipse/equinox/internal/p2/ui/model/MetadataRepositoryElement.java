@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -38,17 +38,17 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class MetadataRepositoryElement extends RemoteQueriedElement implements IRepositoryElement {
 
-	URL url;
+	URI location;
 	boolean isEnabled;
 	boolean alreadyReportedNotFound = false;
 
-	public MetadataRepositoryElement(Object parent, URL url) {
-		this(parent, url, true);
+	public MetadataRepositoryElement(Object parent, URI location) {
+		this(parent, location, true);
 	}
 
-	public MetadataRepositoryElement(Object parent, URL url, boolean isEnabled) {
+	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
 		super(parent);
-		this.url = url;
+		this.location = location;
 		this.isEnabled = isEnabled;
 	}
 
@@ -73,7 +73,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return getLocation().toExternalForm();
+		return getLocation().toString();
 	}
 
 	/*
@@ -94,7 +94,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) {
 		if (queryable == null)
 			try {
-				queryable = ProvisioningUtil.loadMetadataRepository(url, monitor);
+				queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
 			} catch (ProvisionException e) {
 				// If repository could not be found, report to the user, but only once.
 				// If the user refreshes the repositories, new elements will be created and
@@ -103,12 +103,12 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 					if (!alreadyReportedNotFound) {
 						// report the status, not the exception, to the user because we
 						// do not want to show them stack trace and exception detail.
-						ProvUI.reportNotFoundStatus(url, e.getStatus(), StatusManager.SHOW);
+						ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
 						alreadyReportedNotFound = true;
 					}
 				} else
 					// handle other exceptions the normal way
-					handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+					handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 			}
 		return (IMetadataRepository) queryable;
 
@@ -121,14 +121,14 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
 	 */
 	public boolean knowsQueryable() {
-		return url != null;
+		return location != null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
 	 */
-	public URL getLocation() {
-		return url;
+	public URI getLocation() {
+		return location;
 	}
 
 	/*
@@ -137,7 +137,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 */
 	public String getName() {
 		try {
-			String name = ProvisioningUtil.getMetadataRepositoryProperty(url, IRepository.PROP_NAME);
+			String name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
 			if (name == null)
 				return ""; //$NON-NLS-1$
 			return name;
@@ -154,7 +154,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 		if (alreadyReportedNotFound)
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
 		try {
-			String description = ProvisioningUtil.getMetadataRepositoryProperty(url, IRepository.PROP_DESCRIPTION);
+			String description = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 			if (description == null)
 				return ""; //$NON-NLS-1$
 			return description;
@@ -190,12 +190,12 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	public boolean hasQueryable() {
 		if (queryable != null)
 			return true;
-		if (url == null)
+		if (location == null)
 			return false;
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null || !(manager instanceof MetadataRepositoryManager))
 			return false;
-		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(url);
+		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);
 		if (repo == null)
 			return false;
 		queryable = repo;

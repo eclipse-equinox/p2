@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.EventObject;
 
 /**
@@ -70,7 +70,7 @@ public class RepositoryEvent extends EventObject {
 	 * @param kind the kind of change that occurred.
 	 * @param enabled whether the repository is enabled
 	 */
-	public RepositoryEvent(URL location, int repositoryType, int kind, boolean enabled) {
+	public RepositoryEvent(URI location, int repositoryType, int kind, boolean enabled) {
 		super(location);
 		this.kind = kind;
 		this.type = repositoryType;
@@ -95,8 +95,8 @@ public class RepositoryEvent extends EventObject {
 	 * 
 	 * @return the location of the repository associated with this event.
 	 */
-	public URL getRepositoryLocation() {
-		return (URL) getSource();
+	public URI getRepositoryLocation() {
+		return (URI) getSource();
 	}
 
 	/**

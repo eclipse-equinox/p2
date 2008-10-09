@@ -41,7 +41,9 @@ public abstract class StructuredIUGroup {
 	/**
 	 * Create a group that represents the available IU's.
 	 * 
+	 * @param policy The application policy to use in the group
 	 * @param parent the parent composite for the group
+	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
 	 */

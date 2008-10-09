@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.tools.mirror;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -50,7 +50,7 @@ public class RepositoryMirroring {
 	private boolean verbose = false;
 	private boolean compressed = false;
 
-	public RepositoryMirroring(URL metadataSourceLocation, URL metadataDestinationLocation, URL artifactSourceLocation, URL artifactDestinationLocation, boolean overwrite, boolean compressed) throws ProvisionException {
+	public RepositoryMirroring(URI metadataSourceLocation, URI metadataDestinationLocation, URI artifactSourceLocation, URI artifactDestinationLocation, boolean overwrite, boolean compressed) throws ProvisionException {
 		this.overwrite = overwrite;
 		this.compressed = compressed;
 		if (metadataSourceLocation != null && metadataDestinationLocation != null) {
@@ -181,7 +181,7 @@ public class RepositoryMirroring {
 		return true;
 	}
 
-	private IMetadataRepository initializeMetadataDestination(MetadataRepositoryManager manager, URL destinationLocation) throws ProvisionException {
+	private IMetadataRepository initializeMetadataDestination(MetadataRepositoryManager manager, URI destinationLocation) throws ProvisionException {
 		IMetadataRepository repository;
 		try {
 			String repositoryName = destinationLocation + " - metadata"; //$NON-NLS-1$
@@ -206,7 +206,7 @@ public class RepositoryMirroring {
 		return repository;
 	}
 
-	private IArtifactRepository initializeArtifactDestination(ArtifactRepositoryManager repoManager, URL destinationLocation) throws ProvisionException {
+	private IArtifactRepository initializeArtifactDestination(ArtifactRepositoryManager repoManager, URI destinationLocation) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		IArtifactRepository repository;
 		try {

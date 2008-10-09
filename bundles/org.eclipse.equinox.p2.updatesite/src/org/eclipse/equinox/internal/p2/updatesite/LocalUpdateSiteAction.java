@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.publisher.*;
@@ -41,7 +40,7 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
-		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toExternalForm() : "Unknown")), null); //$NON-NLS-1$
+		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
@@ -65,14 +64,8 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 	private IPublisherAction createSiteXMLAction() {
 		if (updateSite != null)
 			return new SiteXMLAction(updateSite);
-		if (source != null) {
-			try {
-				return new SiteXMLAction(new File(source, "site.xml").toURL()); //$NON-NLS-1$
-			} catch (MalformedURLException e) {
-				// never happens
-				return null;
-			}
-		}
+		if (source != null)
+			return new SiteXMLAction(new File(source, "site.xml").toURI()); //$NON-NLS-1$
 		return null;
 	}
 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -29,15 +29,23 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * An object that adds queryable support to a metadata repository 
  * manager.  It can be constructed to iterate over a specific array
- * of repositories named by URL, or filtered according to repository filter
+ * of repositories named by URI, or filtered according to repository filter
  * flags.  When a query is provided, the object being queried is the loaded
  * repository, and collectors should be prepared to accept IInstallableUnits that
- * meet the query criteria.  Callers interested in only the resulting repository URL's 
- * should specify a null query, in which case the collector will be accepting the URL's.
+ * meet the query criteria.  Callers interested in only the resulting repository URI 
+ * should specify a null query, in which case the collector will be accepting the URI's.
  */
 public class QueryableMetadataRepositoryManager implements IQueryable {
+	/**
+	 * List<URI> of locations of repositories that were not found
+	 */
 	private ArrayList notFound = new ArrayList();
+
+	/**
+	 * Map<URI,IMetadataRepository> of loaded repositories.
+	 */
 	private HashMap loaded = new HashMap();
+
 	private MultiStatus accumulatedNotFound = null;
 	private boolean includeDisabledRepos;
 	private Policy policy;
@@ -71,32 +79,32 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		List repoURLs = getRepoLocations(manager);
+		List repoLocations = getRepoLocations(manager);
 
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.size() * 2);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoLocations.size() * 2);
 		if (sub.isCanceled())
 			return result;
-		for (int i = 0; i < repoURLs.size(); i++) {
+		for (int i = 0; i < repoLocations.size(); i++) {
 			if (sub.isCanceled())
 				return result;
 			if (query == null) {
-				result.accept(repoURLs.get(i));
+				result.accept(repoLocations.get(i));
 				sub.worked(2);
 			} else {
-				URL url = (URL) repoURLs.get(i);
+				URI location = (URI) repoLocations.get(i);
 				try {
-					Object alreadyLoaded = loaded.get(url.toExternalForm());
+					Object alreadyLoaded = loaded.get(location);
 					IMetadataRepository repo;
 					if (alreadyLoaded == null) {
-						repo = manager.loadRepository(url, sub.newChild(1));
+						repo = manager.loadRepository(location, sub.newChild(1));
 					} else
 						repo = (IMetadataRepository) alreadyLoaded;
 					repo.query(query, result, sub.newChild(1));
 				} catch (ProvisionException e) {
 					if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-						handleNotFound(e, url);
+						handleNotFound(e, location);
 					else
-						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
+						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
 				}
 				reportAccumulatedStatus();
 			}
@@ -114,32 +122,35 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
-		List repoURLs = getRepoLocations(manager);
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.size());
+		List repoLocations = getRepoLocations(manager);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoLocations.size());
 		if (sub.isCanceled())
 			return;
-		for (int i = 0; i < repoURLs.size(); i++) {
+		for (int i = 0; i < repoLocations.size(); i++) {
 			if (sub.isCanceled())
 				return;
-			URL url = (URL) repoURLs.get(i);
+			URI location = (URI) repoLocations.get(i);
 			try {
-				Object repo = loaded.get(url.toExternalForm());
+				Object repo = loaded.get(location);
 				if (repo == null) {
 					SubMonitor mon = sub.newChild(1);
-					mon.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, url.toExternalForm()));
-					loaded.put(url.toExternalForm(), manager.loadRepository(url, mon));
+					mon.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, location.toString()));
+					loaded.put(location, manager.loadRepository(location, mon));
 				}
 			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-					handleNotFound(e, url);
+					handleNotFound(e, location);
 				else
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
+					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
 			}
 		}
 		reportAccumulatedStatus();
 
 	}
 
+	/**
+	 * Returns a List<URI> of repository locations.
+	 */
 	private List getRepoLocations(IMetadataRepositoryManager manager) {
 		ArrayList locations = new ArrayList();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(policy.getQueryContext().getMetadataRepositoryFlags())));
@@ -149,18 +160,18 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		return locations;
 	}
 
-	private void handleNotFound(ProvisionException e, URL missingRepo) {
+	private void handleNotFound(ProvisionException e, URI missingRepo) {
 		// If we thought we had loaded it, get rid of the reference
-		loaded.remove(missingRepo.toExternalForm());
+		loaded.remove(missingRepo);
 		// If we've already reported a URL is not found, don't report again.
-		if (notFound.contains(missingRepo.toExternalForm()))
+		if (notFound.contains(missingRepo))
 			return;
 		// If someone else reported a URL is not found, don't report again.
 		if (ProvUI.hasNotFoundStatusBeenReported(missingRepo)) {
-			notFound.add(missingRepo.toExternalForm());
+			notFound.add(missingRepo);
 			return;
 		}
-		notFound.add(missingRepo.toExternalForm());
+		notFound.add(missingRepo);
 		ProvUI.notFoundStatusReported(missingRepo);
 		// Empty multi statuses have a severity OK.  The platform status handler doesn't handle
 		// this well.  We correct this by recreating a status with error severity
@@ -208,8 +219,8 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		MetadataRepositoryManager mgr = (MetadataRepositoryManager) manager;
 		List repoURLs = getRepoLocations(mgr);
 		for (int i = 0; i < repoURLs.size(); i++) {
-			if (repoURLs.get(i) instanceof URL) {
-				IMetadataRepository repo = mgr.getRepository((URL) repoURLs.get(i));
+			if (repoURLs.get(i) instanceof URI) {
+				IMetadataRepository repo = mgr.getRepository((URI) repoURLs.get(i));
 				if (repo == null)
 					return false;
 			}

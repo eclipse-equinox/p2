@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core.repository;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  * The common base class for metadata and artifact repository managers.
@@ -63,9 +63,9 @@ public interface IRepositoryManager {
 	 * there is a known, enabled repository at the given location when this method returns.
 	 * 
 	 * @param location The location of the metadata repository to add
-	 * @see #isEnabled(URL)
+	 * @see #isEnabled(URI)
 	 */
-	public void addRepository(URL location);
+	public void addRepository(URI location);
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.
@@ -86,10 +86,10 @@ public interface IRepositoryManager {
 	 * @see #REPOSITORIES_LOCAL
 	 * @see #REPOSITORIES_DISABLED
 	 */
-	public URL[] getKnownRepositories(int flags);
+	public URI[] getKnownRepositories(int flags);
 
 	/**
-	 * Returns the property associated with the repository at the given URL, 
+	 * Returns the property associated with the repository at the given URI, 
 	 * without loading the repository.
 	 * <p>
 	 * Note that some properties for a repository can only be
@@ -101,7 +101,7 @@ public interface IRepositoryManager {
 	 * regardless of the cost of retrieving it, the client should load the 
 	 * repository and then retrieve the property from the repository itself.
 	 * 
-	 * @param location the URL of the repository in question
+	 * @param location the URI of the repository in question
 	 * @param key the String key of the property desired
 	 * @return the value of the property, or <code>null</code> if the repository
 	 * does not exist, the value does not exist, or the property value 
@@ -109,7 +109,7 @@ public interface IRepositoryManager {
 	 * 
 	 * @see IRepository#getProperties()
 	 */
-	public String getRepositoryProperty(URL location, String key);
+	public String getRepositoryProperty(URI location, String key);
 
 	/**
 	 * Returns the enablement value of a repository.  Disabled repositories are known
@@ -126,9 +126,9 @@ public interface IRepositoryManager {
 	 * <code>false</code> if it is not enabled, or if the repository location 
 	 * is not known to the repository manager.
 	 * @see #REPOSITORIES_DISABLED
-	 * @see #setEnabled(URL, boolean)
+	 * @see #setEnabled(URI, boolean)
 	 */
-	public boolean isEnabled(URL location);
+	public boolean isEnabled(URI location);
 
 	/**
 	 * Removes the repository at the given location from the list of
@@ -140,7 +140,7 @@ public interface IRepositoryManager {
 	 * @return <code>true</code> if a repository was removed, and 
 	 * <code>false</code> otherwise.
 	 */
-	public boolean removeRepository(URL location);
+	public boolean removeRepository(URI location);
 
 	/**
 	 * Sets the enablement of a repository. Disabled repositories are known
@@ -159,8 +159,8 @@ public interface IRepositoryManager {
 	 * @param enablement <code>true</code>to enable the repository, and
 	 * <code>false</code> to disable the repository
 	 * @see #REPOSITORIES_DISABLED
-	 * @see #isEnabled(URL)
+	 * @see #isEnabled(URI)
 	 */
-	public void setEnabled(URL location, boolean enablement);
+	public void setEnabled(URI location, boolean enablement);
 
 }

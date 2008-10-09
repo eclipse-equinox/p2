@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.query.AnyRequiredCapabilityQuery;
@@ -42,9 +42,9 @@ public class AnyRequiredCapabilityTest extends QueryTest {
 	}
 
 	public void testExistingRepository() {
-		URL location;
+		URI location;
 		try {
-			location = TestData.getFile("metadataRepo", "good").toURL();
+			location = TestData.getFile("metadataRepo", "good").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;

@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -45,7 +45,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	protected void tearDown() throws Exception {
-		getMetadataRepositoryManager().removeRepository(repoLocation.toURL());
+		getMetadataRepositoryManager().removeRepository(repoLocation.toURI());
 		delete(repoLocation);
 		super.tearDown();
 	}
@@ -54,7 +54,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
@@ -84,7 +84,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testGetProperties() throws MalformedURLException, ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		Map properties = repo.getProperties();
 		//attempting to modify the properties should fail
 		try {
@@ -97,7 +97,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testSetProperty() throws MalformedURLException, ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		Map properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
@@ -108,7 +108,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("1.2", properties.containsKey(TEST_KEY));
 
 		//going back to repo manager, should still get the new property
-		repo = manager.loadRepository(repoLocation.toURL(), null);
+		repo = manager.loadRepository(repoLocation.toURI(), null);
 		properties = repo.getProperties();
 		assertTrue("1.3", properties.containsKey(TEST_KEY));
 
@@ -122,7 +122,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
@@ -153,9 +153,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
-		final URL repoURL = repoLocation.toURL();
-		IMetadataRepository repo = manager.createRepository(repoURL, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReference(repoURL, IRepository.TYPE_METADATA, IRepository.NONE);
+		final URI repoURI = repoLocation.toURI();
+		IMetadataRepository repo = manager.createRepository(repoURI, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		repo.addReference(repoURI, IRepository.TYPE_METADATA, IRepository.NONE);
 		//adding a reference doesn't save the repository, but setting a property does
 		repo.setProperty("changed", "false");
 
@@ -169,7 +169,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 				RepositoryEvent event = (RepositoryEvent) o;
 				if (event.getKind() != RepositoryEvent.ADDED)
 					return;
-				if (!event.getRepositoryLocation().equals(repoURL))
+				if (!event.getRepositoryLocation().equals(repoURI))
 					return;
 				wasEnabled[0] = event.isRepositoryEnabled();
 				callCount[0]++;
@@ -178,9 +178,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		getEventBus().addListener(listener);
 		try {
 			//now remove and reload the repository
-			manager.removeRepository(repoURL);
-			repo = manager.loadRepository(repoURL, null);
-			assertTrue("1.0", manager.isEnabled(repoURL));
+			manager.removeRepository(repoURI);
+			repo = manager.loadRepository(repoURI, null);
+			assertTrue("1.0", manager.isEnabled(repoURI));
 			assertTrue("1.1", wasEnabled[0]);
 			assertEquals("1.2", 1, callCount[0]);
 		} finally {
@@ -188,12 +188,12 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testRefreshSelfReference() throws MalformedURLException, ProvisionException {
+	public void testRefreshSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
-		final URL repoURL = repoLocation.toURL();
+		final URI repoURL = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		repo.addReference(repoURL, IRepository.TYPE_METADATA, IRepository.NONE);
 		//adding a reference doesn't save the repository, but setting a property does

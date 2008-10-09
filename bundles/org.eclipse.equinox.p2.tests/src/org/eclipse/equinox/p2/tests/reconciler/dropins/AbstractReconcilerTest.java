@@ -402,12 +402,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Create and return a new site object with the given parameters.
 	 */
-	public Site createSite(String policy, boolean enabled, boolean updateable, String url, String[] plugins) {
+	public Site createSite(String policy, boolean enabled, boolean updateable, String uri, String[] plugins) {
 		Site result = new Site();
 		result.setPolicy(policy);
 		result.setEnabled(enabled);
 		result.setUpdateable(updateable);
-		result.setUrl(url);
+		result.setUrl(uri);
 		if (plugins != null)
 			for (int i = 0; i < plugins.length; i++)
 				result.addPlugin(plugins[i]);

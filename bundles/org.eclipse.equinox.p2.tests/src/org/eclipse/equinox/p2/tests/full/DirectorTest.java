@@ -18,7 +18,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -108,9 +109,9 @@ public class DirectorTest extends AbstractProvisioningTest {
 	private void ensureFragmentAssociationIsNotPersisted(IMetadataRepositoryManager mgr) throws ProvisionException {
 		//Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177661
 		AgentLocation location = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
-		mgr.removeRepository(location.getMetadataRepositoryURL());
+		mgr.removeRepository(location.getMetadataRepositoryURI());
 		IMetadataRepository repo = null;
-		repo = mgr.loadRepository(location.getMetadataRepositoryURL(), null);
+		repo = mgr.loadRepository(location.getMetadataRepositoryURI(), null);
 		Iterator it = repo.query(new InstallableUnitQuery("org.eclipse.equinox.simpleconfigurator", VersionRange.emptyRange), new Collector(), null).iterator();
 		if (!it.hasNext())
 			return;

@@ -12,8 +12,8 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -65,20 +65,20 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void addRepository(File file) {
-		URL repositoryURL = createRepositoryURL(file);
+		URI repoLocation = createRepositoryLocation(file);
 		Properties properties = new Properties();
 		try {
 			// if the file pointed to a link file, keep track of the attribute
 			// so we can add it to the repo later
-			URL linkURL = getLinkRepository(file, false);
-			if (linkURL != null)
+			URI linkLocation = getLinkRepository(file, false);
+			if (linkLocation != null)
 				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
 		} catch (IOException e) {
 			// ignore
 		}
-		if (repositoryURL != null) {
-			getMetadataRepository(repositoryURL, properties);
-			getArtifactRepository(repositoryURL, properties);
+		if (repoLocation != null) {
+			getMetadataRepository(repoLocation, properties);
+			getArtifactRepository(repoLocation, properties);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return path;
 	}
 
-	private URL createRepositoryURL(File file) {
+	private URI createRepositoryLocation(File file) {
 		try {
 			file = file.getCanonicalFile();
 			String fileName = file.getName();
@@ -124,29 +124,31 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				// This extra check on the features directory is done to avoid adding the parent URL twice
 				if (file.getName().equals(PLUGINS)) {
 					File parentFile = file.getParentFile();
-					return (parentFile != null) ? parentFile.toURL() : null;
+					return (parentFile != null) ? parentFile.toURI() : null;
 				}
 				if (file.getName().equals(FEATURES)) {
 					File parentFile = file.getParentFile();
 					if (parentFile == null || new File(parentFile, PLUGINS).isDirectory())
 						return null;
-					return parentFile.toURL();
+					return parentFile.toURI();
 				}
-				return file.toURL();
+				return file.toURI();
 			}
 
 			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
-				return new URL("jar:" + file.toURL().toExternalForm() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI("jar:" + file.toURI() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			// last resort -- we'll try to interpret the file as a link
 			return getLinkRepository(file, false);
+		} catch (URISyntaxException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location from file: " + file.getAbsolutePath(), e)); //$NON-NLS-1$
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location from file: " + file.getAbsolutePath(), e)); //$NON-NLS-1$
 		}
 		return null;
 	}
 
-	private URL getLinkRepository(File file, boolean logMissingLink) throws IOException {
+	private URI getLinkRepository(File file, boolean logMissingLink) throws IOException {
 		String path = getLinkPath(file);
 		if (path == null) {
 			if (logMissingLink)
@@ -160,11 +162,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			if (root != null)
 				linkedFile = new File(root, path);
 		}
-		File canonicalFile = linkedFile.getCanonicalFile();
-		return canonicalFile.toURL();
+		return linkedFile.getCanonicalFile().toURI();
 	}
 
-	public void getMetadataRepository(URL repoURL, Properties extraProperties) {
+	public void getMetadataRepository(URI repoURL, Properties extraProperties) {
 		try {
 			IMetadataRepository repository = null;
 			try {
@@ -173,7 +174,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				if (extraProperties != null)
 					properties.putAll(extraProperties);
-				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL, properties); //$NON-NLS-1$
 			} catch (ProvisionException e) {
 				repository = Activator.loadMetadataRepository(repoURL, null);
 			}
@@ -183,7 +184,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	public void getArtifactRepository(URL repoURL, Properties extraProperties) {
+	public void getArtifactRepository(URI repoURL, Properties extraProperties) {
 		try {
 			IArtifactRepository repository = null;
 			try {
@@ -192,7 +193,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				if (extraProperties != null)
 					properties.putAll(extraProperties);
-				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL, properties); //$NON-NLS-1$
 				// fall through here and call the load which then adds the repo to the manager's list
 			} catch (ProvisionException ex) {
 				repository = Activator.loadArtifactRepository(repoURL, null);
@@ -213,8 +214,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		List currentRepositories = new ArrayList();
 		for (Iterator it = metadataRepositories.iterator(); it.hasNext();) {
 			IMetadataRepository repository = (IMetadataRepository) it.next();
-			String urlString = repository.getLocation().toExternalForm();
-			currentRepositories.add(urlString);
+			currentRepositories.add(repository.getLocation().toString());
 		}
 		List previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
 		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
@@ -230,8 +230,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 		try {
-			manager.removeRepository(new URL(urlString));
-		} catch (MalformedURLException e) {
+			manager.removeRepository(new URI(urlString));
+		} catch (URISyntaxException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
 		}
 	}
@@ -240,8 +240,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		List currentRepositories = new ArrayList();
 		for (Iterator it = artifactRepositories.iterator(); it.hasNext();) {
 			IArtifactRepository repository = (IArtifactRepository) it.next();
-			String urlString = repository.getLocation().toExternalForm();
-			currentRepositories.add(urlString);
+			currentRepositories.add(repository.getLocation().toString());
 		}
 		List previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
 		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
@@ -257,8 +256,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 		try {
-			manager.removeRepository(new URL(urlString));
-		} catch (MalformedURLException e) {
+			manager.removeRepository(new URI(urlString));
+		} catch (URISyntaxException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
 		}
 	}

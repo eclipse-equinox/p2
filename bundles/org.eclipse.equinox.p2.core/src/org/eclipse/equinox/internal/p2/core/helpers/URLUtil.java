@@ -13,12 +13,43 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.File;
 import java.net.*;
+import org.eclipse.core.runtime.Assert;
 
 /**
  * A utility class for manipulating URLs. This class works around some of the
  * broken behavior of the java.net.URL class.
  */
 public class URLUtil {
+	/**
+	 * Returns the canonical form of the given URL. This eliminates extra slashes
+	 * and converts local file system paths to canonical form for file: URLs. If any
+	 * failure occurs while converting to canonical form the original URL is returned.
+	 * @param location The location to convert to canonical form; must not be null
+	 * @return The location in canonical form
+	 */
+	public static URL toCanonicalURL2(URL location) {
+		Assert.isNotNull(location);
+		File file = URLUtil.toFile(location);
+		if (file != null) {
+			try {
+				return file.getCanonicalFile().toURL();
+			} catch (Exception e) {
+				//we made a best effort, just return the original location
+				return location;
+			}
+		}
+		//non-local URL, just remove trailing slash
+		String external = location.toExternalForm();
+		if (!external.endsWith("/")) //$NON-NLS-1$
+			return location;
+		try {
+			return new URL(external.substring(0, external.length() - 1));
+		} catch (MalformedURLException e) {
+			//ignore and return original location
+			return location;
+		}
+	}
+
 	/*
 	 * Compares two URL for equality.
 	 * Return false if one of them is null

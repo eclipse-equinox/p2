@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.console;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,7 +32,7 @@ import org.osgi.framework.Version;
 
 public class ProvisioningHelper {
 
-	public static IMetadataRepository addMetadataRepository(URL location) {
+	public static IMetadataRepository addMetadataRepository(URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
@@ -51,7 +51,7 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static IMetadataRepository getMetadataRepository(URL location) {
+	public static IMetadataRepository getMetadataRepository(URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
@@ -62,14 +62,14 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeMetadataRepository(URL location) {
+	public static void removeMetadataRepository(URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
 		manager.removeRepository(location);
 	}
 
-	public static IArtifactRepository addArtifactRepository(URL location) {
+	public static IArtifactRepository addArtifactRepository(URI location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
@@ -88,7 +88,7 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeArtifactRepository(URL location) {
+	public static void removeArtifactRepository(URI location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
@@ -153,11 +153,11 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static Collector getInstallableUnits(URL location, Query query, IProgressMonitor monitor) {
+	public static Collector getInstallableUnits(URI location, Query query, IProgressMonitor monitor) {
 		return getInstallableUnits(location, query, new Collector(), monitor);
 	}
 
-	public static Collector getInstallableUnits(URL location, Query query, Collector collector, IProgressMonitor monitor) {
+	public static Collector getInstallableUnits(URI location, Query query, Collector collector, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
@@ -167,12 +167,12 @@ public class ProvisioningHelper {
 		return queryable.query(query, collector, monitor);
 	}
 
-	public static URL[] getMetadataRepositories() {
+	public static URI[] getMetadataRepositories() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
 			return null;
-		URL[] repos = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;
@@ -189,7 +189,7 @@ public class ProvisioningHelper {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
-			URL[] repos = getMetadataRepositories();
+			URI[] repos = getMetadataRepositories();
 			if (repos != null) {
 				for (int i = 0; i < repos.length; i++)
 					error.append(repos[i] + "\n");
@@ -245,18 +245,18 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static URL[] getArtifactRepositories() {
+	public static URI[] getArtifactRepositories() {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
 			return null;
-		URL[] repos = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;
 	}
 
-	public static IArtifactRepository getArtifactRepository(URL repoURL) {
+	public static IArtifactRepository getArtifactRepository(URI repoURL) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		try {
 			if (manager != null)

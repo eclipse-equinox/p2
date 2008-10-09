@@ -10,8 +10,8 @@ package org.eclipse.equinox.p2.tests.full;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -83,7 +83,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		//Add repository of the release
 		try {
-			URL location = new URL("http://download.eclipse.org/eclipse/updates/3.4");
+			URI location = new URI("http://download.eclipse.org/eclipse/updates/3.4");
 			metadataRepoManager.addRepository(location);
 			metadataRepoManager.setEnabled(location, true);
 			metadataRepoManager.loadRepository(location, new NullProgressMonitor());
@@ -91,8 +91,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 			artifactRepoManager.setEnabled(location, true);
 		} catch (ProvisionException e) {
 			fail("Exception loading the repository.", e);
-		} catch (MalformedURLException e) {
-			//Ignore
+		} catch (URISyntaxException e) {
+			fail("Invalid repository location", e);
 		}
 
 		installPlatform(profile2, installFolder);

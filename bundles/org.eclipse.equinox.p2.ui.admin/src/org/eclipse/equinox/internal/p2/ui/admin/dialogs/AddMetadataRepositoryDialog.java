@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddMetadataRepositoryOperation;
@@ -29,7 +29,7 @@ public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 		super(parentShell, repoFlags);
 	}
 
-	protected ProvisioningOperation getOperation(URL url) {
-		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, url);
+	protected ProvisioningOperation getOperation(URI location) {
+		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, location);
 	}
 }

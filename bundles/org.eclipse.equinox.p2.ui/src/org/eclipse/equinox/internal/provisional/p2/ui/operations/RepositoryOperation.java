@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -22,19 +22,19 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
  */
 abstract class RepositoryOperation extends UndoableProvisioningOperation {
 
-	URL[] urls;
+	URI[] locations;
 
-	RepositoryOperation(String label, URL[] urls) {
+	RepositoryOperation(String label, URI[] urls) {
 		super(label);
-		this.urls = urls;
+		this.locations = urls;
 	}
 
 	public boolean canExecute() {
-		return urls != null;
+		return locations != null;
 	}
 
 	public boolean canUndo() {
-		return urls != null;
+		return locations != null;
 	}
 
 	/*
@@ -43,7 +43,7 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#getAffectedObjects()
 	 */
 	public Object[] getAffectedObjects() {
-		return urls;
+		return locations;
 	}
 
 	/*
@@ -56,7 +56,7 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		boolean batched = false;
-		if (urls != null && urls.length > 1) {
+		if (locations != null && locations.length > 1) {
 			ProvUI.startBatchOperation();
 			batched = true;
 		}
@@ -68,7 +68,7 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		boolean batched = false;
-		if (urls != null && urls.length > 1) {
+		if (locations != null && locations.length > 1) {
 			ProvUI.startBatchOperation();
 			batched = true;
 		}

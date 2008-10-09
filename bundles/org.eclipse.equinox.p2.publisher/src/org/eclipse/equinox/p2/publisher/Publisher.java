@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -44,10 +44,10 @@ public class Publisher {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createMetadataRepository(String location, String name, boolean append, boolean compress) throws ProvisionException {
-		URL url;
+		URI url;
 		try {
-			url = new URL(location);
-		} catch (MalformedURLException e) {
+			url = new URI(location);
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, location));
 		}
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
@@ -89,10 +89,10 @@ public class Publisher {
 	 */
 	public static IArtifactRepository createArtifactRepository(String location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URL url;
+		URI url;
 		try {
-			url = new URL(location);
-		} catch (MalformedURLException e) {
+			url = new URI(location);
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, location));
 		}
 		try {
@@ -139,17 +139,17 @@ public class Publisher {
 
 		SubMonitor sub = SubMonitor.convert(monitor, actions.length);
 		try {
-			// run all the actions
+		// run all the actions
 			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
-			for (int i = 0; i < actions.length; i++) {
+		for (int i = 0; i < actions.length; i++) {
 				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				IStatus status = actions[i].perform(info, results, monitor);
-				finalStatus.merge(status);
+			finalStatus.merge(status);
 				sub.worked(1);
-			}
-			if (!finalStatus.isOK())
-				return finalStatus;
+		}
+		if (!finalStatus.isOK())
+			return finalStatus;
 		} finally {
 			sub.done();
 		}

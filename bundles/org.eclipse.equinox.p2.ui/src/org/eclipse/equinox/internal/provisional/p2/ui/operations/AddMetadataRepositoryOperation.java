@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -23,21 +23,21 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 
 	boolean added = false;
 
-	public AddMetadataRepositoryOperation(String label, URL url) {
-		super(label, new URL[] {url});
+	public AddMetadataRepositoryOperation(String label, URI location) {
+		super(label, new URI[] {location});
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.addMetadataRepository(urls[i]);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.addMetadataRepository(locations[i]);
 		}
 		added = true;
 		return okStatus();
 	}
 
 	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.removeMetadataRepository(locations[i], monitor);
 		}
 		added = false;
 		return okStatus();

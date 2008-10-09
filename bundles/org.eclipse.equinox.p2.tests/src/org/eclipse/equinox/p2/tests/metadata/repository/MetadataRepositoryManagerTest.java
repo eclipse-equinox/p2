@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -23,8 +22,11 @@ import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -53,9 +55,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		toDelete.clear();
 	}
 
-	public void testBasicAddRemove() throws MalformedURLException {
+	public void testBasicAddRemove() {
 		File tempFile = new File(System.getProperty("java.io.tmpdir"));
-		URL location = tempFile.toURL();
+		URI location = tempFile.toURI();
 		assertTrue(!managerContains(location));
 		manager.addRepository(location);
 		assertTrue(managerContains(location));
@@ -63,9 +65,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(!managerContains(location));
 	}
 
-	public void testEnablement() throws MalformedURLException {
+	public void testEnablement() {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
-		URL location = site.toURL();
+		URI location = site.toURI();
 		manager.addRepository(location);
 		assertEquals("1.0", true, manager.isEnabled(location));
 		TestRepositoryListener listener = new TestRepositoryListener(location);
@@ -88,9 +90,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that adding a repository that is already known but disabled
 	 * causes the repository to be enabled. See bug 241307 for discussion.
 	 */
-	public void testEnablementOnAdd() throws MalformedURLException {
+	public void testEnablementOnAdd() {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
-		URL location = site.toURL();
+		URI location = site.toURI();
 		manager.addRepository(location);
 		manager.setEnabled(location, false);
 		TestRepositoryListener listener = new TestRepositoryListener(location);
@@ -103,18 +105,18 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("1.1", true, manager.isEnabled(location));
 	}
 
-	public void testGetKnownRepositories() throws MalformedURLException, ProvisionException {
-		int nonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
-		int systemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
-		int allCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+	public void testGetKnownRepositories() throws ProvisionException {
+		int nonSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
+		int systemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_SYSTEM).length;
+		int allCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("1.0", allCount, nonSystemCount + systemCount);
 
 		//create a new repository
 		File repoLocation = getTempLocation();
-		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryManagerTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		int newNonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
-		int newSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
-		int newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURI(), "MetadataRepositoryManagerTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		int newNonSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
+		int newSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_SYSTEM).length;
+		int newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 
 		//there should be one more non-system repository
 		assertEquals("2.0", nonSystemCount + 1, newNonSystemCount);
@@ -125,29 +127,29 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		testRepo.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 
 		//there should be one more system repository
-		newNonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
-		newSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
-		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		newNonSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
+		newSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_SYSTEM).length;
+		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("3.0", nonSystemCount, newNonSystemCount);
 		assertEquals("3.1", systemCount + 1, newSystemCount);
 		assertEquals("3.2", allCount + 1, newAllCount);
 
-		int disabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
+		int disabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
 		allCount = newAllCount;
 
 		//mark the repository as disabled
 		manager.setEnabled(testRepo.getLocation(), false);
 
 		//should be one less enabled repository and one more disabled repository
-		int newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
-		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		int newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("4.0", disabledCount + 1, newDisabledCount);
 		assertEquals("4.1", allCount - 1, newAllCount);
 
 		//re-loading the repository should not change anything
 		manager.loadRepository(testRepo.getLocation(), null);
-		newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
-		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("5.0", disabledCount + 1, newDisabledCount);
 		assertEquals("5.1", allCount - 1, newAllCount);
 
@@ -155,8 +157,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		manager.setEnabled(testRepo.getLocation(), true);
 
 		//should be back to the original counts
-		newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
-		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("6.0", disabledCount, newDisabledCount);
 		assertEquals("6.1", allCount, newAllCount);
 	}
@@ -166,7 +168,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testLoadMissingRepository() throws IOException {
 		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
-		URL location = tempFile.toURL();
+		URI location = tempFile.toURI();
 		try {
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
@@ -179,7 +181,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that we don't create a local cache when contacting a local metadata repository.
 	 */
-	public void testMetadataCachingLocalRepo() throws MalformedURLException, ProvisionException {
+	public void testMetadataCachingLocalRepo() throws ProvisionException {
 		File repoLocation = getTempLocation();
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
@@ -188,8 +190,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 
 		// create a local repository
-		manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		manager.loadRepository(repoLocation.toURL(), null);
+		manager.createRepository(repoLocation.toURI(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		manager.loadRepository(repoLocation.toURI(), null);
 
 		// check that a local cache was not created
 		assertFalse("Cache file was created.", cacheFileXML.exists() || cacheFileJAR.exists());
@@ -199,15 +201,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that local caching of remote metadata repositories works, and that the
 	 * cache is updated when it becomes stale.
 	 */
-	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
-		URL repoLocation = new URL("http://download.eclipse.org/eclipse/updates/3.4milestones/");
+	public void testMetadataCachingRemoteRepo() throws URISyntaxException, ProvisionException {
+		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		if (!repoAvailable(repoLocation))
 			return;
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URLUtil.toFile(dataArea);
-		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.toExternalForm().hashCode() + ".xml");
-		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.toExternalForm().hashCode() + ".jar");
+		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
+		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 		File cacheFile;
 
 		// load a remote repository and check that a local cache was created
@@ -233,18 +235,30 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		cacheFile.delete();
 	}
 
+	public void testPathWithSpaces() {
+		File site = getTestData("Repository", "/testData/metadataRepo/good with spaces/");
+		URI location = site.toURI();
+		try {
+			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
+			Collector result = repository.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor());
+			assertEquals("1.0", 1, result.size());
+		} catch (ProvisionException e) {
+			fail("=.99", e);
+		}
+	}
+
 	/**
 	 * Tests that trailing slashes do not affect repository identity.
 	 */
 	public void testTrailingSlashes() {
 		File site = getTestData("Repository", "/testData/metadataRepo/good/");
-		URL locationSlash, locationNoSlash;
+		URI locationSlash, locationNoSlash;
 		try {
-			locationSlash = site.toURL();
-			String locationString = locationSlash.toExternalForm();
+			locationSlash = site.toURI();
+			String locationString = locationSlash.toString();
 			locationString = locationString.substring(0, locationString.length() - 1);
-			locationNoSlash = new URL(locationString);
-		} catch (MalformedURLException e) {
+			locationNoSlash = new URI(locationString);
+		} catch (URISyntaxException e) {
 			fail("0.99", e);
 			return;
 		}
@@ -259,9 +273,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private boolean repoAvailable(URL repoLocation) {
+	private boolean repoAvailable(URI repoLocation) {
 		try {
-			repoLocation.openStream().close();
+			repoLocation.toURL().openStream().close();
 		} catch (IOException e) {
 			return false;
 		}
@@ -299,8 +313,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Returns whether {@link IMetadataRepositoryManager} contains a reference
 	 * to a repository at the given location.
 	 */
-	private boolean managerContains(URL location) {
-		URL[] locations = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+	private boolean managerContains(URI location) {
+		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < locations.length; i++) {
 			if (locations[i].equals(location))
 				return true;

@@ -11,7 +11,8 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
@@ -109,7 +110,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	}
 
-	public void initialize(URL repoURL, InputStream descriptorFile) throws RepositoryCreationException {
+	public void initialize(URI repoURL, InputStream descriptorFile) throws RepositoryCreationException {
 		location = repoURL;
 	}
 

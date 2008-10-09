@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -23,13 +23,13 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 
 	private boolean removed = false;
 
-	public RemoveArtifactRepositoryOperation(String label, URL[] repoURLs) {
-		super(label, repoURLs);
+	public RemoveArtifactRepositoryOperation(String label, URI[] repoLocations) {
+		super(label, repoLocations);
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.removeArtifactRepository(locations[i], monitor);
 		}
 		removed = true;
 		return okStatus();
@@ -54,8 +54,8 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 	}
 
 	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.addArtifactRepository(urls[i]);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.addArtifactRepository(locations[i]);
 		}
 		removed = false;
 		return okStatus();

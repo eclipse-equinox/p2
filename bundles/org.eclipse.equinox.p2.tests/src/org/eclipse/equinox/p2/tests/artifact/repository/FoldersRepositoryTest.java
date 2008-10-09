@@ -52,8 +52,8 @@ public class FoldersRepositoryTest extends TestCase {
 		AbstractProvisioningTest.delete(testRepo);
 		testRepo.mkdir();
 
-		manager.removeRepository(testRepo.toURL());
-		IArtifactRepository repo = manager.createRepository(testRepo.toURL(), "testRepo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		manager.removeRepository(testRepo.toURI());
+		IArtifactRepository repo = manager.createRepository(testRepo.toURI(), "testRepo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		File pluginsFolder = new File(testRepo, "plugins");
 		pluginsFolder.mkdir();
 

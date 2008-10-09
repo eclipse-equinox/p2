@@ -10,8 +10,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -19,8 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -216,13 +215,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public static URL getActualLocation(URL base, boolean compress) {
+	public static URI getActualLocation(URI base, boolean compress) {
 		return getActualLocation(base, compress ? JAR_EXTENSION : XML_EXTENSION);
 	}
 
-	private static URL getActualLocation(URL base, String extension) {
+	private static URI getActualLocation(URI base, String extension) {
 		final String name = CONTENT_FILENAME + extension;
-		String spec = base.toExternalForm();
+		String spec = base.toString();
 		if (spec.endsWith(name))
 			return base;
 		if (spec.endsWith("/")) //$NON-NLS-1$
@@ -230,23 +229,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		else
 			spec += "/" + name; //$NON-NLS-1$
 		try {
-			return new URL(spec);
-		} catch (MalformedURLException e) {
+			return new URI(spec);
+		} catch (URISyntaxException e) {
 			return null;
 		}
 	}
 
-	public static URL getBlobStoreLocation(URL base) {
-		String spec = base.toExternalForm();
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += BLOBSTORE;
-		else
-			spec += "/" + BLOBSTORE; //$NON-NLS-1$
-		try {
-			return new URL(spec);
-		} catch (MalformedURLException e) {
-			return null;
-		}
+	public static URI getBlobStoreLocation(URI base) {
+		return URIUtil.append(base, BLOBSTORE);
 	}
 
 	/*
@@ -281,7 +271,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			artifactMap.remove(key);
 	}
 
-	public SimpleArtifactRepository(String repositoryName, URL location, Map properties) {
+	public SimpleArtifactRepository(String repositoryName, URI location, Map properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
 		if (properties != null) {
@@ -384,7 +374,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			String result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
@@ -620,7 +610,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private String getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		return mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	public synchronized String getLocation(IArtifactDescriptor descriptor) {
@@ -643,7 +633,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			String result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
@@ -674,7 +664,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		assertModifiable();
 		// Check if the artifact is already in this repository
 		if (contains(descriptor)) {
-			String msg = NLS.bind(Messages.available_already_in, getLocation().toExternalForm());
+			String msg = NLS.bind(Messages.available_already_in, getLocation().toString());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, msg, null));
 		}
 
@@ -687,8 +677,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		String newLocation = createLocation(newDescriptor);
 		String file = null;
 		try {
-			file = new URL(newLocation).getFile();
-		} catch (MalformedURLException e1) {
+			file = URIUtil.toFile(new URI(newLocation)).getAbsolutePath();
+		} catch (URISyntaxException e1) {
 			// This should not happen
 			Assert.isTrue(false, "Unexpected failure: " + e1); //$NON-NLS-1$
 		}
@@ -728,7 +718,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private ProvisionException failedWrite(Exception e) throws ProvisionException {
-		String msg = NLS.bind(Messages.repoFailedWrite, getLocation().toExternalForm());
+		String msg = NLS.bind(Messages.repoFailedWrite, getLocation());
 		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, msg, e));
 	}
 
@@ -741,7 +731,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public synchronized void initializeAfterLoad(URL location) {
+	public synchronized void initializeAfterLoad(URI location) {
 		this.location = location;
 		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
 		initializeMapper();
@@ -771,7 +761,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private boolean isLocal() {
-		return "file".equalsIgnoreCase(location.getProtocol()); //$NON-NLS-1$
+		return "file".equalsIgnoreCase(location.getScheme()); //$NON-NLS-1$
 	}
 
 	public boolean isModifiable() {
@@ -843,9 +833,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		OutputStream os = null;
 		try {
 			try {
-				URL actualLocation = getActualLocation(location, false);
-				File artifactsFile = new File(actualLocation.getPath());
-				File jarFile = new File(getActualLocation(location, true).getPath());
+				URI actualLocation = getActualLocation(location, false);
+				File artifactsFile = URIUtil.toFile(actualLocation);
+				File jarFile = URIUtil.toFile(getActualLocation(location, true));
 				if (!compress) {
 					if (jarFile.exists()) {
 						jarFile.delete();
@@ -865,7 +855,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 						jarFile.createNewFile();
 					}
 					JarOutputStream jOs = new JarOutputStream(new FileOutputStream(jarFile));
-					jOs.putNextEntry(new JarEntry(new Path(actualLocation.getFile()).lastSegment()));
+					jOs.putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
 					os = jOs;
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
@@ -909,6 +899,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public String toString() {
-		return location.toExternalForm();
+		return location.toString();
 	}
 }

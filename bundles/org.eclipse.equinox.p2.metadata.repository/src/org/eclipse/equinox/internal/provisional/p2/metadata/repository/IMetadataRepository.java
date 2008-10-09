@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -54,9 +54,9 @@ public interface IMetadataRepository extends IRepository, IQueryable {
 	 * or {@link IRepository#TYPE_ARTIFACT}).
 	 * @param options bit-wise or of option constants (currently either 
 	 * {@link IRepository#ENABLED} or {@link IRepository#NONE}).
-	 * @see IMetadataRepositoryManager#setEnabled(URL, boolean)
+	 * @see IMetadataRepositoryManager#setEnabled(URI, boolean)
 	 */
-	public void addReference(URL location, int type, int options);
+	public void addReference(URI location, int type, int options);
 
 	/**
 	 * Removes all installable units that match the given query from this repository.

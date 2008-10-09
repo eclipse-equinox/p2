@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -35,7 +35,7 @@ public class FormerState {
 	public static final String IUPROP_PREFIX = "---IUPROPERTY---"; //$NON-NLS-1$
 	public static final String IUPROP_POSTFIX = "---IUPROPERTYKEY---"; //$NON-NLS-1$
 	private static long lastTimestamp;
-	URL location = null;
+	URI location = null;
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
 
@@ -58,7 +58,7 @@ public class FormerState {
 		return timestamp;
 	}
 
-	public FormerState(URL repoLocation) {
+	public FormerState(URI repoLocation) {
 		if (repoLocation == null)
 			throw new IllegalArgumentException("Repository location can't be null"); //$NON-NLS-1$
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, IProvisioningEventBus.SERVICE_NAME);

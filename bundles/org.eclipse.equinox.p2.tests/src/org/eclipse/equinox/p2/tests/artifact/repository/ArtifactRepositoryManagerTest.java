@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
@@ -37,8 +37,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Returns whether {@link IArtifactRepositoryManager} contains a reference
 	 * to a repository at the given location.
 	 */
-	private boolean managerContains(URL location) {
-		URL[] locations = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+	private boolean managerContains(URI location) {
+		URI[] locations = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < locations.length; i++) {
 			if (locations[i].equals(location))
 				return true;
@@ -56,7 +56,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testLoadMissingRepository() throws IOException {
 		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
-		URL location = tempFile.toURL();
+		URI location = tempFile.toURI();
 		try {
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
@@ -73,16 +73,35 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testLoadMissingRepositoryElement() {
 		File site = getTestData("Update site", "/testData/artifactRepo/broken/");
 		try {
-			URL location = site.toURL();
+			URI location = site.toURI();
 			manager.loadRepository(location, null);
 			//should have failed
 			fail("1.0");
 		} catch (ProvisionException e) {
 			//expected
-		} catch (MalformedURLException e) {
-			fail("2.99", e);
 		}
+	}
 
+	public void testPathWithSpaces() {
+		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
+		URI location = site.toURI();
+		try {
+			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
+			assertEquals("1.0", 2, repository.getArtifactKeys().length);
+		} catch (ProvisionException e) {
+			fail("=.99", e);
+		}
+	}
+
+	public void testUpdateSitePathWithSpaces() {
+		File site = getTestData("Repository", "/testData/updatesite/site with spaces/");
+		URI location = site.toURI();
+		try {
+			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
+			assertEquals("1.0", 3, repository.getArtifactKeys().length);
+		} catch (ProvisionException e) {
+			fail("=.99", e);
+		}
 	}
 
 	/**
@@ -90,13 +109,13 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testTrailingSlashes() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
-		URL locationSlash, locationNoSlash;
+		URI locationSlash, locationNoSlash;
 		try {
-			locationSlash = site.toURL();
-			String locationString = locationSlash.toExternalForm();
+			locationSlash = site.toURI();
+			String locationString = locationSlash.toString();
 			locationString = locationString.substring(0, locationString.length() - 1);
-			locationNoSlash = new URL(locationString);
-		} catch (MalformedURLException e) {
+			locationNoSlash = new URI(locationString);
+		} catch (URISyntaxException e) {
 			fail("0.99", e);
 			return;
 		}
@@ -112,9 +131,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testBasicAddRemove() throws MalformedURLException {
+	public void testBasicAddRemove() {
 		File tempFile = new File(System.getProperty("java.io.tmpdir"));
-		URL location = tempFile.toURL();
+		URI location = tempFile.toURI();
 		assertTrue(!managerContains(location));
 		manager.addRepository(location);
 		assertTrue(managerContains(location));
@@ -122,9 +141,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(!managerContains(location));
 	}
 
-	public void testEnablement() throws MalformedURLException {
+	public void testEnablement() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
-		URL location = site.toURL();
+		URI location = site.toURI();
 		manager.addRepository(location);
 		assertEquals("1.0", true, manager.isEnabled(location));
 		TestRepositoryListener listener = new TestRepositoryListener(location);
@@ -147,9 +166,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that adding a repository that is already known but disabled
 	 * causes the repository to be enabled. See bug 241307 for discussion.
 	 */
-	public void testEnablementOnAdd() throws MalformedURLException {
+	public void testEnablementOnAdd() throws URISyntaxException {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
-		URL location = site.toURL();
+		URI location = site.toURI();
 		manager.addRepository(location);
 		manager.setEnabled(location, false);
 		TestRepositoryListener listener = new TestRepositoryListener(location);

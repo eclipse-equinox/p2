@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,7 +37,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * the given location.
 	 * <p>
 	 * The resulting repository is added to the list of repositories tracked by
-	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
 	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
@@ -54,7 +54,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException;
+	public IMetadataRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.  If a repository has
@@ -62,7 +62,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * may be returned.
 	 * <p>
 	 * The resulting repository is added to the list of repositories tracked by
-	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
 	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
@@ -77,7 +77,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards
@@ -96,7 +96,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Validates a given URL and returns a status indicating whether a valid repository is likely
@@ -117,5 +117,5 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor);
+	public IStatus validateRepositoryLocation(URI location, IProgressMonitor monitor);
 }

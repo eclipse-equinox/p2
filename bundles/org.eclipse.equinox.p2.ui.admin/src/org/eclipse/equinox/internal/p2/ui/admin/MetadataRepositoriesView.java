@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -133,12 +133,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
-		ArrayList urls = new ArrayList();
+		ArrayList locations = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IRepositoryElement)
-				urls.add(((IRepositoryElement) elements[i]).getLocation());
+				locations.add(((IRepositoryElement) elements[i]).getLocation());
 		}
-		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
+		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URI[]) locations.toArray(new URI[locations.size()]));
 	}
 
 	protected void makeActions() {

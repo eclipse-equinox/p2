@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -64,8 +64,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			try {
 				int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[1]);
 				int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[2]);
-				references.add(new RepositoryReference(new URL(values[0]), type, options));
-			} catch (MalformedURLException e) {
+				references.add(new RepositoryReference(new URI(values[0]), type, options));
+			} catch (URISyntaxException e) {
 				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, values[0]);
 			}
 		}
@@ -355,9 +355,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (children != null) {
-				scopes.add(children.getRequiredCapabilities());
-			}
+			scopes.add(children.getRequiredCapabilities());
 		}
+	}
 	}
 
 	protected class RequirementsChangeHandler extends AbstractHandler {

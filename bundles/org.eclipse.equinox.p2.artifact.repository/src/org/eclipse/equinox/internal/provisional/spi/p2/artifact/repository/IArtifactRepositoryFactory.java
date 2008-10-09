@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -34,7 +34,7 @@ public interface IArtifactRepositoryFactory {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository create(URL location, String name, String type, Map properties) throws ProvisionException;
+	public IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads the repository at the given location.  The location is expected to contain 
@@ -51,5 +51,5 @@ public interface IArtifactRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
 }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -24,27 +24,27 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 
 	boolean added = false;
 
-	public AddColocatedRepositoryOperation(String label, URL url) {
-		super(label, new URL[] {url});
+	public AddColocatedRepositoryOperation(String label, URI url) {
+		super(label, new URI[] {url});
 	}
 
-	public AddColocatedRepositoryOperation(String label, URL[] urls) {
+	public AddColocatedRepositoryOperation(String label, URI[] urls) {
 		super(label, urls);
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.addMetadataRepository(urls[i]);
-			ProvisioningUtil.addArtifactRepository(urls[i]);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.addMetadataRepository(locations[i]);
+			ProvisioningUtil.addArtifactRepository(locations[i]);
 		}
 		added = true;
 		return okStatus();
 	}
 
 	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
-			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.removeMetadataRepository(locations[i], monitor);
+			ProvisioningUtil.removeArtifactRepository(locations[i], monitor);
 		}
 		added = false;
 		return okStatus();

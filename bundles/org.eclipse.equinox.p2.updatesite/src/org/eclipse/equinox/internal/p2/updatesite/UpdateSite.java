@@ -11,14 +11,13 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -36,69 +35,58 @@ public class UpdateSite {
 	private static final String PLUGIN_DIR = "plugins/"; //$NON-NLS-1$
 	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
 	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
-	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	private static final int RETRY_COUNT = 2;
 	private static final String DOT_XML = ".xml"; //$NON-NLS-1$
 	private static final String SITE = "site"; //$NON-NLS-1$
 	private String checksum;
-	private URL location;
+	private URI location;
 	private SiteModel site;
 
 	/*
 	 * Some variables for caching.
 	 */
-	// map of String (URL.toExternalForm()) to UpdateSite
+	// map of String (URI.toString()) to UpdateSite
 	private static Map siteCache = new HashMap();
 	// map of String (featureID_featureVersion) to Feature
 	private Map featureCache = new HashMap();
 
 	/*
-	 * Return a new URL for the given file which is based from the specified root.
+	 * Return a new URI for the given file which is based from the specified root.
 	 */
-	public static URL getFileURL(URL root, String fileName) throws MalformedURLException {
-		String path = root.getPath();
-		if (path.endsWith(fileName))
+	public static URI getFileURI(URI root, String fileName) {
+		String segment = URIUtil.lastSegment(root);
+		if (segment != null && segment.endsWith(fileName))
 			return root;
-
-		if (constainsUpdateSiteFileName(path))
-			return new URL(root, fileName);
-
-		if (path.endsWith(DIR_SEPARATOR))
-			return new URL(root.toExternalForm() + fileName);
-		return new URL(root.toExternalForm() + DIR_SEPARATOR + fileName);
+		if (constainsUpdateSiteFileName(segment))
+			return root.resolve(fileName);
+		return URIUtil.append(root, fileName);
 	}
 
 	/*
-	 * Return a URL based on the given URL, which points to a site.xml file.
+	 * Return a URI based on the given URI, which points to a site.xml file.
 	 */
-	private static URL getSiteURL(URL url) throws MalformedURLException {
-		String path = url.getPath();
-		if (constainsUpdateSiteFileName(path))
-			return url;
-
-		if (path.endsWith(DIR_SEPARATOR))
-			return new URL(url.toExternalForm() + SITE_FILE);
-		return new URL(url.toExternalForm() + DIR_SEPARATOR + SITE_FILE);
+	private static URI getSiteURI(URI baseLocation) {
+		String segment = URIUtil.lastSegment(baseLocation);
+		if (constainsUpdateSiteFileName(segment))
+			return baseLocation;
+		return URIUtil.append(baseLocation, SITE_FILE);
 	}
 
-	private static boolean constainsUpdateSiteFileName(String path) {
-		if (path.endsWith(DOT_XML)) {
-			int lastSlash = path.lastIndexOf('/');
-			String lastSegment = lastSlash == -1 ? path : path.substring(lastSlash + 1);
-			if (lastSegment.indexOf(SITE) != -1)
-				return true;
-		}
-		return false;
+	/**
+	 * Be lenient about accepting any location with *site*.xml at the end.
+	 */
+	private static boolean constainsUpdateSiteFileName(String segment) {
+		return segment != null && segment.endsWith(DOT_XML) && segment.indexOf(SITE) != -1;
 	}
 
 	/*
 	 * Load and return an update site object from the given location.
 	 */
-	public static synchronized UpdateSite load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static synchronized UpdateSite load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = (UpdateSite) siteCache.get(location.toExternalForm());
+		UpdateSite result = (UpdateSite) siteCache.get(location.toString());
 		if (result != null)
 			return result;
 		InputStream input = null;
@@ -109,8 +97,8 @@ public class UpdateSite {
 			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
-			result = new UpdateSite(siteModel, getSiteURL(location), checksumString);
-			siteCache.put(location.toExternalForm(), result);
+			result = new UpdateSite(siteModel, getSiteURI(location), checksumString);
+			siteCache.put(location.toString(), result);
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -125,7 +113,7 @@ public class UpdateSite {
 			} catch (IOException e) {
 				// ignore
 			}
-			if (!PROTOCOL_FILE.equals(location.getProtocol()))
+			if (!PROTOCOL_FILE.equals(location.getScheme()))
 				siteFile.delete();
 		}
 	}
@@ -133,15 +121,15 @@ public class UpdateSite {
 	/**
 	 * Returns a local file containing the contents of the update site at the given location.
 	 */
-	private static File loadSiteFile(URL location, IProgressMonitor monitor) throws ProvisionException {
+	private static File loadSiteFile(URI location, IProgressMonitor monitor) throws ProvisionException {
 		Throwable failure;
 		File siteFile = null;
 		IStatus transferResult;
 		boolean deleteSiteFile = false;
 		try {
-			URL actualLocation = getSiteURL(location);
-			if (PROTOCOL_FILE.equals(actualLocation.getProtocol())) {
-				siteFile = new File(actualLocation.getPath());
+			URI actualLocation = getSiteURI(location);
+			if (PROTOCOL_FILE.equals(actualLocation.getScheme())) {
+				siteFile = URIUtil.toFile(actualLocation);
 				if (siteFile.exists())
 					transferResult = Status.OK_STATUS;
 				else {
@@ -153,7 +141,7 @@ public class UpdateSite {
 				deleteSiteFile = true;
 				siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
-				transferResult = getTransport().download(actualLocation.toExternalForm(), destination, monitor);
+				transferResult = getTransport().download(actualLocation.toString(), destination, monitor);
 			}
 			if (monitor.isCanceled())
 				throw new OperationCanceledException();
@@ -178,10 +166,10 @@ public class UpdateSite {
 	 * Parse the feature.xml specified by the given input stream and return the feature object.
 	 * In case of failure, the failure is logged and null is returned
 	 */
-	private static Feature parseFeature(FeatureParser featureParser, URL featureURL, IProgressMonitor monitor) {
+	private static Feature parseFeature(FeatureParser featureParser, URI featureURI, IProgressMonitor monitor) {
 		File featureFile = null;
-		if (PROTOCOL_FILE.equals(featureURL.getProtocol())) {
-			featureFile = new File(featureURL.getPath());
+		if (PROTOCOL_FILE.equals(featureURI.getScheme())) {
+			featureFile = URIUtil.toFile(featureURI);
 			return featureParser.parse(featureFile);
 		}
 		try {
@@ -192,7 +180,7 @@ public class UpdateSite {
 				if (monitor.isCanceled())
 					throw new OperationCanceledException();
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
-				transferResult = getTransport().download(featureURL.toExternalForm(), destination, monitor);
+				transferResult = getTransport().download(featureURI.toString(), destination, monitor);
 				if (transferResult.isOK())
 					break;
 			}
@@ -204,7 +192,7 @@ public class UpdateSite {
 			}
 			return featureParser.parse(featureFile);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI), e));
 		} finally {
 			if (featureFile != null)
 				featureFile.delete();
@@ -213,26 +201,21 @@ public class UpdateSite {
 	}
 
 	/*
-	 * Throw an exception if the site pointed to by the given URL is not valid.
+	 * Throw an exception if the site pointed to by the given URI is not valid.
 	 */
-	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
-		try {
-			URL siteURL = getSiteURL(url);
-			long lastModified = getTransport().getLastModified(siteURL);
-			if (lastModified == 0) {
-				String msg = NLS.bind(Messages.ErrorReadingSite, url);
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
-			}
-		} catch (MalformedURLException e) {
+	public static void validate(URI url, IProgressMonitor monitor) throws ProvisionException {
+		URI siteURI = getSiteURI(url);
+		long lastModified = getTransport().getLastModified(siteURI);
+		if (lastModified == 0) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, url);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
 		}
 	}
 
 	/*
 	 * Constructor for the class.
 	 */
-	private UpdateSite(SiteModel site, URL location, String checksum) {
+	private UpdateSite(SiteModel site, URI location, String checksum) {
 		super();
 		this.site = site;
 		this.location = location;
@@ -240,15 +223,15 @@ public class UpdateSite {
 	}
 
 	/*
-	 * Iterate over the archive entries in this site and return the matching URL string for
+	 * Iterate over the archive entries in this site and return the matching URI string for
 	 * the given identifier, if there is one.
 	 */
-	private URL getArchiveURL(URL base, String identifier) {
+	private URI getArchiveURI(URI base, String identifier) {
 		URLEntry[] archives = site.getArchives();
 		for (int i = 0; archives != null && i < archives.length; i++) {
 			URLEntry entry = archives[i];
 			if (identifier.equals(entry.getAnnotation()))
-				return internalGetURL(base, entry.getURL());
+				return internalGetURI(base, entry.getURL());
 		}
 		return null;
 	}
@@ -261,53 +244,49 @@ public class UpdateSite {
 	}
 
 	/*
-	 * Return a URL which represents the location of the given feature.
+	 * Return a URI which represents the location of the given feature.
 	 */
-	public URL getSiteFeatureURL(SiteFeature siteFeature) {
+	public URI getSiteFeatureURI(SiteFeature siteFeature) {
 		URL url = siteFeature.getURL();
-		if (url != null)
-			return url;
-
-		URL base = getBaseURL();
-		String featureURLString = siteFeature.getURLString();
-		return internalGetURL(base, featureURLString);
+		try {
+			if (url != null)
+				return URIUtil.toURI(url);
+		} catch (URISyntaxException e) {
+			//fall through and resolve the URI ourselves
+		}
+		URI base = getBaseURI();
+		String featureURIString = siteFeature.getURLString();
+		return internalGetURI(base, featureURIString);
 	}
 
 	/*
-	 * Return a URL which represents the location of the given feature.
+	 * Return a URI which represents the location of the given feature.
 	 */
-	public URL getFeatureURL(String id, String version) {
+	public URI getFeatureURI(String id, String version) {
 		SiteFeature[] entries = site.getFeatures();
 		for (int i = 0; i < entries.length; i++) {
 			if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
-				return getSiteFeatureURL(entries[i]);
+				return getSiteFeatureURI(entries[i]);
 			}
 		}
 
-		URL base = getBaseURL();
-		URL url = getArchiveURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+		URI base = getBaseURI();
+		URI url = getArchiveURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 		if (url != null)
 			return url;
-
-		// fall through to default URL
-		try {
-			return getFileURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
-		} catch (MalformedURLException e) {
-			// shouldn't happen
-		}
-		return null;
+		return getFileURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 	}
 
 	/*
 	 * Return the location of this site.
 	 */
-	public URL getLocation() {
+	public URI getLocation() {
 		return location;
 	}
 
-	public String getMirrorsURL() {
+	public String getMirrorsURI() {
 		//copy mirror information from update site to p2 repositories
-		String mirrors = site.getMirrorsURL();
+		String mirrors = site.getMirrorsURI();
 		if (mirrors == null)
 			return null;
 		//remove site.xml file reference
@@ -318,29 +297,24 @@ public class UpdateSite {
 	}
 
 	/*
-	 * Return a URL which represents the location of the given plug-in.
+	 * Return a URI which represents the location of the given plug-in.
 	 */
-	public URL getPluginURL(FeatureEntry plugin) {
-		URL base = getBaseURL();
+	public URI getPluginURI(FeatureEntry plugin) {
+		URI base = getBaseURI();
 		String path = PLUGIN_DIR + plugin.getId() + VERSION_SEPARATOR + plugin.getVersion() + JAR_EXTENSION;
-		URL url = getArchiveURL(base, path);
+		URI url = getArchiveURI(base, path);
 		if (url != null)
 			return url;
-		try {
-			return getFileURL(base, path);
-		} catch (MalformedURLException e) {
-			// shouldn't happen
-		}
-		return null;
+		return getFileURI(base, path);
 	}
 
-	private URL getBaseURL() {
-		URL base = null;
-		String siteURLString = site.getLocationURLString();
-		if (siteURLString != null) {
-			if (!siteURLString.endsWith("/")) //$NON-NLS-1$
-				siteURLString += "/"; //$NON-NLS-1$
-			base = internalGetURL(location, siteURLString);
+	private URI getBaseURI() {
+		URI base = null;
+		String siteURIString = site.getLocationURIString();
+		if (siteURIString != null) {
+			if (!siteURIString.endsWith("/")) //$NON-NLS-1$
+				siteURIString += "/"; //$NON-NLS-1$
+			base = internalGetURI(location, siteURIString);
 		}
 		if (base == null)
 			base = location;
@@ -359,19 +333,10 @@ public class UpdateSite {
 	 * then return null. If it is absolute, then create a new url and return it. If it is
 	 * relative, then make it relative to the given base url.
 	 */
-	private URL internalGetURL(URL base, String trailing) {
+	private URI internalGetURI(URI base, String trailing) {
 		if (trailing == null)
 			return null;
-		try {
-			return new URL(trailing);
-		} catch (MalformedURLException e) {
-			try {
-				return new URL(base, trailing);
-			} catch (MalformedURLException e2) {
-				// shouldn't happen
-			}
-		}
-		return null;
+		return base.resolve(trailing);
 	}
 
 	/*
@@ -392,16 +357,16 @@ public class UpdateSite {
 		File digestFile = null;
 		boolean local = false;
 		try {
-			URL digestURL = getDigestURL();
-			if (PROTOCOL_FILE.equals(digestURL.getProtocol())) {
-				digestFile = URLUtil.toFile(digestURL);
+			URI digestURI = getDigestURI();
+			if (PROTOCOL_FILE.equals(digestURI.getScheme())) {
+				digestFile = URIUtil.toFile(digestURI);
 				if (!digestFile.exists())
 					return null;
 				local = true;
 			} else {
 				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-				IStatus result = getTransport().download(digestURL.toExternalForm(), destination, monitor);
+				IStatus result = getTransport().download(digestURI.toString(), destination, monitor);
 				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
 					throw new OperationCanceledException();
 				if (!result.isOK())
@@ -420,7 +385,7 @@ public class UpdateSite {
 		} catch (FileNotFoundException fnfe) {
 			// we do not track FNF exceptions as we will fall back to the 
 			// standard feature parsing from the site itself, see bug 225587.
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 			String msg = NLS.bind(Messages.InvalidRepositoryLocation, location);
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
@@ -432,16 +397,16 @@ public class UpdateSite {
 		return null;
 	}
 
-	private URL getDigestURL() throws MalformedURLException {
-		URL digestBase = location;
-		String digestURLString = site.getDigestURLString();
-		if (digestURLString != null) {
-			if (!digestURLString.endsWith("/")) //$NON-NLS-1$
-				digestURLString += "/"; //$NON-NLS-1$
-			digestBase = internalGetURL(location, digestURLString);
+	private URI getDigestURI() throws URISyntaxException {
+		URI digestBase = location;
+		String digestURIString = site.getDigestURIString();
+		if (digestURIString != null) {
+			if (!digestURIString.endsWith("/")) //$NON-NLS-1$
+				digestURIString += "/"; //$NON-NLS-1$
+			digestBase = internalGetURI(location, digestURIString);
 		}
 
-		return getFileURL(digestBase, "digest.zip"); //$NON-NLS-1$
+		return getFileURI(digestBase, "digest.zip"); //$NON-NLS-1$
 	}
 
 	/*
@@ -464,10 +429,10 @@ public class UpdateSite {
 				if (tmpFeatureCache.containsKey(key))
 					continue;
 			}
-			URL featureURL = getSiteFeatureURL(siteFeature);
-			Feature feature = parseFeature(featureParser, featureURL, monitor);
+			URI featureURI = getSiteFeatureURI(siteFeature);
+			Feature feature = parseFeature(featureParser, featureURI, null);
 			if (feature == null) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI)));
 			} else {
 				if (key == null) {
 					siteFeature.setFeatureIdentifier(feature.getId());
@@ -497,10 +462,10 @@ public class UpdateSite {
 			if (features.containsKey(key))
 				continue;
 
-			URL includedFeatureURL = getFeatureURL(entry.getId(), entry.getVersion());
-			Feature includedFeature = parseFeature(featureParser, includedFeatureURL, monitor);
+			URI includedFeatureURI = getFeatureURI(entry.getId(), entry.getVersion());
+			Feature includedFeature = parseFeature(featureParser, includedFeatureURI, monitor);
 			if (includedFeature == null) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL)));
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURI)));
 			} else {
 				features.put(key, includedFeature);
 				loadIncludedFeatures(includedFeature, featureParser, features, monitor);

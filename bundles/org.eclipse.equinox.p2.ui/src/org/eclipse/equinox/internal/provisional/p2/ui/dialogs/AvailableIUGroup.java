@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
@@ -292,7 +292,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Refresh the available view completely.
 	 */
 	public void refresh() {
-		URL[] urls = provisioningContext.getMetadataRepositories();
+		URI[] urls = provisioningContext.getMetadataRepositories();
 		ProvisioningOperation op;
 		if (urls == null)
 			op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
@@ -306,7 +306,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	/*
 	 * Make the repository with the specified location visible in the viewer.
 	 */
-	void makeRepositoryVisible(final URL location) {
+	void makeRepositoryVisible(final URI location) {
 		// First reset the input so that the new repo shows up
 		display.asyncExec(new Runnable() {
 			public void run() {
@@ -324,7 +324,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// We don't know if loading will be a fast or slow operation.
 		// We do it in a job to be safe, and when it's done, we update
 		// the UI.
-		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, location.toExternalForm())) {
+		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, location.toString())) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					ProvisioningUtil.loadMetadataRepository(location, null);
@@ -353,8 +353,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 									TreeItem[] items = tree.getItems();
 									for (int i = 0; i < items.length; i++) {
 										if (items[i].getData() instanceof IRepositoryElement) {
-											URL url = ((IRepositoryElement) items[i].getData()).getLocation();
-											if (url.toExternalForm().equals(location.toExternalForm())) {
+											URI url = ((IRepositoryElement) items[i].getData()).getLocation();
+											if (url.equals(location)) {
 												treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
 												tree.select(items[i]);
 												return;

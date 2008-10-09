@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -57,8 +57,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
 	 */
 	public RepositoryListener(String repositoryName, boolean hidden) {
-		URL location = Activator.getDefaultRepositoryLocation(this, repositoryName);
-		metadataRepository = initiailzeMetadataRepository(repositoryName, location, hidden);
+		URI location = Activator.getDefaultRepositoryLocation(this, repositoryName);
+		metadataRepository = initializeMetadataRepository(repositoryName, location, hidden);
 		artifactRepository = initializeArtifactRepository(repositoryName, location, hidden);
 		initializePublisher();
 	}
@@ -77,7 +77,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		info.setArtifactOptions(IPublisherInfo.A_INDEX);
 	}
 
-	protected CachingArtifactRepository initializeArtifactRepository(String repositoryName, URL repositoryLocation, boolean hidden) {
+	protected CachingArtifactRepository initializeArtifactRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
 		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
@@ -103,7 +103,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
-	protected IMetadataRepository initiailzeMetadataRepository(String repositoryName, URL repositoryLocation, boolean hidden) {
+	protected IMetadataRepository initializeMetadataRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
 		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
@@ -156,7 +156,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (bundleDescription == null)
 			return false;
 		try {
-			advice.setProperties(file, file.lastModified(), file.toURL(), null);
+			advice.setProperties(file, file.lastModified(), file.toURL());
 		} catch (MalformedURLException e) {
 			// should never happen
 		}

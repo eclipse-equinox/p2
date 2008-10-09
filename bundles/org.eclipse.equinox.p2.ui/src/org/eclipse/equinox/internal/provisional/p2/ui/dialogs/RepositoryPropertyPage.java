@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -81,7 +80,7 @@ public class RepositoryPropertyPage extends PropertyPage {
 		// Shouldn't happen since we checked this before creating any controls
 		if (repositoryElement == null)
 			return;
-		url.setText(repositoryElement.getLocation().toExternalForm());
+		url.setText(repositoryElement.getLocation().toString());
 		name.setText(repositoryElement.getName());
 		description.setText(repositoryElement.getDescription());
 	}

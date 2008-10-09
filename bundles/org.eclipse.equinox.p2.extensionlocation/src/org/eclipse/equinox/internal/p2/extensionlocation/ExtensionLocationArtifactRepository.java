@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -37,24 +37,19 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	 * Return the location of a local repository based on
 	 * the given URL.
 	 */
-	public static URL getLocalRepositoryLocation(URL location) {
+	public static URI getLocalRepositoryLocation(URI location) {
 		BundleContext context = Activator.getContext();
-		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
+		String stateDirName = Integer.toString(location.toString().hashCode());
 		File bundleData = context.getDataFile(null);
 		File stateDir = new File(bundleData, stateDirName);
-		try {
-			return stateDir.toURL();
-		} catch (MalformedURLException e) {
-			// unexpected
-			return null;
-		}
+		return stateDir.toURI();
 	}
 
 	/*
 	 * Constructor for the class. Return a new extension location repository based on 
 	 * the given url and nested repository.
 	 */
-	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+	public ExtensionLocationArtifactRepository(URI location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.artifactRepository = repository;
 		this.base = getBaseDirectory(location);
@@ -84,12 +79,12 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		state = value;
 	}
 
-	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {
 		File base = getBaseDirectory(location);
 		if (new File(base, EXTENSION_LOCATION).exists())
 			return;
 		if (containsUpdateSiteFile(base)) {
-			String message = NLS.bind(Messages.error_update_site, location.toExternalForm());
+			String message = NLS.bind(Messages.error_update_site, location.toString());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
 		}
 	}
@@ -105,17 +100,17 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		return false;
 	}
 
-	public static File getBaseDirectory(URL url) throws ProvisionException {
-		if (!FILE.equals(url.getProtocol()))
+	public static File getBaseDirectory(URI uri) throws ProvisionException {
+		if (!FILE.equals(uri.getScheme()))
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_file_protocol, null));
 
-		String path = url.getPath();
+		String path = URIUtil.toFile(uri).getAbsolutePath();
 		if (path.endsWith(EXTENSION_LOCATION))
 			path = path.substring(0, path.length() - EXTENSION_LOCATION.length());
 		File base = new File(path);
 
 		if (!base.isDirectory())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_directory, url.toExternalForm()), null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_directory, uri.toString()), null));
 
 		if (isBaseDirectory(base))
 			return base;
@@ -124,7 +119,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (isBaseDirectory(eclipseBase))
 			return eclipseBase;
 
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_eclipse_extension, url.toExternalForm()), null));
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_eclipse_extension, uri.toString()), null));
 	}
 
 	private static boolean isBaseDirectory(File base) {

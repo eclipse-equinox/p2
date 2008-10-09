@@ -11,10 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-
 import org.eclipse.equinox.internal.p2.ui.model.IUElement;
-
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -24,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -56,14 +54,14 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return ((IRepository) obj).getLocation().toExternalForm();
+			return ((IRepository) obj).getLocation().toString();
 		}
 		if (obj instanceof IRepositoryElement) {
 			String name = ((IRepositoryElement) obj).getName();
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return ((IRepositoryElement) obj).getLocation().toExternalForm();
+			return ((IRepositoryElement) obj).getLocation().toString();
 		}
 		if (obj instanceof IArtifactKey) {
 			IArtifactKey key = (IArtifactKey) obj;
@@ -129,10 +127,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					return iu.getVersion().toString();
 				}
 				if (element instanceof IRepository) {
-					return ((IRepository) element).getLocation().toExternalForm();
+					return ((IRepository) element).getLocation().toString();
 				}
 				if (element instanceof IRepositoryElement) {
-					return ((IRepositoryElement) element).getLocation().toExternalForm();
+					return ((IRepositoryElement) element).getLocation().toString();
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

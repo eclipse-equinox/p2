@@ -677,7 +677,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			if (!siteURL.endsWith("/") && !siteURL.endsWith(File.separator)) { //$NON-NLS-1$
 				siteURL += "/"; //$NON-NLS-1$
 			}
-			site.setLocationURLString(siteURL);
+			site.setLocationURIString(siteURL);
 		}
 
 		// provide default description URL
@@ -702,7 +702,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 			//Since we are parsing the site at p2 generation time and the 
 			//mirrors may change, there is no point doing the mirror expansion now
-			site.setMirrorsURLString(mirrorsURL);
+			site.setMirrorsURIString(mirrorsURL);
 		}
 
 		String pack200 = attributes.getValue("pack200"); //$NON-NLS-1$
@@ -712,7 +712,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$
 		if (digestURL != null)
-			site.setDigestURLString(digestURL);
+			site.setDigestURIString(digestURL);
 
 		// TODO: Digest locales
 		//			if ((attributes.getValue("availableLocales") != null) && (!attributes.getValue("availableLocales").trim().equals(""))) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$

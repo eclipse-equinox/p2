@@ -11,17 +11,15 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 
 /**
@@ -32,9 +30,11 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	protected File sourceRepoLocation; //helloworldfeature
 	protected File bystanderRepoLocation; //anotherfeature
 
-	//TODO change to an abstracted type when API is available
-	private MetadataRepositoryManager getConcreteMetadataRepositoryManager() {
-		return (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+	/**
+	 * Returns whether the artifact repository manager contains a repository at the given location.
+	 */
+	protected boolean contains(URI location) {
+		return ((MetadataRepositoryManager) getMetadataRepositoryManager()).contains(location);
 	}
 
 	protected void setUp() throws Exception {
@@ -51,9 +51,9 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 
 	protected void tearDown() throws Exception {
 		//remove all the repositories
-		getMetadataRepositoryManager().removeRepository(destRepoLocation.toURL());
-		getMetadataRepositoryManager().removeRepository(sourceRepoLocation.toURL());
-		getMetadataRepositoryManager().removeRepository(bystanderRepoLocation.toURL());
+		getMetadataRepositoryManager().removeRepository(destRepoLocation.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepoLocation.toURI());
+		getMetadataRepositoryManager().removeRepository(bystanderRepoLocation.toURI());
 
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -72,14 +72,7 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 
 			public Map getArguments() {
 				Map arguments = new HashMap();
-
-				try {
-					arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""});
-
-				} catch (MalformedURLException e) {
-					fail("invalid URL for source or target repo");
-				}
-
+				arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toURI().toString(), "-destination", destination.toURI().toString(), append ? "-append" : ""});
 				return arguments;
 			}
 
@@ -120,14 +113,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("1.0", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("1.1", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(sourceRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -137,11 +126,9 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithSourceLoaded() {
 		try {
 			//Load the source
-			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("2.0", e);
-		} catch (MalformedURLException e) {
-			fail("2.1", e);
 		}
 
 		try {
@@ -150,14 +137,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("2.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("2.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(sourceRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -167,12 +150,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithDestinationLoaded() {
 		try {
 			//Load (by creating) the destination
-			String repositoryName = destRepoLocation.toURL() + " - metadata"; //$NON-NLS-1$
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			String repositoryName = destRepoLocation.toURI() + " - metadata"; //$NON-NLS-1$
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail("3.0", e);
-		} catch (MalformedURLException e) {
-			fail("3.1", e);
 		}
 
 		try {
@@ -181,14 +162,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("3.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("3.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(destRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(sourceRepoLocation.toURI()));
 	}
 
 	/**
@@ -198,14 +175,12 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithBothLoaded() {
 		try {
 			//Load (by creating) the destination
-			String repositoryName = destRepoLocation.toURL() + " - metadata"; //$NON-NLS-1$
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			String repositoryName = destRepoLocation.toURI() + " - metadata"; //$NON-NLS-1$
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			//Load the source
-			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("4.0", e);
-		} catch (MalformedURLException e) {
-			fail("4.1", e);
 		}
 
 		try {
@@ -214,14 +189,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("4.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("4.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(destRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(sourceRepoLocation.toURI()));
 	}
 
 	/**
@@ -233,12 +204,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithBystanderLoaded() {
 		//Load the bystander repository. This should not be effected by the mirror application
 		try {
-			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			// TODO Auto-generated catch block
 			fail("5.0", e);
-		} catch (MalformedURLException e) {
-			fail("5.1", e);
 		}
 
 		try {
@@ -247,17 +216,13 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("5.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//Ensure bystander was not effected by the mirror application
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(bystanderRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("5.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(sourceRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(destRepoLocation.toURI()));
+		//Ensure bystander was not effected by the mirror application
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -269,13 +234,11 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithSourceAndBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURI(), null);
 			//Load the source
-			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("6.0", e);
-		} catch (MalformedURLException e) {
-			fail("6.1", e);
 		}
 
 		try {
@@ -284,17 +247,13 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("6.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//Ensure bystander was not effected by the mirror application
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(bystanderRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("6.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(sourceRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(destRepoLocation.toURI()));
+		//Ensure bystander was not effected by the mirror application
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -306,14 +265,12 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithDestinationAndBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURI(), null);
 			//Load (by creating) the destination
-			String repositoryName = destRepoLocation.toURL() + " - metadata"; //$NON-NLS-1$
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			String repositoryName = destRepoLocation.toURI() + " - metadata"; //$NON-NLS-1$
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail("7.0", e);
-		} catch (MalformedURLException e) {
-			fail("7.1", e);
 		}
 
 		try {
@@ -322,17 +279,13 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("7.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertFalse(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//Ensure bystander was not effected by the mirror application
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(bystanderRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("7.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(destRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertFalse(contains(sourceRepoLocation.toURI()));
+		//Ensure bystander was not effected by the mirror application
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -344,16 +297,14 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorRemovesReposWithBothAndBystanderLoaded() {
 		try {
 			//Load the bystander repository. This should not be effected by the mirror application
-			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(bystanderRepoLocation.toURI(), null);
 			//Load (by creating) the destination
-			String repositoryName = destRepoLocation.toURL() + " - metadata"; //$NON-NLS-1$
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURL(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			String repositoryName = destRepoLocation.toURI() + " - metadata"; //$NON-NLS-1$
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			//Load the source
-			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURL(), null);
+			getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("8.0", e);
-		} catch (MalformedURLException e) {
-			fail("8.1", e);
 		}
 
 		try {
@@ -362,16 +313,12 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("8.2", e);
 		}
 
-		try {
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(destRepoLocation.toURL()));
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(sourceRepoLocation.toURL()));
-			//Ensure bystander was not effected by the mirror application
-			//TODO modify the contains statement once the API is available
-			assertTrue(getConcreteMetadataRepositoryManager().contains(bystanderRepoLocation.toURL()));
-		} catch (MalformedURLException e) {
-			fail("8.3", e);
-		}
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(destRepoLocation.toURI()));
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(sourceRepoLocation.toURI()));
+		//Ensure bystander was not effected by the mirror application
+		//TODO modify the contains statement once the API is available
+		assertTrue(contains(bystanderRepoLocation.toURI()));
 	}
 }

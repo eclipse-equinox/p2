@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -155,21 +155,21 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		IPath urlPath = new Path(urlString).makeAbsolute();
 		for (Iterator iter = repositoryList.iterator(); iter.hasNext();) {
 			IMetadataRepository repo = (IMetadataRepository) iter.next();
-			Path repoPath = new Path(repo.getLocation().toExternalForm());
+			Path repoPath = new Path(URIUtil.toFile(repo.getLocation()).getAbsolutePath());
 			if (repoPath.makeAbsolute().equals(urlPath))
 				return repo;
 			// normalize the URLs to be the same
 			if (repo instanceof ExtensionLocationMetadataRepository) {
 				try {
 					File one = ExtensionLocationMetadataRepository.getBaseDirectory(repo.getLocation());
-					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URL(urlString));
+					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URI(urlString));
 					if (one.equals(two))
 						return repo;
 				} catch (ProvisionException e) {
 					// Skip the repo if it's not found. Log all other errors.
 					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
 						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
-				} catch (MalformedURLException e) {
+				} catch (URISyntaxException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
 				}
 			}
@@ -199,7 +199,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 						}
 					}
 					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
-					URL location = new URL(eclipseExtensionURL);
+					URI location = new URI(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 
@@ -215,15 +215,15 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					// deal with the metadata repository
 					IMetadataRepository metadataRepository = null;
 					try {
-						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toString(), properties); //$NON-NLS-1$
 					} catch (ProvisionException ex) {
 						try {
 							metadataRepository = Activator.loadMetadataRepository(location, null);
 						} catch (ProvisionException inner) {
 							// handle the case where someone has removed the extension location from
 							// disk. Note: we use the siteURL not the eclipseextensionURL
-							URL fileURL = new URL(siteURL);
-							File file = URLUtil.toFile(fileURL);
+							URI fileURI = new URI(siteURL);
+							File file = URIUtil.toFile(fileURI);
 							if (file != null && !file.exists()) {
 								toBeRemoved.add(site);
 								continue;
@@ -246,7 +246,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 
 					// now the artifact repository
 					try {
-						Activator.createExtensionLocationArtifactRepository(location, "extension location artifact repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+						Activator.createExtensionLocationArtifactRepository(location, "extension location artifact repository: " + location, properties); //$NON-NLS-1$
 					} catch (ProvisionException ex) {
 						IArtifactRepository artifactRepository = Activator.loadArtifactRepository(location, null);
 						// set the repository properties here in case they have changed since the last time we loaded
@@ -261,7 +261,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 						if (artifactRepository instanceof ExtensionLocationArtifactRepository)
 							((ExtensionLocationArtifactRepository) artifactRepository).ensureInitialized();
 					}
-				} catch (MalformedURLException e) {
+				} catch (URISyntaxException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {
 					// Skip the repo if it's not found. Log all other errors.

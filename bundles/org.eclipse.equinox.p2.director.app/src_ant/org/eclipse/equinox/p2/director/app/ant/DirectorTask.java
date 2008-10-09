@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.director.app.ant;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.tools.ant.*;
@@ -30,7 +30,7 @@ public class DirectorTask extends Task {
 	boolean list;
 	String profile, flavor, os, ws, nl, arch, installIU, uninstallIU;
 	File destination, bundlePool;
-	URL metadataRepository, artifactRepository;
+	URI metadataRepository, artifactRepository;
 	Version version;
 
 	/*
@@ -64,11 +64,11 @@ public class DirectorTask extends Task {
 		}
 		if (metadataRepository != null) {
 			result.add("-metadataRepository");
-			result.add(metadataRepository.toExternalForm());
+			result.add(metadataRepository.toString());
 		}
 		if (artifactRepository != null) {
 			result.add("-artifactRepository");
-			result.add(artifactRepository.toExternalForm());
+			result.add(artifactRepository.toString());
 		}
 		if (flavor != null) {
 			result.add("-flavor");
@@ -114,8 +114,8 @@ public class DirectorTask extends Task {
 
 	public void setArtifactRepository(String value) {
 		try {
-			artifactRepository = new URL(value);
-		} catch (MalformedURLException e) {
+			artifactRepository = new URI(value);
+		} catch (URISyntaxException e) {
 			log("Error setting the artifact repository.", e, Project.MSG_ERR);
 		}
 	}
@@ -142,8 +142,8 @@ public class DirectorTask extends Task {
 
 	public void setMetadataRepository(String value) {
 		try {
-			metadataRepository = new URL(value);
-		} catch (MalformedURLException e) {
+			metadataRepository = new URI(value);
+		} catch (URISyntaxException e) {
 			log("Error setting the metadata repository.", e, Project.MSG_ERR);
 		}
 	}

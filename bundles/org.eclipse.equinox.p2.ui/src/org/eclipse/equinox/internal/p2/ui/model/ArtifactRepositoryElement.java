@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -33,17 +33,17 @@ import org.eclipse.ui.progress.IElementCollector;
  */
 public class ArtifactRepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter, IRepositoryElement {
 
-	URL url;
+	URI location;
 	IArtifactRepository repo;
 	boolean isEnabled;
 
-	public ArtifactRepositoryElement(Object parent, URL url) {
-		this(parent, url, true);
+	public ArtifactRepositoryElement(Object parent, URI location) {
+		this(parent, location, true);
 	}
 
-	public ArtifactRepositoryElement(Object parent, URL url, boolean isEnabled) {
+	public ArtifactRepositoryElement(Object parent, URI location, boolean isEnabled) {
 		super(parent);
-		this.url = url;
+		this.location = location;
 		this.isEnabled = isEnabled;
 	}
 
@@ -76,15 +76,15 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return getLocation().toExternalForm();
+		return getLocation().toString();
 	}
 
 	public IRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
-				repo = ProvisioningUtil.loadArtifactRepository(url, monitor);
+				repo = ProvisioningUtil.loadArtifactRepository(location, monitor);
 			} catch (ProvisionException e) {
-				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 			}
 		return repo;
 	}
@@ -108,8 +108,8 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
 	 */
-	public URL getLocation() {
-		return url;
+	public URI getLocation() {
+		return location;
 	}
 
 	/*
@@ -118,7 +118,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public String getName() {
 		try {
-			String name = ProvisioningUtil.getArtifactRepositoryProperty(url, IRepository.PROP_NAME);
+			String name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
 			if (name == null)
 				return ""; //$NON-NLS-1$
 			return name;
@@ -133,7 +133,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public String getDescription() {
 		try {
-			String description = ProvisioningUtil.getArtifactRepositoryProperty(url, IRepository.PROP_DESCRIPTION);
+			String description = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 			if (description == null)
 				return ""; //$NON-NLS-1$
 			return description;

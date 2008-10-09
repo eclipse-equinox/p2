@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
@@ -30,7 +30,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IArtifactRepository create(URL location, String name, String type, Map properties) {
+	public IArtifactRepository create(URI location, String name, String type, Map properties) {
 		return null;
 	}
 
@@ -42,14 +42,14 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
 		return repository;
 	}
 
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		URL localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
+	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		URI localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
 			IArtifactRepository repository = factory.load(localRepositoryURL, monitor);
@@ -59,19 +59,19 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
+		String repositoryName = "update site: " + location; //$NON-NLS-1$
 		Properties props = new Properties();
 		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		return factory.create(localRepositoryURL, repositoryName, null, props);
 	}
 
-	public void initializeRepository(IArtifactRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
+	public void initializeRepository(IArtifactRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, monitor);
 		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 
-		if (!location.getProtocol().equals(PROTOCOL_FILE))
+		if (!location.getScheme().equals(PROTOCOL_FILE))
 			repository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
@@ -85,8 +85,8 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 			Feature feature = features[i];
 			IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-			URL featureURL = updateSite.getFeatureURL(feature.getId(), feature.getVersion());
-			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toExternalForm());
+			URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
+			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
 			allSiteArtifacts.add(featureArtifactDescriptor);
 
 			FeatureEntry[] featureEntries = feature.getEntries();
@@ -95,8 +95,8 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 				if (entry.isPlugin() && !entry.isRequires()) {
 					IArtifactKey key = PublisherHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
 					ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
-					URL pluginURL = updateSite.getPluginURL(entry);
-					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toExternalForm());
+					URI pluginURL = updateSite.getPluginURI(entry);
+					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
 					allSiteArtifacts.add(artifactDescriptor);
 				}
 			}

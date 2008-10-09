@@ -33,7 +33,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		repo = repoMan.loadRepository(getTestData("repository for wsdl test", "testData/orbitRepo/").toURL(), new NullProgressMonitor());
+		repo = repoMan.loadRepository(getTestData("repository for wsdl test", "testData/orbitRepo/").toURI(), new NullProgressMonitor());
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

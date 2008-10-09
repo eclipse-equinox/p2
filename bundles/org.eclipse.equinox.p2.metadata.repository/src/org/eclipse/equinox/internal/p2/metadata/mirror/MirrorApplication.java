@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.mirror;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -27,8 +27,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 public class MirrorApplication implements IApplication {
 
 	private String[] rootSpecs;
-	private URL sourceLocation;
-	private URL destinationLocation;
+	private URI sourceLocation;
+	private URI destinationLocation;
 	private IMetadataRepository source;
 	private IMetadataRepository destination;
 	private boolean transitive = false;
@@ -146,9 +146,9 @@ public class MirrorApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-				sourceLocation = new URL(arg);
+				sourceLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
-				destinationLocation = new URL(arg);
+				destinationLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-roots")) //$NON-NLS-1$
 				rootSpecs = getArrayArgsFromString(arg, ","); //$NON-NLS-1$
 			if (args[i - 1].equalsIgnoreCase("-transitive")) //$NON-NLS-1$

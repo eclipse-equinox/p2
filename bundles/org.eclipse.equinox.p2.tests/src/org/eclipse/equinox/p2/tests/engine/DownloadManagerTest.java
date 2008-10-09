@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
@@ -131,7 +131,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testEmptyArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext();
-		context.setArtifactRepositories(new URL[0]);
+		context.setArtifactRepositories(new URI[0]);
 		DownloadManager manager = new DownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
@@ -142,11 +142,11 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testFileFirstArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext();
-		URL[] artifactRepos = new URL[2];
+		URI[] artifactRepos = new URI[2];
 		try {
-			artifactRepos[0] = new URL("file:/test");
-			artifactRepos[1] = new URL("jar:file:/test!/");
-		} catch (MalformedURLException e) {
+			artifactRepos[0] = new URI("file:/test");
+			artifactRepos[1] = new URI("jar:file:/test!/");
+		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
 
@@ -161,11 +161,11 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testFileLastArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext();
-		URL[] artifactRepos = new URL[2];
+		URI[] artifactRepos = new URI[2];
 		try {
-			artifactRepos[0] = new URL("jar:file:/test!/");
-			artifactRepos[1] = new URL("file:/test");
-		} catch (MalformedURLException e) {
+			artifactRepos[0] = new URI("jar:file:/test!/");
+			artifactRepos[1] = new URI("file:/test");
+		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
 
@@ -180,11 +180,11 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testNoFileArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext();
-		URL[] artifactRepos = new URL[2];
+		URI[] artifactRepos = new URI[2];
 		try {
-			artifactRepos[0] = new URL("jar:file:/test1!/");
-			artifactRepos[1] = new URL("jar:file:/test2!/");
-		} catch (MalformedURLException e) {
+			artifactRepos[0] = new URI("jar:file:/test1!/");
+			artifactRepos[1] = new URI("jar:file:/test2!/");
+		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
 

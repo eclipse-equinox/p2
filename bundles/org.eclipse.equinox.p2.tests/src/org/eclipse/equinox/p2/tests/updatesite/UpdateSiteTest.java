@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -56,11 +56,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/siteurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 
 		try {
@@ -76,12 +74,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File siteDirectory = getTestData("0.1", "/testData/updatesite/siteurl2/siteurl/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
-			updatesite.getSite().setLocationURLString(siteDirectory.toURL().toExternalForm());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite.getSite().setLocationURIString(siteDirectory.toURI().toString());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 
 		try {
@@ -96,11 +92,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/digest");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 
 		try {
@@ -115,11 +109,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 
 		try {
@@ -135,12 +127,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl2/digesturl/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
-			updatesite.getSite().setDigestURLString(digestDirectory.toURL().toExternalForm());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite.getSite().setDigestURIString(digestDirectory.toURI().toString());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 
 		try {
@@ -159,11 +149,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -177,12 +165,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File base = getTestData("0.1", "/testData/updatesite");
 		UpdateSite updatesite = null;
 		try {
-			URL siteURL = new URL(base.toURL(), "site");
+			URI siteURL = base.toURI().resolve("site");
 			updatesite = UpdateSite.load(siteURL, getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -196,11 +182,25 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site/site.xml");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures(getMonitor()).length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testSiteWithSpaces() {
+		File site = getTestData("0.1", "/testData/updatesite/site with spaces/");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -214,11 +214,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx/xxxsitexxx.xml");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -232,12 +230,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File siteDir = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		File site = new File(siteDir, "site.xml");
 		try {
-			UpdateSite.load(site.toURL(), getMonitor());
+			UpdateSite.load(site.toURI(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 	}
 
@@ -245,11 +241,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestgoodsite");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			updatesite.loadFeatures(new NullProgressMonitor());
@@ -261,12 +255,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void testBadDigestBadSite() {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
 		try {
-			UpdateSite.load(site.toURL(), getMonitor());
+			UpdateSite.load(site.toURI(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 	}
 
@@ -274,12 +266,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		// handle the case where the site.xml doesn't parse correctly
 		File site = getTestData("0.1", "/testData/updatesite/badSiteXML");
 		try {
-			UpdateSite.load(site.toURL(), getMonitor());
+			UpdateSite.load(site.toURI(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected exception
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 	}
 
@@ -291,12 +281,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File temp = getTempFolder();
 		temp.mkdirs();
 		try {
-			UpdateSite.load(temp.toURL(), getMonitor());
+			UpdateSite.load(temp.toURI(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// we expect an exception
-		} catch (MalformedURLException e) {
-			fail("0.1", e);
 		}
 	}
 
@@ -312,11 +300,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/badfeatureurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -330,11 +316,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -344,15 +328,27 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testGetFileURI() throws URISyntaxException {
+		URI rootNoSlash = new URI("http://eclipse.org/eclipse/updates");
+		URI rootSlash = new URI("http://eclipse.org/eclipse/updates/");
+		URI rootSiteXML = new URI("http://eclipse.org/eclipse/updates/site.xml");
+		URI rootSiteXML2 = new URI("http://eclipse.org/eclipse/updates/site_old.xml");
+		URI[] allURIs = new URI[] {rootNoSlash, rootSlash, rootSiteXML, rootSiteXML2};
+		for (URI uri : allURIs) {
+			assertEquals("1." + uri, new URI("http://eclipse.org/eclipse/updates/digest.zip"), UpdateSite.getFileURI(uri, "digest.zip"));
+		}
+
+		URI rootEmpty = new URI("http://update.eclemma.org");
+		assertEquals("2.1", new URI("http://update.eclemma.org/digest.zip"), UpdateSite.getFileURI(rootEmpty, "digest.zip"));
+	}
+
 	public void testIncludedFeature() {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeature");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -366,11 +362,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeaturearchive");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -384,11 +378,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/badincludedfeaturearchive");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -402,11 +394,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/nofeatureidandversion");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
-		} catch (MalformedURLException e) {
-			fail("0.3", e);
 		}
 		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
@@ -425,10 +415,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
 		IMetadataRepository metadataRepo = null;
 		try {
-			metadataRepo = repoMan.loadRepository(site.toURL(), null);
+			metadataRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Can't load repository UpdateSite243422");
-		} catch (MalformedURLException e) {
 			fail("Can't load repository UpdateSite243422");
 		}
 		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", new Version("1.0.1"));
@@ -449,10 +437,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
 		IArtifactRepository artifactRepo = null;
 		try {
-			artifactRepo = repoMan.loadRepository(site.toURL(), null);
+			artifactRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Can't load repository UpdateSite240121");
-		} catch (MalformedURLException e) {
 			fail("Can't load repository UpdateSite240121");
 		}
 		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
@@ -472,12 +458,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void testFeatureJarUnzipInstruction() {
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		File site = getTestData("0.1", "/testData/updatesite/site");
-		URL location = null;
-		try {
-			location = site.toURL();
-		} catch (MalformedURLException e) {
-			fail("0.99", e);
-		}
+		URI location = null;
+		location = site.toURI();
 		IMetadataRepository repository;
 		try {
 			repository = repoMan.loadRepository(location, getMonitor());

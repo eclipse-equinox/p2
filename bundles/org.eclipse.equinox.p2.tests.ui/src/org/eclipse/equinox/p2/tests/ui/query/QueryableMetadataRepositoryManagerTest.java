@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -32,9 +32,9 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	 * Tests querying against a non-existent repository
 	 */
 	public void testBrokenRepository() {
-		URL brokenRepo;
+		URI brokenRepo;
 		try {
-			brokenRepo = TestData.getFile("metadataRepo", "bad").toURL();
+			brokenRepo = TestData.getFile("metadataRepo", "bad").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;
@@ -54,9 +54,9 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	 * Tests canceling a load
 	 */
 	public void testCancelLoad() {
-		URL location;
+		URI location;
 		try {
-			location = TestData.getFile("metadataRepo", "good").toURL();
+			location = TestData.getFile("metadataRepo", "good").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;
@@ -73,11 +73,11 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	}
 
 	public void testCancelQuery() {
-		URL existing, nonExisting, broken;
+		URI existing, nonExisting, broken;
 		try {
-			existing = TestData.getFile("metadataRepo", "good").toURL();
-			nonExisting = new File("does/not/exist/testNotFoundRepository").toURL();
-			broken = TestData.getFile("metadataRepo", "bad").toURL();
+			existing = TestData.getFile("metadataRepo", "good").toURI();
+			nonExisting = new File("does/not/exist/testNotFoundRepository").toURI();
+			broken = TestData.getFile("metadataRepo", "bad").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;
@@ -97,9 +97,9 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	}
 
 	public void testExistingRepository() {
-		URL location;
+		URI location;
 		try {
-			location = TestData.getFile("metadataRepo", "good").toURL();
+			location = TestData.getFile("metadataRepo", "good").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;
@@ -118,10 +118,10 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	 * Tests querying against a non-existent repository
 	 */
 	public void testNotFoundRepository() {
-		URL existing, nonExisting;
+		URI existing, nonExisting;
 		try {
-			existing = TestData.getFile("metadataRepo", "good").toURL();
-			nonExisting = new File("does/not/exist/testNotFoundRepository").toURL();
+			existing = TestData.getFile("metadataRepo", "good").toURI();
+			nonExisting = new File("does/not/exist/testNotFoundRepository").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;
@@ -139,11 +139,11 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 	}
 
 	public void testQuery() {
-		URL existing, nonExisting, broken;
+		URI existing, nonExisting, broken;
 		try {
-			existing = TestData.getFile("metadataRepo", "good").toURL();
-			nonExisting = new File("does/not/exist/testNotFoundRepository").toURL();
-			broken = TestData.getFile("metadataRepo", "bad").toURL();
+			existing = TestData.getFile("metadataRepo", "good").toURI();
+			nonExisting = new File("does/not/exist/testNotFoundRepository").toURI();
+			broken = TestData.getFile("metadataRepo", "bad").toURI();
 		} catch (Exception e) {
 			fail("0.99", e);
 			return;

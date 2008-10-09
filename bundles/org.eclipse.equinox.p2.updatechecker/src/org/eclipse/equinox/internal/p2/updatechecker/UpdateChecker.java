@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import java.net.URL;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -134,9 +134,9 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Returns the list of metadata repositories that are currently available.
 	 */
-	private URL[] getAvailableRepositories() {
+	private URI[] getAvailableRepositories() {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		ArrayList available = new ArrayList();
 		for (int i = 0; i < repositories.length; i++) {
 			try {
@@ -146,7 +146,7 @@ public class UpdateChecker implements IUpdateChecker {
 				//ignore unavailable repository
 			}
 		}
-		return (URL[]) available.toArray(new URL[available.size()]);
+		return (URI[]) available.toArray(new URI[available.size()]);
 	}
 
 	void log(String string, Throwable e) {

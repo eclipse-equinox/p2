@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -33,7 +32,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		public String description;
 		public boolean isEnabled = true;
 		public boolean isSystem = false;
-		public URL location;
+		public URI location;
 		public String name;
 		public SoftReference repository;
 		public String suffix;
@@ -54,13 +53,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	public static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	public static final String KEY_URL = "url"; //$NON-NLS-1$
+	public static final String KEY_URI = "uri"; //$NON-NLS-1$
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
-	 * obtained via getKey(URL).
+	 * obtained via getKey(URI).
 	 */
 	protected Map repositories = null;
 
@@ -112,9 +112,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#addRepository(java.net.URL)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#addRepository(java.net.URI)
 	 */
-	public void addRepository(URL location) {
+	public void addRepository(URI location) {
 		//add the repository, or enable it if already known
 		if (!addRepository(location, true, true))
 			setEnabled(location, true);
@@ -128,7 +128,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @return <code>true</code> if the repository was actually added, and 
 	 * <code>false</code> otherwise.
 	 */
-	private boolean addRepository(URL location, boolean isEnabled, boolean signalAdd) {
+	private boolean addRepository(URI location, boolean isEnabled, boolean signalAdd) {
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
 		info.isEnabled = isEnabled;
@@ -147,7 +147,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return added;
 	}
 
-	protected IRepository basicGetRepository(URL location) {
+	protected IRepository basicGetRepository(URI location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -162,7 +162,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	public IRepository basicRefreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IRepository basicRefreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		clearNotFound(location);
 		boolean wasEnabled = isEnabled(location);
 		//remove the repository so  event is broadcast and repositories can clear their caches
@@ -179,7 +179,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	private void broadcastChangeEvent(URL location, int repositoryType, int kind, boolean isEnabled) {
+	private void broadcastChangeEvent(URI location, int repositoryType, int kind, boolean isEnabled) {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
 		if (bus != null)
 			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
@@ -190,7 +190,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * to find anything. Returns <code>true</code> if the repository was not
 	 * found, and <code>false</code> otherwise.
 	 */
-	private boolean checkNotFound(URL location) {
+	private boolean checkNotFound(URI location) {
 		if (unavailableRepositories == null)
 			return false;
 		List badRepos = (List) unavailableRepositories.get();
@@ -202,7 +202,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/**
 	 * Clear the fact that we tried to load a repository at this location and did not find anything.
 	 */
-	protected void clearNotFound(URL location) {
+	protected void clearNotFound(URI location) {
 		List badRepos;
 		if (unavailableRepositories != null) {
 			badRepos = (List) unavailableRepositories.get();
@@ -216,7 +216,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/**
 	 * TODO make private once API is available. See bug 248269.
 	 */
-	public boolean contains(URL location) {
+	public boolean contains(URI location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -249,9 +249,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Loads and returns a repository using the given repository factory extension. Returns
 	 * null if no factory could be found associated with that extension.
 	 */
-	protected abstract IRepository factoryLoad(URL location, IExtension extension, SubMonitor monitor) throws ProvisionException;
+	protected abstract IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException;
 
-	protected void fail(URL location, int code) throws ProvisionException {
+	protected void fail(URI location, int code) throws ProvisionException {
 		String msg = null;
 		switch (code) {
 			case ProvisionException.REPOSITORY_EXISTS :
@@ -329,10 +329,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/*
 	 * Return a string key based on the given repository location which
 	 * is suitable for use as a preference node name.
-	 * TODO: convert local file system URL to canonical form
+	 * TODO: convert local file system URI to canonical form
 	 */
-	private String getKey(URL location) {
-		String key = location.toExternalForm().replace('/', '_');
+	private String getKey(URI location) {
+		String key = location.toString().replace('/', '_');
 		//remove trailing slash
 		if (key.endsWith("_")) //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
@@ -342,7 +342,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getKnownRepositories(int)
 	 */
-	public URL[] getKnownRepositories(int flags) {
+	public URI[] getKnownRepositories(int flags) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -353,7 +353,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				if (matchesFlags(info, flags))
 					result.add(info.location);
 			}
-			return (URL[]) result.toArray(new URL[result.size()]);
+			return (URI[]) result.toArray(new URI[result.size()]);
 		}
 	}
 
@@ -365,9 +365,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
 	 */
-	public String getRepositoryProperty(URL location, String key) {
+	public String getRepositoryProperty(URI location, String key) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -402,9 +402,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	protected abstract int getRepositoryType();
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#isEnabled(java.net.URL)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#isEnabled(java.net.URI)
 	 */
-	public boolean isEnabled(URL location) {
+	public boolean isEnabled(URI location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -416,7 +416,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	protected IRepository loadRepository(URL location, IProgressMonitor monitor, String type) throws ProvisionException {
+	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type) throws ProvisionException {
 		boolean added = false;
 		IRepository result = null;
 		synchronized (repositoryLock) {
@@ -460,7 +460,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return result;
 	}
 
-	private IRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor) {
+	private IRepository loadRepository(URI location, String suffix, String type, SubMonitor monitor) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
@@ -494,7 +494,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				return false;
 		}
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
-			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
+			return "file".equals(info.location.getScheme()); //$NON-NLS-1$
 		return true;
 	}
 
@@ -530,7 +530,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	private void remember(IRepository repository, String suffix) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository.getLocation()));
-		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
+		changed |= putValue(node, KEY_URI, repository.getLocation().toString());
+		changed |= putValue(node, KEY_URL, null);
 		changed |= putValue(node, KEY_DESCRIPTION, repository.getDescription());
 		changed |= putValue(node, KEY_NAME, repository.getName());
 		changed |= putValue(node, KEY_PROVIDER, repository.getProvider());
@@ -548,7 +549,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	private boolean remember(RepositoryInfo info) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(info.location));
-		changed |= putValue(node, KEY_URL, info.location.toExternalForm());
+		changed |= putValue(node, KEY_URI, info.location.toString());
+		changed |= putValue(node, KEY_URL, null);
 		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
 		changed |= putValue(node, KEY_DESCRIPTION, info.description);
 		changed |= putValue(node, KEY_NAME, info.name);
@@ -562,7 +564,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/**
 	 * Cache the fact that we tried to load a repository at this location and did not find anything.
 	 */
-	private void rememberNotFound(URL location) {
+	private void rememberNotFound(URI location) {
 		List badRepos;
 		if (unavailableRepositories != null) {
 			badRepos = (List) unavailableRepositories.get();
@@ -576,11 +578,11 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		unavailableRepositories = new SoftReference(badRepos);
 	}
 
-	public boolean removeRepository(URL toRemove) {
+	public boolean removeRepository(URI toRemove) {
 		return removeRepository(toRemove, true);
 	}
 
-	private boolean removeRepository(URL toRemove, boolean signalRemove) {
+	private boolean removeRepository(URI toRemove, boolean signalRemove) {
 		Assert.isNotNull(toRemove);
 		final String repoKey = getKey(toRemove);
 		synchronized (repositoryLock) {
@@ -617,24 +619,45 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 		for (int i = 0; i < children.length; i++) {
 			Preferences child = node.node(children[i]);
-			String locationString = child.get(KEY_URL, null);
-			if (locationString == null)
+			URI location = getRepositoryLocation(child);
+			if (location == null)
 				continue;
-			try {
-				RepositoryInfo info = new RepositoryInfo();
-				info.location = new URL(locationString);
-				info.name = child.get(KEY_NAME, null);
-				info.description = child.get(KEY_DESCRIPTION, null);
-				info.isSystem = child.getBoolean(KEY_SYSTEM, false);
-				info.isEnabled = child.getBoolean(KEY_ENABLED, true);
-				info.suffix = child.get(KEY_SUFFIX, null);
-				repositories.put(getKey(info.location), info);
-			} catch (MalformedURLException e) {
-				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
-			}
+			RepositoryInfo info = new RepositoryInfo();
+			info.location = location;
+			info.name = child.get(KEY_NAME, null);
+			info.description = child.get(KEY_DESCRIPTION, null);
+			info.isSystem = child.getBoolean(KEY_SYSTEM, false);
+			info.isEnabled = child.getBoolean(KEY_ENABLED, true);
+			info.suffix = child.get(KEY_SUFFIX, null);
+			repositories.put(getKey(info.location), info);
 		}
 		// now that we have loaded everything, remember them
 		saveToPreferences();
+	}
+
+	/**
+	 * Restores a repository location from the preferences.
+	 */
+	private URI getRepositoryLocation(Preferences node) {
+		//prefer the location stored in URI form
+		String locationString = node.get(KEY_URI, null);
+		try {
+			if (locationString != null)
+				return new URI(locationString);
+		} catch (URISyntaxException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		}
+		//we used to store the repository as a URL, so try old key for backwards compatibility
+		locationString = node.get(KEY_URL, null);
+		try {
+			if (locationString != null)
+				return URIUtil.toURI(new URL(locationString));
+		} catch (MalformedURLException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		} catch (URISyntaxException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		}
+		return null;
 	}
 
 	private void restoreFromSystemProperty() {
@@ -643,8 +666,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			StringTokenizer tokenizer = new StringTokenizer(locationString, ","); //$NON-NLS-1$
 			while (tokenizer.hasMoreTokens()) {
 				try {
-					addRepository(new URL(tokenizer.nextToken()), true, true);
-				} catch (MalformedURLException e) {
+					addRepository(new URI(tokenizer.nextToken()), true, true);
+				} catch (URISyntaxException e) {
 					log("Error while restoring repository " + locationString, e); //$NON-NLS-1$
 				}
 			}
@@ -682,9 +705,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#setEnabled(java.net.URL, boolean)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#setEnabled(java.net.URI, boolean)
 	 */
-	public void setEnabled(URL location, boolean enablement) {
+	public void setEnabled(URI location, boolean enablement) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -701,7 +724,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Optimize the order in which repository suffixes are searched by trying 
 	 * the last successfully loaded suffix first.
 	 */
-	private String[] sortSuffixes(String[] suffixes, URL location) {
+	private String[] sortSuffixes(String[] suffixes, URI location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();

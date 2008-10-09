@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
@@ -23,13 +23,13 @@ import org.eclipse.equinox.internal.p2.installer.VersionedName;
  * be installed, and where it will be installed.
  */
 public class InstallDescription {
-	private URL[] artifactRepos;
+	private URI[] artifactRepos;
 	private IPath installLocation;
 	private IPath agentLocation;
 	private IPath bundleLocation;
 	private boolean isAutoStart;
 	private String launcherName;
-	private URL[] metadataRepos;
+	private URI[] metadataRepos;
 	private String productName;
 	private VersionedName[] roots;
 	private final Map profileProperties = new HashMap();
@@ -46,7 +46,7 @@ public class InstallDescription {
 	 * Returns the locations of the artifact repositories to install from
 	 * @return a list of artifact repository URLs
 	 */
-	public URL[] getArtifactRepositories() {
+	public URI[] getArtifactRepositories() {
 		return artifactRepos;
 	}
 
@@ -78,7 +78,7 @@ public class InstallDescription {
 	 * Returns the locations of the metadata repositories to install from
 	 * @return a list of metadata repository URLs
 	 */
-	public URL[] getMetadataRepositories() {
+	public URI[] getMetadataRepositories() {
 		return metadataRepos;
 	}
 
@@ -111,7 +111,7 @@ public class InstallDescription {
 		this.agentLocation = agentLocation;
 	}
 
-	public void setArtifactRepositories(URL[] value) {
+	public void setArtifactRepositories(URI[] value) {
 		this.artifactRepos = value;
 	}
 
@@ -131,7 +131,7 @@ public class InstallDescription {
 		this.launcherName = name;
 	}
 
-	public void setMetadataRepositories(URL[] value) {
+	public void setMetadataRepositories(URI[] value) {
 		this.metadataRepos = value;
 	}
 

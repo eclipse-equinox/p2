@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.EventObject;
 import org.eclipse.core.runtime.*;
@@ -41,9 +42,8 @@ public class CacheManager {
 	/**
 	 * Returns a hash of the URL.
 	 */
-	private int computeHash(URL repositoryLocation) {
-		//don't use URL#hashCode because it performs DNS lookups
-		return repositoryLocation.toExternalForm().hashCode();
+	private int computeHash(URI repositoryLocation) {
+		return repositoryLocation.hashCode();
 	}
 
 	/**
@@ -57,17 +57,17 @@ public class CacheManager {
 	 * @throws IOException
 	 * @throws ProvisionException
 	 */
-	public File createCache(URL repositoryLocation, IProgressMonitor monitor) throws IOException, ProvisionException {
+	public File createCache(URI repositoryLocation, IProgressMonitor monitor) throws IOException, ProvisionException {
 		File cacheFile = getCache(repositoryLocation);
-		URL jarLocation = URLMetadataRepository.getActualLocation(repositoryLocation, JAR_EXTENSION);
-		URL xmlLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
+		URI jarLocation = URLMetadataRepository.getActualLocation(repositoryLocation, JAR_EXTENSION);
+		URI xmlLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
 		int hashCode = computeHash(repositoryLocation);
 		if (cacheFile == null || isCacheStale(repositoryLocation, cacheFile)) {
 			long lastModifiedRemote = getTransport().getLastModified(jarLocation);
-			URL remoteFile;
+			URI remoteFile;
 			if (lastModifiedRemote != 0) {
 				cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
 				remoteFile = jarLocation;
@@ -82,7 +82,7 @@ public class CacheManager {
 			cacheFile.getParentFile().mkdirs();
 			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(cacheFile));
 			try {
-				IStatus result = getTransport().download(remoteFile.toExternalForm(), metadata, monitor);
+				IStatus result = getTransport().download(remoteFile.toString(), metadata, monitor);
 				if (!result.isOK()) {
 					throw new ProvisionException(result);
 				}
@@ -97,7 +97,7 @@ public class CacheManager {
 	 * Deletes the local cache file for the given repository
 	 * @param repositoryLocation
 	 */
-	void deleteCache(URL repositoryLocation) {
+	void deleteCache(URI repositoryLocation) {
 		File cacheFile = getCache(repositoryLocation);
 		if (cacheFile != null)
 			safeDelete(cacheFile);
@@ -109,7 +109,7 @@ public class CacheManager {
 	 * @return A {@link File} pointing to the cache file or <code>null</code> if
 	 * the cache file does not exist.
 	 */
-	private File getCache(URL repositoryLocation) {
+	private File getCache(URI repositoryLocation) {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
@@ -144,10 +144,10 @@ public class CacheManager {
 	 * if the cache file is in sync with the repository. The cache file is
 	 * considered stale if there is no local cache file.
 	 */
-	private boolean isCacheStale(URL repositoryLocation, File cacheFile) {
+	private boolean isCacheStale(URI repositoryLocation, File cacheFile) {
 		long lastModified = cacheFile.lastModified();
 		String name = cacheFile.getName();
-		URL metadataLocation = null;
+		URI metadataLocation = null;
 		if (name.endsWith(XML_EXTENSION)) {
 			metadataLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
 		} else if (name.endsWith(JAR_EXTENSION)) {

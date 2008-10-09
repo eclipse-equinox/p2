@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.mirror;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -26,8 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public class MirrorApplication implements IApplication {
 
-	private URL sourceLocation;
-	private URL destinationLocation;
+	private URI sourceLocation;
+	private URI destinationLocation;
 	private IArtifactRepository source;
 	private IArtifactRepository destination;
 	private boolean append = false;
@@ -84,7 +84,7 @@ public class MirrorApplication implements IApplication {
 
 		//must execute before initializeDestination is called
 		source = getManager().loadRepository(sourceLocation, null);
-		destination = initializeDestination();
+			destination = initializeDestination();
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
@@ -129,9 +129,9 @@ public class MirrorApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-				sourceLocation = new URL(arg);
+				sourceLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
-				destinationLocation = new URL(arg);
+				destinationLocation = new URI(arg);
 		}
 	}
 }

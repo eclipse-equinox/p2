@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -30,12 +29,7 @@ public class IUPropertyUtilsTest extends QueryTest {
 	public void testFeatureProperties() {
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
-		URL location = null;
-		try {
-			location = site.toURL();
-		} catch (MalformedURLException e) {
-			fail("0.99", e);
-		}
+		URI location = site.toURI();
 		IMetadataRepository repository;
 		try {
 			repository = repoMan.loadRepository(location, getMonitor());

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.net.URL;
+import java.net.URI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
@@ -54,8 +54,8 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getAddOperation(java.net.URL)
 	 */
-	public ProvisioningOperation getAddOperation(URL repoURL) {
-		return new AddColocatedRepositoryOperation(getAddOperationLabel(), repoURL);
+	public ProvisioningOperation getAddOperation(URI repoLocation) {
+		return new AddColocatedRepositoryOperation(getAddOperationLabel(), repoLocation);
 	}
 
 	/*
@@ -70,11 +70,11 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
 	 */
-	public URL[] getKnownRepositories() {
+	public URI[] getKnownRepositories() {
 		try {
 			return ProvisioningUtil.getMetadataRepositories(policy.getQueryContext().getMetadataRepositoryFlags());
 		} catch (ProvisionException e) {
-			return new URL[0];
+			return new URI[0];
 		}
 	}
 
@@ -82,7 +82,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getRemoveOperation(java.net.URL[])
 	 */
-	public ProvisioningOperation getRemoveOperation(URL[] reposToRemove) {
+	public ProvisioningOperation getRemoveOperation(URI[] reposToRemove) {
 		return new RemoveColocatedRepositoryOperation(getRemoveOperationLabel(), reposToRemove);
 	}
 
@@ -98,7 +98,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getURLValidator(org.eclipse.swt.widgets.Shell)
 	 */
-	public URLValidator getURLValidator(Shell shell) {
+	public RepositoryLocationValidator getRepositoryLocationValidator(Shell shell) {
 		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
 		validator.setKnownRepositoriesFlag(policy.getQueryContext().getMetadataRepositoryFlags());
 		return validator;

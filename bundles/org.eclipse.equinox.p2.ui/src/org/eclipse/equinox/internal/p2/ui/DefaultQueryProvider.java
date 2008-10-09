@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.net.URI;
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
@@ -61,7 +62,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				return new ElementQueryDescriptor(queryable, null, new Collector() {
 					public boolean accept(Object object) {
 						if (object instanceof URL)
-							return super.accept(new ArtifactRepositoryElement(element, (URL) object));
+							return super.accept(new ArtifactRepositoryElement(element, (URI) object));
 						return true;
 					}
 				});

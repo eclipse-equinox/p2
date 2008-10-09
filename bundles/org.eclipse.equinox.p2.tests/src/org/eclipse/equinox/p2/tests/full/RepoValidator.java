@@ -1,7 +1,7 @@
 package org.eclipse.equinox.p2.tests.full;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -20,8 +20,8 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
 public class RepoValidator extends AbstractProvisioningTest {
-	public void testValidate() throws ProvisionException, MalformedURLException {
-		URL repoLoc = new URL("file:d:/ganymedeM5");
+	public void testValidate() throws ProvisionException, URISyntaxException {
+		URI repoLoc = new URI("file:d:/ganymedeM5");
 		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.class.getName());
 		if (sr == null) {
 			throw new RuntimeException("Planner service not available");
@@ -59,7 +59,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		q = InstallableUnitQuery.ANY;
 		Collector iusToTest = validatedRepo.query(q, new Collector(), null);
 
-		ProvisioningContext pc = new ProvisioningContext(new URL[] {repoLoc});
+		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {
 			try {
 				IInstallableUnit isInstallable = (IInstallableUnit) iterator.next();

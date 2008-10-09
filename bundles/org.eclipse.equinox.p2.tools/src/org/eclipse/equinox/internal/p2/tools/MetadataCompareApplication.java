@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Comparator;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -43,8 +43,8 @@ public class MetadataCompareApplication implements IApplication {
 		}
 	};
 
-	private URL sourceLocation;
-	private URL targetLocation;
+	private URI sourceLocation;
+	private URI targetLocation;
 	private boolean compare = false;
 	private boolean list = false;
 
@@ -61,7 +61,7 @@ public class MetadataCompareApplication implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
-	private void list(URL location) throws ProvisionException {
+	private void list(URI location) throws ProvisionException {
 		if (location == null)
 			return;
 		IMetadataRepository locationRepo = repoManager.getRepository(location);
@@ -79,7 +79,7 @@ public class MetadataCompareApplication implements IApplication {
 	}
 
 	private void compareMetadataRepositories() throws ProvisionException {
-		System.out.println("\n" + sourceLocation.toExternalForm() + " -> " + targetLocation.toExternalForm()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("\n" + sourceLocation + " -> " + targetLocation); //$NON-NLS-1$ //$NON-NLS-2$
 		compare(sourceRepo, targetRepo);
 	}
 
@@ -226,9 +226,9 @@ public class MetadataCompareApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-				sourceLocation = new URL(arg);
+				sourceLocation = new URI(arg);
 			if (args[i - 1].equalsIgnoreCase("-target")) //$NON-NLS-1$
-				targetLocation = new URL(arg);
+				targetLocation = new URI(arg);
 		}
 	}
 

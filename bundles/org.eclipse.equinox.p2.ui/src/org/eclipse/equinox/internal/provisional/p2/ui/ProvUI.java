@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.List;
 import org.eclipse.core.commands.*;
@@ -53,6 +53,10 @@ public class ProvUI {
 	static ObjectUndoContext provisioningUndoContext;
 	private static final int DEFAULT_COLUMN_WIDTH = 200;
 	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, DEFAULT_COLUMN_WIDTH)};
+
+	/**
+	 * List<URI> of repositories that have already been reported to the user as not found.
+	 */
 	private static final List reposNotFound = Collections.synchronizedList(new ArrayList());
 
 	// These values rely on the command markup in org.eclipse.ui.ide that defines the update commands
@@ -90,32 +94,24 @@ public class ProvUI {
 		return status;
 	}
 
-	public static void reportNotFoundStatus(URL url, IStatus status, int style) {
-		if (!hasNotFoundStatusBeenReported(url)) {
-			reposNotFound.add(url);
+	public static void reportNotFoundStatus(URI location, IStatus status, int style) {
+		if (!hasNotFoundStatusBeenReported(location)) {
+			reposNotFound.add(location);
 			reportStatus(status, style);
 		}
 	}
 
 	// This assumes that callers already checked whether it *should*
 	// be reported so that we don't need to loop through the list
-	// when the caller just has done so in order to know whether
-	// to report.
-	public static void notFoundStatusReported(URL url) {
-		reposNotFound.add(url);
+	// when the caller just has done so in order to know whether to report.
+	public static void notFoundStatusReported(URI location) {
+		reposNotFound.add(location);
 	}
 
-	// We don't simply use a set data structure to keep the URLs unique
-	// because using equals() for URLs is notoriously slow
 	// We don't check for things like case variants or end slash variants
 	// because we know that the repository managers already did this.
-	public static boolean hasNotFoundStatusBeenReported(URL url) {
-		synchronized (reposNotFound) {
-			for (int i = 0; i < reposNotFound.size(); i++)
-				if (reposNotFound.get(i) instanceof URL && ((URL) reposNotFound.get(i)).toExternalForm().equals(url.toExternalForm()))
-					return true;
-		}
-		return false;
+	public static boolean hasNotFoundStatusBeenReported(URI location) {
+		return reposNotFound.contains(location);
 	}
 
 	public static void clearRepositoriesNotFound() {

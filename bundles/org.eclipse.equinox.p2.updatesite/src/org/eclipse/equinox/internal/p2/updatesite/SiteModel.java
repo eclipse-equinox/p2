@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 
@@ -32,13 +32,13 @@ public class SiteModel {
 	 * Map of String (feature id) -> SiteFeature
 	 */
 	private List features;
-	private URL locationURL;
-	private String locationURLString;
-	private String mirrorsURLString;
+	private URI locationURI;
+	private String locationURIString;
+	private String mirrorsURIString;
 	private boolean supportsPack200;
 	private String type;
 	private URLEntry[] associateSites;
-	private String digestURLString;
+	private String digestURIString;
 	private List messageKeys;
 	private Map localizations;
 
@@ -162,28 +162,28 @@ public class SiteModel {
 	}
 
 	/**
-	 * Returns the resolved URL for the site.
+	 * Returns the resolved URI for the site.
 	 * 
 	 * @return url, or <code>null</code>
 	 */
-	public URL getLocationURL() {
-		if (locationURL == null && locationURLString != null) {
+	public URI getLocationURI() {
+		if (locationURI == null && locationURIString != null) {
 			try {
-				locationURL = new URL(locationURLString);
-			} catch (MalformedURLException e) {
+				locationURI = new URI(locationURIString);
+			} catch (URISyntaxException e) {
 				//ignore and return null
 			}
 		}
-		return locationURL;
+		return locationURI;
 	}
 
 	/**
-	 * Returns the unresolved URL string for the site.
+	 * Returns the unresolved URI string for the site.
 	 *
 	 * @return url string, or <code>null</code>
 	 */
-	public String getLocationURLString() {
-		return locationURLString;
+	public String getLocationURIString() {
+		return locationURIString;
 	}
 
 	/**
@@ -197,12 +197,12 @@ public class SiteModel {
 	}
 
 	/**
-	 * Returns the URL from which the list of mirrors of this site can be retrieved.
+	 * Returns the URI from which the list of mirrors of this site can be retrieved.
 	 * 
 	 * @since org.eclipse.equinox.p2.metadata.generator 1.0
 	 */
-	public String getMirrorsURL() {
-		return mirrorsURLString;
+	public String getMirrorsURI() {
+		return mirrorsURIString;
 	}
 
 	/** 
@@ -249,13 +249,13 @@ public class SiteModel {
 	}
 
 	/**
-	 * Sets the unresolved URL for the site.
+	 * Sets the unresolved URI for the site.
 	 * 
-	 * @param locationURLString url for the site (as a string)
+	 * @param locationURIString url for the site (as a string)
 	 * @since 2.0
 	 */
-	public void setLocationURLString(String locationURLString) {
-		this.locationURLString = locationURLString;
+	public void setLocationURIString(String locationURIString) {
+		this.locationURIString = locationURIString;
 	}
 
 	/**
@@ -273,11 +273,11 @@ public class SiteModel {
 	 * This method is complementary to setMirrorsiteEntryModels(), and only one of these 
 	 * methods should be called.
 	 * 
-	 * @param mirrorsURL additional update site mirrors
+	 * @param mirrorsURI additional update site mirrors
 	 * @since 3.1
 	 */
-	public void setMirrorsURLString(String mirrorsURL) {
-		this.mirrorsURLString = mirrorsURL;
+	public void setMirrorsURIString(String mirrorsURI) {
+		this.mirrorsURIString = mirrorsURI;
 	}
 
 	public void setSupportsPack200(boolean value) {
@@ -304,11 +304,11 @@ public class SiteModel {
 		this.associateSites = associateSites;
 	}
 
-	public void setDigestURLString(String digestURLString) {
-		this.digestURLString = digestURLString;
+	public void setDigestURIString(String digestURIString) {
+		this.digestURIString = digestURIString;
 	}
 
-	public String getDigestURLString() {
-		return digestURLString;
+	public String getDigestURIString() {
+		return digestURIString;
 	}
 }

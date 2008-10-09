@@ -12,8 +12,8 @@
 package org.eclipse.equinox.internal.p2.director.app;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
@@ -57,9 +57,9 @@ public class Application implements IApplication {
 
 	private Path destination;
 
-	private URL[] artifactRepositoryLocations;
+	private URI[] artifactRepositoryLocations;
 
-	private URL[] metadataRepositoryLocations;
+	private URI[] metadataRepositoryLocations;
 
 	private String root;
 	private Version version = null;
@@ -165,7 +165,6 @@ public class Application implements IApplication {
 	}
 
 	private void initializeRepositories(boolean throwException) throws CoreException {
-
 		if (artifactRepositoryLocations == null) {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
@@ -182,7 +181,7 @@ public class Application implements IApplication {
 						anyValid = true;
 					} catch (ProvisionException e) {
 						//one of the repositories did not load
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, artifactRepositoryLocations[i].getPath() + " failed to load", e)); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, artifactRepositoryLocations[i].toString() + " failed to load", e)); //$NON-NLS-1$
 					}
 				}
 				if (throwException && !anyValid)
@@ -207,7 +206,7 @@ public class Application implements IApplication {
 						anyValid = true;
 					} catch (ProvisionException e) {
 						//one of the repositories did not load
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, metadataRepositoryLocations[i].getPath() + " failed to load", e)); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, metadataRepositoryLocations[i].toString() + " failed to load", e)); //$NON-NLS-1$
 					}
 				}
 				if (throwException && !anyValid)
@@ -500,19 +499,19 @@ public class Application implements IApplication {
 		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new ProvisioningContext(), new NullProgressMonitor());
 	}
 
-	private static URL[] getURLs(String spec) {
+	private static URI[] getURLs(String spec) {
 		if (spec == null)
 			return null;
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
-				result.add(new URL(urlSpecs[i]));
-			} catch (MalformedURLException e) {
+				result.add(new URI(urlSpecs[i]));
+			} catch (URISyntaxException e) {
 				NLS.bind(Messages.Ignored_repo, urlSpecs[i]);
 			}
 		}
-		return (URL[]) result.toArray(new URL[result.size()]);
+		return (URI[]) result.toArray(new URI[result.size()]);
 	}
 
 	/**
