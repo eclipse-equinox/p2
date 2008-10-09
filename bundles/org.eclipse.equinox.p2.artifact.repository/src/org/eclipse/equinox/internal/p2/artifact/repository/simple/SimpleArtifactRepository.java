@@ -515,6 +515,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return downloadArtifact(descriptor, destination, monitor);
 	}
 
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		return downloadArtifact(descriptor, destination, monitor);
+	}
+
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		Collection result = (Collection) artifactMap.get(key);
 		if (result == null)

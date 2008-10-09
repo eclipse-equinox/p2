@@ -69,6 +69,11 @@ public interface IArtifactRepository extends IRepository {
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
 	/**
+	 * Write to the given output stream the bytes represented by the artifact descriptor without processing by the steps of the given descriptor. 
+	 */
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
+
+	/**
 	 * Return the set of artifact descriptors describing the ways that this repository
 	 * can supply the artifact associated with the given artifact key
 	 * @param key the artifact key to lookup

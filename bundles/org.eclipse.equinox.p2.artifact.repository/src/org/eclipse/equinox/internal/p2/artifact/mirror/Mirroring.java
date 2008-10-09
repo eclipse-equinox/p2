@@ -54,7 +54,7 @@ public class Mirroring {
 				if (repositoryStream == null)
 					return;
 				// TODO Is that ok to ignore the result?
-				source.getArtifact(descriptor, repositoryStream, new NullProgressMonitor());
+				source.getRawArtifact(descriptor, repositoryStream, new NullProgressMonitor());
 			} finally {
 				if (repositoryStream != null)
 					repositoryStream.close();

@@ -1006,7 +1006,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			//this implicitly verifies the keys are present
 
 			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(sourceKeys[i]);
-			assertEquals(message, sourceDescriptors, destinationDescriptors);
+			assertEquals(message, sourceDescriptors, destinationDescriptors, false);
 		}
 	}
 

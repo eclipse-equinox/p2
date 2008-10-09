@@ -93,6 +93,10 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
 	}
 
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
+	}
+
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
 	}

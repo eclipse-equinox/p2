@@ -169,6 +169,11 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		return artifactRepository.getArtifact(descriptor, destination, monitor);
 	}
 
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		ensureInitialized();
+		return artifactRepository.getRawArtifact(descriptor, destination, monitor);
+	}
+
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		ensureInitialized();
 		return artifactRepository.getArtifactDescriptors(key);

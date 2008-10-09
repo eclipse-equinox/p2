@@ -126,6 +126,10 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.getArtifact(descriptor, destination, monitor);
 	}
 
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		return innerRepo.getRawArtifact(descriptor, destination, monitor);
+	}
+
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}

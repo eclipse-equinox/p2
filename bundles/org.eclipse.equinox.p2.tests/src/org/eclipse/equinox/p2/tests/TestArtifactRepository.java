@@ -128,6 +128,10 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return Status.OK_STATUS;
 	}
 
+	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		return testhandler.download((String) keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
+	}
+
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		if (!contains(key))
 			return null;
