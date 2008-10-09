@@ -663,7 +663,7 @@ public class Projector {
 		} catch (TimeoutException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
-			e.printStackTrace();
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unexpected_problem, e));
 		} finally {
 			try {
 				if (fr != null)
