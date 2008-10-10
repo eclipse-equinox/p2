@@ -64,18 +64,22 @@ public class URIUtil {
 	 * @throws URISyntaxException If the string cannot be formed into a valid URI
 	 */
 	public static URI fromString(String uriString) throws URISyntaxException {
-		int colon = uriString.indexOf(':');
-		int hash = uriString.lastIndexOf('#');
-		boolean noHash = hash < 0;
-		if (noHash)
-			hash = uriString.length();
-		String scheme = colon < 0 ? null : uriString.substring(0, colon);
-		String ssp = uriString.substring(colon + 1, hash);
-		String fragment = noHash ? null : uriString.substring(hash + 1);
-		//use java.io.File for contructing file: URIs
-		if (scheme != null && scheme.equals(SCHEME_FILE))
-			return new File(uriString.substring(5)).toURI();
-		return new URI(scheme, ssp, fragment);
+		try {
+			return new URI(uriString);
+		} catch (URISyntaxException e) {
+			int colon = uriString.indexOf(':');
+			int hash = uriString.lastIndexOf('#');
+			boolean noHash = hash < 0;
+			if (noHash)
+				hash = uriString.length();
+			String scheme = colon < 0 ? null : uriString.substring(0, colon);
+			String ssp = uriString.substring(colon + 1, hash);
+			String fragment = noHash ? null : uriString.substring(hash + 1);
+			//use java.io.File for contructing file: URIs
+			if (scheme != null && scheme.equals(SCHEME_FILE))
+				return new File(uriString.substring(5)).toURI();
+			return new URI(scheme, ssp, fragment);
+		}
 	}
 
 	/**
