@@ -12,10 +12,12 @@ package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
@@ -148,8 +150,12 @@ public class PublisherTask extends Task {
 		append = Boolean.valueOf(value).booleanValue();
 	}
 
-	public void setArtifactRepository(URI location) {
-		artifactLocation = location;
+	public void setArtifactRepository(String location) {
+		try {
+			artifactLocation = URIUtil.fromString(location);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Artifact repository location (" + location + ") must be a URL."); //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 
 	public void setArtifactRepositoryName(String value) {
@@ -209,8 +215,12 @@ public class PublisherTask extends Task {
 	public void setLauncherConfig(String value) {
 	}
 
-	public void setMetadataRepository(URI location) {
-		metadataLocation = location;
+	public void setMetadataRepository(String location) {
+		try {
+			metadataLocation = URIUtil.fromString(location);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Metadata repository location (" + location + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	public void setMetadataRepositoryName(String value) {

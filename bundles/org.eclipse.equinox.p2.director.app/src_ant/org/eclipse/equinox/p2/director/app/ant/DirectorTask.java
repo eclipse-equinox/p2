@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.tools.ant.*;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.director.app.Application;
 import org.osgi.framework.Version;
 
@@ -114,7 +115,7 @@ public class DirectorTask extends Task {
 
 	public void setArtifactRepository(String value) {
 		try {
-			artifactRepository = new URI(value);
+			artifactRepository = URIUtil.fromString(value);
 		} catch (URISyntaxException e) {
 			log("Error setting the artifact repository.", e, Project.MSG_ERR);
 		}
@@ -142,7 +143,7 @@ public class DirectorTask extends Task {
 
 	public void setMetadataRepository(String value) {
 		try {
-			metadataRepository = new URI(value);
+			metadataRepository = URIUtil.fromString(value);
 		} catch (URISyntaxException e) {
 			log("Error setting the metadata repository.", e, Project.MSG_ERR);
 		}
