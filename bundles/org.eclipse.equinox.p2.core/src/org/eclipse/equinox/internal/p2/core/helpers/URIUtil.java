@@ -66,19 +66,28 @@ public class URIUtil {
 		try {
 			return new URI(uriString);
 		} catch (URISyntaxException e) {
-		int colon = uriString.indexOf(':');
-		int hash = uriString.lastIndexOf('#');
-		boolean noHash = hash < 0;
-		if (noHash)
-			hash = uriString.length();
-		String scheme = colon < 0 ? null : uriString.substring(0, colon);
-		String ssp = uriString.substring(colon + 1, hash);
-		String fragment = noHash ? null : uriString.substring(hash + 1);
-		//use java.io.File for contructing file: URIs
-		if (scheme != null && scheme.equals(SCHEME_FILE))
-			return new File(uriString.substring(5)).toURI();
-		return new URI(scheme, ssp, fragment);
+			int colon = uriString.indexOf(':');
+			int hash = uriString.lastIndexOf('#');
+			boolean noHash = hash < 0;
+			if (noHash)
+				hash = uriString.length();
+			String scheme = colon < 0 ? null : uriString.substring(0, colon);
+			String ssp = uriString.substring(colon + 1, hash);
+			String fragment = noHash ? null : uriString.substring(hash + 1);
+			//use java.io.File for contructing file: URIs
+			if (scheme != null && scheme.equals(SCHEME_FILE))
+				return new File(uriString.substring(5)).toURI();
+			return new URI(scheme, ssp, fragment);
+		}
 	}
+
+	/**
+	 * Returns whether the given URI refers to a local file system URI.
+	 * @param uri The URI to check
+	 * @return <code>true</code> if the URI is a local file system location, and <code>false</code> otherwise
+	 */
+	public static boolean isFileURI(URI uri) {
+		return SCHEME_FILE.equalsIgnoreCase(uri.getScheme());
 	}
 
 	/**
@@ -92,6 +101,33 @@ public class URIUtil {
 		if (path == null)
 			return new Path(location.getSchemeSpecificPart()).lastSegment();
 		return new Path(path).lastSegment();
+	}
+
+	/**
+	 * Returns a new URI which is the same as this URI but with
+	 * the file extension removed from the path part.  If this URI does not have an 
+	 * extension, this path is returned.
+	 * <p>
+	 * The file extension portion is defined as the string
+	 * following the last period (".") character in the last segment.
+	 * If there is no period in the last segment, the path has no
+	 * file extension portion. If the last segment ends in a period,
+	 * the file extension portion is the empty string.
+	 * </p>
+	 *
+	 * @return the new URI
+	 */
+	public static URI removeFileExtension(URI uri) {
+		String lastSegment = lastSegment(uri);
+		if (lastSegment == null)
+			return uri;
+		int lastIndex = lastSegment.lastIndexOf('.');
+		if (lastIndex == -1)
+			return uri;
+		String uriString = uri.toString();
+		lastIndex = uriString.lastIndexOf('.');
+		uriString = uriString.substring(0, lastIndex);
+		return URI.create(uriString);
 	}
 
 	/*
@@ -160,16 +196,5 @@ public class URIUtil {
 	 */
 	public static URL toURL(URI uri) throws MalformedURLException {
 		return new URL(uri.toString());
-	}
-
-	public static boolean isFileURI(URI uri) {
-		return SCHEME_FILE.equalsIgnoreCase(uri.getScheme());
-	}
-
-	public static URI removeFileExtension(URI uri) throws URISyntaxException {
-		String path = uri.getPath();
-		if (path == null)
-			return new URI(uri.getScheme(), new Path(uri.getSchemeSpecificPart()).removeFileExtension().toString(), uri.getFragment());
-		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), new Path(path).removeFileExtension().toString(), uri.getQuery(), uri.getFragment());
 	}
 }
