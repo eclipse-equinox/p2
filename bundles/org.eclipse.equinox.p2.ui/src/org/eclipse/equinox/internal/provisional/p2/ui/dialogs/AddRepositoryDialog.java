@@ -57,7 +57,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 		super(parentShell);
 		this.repoFlag = repoFlag;
-		urlValidator = createURLValidator();
+		urlValidator = createRepositoryLocationValidator();
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parentShell, IProvHelpContextIds.ADD_REPOSITORY_DIALOG);
 	}
@@ -139,13 +139,13 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		return comp;
 	}
 
-	protected RepositoryLocationValidator createURLValidator() {
+	protected RepositoryLocationValidator createRepositoryLocationValidator() {
 		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
 		validator.setKnownRepositoriesFlag(repoFlag);
 		return validator;
 	}
 
-	protected RepositoryLocationValidator getURLValidator() {
+	protected RepositoryLocationValidator getRepositoryLocationValidator() {
 		return urlValidator;
 	}
 
@@ -201,7 +201,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		else {
 			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 				public void run() {
-					status[0] = getURLValidator().validateRepositoryLocation(userLocation, contactRepositories, null);
+					status[0] = getRepositoryLocationValidator().validateRepositoryLocation(userLocation, contactRepositories, null);
 				}
 			});
 

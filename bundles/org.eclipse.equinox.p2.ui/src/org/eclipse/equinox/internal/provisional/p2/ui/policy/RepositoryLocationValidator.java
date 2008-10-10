@@ -27,7 +27,6 @@ import org.eclipse.osgi.util.NLS;
  *
  */
 public abstract class RepositoryLocationValidator {
-	public static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 	public static final String FILE_PROTOCOL_PREFIX = "file:"; //$NON-NLS-1$
 	public static final String JAR_PATH_PREFIX = "jar:";//$NON-NLS-1$
 	public static final String JAR_PATH_SUFFIX = "!/"; //$NON-NLS-1$
@@ -39,10 +38,6 @@ public abstract class RepositoryLocationValidator {
 
 	public static Status getInvalidURLStatus(String urlText) {
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
-	}
-
-	public static boolean isFileURL(URI url) {
-		return url.getScheme().equals(FILE_PROTOCOL);
 	}
 
 	public static String makeJarURLString(String path) {
