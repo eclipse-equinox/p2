@@ -97,7 +97,7 @@ public class URIUtilTest extends AbstractProvisioningTest {
 	 * Tests handling of conversion from a File with %20 to URL and File to URI and equivalence of the resulting URI
 	 */
 	public void testFileWithPercent20() throws MalformedURLException, URISyntaxException {
-		File fileWithPercent20 = new File("c:\\with%20spaces\\goo");
+		File fileWithPercent20 = new File("/c:/with%20spaces/goo");
 		URI correctURI = fileWithPercent20.toURI();
 
 		URL fileURL = fileWithPercent20.toURL();
