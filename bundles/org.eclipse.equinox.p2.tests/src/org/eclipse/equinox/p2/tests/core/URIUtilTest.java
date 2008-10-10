@@ -118,8 +118,11 @@ public class URIUtilTest extends AbstractProvisioningTest {
 
 			URI uri3 = new URI("file:/foo/bar.zoo/foo");
 			assertEquals(new URI("file:/foo/bar.zoo/foo"), URIUtil.removeFileExtension(uri3));
+
+			URI uri4 = new URI("file:/C:/DOCUME~1/ADMINI~1/LOCALS~1/Temp/testRepo/plugins/org.junit_3.8.2.v200706111738.jar");
+			assertEquals(new URI("file:/C:/DOCUME~1/ADMINI~1/LOCALS~1/Temp/testRepo/plugins/org.junit_3.8.2.v200706111738"), URIUtil.removeFileExtension(uri4));
 		} catch (URISyntaxException e) {
-			System.out.println("dsad");
+			fail("URI syntax exception", e);
 		}
 	}
 }
