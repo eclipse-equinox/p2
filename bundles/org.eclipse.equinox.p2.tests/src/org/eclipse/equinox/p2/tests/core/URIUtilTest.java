@@ -107,4 +107,19 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		// we expect these to not be the same because fromString assumes a decoded URL String
 		assertNotSame("1.4", correctURI, URIUtil.fromString(fileURL.toString()));
 	}
+
+	public void testRemoveExtension() {
+		try {
+			URI uri1 = new URI("file:/foo/bar/zoo.txt");
+			assertEquals(new URI("file:/foo/bar/zoo"), URIUtil.removeFileExtension(uri1));
+
+			URI uri2 = new URI("file:/foo/bar.zoo/foo.txt");
+			assertEquals(new URI("file:/foo/bar.zoo/foo"), URIUtil.removeFileExtension(uri2));
+
+			URI uri3 = new URI("file:/foo/bar.zoo/foo");
+			assertEquals(new URI("file:/foo/bar.zoo/foo"), URIUtil.removeFileExtension(uri3));
+		} catch (URISyntaxException e) {
+			System.out.println("dsad");
+		}
+	}
 }
