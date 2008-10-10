@@ -192,7 +192,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
-		status[0] = RepositoryLocationValidator.getInvalidURLStatus(url.getText().trim());
+		status[0] = RepositoryLocationValidator.getInvalidLocationStatus(url.getText().trim());
 		final URI userLocation = getUserLocation();
 		if (url.getText().length() == 0)
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryLocationValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);

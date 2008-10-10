@@ -36,7 +36,7 @@ public abstract class RepositoryLocationValidator {
 	public static final int LOCAL_VALIDATION_ERROR = 3000;
 	public static final int ALTERNATE_ACTION_TAKEN = 3001;
 
-	public static Status getInvalidURLStatus(String urlText) {
+	public static IStatus getInvalidLocationStatus(String urlText) {
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
 	}
 

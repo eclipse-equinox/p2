@@ -68,11 +68,11 @@ public class InstallDescriptionParser {
 	private static InstallDescription initiailize(InstallDescription description, Properties properties) {
 		String property = properties.getProperty(PROP_ARTIFACT_REPOSITORY);
 		if (property != null)
-			description.setArtifactRepositories(getURLs(property));
+			description.setArtifactRepositories(getURIs(property));
 
 		property = properties.getProperty(PROP_METADATA_REPOSITORY);
 		if (property != null)
-			description.setMetadataRepositories(getURLs(property));
+			description.setMetadataRepositories(getURIs(property));
 
 		property = properties.getProperty(PROP_IS_AUTO_START);
 		if (property != null)
@@ -154,7 +154,7 @@ public class InstallDescriptionParser {
 	 * of URLs. Returns null if the given spec does not contain any URLs.
 	 * @return An array of URIs in the given spec, or <code>null</code>
 	 */
-	private static URI[] getURLs(String spec) {
+	private static URI[] getURIs(String spec) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {

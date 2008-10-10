@@ -36,7 +36,7 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, location);
 	}
 
-	protected RepositoryLocationValidator createURLValidator() {
+	protected RepositoryLocationValidator createRepositoryLocationValidator() {
 		return new RepositoryLocationValidator() {
 			public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
 				IStatus duplicateStatus = Status.OK_STATUS;

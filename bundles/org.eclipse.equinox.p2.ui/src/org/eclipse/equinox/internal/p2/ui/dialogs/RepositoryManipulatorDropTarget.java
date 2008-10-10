@@ -44,7 +44,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		try {
 			location[0] = new URI(urlText);
 		} catch (URISyntaxException e) {
-			ProvUI.reportStatus(RepositoryLocationValidator.getInvalidURLStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
+			ProvUI.reportStatus(RepositoryLocationValidator.getInvalidLocationStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
 		if (location[0] == null)
