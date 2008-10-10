@@ -72,7 +72,7 @@ public class URIUtilTest extends AbstractProvisioningTest {
 	 * Tests handling of conversion from a File with spaces to URL and File to URI and equivalence of the resulting URI
 	 */
 	public void testFileWithSpaces() throws MalformedURLException, URISyntaxException {
-		File fileWithSpaces = new File("c:\\with spaces\\goo");
+		File fileWithSpaces = new File("/c:/with spaces/goo");
 		URI correctURI = fileWithSpaces.toURI();
 		URL fileURL = fileWithSpaces.toURL();
 		URI fileURI = null;
