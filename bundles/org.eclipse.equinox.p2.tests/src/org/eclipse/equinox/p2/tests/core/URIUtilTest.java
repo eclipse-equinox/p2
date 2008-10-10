@@ -65,6 +65,46 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		if (!isWindows())
 			return;
 		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:c:/foo/bar.txt")));
-		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:/c:/foo/bar.txt")));
+		assertEquals("1.2", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:/c:/foo/bar.txt")));
+	}
+
+	/**
+	 * Tests handling of conversion from a File with spaces to URL and File to URI and equivalence of the resulting URI
+	 */
+	public void testFileWithSpaces() throws MalformedURLException, URISyntaxException {
+		File fileWithSpaces = new File("c:\\with spaces\\goo");
+		URI correctURI = fileWithSpaces.toURI();
+		URL fileURL = fileWithSpaces.toURL();
+		URI fileURI = null;
+		try {
+			fileURI = fileURL.toURI();
+			fail();
+		} catch (URISyntaxException e) {
+			fileURI = URIUtil.toURI(fileURL);
+		}
+		assertEquals("1.1", correctURI, fileURI);
+
+		try {
+			fileURI = new URI(fileURL.toString());
+			fail();
+		} catch (URISyntaxException e) {
+			fileURI = URIUtil.fromString(fileURL.toString());
+		}
+		assertEquals("1.2", correctURI, fileURI);
+	}
+
+	/**
+	 * Tests handling of conversion from a File with %20 to URL and File to URI and equivalence of the resulting URI
+	 */
+	public void testFileWithPercent20() throws MalformedURLException, URISyntaxException {
+		File fileWithPercent20 = new File("c:\\with%20spaces\\goo");
+		URI correctURI = fileWithPercent20.toURI();
+
+		URL fileURL = fileWithPercent20.toURL();
+		assertNotSame("1.1", correctURI, fileURL.toURI());
+		assertEquals("1.2", correctURI, URIUtil.toURI(fileURL));
+		assertNotSame("1.3", correctURI, new URI(fileURL.toString()));
+		// we expect these to not be the same because fromString assumes a decoded URL String
+		assertNotSame("1.4", correctURI, URIUtil.fromString(fileURL.toString()));
 	}
 }
