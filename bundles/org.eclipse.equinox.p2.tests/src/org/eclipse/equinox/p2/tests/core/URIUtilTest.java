@@ -125,4 +125,14 @@ public class URIUtilTest extends AbstractProvisioningTest {
 			fail("URI syntax exception", e);
 		}
 	}
+
+	public void testRemoveFileExtensionFromFile() throws URISyntaxException {
+		String fileName = "/c:/some.dir/afile";
+		File testFileWithExtension = new File(fileName + ".extension");
+		File testFileWithOutExtension = new File(fileName);
+		URI correctURI = testFileWithOutExtension.toURI();
+
+		assertEquals(correctURI, URIUtil.removeFileExtension(testFileWithExtension.toURI()));
+		assertEquals(correctURI, URIUtil.removeFileExtension(testFileWithOutExtension.toURI()));
+	}
 }
