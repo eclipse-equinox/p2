@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.publisher.*;
 
@@ -33,7 +33,7 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 		return new ProductAction(source, product, flavor, new File(executables));
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) {
+	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
 		super.processParameter(arg, parameter, info);
 
 		if (arg.equalsIgnoreCase("-productFile")) //$NON-NLS-1$

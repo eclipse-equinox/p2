@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URI;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
@@ -31,9 +31,9 @@ public class PublisherTask extends Task {
 	protected PublisherInfo provider = null;
 
 	protected String source;
-	protected String metadataLocation;
+	protected URI metadataLocation;
 	protected String metadataRepoName;
-	protected String artifactLocation;
+	protected URI artifactLocation;
 	protected String artifactRepoName;
 	protected boolean compress = false;
 	protected boolean inplace = false;
@@ -123,14 +123,10 @@ public class PublisherTask extends Task {
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace) {
 			File location = new File(source);
-			try {
-				if (metadataLocation == null)
-					metadataLocation = location.toURL().toExternalForm();
-				if (artifactLocation == null)
-					artifactLocation = location.toURL().toExternalForm();
-			} catch (MalformedURLException e) {
-				// ought not happen...
-			}
+			if (metadataLocation == null)
+				metadataLocation = location.toURI();
+			if (artifactLocation == null)
+				artifactLocation = location.toURI();
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		} else
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
@@ -152,7 +148,7 @@ public class PublisherTask extends Task {
 		append = Boolean.valueOf(value).booleanValue();
 	}
 
-	public void setArtifactRepository(String location) {
+	public void setArtifactRepository(URI location) {
 		artifactLocation = location;
 	}
 
@@ -213,7 +209,7 @@ public class PublisherTask extends Task {
 	public void setLauncherConfig(String value) {
 	}
 
-	public void setMetadataRepository(String location) {
+	public void setMetadataRepository(URI location) {
 		metadataLocation = location;
 	}
 

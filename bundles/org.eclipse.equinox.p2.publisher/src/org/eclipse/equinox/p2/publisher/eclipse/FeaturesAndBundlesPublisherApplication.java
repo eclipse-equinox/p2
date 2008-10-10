@@ -10,6 +10,7 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.publisher.*;
 
@@ -32,7 +33,7 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 		// nothing to do
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) {
+	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
 		if (arg.equalsIgnoreCase("-features")) //$NON-NLS-1$

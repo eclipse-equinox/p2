@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.publisher.*;
 import org.osgi.framework.Version;
@@ -34,7 +35,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			start = true;
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) {
+	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
 		super.processParameter(arg, parameter, info);
 
 		if (arg.equalsIgnoreCase("-id")) //$NON-NLS-1$

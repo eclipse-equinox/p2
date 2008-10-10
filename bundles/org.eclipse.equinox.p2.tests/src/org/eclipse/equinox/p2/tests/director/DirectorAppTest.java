@@ -137,7 +137,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		//Setup: create repos
 		File metadataRepo = new File(getTempFolder(), "DirectorApp Metadata");
 		//Valid repository
-		File artifactRepo = getTestData("2.0", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo = getTestData("2.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
 
@@ -172,7 +172,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 	public void testSingleRepoCreationArtifactInvalid() {
 		//Setup: create repos
 		//Valid repository
-		File metadataRepo = getTestData("3.0", "/testData/mirror/mirrorSourceRepo1");
+		File metadataRepo = getTestData("3.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		File artifactRepo = new File(getTempFolder(), "DirectorApp Artifact");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
@@ -255,7 +255,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
 		File metadataRepo2 = new File(getTempFolder(), "DirectorApp Metadata2");
 		//Valid repositories
-		File artifactRepo1 = getTestData("5.0", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo1 = getTestData("5.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		File artifactRepo2 = getTestData("5.1", "/testData/mirror/mirrorSourceRepo2");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
@@ -297,8 +297,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		//Setup: Create the folders
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
 		//Valid repositories
-		File metadataRepo2 = getTestData("6.0", "/testData/mirror/mirrorSourceRepo1");
-		File artifactRepo1 = getTestData("6.1", "/testData/mirror/mirrorSourceRepo1");
+		File metadataRepo2 = getTestData("6.0", "/testData/mirror/mirrorSourceRepo1 with space");
+		File artifactRepo1 = getTestData("6.1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File artifactRepo2 = getTestData("6.2", "/testData/mirror/mirrorSourceRepo2");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
@@ -338,7 +338,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		File artifactRepo2 = new File(getTempFolder(), "DirectorApp Artifact2");
 		//Valid repositories
-		File metadataRepo1 = getTestData("7.0", "/testData/mirror/mirrorSourceRepo1");
+		File metadataRepo1 = getTestData("7.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		File metadataRepo2 = getTestData("7.1", "/testData/mirror/mirrorSourceRepo2");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
@@ -380,8 +380,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		//Setup: Create the folders
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		//Valid repositories
-		File artifactRepo2 = getTestData("8.0", "/testData/mirror/mirrorSourceRepo1");
-		File metadataRepo1 = getTestData("8.1", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo2 = getTestData("8.0", "/testData/mirror/mirrorSourceRepo1 with space");
+		File metadataRepo1 = getTestData("8.1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File metadataRepo2 = getTestData("8.2", "/testData/mirror/mirrorSourceRepo2");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
@@ -422,8 +422,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
 		//Valid repositories
-		File artifactRepo2 = getTestData("9.0", "/testData/mirror/mirrorSourceRepo1");
-		File metadataRepo2 = getTestData("9.1", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo2 = getTestData("9.0", "/testData/mirror/mirrorSourceRepo1 with space");
+		File metadataRepo2 = getTestData("9.1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
 
@@ -461,8 +461,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 	 */
 	public void testSingleRepoCreationNoneInvalid() {
 		//Setup: get repositories
-		File artifactRepo = getTestData("10.0", "/testData/mirror/mirrorSourceRepo1");
-		File metadataRepo = getTestData("10.1", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo = getTestData("10.0", "/testData/mirror/mirrorSourceRepo1 with space");
+		File metadataRepo = getTestData("10.1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
 		String installIU = "invalidIU";
 
@@ -496,8 +496,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 	public void testMultipleRepoCreationNoneInvalid() {
 		//Setup: Create the folders
 		//Valid repositories
-		File artifactRepo1 = getTestData("11.0", "/testData/mirror/mirrorSourceRepo1");
-		File metadataRepo1 = getTestData("11.1", "/testData/mirror/mirrorSourceRepo1");
+		File artifactRepo1 = getTestData("11.0", "/testData/mirror/mirrorSourceRepo1 with space");
+		File metadataRepo1 = getTestData("11.1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File artifactRepo2 = getTestData("11.2", "/testData/mirror/mirrorSourceRepo2");
 		File metadataRepo2 = getTestData("11.3", "/testData/mirror/mirrorSourceRepo2");
 		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");

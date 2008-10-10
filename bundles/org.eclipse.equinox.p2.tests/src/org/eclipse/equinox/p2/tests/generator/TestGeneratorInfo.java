@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -34,7 +34,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	private String rootId;
 	private String rootVersion;
 	private String launcherConfig;
-	private URL siteLocation;
+	private URI siteLocation;
 	private boolean updateCompatibilty = false;
 
 	public TestGeneratorInfo(File baseLocation) {
@@ -110,7 +110,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		return rootVersion;
 	}
 
-	public URL getSiteLocation() {
+	public URI getSiteLocation() {
 		return siteLocation;
 	}
 
@@ -145,7 +145,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		this.rootId = value;
 	}
 
-	public void setSiteLocation(URL location) {
+	public void setSiteLocation(URI location) {
 		this.siteLocation = location;
 	}
 

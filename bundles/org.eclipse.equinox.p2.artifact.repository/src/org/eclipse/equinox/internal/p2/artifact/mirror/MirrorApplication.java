@@ -11,12 +11,14 @@
 package org.eclipse.equinox.internal.p2.artifact.mirror;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -84,7 +86,7 @@ public class MirrorApplication implements IApplication {
 
 		//must execute before initializeDestination is called
 		source = getManager().loadRepository(sourceLocation, null);
-			destination = initializeDestination();
+		destination = initializeDestination();
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
@@ -128,10 +130,14 @@ public class MirrorApplication implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-				sourceLocation = new URI(arg);
-			if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
-				destinationLocation = new URI(arg);
+			try {
+				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
+					sourceLocation = URIUtil.fromString(arg);
+				if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
+					destinationLocation = URIUtil.fromString(arg);
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Repository location (" + arg + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 	}
 }

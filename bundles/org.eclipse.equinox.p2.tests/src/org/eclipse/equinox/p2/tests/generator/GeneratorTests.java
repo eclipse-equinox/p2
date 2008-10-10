@@ -39,7 +39,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 			application.run(arguments);
 			fail("3.0 - Expected Illegal Argument Exception not thrown.");
 		} catch (IllegalArgumentException e) {
-			assertTrue("3.0 - Expected Illegal Argument", e.getMessage().equals(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, rootFolder.toURL().toExternalForm().toString())));
+			assertTrue("3.0 - Expected Illegal Argument", e.getMessage().equals(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, rootFolder.toURI())));
 		}
 
 		assertTrue("3.1 - artifact repo existance", new File(rootFolder, "artifacts.xml").exists());

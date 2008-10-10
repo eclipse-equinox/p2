@@ -12,10 +12,12 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
@@ -43,7 +45,11 @@ public class UtilTest extends AbstractProvisioningTest {
 	public void testDefaultBundlePool() throws MalformedURLException {
 		IProfile profile = createProfile("test");
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse").toExternalForm(), Util.getBundlePoolLocation(profile).toString());
+		try {
+			assertEquals(URIUtil.toURI(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse")), Util.getBundlePoolLocation(profile));
+		} catch (URISyntaxException e) {
+			fail("0.99", e);
+		}
 	}
 
 	public void testExplicitBundlePool() throws MalformedURLException {

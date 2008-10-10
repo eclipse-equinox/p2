@@ -11,7 +11,8 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplication;
@@ -19,6 +20,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
@@ -50,9 +52,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	private ServiceRegistration registrationBus;
 	protected PublisherInfo info;
 	protected String source;
-	protected String metadataLocation;
+	protected URI metadataLocation;
 	protected String metadataRepoName;
-	protected String artifactLocation;
+	protected URI artifactLocation;
 	protected String artifactRepoName;
 	//whether repository xml files should be compressed
 	protected boolean compress = false;
@@ -64,14 +66,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace) {
 			File location = new File(source);
-			try {
-				if (metadataLocation == null)
-					metadataLocation = location.toURL().toExternalForm();
-				if (artifactLocation == null)
-					artifactLocation = location.toURL().toExternalForm();
-			} catch (MalformedURLException e) {
-				// ought not happen...
-			}
+			if (metadataLocation == null)
+				metadataLocation = location.toURI();
+			if (artifactLocation == null)
+				artifactLocation = location.toURI();
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		} else
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
@@ -98,18 +96,22 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		}
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) {
-		if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
-			metadataLocation = parameter;
+	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
+		try {
+			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
+				metadataLocation = URIUtil.fromString(parameter);
+
+			if (arg.equalsIgnoreCase("-artifactRepository") | arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+				artifactLocation = URIUtil.fromString(parameter);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Repository location (" + parameter + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		if (arg.equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
 			metadataRepoName = parameter;
 
 		if (arg.equalsIgnoreCase("-source")) //$NON-NLS-1$
 			source = parameter;
-
-		if (arg.equalsIgnoreCase("-artifactRepository") | arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
-			artifactLocation = parameter;
 
 		if (arg.equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
 			artifactRepoName = parameter;
@@ -230,11 +232,11 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		}
 	}
 
-	public void setArtifactLocation(String location) {
+	public void setArtifactLocation(URI location) {
 		this.artifactLocation = location;
 	}
 
-	public void setMetadataLocation(String location) {
+	public void setMetadataLocation(URI location) {
 		this.metadataLocation = location;
 	}
 

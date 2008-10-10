@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -43,20 +42,14 @@ public class Publisher {
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository createMetadataRepository(String location, String name, boolean append, boolean compress) throws ProvisionException {
-		URI url;
-		try {
-			url = new URI(location);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, location));
-		}
+	public static IMetadataRepository createMetadataRepository(URI location, String name, boolean append, boolean compress) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		try {
-			IMetadataRepository result = manager.loadRepository(url, null);
+			IMetadataRepository result = manager.loadRepository(location, null);
 			if (result != null) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (!result.isModifiable())
-					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, url));
+					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
 				if (!append)
 					result.removeAll();
 				return result;
@@ -68,7 +61,7 @@ public class Publisher {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(url, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(result.getLocation());
 		if (result != null)
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
@@ -87,18 +80,12 @@ public class Publisher {
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository createArtifactRepository(String location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
+	public static IArtifactRepository createArtifactRepository(URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URI url;
 		try {
-			url = new URI(location);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, location));
-		}
-		try {
-			IArtifactRepository result = manager.loadRepository(url, null);
+			IArtifactRepository result = manager.loadRepository(location, null);
 			if (!result.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, url));
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 			if (reusePackedFiles)
 				result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
@@ -112,7 +99,7 @@ public class Publisher {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(url, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(result.getLocation());
 		// TODO there must be something we have to do to set up the mapping rules here...
 		//		if (inplace) {
@@ -139,17 +126,17 @@ public class Publisher {
 
 		SubMonitor sub = SubMonitor.convert(monitor, actions.length);
 		try {
-		// run all the actions
+			// run all the actions
 			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
-		for (int i = 0; i < actions.length; i++) {
+			for (int i = 0; i < actions.length; i++) {
 				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				IStatus status = actions[i].perform(info, results, monitor);
-			finalStatus.merge(status);
+				finalStatus.merge(status);
 				sub.worked(1);
-		}
-		if (!finalStatus.isOK())
-			return finalStatus;
+			}
+			if (!finalStatus.isOK())
+				return finalStatus;
 		} finally {
 			sub.done();
 		}
