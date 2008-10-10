@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -56,18 +56,36 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class RepositoryReferenceHandler extends AbstractHandler {
 
-		private final String[] required = new String[] {URL_ATTRIBUTE, TYPE_ATTRIBUTE, OPTIONS_ATTRIBUTE};
+		private final String[] required = new String[] {TYPE_ATTRIBUTE, OPTIONS_ATTRIBUTE};
 
 		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set references) {
 			super(parentHandler, REPOSITORY_REFERENCE_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
+			int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[0]);
+			int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[1]);
+			URI location = getURIAttribute(attributes);
+			if (location != null)
+				references.add(new RepositoryReference(location, type, options));
+		}
+
+		/**
+		 * Parses a repository location, accounting for backwards compatibility.
+		 * In p2 1.0 we stored URLs, in 1.1 and later we store URIs.
+		 */
+		private URI getURIAttribute(Attributes attributes) {
+			String location = attributes.getValue(URI_ATTRIBUTE);
 			try {
-				int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[1]);
-				int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[2]);
-				references.add(new RepositoryReference(new URI(values[0]), type, options));
+				if (location != null)
+					return new URI(location);
+				//if there is no URI attribute, then the URL attribute is required
+				location = parseRequiredAttributes(attributes, new String[] {URL_ATTRIBUTE})[0];
+				return URIUtil.toURI(new URL(location));
+			} catch (MalformedURLException e) {
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
 			} catch (URISyntaxException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, values[0]);
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
 			}
+			return null;
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -355,9 +373,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (children != null) {
-			scopes.add(children.getRequiredCapabilities());
+				scopes.add(children.getRequiredCapabilities());
+			}
 		}
-	}
 	}
 
 	protected class RequirementsChangeHandler extends AbstractHandler {

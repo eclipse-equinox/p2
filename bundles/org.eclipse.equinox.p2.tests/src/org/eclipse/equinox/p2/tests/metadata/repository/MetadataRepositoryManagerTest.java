@@ -20,9 +20,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -245,6 +246,38 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("=.99", e);
 		}
+	}
+
+	/**
+	 * Repository references were originally encoded as URL, but we now encode
+	 * as URI. This test ensures we handle both old and new references.
+	 */
+	public void testRepositoryReferenceCompatibility() throws URISyntaxException {
+		File site = getTestData("Repository", "/testData/metadataRepo/unencodedreporeferences/");
+		URI location = site.toURI();
+		final List references = new ArrayList();
+		ProvisioningListener referenceCollector = new SynchronousProvisioningListener() {
+			public void notify(EventObject o) {
+				if (!(o instanceof RepositoryEvent))
+					return;
+				RepositoryEvent event = (RepositoryEvent) o;
+				if (event.getKind() == RepositoryEvent.DISCOVERED)
+					references.add(event.getRepositoryLocation());
+			}
+		};
+		getEventBus().addListener(referenceCollector);
+		try {
+			manager.loadRepository(location, getMonitor());
+		} catch (ProvisionException e) {
+			fail("=.99", e);
+		} finally {
+			getEventBus().removeListener(referenceCollector);
+		}
+		assertEquals("1.0", 4, references.size());
+		assertTrue("1.1", references.contains(new URI("http://download.eclipse.org/url/with/spaces/a%20b")));
+		assertTrue("1.2", references.contains(new URI("file:/c:/tmp/url%20with%20spaces/")));
+		assertTrue("1.3", references.contains(new URI("http://download.eclipse.org/uri/with/spaces/a%20b")));
+		assertTrue("1.4", references.contains(new URI("file:/c:/tmp/uri%20with%20spaces/")));
 	}
 
 	/**

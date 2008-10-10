@@ -42,6 +42,7 @@ public interface XMLConstants {
 	public static final String DESCRIPTION_ATTRIBUTE = "description"; //$NON-NLS-1$
 	public static final String PROVIDER_ATTRIBUTE = "provider"; //$NON-NLS-1$
 	public static final String URL_ATTRIBUTE = "url"; //$NON-NLS-1$
+	public static final String URI_ATTRIBUTE = "uri"; //$NON-NLS-1$
 
 	// Constants for the license and copyright elements
 	public static final String LICENSES_ELEMENT = "licenses"; //$NON-NLS-1$
