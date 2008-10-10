@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.Assert;
@@ -53,7 +52,7 @@ public class BlobStore {
 		if (!fileBased)
 			return null;
 		new File(folderFor(uuid)).mkdir();
-		return new FileOutputStream(fileFor(uuid));
+		return new FileOutputStream(URIUtil.toFile(fileFor(uuid)));
 	}
 
 	/* (non-Javadoc)
@@ -99,21 +98,21 @@ public class BlobStore {
 			deleteBlob((byte[]) i.next());
 	}
 
-	public String fileFor(byte[] uuid) {
-		return folderFor(uuid) + bytesToHexString(uuid);
+	public URI fileFor(byte[] uuid) {
+		return URIUtil.append(folderFor(uuid), bytesToHexString(uuid));
 	}
 
 	/**
 	 * Find out the name of the directory that fits better to this UUID.
 	 */
-	public String folderFor(byte[] uuid) {
+	public URI folderFor(byte[] uuid) {
 		byte hash = hashUUIDbytes(uuid);
 		hash &= mask; // limit the range of the directory
-		return store + Integer.toHexString(hash + (128 & mask)) + "/"; // +(128 & mask) makes sure 00h is the lower value //$NON-NLS-1$
+		return URIUtil.append(store, Integer.toHexString(hash + (128 & mask)) + '/'); // +(128 & mask) makes sure 00h is the lower value
 	}
 
 	public InputStream getBlob(byte[] uuid) throws IOException {
-		return new URL(fileFor(uuid)).openStream();
+		return URIUtil.toURL(fileFor(uuid)).openStream();
 	}
 
 	/**

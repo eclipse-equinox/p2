@@ -163,17 +163,11 @@ public class MirrorSelector {
 	 * repository.  Always falls back to the given input location in case of failure
 	 * to compute mirrors. Never returns null.
 	 */
-	public synchronized String getMirrorLocation(String inputLocation) {
+	public synchronized URI getMirrorLocation(URI inputLocation) {
 		Assert.isNotNull(inputLocation);
 		if (baseURI == null)
 			return inputLocation;
-		URI relativeLocation = null;
-		try {
-			relativeLocation = baseURI.relativize(new URI(inputLocation));
-		} catch (URISyntaxException e) {
-			if (Tracing.DEBUG_MIRRORS)
-				log("Unable to make location relative: " + inputLocation, e); //$NON-NLS-1$
-		}
+		URI relativeLocation = baseURI.relativize(inputLocation);
 		//if we failed to relativize the location, we can't select a mirror
 		if (relativeLocation == null || relativeLocation.isAbsolute())
 			return inputLocation;
@@ -183,7 +177,7 @@ public class MirrorSelector {
 		if (Tracing.DEBUG_MIRRORS)
 			Tracing.debug("Selected mirror for artifact " + inputLocation + ": " + selectedMirror); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
-			return new URI(selectedMirror.locationString + relativeLocation.getPath()).toString();
+			return new URI(selectedMirror.locationString + relativeLocation.getPath());
 		} catch (URISyntaxException e) {
 			log("Unable to make location " + inputLocation + " relative to mirror " + selectedMirror.locationString, e); //$NON-NLS-1$ //$NON-NLS-2$
 		}

@@ -366,7 +366,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactMap.containsKey(key);
 	}
 
-	public synchronized String createLocation(ArtifactDescriptor descriptor) {
+	public synchronized URI createLocation(ArtifactDescriptor descriptor) {
 		if (flatButPackedEnabled(descriptor)) {
 			return getLocationForPackedButFlatArtifacts(descriptor);
 		}
@@ -374,11 +374,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			URI result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
-				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
-					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
-
+				if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION)) {
+					try {
+						return URIUtil.removeFileExtension(result);
+					} catch (URISyntaxException e) {
+						return null;
+					}
+				}
 				return result;
 			}
 		}
@@ -433,8 +437,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		//download from the best available mirror
-		String baseLocation = getLocation(descriptor);
-		String mirrorLocation = getMirror(baseLocation);
+		URI baseLocation = getLocation(descriptor);
+		if (baseLocation == null)
+			return new Status(IStatus.ERROR, Activator.ID, "Can not find the location of " + descriptor);
+		URI mirrorLocation = getMirror(baseLocation);
 		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, monitor);
 		IStatus result = reportStatus(descriptor, destination, status);
 		// if the original download went reasonably but the reportStatus found some issues
@@ -442,7 +448,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// a retry code (assuming we have more mirrors)
 		if ((status.isOK() || status.matches(IStatus.INFO | IStatus.WARNING)) && result.getSeverity() == IStatus.ERROR) {
 			if (mirrors != null) {
-				mirrors.reportResult(mirrorLocation, result);
+				mirrors.reportResult(mirrorLocation.toString(), result);
 				if (mirrors.hasValidMirror())
 					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {result}, "Retry another mirror", null); //$NON-NLS-1$
 			}
@@ -451,10 +457,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return status.getCode() == CODE_RETRY ? status : result;
 	}
 
-	private IStatus downloadArtifact(IArtifactDescriptor descriptor, String mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
-		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
+	private IStatus downloadArtifact(IArtifactDescriptor descriptor, URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
+		IStatus result = getTransport().download(mirrorLocation.toString(), destination, monitor);
 		if (mirrors != null)
-			mirrors.reportResult(mirrorLocation, result);
+			mirrors.reportResult(mirrorLocation.toString(), result);
 		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
 			return result;
 		if (monitor.isCanceled())
@@ -473,7 +479,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @param baseLocation The location of the artifact in this repository
 	 * @return the Location of the artifact in this repository, or an equivalent mirror
 	 */
-	private synchronized String getMirror(String baseLocation) {
+	private synchronized URI getMirror(URI baseLocation) {
 		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
@@ -518,10 +524,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
-		String result = getLocation(descriptor);
-		if (result == null || !result.startsWith("file:")) //$NON-NLS-1$
+		URI result = getLocation(descriptor);
+		if (result == null || !URIUtil.isFileURI(result))
 			return null;
-		return new File(result.substring(5));
+		return URIUtil.toFile(result);
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
@@ -608,12 +614,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * @see #flatButPackedEnabled(IArtifactDescriptor)
 	 */
-	private String getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
+	private URI getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
 		return mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
-	public synchronized String getLocation(IArtifactDescriptor descriptor) {
+	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
@@ -623,25 +629,29 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return getLocationForPackedButFlatArtifacts(descriptor);
 		}
 
-		// if the artifact is just a reference then return the reference location
-		if (descriptor instanceof ArtifactDescriptor) {
-			String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE);
-			if (artifactReference != null)
-				return artifactReference;
-		}
-
-		// if the descriptor is complete then use the mapping rules...
-		if (descriptor.getProcessingSteps().length == 0) {
-			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
-			if (result != null) {
-				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
-					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
-
-				return result;
+		try {
+			// if the artifact is just a reference then return the reference location
+			if (descriptor instanceof ArtifactDescriptor) {
+				String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE);
+				if (artifactReference != null) {
+					return URIUtil.fromString(artifactReference);
+				}
 			}
-		}
 
+			// if the descriptor is complete then use the mapping rules...
+			if (descriptor.getProcessingSteps().length == 0) {
+				IArtifactKey key = descriptor.getArtifactKey();
+				URI result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+				if (result != null) {
+					if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION))
+						return URIUtil.removeFileExtension(result);
+
+					return result;
+				}
+			}
+		} catch (URISyntaxException e) {
+			return null;
+		}
 		// in the end there is not enough information so return null 
 		return null;
 	}
@@ -674,14 +684,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			newDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
 
 		// Determine writing location
-		String newLocation = createLocation(newDescriptor);
-		String file = null;
-		try {
-			file = URIUtil.toFile(new URI(newLocation)).getAbsolutePath();
-		} catch (URISyntaxException e1) {
-			// This should not happen
-			Assert.isTrue(false, "Unexpected failure: " + e1); //$NON-NLS-1$
-		}
+		URI newLocation = createLocation(newDescriptor);
+		if (newLocation == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "No location for " + newDescriptor));
+		String file = URIUtil.toFile(newLocation).getAbsolutePath();
 
 		// TODO at this point we have to assume that the repository is file-based.  Eventually 
 		// we should end up with writeable URLs...
