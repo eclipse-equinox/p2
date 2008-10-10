@@ -150,8 +150,8 @@ public class URIUtil {
 				return null;
 			//assume all illegal characters have been properly encoded, so use URI class to unencode
 			return new File(uri);
-		} catch (Exception e) {
-			//URL contains unencoded characters
+		} catch (IllegalArgumentException e) {
+			//File constructor does not support non-hierarchical URI
 			String path = uri.getPath();
 			//path is null for non-hierarchical URI such as file:c:/tmp
 			if (path == null)
