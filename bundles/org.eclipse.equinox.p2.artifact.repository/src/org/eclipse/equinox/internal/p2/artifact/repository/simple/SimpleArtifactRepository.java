@@ -377,11 +377,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			URI result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION)) {
-					try {
-						return URIUtil.removeFileExtension(result);
-					} catch (URISyntaxException e) {
-						return null;
-					}
+					return URIUtil.removeFileExtension(result);
 				}
 				return result;
 			}
