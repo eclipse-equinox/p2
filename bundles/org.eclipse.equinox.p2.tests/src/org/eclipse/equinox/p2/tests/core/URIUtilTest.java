@@ -53,6 +53,8 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		assertEquals("1.1", new URI("http://foo.bar/a%20b"), URIUtil.toURI(new URL("http://foo.bar/a b")));
 		assertEquals("1.2", new URI("http://foo.bar/a#b%20c"), URIUtil.toURI(new URL("http://foo.bar/a#b c")));
 
+		//% characters
+		assertEquals("1.1", new URI("http://foo.bar/a%25b"), URIUtil.toURI(new URL("http://foo.bar/a%b")));
 	}
 
 	/**
@@ -63,5 +65,6 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		if (!isWindows())
 			return;
 		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:c:/foo/bar.txt")));
+		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:/c:/foo/bar.txt")));
 	}
 }
