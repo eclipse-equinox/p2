@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.ant;
 
+import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IncrementalGenerator;
@@ -55,7 +57,11 @@ public class GeneratorTask extends Task {
 	public void setArtifactRepository(String location) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
-		generator.setArtifactLocation(location);
+		try {
+			generator.setArtifactLocation(URIUtil.fromString(location));
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Specified artifact repository location (" + location + ") is not a valid URI. ");
+		}
 	}
 
 	public void setArtifactRepositoryName(String name) {
@@ -133,7 +139,11 @@ public class GeneratorTask extends Task {
 	public void setMetadataRepository(String location) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
-		generator.setMetadataLocation(location);
+		try {
+			generator.setMetadataLocation(URIUtil.fromString(location));
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Specified metadata repository location (" + location + ") is not a valid URI. ");
+		}
 	}
 
 	public void setMetadataRepositoryName(String name) {

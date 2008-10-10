@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		//load all the repositories
-		sourceRepoLocation = getTestData("1.0", "/testData/mirror/mirrorSourceRepo1");
+		sourceRepoLocation = getTestData("1.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		bystanderRepoLocation = getTestData("2.0", "/testData/mirror/mirrorSourceRepo2");
 
 		//create destination location
@@ -78,7 +79,12 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 			public Map getArguments() {
 				Map arguments = new HashMap();
 
-				arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toURI().toString(), "-destination", destination.toURI().toString(), append ? "-append" : ""});
+				try {
+					arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""});
+				} catch (MalformedURLException e) {
+					// shouldn't happen
+					throw new IllegalArgumentException(e);
+				}
 
 				return arguments;
 			}

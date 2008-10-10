@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -45,7 +46,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		//load all the repositories
-		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1");
+		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		sourceRepo2Location = getTestData("0.1", "/testData/mirror/mirrorSourceRepo2");
 		sourceRepo3Location = getTestData("0.2", "/testData/mirror/mirrorSourceRepo3");
 		sourceRepo4Location = getTestData("0.3", "/testData/mirror/mirrorSourceRepo4");
@@ -120,7 +121,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void basicRunMirrorApplication(String message, URI source, URI destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toString(), "-destination", destination.toString(), append ? "-append" : ""};
+		String[] args = new String[] {"-source", URIUtil.toURL(source).toExternalForm(), "-destination", URIUtil.toURL(destination).toExternalForm(), append ? "-append" : ""};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}

@@ -11,9 +11,11 @@
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 
 /**
  * An application that performs mirroring of artifacts between repositories.
@@ -111,22 +113,27 @@ public class MirrorApplication implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
-				metadataSourceLocation = new URI(arg);
-				artifactSourceLocation = new URI(arg);
+			try {
+				if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
+					metadataSourceLocation = URIUtil.fromString(arg);
+					artifactSourceLocation = URIUtil.fromString(arg);
+				}
+				if (args[i - 1].equalsIgnoreCase("-destination")) { //$NON-NLS-1$
+					metadataDestinationLocation = URIUtil.fromString(arg);
+					artifactDestinationLocation = URIUtil.fromString(arg);
+				}
+				if (args[i - 1].equalsIgnoreCase("-metadatadestination")) //$NON-NLS-1$
+					metadataDestinationLocation = URIUtil.fromString(arg);
+				if (args[i - 1].equalsIgnoreCase("-metadatasource")) //$NON-NLS-1$
+					metadataSourceLocation = URIUtil.fromString(arg);
+				if (args[i - 1].equalsIgnoreCase("-artifactdestination")) //$NON-NLS-1$
+					artifactDestinationLocation = URIUtil.fromString(arg);
+				if (args[i - 1].equalsIgnoreCase("-artifactsource")) //$NON-NLS-1$
+					artifactSourceLocation = URIUtil.fromString(arg);
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Repository location (" + arg + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			if (args[i - 1].equalsIgnoreCase("-destination")) { //$NON-NLS-1$
-				metadataDestinationLocation = new URI(arg);
-				artifactDestinationLocation = new URI(arg);
-			}
-			if (args[i - 1].equalsIgnoreCase("-metadatadestination")) //$NON-NLS-1$
-				metadataDestinationLocation = new URI(arg);
-			if (args[i - 1].equalsIgnoreCase("-metadatasource")) //$NON-NLS-1$
-				metadataSourceLocation = new URI(arg);
-			if (args[i - 1].equalsIgnoreCase("-artifactdestination")) //$NON-NLS-1$
-				artifactDestinationLocation = new URI(arg);
-			if (args[i - 1].equalsIgnoreCase("-artifactsource")) //$NON-NLS-1$
-				artifactSourceLocation = new URI(arg);
+
 			if (args[i - 1].equalsIgnoreCase("-ius")) //$NON-NLS-1$
 				if (arg.equalsIgnoreCase("all")) //$NON-NLS-1$ 
 					iuSpecs = new String[0];

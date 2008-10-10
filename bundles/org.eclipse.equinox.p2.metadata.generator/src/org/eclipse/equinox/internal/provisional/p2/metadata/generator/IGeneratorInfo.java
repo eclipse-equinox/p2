@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -95,7 +95,7 @@ public interface IGeneratorInfo {
 	 * generating for an update site.
 	 * @return The location of site.xml, or <code>null</code>
 	 */
-	public URL getSiteLocation();
+	public URI getSiteLocation();
 
 	public boolean publishArtifactRepository();
 

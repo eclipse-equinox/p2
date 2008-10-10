@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
@@ -104,7 +103,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private String launcherConfig;
 	private String versionAdvice;
 
-	private URL siteLocation;
+	private URI siteLocation;
 
 	private boolean reuseExistingPack200Files = false;
 
@@ -499,7 +498,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return productFile;
 	}
 
-	public URL getSiteLocation() {
+	public URI getSiteLocation() {
 		return siteLocation;
 	}
 
@@ -631,7 +630,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	/**
 	 * Sets the location of site.xml if applicable.
 	 */
-	public void setSiteLocation(URL location) {
+	public void setSiteLocation(URI location) {
 		this.siteLocation = location;
 	}
 

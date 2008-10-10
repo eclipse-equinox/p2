@@ -9,7 +9,8 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -1101,7 +1102,7 @@ public class Generator {
 	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
 		IMetadataRepository metadataRepo = info.getMetadataRepository();
 		try {
-			URI associateLocation = new URI(location);
+			URI associateLocation = URIUtil.fromString(location);
 			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
@@ -1201,13 +1202,13 @@ public class Generator {
 	 */
 	protected Map getFeatureToCategoryMappings() {
 		HashMap mappings = new HashMap();
-		URL siteLocation = info.getSiteLocation();
+		URI siteLocation = info.getSiteLocation();
 		if (siteLocation == null)
 			return mappings;
 		InputStream input;
 		SiteModel site = null;
 		try {
-			input = new BufferedInputStream(siteLocation.openStream());
+			input = new BufferedInputStream(URIUtil.toURL(siteLocation).openStream());
 			site = new DefaultSiteParser().parse(input);
 		} catch (FileNotFoundException e) {
 			//don't complain if the update site is not present
@@ -1234,8 +1235,8 @@ public class Generator {
 			for (int i = 0; i < associatedSites.length; i++)
 				generateSiteReference(associatedSites[i].getURL(), null, true);
 
-		if (PROTOCOL_FILE.equals(siteLocation.getProtocol())) {
-			File siteFile = new File(siteLocation.getFile());
+		if (PROTOCOL_FILE.equals(siteLocation.getScheme())) {
+			File siteFile = URIUtil.toFile(siteLocation);
 			if (siteFile.exists()) {
 				File siteParent = siteFile.getParentFile();
 

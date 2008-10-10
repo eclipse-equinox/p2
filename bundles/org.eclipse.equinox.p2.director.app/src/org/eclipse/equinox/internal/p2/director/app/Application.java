@@ -19,8 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -307,10 +306,10 @@ public class Application implements IApplication {
 				bundlePool = new Path(arg).toOSString();
 
 			if (opt.equalsIgnoreCase("-metadataRepository") || opt.equalsIgnoreCase("-metadataRepositories") || opt.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				metadataRepositoryLocations = getURLs(arg);
+				metadataRepositoryLocations = getURIs(arg);
 
 			if (opt.equalsIgnoreCase("-artifactRepository") || opt.equalsIgnoreCase("-artifactRepositories") || opt.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				artifactRepositoryLocations = getURLs(arg);
+				artifactRepositoryLocations = getURIs(arg);
 
 			if (opt.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				flavor = arg;
@@ -499,16 +498,16 @@ public class Application implements IApplication {
 		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new ProvisioningContext(), new NullProgressMonitor());
 	}
 
-	private static URI[] getURLs(String spec) {
+	private static URI[] getURIs(String spec) {
 		if (spec == null)
 			return null;
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
-				result.add(new URI(urlSpecs[i]));
+				result.add(URIUtil.fromString(urlSpecs[i]));
 			} catch (URISyntaxException e) {
-				NLS.bind(Messages.Ignored_repo, urlSpecs[i]);
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Ignored_repo, urlSpecs[i])));
 			}
 		}
 		return (URI[]) result.toArray(new URI[result.size()]);

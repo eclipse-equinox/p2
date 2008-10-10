@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
 import java.io.File;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
@@ -55,9 +56,9 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ServiceRegistration registrationBus;
 	private Generator.GeneratorResult incrementalResult = null;
 	private boolean generateRootIU = true;
-	private String metadataLocation;
+	private URI metadataLocation;
 	private String metadataRepoName;
-	private String artifactLocation;
+	private URI artifactLocation;
 	private String artifactRepoName;
 	private String operation;
 	private String argument;
@@ -105,12 +106,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		if (artifactLocation == null)
 			return;
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URI location;
-		try {
-			location = new URI(artifactLocation);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
-		}
+		URI location = artifactLocation;
 
 		String repositoryName = (artifactRepoName != null && artifactRepoName.length() > 0) ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
 		Map properties = new HashMap(1);
@@ -152,12 +148,8 @@ public class EclipseGeneratorApplication implements IApplication {
 		File location = provider.getBaseLocation();
 		if (location == null)
 			location = provider.getBundleLocations()[0];
-		try {
-			metadataLocation = location.toURL().toExternalForm();
-			artifactLocation = location.toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			// ought not happen...
-		}
+		metadataLocation = location.toURI();
+		artifactLocation = location.toURI();
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
 		provider.setAppend(true);
@@ -167,12 +159,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		if (metadataLocation == null)
 			return;
-		URI location;
-		try {
-			location = new URI(metadataLocation);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, metadataLocation));
-		}
+		URI location = metadataLocation;
 
 		// 	First try to create a simple repo, this will fail if one already exists
 		//  We try creating a repo first instead of just loading what is there because we don't want a repo based
@@ -271,14 +258,21 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-launcherConfig")) //$NON-NLS-1$
 				provider.setLauncherConfig(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
-				metadataLocation = arg;
-
 			if (args[i - 1].equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
 				metadataRepoName = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
-				artifactLocation = arg;
+			try {
+				if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
+					metadataLocation = URIUtil.fromString(arg);
+
+				if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+					artifactLocation = URIUtil.fromString(arg);
+
+				if (args[i - 1].equalsIgnoreCase("-site")) //$NON-NLS-1$
+					provider.setSiteLocation(URIUtil.fromString(arg));
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Repository location (" + arg + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			if (args[i - 1].equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
 				artifactRepoName = arg;
@@ -307,8 +301,6 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-p2.os")) //$NON-NLS-1$
 				provider.setOS(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-site")) //$NON-NLS-1$
-				provider.setSiteLocation(new URL(arg));
 		}
 	}
 
@@ -412,7 +404,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		this.base = base;
 	}
 
-	public void setArtifactLocation(String location) {
+	public void setArtifactLocation(URI location) {
 		this.artifactLocation = location;
 	}
 
@@ -429,7 +421,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		this.features = features;
 	}
 
-	public void setMetadataLocation(String location) {
+	public void setMetadataLocation(URI location) {
 		this.metadataLocation = location;
 	}
 
