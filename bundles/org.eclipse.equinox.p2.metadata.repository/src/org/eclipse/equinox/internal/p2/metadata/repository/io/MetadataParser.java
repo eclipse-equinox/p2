@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import java.net.*;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -63,29 +62,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			String[] values = parseRequiredAttributes(attributes, required);
 			int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[0]);
 			int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[1]);
-			URI location = getURIAttribute(attributes);
+			URI location = parseURIAttribute(attributes, true);
 			if (location != null)
 				references.add(new RepositoryReference(location, type, options));
-		}
-
-		/**
-		 * Parses a repository location, accounting for backwards compatibility.
-		 * In p2 1.0 we stored URLs, in 1.1 and later we store URIs.
-		 */
-		private URI getURIAttribute(Attributes attributes) {
-			String location = attributes.getValue(URI_ATTRIBUTE);
-			try {
-				if (location != null)
-					return new URI(location);
-				//if there is no URI attribute, then the URL attribute is required
-				location = parseRequiredAttributes(attributes, new String[] {URL_ATTRIBUTE})[0];
-				return URIUtil.toURI(new URL(location));
-			} catch (MalformedURLException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
-			} catch (URISyntaxException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
-			}
-			return null;
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -808,19 +787,19 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	 */
 	protected class LicenseHandler extends TextHandler {
 
-		String url = null;
+		URI location = null;
 
 		private final List licenses;
 
 		public LicenseHandler(AbstractHandler parentHandler, Attributes attributes, List licenses) {
 			super(parentHandler, LICENSE_ELEMENT);
-			url = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
+			location = parseURIAttribute(attributes, false);
 			this.licenses = licenses;
 		}
 
 		protected void finished() {
 			if (isValidXML()) {
-				licenses.add(new License(url, getText()));
+				licenses.add(new License(location, getText()));
 			}
 		}
 	}
@@ -830,17 +809,17 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	 */
 	protected class CopyrightHandler extends TextHandler {
 
-		String url = null;
+		URI location = null;
 		private Copyright copyright;
 
 		public CopyrightHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, COPYRIGHT_ELEMENT);
-			url = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
+			location = parseURIAttribute(attributes, false);
 		}
 
 		protected void finished() {
 			if (isValidXML()) {
-				copyright = new Copyright(url, getText());
+				copyright = new Copyright(location, getText());
 			}
 		}
 

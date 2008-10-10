@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,9 +29,9 @@ public class License {
 	private final String body;
 
 	/**
-	 * The <code>url</code> is the URL of the license.
+	 * The <code>location</code> is the URL of the license.
 	 */
-	private URL url;
+	private URI location;
 
 	/**
 	 * The <code>digest</code> is the cached message digest of the normalized body
@@ -41,30 +40,27 @@ public class License {
 
 	/**
 	 * Creates a new license object which is identified by users using the <code>body</code> field.
-	 * The body should contain either the full text of the license or an annotation for a license
-	 * fully specified in the URL at urlString.
-	 * @param urlString the string describing the URL of the full license, may be <code>null</code>
+	 * The body should contain either the full text of the license or an summary for a license
+	 * fully specified in the given location.
+	 * 
+	 * @param location the location of a document containing the full license, or <code>null</code>
 	 * @param body the license body, cannot be <code>null</code>
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
-	public License(String urlString, String body) {
+	public License(URI location, String body) {
 		if (body == null)
 			throw new IllegalArgumentException("body cannot be null"); //$NON-NLS-1$
-		if (urlString != null)
-			try {
-				url = new URL(urlString);
-			} catch (MalformedURLException e) {
-				url = null;
-			}
 		this.body = body;
+		this.location = location;
 	}
 
 	/**
-	 * Returns the URL containing the full description of the license.
-	 * May be <code>null</code>.
+	 * Returns the location of a document containing the full license.
+	 * 
+	 * @return the location of the license document, or <code>null</code>
 	 */
-	public URL getURL() {
-		return url;
+	public URI getLocation() {
+		return location;
 	}
 
 	/**

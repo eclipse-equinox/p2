@@ -990,7 +990,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail(message);
 		}
 		assertEquals(message, cpyrt1.getBody(), cpyrt2.getBody());
-		assertEquals(message, cpyrt1.getURL().toExternalForm(), cpyrt2.getURL().toExternalForm());
+		assertEquals(message, cpyrt1.getLocation().toString(), cpyrt2.getLocation().toString());
 	}
 
 	/**

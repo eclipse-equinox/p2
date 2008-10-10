@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -50,19 +49,23 @@ public class IULicensePropertyPage extends IUPropertyPage {
 			text.setEditable(false);
 
 			// If an URL was specified, provide a link to it
-			String filename = (license.getURL() != null) ? license.getURL().getFile() : null;
+			String filename = (license.getLocation() != null) ? license.getLocation().getPath() : null;
 			if (filename != null && (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				Label label = new Label(composite, SWT.NONE);
 				label.setText(ProvUIMessages.IULicensePropertyPage_ViewLicenseLabel);
 				// Create a link to the license URL
 				Link link = new Link(composite, SWT.LEFT | SWT.WRAP);
-				link.setText(NLS.bind("<a>{0}</a>", license.getURL().toExternalForm())); //$NON-NLS-1$
+				link.setText(NLS.bind("<a>{0}</a>", license.getLocation().toString())); //$NON-NLS-1$
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
 				link.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
-						showURL(license.getURL());
+						try {
+							showURL(license.getLocation().toURL());
+						} catch (Exception e1) {
+							//can't browse invalid location
+						}
 					}
 				});
 			}

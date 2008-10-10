@@ -13,11 +13,14 @@
 package org.eclipse.equinox.spi.p2.publisher;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
@@ -661,9 +664,9 @@ public class PublisherHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		if (feature.getApplication() != null)
 			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
 		if (feature.getPlugin() != null)
@@ -769,9 +772,9 @@ public class PublisherHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -839,9 +842,9 @@ public class PublisherHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -1308,6 +1311,20 @@ public class PublisherHelper {
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();
+	}
+
+	/**
+	 * Returns a URI corresponding to the given URL in string form, or null
+	 * if a well formed URI could not be created.
+	 */
+	private static URI toURIOrNull(String url) {
+		if (url == null)
+			return null;
+		try {
+			return URIUtil.fromString(url);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
 	// Return a map from locale to property set for the manifest localizations

@@ -160,7 +160,7 @@ public class MetadataRepositoryIO {
 
 		private void writeRepositoryReference(RepositoryReference reference) {
 			start(REPOSITORY_REFERENCE_ELEMENT);
-			attribute(URL_ATTRIBUTE, reference.Location.toString());
+			attribute(URI_ATTRIBUTE, reference.Location.toString());
 			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.Type));
 			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.Options));
 			end(REPOSITORY_REFERENCE_ELEMENT);

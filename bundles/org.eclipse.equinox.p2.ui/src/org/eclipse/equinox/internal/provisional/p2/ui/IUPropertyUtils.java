@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-
 import java.lang.ref.SoftReference;
-import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -58,8 +56,7 @@ public class IUPropertyUtils {
 			return license;
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
-		URL url = license.getURL();
-		return new License((url != null ? url.toExternalForm() : null), body);
+		return new License(license.getLocation(), body);
 	}
 
 	public static Copyright getCopyright(IInstallableUnit iu, Locale locale) {
@@ -69,8 +66,7 @@ public class IUPropertyUtils {
 			return copyright;
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
-		URL url = copyright.getURL();
-		return new Copyright((url != null ? url.toExternalForm() : null), body);
+		return new Copyright(copyright.getLocation(), body);
 	}
 
 	public static String getIUProperty(IInstallableUnit iu, String propertyKey, Locale locale) {

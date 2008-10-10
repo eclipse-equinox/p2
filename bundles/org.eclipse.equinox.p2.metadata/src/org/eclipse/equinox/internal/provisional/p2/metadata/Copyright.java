@@ -10,55 +10,51 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
 /**
  * The <code>Copyright</code> class represents a software copyright.  A copyright has 
- * required body text which may be the full text or an annotation.  An optional URL field can be specified
+ * required body text which may be the full text or a summary.  An optional location field can be specified
  * which links to full text.  
  */
 public class Copyright {
 	/**
-	 * The <code>body</code> contains the descriptive text for the coypright. This may
+	 * The <code>body</code> contains the descriptive text for the copyright. This may
 	 * be a summary for a copyright specified in a URL.
 	 */
 	private final String body;
 
 	/**
-	 * The <code>url</code> is the URL of the copyright.
+	 * The <code>location</code> is the location of a document containing a copyright notice.
 	 */
-	private URL url;
+	private URI location;
 
 	/**
-	 * Creates a new copyright.
-	 * The body should contain the full text of the copyright.
-	 * @param urlString the string describing the URL of the full copyright text, may be <code>null</code>
+	 * Creates a new copyright. The body must contain the full text of the copyright.
+	 * 
+	 * @param location the location of a document containing the copyright notice, or <code>null</code>
 	 * @param body the copyright body, cannot be <code>null</code>
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
-	public Copyright(String urlString, String body) {
+	public Copyright(URI location, String body) {
 		if (body == null)
 			throw new IllegalArgumentException("body cannot be null"); //$NON-NLS-1$
-		if (urlString != null)
-			try {
-				url = new URL(urlString);
-			} catch (MalformedURLException e) {
-				url = null;
-			}
+		this.location = location;
 		this.body = body;
 	}
 
 	/**
-	 * Returns the URL containing the full description of the license.
-	 * May be <code>null</code>.
+	 * Returns the location of a document containing the copyright notice.
+	 * 
+	 * @return The location of the copyright notice, or <code>null</code>
 	 */
-	public URL getURL() {
-		return url;
+	public URI getLocation() {
+		return location;
 	}
 
 	/**
 	 * Returns the license body.
+	 * 
 	 * @return the license body, never <code>null</code>
 	 */
 	public String getBody() {

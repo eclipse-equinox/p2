@@ -15,8 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
@@ -381,9 +380,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
-		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+		if (feature.getCopyright() != null) {
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+		}
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 
@@ -430,6 +430,20 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
+	/**
+	 * Returns a URI corresponding to the given URL in string form, or null
+	 * if a well formed URI could not be created.
+	 */
+	private URI toURIOrNull(String url) {
+		if (url == null)
+			return null;
+		try {
+			return URIUtil.fromString(url);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
 	private void addExtraProperties(InstallableUnitDescription iu, Properties extraProperties) {
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -456,9 +470,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -525,9 +539,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();

@@ -324,13 +324,4 @@ public class MetadataFactory {
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
 		return new UpdateDescriptor(id, range, severity, description);
 	}
-
-	public static License createLicense(String url, String licenseBody) {
-		return new License(url, licenseBody);
-	}
-
-	public static Copyright createCopyright(String url, String copyrightBody) {
-		return new Copyright(url, copyrightBody);
-	}
-
 }
