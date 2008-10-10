@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.internal.p2.update.Site;
@@ -47,15 +47,15 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 		return artifactProps;
 	}
 
-	void setProperties(File location, long timestamp, URL reference) {
+	void setProperties(File location, long timestamp, URI reference) {
 		setProperties(location, timestamp, reference, null);
 	}
 
-	void setProperties(File location, long timestamp, URL reference, String linkFile) {
+	void setProperties(File location, long timestamp, URI reference, String linkFile) {
 		if (reference == null)
 			artifactProps.remove(RepositoryListener.ARTIFACT_REFERENCE);
 		else
-			artifactProps.setProperty(RepositoryListener.ARTIFACT_REFERENCE, reference.toExternalForm());
+			artifactProps.setProperty(RepositoryListener.ARTIFACT_REFERENCE, reference.toString());
 		if (location.isDirectory())
 			artifactProps.setProperty(RepositoryListener.ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		else

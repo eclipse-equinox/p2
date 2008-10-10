@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -155,11 +154,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(file);
 		if (bundleDescription == null)
 			return false;
-		try {
-			advice.setProperties(file, file.lastModified(), file.toURL());
-		} catch (MalformedURLException e) {
-			// should never happen
-		}
+
+		advice.setProperties(file, file.lastModified(), file.toURI());
 		return publish(new BundlesAction(new BundleDescription[] {bundleDescription}), isAddition);
 		// TODO see bug 222370
 		// we only want to return the bundle IU so must exclude all fragment IUs
@@ -167,12 +163,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private boolean processFeature(File file, boolean isAddition) {
-		try {
-			String link = (String) metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
-			advice.setProperties(file, file.lastModified(), file.toURL(), link);
-		} catch (MalformedURLException e) {
-			// should never happen
-		}
+		String link = (String) metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
+		advice.setProperties(file, file.lastModified(), file.toURI(), link);
 		return publish(new FeaturesAction(new File[] {file}), isAddition);
 	}
 
