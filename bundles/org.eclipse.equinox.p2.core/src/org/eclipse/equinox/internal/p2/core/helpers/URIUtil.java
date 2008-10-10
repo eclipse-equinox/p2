@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.File;
 import java.net.*;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Path;
 
 /**
@@ -67,19 +66,19 @@ public class URIUtil {
 		try {
 			return new URI(uriString);
 		} catch (URISyntaxException e) {
-			int colon = uriString.indexOf(':');
-			int hash = uriString.lastIndexOf('#');
-			boolean noHash = hash < 0;
-			if (noHash)
-				hash = uriString.length();
-			String scheme = colon < 0 ? null : uriString.substring(0, colon);
-			String ssp = uriString.substring(colon + 1, hash);
-			String fragment = noHash ? null : uriString.substring(hash + 1);
-			//use java.io.File for contructing file: URIs
-			if (scheme != null && scheme.equals(SCHEME_FILE))
-				return new File(uriString.substring(5)).toURI();
-			return new URI(scheme, ssp, fragment);
-		}
+		int colon = uriString.indexOf(':');
+		int hash = uriString.lastIndexOf('#');
+		boolean noHash = hash < 0;
+		if (noHash)
+			hash = uriString.length();
+		String scheme = colon < 0 ? null : uriString.substring(0, colon);
+		String ssp = uriString.substring(colon + 1, hash);
+		String fragment = noHash ? null : uriString.substring(hash + 1);
+		//use java.io.File for contructing file: URIs
+		if (scheme != null && scheme.equals(SCHEME_FILE))
+			return new File(uriString.substring(5)).toURI();
+		return new URI(scheme, ssp, fragment);
+	}
 	}
 
 	/**
@@ -113,36 +112,6 @@ public class URIUtil {
 	}
 
 	/**
-	 * Returns the canonical form of the given URL. This eliminates extra slashes
-	 * and converts local file system paths to canonical form for file: URLs. If any
-	 * failure occurs while converting to canonical form the original URL is returned.
-	 * @param location The location to convert to canonical form; must not be null
-	 * @return The location in canonical form
-	 */
-	public static URI toCanonicalURL2(URI location) {
-		Assert.isNotNull(location);
-		File file = toFile(location);
-		if (file != null) {
-			try {
-				return file.getCanonicalFile().toURI();
-			} catch (Exception e) {
-				//we made a best effort, just return the original location
-				return location;
-			}
-		}
-		//non-local URL, just remove trailing slash
-		String external = location.toString();
-		if (!external.endsWith("/")) //$NON-NLS-1$
-			return location;
-		try {
-			return new URI(external.substring(0, external.length() - 1));
-		} catch (URISyntaxException e) {
-			//ignore and return original location
-			return location;
-		}
-	}
-
-	/**
 	 * Returns the URI as a local file, or <code>null</code> if the given
 	 * URI does not represent a local file.
 	 * @param uri The URI to return the file for
@@ -169,10 +138,14 @@ public class URIUtil {
 	 * not properly encoded (for example they contain unencoded space characters).
 	 */
 	public static URI toURI(URL url) throws URISyntaxException {
-		//go through java.io.File for file: URLs to ensure they are properly encoded
-		File file = URLUtil.toFile(url);
-		if (file != null)
-			return file.toURI();
+		//URL behaves differently across platforms so for file: URLs we parse from string form
+		if (SCHEME_FILE.equals(url.getProtocol())) {
+			String pathString = url.toExternalForm().substring(5);
+			//ensure there is a leading slash to handle common malformed URLs such as file:c:/tmp
+			if (pathString.indexOf('/') != 0)
+				pathString = '/' + pathString;
+			return new URI(SCHEME_FILE, pathString, null);
+		}
 		try {
 			return new URI(url.toExternalForm());
 		} catch (URISyntaxException e) {
