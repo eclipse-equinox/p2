@@ -161,4 +161,15 @@ public class URIUtil {
 	public static URL toURL(URI uri) throws MalformedURLException {
 		return new URL(uri.toString());
 	}
+
+	public static boolean isFileURI(URI uri) {
+		return SCHEME_FILE.equalsIgnoreCase(uri.getScheme());
+	}
+
+	public static URI removeFileExtension(URI uri) throws URISyntaxException {
+		String path = uri.getPath();
+		if (path == null)
+			return new URI(uri.getScheme(), new Path(uri.getSchemeSpecificPart()).removeFileExtension().toString(), uri.getFragment());
+		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), new Path(path).removeFileExtension().toString(), uri.getQuery(), uri.getFragment());
+	}
 }
