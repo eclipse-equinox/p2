@@ -74,20 +74,6 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 			delete(installFolder);
 	}
 
-	private void delete(File toDelete) {
-		if (toDelete.isFile()) {
-			toDelete.delete();
-			return;
-		}
-		if (toDelete.isDirectory()) {
-			File[] children = toDelete.listFiles();
-			for (int i = 0; i < children.length; i++) {
-				delete(children[i]);
-			}
-			toDelete.delete();
-		}
-	}
-
 	public File getInstallFolder() {
 		return installFolder;
 	}

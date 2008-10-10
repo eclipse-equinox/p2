@@ -59,6 +59,17 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
+	public static boolean delete(File file) {
+		if (!file.exists())
+			return true;
+		if (file.isDirectory()) {
+			File[] children = file.listFiles();
+			for (int i = 0; i < children.length; i++)
+				delete(children[i]);
+		}
+		return file.delete();
+	}
+	
 	public FrameworkAdmin getEquinoxFrameworkAdmin() throws BundleException {
 		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";

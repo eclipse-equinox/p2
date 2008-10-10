@@ -27,7 +27,7 @@ public class RemovingABundle extends FwkAdminAndSimpleConfiguratorTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		Manipulator manipulator = createMinimalConfiguration(Activator.getContext().getDataFile(RemovingABundle.class.getName()).getAbsolutePath());
+		Manipulator manipulator = createMinimalConfiguration(RemovingABundle.class.getName());
 		manipulator.getConfigData().addBundle(new BundleInfo("bundle_1", "1.0.0", FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 4, false));
 		manipulator.save(false);
 
