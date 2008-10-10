@@ -53,7 +53,15 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		assertEquals("1.1", new URI("http://foo.bar/a%20b"), URIUtil.toURI(new URL("http://foo.bar/a b")));
 		assertEquals("1.2", new URI("http://foo.bar/a#b%20c"), URIUtil.toURI(new URL("http://foo.bar/a#b c")));
 
-		//missing slash
+	}
+
+	/**
+	 * Tests handling of Absolute file system paths on Windows incorrectly encoded as
+	 * relative URIs (file:c:/tmp).
+	 */
+	public void testWindowsPaths() throws MalformedURLException, URISyntaxException {
+		if (!isWindows())
+			return;
 		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:c:/foo/bar.txt")));
 	}
 }

@@ -1059,6 +1059,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
+	 * Returns true if running on Windows, and false otherwise.
+	 */
+	protected boolean isWindows() {
+		return Platform.getOS().equals(Platform.OS_WIN32);
+	}
+
+	/**
 	 * Ensures 2 inputed Maps representing repository properties are equivalent
 	 * A special assert is needed as the time stamp is expected to change
 	 */
