@@ -162,7 +162,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			if (repo instanceof ExtensionLocationMetadataRepository) {
 				try {
 					File one = ExtensionLocationMetadataRepository.getBaseDirectory(repo.getLocation());
-					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URI(urlString));
+					File two = ExtensionLocationMetadataRepository.getBaseDirectory(URIUtil.fromString(urlString));
 					if (one.equals(two))
 						return repo;
 				} catch (ProvisionException e) {
@@ -199,7 +199,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 						}
 					}
 					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
-					URI location = new URI(eclipseExtensionURL);
+					URI location = URIUtil.fromString(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 
@@ -222,7 +222,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 						} catch (ProvisionException inner) {
 							// handle the case where someone has removed the extension location from
 							// disk. Note: we use the siteURL not the eclipseextensionURL
-							URI fileURI = new URI(siteURL);
+							URI fileURI = URIUtil.fromString(siteURL);
 							File file = URIUtil.toFile(fileURI);
 							if (file != null && !file.exists()) {
 								toBeRemoved.add(site);

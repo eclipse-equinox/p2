@@ -117,7 +117,12 @@ public class PlatformConfigurationWrapper {
 	 */
 	private Site createSite(URI location, String policy) {
 		Site result = new Site();
-		result.setUrl(location.toString());
+		try {
+			result.setUrl(URIUtil.toURL(location).toExternalForm());
+		} catch (MalformedURLException e) {
+			// TODO
+			result.setUrl(location.toString());
+		}
 		result.setPolicy(policy);
 		result.setEnabled(true);
 		return result;
@@ -133,7 +138,7 @@ public class PlatformConfigurationWrapper {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site nextSite = (Site) iter.next();
 			try {
-				File nextFile = URIUtil.toFile(new URI(nextSite.getUrl()));
+				File nextFile = URIUtil.toFile(URIUtil.fromString(nextSite.getUrl()));
 				if (nextFile.equals(file))
 					return nextSite;
 			} catch (URISyntaxException e) {

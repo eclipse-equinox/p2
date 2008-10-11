@@ -365,7 +365,7 @@ public class Activator implements BundleActivator {
 			return;
 		URI location = null;
 		try {
-			location = new URI(getOSGiInstallArea().toString() + ".pooled"); //$NON-NLS-1$
+			location = URIUtil.fromString(getOSGiInstallArea().toString() + ".pooled"); //$NON-NLS-1$
 		} catch (URISyntaxException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while removing old repositories.", e)); //$NON-NLS-1$
 			return;
