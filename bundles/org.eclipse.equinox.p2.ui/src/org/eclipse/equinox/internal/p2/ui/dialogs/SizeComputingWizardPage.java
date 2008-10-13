@@ -69,6 +69,8 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 			}
 
 		};
+		sizingJob.setUser(false);
+		sizingJob.setSystem(true);
 		sizingJob.schedule();
 		sizingJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
@@ -89,13 +91,13 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 			if (size == IUElement.SIZE_NOTAPPLICABLE)
 				sizeInfo.setVisible(false);
 			else {
-				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize(size)));
+				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
 				sizeInfo.setVisible(true);
 			}
 		}
 	}
 
-	protected String getFormattedSize(long size) {
+	protected String getFormattedSize() {
 		if (size == IUElement.SIZE_UNKNOWN || size == IUElement.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -85,6 +86,8 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 				repo = ProvisioningUtil.loadArtifactRepository(location, monitor);
 			} catch (ProvisionException e) {
 				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
+			} catch (OperationCanceledException e) {
+				// Nothing to report
 			}
 		return repo;
 	}

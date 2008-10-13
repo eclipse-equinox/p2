@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -208,33 +207,6 @@ public class ProvisioningUtil {
 	 */
 	public static ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		return getPlanner().getProvisioningPlan(request, context, monitor);
-	}
-
-	/*
-	 * See what updates might be available for a single IU.
-	 * Useful when checking for updates and letting the user decide
-	 * which IU's to update.
-	 */
-	public static IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(toUpdate);
-		return getPlanner().updatesFor(toUpdate, new ProvisioningContext(), monitor);
-	}
-
-	/*
-	 * See what updates might be available for the specified IU's.
-	 * Useful for bulk update that can be directly passed to the engine.
-	 */
-	public static IInstallableUnit[] updatesFor(IInstallableUnit[] toUpdate, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(toUpdate);
-
-		IPlanner planner = getPlanner();
-		ArrayList allUpdates = new ArrayList();
-		for (int i = 0; i < toUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(toUpdate[i], new ProvisioningContext(), monitor);
-			for (int j = 0; j < updates.length; j++)
-				allUpdates.add(updates[j]);
-		}
-		return (IInstallableUnit[]) allUpdates.toArray(new IInstallableUnit[allUpdates.size()]);
 	}
 
 	/*

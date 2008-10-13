@@ -250,7 +250,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			}
 		});
 		// Start with the default query context and configure some settings
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		policy.setQueryContext(queryContext);
 		updateWithPreferences(queryContext);
 		Policy.setDefaultPolicy(policy);

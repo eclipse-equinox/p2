@@ -43,18 +43,27 @@ public class QueryableUpdates implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoPlannerFound), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		ArrayList allUpdates = new ArrayList();
-		for (int i = 0; i < iusToUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
-			for (int j = 0; j < updates.length; j++)
-				allUpdates.add(updates[j]);
+		try {
+			ArrayList allUpdates = new ArrayList();
+			for (int i = 0; i < iusToUpdate.length; i++) {
+				if (monitor.isCanceled())
+					return result;
+				IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
+				for (int j = 0; j < updates.length; j++)
+					allUpdates.add(updates[j]);
+			}
+			for (int i = 0; i < allUpdates.size(); i++) {
+				if (monitor.isCanceled())
+					return result;
+				if (query.isMatch(allUpdates.get(i)))
+					result.accept(allUpdates.get(i));
+				monitor.worked(totalWork / 2 / allUpdates.size());
+			}
+		} catch (OperationCanceledException e) {
+			// Nothing more to do, return result
+		} finally {
+			monitor.done();
 		}
-		for (int i = 0; i < allUpdates.size(); i++) {
-			if (query.isMatch(allUpdates.get(i)))
-				result.accept(allUpdates.get(i));
-			monitor.worked(totalWork / 2 / allUpdates.size());
-		}
-		monitor.done();
 		return result;
 	}
 }

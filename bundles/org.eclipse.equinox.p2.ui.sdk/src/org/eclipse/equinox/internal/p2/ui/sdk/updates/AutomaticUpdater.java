@@ -211,6 +211,8 @@ public class AutomaticUpdater implements IUpdateListener {
 			} catch (ProvisionException e) {
 				ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
 				continue;
+			} catch (OperationCanceledException e) {
+				// Nothing to report
 			}
 		}
 		iusWithUpdates = (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);

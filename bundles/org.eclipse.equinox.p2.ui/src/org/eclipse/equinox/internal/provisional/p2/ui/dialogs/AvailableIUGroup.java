@@ -327,10 +327,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, location.toString())) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					ProvisioningUtil.loadMetadataRepository(location, new NullProgressMonitor());
+					ProvisioningUtil.loadMetadataRepository(location, monitor);
 					return Status.OK_STATUS;
 				} catch (ProvisionException e) {
 					return e.getStatus();
+				} catch (OperationCanceledException e) {
+					return Status.CANCEL_STATUS;
 				}
 			}
 		};

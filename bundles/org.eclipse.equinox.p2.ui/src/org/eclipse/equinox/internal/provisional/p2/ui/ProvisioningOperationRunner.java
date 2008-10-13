@@ -63,6 +63,8 @@ public class ProvisioningOperationRunner {
 			} else {
 				op.execute(null, ProvUI.getUIInfoAdapter(shell));
 			}
+		} catch (OperationCanceledException e) {
+			// nothing to do
 		} catch (ExecutionException e) {
 			ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
 		}
@@ -98,6 +100,8 @@ public class ProvisioningOperationRunner {
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
 						return status;
+					} catch (OperationCanceledException e) {
+						return Status.CANCEL_STATUS;
 					} catch (final ExecutionException e) {
 						if (noPrompt) {
 							thisJob.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
@@ -126,6 +130,8 @@ public class ProvisioningOperationRunner {
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
 						return status;
+					} catch (OperationCanceledException e) {
+						return Status.CANCEL_STATUS;
 					} catch (ExecutionException e) {
 						if (noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
