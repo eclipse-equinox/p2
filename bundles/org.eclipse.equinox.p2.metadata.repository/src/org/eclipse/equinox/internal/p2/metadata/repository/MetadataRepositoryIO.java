@@ -195,7 +195,8 @@ public class MetadataRepositoryIO {
 					theRepository = repositoryHandler.getRepository();
 				}
 			} catch (SAXException e) {
-				throw new IOException(e.getMessage());
+				if (!(e.getException() instanceof OperationCanceledException))
+					throw new IOException(e.getMessage());
 			} catch (ParserConfigurationException e) {
 				throw new IOException(e.getMessage());
 			} finally {
