@@ -419,29 +419,35 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type) throws ProvisionException {
 		boolean added = false;
 		IRepository result = null;
+
+		// TODO
+		// Is this synchronized block needed given that all called methods that access
+		// the repo list are also locked?
 		synchronized (repositoryLock) {
 			result = basicGetRepository(location);
 			if (result != null)
 				return result;
 			if (checkNotFound(location))
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
-			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
-			try {
-				for (int i = 0; i < suffixes.length; i++) {
-					if (sub.isCanceled())
-						throw new OperationCanceledException();
-					result = loadRepository(location, suffixes[i], type, sub.newChild(100));
-					if (result != null) {
-						addRepository(result, false, suffixes[i]);
-						break;
-					}
+		}
+		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
+		SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
+		try {
+			for (int i = 0; i < suffixes.length; i++) {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+				if (result != null) {
+					addRepository(result, false, suffixes[i]);
+					break;
 				}
-			} finally {
-				sub.done();
 			}
+		} finally {
+			sub.done();
+		}
+		synchronized (repositoryLock) {
 			if (result == null) {
 				//if we just added the repository, remove it because it cannot be loaded
 				if (added)
