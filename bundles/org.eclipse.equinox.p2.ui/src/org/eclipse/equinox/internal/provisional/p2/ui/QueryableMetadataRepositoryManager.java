@@ -105,6 +105,8 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 						handleNotFound(e, location);
 					else
 						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
+				} catch (OperationCanceledException e) {
+					break;
 				}
 				reportAccumulatedStatus();
 			}
