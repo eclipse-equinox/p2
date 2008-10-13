@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  * Serialization helper class for repository references.
  */
 public class RepositoryReference {
-	public URL Location;
+	public URI Location;
 	public int Type;
 	public int Options;
 
-	public RepositoryReference(URL location, int type, int options) {
+	public RepositoryReference(URI location, int type, int options) {
 		this.Location = location;
 		this.Type = type;
 		this.Options = options;

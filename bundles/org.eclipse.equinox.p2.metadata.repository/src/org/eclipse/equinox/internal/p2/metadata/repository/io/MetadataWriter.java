@@ -254,8 +254,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			start(LICENSES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, 1);
 			start(LICENSE_ELEMENT);
-			if (license.getURL() != null)
-				attribute(URL_ATTRIBUTE, license.getURL().toExternalForm());
+			if (license.getLocation() != null)
+				attribute(URI_ATTRIBUTE, license.getLocation().toString());
 			cdata(license.getBody(), true);
 			end(LICENSE_ELEMENT);
 			end(LICENSES_ELEMENT);
@@ -266,10 +266,10 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (copyright != null) {
 			start(COPYRIGHT_ELEMENT);
 			try {
-				if (copyright.getURL() != null)
-					attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
+				if (copyright.getLocation() != null)
+					attribute(URI_ATTRIBUTE, copyright.getLocation().toString());
 			} catch (IllegalStateException ise) {
-				LogHelper.log(new Status(IStatus.INFO, Activator.ID, "Error writing the copyright URL: " + copyright.getURL())); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.INFO, Activator.ID, "Error writing the copyright URL: " + copyright.getLocation())); //$NON-NLS-1$
 			}
 			cdata(copyright.getBody(), true);
 			end(COPYRIGHT_ELEMENT);

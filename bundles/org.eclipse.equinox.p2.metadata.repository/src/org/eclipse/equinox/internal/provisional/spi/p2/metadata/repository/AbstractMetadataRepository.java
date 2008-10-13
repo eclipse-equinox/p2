@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -33,7 +33,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		public Version Version;
 		public String Provider;
 		public String Description;
-		public URL Location;
+		public URI Location;
 		public Map Properties;
 		public IInstallableUnit[] Units;
 		public RepositoryReference[] Repositories;
@@ -45,7 +45,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 
 	public abstract void initialize(RepositoryState state);
 
-	protected AbstractMetadataRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
+	protected AbstractMetadataRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
 		super(name, type, version, location, description, provider, properties);
 	}
 
@@ -53,7 +53,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		assertModifiable();
 	}
 
-	public void addReference(URL repositoryLocation, int repositoryType, int options) {
+	public void addReference(URI repositoryLocation, int repositoryType, int options) {
 		assertModifiable();
 	}
 

@@ -125,8 +125,8 @@ public class ECFMetadataTransport {
 	 * @return A <code>long</code> representing the date. Returns <code>0</code> if the file is not found or an error occurred.
 	 * @exception OperationCanceledException if the request was canceled.
 	 */
-	public long getLastModified(URL location) throws ProvisionException {
-		String locationString = location.toExternalForm();
+	public long getLastModified(URI location) throws ProvisionException {
+		String locationString = location.toString();
 		try {
 			IConnectContext context = getConnectionContext(locationString, false);
 			for (int i = 0; i < LOGIN_RETRIES; i++) {

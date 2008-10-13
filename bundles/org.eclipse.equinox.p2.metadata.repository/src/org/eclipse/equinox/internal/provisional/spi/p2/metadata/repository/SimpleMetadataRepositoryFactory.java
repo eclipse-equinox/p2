@@ -11,12 +11,13 @@
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -28,8 +29,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
-	public IMetadataRepository create(URL location, String name, String type, Map properties) {
-		if (location.getProtocol().equals("file")) //$NON-NLS-1$
+	public IMetadataRepository create(URI location, String name, String type, Map properties) {
+		if (location.getScheme().equals("file")) //$NON-NLS-1$
 			return new LocalMetadataRepository(location, name, properties);
 		return new URLMetadataRepository(location, name, properties);
 	}
@@ -38,18 +39,18 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	 * Returns a file in the local file system that contains the contents of the
 	 * metadata repository at the given location.
 	 */
-	private File getLocalFile(URL location, IProgressMonitor monitor) throws IOException, ProvisionException {
+	private File getLocalFile(URI location, IProgressMonitor monitor) throws IOException, ProvisionException {
 		File localFile = null;
-		URL jarLocation = URLMetadataRepository.getActualLocation(location, JAR_EXTENSION);
-		URL xmlLocation = URLMetadataRepository.getActualLocation(location, XML_EXTENSION);
+		URI jarLocation = URLMetadataRepository.getActualLocation(location, JAR_EXTENSION);
+		URI xmlLocation = URLMetadataRepository.getActualLocation(location, XML_EXTENSION);
 		// If the repository is local, we can return the repository file directly
-		if (PROTOCOL_FILE.equals(xmlLocation.getProtocol())) {
+		if (PROTOCOL_FILE.equals(xmlLocation.getScheme())) {
 			//look for a compressed local file
-			localFile = new File(jarLocation.getPath());
+			localFile = URIUtil.toFile(jarLocation);
 			if (localFile.exists())
 				return localFile;
 			//look for an uncompressed local file
-			localFile = new File(xmlLocation.getPath());
+			localFile = URIUtil.toFile(xmlLocation);
 			if (localFile.exists())
 				return localFile;
 			String msg = NLS.bind(Messages.io_failedRead, location);
@@ -69,7 +70,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IStatus validate(URL location, IProgressMonitor monitor) {
+	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
 			validateAndLoad(location, false, monitor);
 		} catch (ProvisionException e) {
@@ -81,11 +82,11 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return validateAndLoad(location, true, monitor);
 	}
 
-	protected IMetadataRepository validateAndLoad(URL location, boolean doLoad, IProgressMonitor monitor) throws ProvisionException {
+	protected IMetadataRepository validateAndLoad(URI location, boolean doLoad, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {

@@ -160,7 +160,7 @@ public class MetadataRepositoryIO {
 
 		private void writeRepositoryReference(RepositoryReference reference) {
 			start(REPOSITORY_REFERENCE_ELEMENT);
-			attribute(URL_ATTRIBUTE, reference.Location.toExternalForm());
+			attribute(URI_ATTRIBUTE, reference.Location.toString());
 			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.Type));
 			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.Options));
 			end(REPOSITORY_REFERENCE_ELEMENT);
@@ -195,7 +195,8 @@ public class MetadataRepositoryIO {
 					theRepository = repositoryHandler.getRepository();
 				}
 			} catch (SAXException e) {
-				throw new IOException(e.getMessage());
+				if (!(e.getException() instanceof OperationCanceledException))
+					throw new IOException(e.getMessage());
 			} catch (ParserConfigurationException e) {
 				throw new IOException(e.getMessage());
 			} finally {

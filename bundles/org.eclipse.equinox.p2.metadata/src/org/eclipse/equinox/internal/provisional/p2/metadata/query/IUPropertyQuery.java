@@ -15,7 +15,8 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
- * a property whose value matches the provided value.
+ * a property whose value matches the provided value.  If no property name is 
+ * specified, then all {@link IInstallableUnit} instances are accepted.
  */
 public class IUPropertyQuery extends Query {
 	private String propertyName;
@@ -36,6 +37,8 @@ public class IUPropertyQuery extends Query {
 		if (!(object instanceof IInstallableUnit))
 			return false;
 		IInstallableUnit candidate = (IInstallableUnit) object;
+		if (propertyName == null)
+			return true;
 		String value = getProperty(candidate, propertyName);
 		if (value != null && (value.equals(propertyValue) || propertyValue == null))
 			return true;

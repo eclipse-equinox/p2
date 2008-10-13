@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
@@ -29,46 +29,30 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	private static final String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	private static final Integer REPOSITORY_VERSION = new Integer(1);
 
-	transient protected URL content;
+	transient protected URI content;
 	protected HashSet units = new LinkedHashSet();
 
-	public static URL getActualLocation(URL base) {
+	public static URI getActualLocation(URI base) {
 		return getActualLocation(base, XML_EXTENSION);
 	}
 
-	public static URL getActualLocation(URL base, String extension) {
-		if (extension == null) {
+	public static URI getActualLocation(URI base, String extension) {
+		if (extension == null)
 			extension = XML_EXTENSION;
-		}
-		String spec = base.toExternalForm();
-		if (spec.endsWith(CONTENT_FILENAME + extension))
-			try {
-				return new URL(spec + extension);
-			} catch (MalformedURLException e1) {
-				return null;
-			}
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += CONTENT_FILENAME;
-		else
-			spec += "/" + CONTENT_FILENAME; //$NON-NLS-1$
-		try {
-			return new URL(spec + extension);
-		} catch (MalformedURLException e) {
-			return null;
-		}
+		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
 	public URLMetadataRepository() {
 		super();
 	}
 
-	public URLMetadataRepository(URL location, String name, Map properties) {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+	public URLMetadataRepository(URI location, String name, Map properties) {
+		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		content = getActualLocation(location);
 	}
 
 	// this is synchronized because content can be initialized in initializeAfterLoad
-	protected synchronized URL getContentURL() {
+	protected synchronized URI getContentURL() {
 		return content;
 	}
 
@@ -84,7 +68,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
-	public synchronized void initializeAfterLoad(URL repoLocation) {
+	public synchronized void initializeAfterLoad(URI repoLocation) {
 		this.location = repoLocation;
 		content = getActualLocation(location);
 	}

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,7 +34,7 @@ public interface IMetadataRepositoryFactory {
 	 * <li>There was an error writing to the given repository location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository create(URL location, String name, String type, Map properties) throws ProvisionException;
+	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.
@@ -49,7 +49,7 @@ public interface IMetadataRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Validates a candidate repository URL and returns a status indicating the
@@ -73,5 +73,5 @@ public interface IMetadataRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IStatus validate(URL location, IProgressMonitor monitor);
+	public IStatus validate(URI location, IProgressMonitor monitor);
 }

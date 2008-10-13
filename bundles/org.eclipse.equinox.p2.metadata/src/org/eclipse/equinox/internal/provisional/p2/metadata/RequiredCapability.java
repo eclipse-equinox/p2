@@ -36,6 +36,9 @@ public class RequiredCapability {
 	private final VersionRange range;//never null
 	private String[] selectors = NO_SELECTORS;//never null
 
+	/**
+	 * TODO replace booleans with int options flag.
+	 */
 	RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
