@@ -634,6 +634,7 @@ public class Projector {
 		if (DEBUG)
 			System.out.println("Invoking solver: " + start); //$NON-NLS-1$
 		FileReader fr = null;
+		boolean delete = true;
 		try {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
@@ -657,12 +658,14 @@ public class Projector {
 		} catch (FileNotFoundException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Missing_opb_file, problemFile)));
 		} catch (ParseFormatException e) {
+			delete = false;
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Format_error, problemFile)));
 		} catch (ContradictionException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Trivial_exception, problemFile)));
 		} catch (TimeoutException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
+			delete = false;
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unexpected_problem, e));
 		} finally {
 			try {
@@ -671,7 +674,8 @@ public class Projector {
 			} catch (IOException e) {
 				//ignore
 			}
-			problemFile.delete();
+			if (delete)
+				problemFile.delete();
 		}
 		return result;
 	}
