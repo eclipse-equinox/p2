@@ -16,6 +16,8 @@ import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -173,12 +175,17 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		List iusList = new ArrayList(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
-			IInstallableUnit iu = getIU(elements.get(i));
-			if (iu != null && !ProvisioningUtil.isCategory(iu))
-				iusList.add(iu);
+			if (elements.get(i) instanceof IUElement) {
+				IUElement element = (IUElement) elements.get(i);
+				if (isSelectable(element))
+					iusList.add(getIU(element));
+			}
 		}
-
 		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
+	}
+
+	protected boolean isSelectable(IUElement element) {
+		return !(element instanceof CategoryElement);
 	}
 
 	protected LicenseManager getLicenseManager() {

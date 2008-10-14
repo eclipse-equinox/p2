@@ -50,4 +50,6 @@ public interface IUElement {
 	public void computeSize(IProgressMonitor monitor);
 
 	public RequiredCapability[] getRequirements();
+
+	public Object getParent(Object obj);
 }

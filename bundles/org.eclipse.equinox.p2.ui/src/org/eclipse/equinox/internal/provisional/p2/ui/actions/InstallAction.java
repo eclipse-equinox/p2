@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -22,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -106,13 +108,21 @@ public class InstallAction extends ProfileModificationAction {
 			return false;
 		// We allow non-IU's to be selected at this point, but there
 		// must be at least one installable unit selected that is
-		// not a category.  
+		// not a category and is not nested underneath another IU.
 		for (int i = 0; i < selectionArray.length; i++) {
-			IInstallableUnit iu = getIU(selectionArray[i]);
-			if (iu != null && !ProvisioningUtil.isCategory(iu))
+			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IUElement) selectionArray[i]))
 				return true;
 		}
 		return false;
+	}
+
+	/*
+	 * Overridden to reject nested IU's
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isSelectable(org.eclipse.equinox.internal.p2.ui.model.IUElement)
+	 */
+	protected boolean isSelectable(IUElement element) {
+		return super.isSelectable(element) && !(element.getParent(element) instanceof IUElement);
 	}
 
 	protected String getTaskName() {
