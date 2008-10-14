@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -55,7 +55,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of installed IU's
-		TableViewer installedIUViewer = new TableViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		TreeViewer installedIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		installedIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
@@ -65,7 +65,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		installedIUViewer.setContentProvider(new DeferredQueryContentProvider());
 
 		// Now the visuals, columns before labels.
-		setTableColumns(installedIUViewer.getTable());
+		setTreeColumns(installedIUViewer.getTree());
 		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
 
 		// Input last.
@@ -81,12 +81,12 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		return installedIUViewer;
 	}
 
-	private void setTableColumns(Table table) {
+	private void setTreeColumns(Tree tree) {
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-		table.setHeaderVisible(true);
+		tree.setHeaderVisible(true);
 
 		for (int i = 0; i < columns.length; i++) {
-			TableColumn tc = new TableColumn(table, SWT.NONE, i);
+			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
 			tc.setWidth(convertHorizontalDLUsToPixels(columns[i].defaultColumnWidth));

@@ -50,7 +50,9 @@ public class DefaultQueryProvider extends QueryProvider {
 	}
 
 	public ElementQueryDescriptor getQueryDescriptor(final QueriedElement element) {
-		IQueryable queryable;
+		// Initialize queryable, queryContext, and queryType from the element.
+		// In some cases we override this.
+		IQueryable queryable = element.getQueryable();
 		int queryType = element.getQueryType();
 		IUViewQueryContext context = element.getQueryContext();
 		if (context == null) {
@@ -90,8 +92,8 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.toString(true));
-					availableIUCollector = new RollbackIUCollector(((RollbackRepositoryElement) element).getQueryable(), element.getParent(element));
-					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), availableIUCollector);
+					availableIUCollector = new RollbackIUCollector(queryable, element.getParent(element));
+					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), availableIUCollector);
 				}
 
 				Query topLevelQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
@@ -99,8 +101,6 @@ public class DefaultQueryProvider extends QueryProvider {
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
-					queryable = element.getQueryable();
-
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT) {
 						AvailableIUCollector collector;
 						if (showLatest)
@@ -122,27 +122,28 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (element instanceof UncategorizedCategoryElement) {
 					// Will have to look at all categories and groups and from there, figure out what's left
 					Query firstPassQuery = new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false);
-					queryable = ((UncategorizedCategoryElement) element).getQueryable();
 					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(queryable, element, false) : new AvailableIUCollector(queryable, element, false);
 					if (hideInstalled && installedQueryDescriptor != null)
 						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
 					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(queryable, element, availableIUCollector));
 
 				}
+				// If it's a category, we get the requirements and show all requirements
+				// that are also visible in the available list.  Note this same query could be used to drill
+				// down into any IU's requirements, but we choose not to do this (yet) in the available view.
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=226577
+				// if (element instanceof IUElement) {
 				if (element instanceof CategoryElement) {
-					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getRequirements());
+					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IUElement) element).getRequirements());
 					if (showLatest)
-						availableIUCollector = new LatestIUVersionElementCollector(((CategoryElement) element).getQueryable(), element, true);
+						availableIUCollector = new LatestIUVersionElementCollector(queryable, element, true);
 					else
-						availableIUCollector = new AvailableIUCollector(((CategoryElement) element).getQueryable(), element, true);
+						availableIUCollector = new AvailableIUCollector(queryable, element, true);
 					if (hideInstalled && installedQueryDescriptor != null)
 						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
-					return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false), membersOfCategoryQuery}, true), availableIUCollector);
+					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false), meetsAnyRequirementQuery}, true), availableIUCollector);
 				}
-				// If we are showing only the latest version, we never represent other versions as children.
-				if (element instanceof IUVersionsElement) {
-					return null;
-				}
+				return null;
 			case QueryProvider.AVAILABLE_UPDATES :
 				IProfile profile;
 				IInstallableUnit[] toUpdate = null;
@@ -171,6 +172,13 @@ public class DefaultQueryProvider extends QueryProvider {
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case QueryProvider.INSTALLED_IUS :
+				// Querying of IU's.  We are drilling down into the requirements.
+				if (element instanceof IUElement) {
+					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IUElement) element).getRequirements());
+					Query visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
+					availableIUCollector = new AvailableIUCollector(queryable, element, true);
+					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new InstalledIUCollector(queryable, element));
+				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
@@ -178,10 +186,12 @@ public class DefaultQueryProvider extends QueryProvider {
 				// Rollback profiles are specialized/temporary instances so we must use a query that uses the profile instance, not the id.
 				if (element instanceof RollbackProfileElement)
 					return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
+
+				// Just a normal query of the installed IU's, query the profile and look for the visible ones
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
 			case QueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
-					if (element.getQueryable() == null) {
+					if (queryable == null) {
 						queryable = new QueryableMetadataRepositoryManager(policy, ((MetadataRepositories) element).getIncludeDisabledRepositories());
 						element.setQueryable(queryable);
 					}

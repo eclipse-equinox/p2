@@ -12,9 +12,11 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.model.IUElement;
-import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
  * Element wrapper class for installed IU's. Used instead of the plain IU when
@@ -22,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
  * 
  * @since 3.4
  */
-public class InstalledIUElement extends ProvElement implements IUElement {
+public class InstalledIUElement extends QueriedElement implements IUElement {
 
 	String profileId;
 	IInstallableUnit iu;
@@ -44,10 +46,6 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 
 	public String getLabel(Object o) {
 		return iu.getId();
-	}
-
-	public Object[] getChildren(Object o) {
-		return null;
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -80,6 +78,20 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 
 	public boolean shouldShowVersion() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
+	 */
+	public RequiredCapability[] getRequirements() {
+		return iu.getRequiredCapabilities();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
+	 */
+	protected int getDefaultQueryType() {
+		return QueryProvider.INSTALLED_IUS;
 	}
 
 }

@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 public class CategoryElement extends RemoteQueriedElement implements IUElement {
 
 	private ArrayList ius = new ArrayList(1);
+	private RequiredCapability[] requirements;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -87,15 +88,20 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 	public RequiredCapability[] getRequirements() {
 		if (ius == null || ius.isEmpty())
 			return new RequiredCapability[0];
-		if (ius.size() == 1)
-			return getIU().getRequiredCapabilities();
-		ArrayList capabilities = new ArrayList();
-		Iterator iter = ius.iterator();
-		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
+		if (requirements == null) {
+			if (ius.size() == 1)
+				requirements = getIU().getRequiredCapabilities();
+			else {
+				ArrayList capabilities = new ArrayList();
+				Iterator iter = ius.iterator();
+				while (iter.hasNext()) {
+					IInstallableUnit iu = (IInstallableUnit) iter.next();
+					capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
+				}
+				requirements = (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
+			}
 		}
-		return (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
+		return requirements;
 	}
 
 }

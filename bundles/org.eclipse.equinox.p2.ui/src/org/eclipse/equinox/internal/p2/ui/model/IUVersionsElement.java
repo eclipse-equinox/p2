@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
@@ -70,5 +71,12 @@ public class IUVersionsElement extends QueriedElement implements IUElement {
 
 	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, since shouldShowSize() returns false
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
+	 */
+	public RequiredCapability[] getRequirements() {
+		return iu.getRequiredCapabilities();
 	}
 }

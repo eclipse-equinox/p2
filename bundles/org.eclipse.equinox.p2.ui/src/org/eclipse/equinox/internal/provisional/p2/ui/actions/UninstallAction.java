@@ -47,9 +47,17 @@ public class UninstallAction extends ProfileModificationAction {
 					int lock = getLock(profile, element.getIU());
 					if ((lock & IInstallableUnit.LOCK_UNINSTALL) == IInstallableUnit.LOCK_UNINSTALL)
 						return false;
+					// If the parents are different, then they are either from 
+					// different profiles or are nested in different parts of the tree.
+					// Either way, this makes the selection invalid.
 					if (parent == null) {
 						parent = element.getParent(null);
 					} else if (parent != element.getParent(null)) {
+						return false;
+					}
+					// If it is not a visible IU, it is not uninstallable by the user
+					String propName = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
+					if (propName != null && getProfileProperty(profile, element.getIU(), propName) == null) {
 						return false;
 					}
 				} else {

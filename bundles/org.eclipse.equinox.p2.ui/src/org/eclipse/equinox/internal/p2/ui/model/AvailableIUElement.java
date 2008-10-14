@@ -19,8 +19,10 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -29,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
  * 
  * @since 3.4
  */
-public class AvailableIUElement extends ProvElement implements IUElement {
+public class AvailableIUElement extends QueriedElement implements IUElement {
 
 	IInstallableUnit iu;
 	// Currently this variable is not settable due to the
@@ -58,10 +60,6 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 
 	public String getLabel(Object o) {
 		return iu.getId();
-	}
-
-	public Object[] getChildren(Object o) {
-		return null;
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -107,5 +105,19 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 
 	public boolean shouldShowVersion() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
+	 */
+	protected int getDefaultQueryType() {
+		return QueryProvider.AVAILABLE_IUS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
+	 */
+	public RequiredCapability[] getRequirements() {
+		return iu.getRequiredCapabilities();
 	}
 }

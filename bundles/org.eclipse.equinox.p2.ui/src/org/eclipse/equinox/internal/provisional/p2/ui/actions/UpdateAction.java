@@ -104,9 +104,7 @@ public class UpdateAction extends ProfileModificationAction {
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		Object parent = null;
 		// We cache the profile for performance reasons rather than get it for
-		// each IU.  Note that below we reject any selection
-		// with different parents, so if there were IU's selected from multiple
-		// profiles, we catch this case and disable the action.
+		// each IU.  
 		IProfile profile = getProfile(false);
 		if (profile == null)
 			return false;
@@ -115,11 +113,20 @@ public class UpdateAction extends ProfileModificationAction {
 				if (selectionArray[i] instanceof InstalledIUElement) {
 					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
 					int lock = getLock(profile, element.getIU());
+					// If it is locked for update, action is not allowed
 					if ((lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE)
 						return false;
+					// We reject any selection with different parents,
+					// so if there were IU's selected from multiple
+					// profiles, we catch this case and disable the action.
 					if (parent == null) {
 						parent = element.getParent(null);
 					} else if (parent != element.getParent(null)) {
+						return false;
+					}
+					// If it is not a visible IU, it is not updatable by the user
+					String propName = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
+					if (propName != null && getProfileProperty(profile, element.getIU(), propName) == null) {
 						return false;
 					}
 				} else {

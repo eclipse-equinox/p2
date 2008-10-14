@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -128,5 +129,12 @@ public class RollbackProfileElement extends RemoteQueriedElement implements IUEl
 	 */
 	public boolean knowsQueryable() {
 		return iu != null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
+	 */
+	public RequiredCapability[] getRequirements() {
+		return iu.getRequiredCapabilities();
 	}
 }

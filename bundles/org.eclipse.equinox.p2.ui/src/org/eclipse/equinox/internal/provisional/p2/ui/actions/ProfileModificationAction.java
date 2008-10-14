@@ -227,6 +227,12 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return IInstallableUnit.LOCK_NONE;
 	}
 
+	protected String getProfileProperty(IProfile profile, IInstallableUnit iu, String propertyName) {
+		if (profile == null || iu == null)
+			return null;
+		return profile.getInstallableUnitProperty(iu, propertyName);
+	}
+
 	protected IProfile getProfile(boolean chooseProfile) {
 		try {
 			String id = getProfileId(chooseProfile);
