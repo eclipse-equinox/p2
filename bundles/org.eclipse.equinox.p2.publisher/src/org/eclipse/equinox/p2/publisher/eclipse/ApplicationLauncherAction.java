@@ -59,7 +59,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		Collection actions = createActions(info);
 		createAdvice(info, results);
 		IPublisherResult innerResult = new PublisherResult();
-		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (Iterator i = actions.iterator(); i.hasNext();) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
@@ -141,6 +141,6 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			return result;
 		// otherwise, assume that we are running against an Eclipse install and do the default thing
 		String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
-		return ExecutablesDescriptor.createDescriptor(os, executableName, location); //$NON-NLS-1$
+		return ExecutablesDescriptor.createDescriptor(os, executableName, location); 
 	}
 }

@@ -838,7 +838,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				if (configuratorURL == null)
 					System.out.println("Could not find simpleconfigurator bundle");
 				else {
-					File location = new File(configuratorURL.getFile()); //$NON-NLS-1$
+					File location = new File(configuratorURL.getFile()); 
 					result[result.length - 1] = createBundleDescription(location);
 				}
 			} catch (IOException e) {

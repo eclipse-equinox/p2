@@ -286,7 +286,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			try {
 				InputStream in = null;
 				try {
-					in = new BufferedInputStream(new FileInputStream(new File(location, file))); //$NON-NLS-1$
+					in = new BufferedInputStream(new FileInputStream(new File(location, file))); 
 					props.load(in);
 				} finally {
 					if (in != null)

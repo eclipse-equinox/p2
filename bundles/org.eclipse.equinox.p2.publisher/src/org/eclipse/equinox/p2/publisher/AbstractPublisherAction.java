@@ -97,7 +97,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				return null;
 			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return null; //$NON-NLS-1$
+		return null; 
 	}
 
 	/**

@@ -94,7 +94,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String namespace = ConfigCUsAction.getAbstractCUCapabilityNamespace(idBase, TYPE, flavor, configSpec);
 		String capabilityId = ConfigCUsAction.getAbstractCUCapabilityId(idBase, TYPE, flavor, configSpec);
-		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version); //$NON-NLS-1$
+		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version); 
 		ProvidedCapability selfCapability = createSelfCapability(id, version);
 		iu.setCapabilities(new ProvidedCapability[] {selfCapability, executableCapability});
 
@@ -180,11 +180,11 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private void mungeExecutableFileName(File file, ExecutablesDescriptor descriptor) {
 		if (file.getName().equals("launcher")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse"); //$NON-NLS-1$
-			file.renameTo(newFile); //$NON-NLS-1$
+			file.renameTo(newFile); 
 			descriptor.replace(file, newFile);
 		} else if (file.getName().equals("launcher.exe")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse.exe"); //$NON-NLS-1$
-			file.renameTo(newFile); //$NON-NLS-1$
+			file.renameTo(newFile); 
 			descriptor.replace(file, newFile);
 		}
 	}

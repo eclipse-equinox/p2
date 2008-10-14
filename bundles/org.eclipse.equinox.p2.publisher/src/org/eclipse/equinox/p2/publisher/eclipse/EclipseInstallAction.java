@@ -51,7 +51,7 @@ public class EclipseInstallAction implements IPublisherAction {
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		this.info = info;
 		IPublisherAction[] actions = createActions();
-		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;

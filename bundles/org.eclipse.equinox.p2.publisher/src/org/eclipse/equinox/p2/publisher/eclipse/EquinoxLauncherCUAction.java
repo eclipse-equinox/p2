@@ -53,18 +53,18 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	private void publishLauncherFragmentCUs(IPublisherInfo info, IPublisherResult results) {
 		for (int i = 0; i < configSpecs.length; i++) {
 			String configSpec = configSpecs[i];
-			String id = ORG_ECLIPSE_EQUINOX_LAUNCHER + "." + configSpec;
+			String id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
 			publishCU(id, configSpec, info, results);
 		}
 	}
 
 	/**
 	 * Publish a CU for the IU of the given id in the given config spec.  If the IU is the 
-	 * launcher bundle iu then set it up as the startup JAR.  If it is a laucher fragment then 
+	 * launcher bundle iu then set it up as the startup JAR.  If it is a launcher fragment then 
 	 * configure it in as the launcher.library for this configuration.
 	 */
 	private void publishCU(String id, String configSpec, IPublisherInfo info, IPublisherResult results) {
-		Collection advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class); //$NON-NLS-1$
+		Collection advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
 		for (Iterator j = advice.iterator(); j.hasNext();) {
 			IVersionAdvice versionSpec = (IVersionAdvice) j.next();
 			Version version = versionSpec.getVersion(IInstallableUnit.NAMESPACE_IU_ID, id);
