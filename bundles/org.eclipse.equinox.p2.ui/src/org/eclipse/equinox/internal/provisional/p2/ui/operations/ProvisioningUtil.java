@@ -15,12 +15,14 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -40,6 +42,10 @@ public class ProvisioningUtil {
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		manager.addRepository(location);
+		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+		if (bus != null) {
+			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED));
+		}
 	}
 
 	public static String getMetadataRepositoryProperty(URI location, String key) throws ProvisionException {
@@ -91,6 +97,10 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.removeRepository(location);
+		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+		if (bus != null) {
+			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED));
+		}
 	}
 
 	public static void addArtifactRepository(URI location) throws ProvisionException {
@@ -99,6 +109,10 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.addRepository(location);
+		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+		if (bus != null) {
+			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED));
+		}
 	}
 
 	public static String getArtifactRepositoryProperty(URI location, String key) throws ProvisionException {
@@ -126,6 +140,10 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.removeRepository(location);
+		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+		if (bus != null) {
+			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED));
+		}
 	}
 
 	public static IProfile addProfile(String profileId, Map properties, IProgressMonitor monitor) throws ProvisionException {

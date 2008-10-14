@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -186,8 +185,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
-				// Ignore disabled repositories
-				if (!event.isRepositoryEnabled())
+				// Ignore add events that the UI didn't trigger itself.
+				// This allows us to ignore the addition of system repositories, as
+				// well as treat the enabling of repos as an addition
+				if (!(event instanceof UIRepositoryEvent))
 					return;
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
