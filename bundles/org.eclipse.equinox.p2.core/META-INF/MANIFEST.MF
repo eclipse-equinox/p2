@@ -71,6 +71,7 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.pde.p2.ui,
+   org.eclipse.pde.ui,
    org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.p2.core.eventbus;
   x-friends:="org.eclipse.equinox.p2.metadata,
@@ -147,7 +148,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.console,
-   org.eclipse.equinox.p2.publisher",
+   org.eclipse.equinox.p2.publisher,
+   org.eclipse.pde.ui",
  org.eclipse.equinox.internal.provisional.spi.p2.core.repository;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.metadata.repository,

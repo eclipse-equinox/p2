@@ -29,6 +29,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.mirror,
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.pde.p2.ui,
+   org.eclipse.pde.ui,
    org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.updatesite"
 Import-Package: org.eclipse.equinox.app;resolution:=optional,

@@ -31,7 +31,8 @@ Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.updatechecker,
-   org.eclipse.pde.p2.ui"
+   org.eclipse.pde.p2.ui,
+   org.eclipse.pde.ui"
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
