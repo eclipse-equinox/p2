@@ -33,7 +33,7 @@ public class VersionRangedName {
 
 	public VersionRangedName(String id, VersionRange range) {
 		if (id == null)
-			throw new IllegalArgumentException("id cannot be null");
+			throw new IllegalArgumentException("id cannot be null"); //$NON-NLS-1$
 		this.id = id;
 		this.range = range != null ? range : new VersionRange(null);
 	}
