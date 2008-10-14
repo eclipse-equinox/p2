@@ -91,7 +91,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private IUDetailsLabelProvider labelProvider;
 	private Display display;
 	DeferredFetchFilteredTree filteredTree;
-	IUColumnConfig[] columnConfig;
 	private int refreshRepoFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
 	Job lastRequestedLoadJob;
 
@@ -117,7 +116,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * will be used.
 	 */
 	public AvailableIUGroup(Policy policy, final Composite parent, Font font, QueryableMetadataRepositoryManager queryable, IUViewQueryContext queryContext, IUColumnConfig[] columnConfig) {
-		super(policy, parent, font);
+		super(policy, parent, font, columnConfig);
 		this.display = parent.getDisplay();
 		if (queryable == null)
 			this.queryableManager = new QueryableMetadataRepositoryManager(policy, false);
@@ -127,11 +126,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			this.queryContext = policy.getQueryContext();
 		else
 			this.queryContext = queryContext;
-		if (columnConfig == null)
-			this.columnConfig = ProvUI.getIUColumnConfig();
-		else
-			this.columnConfig = columnConfig;
-		this.filter = new AvailableIUPatternFilter(this.columnConfig);
+		this.filter = new AvailableIUPatternFilter(getColumnConfig());
 		createGroupComposite(parent);
 	}
 
@@ -165,7 +160,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			}
 		});
 
-		labelProvider = new IUDetailsLabelProvider(filteredTree, columnConfig, getShell());
+		labelProvider = new IUDetailsLabelProvider(filteredTree, getColumnConfig(), getShell());
 		labelProvider.setUseBoldFontForFilteredItems(useBold);
 		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
 
@@ -210,11 +205,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private void setTreeColumns(Tree tree) {
 		tree.setHeaderVisible(true);
 
-		for (int i = 0; i < columnConfig.length; i++) {
+		IUColumnConfig[] cols = getColumnConfig();
+		for (int i = 0; i < cols.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
-			tc.setText(columnConfig[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(columnConfig[i].defaultColumnWidth));
+			tc.setText(cols[i].columnTitle);
+			tc.setWidth(convertHorizontalDLUsToPixels(cols[i].defaultColumnWidth));
 		}
 	}
 

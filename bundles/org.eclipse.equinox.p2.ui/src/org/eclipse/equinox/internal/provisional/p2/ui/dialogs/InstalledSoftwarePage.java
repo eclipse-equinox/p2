@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -42,6 +43,7 @@ import org.eclipse.ui.services.IServiceLocator;
 public class InstalledSoftwarePage extends InstallationPage {
 
 	private static final int DEFAULT_WIDTH = 300;
+	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	IMenuService menuService;
 	IInstallationPageContainer pageContainer;
 	AbstractContributionFactory factory;
@@ -74,7 +76,7 @@ public class InstalledSoftwarePage extends InstallationPage {
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUGroup = new InstalledIUGroup(Policy.getDefault(), composite, JFaceResources.getDialogFont(), Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell()));
+		installedIUGroup = new InstalledIUGroup(Policy.getDefault(), composite, JFaceResources.getDialogFont(), Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell()), getColumnConfig());
 		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateDetailsArea();
@@ -93,7 +95,7 @@ public class InstalledSoftwarePage extends InstallationPage {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
-		gd.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
+		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
 
 		detailsArea = new Text(group, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
 		detailsArea.setLayoutData(gd);
@@ -197,5 +199,11 @@ public class InstalledSoftwarePage extends InstallationPage {
 	public void dispose() {
 		super.dispose();
 		menuService.removeContributionFactory(factory);
+	}
+
+	private IUColumnConfig[] getColumnConfig() {
+		int pixels = convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH);
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, pixels / 3), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, pixels * 2 / 3)};
+
 	}
 }

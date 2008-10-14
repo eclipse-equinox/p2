@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -37,6 +38,7 @@ public abstract class StructuredIUGroup {
 	protected StructuredViewer viewer;
 	private Composite composite;
 	private Policy policy;
+	private IUColumnConfig[] columnConfig;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -46,9 +48,15 @@ public abstract class StructuredIUGroup {
 	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
+	 * @param columnConfig the columns to be shown
 	 */
-	protected StructuredIUGroup(Policy policy, Composite parent, Font font) {
+	protected StructuredIUGroup(Policy policy, Composite parent, Font font, IUColumnConfig[] columnConfig) {
 		this.policy = policy;
+		if (columnConfig == null)
+			this.columnConfig = ProvUI.getIUColumnConfig();
+		else
+			this.columnConfig = columnConfig;
+
 		// Set up a fontmetrics for calculations
 		GC gc = new GC(parent);
 		gc.setFont(font);
@@ -89,6 +97,10 @@ public abstract class StructuredIUGroup {
 
 	protected StructuredViewer getStructuredViewer() {
 		return viewer;
+	}
+
+	protected IUColumnConfig[] getColumnConfig() {
+		return columnConfig;
 	}
 
 	public IInstallableUnit[] getSelectedIUs() {

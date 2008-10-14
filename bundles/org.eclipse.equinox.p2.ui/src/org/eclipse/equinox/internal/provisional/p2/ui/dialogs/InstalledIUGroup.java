@@ -43,9 +43,10 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
 	 * @param profileId the id of the profile whose content is being shown.
+	 * @param columnConfig the columns to be shown
 	 */
-	public InstalledIUGroup(Policy policy, final Composite parent, Font font, String profileId) {
-		super(policy, parent, font);
+	public InstalledIUGroup(Policy policy, final Composite parent, Font font, String profileId, IUColumnConfig[] columnConfig) {
+		super(policy, parent, font, columnConfig);
 		if (profileId == null)
 			this.profileId = policy.getProfileChooser().getProfileId(ProvUI.getDefaultParentShell());
 		else
@@ -82,7 +83,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	}
 
 	private void setTreeColumns(Tree tree) {
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
+		IUColumnConfig[] columns = getColumnConfig();
 		tree.setHeaderVisible(true);
 
 		for (int i = 0; i < columns.length; i++) {
