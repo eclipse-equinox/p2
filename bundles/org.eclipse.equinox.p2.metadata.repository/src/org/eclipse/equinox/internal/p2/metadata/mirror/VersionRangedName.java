@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Code 9 - initial API and implementation
+ *     IBM - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.mirror;
 
