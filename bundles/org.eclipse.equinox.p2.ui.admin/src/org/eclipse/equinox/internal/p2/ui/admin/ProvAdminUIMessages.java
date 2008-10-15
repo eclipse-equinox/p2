@@ -49,6 +49,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
 	public static String ProvisioningPrefPage_CollapseIUVersions;
+	public static String ProvisioningPrefPage_UseCategories;
 
 	public static String Ops_RemoveProfileOperationLabel;
 	public static String AddProfileDialog_OperationLabel;

@@ -184,4 +184,11 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	protected void refreshUnderlyingModel() {
 		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell(), StatusManager.SHOW | StatusManager.LOG);
 	}
+
+	protected List getVisualProperties() {
+		List list = super.getVisualProperties();
+		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
+		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
+		return list;
+	}
 }
