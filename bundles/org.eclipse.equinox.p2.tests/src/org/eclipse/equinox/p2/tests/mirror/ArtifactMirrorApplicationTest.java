@@ -120,7 +120,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void basicRunMirrorApplication(String message, URI source, URI destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", URIUtil.toURL(source).toExternalForm(), "-destination", URIUtil.toURL(destination).toExternalForm(), append ? "-append" : ""};
+		String[] args = new String[] {"-source", URIUtil.toURL(source).toExternalForm(), "-destination", URIUtil.toURL(destination).toExternalForm(), "-verbose", append ? "-append" : ""};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
