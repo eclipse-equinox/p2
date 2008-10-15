@@ -185,9 +185,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
-				// Ignore add events that the UI didn't trigger itself.
+				// Only make the repo visible if the UI triggered this event.
 				// This allows us to ignore the addition of system repositories, as
-				// well as treat the enabling of repos as an addition
+				// well as recognize specifically a user-add that resulted in
+				// the enablement of a repository.  
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=248989
 				if (!(event instanceof UIRepositoryEvent))
 					return;
 				makeRepositoryVisible(event.getRepositoryLocation());
