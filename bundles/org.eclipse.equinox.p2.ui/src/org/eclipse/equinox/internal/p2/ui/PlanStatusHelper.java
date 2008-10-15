@@ -45,6 +45,8 @@ public class PlanStatusHelper {
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, statusCode, NLS.bind(ProvUIMessages.PlanStatusHelper_NothingToDo, getIUString(affectedIU)), null);
 			case IStatusCodes.PROFILE_CHANGE_ALTERED :
 				return new MultiStatus(ProvUIActivator.PLUGIN_ID, statusCode, ProvUIMessages.PlanStatusHelper_RequestAltered, null);
+			case IStatusCodes.NOTHING_TO_UPDATE :
+				return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, IStatusCodes.NOTHING_TO_UPDATE, ProvUIMessages.UpdateOperation_NothingToUpdate, null);
 			default :
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, statusCode, NLS.bind(ProvUIMessages.PlanStatusHelper_UnexpectedError, new Integer(statusCode), getIUString(affectedIU)), null);
 		}

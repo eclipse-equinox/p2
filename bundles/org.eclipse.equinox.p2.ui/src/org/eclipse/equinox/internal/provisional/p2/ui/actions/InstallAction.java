@@ -99,9 +99,12 @@ public class InstallAction extends ProfileModificationAction {
 			return false;
 		// We allow non-IU's to be selected at this point, but there
 		// must be at least one installable unit selected that is
-		// not a category and is not nested underneath another IU.
+		// selectable
 		for (int i = 0; i < selectionArray.length; i++) {
 			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IUElement) selectionArray[i]))
+				return true;
+			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+			if (iu != null && isSelectable(iu))
 				return true;
 		}
 		return false;

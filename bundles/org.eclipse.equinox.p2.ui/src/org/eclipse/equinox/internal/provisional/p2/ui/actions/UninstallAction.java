@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -61,12 +62,26 @@ public class UninstallAction extends ProfileModificationAction {
 						return false;
 					}
 				} else {
-					return false;
+					IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+					if (iu == null || !isSelectable(iu))
+						return false;
 				}
 			}
 			return true;
 		}
 		return false;
+	}
+
+	protected boolean isSelectable(IUElement element) {
+		return super.isSelectable(element) && !(element.getParent(element) instanceof IUElement);
+	}
+
+	protected boolean isSelectable(IInstallableUnit iu) {
+		if (!super.isSelectable(iu))
+			return false;
+		IProfile profile = getProfile(false);
+		int lock = getLock(profile, iu);
+		return ((lock & IInstallableUnit.LOCK_UNINSTALL) == IInstallableUnit.LOCK_NONE);
 	}
 
 	protected String getTaskName() {

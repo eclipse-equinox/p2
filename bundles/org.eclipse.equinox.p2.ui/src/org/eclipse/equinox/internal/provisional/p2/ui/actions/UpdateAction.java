@@ -13,9 +13,10 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.PlanStatusHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -85,7 +86,7 @@ public class UpdateAction extends ProfileModificationAction {
 			sub.worked(1);
 		}
 		if (toBeUpdated.size() <= 0) {
-			status.add(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, IStatusCodes.NOTHING_TO_UPDATE, ProvUIMessages.UpdateOperation_NothingToUpdate, null));
+			status.add(PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null));
 			sub.done();
 			return null;
 		}
@@ -130,12 +131,26 @@ public class UpdateAction extends ProfileModificationAction {
 						return false;
 					}
 				} else {
-					return false;
+					IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+					if (iu == null || !isSelectable(iu))
+						return false;
 				}
 			}
 			return true;
 		}
 		return false;
+	}
+
+	protected boolean isSelectable(IUElement element) {
+		return super.isSelectable(element) && !(element.getParent(element) instanceof IUElement);
+	}
+
+	protected boolean isSelectable(IInstallableUnit iu) {
+		if (!super.isSelectable(iu))
+			return false;
+		IProfile profile = getProfile(false);
+		int lock = getLock(profile, iu);
+		return ((lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_NONE);
 	}
 
 	protected String getTaskName() {

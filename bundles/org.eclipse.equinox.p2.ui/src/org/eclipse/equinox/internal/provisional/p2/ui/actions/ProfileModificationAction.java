@@ -53,7 +53,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		String id = getProfileId(true);
 		// We could not figure out a profile to operate on, so return
 		if (id == null || ius.length == 0) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NoProfileToModify), StatusManager.SHOW);
+			ProvUI.reportStatus(PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null), StatusManager.BLOCK);
 			runCanceled();
 			return;
 		}
@@ -179,6 +179,10 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 				IUElement element = (IUElement) elements.get(i);
 				if (isSelectable(element))
 					iusList.add(getIU(element));
+			} else {
+				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
+				if (iu != null && isSelectable(iu))
+					iusList.add(iu);
 			}
 		}
 		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
@@ -186,6 +190,10 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected boolean isSelectable(IUElement element) {
 		return !(element instanceof CategoryElement);
+	}
+
+	protected boolean isSelectable(IInstallableUnit iu) {
+		return !ProvisioningUtil.isCategory(iu);
 	}
 
 	protected LicenseManager getLicenseManager() {
