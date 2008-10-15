@@ -37,6 +37,8 @@ public class Messages extends NLS {
 	public static String sar_failedMkdir;
 	public static String sar_reportStatus;
 
+	public static String mirror_alreadyExists;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

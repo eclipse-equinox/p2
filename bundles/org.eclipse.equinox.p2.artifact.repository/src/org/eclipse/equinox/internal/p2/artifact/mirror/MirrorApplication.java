@@ -13,12 +13,12 @@ package org.eclipse.equinox.internal.p2.artifact.mirror;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -34,6 +34,8 @@ public class MirrorApplication implements IApplication {
 	private IArtifactRepository destination;
 	private boolean append = false;
 	private boolean raw = false;
+	private boolean failOnError = true;
+	private boolean verbose = false;
 	private IArtifactRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
 	private boolean destinationLoaded = false;
@@ -45,7 +47,15 @@ public class MirrorApplication implements IApplication {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
-		new Mirroring(source, destination, raw).run();
+		IStatus result = new Mirroring(source, destination, raw).run(failOnError, verbose);
+		IStatus[] children = result.getChildren();
+		for (int i = 0; i < children.length; i++) {
+			if (verbose && !children[i].isOK()) {
+				System.err.println(children[i].getMessage());
+				if (children[i].getSeverity() == IStatus.ERROR)
+					LogHelper.log(children[i]);
+			}
+		}
 		//if the repository was not already loaded before the mirror application started, close it.
 		if (!sourceLoaded)
 			getManager().removeRepository(sourceLocation);
@@ -122,6 +132,10 @@ public class MirrorApplication implements IApplication {
 				raw = true;
 			if (args[i].equalsIgnoreCase("-append")) //$NON-NLS-1$
 				append = true;
+			if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
+				failOnError = false;
+			if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
+				verbose = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
