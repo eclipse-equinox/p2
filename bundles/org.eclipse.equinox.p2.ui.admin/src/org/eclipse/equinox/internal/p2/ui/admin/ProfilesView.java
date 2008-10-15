@@ -183,7 +183,7 @@ public class ProfilesView extends ProvView {
 	}
 
 	protected Object getInput() {
-		return new Profiles();
+		return new Profiles(ProvAdminUIActivator.getDefault().getPolicy());
 	}
 
 	ProfileChooser getProfileChooser() {

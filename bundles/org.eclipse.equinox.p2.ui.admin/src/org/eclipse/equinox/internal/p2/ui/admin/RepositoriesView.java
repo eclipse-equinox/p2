@@ -82,7 +82,11 @@ abstract class RepositoriesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes());
+		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes()) {
+			protected void refreshAll() {
+				RepositoriesView.this.refreshAll(false);
+			}
+		};
 		ProvUI.addProvisioningListener(listener);
 	}
 
@@ -183,7 +187,6 @@ abstract class RepositoriesView extends ProvView {
 	protected List getVisualProperties() {
 		List list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
-		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		return list;
 	}
 }

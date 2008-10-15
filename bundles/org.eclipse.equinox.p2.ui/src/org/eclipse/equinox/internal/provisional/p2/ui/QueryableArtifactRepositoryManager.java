@@ -37,17 +37,17 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 
 	/**
 	 * Iterates over the artifact repositories configured in this queryable.
-	 * If a query is specified, the query is run on each URL, passing any URLs that satisfy the
-	 * query to the provided collector.  If no query is specified, all repository URLs iterated are passed
+	 * If a query is specified, the query is run on each URI, passing any URIs that satisfy the
+	 * query to the provided collector.  If no query is specified, all repository URIs iterated are passed
 	 * to the collector.
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor. 
 	 * </p>
 	 * 
-	 * @param query The query to perform on the URLs, or <code>null</code> if all URLs should
+	 * @param query The query to perform on the URIs, or <code>null</code> if all URIs should
 	 * be accepted.
-	 * @param result Collects the repository URLs
+	 * @param result Collects the repository URIs
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The collector argument

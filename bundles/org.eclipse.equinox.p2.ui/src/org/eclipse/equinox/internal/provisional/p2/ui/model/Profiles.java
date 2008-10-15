@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.RootElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
@@ -22,10 +23,10 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * @since 3.4
  *
  */
-public class Profiles extends QueriedElement {
+public class Profiles extends RootElement {
 
-	public Profiles() {
-		super(null);
+	public Profiles(Policy policy) {
+		super(policy);
 	}
 
 	/*

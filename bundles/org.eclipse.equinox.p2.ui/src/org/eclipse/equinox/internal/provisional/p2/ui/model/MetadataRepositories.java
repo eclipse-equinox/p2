@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.RootElement;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
@@ -27,21 +27,17 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
  * @since 3.4
  *
  */
-public class MetadataRepositories extends RemoteQueriedElement {
+public class MetadataRepositories extends RootElement {
 
 	private boolean includeDisabled = false;
 	private int repoFlags = IRepositoryManager.REPOSITORIES_ALL;
-	private IUViewQueryContext queryContext;
-	private Policy policy;
 
 	public MetadataRepositories(Policy policy) {
 		this(policy.getQueryContext(), policy, null);
 	}
 
 	public MetadataRepositories(IUViewQueryContext queryContext, Policy policy, QueryableMetadataRepositoryManager queryable) {
-		super(null);
-		this.queryContext = queryContext;
-		this.policy = policy;
+		super(queryContext, policy);
 		this.queryable = queryable;
 	}
 
@@ -91,23 +87,6 @@ public class MetadataRepositories extends RemoteQueriedElement {
 		this.repoFlags = flags;
 	}
 
-	/**
-	 * Set the query context that is used when querying the receiver.
-	 * 
-	 * @param context the query context to use
-	 */
-	public void setQueryContext(IUViewQueryContext context) {
-		queryContext = context;
-	}
-
-	public IUViewQueryContext getQueryContext() {
-		return queryContext;
-	}
-
-	public Policy getPolicy() {
-		return policy;
-	}
-
 	/*
 	 * Overridden to check the query context.  We might
 	 * be showing repositories, or we might be flattening the 
@@ -116,9 +95,9 @@ public class MetadataRepositories extends RemoteQueriedElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
 	 */
 	public int getQueryType() {
-		if (queryContext == null)
+		if (getQueryContext() == null)
 			return getDefaultQueryType();
-		return queryContext.getQueryType();
+		return getQueryContext().getQueryType();
 	}
 
 	protected int getDefaultQueryType() {

@@ -125,7 +125,7 @@ abstract class ProvView extends ViewPart {
 		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
 		refreshAction = new RefreshAction(viewer, viewer.getControl()) {
 			protected void refresh() {
-				refreshAll();
+				refreshAll(true);
 			}
 		};
 		refreshAction.setToolTipText(ProvAdminUIMessages.ProvView_RefreshCommandTooltip);
@@ -157,7 +157,7 @@ abstract class ProvView extends ViewPart {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (getVisualProperties().contains(event.getProperty())) {
 					ProvAdminUIActivator.getDefault().initializePolicy();
-					ProvView.this.refreshAll();
+					ProvView.this.refreshAll(false);
 				}
 			}
 
@@ -223,9 +223,10 @@ abstract class ProvView extends ViewPart {
 		return list;
 	}
 
-	final void refreshAll() {
+	final void refreshAll(boolean refreshModel) {
 		// Refresh the underlying elements
-		refreshUnderlyingModel();
+		if (refreshModel)
+			refreshUnderlyingModel();
 		// We then reset the input to ensure that anything the content providers 
 		// are caching gets reset also.  The net effect is that everything 
 		// will get queried again.

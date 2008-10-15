@@ -38,7 +38,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new ArtifactRepositories();
+		return new ArtifactRepositories(ProvAdminUIActivator.getDefault().getPolicy());
 	}
 
 	protected String getAddCommandLabel() {

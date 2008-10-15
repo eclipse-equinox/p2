@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -63,7 +62,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				queryable = new QueryableArtifactRepositoryManager(context.getArtifactRepositoryFlags());
 				return new ElementQueryDescriptor(queryable, null, new Collector() {
 					public boolean accept(Object object) {
-						if (object instanceof URL)
+						if (object instanceof URI)
 							return super.accept(new ArtifactRepositoryElement(element, (URI) object));
 						return true;
 					}
@@ -77,6 +76,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				ElementQueryDescriptor installedQueryDescriptor = null;
 				boolean showLatest = context.getShowLatestVersionsOnly();
 				boolean hideInstalled = context.getHideAlreadyInstalled();
+				boolean useCategories = context.getUseCategories();
 				String profileId = context.getInstalledProfileId();
 				if (hideInstalled && profileId != null) {
 					try {
@@ -101,18 +101,16 @@ public class DefaultQueryProvider extends QueryProvider {
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
-					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT) {
+					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUCollector collector;
 						if (showLatest)
-							collector = new LatestIUVersionElementCollector(queryable, element, true);
+							collector = new LatestIUVersionElementCollector(queryable, element, false);
 						else
-							collector = new AvailableIUCollector(queryable, element, true);
+							collector = new AvailableIUCollector(queryable, element, false);
 						if (hideInstalled && installedQueryDescriptor != null)
 							collector.hideInstalledIUs(installedQueryDescriptor);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, collector);
 					}
-
-					// Assume category view if it wasn't flat.
 					// Installed content not a concern for collecting categories
 					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(queryable, element, true));
 				}

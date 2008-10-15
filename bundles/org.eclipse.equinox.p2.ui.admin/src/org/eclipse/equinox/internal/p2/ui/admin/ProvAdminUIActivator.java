@@ -129,7 +129,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		}
 		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
-
+		queryContext.setUseCategories(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
 	}
 
 	void initializePolicy() {
@@ -150,7 +150,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 				// TODO would be nice if the profile chooser dialog let you
 				// create a new profile
 				ProvElementContentProvider provider = new ProvElementContentProvider();
-				if (provider.getElements(new Profiles()).length == 0) {
+				if (provider.getElements(new Profiles(getPolicy())).length == 0) {
 					AddProfileDialog dialog = new AddProfileDialog(shell, new String[0]);
 					if (dialog.open() == Window.OK) {
 						return dialog.getAddedProfileId();
@@ -161,7 +161,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 				ListDialog dialog = new ListDialog(shell);
 				dialog.setTitle(ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle);
 				dialog.setLabelProvider(new ProvElementLabelProvider());
-				dialog.setInput(new Profiles());
+				dialog.setInput(new Profiles(getPolicy()));
 				dialog.setContentProvider(provider);
 				dialog.open();
 				Object[] result = dialog.getResult();

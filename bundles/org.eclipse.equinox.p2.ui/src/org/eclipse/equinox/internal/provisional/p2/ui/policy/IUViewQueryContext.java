@@ -37,6 +37,10 @@ public class IUViewQueryContext {
 	// Whether to hide things that are already installed
 	// Defaults to false since we wouldn't know what profile to use
 	private boolean hideAlreadyInstalled = false;
+	// Whether to group items in repos by category.  Note this only makes sense when the
+	// view type is AVAILABLE_VIEW_BY_REPO
+	private boolean useCategories = true;
+
 	private String profileId = null;
 	// What repositories to show
 	private int artifactRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
@@ -121,5 +125,13 @@ public class IUViewQueryContext {
 
 	public void setVisibleInstalledIUProperty(String propertyName) {
 		visibleInstalledIUProperty = propertyName;
+	}
+
+	public void setUseCategories(boolean useCategories) {
+		this.useCategories = useCategories;
+	}
+
+	public boolean getUseCategories() {
+		return useCategories;
 	}
 }
