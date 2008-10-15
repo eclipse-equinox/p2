@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import java.io.File;
+import java.io.*;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -824,6 +824,73 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertFileSizes("26.5", (SimpleArtifactRepository) getManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("26.6", e);
+		}
+	}
+
+	/**
+	 * Verifies that the mirror application executes processign steps correctly
+	 */
+	public void testArtifactProcessingSteps() {
+		//Setup: load the repository containing packed data
+		File packedRepoLocation = getTestData("27.0", "/testData/mirror/mirrorPackedRepo");
+		IArtifactRepository packedRepo = null;
+		IArtifactRepository destinationRepo = null;
+
+		try {
+			packedRepo = getManager().loadRepository(packedRepoLocation.toURI(), null);
+			destinationRepo = getManager().createRepository(destRepoLocation.toURI(), "Test Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		} catch (ProvisionException e1) {
+			fail("");
+		}
+
+		IArtifactKey[] keys = packedRepo.getArtifactKeys();
+
+		for (int i = 0; i < keys.length; i++) {
+			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(keys[i]);
+
+			for (int j = 0; j < srcDescriptors.length; j++) {
+				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals("packed")) {
+					//if we have a packed artifact
+					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(keys[i]);
+					Map properties = new OrderedProperties();
+					properties.putAll(srcDescriptors[j].getProperties());
+					properties.remove(IArtifactDescriptor.FORMAT);
+					((ArtifactDescriptor) newDescriptor).addProperties(properties);
+					//create appropriate descriptor
+					try {
+						OutputStream repositoryStream = null;
+						try {
+							System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							repositoryStream = destinationRepo.getOutputStream(newDescriptor);
+							if (repositoryStream == null)
+								return;
+							// TODO Is that ok to ignore the result?
+							//TODO MAKE THIS WORK PROPERLY
+							packedRepo.getArtifact(srcDescriptors[j], repositoryStream, new NullProgressMonitor());
+						} finally {
+							if (repositoryStream != null)
+								repositoryStream.close();
+						}
+					} catch (ProvisionException e) {
+						fail("27.1", e);
+					} catch (IOException e) {
+						fail("27.2", e);
+					}
+					//corresponding key should now be in the destination
+					IArtifactDescriptor[] destDescriptors = destinationRepo.getArtifactDescriptors(keys[i]);
+					boolean canonicalFound = false;
+					for (int l = 0; !canonicalFound && (l < destDescriptors.length); l++) {
+						//No processing steps mean item is canonical
+						if (destDescriptors[l].getProcessingSteps().length == 0)
+							canonicalFound = true;
+					}
+					if (!canonicalFound)
+						fail("27.3 no canonical found for " + keys[i].toString());
+
+					//ensure the canonical matches that in the expected
+					assertFileSizes("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
+				}
+			}
 		}
 	}
 }
