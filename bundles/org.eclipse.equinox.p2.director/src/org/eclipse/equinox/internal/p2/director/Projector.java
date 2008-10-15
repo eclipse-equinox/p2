@@ -622,6 +622,7 @@ public class Projector {
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
+		boolean delete = true;
 		IPBSolver solver = SolverFactory.newEclipseP2();
 		solver.setTimeoutOnConflicts(1000);
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
@@ -649,6 +650,7 @@ public class Projector {
 				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfiable_problem, problemFile)));
 			}
 		} catch (FileNotFoundException e) {
+			delete = false;
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Missing_opb_file, problemFile)));
 		} catch (ParseFormatException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Format_error, problemFile)));
@@ -657,7 +659,8 @@ public class Projector {
 		} catch (TimeoutException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
-			e.printStackTrace();
+			delete = false;
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unexpected_problem, problemFile), e));
 		} finally {
 			try {
 				if (fr != null)
@@ -665,7 +668,8 @@ public class Projector {
 			} catch (IOException e) {
 				//ignore
 			}
-			problemFile.delete();
+			if (delete)
+				problemFile.delete();
 		}
 		return result;
 	}
