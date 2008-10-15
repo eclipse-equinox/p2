@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -31,14 +30,6 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
 
 public class InstallAction extends ProfileModificationAction {
-
-	/**
-	 * @deprecated temp hack for PDE UI
-	 */
-	public static ProvisioningPlan computeProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
-		ProfileChangeRequest request = computeProfileChangeRequest(ius, targetProfileId, PlanStatusHelper.getProfileChangeAlteredStatus(), monitor);
-		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
-	}
 
 	public static ProfileChangeRequest computeProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
