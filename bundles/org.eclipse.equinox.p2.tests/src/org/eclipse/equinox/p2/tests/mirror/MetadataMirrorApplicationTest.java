@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -699,12 +698,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorNullSource() {
 		String[] args = null;
-		try {
-			//create arguments without a "-source"
-			args = new String[] {"-destination", destRepoLocation.toURL().toExternalForm()};
-		} catch (MalformedURLException e) {
-			fail("21.0", e);
-		}
+		//create arguments without a "-source"
+		args = new String[] {"-destination", destRepoLocation.toURI().toString()};
 
 		try {
 			runMirrorApplication("21.1", args);
@@ -722,12 +717,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorNullDestination() {
 		String[] args = null;
-		try {
-			//create arguments without a "-destination"
-			args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm()};
-		} catch (MalformedURLException e) {
-			fail("22.0", e);
-		}
+		//create arguments without a "-destination"
+		args = new String[] {"-source", sourceRepoLocation.toURI().toString()};
 
 		try {
 			runMirrorApplication("22.1", args);

@@ -11,17 +11,16 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
@@ -291,6 +290,39 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * ensures that all files with entries in the repo have corresponding files on disk.
+	 * Not Biconditional.
+	 */
+	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
+		IArtifactKey[] expectedKeys = expected.getArtifactKeys();
+
+		for (int i = 0; i < expectedKeys.length; i++) {
+			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(expectedKeys[i]);
+			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(expectedKeys[i]);
+
+			if (expectedDescriptors == null || actualDescriptors == null)
+				if (!(expectedDescriptors == null && actualDescriptors == null))
+					fail(message + " missing key " + expectedKeys[i]);
+
+			top: for (int j = 0; j < expectedDescriptors.length; j++) {
+				for (int k = 0; k < actualDescriptors.length; k++) {
+					if (Arrays.equals(expectedDescriptors[j].getProcessingSteps(), actualDescriptors[k].getProcessingSteps())) {
+						File expectedFile = expected.getArtifactFile(expectedDescriptors[j]);
+						File actualFile = actual.getArtifactFile(actualDescriptors[k]);
+						if (expectedFile == null || actualFile == null)
+							fail(message + " descriptor mismatch");
+						if (!(expectedFile.exists() && actualFile.exists()))
+							fail(message + " file does not exist");
+						assertTrue(expectedFile.length() == actualFile.length());
+						continue top;
+					}
+				}
+				fail(message + "Missing expected descriptor" + expectedDescriptors[j]);
+			}
+		}
+	}
+
+	/**
 	 * Tests mirroring all artifacts in a repository to an empty repository with "-append"
 	 * Source contains A, B
 	 * Target contains
@@ -523,7 +555,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorToInvalid() {
 		try {
-			//Setup: create a URL pointing to an unmodifiable place
+			//Setup: create a URI pointing to an unmodifiable place
 			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
 
 			//run the application with the modifiable destination
@@ -547,7 +579,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			//Setup: create a URL pointing to an unmodifiable place
+			//Setup: create a URI pointing to an unmodifiable place
 			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURI(), invalidDestRepository, true);
 			//We expect the ProvisionException to be thrown
@@ -676,12 +708,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorNullSource() {
 		String[] args = null;
-		try {
-			//create arguments without a "-source"
-			args = new String[] {"-destination", destRepoLocation.toURL().toExternalForm()};
-		} catch (MalformedURLException e) {
-			fail("21.0", e);
-		}
+
+		//create arguments without a "-source"
+		args = new String[] {"-destination", destRepoLocation.toURI().toString()};
 
 		try {
 			runMirrorApplication("21.1", args);
@@ -699,12 +728,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorNullDestination() {
 		String[] args = null;
-		try {
-			//create arguments without a "-destination"
-			args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm()};
-		} catch (MalformedURLException e) {
-			fail("22.0", e);
-		}
+
+		//create arguments without a "-destination"
+		args = new String[] {"-source", sourceRepoLocation.toURI().toString()};
 
 		try {
 			runMirrorApplication("22.1", args);
@@ -775,6 +801,29 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertRepositoryProperties("25.4", properties, repository.getProperties());
 		} catch (ProvisionException e) {
 			fail("25.5", e);
+		}
+	}
+
+	/**
+	 * Verifies that the mirror application copies files (including packed files) correctly
+	 */
+	public void testArtifactFileCopying() {
+		//Setup: load the repository containing packed data
+		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorPackedRepo");
+
+		try {
+			basicRunMirrorApplication("26.1", packedRepoLocation.toURI(), destRepoLocation.toURI(), false);
+		} catch (Exception e) {
+			fail("26.3", e);
+		}
+
+		try {
+			//Verify Contents
+			assertContentEquals("26.4", getManager().loadRepository(packedRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			//Verify files on disk
+			assertFileSizes("26.5", (SimpleArtifactRepository) getManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getManager().loadRepository(destRepoLocation.toURI(), null));
+		} catch (ProvisionException e) {
+			fail("26.6", e);
 		}
 	}
 }
