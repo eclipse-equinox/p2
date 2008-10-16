@@ -281,7 +281,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		run(message, output.getAbsolutePath() + "/eclipse/eclipse --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm " + exe.getAbsolutePath());
+		run(message, "\"" + output.getAbsolutePath() + "/eclipse/eclipse\" --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm \"" + exe.getAbsolutePath() + "\"");
 	}
 
 	/*
