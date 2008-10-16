@@ -284,11 +284,13 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 					location = parseRequiredAttributes(attributes, new String[] {URL_ATTRIBUTE})[0];
 				else
 					location = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
+				if (location == null)
+					return null;
 				return URIUtil.toURI(new URL(location));
 			} catch (MalformedURLException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location, e);
 			} catch (URISyntaxException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location);
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location, e);
 			}
 			return null;
 		}
@@ -701,7 +703,11 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void invalidAttributeValue(String element, String attribute, String value) {
-		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), null);
+		invalidAttributeValue(element, attribute, value, null);
+	}
+
+	public void invalidAttributeValue(String element, String attribute, String value, Throwable exception) {
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), exception);
 	}
 
 	public void unexpectedElement(AbstractHandler handler, String element, Attributes attributes) {
