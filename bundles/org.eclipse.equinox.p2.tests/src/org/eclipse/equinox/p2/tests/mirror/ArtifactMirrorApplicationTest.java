@@ -12,12 +12,14 @@ package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -116,11 +118,15 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * runs mirror application with default arguments. source is the source repo, destination is the destination repo, append is if the "-append" argument is needed
+	 * Runs mirror application with default arguments. source is the source repo, 
+	 * destination is the destination repo, append is if the "-append" argument is needed
+	 * 
+	 * Note: We use URL here because command line applications traffic in unencoded URLs,
+	 * so we can't use java.net.URI which will always use the encoded form
 	 */
-	private void basicRunMirrorApplication(String message, URI source, URI destination, boolean append) throws Exception {
+	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", URIUtil.toURL(source).toExternalForm(), "-destination", URIUtil.toURL(destination).toExternalForm(), "-verbose", append ? "-append" : ""};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", append ? "-append" : ""};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -130,7 +136,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, File source, File destination, boolean append) {
 		try {
-			basicRunMirrorApplication(message, source.toURI(), destination.toURI(), append);
+			basicRunMirrorApplication(message, source.toURL(), destination.toURL(), append);
 		} catch (Exception e) {
 			fail(message, e);
 		}
@@ -540,7 +546,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			basicRunMirrorApplication("13.1", invalidRepository.toURI(), destRepoLocation.toURI(), true);
+			basicRunMirrorApplication("13.1", invalidRepository.toURL(), destRepoLocation.toURL(), true);
 			//we expect a provision exception to be thrown. We should never get here.
 			fail("13.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {
@@ -559,7 +565,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
 
 			//run the application with the modifiable destination
-			basicRunMirrorApplication("14.1", sourceRepoLocation.toURI(), invalidDestRepository, true);
+			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we're expecting an UnsupportedOperationException so we should never get here
 			fail("14.0 UnsupportedOperationException not thrown");
 		} catch (UnsupportedOperationException e) {
@@ -581,7 +587,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		try {
 			//Setup: create a URI pointing to an unmodifiable place
 			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
-			basicRunMirrorApplication("15.1", invalidRepository.toURI(), invalidDestRepository, true);
+			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository.toURL(), true);
 			//We expect the ProvisionException to be thrown
 			fail("15.0 ProvisionException not thrown");
 		} catch (ProvisionException e) {
@@ -812,7 +818,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorPackedRepo");
 
 		try {
-			basicRunMirrorApplication("26.1", packedRepoLocation.toURI(), destRepoLocation.toURI(), false);
+			basicRunMirrorApplication("26.1", packedRepoLocation.toURL(), destRepoLocation.toURL(), false);
 		} catch (Exception e) {
 			fail("26.3", e);
 		}

@@ -374,7 +374,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			URI result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			URI result = mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION)) {
 					return URIUtil.removeFileExtension(result);
@@ -612,7 +612,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private URI getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		return mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
@@ -630,14 +630,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			if (descriptor instanceof ArtifactDescriptor) {
 				String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE);
 				if (artifactReference != null) {
-					return URIUtil.fromString(artifactReference);
+					try {
+						return new URI(artifactReference);
+					} catch (URISyntaxException e) {
+						return URIUtil.fromString(artifactReference);
+					}
 				}
 			}
 
 			// if the descriptor is complete then use the mapping rules...
 			if (descriptor.getProcessingSteps().length == 0) {
 				IArtifactKey key = descriptor.getArtifactKey();
-				URI result = mapper.map(location.toString(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+				URI result = mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 				if (result != null) {
 					if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION))
 						return URIUtil.removeFileExtension(result);

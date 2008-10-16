@@ -12,11 +12,11 @@ package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -119,11 +119,15 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * runs mirror application with default arguments. source is the source repo, destination is the destination repo, append is if the "-append" argument is needed
+	 * Runs mirror application with default arguments. source is the source repo, 
+	 * destination is the destination repo, append is if the "-append" argument is needed
+	 * 
+	 * Note: We use URL here because command line applications traffic in unencoded URLs,
+	 * so we can't use java.net.URI which will always use the encoded form
 	 */
-	private void basicRunMirrorApplication(String message, URI source, URI destination, boolean append) throws Exception {
+	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", URIUtil.toURL(source).toExternalForm(), "-destination", URIUtil.toURL(destination).toExternalForm(), append ? "-append" : ""};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "-append" : ""};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -133,7 +137,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, File source, File destination, boolean append) {
 		try {
-			basicRunMirrorApplication(message, source.toURI(), destination.toURI(), append);
+			basicRunMirrorApplication(message, source.toURL(), destination.toURL(), append);
 		} catch (Exception e) {
 			fail(message, e);
 		}
@@ -535,7 +539,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			basicRunMirrorApplication("13.1", invalidRepository.toURI(), destRepoLocation.toURI(), true);
+			basicRunMirrorApplication("13.1", invalidRepository.toURL(), destRepoLocation.toURL(), true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("13.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {
@@ -552,7 +556,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		URI invalidDestRepository;
 		try {
 			invalidDestRepository = new URI("http://foobar.com/abcdefg");
-			basicRunMirrorApplication("14.1", sourceRepoLocation.toURI(), invalidDestRepository, true);
+			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we expect an illegal state exception to be thrown and should never get here
 			fail("14.0 IllegalStateExpection not thrown");
 		} catch (IllegalStateException e) {
@@ -571,7 +575,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
-			basicRunMirrorApplication("15.1", invalidRepository.toURI(), invalidDestRepository, true);
+			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository.toURL(), true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("15.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {

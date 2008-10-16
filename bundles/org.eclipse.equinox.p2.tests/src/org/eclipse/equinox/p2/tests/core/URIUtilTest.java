@@ -35,6 +35,22 @@ public class URIUtilTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests for {@link URIUtil#toUnencodedString(URI)}.
+	 */
+	public void testToUnencodedString() throws URISyntaxException {
+		assertEquals("1.0", "http://foo.bar", URIUtil.toUnencodedString(new URI("http://foo.bar")));
+		assertEquals("1.1", "http://foo.bar#fragment", URIUtil.toUnencodedString(new URI("http://foo.bar#fragment")));
+		assertEquals("1.2", "foo.bar#fragment", URIUtil.toUnencodedString(new URI("foo.bar#fragment")));
+		assertEquals("1.3", "#fragment", URIUtil.toUnencodedString(new URI("#fragment")));
+
+		//spaces
+		assertEquals("2.1", "http://foo.bar/a b", URIUtil.toUnencodedString(new URI("http://foo.bar/a%20b")));
+		assertEquals("2.2", "http://foo.bar/a#b c", URIUtil.toUnencodedString(new URI("http://foo.bar/a#b%20c")));
+		assertEquals("2.3", "foo.bar/a b", URIUtil.toUnencodedString(new URI("foo.bar/a%20b")));
+		assertEquals("2.4", "#a b", URIUtil.toUnencodedString(new URI("#a%20b")));
+	}
+
+	/**
 	 * Tests for {@link URIUtil#fromString(String)}.
 	 */
 	public void testFromString() throws URISyntaxException {
@@ -43,6 +59,14 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		assertEquals("1.2", new URI("http://foo.bar/a#b%20c"), URIUtil.fromString("http://foo.bar/a#b c"));
 		assertEquals("1.3", new URI("foo.bar/a%20b"), URIUtil.fromString("foo.bar/a b"));
 		assertEquals("1.4", new URI("#a%20b"), URIUtil.fromString("#a b"));
+		assertEquals("1.5", new URI("file:/C:/foo.bar/a%20b"), URIUtil.fromString("file:/C:/foo.bar/a b"));
+
+		//percent character
+		assertEquals("2.1", new URI("http://foo.bar/a%2520b"), URIUtil.fromString("http://foo.bar/a%20b"));
+		assertEquals("2.2", new URI("http://foo.bar/a#b%2520c"), URIUtil.fromString("http://foo.bar/a#b%20c"));
+		assertEquals("2.3", new URI("foo.bar/a%2520b"), URIUtil.fromString("foo.bar/a%20b"));
+		assertEquals("2.4", new URI("#a%2520b"), URIUtil.fromString("#a%20b"));
+		assertEquals("2.5", new URI("file:/C:/foo.bar/a%2520b"), URIUtil.fromString("file:/C:/foo.bar/a%20b"));
 	}
 
 	/**
@@ -61,11 +85,22 @@ public class URIUtilTest extends AbstractProvisioningTest {
 	 * Tests handling of Absolute file system paths on Windows incorrectly encoded as
 	 * relative URIs (file:c:/tmp).
 	 */
-	public void testWindowsPaths() throws MalformedURLException, URISyntaxException {
+	public void testWindowsPathsFromURI() throws MalformedURLException, URISyntaxException {
 		if (!isWindows())
 			return;
 		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:c:/foo/bar.txt")));
 		assertEquals("1.2", new URI("file:/c:/foo/bar.txt"), URIUtil.toURI(new URL("file:/c:/foo/bar.txt")));
+	}
+
+	/**
+	 * Tests handling of Absolute file system paths on Windows incorrectly encoded as
+	 * relative URIs (file:c:/tmp).
+	 */
+	public void testWindowsPathsFromString() throws URISyntaxException {
+		if (!isWindows())
+			return;
+		assertEquals("1.1", new URI("file:/c:/foo/bar.txt"), URIUtil.fromString("file:c:/foo/bar.txt"));
+		assertEquals("1.2", new URI("file:/c:/foo/bar.txt"), URIUtil.fromString("file:/c:/foo/bar.txt"));
 	}
 
 	/**

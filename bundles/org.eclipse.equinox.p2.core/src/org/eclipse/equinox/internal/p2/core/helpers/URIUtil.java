@@ -63,22 +63,18 @@ public class URIUtil {
 	 * @throws URISyntaxException If the string cannot be formed into a valid URI
 	 */
 	public static URI fromString(String uriString) throws URISyntaxException {
-		try {
-			return new URI(uriString);
-		} catch (URISyntaxException e) {
-			int colon = uriString.indexOf(':');
-			int hash = uriString.lastIndexOf('#');
-			boolean noHash = hash < 0;
-			if (noHash)
-				hash = uriString.length();
-			String scheme = colon < 0 ? null : uriString.substring(0, colon);
-			String ssp = uriString.substring(colon + 1, hash);
-			String fragment = noHash ? null : uriString.substring(hash + 1);
-			//use java.io.File for contructing file: URIs
-			if (scheme != null && scheme.equals(SCHEME_FILE))
-				return new File(uriString.substring(5)).toURI();
-			return new URI(scheme, ssp, fragment);
-		}
+		int colon = uriString.indexOf(':');
+		int hash = uriString.lastIndexOf('#');
+		boolean noHash = hash < 0;
+		if (noHash)
+			hash = uriString.length();
+		String scheme = colon < 0 ? null : uriString.substring(0, colon);
+		String ssp = uriString.substring(colon + 1, hash);
+		String fragment = noHash ? null : uriString.substring(hash + 1);
+		//use java.io.File for constructing file: URIs
+		if (scheme != null && scheme.equals(SCHEME_FILE))
+			return new File(uriString.substring(5)).toURI();
+		return new URI(scheme, ssp, fragment);
 	}
 
 	/**
@@ -191,10 +187,30 @@ public class URIUtil {
 	}
 
 	/**
-	 * Returns the URI as a URL.
+	 * Returns a URI as a URL.
+	 * 
 	 * @throws MalformedURLException 
 	 */
 	public static URL toURL(URI uri) throws MalformedURLException {
 		return new URL(uri.toString());
+	}
+
+	/**
+	 * Returns a string representation of the given URI that doesn't have illegal
+	 * characters encoded. This string is suitable for later passing to {@link #fromString(String)}.
+	 * @param uri The URI to convert to string format
+	 * @return An unencoded string representation of the URI
+	 */
+	public static String toUnencodedString(URI uri) {
+		StringBuffer result = new StringBuffer();
+		String scheme = uri.getScheme();
+		if (scheme != null)
+			result.append(scheme).append(':');
+		//there is always a ssp
+		result.append(uri.getSchemeSpecificPart());
+		String fragment = uri.getFragment();
+		if (fragment != null)
+			result.append('#').append(fragment);
+		return result.toString();
 	}
 }

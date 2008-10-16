@@ -51,10 +51,11 @@ public class Mapper {
 		}
 	}
 
-	public URI map(String repoUri, String classifier, String id, String version, String format) {
+	public URI map(URI repositoryLocation, String classifier, String id, String version, String format) {
+		String locationString = URIUtil.toUnencodedString(repositoryLocation);
 		Dictionary values = new Hashtable(5);
-		if (repoUri != null)
-			values.put(REPOURL, repoUri);
+		if (repositoryLocation != null)
+			values.put(REPOURL, locationString);
 
 		if (classifier != null)
 			values.put(CLASSIFIER, classifier);
@@ -70,17 +71,17 @@ public class Mapper {
 
 		for (int i = 0; i < filters.length; i++) {
 			if (filters[i].match(values))
-				return doReplacement(outputStrings[i], repoUri, classifier, id, version, format);
+				return doReplacement(outputStrings[i], locationString, classifier, id, version, format);
 		}
 		return null;
 	}
 
-	private URI doReplacement(String pattern, String repoUrl, String classifier, String id, String version, String format) {
+	private URI doReplacement(String pattern, String repoLocation, String classifier, String id, String version, String format) {
 		try {
 			// currently our mapping rules assume the repo URL is not "/" terminated. 
 			// This may be the case for repoURLs in the root of a URL space e.g. root of a jar file or file:/c:/
-			if (repoUrl.endsWith("/")) //$NON-NLS-1$
-				repoUrl = repoUrl.substring(0, repoUrl.length() - 1);
+			if (repoLocation.endsWith("/")) //$NON-NLS-1$
+				repoLocation = repoLocation.substring(0, repoLocation.length() - 1);
 
 			StringBuffer output = new StringBuffer(pattern);
 			int index = 0;
@@ -102,7 +103,7 @@ public class Mapper {
 				} else if (varName.equalsIgnoreCase(VERSION)) {
 					varValue = version;
 				} else if (varName.equalsIgnoreCase(REPOURL)) {
-					varValue = repoUrl;
+					varValue = repoLocation;
 				} else if (varName.equalsIgnoreCase(FORMAT)) {
 					varValue = format;
 				}
