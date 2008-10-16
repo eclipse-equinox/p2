@@ -16,28 +16,25 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.PlanStatusHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
 
-public class UpdateAction extends ProfileModificationAction {
+public class UpdateAction extends ExistingIUInProfileAction {
 
 	ArrayList allReplacements; // cache all the replacements found to seed the wizard
 	HashMap latestReplacements;
 	boolean resolveIsVisible = true;
 
 	public UpdateAction(Policy policy, ISelectionProvider selectionProvider, String profileId, boolean resolveIsVisible) {
-		super(policy, ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId);
+		super(ProvUI.UPDATE_COMMAND_LABEL, policy, selectionProvider, profileId);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 		this.resolveIsVisible = resolveIsVisible;
 	}
@@ -102,62 +99,18 @@ public class UpdateAction extends ProfileModificationAction {
 		return request;
 	}
 
-	protected boolean isEnabledFor(Object[] selectionArray) {
-		Object parent = null;
-		// We cache the profile for performance reasons rather than get it for
-		// each IU.  
-		IProfile profile = getProfile(false);
-		if (profile == null)
-			return false;
-		if (selectionArray.length > 0) {
-			for (int i = 0; i < selectionArray.length; i++) {
-				if (selectionArray[i] instanceof InstalledIUElement) {
-					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
-					int lock = getLock(profile, element.getIU());
-					// If it is locked for update, action is not allowed
-					if ((lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE)
-						return false;
-					// We reject any selection with different parents,
-					// so if there were IU's selected from multiple
-					// profiles, we catch this case and disable the action.
-					if (parent == null) {
-						parent = element.getParent(null);
-					} else if (parent != element.getParent(null)) {
-						return false;
-					}
-					// If it is not a visible IU, it is not updatable by the user
-					String propName = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
-					if (propName != null && getProfileProperty(profile, element.getIU(), propName) == null) {
-						return false;
-					}
-				} else {
-					IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
-					if (iu == null || !isSelectable(iu))
-						return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	protected boolean isSelectable(IUElement element) {
-		return super.isSelectable(element) && !(element.getParent(element) instanceof IUElement);
-	}
-
-	protected boolean isSelectable(IInstallableUnit iu) {
-		if (!super.isSelectable(iu))
-			return false;
-		IProfile profile = getProfile(false);
-		int lock = getLock(profile, iu);
-		return ((lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_NONE);
-	}
-
 	protected String getTaskName() {
 		return ProvUIMessages.UpdateIUProgress;
 	}
 
 	protected boolean isResolveUserVisible() {
 		return resolveIsVisible;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
+	 */
+	protected int getLockConstant() {
+		return IInstallableUnit.LOCK_UPDATE;
 	}
 }
