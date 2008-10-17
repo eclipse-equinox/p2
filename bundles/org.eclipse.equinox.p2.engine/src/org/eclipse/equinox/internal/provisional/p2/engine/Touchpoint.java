@@ -22,7 +22,10 @@ public abstract class Touchpoint {
 
 	public abstract TouchpointType getTouchpointType();
 
-	public abstract ProvisioningAction getAction(String actionId);
+	/** NOT API -- this is for backwards compatibility only */
+	public String qualifyAction(String actionId) {
+		return actionId;
+	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		return Status.OK_STATUS;
@@ -32,11 +35,11 @@ public abstract class Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+	public IStatus completeOperand(IProfile profile, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 }

@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.NullAction;
+import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
 
 /**
  * Simple test of the engine API.
@@ -63,18 +66,32 @@ public class PhaseTest extends AbstractProvisioningTest {
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
-		protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			completePhase = true;
-			return super.completeInstallableUnitPhase(monitor, profile, parameters);
+			return super.completePhase(monitor, profile, parameters);
 		}
 
-		protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			initializePhase = true;
-			return super.initializeInstallableUnitPhase(monitor, profile, parameters);
+			return super.initializePhase(monitor, profile, parameters);
 		}
 
 		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-			return null;
+			final Touchpoint touchpoint = getTouchpoint(operand);
+			ProvisioningAction action = new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					return null;
+				}
+
+				public IStatus undo(Map parameters) {
+					return null;
+				}
+
+				public Touchpoint getTouchpoint() {
+					return touchpoint;
+				}
+			};
+			return new ProvisioningAction[] {action};
 		}
 	}
 
@@ -137,7 +154,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerform() {
-		PhaseSet phaseSet = new TestPhaseSet();
+		PhaseSet phaseSet = new TestPhaseSet(new TestPhase());
 		IProfile profile = createProfile("PhaseTest");
 
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[0], null, new NullProgressMonitor());
@@ -199,4 +216,52 @@ public class PhaseTest extends AbstractProvisioningTest {
 		assertTrue(phase.initializeOperand);
 		assertTrue(phase.completeOperand);
 	}
+
+	public static class TestAction extends ProvisioningAction {
+
+		public IStatus execute(Map parameters) {
+			return null;
+		}
+
+		public IStatus undo(Map parameters) {
+			return null;
+		}
+	}
+
+	public void testGetAction() {
+		final ArrayList actionsList1 = new ArrayList();
+		InstallableUnitPhase phase1 = new InstallableUnitPhase("test", 1) {
+			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+				ProvisioningAction[] actions = getActions(operand.second(), "test1");
+				actionsList1.addAll(Arrays.asList(actions));
+				return actions;
+			}
+		};
+		final ArrayList actionsList2 = new ArrayList();
+		InstallableUnitPhase phase2 = new InstallableUnitPhase("test", 1) {
+			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+				ProvisioningAction[] actions = getActions(operand.second(), "test2");
+				actionsList2.addAll(Arrays.asList(actions));
+				return actions;
+			}
+		};
+
+		PhaseSet phaseSet = new TestPhaseSet(new Phase[] {phase1, phase2});
+		IProfile profile = createProfile("PhaseTest");
+
+		Map instructions = new HashMap();
+		instructions.put("test1", MetadataFactory.createTouchpointInstruction("phasetest.test()", null));
+		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test()", null));
+		TouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
+		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new ProvidedCapability[0], NO_PROPERTIES, TouchpointType.NONE, touchpointData, false);
+		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		if (!status.isOK()) {
+			System.out.println(status);
+			fail();
+		}
+
+		assertEquals(TestAction.class, ((ParameterizedProvisioningAction) actionsList1.get(0)).getAction().getClass());
+		assertEquals(NullAction.class, ((ParameterizedProvisioningAction) actionsList2.get(0)).getAction().getClass());
+	}
+
 }

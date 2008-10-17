@@ -3,6 +3,7 @@ package org.eclipse.equinox.p2.tests.engine;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.NullTouchpoint;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -12,9 +13,10 @@ public class NullTouchpointTest extends AbstractProvisioningTest {
 		return new TestSuite(NullTouchpointTest.class);
 	}
 
-	public void testGetAction() {
+	public void testQualifyAction() {
 		NullTouchpoint touchpoint = new NullTouchpoint();
-		ProvisioningAction action = touchpoint.getAction("");
+		String actionId = touchpoint.qualifyAction("");
+		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
 		assertEquals(IStatus.OK, action.execute(null).getSeverity());
 		assertEquals(IStatus.OK, action.undo(null).getSeverity());
 	}

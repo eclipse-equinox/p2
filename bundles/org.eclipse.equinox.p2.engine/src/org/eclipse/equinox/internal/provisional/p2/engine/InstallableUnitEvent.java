@@ -33,7 +33,7 @@ public class InstallableUnitEvent extends EventObject {
 	}
 
 	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint, IStatus result) {
-		super(touchpoint); //TODO not sure if the touchpoint should be the source
+		super(profile);
 		this.phaseId = phaseId;
 		this.prePhase = prePhase;
 		this.profile = profile;
@@ -42,6 +42,7 @@ public class InstallableUnitEvent extends EventObject {
 			throw new IllegalArgumentException(Messages.InstallableUnitEvent_type_not_install_or_uninstall);
 		this.type = type;
 		this.result = result;
+		this.touchpoint = touchpoint;
 
 	}
 

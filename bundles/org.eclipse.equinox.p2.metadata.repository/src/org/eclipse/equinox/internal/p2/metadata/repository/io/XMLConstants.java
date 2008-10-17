@@ -77,6 +77,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 
 	// Constants for attributes of an a touchpoint data instruction element
 	public static final String TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE = "key"; //$NON-NLS-1$
+	public static final String TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE = "import"; //$NON-NLS-1$
 
 	// Constants for attributes of an update descriptor
 	public static final String UPDATE_DESCRIPTOR_SEVERITY = "severity"; //$NON-NLS-1$

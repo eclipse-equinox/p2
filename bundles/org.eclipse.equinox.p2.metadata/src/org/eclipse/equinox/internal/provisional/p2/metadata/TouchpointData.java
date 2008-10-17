@@ -49,8 +49,8 @@ public class TouchpointData {
 		this.instructions = instructions;
 	}
 
-	public String getInstructions(String instructionKey) {
-		return (String) instructions.get(instructionKey);
+	public TouchpointInstruction getInstructions(String instructionKey) {
+		return (TouchpointInstruction) instructions.get(instructionKey);
 	}
 
 	// Return an unmodifiable collection of the instructions

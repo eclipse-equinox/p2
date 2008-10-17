@@ -15,6 +15,9 @@ import org.eclipse.osgi.util.NLS;
 class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.engine.messages"; //$NON-NLS-1$
 
+	public static String ActionManager_Exception_Creating_Action_Extension;
+	public static String ActionManager_Required_Touchpoint_Not_Found;
+
 	public static String action_not_found;
 
 	public static String download_artifact;

@@ -713,20 +713,24 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	protected class TouchpointInstructionHandler extends TextHandler {
 
 		private final String[] required = new String[] {TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE};
+		private final String[] optional = new String[] {TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE};
 
 		Map instructions = null;
 		String key = null;
+		String qualifier = null;
 
 		public TouchpointInstructionHandler(AbstractHandler parentHandler, Attributes attributes, Map instructions) {
 			super(parentHandler, TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
-			key = parseRequiredAttributes(attributes, required)[0];
+			String[] values = parseAttributes(attributes, required, optional);
+			key = values[0];
+			qualifier = values[1];
 			this.instructions = instructions;
 		}
 
 		protected void finished() {
 			if (isValidXML()) {
 				if (key != null) {
-					instructions.put(key, getText());
+					instructions.put(key, MetadataFactory.createTouchpointInstruction(getText(), qualifier));
 				}
 			}
 		}

@@ -90,8 +90,8 @@ public class JREActionTest extends ActionTest {
 		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
 
 		Map instructions = bar.getTouchpointData()[0].getInstructions();
-		assertTrue(instructions.get("install").equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(instructions.get("uninstall").equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(((TouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
+		assertTrue(((TouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "a.jre", new VersionRange(JREVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 

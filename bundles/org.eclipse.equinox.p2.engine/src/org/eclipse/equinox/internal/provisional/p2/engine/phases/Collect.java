@@ -14,9 +14,11 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
@@ -37,7 +39,11 @@ public class Collect extends InstallableUnitPhase {
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		ProvisioningAction action = getTouchpoint(currentOperand).getAction(phaseId);
+		String actionId = getTouchpoint(currentOperand).qualifyAction(phaseId);
+		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
+		if (action == null) {
+			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
+		}
 		return new ProvisioningAction[] {action};
 	}
 
@@ -45,10 +51,11 @@ public class Collect extends InstallableUnitPhase {
 		return Messages.Phase_Collect_Error;
 	}
 
-	protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
+		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 
-		DownloadManager dm = new DownloadManager(provContext);
+		DownloadManager dm = new DownloadManager(context);
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
 			IArtifactRequest[] requests = (IArtifactRequest[]) it.next();
 			dm.add(requests);
@@ -56,7 +63,7 @@ public class Collect extends InstallableUnitPhase {
 		return dm.start(monitor);
 	}
 
-	protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}

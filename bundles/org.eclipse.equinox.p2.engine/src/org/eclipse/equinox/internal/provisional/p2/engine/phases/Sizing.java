@@ -14,10 +14,12 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.osgi.util.NLS;
 
 public class Sizing extends InstallableUnitPhase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
@@ -42,7 +44,12 @@ public class Sizing extends InstallableUnitPhase {
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		ProvisioningAction action = getTouchpoint(currentOperand).getAction("collect"); //$NON-NLS-1$
+		String actionId = getTouchpoint(currentOperand).qualifyAction("collect"); //$NON-NLS-1$
+
+		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
+		if (action == null) {
+			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
+		}
 		return new ProvisioningAction[] {action};
 	}
 
@@ -50,8 +57,10 @@ public class Sizing extends InstallableUnitPhase {
 		return Messages.Phase_Sizing_Error;
 	}
 
-	protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
+		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
+
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
 
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
@@ -68,10 +77,10 @@ public class Sizing extends InstallableUnitPhase {
 
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		URI[] repositories = null;
-		if (provContext == null || provContext.getArtifactRepositories() == null)
+		if (context == null || context.getArtifactRepositories() == null)
 			repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		else
-			repositories = provContext.getArtifactRepositories();
+			repositories = context.getArtifactRepositories();
 
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
@@ -97,7 +106,7 @@ public class Sizing extends InstallableUnitPhase {
 		return null;
 	}
 
-	protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}

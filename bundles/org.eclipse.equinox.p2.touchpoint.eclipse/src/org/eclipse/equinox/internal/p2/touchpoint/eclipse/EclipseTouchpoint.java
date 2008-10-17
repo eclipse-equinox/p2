@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionFactory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -72,8 +71,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public ProvisioningAction getAction(String actionId) {
-		return ActionFactory.create(actionId);
+	public String qualifyAction(String actionId) {
+		return Activator.ID + "." + actionId; //$NON-NLS-1$
 	}
 
 	public TouchpointType getTouchpointType() {
@@ -92,7 +91,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return null;
 	}
 
-	public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		if (iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue()) {
 			IInstallableUnit preparedIU = prepareIU(iu, profile);

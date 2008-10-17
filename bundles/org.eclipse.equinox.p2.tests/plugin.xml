@@ -40,7 +40,16 @@
        point="org.eclipse.equinox.p2.engine.actions">
     <action
           class="org.eclipse.equinox.p2.tests.engine.InstructionParserTest$TestAction"
-          id="org.eclipse.equinox.p2.tests.engine.test">
+          name="org.eclipse.equinox.p2.tests.engine.test"
+          version="1.0.0">
+    </action>
+  </extension>
+ <extension
+       point="org.eclipse.equinox.p2.engine.actions">
+    <action
+          class="org.eclipse.equinox.p2.tests.engine.PhaseTest$TestAction"
+          name="phasetest.test"
+          version="1">
     </action>
  </extension>
 

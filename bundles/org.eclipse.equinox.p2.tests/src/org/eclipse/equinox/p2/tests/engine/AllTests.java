@@ -29,6 +29,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProfileTest.class);
 		suite.addTestSuite(ProfileRegistryTest.class);
 		suite.addTestSuite(SurrogateProfileHandlerTest.class);
+		suite.addTestSuite(TouchpointManagerTest.class);
 		suite.addTestSuite(TouchpointTest.class);
 		return suite;
 	}

@@ -474,7 +474,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertEquals("1.1", 1, data.length);
 		Map instructions = data[0].getInstructions();
 		assertEquals("1.2", 1, instructions.size());
-		assertEquals("1.3", "true", instructions.get("zipped"));
+		assertEquals("1.3", "true", ((TouchpointInstruction) instructions.get("zipped")).getBody());
 	}
 
 	public void testMirrors() {

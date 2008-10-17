@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.HashMap;
@@ -5,13 +15,18 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
 
 public class ActionManager implements IRegistryChangeListener {
 
 	private static final String PT_ACTIONS = "actions"; //$NON-NLS-1$
 	private static final String ELEMENT_ACTION = "action"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
+	private static final String TOUCHPOINT_TYPE = "touchpointType"; //$NON-NLS-1$
+	private static final String TOUCHPOINT_VERSION = "touchpointVersion"; //$NON-NLS-1$
 
 	private static ActionManager instance;
 
@@ -25,23 +40,40 @@ public class ActionManager implements IRegistryChangeListener {
 	private HashMap actionMap;
 
 	private ActionManager() {
-		RegistryFactory.getRegistry().addRegistryChangeListener(this);
+		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
 	}
 
 	public ProvisioningAction getAction(String actionId) {
+		return getAction(actionId, null);
+	}
+
+	public ProvisioningAction getAction(String actionId, VersionRange versionRange) {
 		IConfigurationElement actionElement = (IConfigurationElement) getActionMap().get(actionId);
 		if (actionElement != null && actionElement.isValid()) {
 			try {
-				return (ProvisioningAction) actionElement.createExecutableExtension(ATTRIBUTE_CLASS);
+				ProvisioningAction action = (ProvisioningAction) actionElement.createExecutableExtension(ATTRIBUTE_CLASS);
+
+				String touchpointType = actionElement.getAttribute(TOUCHPOINT_TYPE);
+				if (touchpointType != null) {
+					String touchpointVersion = actionElement.getAttribute(TOUCHPOINT_VERSION);
+					Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(touchpointType, touchpointVersion);
+					if (touchpoint == null) {
+						reportError(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, touchpointType, actionId));
+						return null;
+					}
+					action.setTouchpoint(touchpoint);
+				}
+				return action;
 			} catch (CoreException e) {
-				//TODO: create Message
-				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error creating action with id=" + actionId));
+				reportError(NLS.bind(Messages.ActionManager_Exception_Creating_Action_Extension, actionId));
 			}
 		}
 		return null;
 	}
 
 	private synchronized Map getActionMap() {
+		if (actionMap != null)
+			return actionMap;
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
 		actionMap = new HashMap(extensions.length);
@@ -52,7 +84,7 @@ public class ActionManager implements IRegistryChangeListener {
 				if (!actionElement.getName().equals(ELEMENT_ACTION))
 					continue;
 
-				String actionId = actionElement.getAttribute(ATTRIBUTE_ID);
+				String actionId = actionElement.getAttribute(ATTRIBUTE_NAME);
 				if (actionId == null)
 					continue;
 
@@ -68,4 +100,10 @@ public class ActionManager implements IRegistryChangeListener {
 	public synchronized void registryChanged(IRegistryChangeEvent event) {
 		actionMap = null;
 	}
+
+	static void reportError(String errorMsg) {
+		Status errorStatus = new Status(IStatus.ERROR, EngineActivator.ID, 1, errorMsg, null);
+		LogHelper.log(errorStatus);
+	}
+
 }

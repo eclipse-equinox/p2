@@ -16,7 +16,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Version;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
 public class TouchpointManager implements IRegistryChangeListener {
@@ -32,9 +34,9 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 	private static final String PT_TOUCHPOINTS = "touchpoints"; //$NON-NLS-1$
 	private static final String ELEMENT_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
-	private static final String ELEMENT_TOUCHPOINT_DATA = "data"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_TYPE = "type"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 
 	private class TouchpointEntry {
 
@@ -48,12 +50,12 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		public Touchpoint getTouchpoint() {
 			if (!createdExtension) {
-				String id = element.getAttribute(ATTRIBUTE_TYPE);
+				String id = getType();
 				try {
 					Touchpoint touchpointInstance = (Touchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
 					if (touchpointInstance != null) {
 						if (!id.equals(touchpointInstance.getTouchpointType().getId())) {
-							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpointInstance.getTouchpointType().getId()), null);
+							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpointInstance.getTouchpointType().getId()));
 						}
 						this.touchpoint = touchpointInstance;
 					} else {
@@ -70,6 +72,14 @@ public class TouchpointManager implements IRegistryChangeListener {
 				createdExtension = true;
 			}
 			return this.touchpoint;
+		}
+
+		public Version getVersion() {
+			return new Version(element.getAttribute(ATTRIBUTE_VERSION));
+		}
+
+		public String getType() {
+			return element.getAttribute(ATTRIBUTE_TYPE);
 		}
 
 		public String toString() {
@@ -92,69 +102,77 @@ public class TouchpointManager implements IRegistryChangeListener {
 	}
 
 	/*
-	 * Return the touchpoint which is registered for the given id,
+	 * Return the touchpoint which is registered for the given type,
 	 * or <code>null</code> if none are registered.
 	 */
-	public Touchpoint getTouchpoint(TouchpointType id) {
-		if (id == null || "".equals(id.getId())) //$NON-NLS-1$
+	public synchronized Touchpoint getTouchpoint(TouchpointType type) {
+		if (type == null)
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
-		if (touchpointEntries == null) {
-			initializeTouchpoints();
+		return getTouchpoint(type.getId(), type.getVersion().toString());
+	}
+
+	/*
+	 * Return the touchpoint which is registered for the given type and optionally version,
+	 * or <code>null</code> if none are registered.
+	 */
+	public Touchpoint getTouchpoint(String typeId, String versionRange) {
+		if (typeId == null || typeId.length() == 0)
+			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
+
+		TouchpointEntry entry = (TouchpointEntry) getTouchpointEntries().get(typeId);
+		if (entry == null)
+			return null;
+		if (versionRange != null) {
+			VersionRange range = new VersionRange(versionRange);
+			if (!range.isIncluded(entry.getVersion()))
+				return null;
 		}
-		TouchpointEntry entry = (TouchpointEntry) touchpointEntries.get(id.getId());
-		return entry == null ? null : entry.getTouchpoint();
+
+		return entry.getTouchpoint();
 	}
 
 	/*
 	 * Construct a map of the extensions that implement the touchpoints extension point.
 	 */
-	private MultiStatus initializeTouchpoints() {
-		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
-		if (point == null) {
-			reportError(NLS.bind(Messages.TouchpointManager_No_Extension_Point, EngineActivator.ID, PT_TOUCHPOINTS), status);
-			touchpointEntries = new HashMap(0);
-			return status;
-		}
+	private synchronized Map getTouchpointEntries() {
+		if (touchpointEntries != null)
+			return touchpointEntries;
 
+		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();
 		touchpointEntries = new HashMap(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			IConfigurationElement[] elements = extensions[i].getConfigurationElements();
 			for (int j = 0; j < elements.length; j++) {
 				String elementName = elements[j].getName();
-				if (!ELEMENT_TOUCHPOINT.equalsIgnoreCase(elements[j].getName())) {
-					if (!ELEMENT_TOUCHPOINT_DATA.equals(elementName)) { // TODO: are 'data' elements still needed?
-						reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, elements[j].getName(), ELEMENT_TOUCHPOINT), status);
-					}
+				if (!ELEMENT_TOUCHPOINT.equalsIgnoreCase(elementName)) {
+					reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, elements[j].getName(), ELEMENT_TOUCHPOINT));
 					continue;
 				}
 				String id = elements[j].getAttribute(ATTRIBUTE_TYPE);
 				if (id == null) {
-					reportError(NLS.bind(Messages.TouchpointManager_Attribute_Not_Specified, ATTRIBUTE_TYPE), status);
+					reportError(NLS.bind(Messages.TouchpointManager_Attribute_Not_Specified, ATTRIBUTE_TYPE));
 					continue;
 				}
 				if (touchpointEntries.get(id) == null) {
 					touchpointEntries.put(id, new TouchpointEntry(elements[j]));
 				} else {
-					reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id), status);
+					reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id));
 				}
 			}
 		}
-		return status;
+		return touchpointEntries;
 	}
 
-	static void reportError(String errorMsg, MultiStatus status) {
+	static void reportError(String errorMsg) {
 		Status errorStatus = new Status(IStatus.ERROR, EngineActivator.ID, 1, errorMsg, null);
-		if (status != null && !status.isOK())
-			status.add(errorStatus);
 		LogHelper.log(errorStatus);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.IRegistryChangeListener#registryChanged(org.eclipse.core.runtime.IRegistryChangeEvent)
 	 */
-	public void registryChanged(IRegistryChangeEvent event) {
+	public synchronized void registryChanged(IRegistryChangeEvent event) {
 		// just flush the cache when something changed.  It will be recomputed on demand.
 		touchpointEntries = null;
 	}

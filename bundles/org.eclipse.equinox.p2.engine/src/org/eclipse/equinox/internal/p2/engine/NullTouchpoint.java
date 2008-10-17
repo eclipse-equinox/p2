@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
@@ -40,15 +36,7 @@ public class NullTouchpoint extends Touchpoint {
 		return false;
 	}
 
-	public ProvisioningAction getAction(String actionId) {
-		return new ProvisioningAction() {
-			public IStatus execute(Map parameters) {
-				return Status.OK_STATUS;
-			}
-
-			public IStatus undo(Map parameters) {
-				return Status.OK_STATUS;
-			}
-		};
+	public String qualifyAction(String actionId) {
+		return EngineActivator.ID + ".null"; //$NON-NLS-1$
 	}
 }

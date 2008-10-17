@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -284,7 +285,19 @@ public class MetadataFactory {
 	public static TouchpointData createTouchpointData(Map instructions) {
 		Assert.isNotNull(instructions);
 		//copy the map to protect against subsequent change by caller
-		return instructions.isEmpty() ? EMPTY_TOUCHPOINT_DATA : new TouchpointData(new LinkedHashMap(instructions));
+		if (instructions.isEmpty())
+			return EMPTY_TOUCHPOINT_DATA;
+
+		Map result = new LinkedHashMap(instructions.size());
+		for (Iterator iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
+			Entry entry = (Entry) iterator.next();
+			Object value = entry.getValue();
+			if (value == null || value instanceof String)
+				value = createTouchpointInstruction((String) value, null);
+
+			result.put(entry.getKey(), value);
+		}
+		return new TouchpointData(result);
 	}
 
 	/**
@@ -323,5 +336,9 @@ public class MetadataFactory {
 
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
 		return new UpdateDescriptor(id, range, severity, description);
+	}
+
+	public static TouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
+		return new TouchpointInstruction(body, importAttribute);
 	}
 }

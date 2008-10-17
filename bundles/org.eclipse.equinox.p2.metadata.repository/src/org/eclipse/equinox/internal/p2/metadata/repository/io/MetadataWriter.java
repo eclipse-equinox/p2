@@ -228,7 +228,10 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 						Map.Entry entry = (Map.Entry) iter.next();
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
-						cdata((String) entry.getValue(), true);
+						TouchpointInstruction instruction = (TouchpointInstruction) entry.getValue();
+						if (instruction.getImportAttribute() != null)
+							attribute(TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE, instruction.getImportAttribute());
+						cdata(instruction.getBody(), true);
 						end(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 					}
 				}

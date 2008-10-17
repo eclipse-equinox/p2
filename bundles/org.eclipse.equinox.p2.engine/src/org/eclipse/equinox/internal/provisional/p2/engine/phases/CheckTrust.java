@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
@@ -40,7 +41,8 @@ public class CheckTrust extends InstallableUnitPhase {
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		ProvisioningAction action = getTouchpoint(currentOperand).getAction(phaseId);
+		String actionId = getTouchpoint(currentOperand).qualifyAction(phaseId);
+		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
 		if (action == null) {
 			return null;
 		}

@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 
 public class ParameterizedProvisioningAction extends ProvisioningAction {
 
@@ -76,5 +77,21 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		String variableValue = value == null ? "" : value.toString(); //$NON-NLS-1$
 		String postVariable = processVariables(parameterValue.substring(variableEndIndex + 1), parameters);
 		return preVariable + variableValue + postVariable;
+	}
+
+	public ProvisioningAction getAction() {
+		return action;
+	}
+
+	public Map getParameters() {
+		return actionParameters;
+	}
+
+	public Touchpoint getTouchpoint() {
+		return action.getTouchpoint();
+	}
+
+	public void setTouchpoint(Touchpoint touchpoint) {
+		throw new UnsupportedOperationException();
 	}
 }

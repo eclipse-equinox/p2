@@ -38,9 +38,9 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint = this;
 		}
 
-		public IStatus completeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		public IStatus completeOperand(IProfile profile, Operand operand, Map parameters) {
 			completeOperand++;
-			return super.completeOperand(profile, phaseId, operand, parameters);
+			return super.completeOperand(profile, operand, parameters);
 		}
 
 		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
@@ -48,18 +48,14 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return super.completePhase(monitor, profile, phaseId, touchpointParameters);
 		}
 
-		public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 			initializeOperand++;
-			return super.initializeOperand(profile, phaseId, operand, parameters);
+			return super.initializeOperand(profile, operand, parameters);
 		}
 
 		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 			initializePhase++;
 			return super.initializePhase(monitor, profile, phaseId, touchpointParameters);
-		}
-
-		public ProvisioningAction getAction(String actionId) {
-			return null;
 		}
 
 		public TouchpointType getTouchpointType() {
@@ -68,19 +64,19 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public static class OperandTestTouchpoint extends TestTouchpoint {
-		public IStatus completeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		public IStatus completeOperand(IProfile profile, Operand operand, Map parameters) {
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
-			super.completeOperand(profile, phaseId, operand, parameters);
+			super.completeOperand(profile, operand, parameters);
 			assertEquals(1, initializeOperand);
 			assertEquals(1, completeOperand);
 			return null;
 		}
 
-		public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 			assertEquals(0, initializeOperand);
 			assertEquals(0, completeOperand);
-			super.initializeOperand(profile, phaseId, operand, parameters);
+			super.initializeOperand(profile, operand, parameters);
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
 			return null;

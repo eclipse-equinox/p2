@@ -49,7 +49,14 @@
 
    <element name="action">
       <complexType>
-         <attribute name="id" type="string" use="required">
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="version" type="string" use="required">
             <annotation>
                <documentation>
                   
@@ -64,6 +71,27 @@
                <appinfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction:"/>
                </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="touchpointType" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="touchpointVersion" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

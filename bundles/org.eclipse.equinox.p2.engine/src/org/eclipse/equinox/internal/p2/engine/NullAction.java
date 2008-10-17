@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,29 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 
-public abstract class ProvisioningAction {
+public class NullAction extends ProvisioningAction {
 
-	private Memento memento = new Memento();
-	private Touchpoint touchpoint;
-
-	protected Memento getMemento() {
-		return memento;
+	public IStatus execute(Map parameters) {
+		return Status.OK_STATUS;
 	}
 
-	public abstract IStatus execute(Map parameters);
-
-	public abstract IStatus undo(Map parameters);
-
-	public void setTouchpoint(Touchpoint touchpoint) {
-		this.touchpoint = touchpoint;
+	public IStatus undo(Map parameters) {
+		return Status.OK_STATUS;
 	}
 
-	public Touchpoint getTouchpoint() {
-		return touchpoint;
-	}
 }
