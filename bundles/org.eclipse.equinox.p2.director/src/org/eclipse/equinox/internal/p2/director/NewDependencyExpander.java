@@ -223,6 +223,10 @@ public class NewDependencyExpander {
 		public Copyright getCopyright() {
 			return wrapped.getCopyright();
 		}
+
+		public boolean satisfies(RequiredCapability candidate) {
+			return wrapped.satisfies(candidate);
+		}
 	}
 
 	static final int OperationWork = 100;
@@ -378,7 +382,7 @@ public class NewDependencyExpander {
 					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();
 					boolean isReallyAFragment = false;
 					for (int j = 0; j < reqs.length; j++) {
-						isReallyAFragment = capForCurrent.isSatisfiedBy(reqs[j]);
+						isReallyAFragment = capForCurrent.satisfies(reqs[j]);
 					}
 					if (!isReallyAFragment)
 						continue;

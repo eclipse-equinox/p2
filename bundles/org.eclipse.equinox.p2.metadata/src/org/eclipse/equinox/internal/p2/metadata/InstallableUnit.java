@@ -298,4 +298,12 @@ public class InstallableUnit implements IInstallableUnit {
 	public Copyright getCopyright() {
 		return copyright;
 	}
+
+	public boolean satisfies(RequiredCapability candidate) {
+		ProvidedCapability[] provides = getProvidedCapabilities();
+		for (int i = 0; i < provides.length; i++)
+			if (provides[i].satisfies(candidate))
+				return true;
+		return false;
+	}
 }

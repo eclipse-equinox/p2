@@ -219,6 +219,14 @@ public interface IInstallableUnit extends Comparable {
 	public boolean isSingleton();
 
 	/**
+	 * Returns whether this unit has a provided capability that satisfies the given 
+	 * required capability.
+	 * @return <code>true</code> if this unit satisfies the given required
+	 * capability, and <code>false</code> otherwise.
+	 */
+	public boolean satisfies(RequiredCapability candidate);
+
+	/**
 	 * Returns the unresolved equivalent of this installable unit. If this unit is
 	 * already unresolved, this method returns the receiver. Otherwise, this
 	 * method returns an installable unit with the same id and version, but without

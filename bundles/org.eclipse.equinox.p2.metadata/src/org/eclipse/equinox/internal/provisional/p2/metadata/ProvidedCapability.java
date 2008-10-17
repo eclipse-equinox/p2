@@ -54,11 +54,11 @@ public class ProvidedCapability {
 	}
 
 	/**
-	 * TODO The name of this method is backwards. A provided capability does not
-	 * get satisfied - it is the required capability that is satisfied or not. It should be "satisfies"
-	 * or "isSatisfied"
+	 * Returns whether this provided capability satisfies the given required capability.
+	 * @return <code>true</code> if this capability satisfies the given required
+	 * capability, and <code>false</code> otherwise.
 	 */
-	public boolean isSatisfiedBy(RequiredCapability candidate) {
+	public boolean satisfies(RequiredCapability candidate) {
 		if (getName() == null || !getName().equals(candidate.getName()))
 			return false;
 		if (getNamespace() == null || !getNamespace().equals(candidate.getNamespace()))

@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
@@ -34,14 +35,9 @@ public class AnyRequiredCapabilityQuery extends Query {
 		if (!(object instanceof IInstallableUnit))
 			return false;
 		IInstallableUnit candidate = (IInstallableUnit) object;
-		ProvidedCapability[] provides = candidate.getProvidedCapabilities();
-		for (int i = 0; i < requirements.length; i++) {
-			for (int j = 0; j < provides.length; j++) {
-				if (provides[j].isSatisfiedBy(requirements[i])) {
-					return true;
-				}
-			}
-		}
+		for (int i = 0; i < requirements.length; i++)
+			if (candidate.satisfies(requirements[i]))
+				return true;
 		return false;
 	}
 }
