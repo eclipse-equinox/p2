@@ -24,7 +24,6 @@ public class InstallableUnit implements IInstallableUnit {
 	private static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
 	private static final TouchpointData[] NO_TOUCHPOINT_DATA = new TouchpointData[0];
 
-	String applicabilityFilter;
 	private IArtifactKey[] artifacts;
 	private String filter;
 
@@ -49,23 +48,6 @@ public class InstallableUnit implements IInstallableUnit {
 
 	public InstallableUnit() {
 		super();
-	}
-
-	public void addProperties(Map newProperties) {
-		if (properties == null)
-			properties = new OrderedProperties(newProperties.size());
-		properties.putAll(newProperties);
-	}
-
-	protected void addProvidedCapability(ProvidedCapability capability) {
-		if (providedCapabilities != null && providedCapabilities.length > 0) {
-			ProvidedCapability[] result = new ProvidedCapability[providedCapabilities.length + 1];
-			result[0] = capability;
-			System.arraycopy(providedCapabilities, 0, result, 1, providedCapabilities.length);
-			providedCapabilities = result;
-		} else {
-			providedCapabilities = new ProvidedCapability[] {capability};
-		}
 	}
 
 	public void addTouchpointData(TouchpointData newData) {
@@ -110,10 +92,6 @@ public class InstallableUnit implements IInstallableUnit {
 		} else if (!getVersion().equals(other.getVersion()))
 			return false;
 		return true;
-	}
-
-	public String getApplicabilityFilter() {
-		return applicabilityFilter;
 	}
 
 	public IArtifactKey[] getArtifacts() {
@@ -202,10 +180,6 @@ public class InstallableUnit implements IInstallableUnit {
 		return (properties != null ? properties : NO_PROPERTIES);
 	}
 
-	public void setApplicabilityFilter(String ldapFilter) {
-		applicabilityFilter = ldapFilter;
-	}
-
 	public void setArtifacts(IArtifactKey[] value) {
 		artifacts = value;
 	}
@@ -220,13 +194,6 @@ public class InstallableUnit implements IInstallableUnit {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	// TODO: resolve the schizophrenia between the singleton immutable data
-	//	   	 and the public returned touchpoint data array.
-	public void setImmutableTouchpointData(TouchpointData immutableData) {
-		ensureTouchpointDataCapacity(4);
-		touchpointData.add(immutableData);
 	}
 
 	/*

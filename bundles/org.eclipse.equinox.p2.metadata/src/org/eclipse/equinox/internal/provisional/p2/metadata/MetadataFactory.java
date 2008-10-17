@@ -74,10 +74,6 @@ public class MetadataFactory {
 			unit().setCapabilities(result);
 		}
 
-		public void setApplicabilityFilter(String ldapFilter) {
-			unit().setApplicabilityFilter(ldapFilter);
-		}
-
 		public void setArtifacts(IArtifactKey[] value) {
 			unit().setArtifacts(value);
 		}
