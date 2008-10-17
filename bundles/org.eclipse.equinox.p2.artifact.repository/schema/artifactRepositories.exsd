@@ -1,16 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.equinox.p2.artifact.repository">
+<schema targetNamespace="org.eclipse.equinox.p2.artifact.repository" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appInfo>
+      <appinfo>
          <meta.schema plugin="org.eclipse.equinox.p2.artifact.repository" id="artifactRepositories" name="Artifact Repositories"/>
-      </appInfo>
+      </appinfo>
       <documentation>
          This extension point is used to provide artifact repository implementations
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="factory"/>
@@ -35,9 +40,9 @@
                <documentation>
                   
                </documentation>
-               <appInfo>
+               <appinfo>
                   <meta.attribute translatable="true"/>
-               </appInfo>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
@@ -51,9 +56,9 @@
                   the fully-qualified name of a class which implements 
 &lt;samp&gt;org.eclipse.equinox.p2.artifact.repository.IArtifactRepository&lt;/samp&gt;.
                </documentation>
-               <appInfo>
+               <appinfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository"/>
-               </appInfo>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
@@ -72,48 +77,47 @@
    </element>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="since"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         org.eclipse.equinox.p2.artifact.repository 0.1.0
+         org.eclipse.equinox.p2.artifact.repository 1.0.0
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="examples"/>
-      </appInfo>
+      </appinfo>
       <documentation>
          [Enter extension point usage example here.]
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="apiInfo"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         The value of the class attribute must represent an 
-implementor of &lt;tt&gt;org.eclipse.equinox.p2.artifact.repository.IArtifactRepository&lt;/tt&gt;
+         The value of the class attribute must represent a subclass of &lt;tt&gt;org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory&lt;/tt&gt;
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="implementation"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         This bundle provides an artifact repository factory for the IArtifactRepositoryManager#TYPE_SIMPLE_REPOSITORY repository type.
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="copyright"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         Copyright (c) 2007 IBM Corporation and others.&lt;br&gt;
+         Copyright (c) 2007, 2008 IBM Corporation and others.&lt;br&gt;
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at &lt;a 

@@ -16,7 +16,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
-public interface IArtifactRepositoryFactory {
+/**
+ * An artifact repository factory is responsible for creating and loading instances
+ * of a particular type of artifact repository. Factories are provided via the 
+ * <tt>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</tt> extension point.
+ */
+public abstract class ArtifactRepositoryFactory {
 
 	/**
 	 * Creates and returns a new empty artifact repository of the given type at 
@@ -34,7 +39,7 @@ public interface IArtifactRepositoryFactory {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+	public abstract IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads the repository at the given location.  The location is expected to contain 
@@ -51,5 +56,5 @@ public interface IArtifactRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public abstract IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
 }

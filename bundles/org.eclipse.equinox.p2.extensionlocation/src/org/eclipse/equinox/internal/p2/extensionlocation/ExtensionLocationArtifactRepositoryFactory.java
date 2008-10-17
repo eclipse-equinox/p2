@@ -16,14 +16,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
-public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepositoryFactory {
+public class ExtensionLocationArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	public IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
 		// TODO proper progress monitoring
@@ -52,7 +52,7 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		// TODO proper progress monitoring

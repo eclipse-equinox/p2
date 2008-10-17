@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
@@ -55,7 +55,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 			if (extension == null)
 				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
-			IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+			ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 			if (factory == null)
 				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 			IArtifactRepository result = factory.create(location, name, type, properties);
@@ -68,7 +68,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
 		return factory.load(location, monitor.newChild(10));

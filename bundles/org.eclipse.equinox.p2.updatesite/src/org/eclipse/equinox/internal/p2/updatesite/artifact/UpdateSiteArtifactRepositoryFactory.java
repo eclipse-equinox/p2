@@ -20,15 +20,15 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryFactory {
+public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	public IArtifactRepository create(URI location, String name, String type, Map properties) {
 		return null;
@@ -40,7 +40,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repository = loadRepository(location, monitor);
