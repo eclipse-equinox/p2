@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
-public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
+public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
@@ -68,7 +68,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
@@ -80,7 +80,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return validateAndLoad(location, true, monitor);

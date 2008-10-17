@@ -15,14 +15,14 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
-public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepositoryFactory {
+public class ExtensionLocationMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
 		// TODO proper progress monitoring
@@ -51,7 +51,7 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		// TODO proper progress monitoring
@@ -72,7 +72,7 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {

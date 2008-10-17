@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -56,7 +56,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
 			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
-		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		IMetadataRepository result = factory.create(location, name, type, properties);
@@ -68,7 +68,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {
-		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
 		return factory.load(location, monitor.newChild(10));
@@ -158,7 +158,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 			// Loop over the candidates and return the first one that successfully loads
 			loopMonitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 			for (int j = 0; j < providers.length; j++) {
-				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[j], EL_FACTORY);
+				MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(providers[j], EL_FACTORY);
 				if (factory != null) {
 					status = factory.validate(location, loopMonitor.newChild(10));
 					if (status.isOK()) {

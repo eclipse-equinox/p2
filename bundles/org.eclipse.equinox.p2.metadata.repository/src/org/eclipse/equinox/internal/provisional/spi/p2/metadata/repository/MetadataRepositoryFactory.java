@@ -17,7 +17,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
-public interface IMetadataRepositoryFactory {
+/**
+ * A metadata repository factory is responsible for creating and loading instances
+ * of a particular type of metadata repository. Factories are provided via the 
+ * <tt>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</tt> extension point.
+ */
+public abstract class MetadataRepositoryFactory {
 
 	/**
 	 * Creates and returns a new empty metadata repository of the given type at 
@@ -34,7 +39,7 @@ public interface IMetadataRepositoryFactory {
 	 * <li>There was an error writing to the given repository location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+	public abstract IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.
@@ -49,7 +54,7 @@ public interface IMetadataRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public abstract IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Validates a candidate repository URL and returns a status indicating the
@@ -73,5 +78,5 @@ public interface IMetadataRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IStatus validate(URI location, IProgressMonitor monitor);
+	public abstract IStatus validate(URI location, IProgressMonitor monitor);
 }

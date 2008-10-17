@@ -21,11 +21,11 @@ import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.*;
 
-public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryFactory {
+public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
 	public static URI getLocalRepositoryLocation(URI location) throws ProvisionException {
@@ -36,7 +36,7 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	public IMetadataRepository create(URI location, String name, String type, Map properties) {
 		return null;
