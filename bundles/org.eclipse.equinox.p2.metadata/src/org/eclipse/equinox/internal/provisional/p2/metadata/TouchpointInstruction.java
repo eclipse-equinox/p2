@@ -15,10 +15,6 @@ public class TouchpointInstruction {
 	private final String body;
 	private final String importAttribute;
 
-	TouchpointInstruction(String body) {
-		this(body, null);
-	}
-
 	TouchpointInstruction(String body, String importAttribute) {
 		this.body = body;
 		this.importAttribute = importAttribute;

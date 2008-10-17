@@ -163,17 +163,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return changed;
 	}
 
-	public synchronized void revertToBackup(LocalMetadataRepository backup) {
-		name = backup.name;
-		type = backup.type;
-		version = backup.version;
-		location = backup.location;
-		description = backup.description;
-		provider = backup.provider;
-		properties = backup.properties;
-		units = backup.units;
-	}
-
 	// caller should be synchronized
 	private void save() {
 		File file = getActualLocation(location);

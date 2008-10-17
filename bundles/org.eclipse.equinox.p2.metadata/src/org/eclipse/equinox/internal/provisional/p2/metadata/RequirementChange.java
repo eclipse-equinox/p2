@@ -41,17 +41,6 @@ public class RequirementChange {
 		return intersect(toMatch.getRange(), applyOn.getRange()) == null ? false : true;
 	}
 
-	boolean matches(RequirementChange toMatch) {
-		return matches(toMatch.applyOn());
-	}
-
-	protected RequirementChange merge(RequirementChange r2) {
-		VersionRange result = intersect(newValue().getRange(), r2.newValue().getRange());
-		if (result == null)
-			return null;
-		return new RequirementChange(applyOn, MetadataFactory.createRequiredCapability(applyOn.getNamespace(), applyOn.getName(), result, null, false, false));
-	}
-
 	private VersionRange intersect(VersionRange r1, VersionRange r2) {
 		Version resultMin = null;
 		boolean resultMinIncluded = false;
@@ -89,10 +78,6 @@ public class RequirementChange {
 			return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
 		else
 			return null;
-	}
-
-	public boolean isCompatible(RequirementChange other) {
-		return intersect(newValue.getRange(), other.newValue.getRange()) != null;
 	}
 
 	public int hashCode() {
