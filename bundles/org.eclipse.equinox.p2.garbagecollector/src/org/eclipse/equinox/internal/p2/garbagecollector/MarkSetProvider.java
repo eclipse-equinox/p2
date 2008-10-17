@@ -14,12 +14,12 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 /** 
- * Any class which declares itself as an extension to the org.eclipse.equinox.internal.p2.garbagecollector.marksetproviders
- * extension point must implement this interface.  Given a Profile, implementors will need to provide an array of
- * MarkSet objects, each of which should contain an IArtifactRepository and the IArtifactKeys used by the given
- * Profile.
+ * Any class which declares itself as an extension to the <tt>org.eclipse.equinox.p2.garbagecollector.marksetproviders</tt>
+ * extension point must extend this base class.  Given a Profile, implementors are required
+ * to provide an array of MarkSet objects, each of which must contain an IArtifactRepository 
+ * and the IArtifactKeys used by the given Profile.
  */
-public interface IMarkSetProvider {
+public abstract class MarkSetProvider {
 
 	/**
 	 * Returns a MarkSet for each bundle pool used by a Profile p.  The MarkSet will contain
@@ -28,13 +28,13 @@ public interface IMarkSetProvider {
 	 * @param profile A profile whose ArtifactRepositories require a garbage collection
 	 * @return An array of MarkSet object(s) containing p's IArtifactRepository and its root set of IArtifactKeys
 	 */
-	public MarkSet[] getMarkSets(IProfile profile);
+	public abstract MarkSet[] getMarkSets(IProfile profile);
 
 	/**
-	 * Returns the IArtifactRepository for which this IMarkSetProvider provides a MarkSet.
+	 * Returns the IArtifactRepository for which this MarkSetProvider provides a MarkSet.
 	 * @param p The Profile whose IArtifactRepository is required
-	 * @return The IArtifactRepository for which this IMarkSetProvider provides a MarkSet.
+	 * @return The IArtifactRepository for which this MarkSetProvider provides a MarkSet.
 	 */
-	public IArtifactRepository getRepository(IProfile p);
+	public abstract IArtifactRepository getRepository(IProfile p);
 
 }

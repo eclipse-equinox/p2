@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.garbagecollector.IMarkSetProvider;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
+import org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -28,9 +28,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 
 /**
- * IMarkSetProvider implementation for the EclipseTouchPoint.
+ * MarkSetProvider implementation for the Eclipse touchpoint.
  */
-public class MarkSetProvider implements IMarkSetProvider {
+public class EclipseMarkSetProvider extends MarkSetProvider {
 	private static final String ARTIFACT_CLASSIFIER_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	private static final String ARTIFACT_CLASSIFIER_FEATURE = "org.eclipse.update.feature"; //$NON-NLS-1$
 

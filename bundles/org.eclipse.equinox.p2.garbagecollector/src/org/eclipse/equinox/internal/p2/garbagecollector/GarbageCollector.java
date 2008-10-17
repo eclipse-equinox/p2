@@ -117,7 +117,7 @@ public class GarbageCollector {
 		}
 
 		public void run() throws Exception {
-			IMarkSetProvider aMarkSetProvider = (IMarkSetProvider) cfg.createExecutableExtension(ATTRIBUTE_CLASS);
+			MarkSetProvider aMarkSetProvider = (MarkSetProvider) cfg.createExecutableExtension(ATTRIBUTE_CLASS);
 			if (aMarkSetProvider == null) {
 				aProfileMarkSets = null;
 				return;
