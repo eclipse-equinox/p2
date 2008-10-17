@@ -15,11 +15,10 @@ Export-Package: org.eclipse.equinox.internal.frameworkadmin.utils;
    org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.provisional.configuratormanipulator;x-friends:="org.eclipse.equinox.frameworkadmin.equinox,org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.provisional.frameworkadmin;
-  x-friends:="org.eclipse.pde.p2.ui,
-   org.eclipse.equinox.p2.touchpoint.eclipse,
+  x-friends:="org.eclipse.equinox.frameworkadmin.equinox,
    org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.publisher,
-   org.eclipse.equinox.frameworkadmin.equinox,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.simpleconfigurator.manipulator"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
