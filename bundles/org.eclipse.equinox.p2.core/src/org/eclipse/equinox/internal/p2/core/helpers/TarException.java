@@ -20,13 +20,6 @@ public class TarException extends Exception {
 	private static final long serialVersionUID = 2886671254518853528L;
 
 	/**
-	 * Constructs a TarException without a detail string.
-	 */
-	public TarException() {
-		super();
-	}
-
-	/**
 	 * Constructs a TarException with the specified detail string.
 	 *
 	 * @param s the detail string

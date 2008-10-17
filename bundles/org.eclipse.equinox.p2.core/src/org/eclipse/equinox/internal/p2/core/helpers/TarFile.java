@@ -66,17 +66,6 @@ public class TarFile {
 	}
 
 	/**
-	 * Create a new TarFile for the given path name.
-	 * 
-	 * @param filename
-	 * @throws TarException
-	 * @throws IOException
-	 */
-	public TarFile(String filename) throws TarException, IOException {
-		this(new File(filename));
-	}
-
-	/**
 	 * Returns an enumeration cataloguing the tar archive.
 	 * 
 	 * @return enumeration of all files in the archive

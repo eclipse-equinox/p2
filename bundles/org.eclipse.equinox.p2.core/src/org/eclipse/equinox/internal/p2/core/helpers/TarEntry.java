@@ -45,15 +45,6 @@ public class TarEntry implements Cloneable {
 	}
 
 	/**
-	 * Create a new TarEntry for a file of the given name.
-	 * 
-	 * @param name filename
-	 */
-	public TarEntry(String name) {
-		this(name, -1);
-	}
-
-	/**
 	 * Returns the type of this file, one of FILE, LINK, SYM_LINK,
 	 * CHAR_DEVICE, BLOCK_DEVICE, DIRECTORY or FIFO.
 	 * 
