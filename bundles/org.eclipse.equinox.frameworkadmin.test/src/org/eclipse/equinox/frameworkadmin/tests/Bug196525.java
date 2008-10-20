@@ -62,10 +62,6 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(Bug196525.class.getName());
-		File configurationFolder = new File(installFolder, "configuration");
-		String launcherName = "eclipse";
-
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder);
 		launcherData.setLauncher(new File(installFolder, launcherName));

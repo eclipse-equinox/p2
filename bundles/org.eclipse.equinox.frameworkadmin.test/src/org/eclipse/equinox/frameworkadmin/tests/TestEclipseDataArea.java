@@ -11,7 +11,6 @@ package org.eclipse.equinox.frameworkadmin.tests;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.osgi.framework.BundleException;
 
 public class TestEclipseDataArea extends FwkAdminAndSimpleConfiguratorTest {
 	Manipulator m = null;
@@ -25,7 +24,7 @@ public class TestEclipseDataArea extends FwkAdminAndSimpleConfiguratorTest {
 		m = createMinimalConfiguration(TestEclipseDataArea.class.getName());
 	}
 
-	public void testp2DataArea() throws IOException, BundleException {
+	public void testp2DataArea() throws IOException {
 		m.getConfigData().setFwDependentProp("eclipse.p2.data.area", "@config.dir/../p2");
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");

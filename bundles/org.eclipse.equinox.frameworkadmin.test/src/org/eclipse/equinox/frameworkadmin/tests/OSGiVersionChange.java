@@ -28,7 +28,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		defaultManipulator = createMinimalConfiguration(workArea);
 	}
 
-	public void testRemovalUsingSameManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	public void testRemovalUsingSameManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
 		for (int i = 0; i < infos.length; i++) {
@@ -79,7 +79,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent(getConfigIni(), "org.eclipse.osgi");
 	}
 
-	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
 		for (int i = 0; i < infos.length; i++) {
