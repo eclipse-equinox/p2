@@ -28,12 +28,14 @@ public class Tracing {
 	public static boolean DEBUG_INSTALL_REGISTRY = false;
 	public static boolean DEBUG_METADATA_PARSING = false;
 	public static boolean DEBUG_MIRRORS = false;
+	public static boolean DEBUG_REMOVE_REPO = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
 		if (options != null) {
 			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
 			if (DEBUG) {
+				DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
 				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$

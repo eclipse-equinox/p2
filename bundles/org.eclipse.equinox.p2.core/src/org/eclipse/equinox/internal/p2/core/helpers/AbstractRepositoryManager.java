@@ -599,6 +599,11 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 		// remove the repository from the preference store
 		try {
+			if (Tracing.DEBUG_REMOVE_REPO) {
+				String msg = "Removing repository: " + toRemove; //$NON-NLS-1$
+				Tracing.debug(msg);
+				new Exception(msg).printStackTrace();
+			}
 			getPreferences().node(repoKey).removeNode();
 			saveToPreferences();
 		} catch (BackingStoreException e) {
