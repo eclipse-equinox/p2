@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -31,6 +32,13 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 	public static Test suite() {
 		return new TestSuite(ArtifactRepositoryManagerTest.class);
+		//		TestSuite suite = new TestSuite();
+		//		suite.addTest(new ArtifactRepositoryManagerTest("testEnablement"));
+		//		return suite;
+	}
+
+	public ArtifactRepositoryManagerTest(String name) {
+		super(name);
 	}
 
 	/**
@@ -157,8 +165,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 		manager.setEnabled(location, true);
 		listener.waitForEvent();
-		assertEquals("3.0", true, listener.lastEnablement);
-		assertEquals("3.1", true, manager.isEnabled(location));
+		assertEquals("3.0", true, manager.isEnabled(location));
+		assertEquals("3.1", RepositoryEvent.ENABLEMENT, listener.lastKind);
+		assertEquals("3.2", true, listener.lastEnablement);
 		listener.reset();
 	}
 
@@ -166,7 +175,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that adding a repository that is already known but disabled
 	 * causes the repository to be enabled. See bug 241307 for discussion.
 	 */
-	public void testEnablementOnAdd() throws URISyntaxException {
+	public void testEnablementOnAdd() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
 		URI location = site.toURI();
 		manager.addRepository(location);
