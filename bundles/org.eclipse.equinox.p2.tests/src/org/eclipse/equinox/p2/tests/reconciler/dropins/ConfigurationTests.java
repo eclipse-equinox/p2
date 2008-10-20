@@ -38,10 +38,9 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
-		// TODO these fail because of bug 249641
-		//		suite.addTest(new ConfigurationTests("testDiscoverOne"));
-		//		suite.addTest(new ConfigurationTests("test_247095"));
-		//		suite.addTest(new ConfigurationTests("test_247095b"));
+		suite.addTest(new ConfigurationTests("testDiscoverOne"));
+		suite.addTest(new ConfigurationTests("test_247095"));
+		suite.addTest(new ConfigurationTests("test_247095b"));
 		suite.addTest(new ConfigurationTests("test_249607"));
 		suite.addTest(new ConfigurationTests("test_249898"));
 		suite.addTest(new ConfigurationTests("test_232094"));
@@ -68,9 +67,9 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		remove("99.1", "dropins/features", featureFile.getName());
 		reconcile("99.2");
 		config = getConfiguration();
-		assertFalse("99.4", !isInstalled("myFeature.feature", "1.0.0"));
+		assertFalse("99.4", isInstalled("myFeature.feature", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("99.5", "myBundle");
-		assertFalse("99.6", !isInstalled("myBundle", "1.0.0"));
+		assertFalse("99.6", isInstalled("myBundle", "1.0.0"));
 	}
 
 	/*
@@ -307,10 +306,10 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 
 		// ensure things were uninstalled
 		assertDoesNotExistInBundlesInfo("7.0", "bbb");
-		assertTrue("7.1", !isInstalled("bbb", "1.0.0"));
+		assertFalse("7.1", isInstalled("bbb", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("7.2", "ccc");
-		assertTrue("7.3", !isInstalled("ccc", "1.0.0"));
-		assertTrue("7.4", !isInstalled("bbb.feature.feature", "1.0.0"));
+		assertFalse("7.3", isInstalled("ccc", "1.0.0"));
+		assertFalse("7.4", isInstalled("bbb.feature.feature", "1.0.0"));
 		assertEquals("7.5", 1, getConfiguration().getSites().size());
 
 		// cleanup

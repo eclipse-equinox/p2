@@ -236,11 +236,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							String value = (String) properties.get(key);
 							metadataRepository.setProperty(key, value);
 						}
-						// now that we know we have the right properties set on the repository
-						// we will force initialization so things like the timestamp will be updated
-						// if necessary
-						if (metadataRepository instanceof ExtensionLocationMetadataRepository)
-							((ExtensionLocationMetadataRepository) metadataRepository).ensureInitialized();
 					}
 					newRepos.add(metadataRepository);
 
@@ -255,11 +250,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							String value = (String) properties.get(key);
 							artifactRepository.setProperty(key, value);
 						}
-						// now that we know we have the right properties set on the repository
-						// we will force initialization so things like the timestamp will be updated
-						// if necessary
-						if (artifactRepository instanceof ExtensionLocationArtifactRepository)
-							((ExtensionLocationArtifactRepository) artifactRepository).ensureInitialized();
 					}
 				} catch (URISyntaxException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));

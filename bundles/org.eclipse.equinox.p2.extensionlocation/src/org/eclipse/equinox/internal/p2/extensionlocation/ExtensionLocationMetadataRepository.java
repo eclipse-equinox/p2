@@ -171,6 +171,15 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public String setProperty(String key, String value) {
 		ensureInitialized();
-		return metadataRepository.setProperty(key, value);
+		String oldValue = metadataRepository.setProperty(key, value);
+		// if the value didn't really change then just return
+		if (oldValue == value || (oldValue != null && oldValue.equals(value)))
+			return oldValue;
+		// we want to re-initialize if we are changing the site policy or plug-in list
+		if (!SiteListener.SITE_LIST.equals(key) && !SiteListener.SITE_POLICY.equals(key))
+			return oldValue;
+		state = SiteListener.UNINITIALIZED;
+		ensureInitialized();
+		return oldValue;
 	}
 }
