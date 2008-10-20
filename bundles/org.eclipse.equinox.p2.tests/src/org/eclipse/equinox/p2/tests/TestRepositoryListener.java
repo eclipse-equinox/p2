@@ -13,14 +13,14 @@ package org.eclipse.equinox.p2.tests;
 import java.net.URI;
 import java.util.EventObject;
 import junit.framework.Assert;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 
 /**
  * A provisioning event listener used for testing purposes. If a location is provided,
  * the listener only tracks events on repositories at that location.
  */
-public class TestRepositoryListener implements ProvisioningListener {
+public class TestRepositoryListener implements SynchronousProvisioningListener {
 	private static final long MAX_WAIT = 10000;//ten seconds
 	public boolean lastEnablement;
 	public int lastKind;
