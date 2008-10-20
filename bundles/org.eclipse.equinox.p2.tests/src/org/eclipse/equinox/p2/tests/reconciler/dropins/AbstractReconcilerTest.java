@@ -73,9 +73,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Run the given command.
 	 */
-	private void run(String message, String command) {
+	private void run(String message, String[] commandArray) {
 		try {
-			Process process = Runtime.getRuntime().exec(command, null, output);
+			Process process = Runtime.getRuntime().exec(commandArray, null, output);
 			process.waitFor();
 		} catch (IOException e) {
 			fail(message, e);
@@ -91,8 +91,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		String name = file.getName();
 		File gzFile = new File(output, name);
 		output.mkdirs();
-		run(message, "cp " + file + " " + gzFile);
-		run(message, "tar -zpxf" + gzFile);
+		run(message, new String[] {"cp", file.getAbsolutePath(), gzFile.getAbsolutePath()});
+		run(message, new String[] {"tar", "-zpxf", gzFile.getAbsolutePath()});
 		gzFile.delete();
 	}
 
@@ -281,7 +281,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		run(message, "\"" + output.getAbsolutePath() + "/eclipse/eclipse\" --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm \"" + exe.getAbsolutePath() + "\"");
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-vm", exe.getAbsolutePath()};
+		run(message, command);
 	}
 
 	/*
