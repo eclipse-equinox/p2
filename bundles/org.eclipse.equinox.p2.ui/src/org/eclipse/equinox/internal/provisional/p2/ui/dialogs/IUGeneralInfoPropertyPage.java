@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -119,8 +118,8 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 			Label label = new Label(parent, SWT.NONE);
 			label.setText(property);
 
-			label = new Label(parent, SWT.NONE);
-			label.setText(getEscapedString(value));
+			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
+			text.setText(getEscapedString(value));
 		}
 	}
 
