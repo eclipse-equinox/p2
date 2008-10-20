@@ -194,6 +194,21 @@ public class AvailableIUGroup extends StructuredIUGroup {
 					return;
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
+
+			protected void refreshAll() {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						final TreeViewer treeViewer = filteredTree.getViewer();
+						final Tree tree = treeViewer.getTree();
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						if (workbench.isClosing())
+							return;
+						if (tree != null && !tree.isDisposed()) {
+							treeViewer.setInput(getNewInput());
+						}
+					}
+				});
+			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 

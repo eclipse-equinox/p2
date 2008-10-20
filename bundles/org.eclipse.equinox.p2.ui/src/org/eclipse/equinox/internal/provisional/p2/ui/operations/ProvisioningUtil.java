@@ -91,7 +91,7 @@ public class ProvisioningUtil {
 		return director.getRollbackRepositoryLocation();
 	}
 
-	public static void removeMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public static void removeMetadataRepository(URI location) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -134,7 +134,7 @@ public class ProvisioningUtil {
 		return repo;
 	}
 
-	public static void removeArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public static void removeArtifactRepository(URI location) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);

@@ -28,16 +28,20 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			ProvisioningUtil.addMetadataRepository(locations[i]);
+			mon.worked(1);
 		}
 		added = true;
 		return okStatus();
 	}
 
 	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(locations[i], monitor);
+			ProvisioningUtil.removeMetadataRepository(locations[i]);
+			mon.worked(1);
 		}
 		added = false;
 		return okStatus();
