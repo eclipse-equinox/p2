@@ -85,6 +85,7 @@ public class RepositoryEvent extends EventObject {
 	 * @see #REMOVED
 	 * @see #CHANGED
 	 * @see #DISCOVERED
+	 * @see #ENABLEMENT
 	 */
 	public int getKind() {
 		return kind;
