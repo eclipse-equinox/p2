@@ -488,8 +488,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (status.getException() == null)
 				e.printStackTrace();
 			write(status, 0, System.err);
-		} else
-			e.printStackTrace();
+		} else {
+			if (e != null)
+				e.printStackTrace();
+		}
 		fail(message + ": " + e);
 	}
 
