@@ -113,4 +113,10 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	protected int getLockConstant() {
 		return IInstallableUnit.LOCK_UPDATE;
 	}
+
+	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {
+		if (ius.length == 0)
+			return PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null);
+		return super.getNoProfileOrSelectionStatus(id, ius);
+	}
 }

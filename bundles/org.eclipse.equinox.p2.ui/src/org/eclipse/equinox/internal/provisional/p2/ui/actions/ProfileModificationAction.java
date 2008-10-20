@@ -29,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -53,11 +54,15 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		String id = getProfileId(true);
 		// We could not figure out a profile to operate on, so return
 		if (id == null || ius.length == 0) {
-			ProvUI.reportStatus(PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null), StatusManager.BLOCK);
+			ProvUI.reportStatus(getNoProfileOrSelectionStatus(profileId, ius), StatusManager.BLOCK);
 			runCanceled();
 			return;
 		}
 		run(ius, id);
+	}
+
+	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {
+		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind("Problem determining user request.  Profile id: {0}, Selection count: {1}", id, new Integer(ius.length)));
 	}
 
 	protected void run(final IInstallableUnit[] ius, final String id) {
@@ -170,6 +175,16 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	}
 
+	/**
+	 * Return an array of the selected and valid installable units.
+	 * The number of IInstallableUnits in the array may be different than
+	 * the actual number of selections in the action's selection provider.
+	 * That is, if the action is disabled due to invalid selections,
+	 * this method will return those selections that were valid.
+	 * 
+	 * @return an array of selected IInstallableUnit that meet the
+	 * enablement criteria for the action.  
+	 */
 	protected IInstallableUnit[] getSelectedIUs() {
 		List elements = getStructuredSelection().toList();
 		List iusList = new ArrayList(elements.size());
