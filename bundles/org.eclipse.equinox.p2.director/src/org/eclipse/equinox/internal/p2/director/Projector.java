@@ -6,6 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  * 	Daniel Le Berre - Fix in the encoding and the optimization function
+ * Alban Browaeys - Optimized string concatenation in bug 251357
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
