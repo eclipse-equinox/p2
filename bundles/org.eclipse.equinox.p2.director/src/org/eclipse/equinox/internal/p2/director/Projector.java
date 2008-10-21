@@ -666,6 +666,7 @@ public class Projector {
 		} catch (ContradictionException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Trivial_exception, problemFile)));
 		} catch (TimeoutException e) {
+			delete = false;
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
 			delete = false;
