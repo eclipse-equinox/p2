@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.sar;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.*;
 import java.util.zip.ZipEntry;
 
 /**
@@ -164,20 +164,25 @@ public class SarEntry extends ZipEntry {
 	 * Converts DOS time to Java time (number of milliseconds since epoch).
 	 */
 	public final static long dosToJavaTime(long dtime) {
-		Date d = new Date((int) (((dtime >> 25) & 0x7f) + 80), (int) (((dtime >> 21) & 0x0f) - 1), (int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f), (int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
-		return d.getTime();
+		GregorianCalendar cal = new GregorianCalendar((int) (((dtime >> 25) & 0x7f) + 80) + 1900, (int) (((dtime >> 21) & 0x0f) - 1), (int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f), (int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
+		return cal.getTime().getTime();
 	}
 
 	/*
 	 * Converts Java time to DOS time.
 	 */
 	public final static long javaToDosTime(long time) {
-		Date d = new Date(time);
-		int year = d.getYear() + 1900;
-		if (year < 1980) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTime(new Date(time));
+		int year = cal.get(Calendar.YEAR);
+		if (year < 1980)
 			return (1 << 21) | (1 << 16);
-		}
-		return (year - 1980) << 25 | (d.getMonth() + 1) << 21 | d.getDate() << 16 | d.getHours() << 11 | d.getMinutes() << 5 | d.getSeconds() >> 1;
+		int month = cal.get(Calendar.MONTH);
+		int date = cal.get(Calendar.DAY_OF_MONTH);
+		int hours = cal.get(Calendar.HOUR_OF_DAY);
+		int minutes = cal.get(Calendar.MINUTE);
+		int seconds = cal.get(Calendar.SECOND);
+		return (year - 1980) << 25 | (month + 1) << 21 | date << 16 | hours << 11 | minutes << 5 | seconds >> 1;
 	}
 
 }
