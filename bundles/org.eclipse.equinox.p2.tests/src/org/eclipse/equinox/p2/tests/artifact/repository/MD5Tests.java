@@ -26,6 +26,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 			IArtifactDescriptor[] desc = repo.getArtifactDescriptors(keys[i]);
 			for (int j = 0; j < desc.length; j++) {
 				IStatus status = repo.getArtifact(desc[j], new ByteArrayOutputStream(500), new NullProgressMonitor());
+				//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
 				if (desc[j].getArtifactKey().getId().startsWith("bogus")) {
 					assertNotOK(status);
 					continue;
