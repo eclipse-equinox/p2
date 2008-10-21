@@ -15,6 +15,8 @@ package org.eclipse.equinox.spi.p2.publisher;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -143,7 +145,48 @@ public class PublisherHelper {
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
+		String md5 = computeMD5(pathOnDisk);
+		if (md5 != null)
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 		return result;
+	}
+
+	private static String computeMD5(File file) {
+		if (file == null || file.isDirectory() || !file.exists())
+			return null;
+		MessageDigest md5Checker;
+		try {
+			md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			return null;
+		}
+		InputStream fis = null;
+		try {
+			fis = new BufferedInputStream(new FileInputStream(file));
+			int read = -1;
+			while ((read = fis.read()) != -1) {
+				md5Checker.update((byte) read);
+			}
+			byte[] digest = md5Checker.digest();
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < digest.length; i++) {
+				if ((digest[i] & 0xFF) < 0x10)
+					buf.append('0');
+				buf.append(Integer.toHexString(digest[i] & 0xFF));
+			}
+			return buf.toString();
+		} catch (FileNotFoundException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		} finally {
+			if (fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
 	}
 
 	/**

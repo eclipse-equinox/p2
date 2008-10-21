@@ -35,7 +35,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
-	public static final boolean enableMD5 = !"false".equals(Activator.getContext().getProperty("eclipse.noMD5Check")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final boolean MD5_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
 
 	/** 
 	 * The key for a integer property controls the maximum number
@@ -327,7 +327,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList steps = new ArrayList();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		if (enableMD5 && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
+		if (MD5_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
 			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5)));
 		// Add steps here if needed
 		if (steps.isEmpty())
