@@ -522,7 +522,8 @@ public class Projector {
 		//Generate the regular requirement
 		if (varIu == null)
 			varIu = getVariable(iu);
-		String expression = "-1 " + varIu; //$NON-NLS-1$
+		StringBuffer expression = new StringBuffer("-1 "); //$NON-NLS-1$
+		expression.append(varIu);
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
 		comment.append("* "); //$NON-NLS-1$
@@ -533,7 +534,8 @@ public class Projector {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
-				expression += " +1 " + getVariable(match); //$NON-NLS-1$
+				expression.append(" +1 "); //$NON-NLS-1$
+				expression.append(getVariable(match));
 				comment.append(match.toString());
 				comment.append(' ');
 			}
@@ -542,7 +544,8 @@ public class Projector {
 		if (countMatches > 0) {
 			dependencies.add(comment.toString());
 			commentsCount++;
-			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
+			expression.append(" >= 0;"); //$NON-NLS-1$
+			dependencies.add(expression.toString());
 		} else {
 			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			createNegation(varIu);
