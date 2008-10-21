@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
+import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.update.*;
@@ -276,7 +277,6 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public void test_232094() {
 		assertInitialized();
-
 		File temp = getTempFolder();
 		toRemove.add(temp);
 
@@ -310,7 +310,14 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertDoesNotExistInBundlesInfo("7.2", "ccc");
 		assertFalse("7.3", isInstalled("ccc", "1.0.0"));
 		assertFalse("7.4", isInstalled("bbb.feature.feature", "1.0.0"));
-		assertEquals("7.5", 1, getConfiguration().getSites().size());
+		boolean found = false;
+		for (Iterator iter = getConfiguration().getSites().iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			String link = site.getLinkFile();
+			if (link != null && link.contains("myLink"))
+				found = true;
+		}
+		assertFalse("7.5", found);
 
 		// cleanup
 	}
