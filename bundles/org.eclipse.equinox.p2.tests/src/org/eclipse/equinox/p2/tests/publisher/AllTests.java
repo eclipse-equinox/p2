@@ -26,6 +26,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ConfigCUsActionTest.class);
 		suite.addTestSuite(EquinoxLauncherCUActionTest.class);
 		suite.addTestSuite(EquinoxExecutableActionTest.class);
+		suite.addTestSuite(MD5GenerationTest.class);
 		return suite;
 	}
 

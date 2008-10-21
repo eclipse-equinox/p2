@@ -17,6 +17,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
@@ -33,6 +34,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * A boolean property controlling whether mirroring is enabled.
 	 */
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
+
+	public static final boolean enableMD5 = !"false".equals(Activator.getContext().getProperty("eclipse.noMD5Check")); //$NON-NLS-1$//$NON-NLS-2$
 
 	/** 
 	 * The key for a integer property controls the maximum number
@@ -313,8 +316,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
 		steps.add(new SignatureVerifier());
-		//		if (md5Verification)
-		//			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
 		if (steps.isEmpty())
 			return destination;
 		ProcessingStep[] stepArray = (ProcessingStep[]) steps.toArray(new ProcessingStep[steps.size()]);
@@ -326,6 +327,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList steps = new ArrayList();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
+		if (enableMD5 && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
+			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5)));
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
