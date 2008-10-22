@@ -38,8 +38,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
-		// TODO these fail because of bug 249641
-		//		suite.addTest(new ConfigurationTests("testDiscoverOne"));
+		suite.addTest(new ConfigurationTests("testDiscoverOne"));
 		suite.addTest(new ConfigurationTests("test_247095"));
 		suite.addTest(new ConfigurationTests("test_247095b"));
 		suite.addTest(new ConfigurationTests("test_249607"));
@@ -67,9 +66,9 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		remove("99.1", "dropins/features", featureFile.getName());
 		reconcile("99.2");
 		config = getConfiguration();
-		assertFalse("99.4", !isInstalled("myFeature.feature", "1.0.0"));
+		assertFalse("99.4", isInstalled("myFeature.feature", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("99.5", "myBundle");
-		assertFalse("99.6", !isInstalled("myBundle", "1.0.0"));
+		assertFalse("99.6", isInstalled("myBundle", "1.0.0"));
 	}
 
 	/*

@@ -187,10 +187,21 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public Map getProperties() {
+		ensureInitialized();
 		return artifactRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
-		return artifactRepository.setProperty(key, value);
+		ensureInitialized();
+		String oldValue = artifactRepository.setProperty(key, value);
+		// if the value didn't really change then just return
+		if (oldValue == value || (oldValue != null && oldValue.equals(value)))
+			return oldValue;
+		// we want to re-initialize if we are changing the site policy or plug-in list
+		if (!SiteListener.SITE_LIST.equals(key) && !SiteListener.SITE_POLICY.equals(key))
+			return oldValue;
+		initialized = false;
+		ensureInitialized();
+		return oldValue;
 	}
 }

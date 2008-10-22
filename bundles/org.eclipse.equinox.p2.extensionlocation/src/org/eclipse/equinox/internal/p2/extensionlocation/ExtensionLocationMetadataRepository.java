@@ -66,8 +66,8 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		File features = new File(base, FEATURES);
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
 		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), metadataRepository, null);
-		if (getProperties().get(SiteListener.SITE_POLICY) != null)
-			listener = new SiteListener(getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
+		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null)
+			listener = new SiteListener(metadataRepository.getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
 		watcher.addListener(listener);
 		watcher.poll();
 		initialized = true;
@@ -156,6 +156,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
 	 */
 	public Map getProperties() {
+		ensureInitialized();
 		return metadataRepository.getProperties();
 	}
 
@@ -164,6 +165,16 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	public String setProperty(String key, String value) {
-		return metadataRepository.setProperty(key, value);
+		ensureInitialized();
+		String oldValue = metadataRepository.setProperty(key, value);
+		// if the value didn't really change then just return
+		if (oldValue == value || (oldValue != null && oldValue.equals(value)))
+			return oldValue;
+		// we want to re-initialize if we are changing the site policy or plug-in list
+		if (!SiteListener.SITE_LIST.equals(key) && !SiteListener.SITE_POLICY.equals(key))
+			return oldValue;
+		initialized = false;
+		ensureInitialized();
+		return oldValue;
 	}
 }
