@@ -324,6 +324,14 @@ public class Profile implements IQueryable, IProfile {
 		changed = true;
 	}
 
+	public void clearOrphanedInstallableUnitProperties() {
+		List iuKeys = new ArrayList();
+		for (Iterator it = ius.iterator(); it.hasNext();)
+			iuKeys.add(createIUKey((IInstallableUnit) it.next()));
+
+		iuProperties.keySet().retainAll(iuKeys);
+	}
+
 	public long getTimestamp() {
 		return timestamp;
 	}

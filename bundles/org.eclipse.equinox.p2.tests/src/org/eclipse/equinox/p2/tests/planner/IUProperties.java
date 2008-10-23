@@ -63,6 +63,6 @@ public class IUProperties extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");
 		ProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
-		assertEquals(1, pp2.getOperands().length);
+		assertEquals(0, pp2.getOperands().length);
 	}
 }

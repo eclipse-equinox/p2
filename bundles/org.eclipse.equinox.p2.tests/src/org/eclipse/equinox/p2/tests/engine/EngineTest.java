@@ -285,6 +285,22 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(ius.hasNext());
 	}
 
+	public void testOrphanedIUProperty() {
+		IProfile profile = createProfile("testOrphanedIUProperty");
+		PhaseSet phaseSet = new DefaultPhaseSet();
+		IInstallableUnit iu = createIU("someIU");
+		Operand[] operands = new InstallableUnitPropertyOperand[] {new InstallableUnitPropertyOperand(iu, "key", null, "value")};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		assertFalse(profile.getInstallableUnitProperties(iu).containsKey("key"));
+
+		operands = new Operand[] {new InstallableUnitOperand(null, iu), new InstallableUnitPropertyOperand(iu, "adifferentkey", null, "value")};
+		result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		assertTrue(profile.getInstallableUnitProperties(iu).containsKey("adifferentkey"));
+		assertFalse(profile.getInstallableUnitProperties(iu).containsKey("key"));
+	}
+
 	private IInstallableUnit createOSGiIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi");

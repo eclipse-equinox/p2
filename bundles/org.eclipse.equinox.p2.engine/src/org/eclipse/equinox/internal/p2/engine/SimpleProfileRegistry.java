@@ -254,6 +254,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				current.addInstallableUnitProperties(iu, iuProperties);
 		}
 		saveProfile(current);
+		profile.clearOrphanedInstallableUnitProperties();
 		profile.setTimestamp(current.getTimestamp());
 		broadcastChangeEvent(id, ProfileEvent.CHANGED);
 	}
