@@ -50,3 +50,4 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
  org.eclipse.equinox.p2.publisher.eclipse,
  org.eclipse.equinox.spi.p2.publisher,
  org.eclipse.pde.internal.swt.tools;x-internal:=true
+Bundle-Localization: plugin
