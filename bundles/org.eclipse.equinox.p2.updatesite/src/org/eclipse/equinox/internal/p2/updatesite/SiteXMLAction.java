@@ -82,6 +82,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				return Status.CANCEL_STATUS;
 			SiteFeature feature = (SiteFeature) i.next();
 			IInstallableUnit iu = getFeatureIU(feature, results);
+			if (iu == null)
+				continue;
 			Set categories = (Set) featuresToCategories.get(feature);
 			// if there are no categories for this feature then add it to the default category.
 			if (categories == null || categories.isEmpty())
