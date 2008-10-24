@@ -42,29 +42,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
-		synchronized (repositoryLock) {
-			boolean loaded = false;
-			try {
-				loadRepository(location, (IProgressMonitor) null, type);
-				loaded = true;
-			} catch (ProvisionException e) {
-				//expected - fall through and create a new repository
-			}
-			if (loaded)
-				fail(location, ProvisionException.REPOSITORY_EXISTS);
-			IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-			if (extension == null)
-				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
-			ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-			if (factory == null)
-				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-			IArtifactRepository result = factory.create(location, name, type, properties);
-			if (result == null)
-				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-			clearNotFound(result.getLocation());
-			addRepository(result);
-			return result;
-		}
+		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
+	}
+
+	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
+		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		if (factory == null)
+			return null;
+		return factory.create(location, name, type, properties);
 	}
 
 	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {

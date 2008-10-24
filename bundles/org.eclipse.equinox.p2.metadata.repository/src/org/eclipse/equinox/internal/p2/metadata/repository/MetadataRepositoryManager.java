@@ -36,35 +36,15 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		super.addRepository(repository, true, null);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
-	 */
 	public IMetadataRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
-		Assert.isNotNull(name);
-		Assert.isNotNull(type);
-		boolean loaded = false;
-		try {
-			//repository should not already exist
-			loadRepository(location, (IProgressMonitor) null, type);
-			loaded = true;
-		} catch (ProvisionException e) {
-			//expected - fall through and create the new repository
-		}
-		if (loaded)
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
+		return (IMetadataRepository) doCreateRepository(location, name, type, properties);
+	}
 
-		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-		if (extension == null)
-			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IMetadataRepository result = factory.create(location, name, type, properties);
-		if (result == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		clearNotFound(location);
-		addRepository(result);
-		return result;
+			return null;
+		return factory.create(location, name, type, properties);
 	}
 
 	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {

@@ -52,8 +52,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public static final String KEY_SUFFIX = "suffix"; //$NON-NLS-1$
 	public static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	public static final String KEY_TYPE = "type"; //$NON-NLS-1$
-	public static final String KEY_URL = "url"; //$NON-NLS-1$
 	public static final String KEY_URI = "uri"; //$NON-NLS-1$
+	public static final String KEY_URL = "url"; //$NON-NLS-1$
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
@@ -72,6 +72,11 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * for short duration because repository may become available at any time.
 	 */
 	protected SoftReference unavailableRepositories;
+
+	/**
+	 * Set used to manage exclusive load locks on repository locations.
+	 */
+	private Map loadLocks = new HashMap();
 
 	protected AbstractRepositoryManager() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
@@ -224,6 +229,45 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	protected IRepository doCreateRepository(URI location, String name, String type, Map properties) throws ProvisionException {
+		Assert.isNotNull(name);
+		Assert.isNotNull(type);
+		IRepository result = null;
+		try {
+			enterLoad(location);
+			boolean loaded = false;
+			try {
+				//repository should not already exist
+				loadRepository(location, (IProgressMonitor) null, type);
+				loaded = true;
+			} catch (ProvisionException e) {
+				//expected - fall through and create the new repository
+			}
+			if (loaded)
+				fail(location, ProvisionException.REPOSITORY_EXISTS);
+
+			IExtension extension = RegistryFactory.getRegistry().getExtension(getRepositoryProviderExtensionPointId(), type);
+			if (extension == null)
+				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+			//		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+			//		if (factory == null)
+			//			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+			result = factoryCreate(location, name, type, properties, extension);
+			if (result == null)
+				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+			clearNotFound(location);
+			addRepository(result, false, null);
+		} finally {
+			exitLoad(location);
+		}
+		//fire event after releasing load lock
+		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, true);
+		return result;
+	}
+
 	/**
 	 * Returns the executable extension, or <code>null</code> if there
 	 * was no corresponding extension, or an error occurred loading it
@@ -244,6 +288,51 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		log("Malformed repository extension: " + extension.getUniqueIdentifier(), null); //$NON-NLS-1$
 		return null;
 	}
+
+	/**
+	 * Obtains an exclusive right to load a repository at the given location. Blocks
+	 * if another thread is currently loading at that location. Invocation of this
+	 * method must be followed by a subsequent call to {@link #exitLoad(URI)}.
+	 * 
+	 * To avoid deadlock between the loadLock and repositoryLock, this method
+	 * must not be called when repositoryLock is held.
+	 * 
+	 * @param location The location to lock
+	 */
+	private void enterLoad(URI location) {
+		Thread current = Thread.currentThread();
+		synchronized (loadLocks) {
+			while (true) {
+				Thread owner = (Thread) loadLocks.get(location);
+				if (owner == null || current.equals(owner))
+					break;
+				try {
+					loadLocks.wait();
+				} catch (InterruptedException e) {
+					//keep trying
+				}
+			}
+			loadLocks.put(location, current);
+		}
+	}
+
+	/**
+	 * Relinquishes the exclusive right to load a repository at the given location. Unblocks
+	 * other threads waiting to load at that location.
+	 * @param location The location to unlock
+	 */
+	private void exitLoad(URI location) {
+		synchronized (loadLocks) {
+			loadLocks.remove(location);
+			loadLocks.notifyAll();
+		}
+	}
+
+	/**
+	 * Creates and returns a repository using the given repository factory extension. Returns
+	 * null if no factory could be found associated with that extension.
+	 */
+	protected abstract IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException;
 
 	/**
 	 * Loads and returns a repository using the given repository factory extension. Returns
@@ -364,6 +453,31 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return new ConfigurationScope().getNode(getBundleId()).node(NODE_REPOSITORIES);
 	}
 
+	/**
+	 * Restores a repository location from the preferences.
+	 */
+	private URI getRepositoryLocation(Preferences node) {
+		//prefer the location stored in URI form
+		String locationString = node.get(KEY_URI, null);
+		try {
+			if (locationString != null)
+				return new URI(locationString);
+		} catch (URISyntaxException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		}
+		//we used to store the repository as a URL, so try old key for backwards compatibility
+		locationString = node.get(KEY_URL, null);
+		try {
+			if (locationString != null)
+				return URIUtil.toURI(new URL(locationString));
+		} catch (MalformedURLException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		} catch (URISyntaxException e) {
+			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
+		}
+		return null;
+	}
+
 	/*(non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
 	 */
@@ -420,10 +534,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		boolean added = false;
 		IRepository result = null;
 
-		// TODO
-		// Is this synchronized block needed given that all called methods that access
-		// the repo list are also locked?
-		synchronized (repositoryLock) {
+		try {
+			enterLoad(location);
 			result = basicGetRepository(location);
 			if (result != null)
 				return result;
@@ -431,23 +543,21 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
-		}
-		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
-		SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
-		try {
-			for (int i = 0; i < suffixes.length; i++) {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				result = loadRepository(location, suffixes[i], type, sub.newChild(100));
-				if (result != null) {
-					addRepository(result, false, suffixes[i]);
-					break;
+			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
+			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
+			try {
+				for (int i = 0; i < suffixes.length; i++) {
+					if (sub.isCanceled())
+						throw new OperationCanceledException();
+					result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+					if (result != null) {
+						addRepository(result, false, suffixes[i]);
+						break;
+					}
 				}
+			} finally {
+				sub.done();
 			}
-		} finally {
-			sub.done();
-		}
-		synchronized (repositoryLock) {
 			if (result == null) {
 				//if we just added the repository, remove it because it cannot be loaded
 				if (added)
@@ -459,8 +569,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 					rememberNotFound(location);
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			}
+		} finally {
+			exitLoad(location);
 		}
-		//broadcast the add event outside sync block
+		//broadcast the add event after releasing lock
 		if (added)
 			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
 		return result;
@@ -644,31 +756,6 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 		// now that we have loaded everything, remember them
 		saveToPreferences();
-	}
-
-	/**
-	 * Restores a repository location from the preferences.
-	 */
-	private URI getRepositoryLocation(Preferences node) {
-		//prefer the location stored in URI form
-		String locationString = node.get(KEY_URI, null);
-		try {
-			if (locationString != null)
-				return new URI(locationString);
-		} catch (URISyntaxException e) {
-			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
-		}
-		//we used to store the repository as a URL, so try old key for backwards compatibility
-		locationString = node.get(KEY_URL, null);
-		try {
-			if (locationString != null)
-				return URIUtil.toURI(new URL(locationString));
-		} catch (MalformedURLException e) {
-			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
-		} catch (URISyntaxException e) {
-			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
-		}
-		return null;
 	}
 
 	private void restoreFromSystemProperty() {
