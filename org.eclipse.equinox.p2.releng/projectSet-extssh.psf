@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <psf version="2.0">
 <provider id="org.eclipse.team.cvs.core.cvsnature">
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf,org.eclipse.ecf,Release_2_0"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.core.identity,org.eclipse.ecf.core.identity,Release_2_0"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.filetransfer,org.eclipse.ecf.filetransfer,Release_2_0"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.provider.filetransfer,org.eclipse.ecf.provider.filetransfer,Release_2_0"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.provider.filetransfer.ssl,org.eclipse.ecf.provider.filetransfer.ssl,Release_2_0"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.ssl,org.eclipse.ecf.ssl,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/framework/bundles/org.eclipse.ecf,org.eclipse.ecf,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/framework/bundles/org.eclipse.ecf.identity,org.eclipse.ecf.identity,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/framework/bundles/org.eclipse.ecf.filetransfer,org.eclipse.ecf.filetransfer,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/providers/bundles/org.eclipse.ecf.provider.filetransfer,org.eclipse.ecf.provider.filetransfer,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/providers/bundles/org.eclipse.ecf.provider.filetransfer.ssl,org.eclipse.ecf.provider.filetransfer.ssl,Release_2_0"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.ecf/framework/bundles/org.eclipse.ecf.ssl,org.eclipse.ecf.ssl,Release_2_0"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.jarprocessor,org.eclipse.equinox.p2.jarprocessor"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.director,org.eclipse.equinox.p2.director"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.director.app"/>
