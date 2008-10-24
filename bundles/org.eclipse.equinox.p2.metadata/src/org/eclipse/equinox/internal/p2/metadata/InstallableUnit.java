@@ -22,9 +22,10 @@ public class InstallableUnit implements IInstallableUnit {
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
 	private static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
+	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
 	private static final TouchpointData[] NO_TOUCHPOINT_DATA = new TouchpointData[0];
 
-	private IArtifactKey[] artifacts;
+	private IArtifactKey[] artifacts = NO_ARTIFACTS;
 	private String filter;
 
 	private String id;
@@ -32,7 +33,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private OrderedProperties properties;
 	private OrderedProperties localizedProperties;
 	ProvidedCapability[] providedCapabilities = NO_PROVIDES;
-	private RequiredCapability[] requires;
+	private RequiredCapability[] requires = NO_REQUIRES;
 
 	private boolean singleton;
 
@@ -135,11 +136,11 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {
-		return (providedCapabilities != null ? providedCapabilities : NO_PROVIDES);
+		return providedCapabilities;
 	}
 
 	public RequiredCapability[] getRequiredCapabilities() {
-		return requires != null ? requires : NO_REQUIRES;
+		return requires;
 
 	}
 
@@ -181,11 +182,17 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void setArtifacts(IArtifactKey[] value) {
-		artifacts = value;
+		if (value == null || value.length == 0)
+			artifacts = NO_ARTIFACTS;
+		else
+			artifacts = value;
 	}
 
-	public void setCapabilities(ProvidedCapability[] exportedCapabilities) {
-		providedCapabilities = exportedCapabilities;
+	public void setCapabilities(ProvidedCapability[] newCapabilities) {
+		if (newCapabilities == null || newCapabilities.length == 0)
+			providedCapabilities = NO_PROVIDES;
+		else
+			providedCapabilities = newCapabilities;
 	}
 
 	public void setFilter(String filter) {
@@ -214,8 +221,8 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void setRequiredCapabilities(RequiredCapability[] capabilities) {
-		if (capabilities == NO_REQUIRES) {
-			this.requires = null;
+		if (capabilities.length == 0) {
+			this.requires = NO_REQUIRES;
 		} else {
 			//copy array for safety
 			this.requires = (RequiredCapability[]) capabilities.clone();

@@ -47,7 +47,8 @@ public final class StringPool {
 				savings += 44 + 2 * string.length();
 			return (String) result;
 		}
-		map.put(string, string);
+		//explicitly copy the string to trim excess baggage
+		map.put(string, new String(string));
 		return string;
 	}
 

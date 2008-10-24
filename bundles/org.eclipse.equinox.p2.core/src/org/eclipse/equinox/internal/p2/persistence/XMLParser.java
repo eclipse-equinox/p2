@@ -476,7 +476,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		protected void processCharacters(String data) {
-			this.text = data;
+			this.text = canonicalize(data);
 			if (texts != null) {
 				texts.add(getText());
 			}
