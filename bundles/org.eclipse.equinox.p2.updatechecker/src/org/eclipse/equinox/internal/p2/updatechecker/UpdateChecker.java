@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -136,7 +138,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 */
 	private URI[] getAvailableRepositories() {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
-		URI[] repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		ArrayList available = new ArrayList();
 		for (int i = 0; i < repositories.length; i++) {
 			try {

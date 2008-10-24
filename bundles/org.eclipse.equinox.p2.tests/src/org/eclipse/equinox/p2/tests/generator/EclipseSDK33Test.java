@@ -86,7 +86,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		assertNotNull(unit);
 		assertGroup(unit);
 
-		IArtifactRepository artifactRepo = (TestArtifactRepository) generatorInfo.getArtifactRepository();
+		IArtifactRepository artifactRepo = generatorInfo.getArtifactRepository();
 		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
 		assertTrue(keys.length == 11);
 	}

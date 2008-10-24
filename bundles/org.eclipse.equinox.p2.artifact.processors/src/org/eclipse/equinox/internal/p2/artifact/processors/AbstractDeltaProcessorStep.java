@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -47,7 +49,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 			return;
 		}
 
-		URI[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_LOCAL);
+		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
 				IArtifactRepository currentRepo = repoMgr.loadRepository(repositories[i], null);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -46,7 +48,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * to a repository at the given location.
 	 */
 	private boolean managerContains(URI location) {
-		URI[] locations = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < locations.length; i++) {
 			if (locations[i].equals(location))
 				return true;

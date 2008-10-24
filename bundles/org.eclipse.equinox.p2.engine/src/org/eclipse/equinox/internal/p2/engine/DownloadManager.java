@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -86,7 +88,7 @@ public class DownloadManager {
 			IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
 			URI[] repositories = null;
 			if (provContext == null || provContext.getArtifactRepositories() == null)
-				repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+				repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 			else
 				repositories = provContext.getArtifactRepositories();
 			if (repositories.length == 0)

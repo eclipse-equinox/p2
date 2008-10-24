@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -172,7 +174,7 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return null;
-		URI[] repos = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;
@@ -250,7 +252,7 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return null;
-		URI[] repos = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;

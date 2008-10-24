@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import org.eclipse.core.runtime.IStatus;
+
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -137,7 +139,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		RecommendationDescriptor desc2 = new RecommendationDescriptor(list2);
 
 		//We test that the result of the merge worked.
-		assertEquals(Status.INFO, desc1.merge(desc2).getSeverity());
+		assertEquals(IStatus.INFO, desc1.merge(desc2).getSeverity());
 	}
 
 	public void testRangeIntersection() {

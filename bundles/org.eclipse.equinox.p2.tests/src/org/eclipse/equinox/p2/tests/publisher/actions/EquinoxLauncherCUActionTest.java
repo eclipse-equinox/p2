@@ -73,7 +73,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 
 				ProvidedCapability[] cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
-				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
 				assertTrue(cap.length == 2);
 
 				Map prop = iu.getProperties();

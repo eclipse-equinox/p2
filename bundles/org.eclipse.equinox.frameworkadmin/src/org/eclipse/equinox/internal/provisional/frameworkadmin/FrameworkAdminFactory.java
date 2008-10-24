@@ -21,7 +21,7 @@ public abstract class FrameworkAdminFactory {
 	// proposed method: only for ConfiguratorManipulatorFactory, magic system property is used.
 	public static FrameworkAdmin getInstance(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		FrameworkAdminFactory factory = (FrameworkAdminFactory) Class.forName(className).newInstance();
-		return (FrameworkAdmin) factory.createFrameworkAdmin();
+		return factory.createFrameworkAdmin();
 	}
 
 	//  // method 3: two magic system properties are used.

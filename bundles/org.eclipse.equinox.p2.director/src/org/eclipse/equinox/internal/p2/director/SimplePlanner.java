@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -188,7 +190,7 @@ public class SimplePlanner implements IPlanner {
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
@@ -383,7 +385,7 @@ public class SimplePlanner implements IPlanner {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		URI[] repositories = context.getMetadataRepositories();
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {

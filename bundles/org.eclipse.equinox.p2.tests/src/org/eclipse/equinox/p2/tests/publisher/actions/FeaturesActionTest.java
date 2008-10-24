@@ -78,7 +78,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(fooVersion));
 
 		//zipped=true
-		String fooValue = (String) ((TouchpointInstruction) foo.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String fooValue = ((TouchpointInstruction) foo.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		RequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
@@ -105,7 +105,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.isSingleton());
 
 		//check zipped=true in touchpointData
-		String barValue = (String) ((TouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String barValue = ((TouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		//check touchpointType
