@@ -432,23 +432,29 @@ public class Projector {
 		if (optionalityExpression == null)
 			optionalityExpression = " -1 " + iuVar + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
 		StringBuffer comment = new StringBuffer();
-		comment.append("* "); //$NON-NLS-1$
-		comment.append(iu.toString());
-		comment.append(" requires optionaly either "); //$NON-NLS-1$
+		if (DEBUG) {
+			comment.append("* "); //$NON-NLS-1$
+			comment.append(iu.toString());
+			comment.append(" requires optionaly either "); //$NON-NLS-1$
+		}
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
 				expression += " 1 " + getVariable(match); //$NON-NLS-1$
-				comment.append(match.toString());
-				comment.append(' ');
+				if (DEBUG) {
+					comment.append(match.toString());
+					comment.append(' ');
+				}
 			}
 		}
 		countOptionalIUs += countMatches;
 		if (countMatches > 0) {
-			dependencies.add(comment.toString());
-			commentsCount++;
+			if (DEBUG) {
+				dependencies.add(comment.toString());
+				commentsCount++;
+			}
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
@@ -465,23 +471,29 @@ public class Projector {
 		if (optionalityExpression == null)
 			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
 		StringBuffer comment = new StringBuffer();
-		comment.append("* "); //$NON-NLS-1$
-		comment.append(iu.toString());
-		comment.append(" requires optionaly either "); //$NON-NLS-1$
+		if (DEBUG) {
+			comment.append("* "); //$NON-NLS-1$
+			comment.append(iu.toString());
+			comment.append(" requires optionaly either "); //$NON-NLS-1$
+		}
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
 				expression += " 1 " + getVariable(match); //$NON-NLS-1$
-				comment.append(match.toString());
-				comment.append(' ');
+				if (DEBUG) {
+					comment.append(match.toString());
+					comment.append(' ');
+				}
 			}
 		}
 		countOptionalIUs += countMatches;
 		if (countMatches > 0) {
-			dependencies.add(comment.toString());
-			commentsCount++;
+			if (DEBUG) {
+				dependencies.add(comment.toString());
+				commentsCount++;
+			}
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
@@ -495,23 +507,29 @@ public class Projector {
 		String expression = varIu;
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
-		comment.append("* "); //$NON-NLS-1$
-		comment.append(iu.toString());
-		comment.append(" requires either "); //$NON-NLS-1$
+		if (DEBUG) {
+			comment.append("* "); //$NON-NLS-1$
+			comment.append(iu.toString());
+			comment.append(" requires either "); //$NON-NLS-1$
+		}
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
 				expression += " +1 " + getVariable(match); //$NON-NLS-1$
-				comment.append(match.toString());
-				comment.append(' ');
+				if (DEBUG) {
+					comment.append(match.toString());
+					comment.append(' ');
+				}
 			}
 		}
 
 		if (countMatches > 0) {
-			dependencies.add(comment.toString());
-			commentsCount++;
+			if (DEBUG) {
+				dependencies.add(comment.toString());
+				commentsCount++;
+			}
 			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
@@ -527,9 +545,11 @@ public class Projector {
 		expression.append(varIu);
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
-		comment.append("* "); //$NON-NLS-1$
-		comment.append(iu.toString());
-		comment.append(" requires either "); //$NON-NLS-1$
+		if (DEBUG) {
+			comment.append("* "); //$NON-NLS-1$
+			comment.append(iu.toString());
+			comment.append(" requires either "); //$NON-NLS-1$
+		}
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
@@ -537,14 +557,18 @@ public class Projector {
 				countMatches++;
 				expression.append(" +1 "); //$NON-NLS-1$
 				expression.append(getVariable(match));
-				comment.append(match.toString());
-				comment.append(' ');
+				if (DEBUG) {
+					comment.append(match.toString());
+					comment.append(' ');
+				}
 			}
 		}
 
 		if (countMatches > 0) {
-			dependencies.add(comment.toString());
-			commentsCount++;
+			if (DEBUG) {
+				dependencies.add(comment.toString());
+				commentsCount++;
+			}
 			expression.append(" >= 0;"); //$NON-NLS-1$
 			dependencies.add(expression.toString());
 		} else {
