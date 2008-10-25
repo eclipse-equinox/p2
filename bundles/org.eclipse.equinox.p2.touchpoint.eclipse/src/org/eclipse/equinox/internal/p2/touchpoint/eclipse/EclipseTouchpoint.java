@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
@@ -34,6 +35,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	// TODO: phase id constants should be defined elsewhere.
 	public static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
 	public static final String UNINSTALL_PHASE_ID = "uninstall"; //$NON-NLS-1$
+	public static final String CONFIGURE_PHASE_ID = "configure"; //$NON-NLS-1$
 
 	public static final String PROFILE_PROP_LAUNCHER_NAME = "eclipse.touchpoint.launcherName"; //$NON-NLS-1$
 	public static final String PARM_MANIPULATOR = "manipulator"; //$NON-NLS-1$
@@ -42,14 +44,32 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 
-	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		Manipulator manipulator = (Manipulator) touchpointParameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
-		try {
+	private static Map manipulators = new WeakHashMap();
+
+	private static synchronized LazyManipulator getManipulator(IProfile profile) {
+		LazyManipulator manipulator = (LazyManipulator) manipulators.get(profile);
+		if (manipulator == null) {
+			manipulator = new LazyManipulator(profile);
+			manipulators.put(profile, manipulator);
+		}
+		return manipulator;
+	}
+
+	private static synchronized void saveManipulator(IProfile profile) throws FrameworkAdminRuntimeException, IOException {
+		LazyManipulator manipulator = (LazyManipulator) manipulators.remove(profile);
+		if (manipulator != null)
 			manipulator.save(false);
-		} catch (RuntimeException e) {
-			return Util.createError(Messages.error_saving_manipulator, e);
-		} catch (IOException e) {
-			return Util.createError(Messages.error_saving_manipulator, e);
+	}
+
+	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+		if (CONFIGURE_PHASE_ID.equals(phaseId)) {
+			try {
+				saveManipulator(profile);
+			} catch (RuntimeException e) {
+				return Util.createError(Messages.error_saving_manipulator, e);
+			} catch (IOException e) {
+				return Util.createError(Messages.error_saving_manipulator, e);
+			}
 		}
 
 		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
@@ -82,7 +102,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
-		LazyManipulator manipulator = new LazyManipulator(profile);
+		LazyManipulator manipulator = getManipulator(profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
 		File configLocation = Util.getConfigurationFolder(profile);
