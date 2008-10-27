@@ -36,6 +36,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
 	public static final String UNINSTALL_PHASE_ID = "uninstall"; //$NON-NLS-1$
 	public static final String CONFIGURE_PHASE_ID = "configure"; //$NON-NLS-1$
+	public static final String UNCONFIGURE_PHASE_ID = "unconfigure"; //$NON-NLS-1$
 
 	public static final String PROFILE_PROP_LAUNCHER_NAME = "eclipse.touchpoint.launcherName"; //$NON-NLS-1$
 	public static final String PARM_MANIPULATOR = "manipulator"; //$NON-NLS-1$
@@ -62,7 +63,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		if (CONFIGURE_PHASE_ID.equals(phaseId)) {
+		if (CONFIGURE_PHASE_ID.equals(phaseId) || UNCONFIGURE_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
 			try {
 				saveManipulator(profile);
 			} catch (RuntimeException e) {
