@@ -159,7 +159,7 @@ public abstract class Phase {
 
 		Map touchpointOperandParameters = new HashMap(touchpointPhaseParameters);
 		touchpointOperandParameters.putAll(operandParameters);
-		IStatus status = touchpoint.initializeOperand(profile, operand, touchpointPhaseParameters);
+		IStatus status = touchpoint.initializeOperand(profile, operand, touchpointOperandParameters);
 		if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return status;
 		touchpointToTouchpointOperandParameters.put(touchpoint, touchpointOperandParameters);

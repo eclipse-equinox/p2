@@ -42,11 +42,10 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public static class TestPhase extends InstallableUnitPhase {
 
-		boolean completeOperand;
-		boolean getAction;
-		boolean initializeOperand;
-		boolean completePhase;
-		boolean initializePhase;
+		public boolean initializePhase;
+		public boolean completePhase;
+		public boolean initializeOperand;
+		public boolean completeOperand;
 
 		protected TestPhase() {
 			super("test", 1);
@@ -62,6 +61,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 
 		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+			parameters.put("TestPhase.initializeOperand", "true");
 			initializeOperand = true;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
@@ -72,6 +72,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 
 		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			parameters.put("TestPhase.initializePhase", "true");
 			initializePhase = true;
 			return super.initializePhase(monitor, profile, parameters);
 		}
@@ -163,19 +164,19 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testInitCompletePhase() {
 		TestPhase phase = new TestPhase() {
 			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-				assertFalse(initializePhase);
+				assertFalse(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
 				super.initializePhase(monitor, profile, parameters);
-				assertTrue(initializePhase);
+				assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
 				return null;
 			}
 
 			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-				assertTrue(initializePhase);
+				assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
 				super.completePhase(monitor, profile, parameters);
-				assertTrue(initializePhase);
+				assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 				assertTrue(completePhase);
 				return null;
 			}
@@ -191,19 +192,19 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testInitCompleteOperand() {
 		TestPhase phase = new TestPhase() {
 			protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
-				assertTrue(initializeOperand);
+				assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
 				super.completeOperand(profile, operand, parameters, monitor);
-				assertTrue(initializeOperand);
+				assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 				assertTrue(completeOperand);
 				return null;
 			}
 
 			protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
-				assertFalse(initializeOperand);
+				assertFalse(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
 				super.initializeOperand(profile, operand, parameters, monitor);
-				assertTrue(initializeOperand);
+				assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
 				return null;
 			}

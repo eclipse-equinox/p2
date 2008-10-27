@@ -76,6 +76,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 			assertEquals(0, initializeOperand);
 			assertEquals(0, completeOperand);
+			assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 			super.initializeOperand(profile, operand, parameters);
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
@@ -96,6 +97,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
 			assertEquals(0, initializePhase);
 			assertEquals(0, completePhase);
+			assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 			super.initializePhase(monitor, profile, phaseId, parameters);
 			assertEquals(1, initializePhase);
 			assertEquals(0, completePhase);
