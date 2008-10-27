@@ -78,7 +78,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallSDK() {
-		//disabled due to failures on test machines. See bug 
+		//disabled due to failures on test machines. See bug 252129
 		if (true)
 			return;
 		File installFolder = TestActivator.getContext().getDataFile(End2EndTest.class.getName());
