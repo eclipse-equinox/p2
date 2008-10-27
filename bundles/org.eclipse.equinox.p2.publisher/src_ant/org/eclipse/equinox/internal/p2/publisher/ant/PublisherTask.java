@@ -15,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -24,7 +23,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
 import org.osgi.framework.Version;
 
 /**
- * An Ant task to call the p2 Metadata Generator application.
+ * An Ant task to call the p2 publisher application.
  * 
  * @since 1.0
  */
@@ -43,13 +42,9 @@ public class PublisherTask extends Task {
 	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
 	protected String mode;
-	private File[] bundles;
-	private File[] features;
-	private String productFile;
 	private String flavor;
 	private String operation;
 	private String operationValue;
-	private boolean addDefaultIUs;
 	private String root;
 	private String rootVersion;
 	private String versionAdvice;
@@ -70,35 +65,8 @@ public class PublisherTask extends Task {
 		}
 		createVersionAdvice();
 		IPublisherAction[] actions = createActions();
-		IStatus result = new Publisher(getInfo()).publish(actions, new NullProgressMonitor());
-
-		// TODO hack assignments to keep the compiler from whining about the unreferenced privates.
-		Object o = bundles;
-		o = features;
-		o = productFile;
-		boolean b = addDefaultIUs;
-
-		//		try {
-		//			if ("incremental".equals(mode)) { //$NON-NLS-1$
-		//				if (result == null)
-		//					result = new PublisherResult();
-		//				generator.setIncrementalResult(result);
-		//				generator.setGeneratorRootIU(false);
-		//			} else if ("final".equals(mode) && result != null) { //$NON-NLS-1$
-		//				generator.setIncrementalResult(result);
-		//				generator.setGeneratorRootIU(true);
-		//			}
-		//
-		//			generator.run(provider);
-		//
-		//			if (!"incremental".equals(mode)) { //$NON-NLS-1$
-		//				provider = null;
-		//				generator = null;
-		//				result = null;
-		//			}
-		//		} catch (Exception e) {
-		//			throw new BuildException(TaskMessages.exception_errorOccurredCallingGenerator, e);
-		//		}
+		//TODO Do something with publisher result
+		new Publisher(getInfo()).publish(actions, new NullProgressMonitor());
 	}
 
 	private IPublisherAction[] createActions() {
@@ -167,7 +135,7 @@ public class PublisherTask extends Task {
 	}
 
 	public void setBundles(String value) {
-		bundles = new File[] {new File(value)};
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setCompress(String value) {
@@ -202,7 +170,7 @@ public class PublisherTask extends Task {
 	}
 
 	public void setFeatures(String value) {
-		features = new File[] {new File(value)};
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setFlavor(String value) {
@@ -213,6 +181,7 @@ public class PublisherTask extends Task {
 	 * @deprecated
 	 */
 	public void setLauncherConfig(String value) {
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setMetadataRepository(String location) {
@@ -228,17 +197,18 @@ public class PublisherTask extends Task {
 	}
 
 	public void setNoDefaultIUs(String value) {
-		addDefaultIUs = !Boolean.valueOf(value).booleanValue();
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	/**
 	 * @deprecated
 	 */
 	public void setP2OS(String value) {
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setProductFile(String file) {
-		productFile = file;
+		//TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setPublishArtifactRepository(String value) {
