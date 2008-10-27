@@ -20,9 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
@@ -80,7 +78,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		}
 	}
 
-	ProvisioningContext provisioningContext;
 	IUViewQueryContext queryContext;
 	// We restrict the type of the filter used because PatternFilter does
 	// unnecessary accesses of children that cause problems with the deferred
@@ -90,7 +87,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private IUDetailsLabelProvider labelProvider;
 	private Display display;
 	DeferredFetchFilteredTree filteredTree;
-	private int refreshRepoFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
 	Job lastRequestedLoadJob;
 
 	/**
@@ -106,11 +102,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	/**
 	 * Create a group that represents the available IU's.
 	 * 
+	 * @param policy the policy to use for deciding what should be shown
 	 * @param parent the parent composite for the group
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param queryContext the ProvisioningContext describing the context for provisioning,
-	 * including information about which repositories should be used.
+	 * @param queryable the queryable repository manager that should be used.  Used
+	 * by clients who want to preload repositories.
+	 * @param queryContext the IUViewQueryContext that determines additional
+	 * information about what is shown, such as the visible repositories
 	 * @param columnConfig the description of the columns that should be shown.  If <code>null</code>, a default
 	 * will be used.
 	 */
@@ -236,10 +235,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 	}
 
-	public void setRepositoryRefreshFlags(int flags) {
-		refreshRepoFlags = flags;
-	}
-
 	/**
 	 * Set a boolean indicating whether a bold font should be used when
 	 * showing filtered items.  This method does not refresh the tree or 
@@ -306,12 +301,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Refresh the available view completely.
 	 */
 	public void refresh() {
-		URI[] urls = provisioningContext.getMetadataRepositories();
-		ProvisioningOperation op;
-		if (urls == null)
-			op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
-		else
-			op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
+		ProvisioningOperation op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, queryContext.getMetadataRepositoryFlags());
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 		if (viewer != null && !viewer.getControl().isDisposed())
 			viewer.setInput(getNewInput());
