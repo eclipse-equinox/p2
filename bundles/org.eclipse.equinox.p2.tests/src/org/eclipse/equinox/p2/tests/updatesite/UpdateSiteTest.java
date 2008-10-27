@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -475,6 +476,58 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		Map instructions = data[0].getInstructions();
 		assertEquals("1.2", 1, instructions.size());
 		assertEquals("1.3", "true", ((TouchpointInstruction) instructions.get("zipped")).getBody());
+	}
+
+	public void testMetadtaRepoCount() {
+		File site = getTestData("0.1", "/testData/updatesite/site");
+		URI siteURI = site.toURI();
+
+		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(metadataRepoMan);
+
+		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		for (int i = 0; i < knownRepos.length; i++) {
+			if (siteURI.equals(knownRepos[i])) {
+				metadataRepoMan.removeRepository(siteURI);
+				knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+				break;
+			}
+		}
+
+		try {
+			metadataRepoMan.loadRepository(site.toURI(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("1.0", e);
+			return;
+		}
+		URI[] afterKnownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
+	}
+
+	public void testArtifactRepoCount() {
+		File site = getTestData("0.1", "/testData/updatesite/site");
+		URI siteURI = site.toURI();
+
+		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		assertNotNull(artifactRepoMan);
+
+		URI[] knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		for (int i = 0; i < knownRepos.length; i++) {
+			if (siteURI.equals(knownRepos[i])) {
+				artifactRepoMan.removeRepository(siteURI);
+				knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+				break;
+			}
+		}
+
+		try {
+			artifactRepoMan.loadRepository(site.toURI(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("1.0", e);
+			return;
+		}
+		URI[] afterKnownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
 	}
 
 	public void testMirrors() {

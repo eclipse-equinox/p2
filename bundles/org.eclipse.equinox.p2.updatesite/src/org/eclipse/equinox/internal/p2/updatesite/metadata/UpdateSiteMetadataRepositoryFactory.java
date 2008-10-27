@@ -15,11 +15,9 @@ package org.eclipse.equinox.internal.p2.updatesite.metadata;
 import java.io.File;
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
@@ -54,24 +52,19 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
-		return repository;
+		return new UpdateSiteMetadataRepository(location, repository);
 	}
 
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		URI localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
-			IMetadataRepository repository = factory.load(localRepositoryURL, monitor);
-			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			return repository;
+			return factory.load(localRepositoryURL, monitor);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location; //$NON-NLS-1$
-		Properties props = new Properties();
-		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-		return factory.create(localRepositoryURL, repositoryName, null, props);
+		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
 	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {

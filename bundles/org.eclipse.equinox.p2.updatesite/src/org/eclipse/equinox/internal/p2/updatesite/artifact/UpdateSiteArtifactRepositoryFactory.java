@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
@@ -45,24 +44,19 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
-		return repository;
+		return new UpdateSiteArtifactRepository(location, repository);
 	}
 
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		URI localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
-			IArtifactRepository repository = factory.load(localRepositoryURL, monitor);
-			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			return repository;
+			return factory.load(localRepositoryURL, monitor);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location; //$NON-NLS-1$
-		Properties props = new Properties();
-		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-		return factory.create(localRepositoryURL, repositoryName, null, props);
+		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
 	public void initializeRepository(IArtifactRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
