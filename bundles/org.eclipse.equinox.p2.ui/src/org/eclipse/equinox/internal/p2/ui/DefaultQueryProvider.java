@@ -76,7 +76,6 @@ public class DefaultQueryProvider extends QueryProvider {
 				ElementQueryDescriptor installedQueryDescriptor = null;
 				boolean showLatest = context.getShowLatestVersionsOnly();
 				boolean hideInstalled = context.getHideAlreadyInstalled();
-				boolean useCategories = context.getUseCategories();
 				String profileId = context.getInstalledProfileId();
 				if (hideInstalled && profileId != null) {
 					try {
