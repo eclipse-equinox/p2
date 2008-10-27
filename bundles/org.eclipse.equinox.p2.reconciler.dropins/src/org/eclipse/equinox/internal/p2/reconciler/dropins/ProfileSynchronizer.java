@@ -148,6 +148,12 @@ public class ProfileSynchronizer {
 		if ("true".equals(Activator.getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
 			return false;
 
+		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
+		if (lastKnownProfileTimeStamp == null)
+			return false;
+		if (!lastKnownProfileTimeStamp.equals(Long.toString(profile.getTimestamp())))
+			return false;
+
 		//When we get here the timestamps map only contains information related to repos
 		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
