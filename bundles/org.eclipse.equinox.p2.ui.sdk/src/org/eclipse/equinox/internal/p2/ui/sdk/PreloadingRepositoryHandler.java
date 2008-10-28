@@ -30,6 +30,8 @@ import org.eclipse.ui.PlatformUI;
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
+	Job loadJob = null;
+
 	/**
 	 * The constructor.
 	 */
@@ -60,26 +62,32 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	private void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
 		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
 		if (preloadRepositories) {
-			Job job = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
+			if (loadJob == null) {
 
-				protected IStatus run(IProgressMonitor monitor) {
-					queryableManager.loadAll(monitor);
-					return Status.OK_STATUS;
-				}
+				loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
 
-			};
-			job.addJobChangeListener(new JobChangeAdapter() {
-				public void done(IJobChangeEvent event) {
-					if (PlatformUI.isWorkbenchRunning())
-						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								doExecute(profileId, queryableManager);
+					protected IStatus run(IProgressMonitor monitor) {
+						queryableManager.loadAll(monitor);
+						return Status.OK_STATUS;
+					}
+
+				};
+				loadJob.addJobChangeListener(new JobChangeAdapter() {
+					public void done(IJobChangeEvent event) {
+						loadJob = null;
+						if (PlatformUI.isWorkbenchRunning())
+							if (event.getResult().isOK()) {
+								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									public void run() {
+										doExecute(profileId, queryableManager);
+									}
+								});
 							}
-						});
-				}
-			});
-			job.setUser(true);
-			job.schedule();
+					}
+				});
+				loadJob.setUser(true);
+				loadJob.schedule();
+			}
 			return;
 		}
 		doExecute(profileId, queryableManager);
