@@ -233,7 +233,108 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(Version.emptyVersion, true, version, false), IUpdateDescriptor.HIGH, "desc");
 	}
 
-	public void _test_248468() {
+	public void test248468b() {
+		String id = "myBundle";
+		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IUpdateDescriptor update2 = createUpdateDescriptor(id, new Version("2.0.0"));
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update2);
+
+		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
+		IInstallableUnit three = createIU(id, new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+
+		Collection from = new ArrayList();
+		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
+		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+		from.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
+
+		Collection to = new ArrayList();
+		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		//We are uninstalling myBundle 1.0 and 2.0. 3.0 stays unchanged.
+		for (int i = 0; i < operands.length; i++) {
+			assertNotSame("3.0", three, operands[i].first());
+			assertNotSame("3.0.1", three, operands[i].second());
+		}
+		assertEquals("3.1", one, operands[0].first());
+		assertNull("3.2", operands[0].second());
+		assertEquals("3.3", two, operands[1].first());
+		assertNull("3.4", operands[1].second());
+	}
+
+	public void test248468d() {
+		String id = "myBundle";
+		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		update = createUpdateDescriptor(id, new Version("2.0.0"));
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+
+		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+
+		Collection from = new ArrayList();
+		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
+		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+
+		Collection to = new ArrayList();
+		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		//Two is already in the system therefore it will not be in the operands
+		for (int i = 0; i < operands.length; i++) {
+			assertNotSame("2.0", two, operands[i].first());
+			assertNotSame("2.1", two, operands[i].second());
+		}
+		//three is an update of one
+		assertEquals("2.2", 1, operands.length);
+		assertEquals("2.4", one, operands[0].first());
+		assertEquals("2.5", three, operands[0].second());
+	}
+
+	public void test248468c() {
+		String id = "myBundle";
+		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		update = createUpdateDescriptor(id, new Version("2.0.0"));
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+
+		IUpdateDescriptor update3 = MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(2, 0, 0), true, new Version(3, 0, 0), false), IUpdateDescriptor.HIGH, "desc");
+		//		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+
+		Collection from = new ArrayList();
+		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
+		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+
+		Collection to = new ArrayList();
+		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		//Two is already in the system therefore it will not be in the operands
+		for (int i = 0; i < operands.length; i++) {
+			assertNotSame("2.0", two, operands[i].first());
+			assertNotSame("2.1", two, operands[i].second());
+		}
+		//We install three and uninstall one
+		assertEquals("2.2", 2, operands.length);
+		assertNull("2.3", operands[0].first());
+		assertEquals("2.4", three, operands[0].second());
+		assertEquals("2.5", one, operands[1].first());
+		assertNull("2.6", operands[1].second());
+	}
+
+	public void test248468() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
 		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
