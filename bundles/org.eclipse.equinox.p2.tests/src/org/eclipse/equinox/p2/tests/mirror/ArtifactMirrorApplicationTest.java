@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -22,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -834,7 +834,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Verifies that the mirror application executes processign steps correctly
+	 * Verifies that the mirror application executes processing steps correctly
 	 */
 	public void testArtifactProcessingSteps() {
 		//Setup: load the repository containing packed data
@@ -898,5 +898,102 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				}
 			}
 		}
+	}
+
+	//for Bug 235683
+	public void testMirrorCompressedSource() {
+		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
+
+		//Setup: get the artifacts.jar file
+		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
+		//Setup: make sure artifacts.jar exists
+		assertTrue("1", compressedArtifactsXML.exists());
+
+		try {
+			basicRunMirrorApplication("2", compressedSource.toURL(), destRepoLocation.toURL(), false);
+		} catch (MalformedURLException e) {
+			fail("3", e);
+		} catch (Exception e) {
+			fail("4", e);
+		}
+
+		//get the artifacts.jar file
+		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
+		//make sure artifacts.jar exists
+		assertTrue("5", destArtifactsXML.exists());
+	}
+
+	//for Bug 235683
+	public void testMirrorCompressedSourcetoUncompressedDestination() {
+		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
+
+		//Setup: get the artifacts.jar file
+		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
+		//Setup: make sure artifacts.jar exists
+		assertTrue("1", compressedArtifactsXML.exists());
+
+		//Setup: create the destination
+		try {
+			String name = "Destination Name " + destRepoLocation;
+			getManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("2", e);
+		}
+
+		assertTrue("2.1", new File(destRepoLocation, "artifacts.xml").exists());
+		try {
+			basicRunMirrorApplication("3", compressedSource.toURL(), destRepoLocation.toURL(), false);
+		} catch (MalformedURLException e) {
+			fail("4", e);
+		} catch (Exception e) {
+			fail("5", e);
+		}
+
+		//get the artifacts.jar file
+		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
+		//make sure artifacts.jar does not exist
+		assertFalse("6", destArtifactsXML.exists());
+		//get the artifacts.xml file
+		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
+		//make sure artifacts.xml exists
+		assertTrue("7", destArtifactsXML.exists());
+	}
+
+	//for Bug 235683
+	public void testMirrorUncompressedSourceToCompressedDestination() {
+		File uncompressedSource = getTestData("0", "/testData/mirror/mirrorPackedRepo");
+
+		//Setup: get the artifacts.xml file
+		File artifactsXML = new File(uncompressedSource.getAbsoluteFile() + "/artifacts.xml");
+		//Setup: make sure artifacts.xml exists
+		assertTrue("1", artifactsXML.exists());
+
+		//Setup: create the destination
+		try {
+			String name = "Destination Name " + destRepoLocation;
+			Map property = new HashMap();
+			property.put(IRepository.PROP_COMPRESSED, "true");
+			getManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
+		} catch (ProvisionException e) {
+			fail("2", e);
+		}
+
+		assertTrue("2.1", new File(destRepoLocation, "artifacts.jar").exists());
+		try {
+			basicRunMirrorApplication("3", uncompressedSource.toURL(), destRepoLocation.toURL(), false);
+		} catch (MalformedURLException e) {
+			fail("4", e);
+		} catch (Exception e) {
+			fail("5", e);
+		}
+
+		//get the artifacts.jar file
+		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
+		//make sure artifacts.jar does exist
+		assertTrue("6", destArtifactsXML.exists());
+		//get the artifacts.xml file
+		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
+		//make sure artifacts.xml does not exist
+		assertFalse("7", destArtifactsXML.exists());
 	}
 }
