@@ -47,14 +47,13 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		init();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan() {
+	protected ProvisioningPlan getProvisioningPlan(final IInstallableUnit[] ius) {
 		final String id = getProfileId(true);
 		// We could not figure out a profile to operate on, so return
 		if (id == null) {
 			return null;
 		}
 
-		final IInstallableUnit[] ius = getSelectedIUs();
 		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
@@ -76,9 +75,10 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	public void run() {
-		ProvisioningPlan plan = getProvisioningPlan();
+		IInstallableUnit[] ius = getSelectedIUs();
+		ProvisioningPlan plan = getProvisioningPlan(ius);
 		if (validatePlan(plan))
-			result = performOperation(getSelectedIUs(), getProfileId(true), plan);
+			result = performOperation(ius, getProfileId(true), plan);
 		else
 			result = Window.CANCEL;
 		userChosenProfileId = null;

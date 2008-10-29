@@ -66,10 +66,10 @@ public class AutomaticUpdater implements IUpdateListener {
 			}
 		}
 
-		protected ProvisioningPlan getProvisioningPlan() {
+		protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius) {
 			if (currentPlan != null)
 				return currentPlan;
-			return super.getProvisioningPlan();
+			return super.getProvisioningPlan(ius);
 		}
 
 		protected IPlanValidator getPlanValidator() {
@@ -456,7 +456,7 @@ public class AutomaticUpdater implements IUpdateListener {
 				else {
 					createUpdateAction();
 					updateAction.initializePlan();
-					setUpdateAffordanceState(updateAction.getProvisioningPlan().getStatus().isOK());
+					setUpdateAffordanceState(updateAction.getProvisioningPlan(iusWithUpdates).getStatus().isOK());
 				}
 				return Status.OK_STATUS;
 			}
