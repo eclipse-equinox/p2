@@ -61,6 +61,8 @@ public class ProvisioningPlan {
 		}
 
 		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			if (operands == null)
+				return collector;
 			Collection list = new ArrayList();
 			for (int i = 0; i < operands.length; i++) {
 				if (!(operands[i] instanceof InstallableUnitOperand))
