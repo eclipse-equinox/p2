@@ -35,6 +35,7 @@ public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 		String launcherName = "foo";
 
 		LauncherData launcherData = manipulator.getLauncherData();
+		assertNotNull("Null launcher data" + launcherData, launcherData);
 		launcherData.setFwConfigLocation(configurationFolder);
 		launcherData.setLauncher(new File(installFolder, launcherName));
 		
