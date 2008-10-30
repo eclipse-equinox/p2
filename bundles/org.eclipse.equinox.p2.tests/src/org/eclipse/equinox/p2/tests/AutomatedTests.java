@@ -30,6 +30,7 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.engine.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.extensionlocation.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.generator.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.installer.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.mirror.AllTests.suite());
@@ -39,6 +40,7 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.updatesite.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.touchpoint.eclipse.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.reconciler.dropins.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.updatechecker.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.full.AllTests.suite());
 		return suite;
 	}
