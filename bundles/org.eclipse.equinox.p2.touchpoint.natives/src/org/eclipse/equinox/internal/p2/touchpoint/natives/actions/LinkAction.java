@@ -11,8 +11,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
@@ -26,15 +26,15 @@ public class LinkAction extends ProvisioningAction {
 	public IStatus execute(Map parameters) {
 		String targetDir = (String) parameters.get(PARM_TARGET_DIR);
 		if (targetDir == null)
-			return Util.errorStatus(NLS.bind(Messages.param_not_set, PARM_TARGET_DIR, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_TARGET_DIR, ID), null);
 
 		String linkTarget = (String) parameters.get(PARM_LINK_TARGET);
 		if (linkTarget == null)
-			return Util.errorStatus(NLS.bind(Messages.param_not_set, PARM_LINK_TARGET, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_LINK_TARGET, ID), null);
 
 		String linkName = (String) parameters.get(PARM_LINK_NAME);
 		if (linkName == null)
-			return Util.errorStatus(NLS.bind(Messages.param_not_set, PARM_LINK_NAME, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_LINK_NAME, ID), null);
 
 		String force = (String) parameters.get(PARM_LINK_FORCE);
 

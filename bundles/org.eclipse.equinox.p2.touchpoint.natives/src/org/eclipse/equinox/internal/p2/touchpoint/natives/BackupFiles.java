@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.zip.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.osgi.util.NLS;
 
@@ -56,11 +55,11 @@ public class BackupFiles {
 			}
 			propsFiles.add(0, propsFile);
 		}
-		IProgressMonitor[] pm = Util.splitProgressMonitor(monitor, propsFiles.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, propsFiles.size());
 		int j = 0;
 		for (Iterator i = propsFiles.iterator(); i.hasNext();) {
 			File propsFile = (File) i.next();
-			restoreFilesFromBackup(propsFile, pm[j++]);
+			restoreFilesFromBackup(propsFile, subMonitor.newChild(1));
 		}
 		if (!this.backupDir.delete()) {
 			//not empty?  log a warning?
