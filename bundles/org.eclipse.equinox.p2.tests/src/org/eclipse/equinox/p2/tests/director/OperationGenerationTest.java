@@ -229,10 +229,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		assertEquals(2, operands.length);
 	}
 
-	private IUpdateDescriptor createUpdateDescriptor(String id, Version version) {
-		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(Version.emptyVersion, true, version, false), IUpdateDescriptor.HIGH, "desc");
-	}
-
 	public void test248468b() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));

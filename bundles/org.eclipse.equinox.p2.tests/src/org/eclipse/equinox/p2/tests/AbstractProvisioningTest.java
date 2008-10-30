@@ -8,6 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -1067,6 +1070,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	protected boolean isWindows() {
 		return Platform.getOS().equals(Platform.OS_WIN32);
+	}
+
+	protected IUpdateDescriptor createUpdateDescriptor(String id, Version version) {
+		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(Version.emptyVersion, true, version, false), IUpdateDescriptor.HIGH, "desc");
 	}
 
 	/**
