@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/test.feature_1.0.0.jar" id="test.feature" version="1.0.0"/>
+   <feature url="features/Field_Assist_Example_1.0.0.jar" id="Field_Assist_Example" version="1.0.0">
+      <category name="Examples"/>
+   </feature>
+   <feature url="features/Multi_Page_Editor_Example_1.0.0.jar" id="Multi_Page_Editor_Example" version="1.0.0">
+      <category name="Examples"/>
+   </feature>
+   <feature url="features/Jobs_Example_1.0.0.jar" id="Jobs_Example" version="1.0.0">
+      <category name="More Examples"/>
+   </feature>
+   <feature url="features/Undo_Example_1.0.0.jar" id="Undo_Example" version="1.0.0">
+      <category name="More Examples"/>
+   </feature>
+   <feature url="features/Readme_Example_1.0.0.jar" id="Readme_Example" version="1.0.0">
+      <category name="Examples"/>
+   </feature>
+   <feature url="features/Field_Assist_Example_1.0.1.jar" id="Field_Assist_Example" version="1.0.1">
+      <category name="Examples"/>
+   </feature>
+   <feature url="features/Field_Assist_Example_2.0.0.jar" id="Field_Assist_Example" version="2.0.0">
+      <category name="Examples"/>
+   </feature>
+   <feature url="features/RCP_Browser_Example_1.0.0.jar" id="RCP_Browser_Example" version="1.0.0">
+      <category name="More Examples"/>
+   </feature>
+   <category-def name="Examples" label="Platform Examples">
+      <description>
+         Some of the examples
+      </description>
+   </category-def>
+   <category-def name="More Examples" label="More Fine Examples">
+      <description>
+         This is another category
+      </description>
+   </category-def>
+</site>
