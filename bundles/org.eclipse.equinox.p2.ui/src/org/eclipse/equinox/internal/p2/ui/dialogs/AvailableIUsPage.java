@@ -431,6 +431,13 @@ public class AvailableIUsPage extends WizardPage {
 		return availableIUGroup.getSelectedIUs();
 	}
 
+	/*
+	 * This method is provided only for automated testing.
+	 */
+	public AvailableIUGroup testGetAvailableIUGroup() {
+		return availableIUGroup;
+	}
+
 	public IInstallableUnit[] getCheckedIUs() {
 		return availableIUGroup.getCheckedLeafIUs();
 	}
