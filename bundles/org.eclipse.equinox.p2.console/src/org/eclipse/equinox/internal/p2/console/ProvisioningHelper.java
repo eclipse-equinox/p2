@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -215,36 +212,6 @@ public class ProvisioningHelper {
 			return result.getStatus();
 
 		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), context, progress);
-	}
-
-	/**
-	 * Uninstall the described IU
-	 */
-	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
-		if (director == null)
-			throw new ProvisionException("No director service found.");
-
-		// return director.uninstall(new InstallableUnit[] {toInstall}, profile,
-		// null);
-		return null;
-	}
-
-	public static void kick(String profileId) {
-		Configurator configurator = (Configurator) ServiceHelper.getService(Activator.getContext(), Configurator.class.getName());
-		if (configurator == null)
-			return;
-		if (profileId == null)
-			try {
-				configurator.applyConfiguration();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		else {
-			// TODO do some work here to figure out how to kick some random profile			
-			//					configurator.applyConfiguration(configURL);
-		}
 	}
 
 	public static URI[] getArtifactRepositories() {
