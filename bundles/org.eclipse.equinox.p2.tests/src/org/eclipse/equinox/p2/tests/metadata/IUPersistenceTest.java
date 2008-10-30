@@ -297,7 +297,6 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
 		IUStringWriter writer = new IUStringWriter(output1);
 		writer.writeTest(iu1);
-		String iuText1 = output1.toString();
 		output1.close();
 		//the content on disk is not the same but it is normal because a RequiredCapability array of RequiredCapability[0][0] is not persisted the same
 		// than RequiredCapability[][] {{}}

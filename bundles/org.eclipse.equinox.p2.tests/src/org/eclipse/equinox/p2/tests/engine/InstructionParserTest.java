@@ -40,7 +40,7 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testNullIUPhase() {
 		try {
-			InstructionParser parser = new InstructionParser(null, new NullTouchpoint());
+			new InstructionParser(null, new NullTouchpoint());
 		} catch (RuntimeException e) {
 			return;
 		}
@@ -49,7 +49,7 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testNullTouchpoint() {
 		try {
-			InstructionParser parser = new InstructionParser(new Collect(1), null);
+			new InstructionParser(new Collect(1), null);
 		} catch (RuntimeException e) {
 			return;
 		}
@@ -71,7 +71,7 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testBadActionFullyQualified() {
 		InstructionParser parser = new InstructionParser(new Collect(1), new NullActionTouchpoint());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("bad.phasetest.test()", null));
+			parser.parseActions(MetadataFactory.createTouchpointInstruction("bad.phasetest.test()", null));
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -93,7 +93,7 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testBadActionFromImport() {
 		InstructionParser parser = new InstructionParser(new Collect(1), new NullActionTouchpoint());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("test()", "bad.phasetest.test"));
+			parser.parseActions(MetadataFactory.createTouchpointInstruction("test()", "bad.phasetest.test"));
 		} catch (IllegalArgumentException e) {
 			return;
 		}
