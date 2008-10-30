@@ -20,4 +20,4 @@ org.eclipse.equinox.p2.core/metadata/parsing=false
 org.eclipse.equinox.p2.core/artifacts/mirrors=false
 
 #Detailed debugging information about automatic update checking
-org.eclipse.equinox.p2.core/updatechecker
+org.eclipse.equinox.p2.core/updatechecker=false
