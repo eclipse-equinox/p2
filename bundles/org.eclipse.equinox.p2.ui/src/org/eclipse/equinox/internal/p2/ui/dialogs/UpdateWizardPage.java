@@ -77,7 +77,11 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 		// that licenses for required items can also be checked.
 		wizard.planChanged(elementsToIUs(getCheckedElements()), currentPlan);
 		// status of license page could change status of wizard next button
-		getContainer().updateButtons();
+		// It no current page has been set yet (ie, we are still being created)
+		// then the updateButtons() method will NPE.  This check is needed in
+		// order to run the automated test cases.
+		if (getContainer().getCurrentPage() != null)
+			getContainer().updateButtons();
 	}
 
 	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
