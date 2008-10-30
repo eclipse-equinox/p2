@@ -30,7 +30,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(InclusionRuleTest.class);
 		suite.addTestSuite(InclusionRuleTest2.class);
 		suite.addTestSuite(IUProperties.class);
-		//suite.addTestSuite(IUPropertyRemoval.class);
+		suite.addTestSuite(IUPropertyRemoval.class);
 		suite.addTestSuite(IUWithFilter.class);
 		suite.addTestSuite(IUWithFilter2.class);
 		suite.addTestSuite(MinimalInstall.class);
