@@ -56,8 +56,8 @@ public class EmbeddedEquinox {
 
 	public void shutdown() {
 		try {
-			Method shutdownMethod = eclipseStarterClazz.getMethod("shutdown", null); //$NON-NLS-1$
-			shutdownMethod.invoke(null, null);
+			Method shutdownMethod = eclipseStarterClazz.getMethod("shutdown", (Class[]) null); //$NON-NLS-1$
+			shutdownMethod.invoke((Object[]) null, (Object[]) null);
 
 		} catch (Throwable t) {
 			if (t instanceof RuntimeException)

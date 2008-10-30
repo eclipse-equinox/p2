@@ -17,6 +17,7 @@ public class SimpleConfiguratorTests {
 		TestSuite suite = new TestSuite("Tests for org.eclipse.equinox.simpleconfigurator");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(BundlesTxtTest.class);
+		suite.addTestSuite(NonExclusiveMode.class);
 		//$JUnit-END$
 		return suite;
 	}

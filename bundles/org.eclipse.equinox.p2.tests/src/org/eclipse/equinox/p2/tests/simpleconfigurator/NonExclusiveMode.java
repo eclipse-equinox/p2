@@ -17,11 +17,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.embeddedequinox.EmbeddedEquinox;
 import org.osgi.framework.*;
 
-public class BundlesTxtTest extends AbstractProvisioningTest {
+public class NonExclusiveMode extends AbstractProvisioningTest {
+
 	static String BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt";
 	EmbeddedEquinox equinox = null;
 	BundleContext equinoxContext = null;
@@ -63,21 +65,25 @@ public class BundlesTxtTest extends AbstractProvisioningTest {
 		File simpleConfiguratorBundle = getSimpleConfiguratorBundle(jars);
 		URL osgiBundle = getFrameworkBundle(jars);
 
+		File otherBundle = getTestData("myBundle", "testData/simpleConfiguratorTest/myBundle_1.0.0.jar");
+
 		Map frameworkProperties = new HashMap();
 		// note that any properties you do not want to be inherited from the hosting Equinox will need
 		// to be nulled out.  Otherwise you will pick them up from the hosting env.
 		frameworkProperties.put("osgi.framework", null);
 		frameworkProperties.put("osgi.install.area", installarea.toURL().toExternalForm());
 		frameworkProperties.put("osgi.configuration.area", configarea.toURL().toExternalForm());
-		frameworkProperties.put("osgi.bundles", "reference:" + simpleConfiguratorBundle.toURL().toExternalForm() + "@1:start"); // should point to simple configurator
+		frameworkProperties.put("osgi.bundles", "reference:" + otherBundle.toURL().toExternalForm() + ",reference:" + simpleConfiguratorBundle.toURL().toExternalForm() + "@1:start"); // should point to simple configurator
 		frameworkProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", bundlesTxt.toURL().toExternalForm());
+		frameworkProperties.put(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION, "false");
 
 		try {
 			equinox = new EmbeddedEquinox(frameworkProperties, new String[] {}, new URL[] {osgiBundle});
 			equinoxContext = equinox.startFramework();
 
 			assertJarsInstalled(jars, equinoxContext.getBundles());
-			assertEquals(jars.length, equinoxContext.getBundles().length);
+			assertJarsInstalled(new File[] {otherBundle}, equinoxContext.getBundles());
+			assertEquals(4, equinoxContext.getBundles().length);
 		} finally {
 			equinox.shutdown();
 		}
