@@ -80,6 +80,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SimpleSingleton.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
+		suite.addTestSuite(ProvisioningPlanQueryTest.class);
 		return suite;
 	}
 }
