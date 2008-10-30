@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 
 public class ProvisioningPlan {
-	private IStatus status;
+	IStatus status;
 	Operand[] operands;
 
 	public ProvisioningPlan(IStatus status) {
@@ -61,7 +61,7 @@ public class ProvisioningPlan {
 		}
 
 		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			if (operands == null)
+			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return collector;
 			Collection list = new ArrayList();
 			for (int i = 0; i < operands.length; i++) {
