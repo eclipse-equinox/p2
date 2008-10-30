@@ -48,6 +48,10 @@ public class ProfileElement extends RemoteQueriedElement {
 		return profileId;
 	}
 
+	public String getProfileId() {
+		return profileId;
+	}
+
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}

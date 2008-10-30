@@ -20,9 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveProfilesOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.ProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
@@ -56,15 +56,13 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			List list = getSelection().toList();
+			Object[] selections = getSelection().toArray();
 			List profilesOnly = new ArrayList();
-			for (int i = 0; i < list.size(); i++) {
-				IProfile profile = (IProfile) ProvUI.getAdapter(list.get(i), IProfile.class);
-				if (profile != null) {
-					profilesOnly.add(profile);
-				}
+			for (int i = 0; i < selections.length; i++) {
+				if (selections[i] instanceof ProfileElement)
+					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
 			}
-			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (IProfile[]) profilesOnly.toArray(new IProfile[profilesOnly.size()]));
+			RemoveProfilesOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (String[]) profilesOnly.toArray(new String[profilesOnly.size()]));
 			ProvisioningOperationRunner.run(op, ProfilesView.this.getShell(), StatusManager.SHOW | StatusManager.LOG);
 		}
 	}

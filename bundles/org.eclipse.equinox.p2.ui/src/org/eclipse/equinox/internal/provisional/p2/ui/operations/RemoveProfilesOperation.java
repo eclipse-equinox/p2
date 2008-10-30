@@ -12,18 +12,18 @@ package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 /**
  * Operation that removes a profile
  * 
  * @since 3.4
  */
-public class RemoveProfilesOperation extends ProfileOperation {
-	private boolean removed = false;
+public class RemoveProfilesOperation extends ProvisioningOperation {
+	String[] profileIds;
 
-	public RemoveProfilesOperation(String label, IProfile[] profiles) {
-		super(label, profiles);
+	public RemoveProfilesOperation(String label, String[] profileIds) {
+		super(label);
+		this.profileIds = profileIds;
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
@@ -31,34 +31,6 @@ public class RemoveProfilesOperation extends ProfileOperation {
 			ProvisioningUtil.removeProfile(profileIds[i], monitor);
 		}
 		// assume the best if no exception
-		removed = true;
 		return okStatus();
-	}
-
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < cachedProfiles.length; i++) {
-			IProfile cachedProfile = cachedProfiles[i];
-			ProvisioningUtil.addProfile(cachedProfile.getProfileId(), cachedProfile.getLocalProperties(), monitor);
-		}
-		removed = false;
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return profileIds != null && !removed;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return cachedProfiles != null && removed;
 	}
 }

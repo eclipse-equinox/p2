@@ -27,10 +27,7 @@ public class RemoveProfilesOperationTest extends AbstractProvisioningTest {
 	public void testRemoveExisting() {
 		String profileId = "testRemoveNonExisting";
 		IProfile profile = createProfile(profileId);
-		RemoveProfilesOperation op = new RemoveProfilesOperation("label", new IProfile[] {profile});
-
-		assertTrue("1.0", op.canExecute());
-		assertTrue("1.1", !op.canUndo());
+		RemoveProfilesOperation op = new RemoveProfilesOperation("label", new String[] {profileId});
 
 		try {
 			op.execute(getMonitor(), null);
@@ -46,10 +43,7 @@ public class RemoveProfilesOperationTest extends AbstractProvisioningTest {
 		assertNull("2.0", profile);
 	}
 
-	/**
-	 * Commented out due to bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247540.
-	 */
-	public void _testRemoveNonExisting() {
+	public void testRemoveNonExisting() {
 		String profileId = "testRemoveNonExisting";
 		IProfile profile = createProfile(profileId);
 		try {
@@ -57,20 +51,14 @@ public class RemoveProfilesOperationTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.99", e);
 		}
-		RemoveProfilesOperation op = new RemoveProfilesOperation("label", new IProfile[] {profile});
+		RemoveProfilesOperation op = new RemoveProfilesOperation("label", new String[] {profileId});
 
-		//currently running doesn't fail and behavior is not specific either way
+		//Currently the profile registry does not mind if we try to delete a profile that doesn't exist, so
+		//the UI classes don't test for it.
 		try {
 			op.execute(getMonitor(), null);
 		} catch (ExecutionException e) {
 			//expected
-		}
-
-		//redo shouldn't recreate the profile since we never removed it
-		try {
-			op.undo(getMonitor(), null);
-		} catch (ExecutionException e) {
-			fail("1.99", e);
 		}
 
 		try {
@@ -79,45 +67,5 @@ public class RemoveProfilesOperationTest extends AbstractProvisioningTest {
 			fail("2.99", e);
 		}
 		assertNull("1.0", profile);
-	}
-
-	public void testUndoRedo() {
-		String profileId = "testUndoRedo";
-		IProfile profile = createProfile(profileId);
-		RemoveProfilesOperation op = new RemoveProfilesOperation("label", new IProfile[] {profile});
-
-		try {
-			op.execute(getMonitor(), null);
-		} catch (ExecutionException e) {
-			fail("0.99", e);
-		}
-
-		//now undo
-		try {
-			op.undo(getMonitor(), null);
-		} catch (ExecutionException e1) {
-			fail("1.99", e1);
-		}
-
-		try {
-			profile = ProvisioningUtil.getProfile(profileId);
-		} catch (ProvisionException e) {
-			fail("2.99", e);
-		}
-		assertNotNull("2.0", profile);
-		assertEquals("2.1", profileId, profile.getProfileId());
-
-		try {
-			op.redo(getMonitor(), null);
-		} catch (ExecutionException e) {
-			fail("3.99", e);
-		}
-		try {
-			profile = ProvisioningUtil.getProfile(profileId);
-		} catch (ProvisionException e) {
-			fail("2.99", e);
-		}
-
-		assertNull("4.0", profile);
 	}
 }
