@@ -17,12 +17,12 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddProfileOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
  * Tests for {@link AddProfileOperation}.
  */
-public class AddProfileOperationTest extends AbstractProvisioningTest {
+public class AddProfileOperationTest extends AbstractProvisioningUITest {
 	public static final String TEST_PROP_KEY = "TEST_PROP_KEY";
 	public static final String TEST_PROP_VALUE = "TEST_PROP_VALUE";
 

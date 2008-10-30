@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  * @since 3.5
  *
  */
-public class UninstallActionTest extends ActionTest {
+public class UninstallActionTest extends ProfileModificationActionTest {
 	class TestUninstallAction extends UninstallAction {
 		TestUninstallAction(Object[] sel) {
 			super(Policy.getDefault(), UninstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -10,19 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import junit.framework.*;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 
 /**
- * Performs all UI operation tests.
+ * Abstract class to set up the colocated UI test repo
  */
-public class AllTests extends TestCase {
+public abstract class ColocatedRepositoryActionTest extends ActionTest {
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(UninstallActionTest.class);
-		suite.addTestSuite(InstallActionTest.class);
-		suite.addTestSuite(UpdateActionTest.class);
-		suite.addTestSuite(RemoveColocatedRepositoryActionTest.class);
-		return suite;
+	protected Object[] getValidRepoSelection() {
+		return new MetadataRepositoryElement[] {new MetadataRepositoryElement(null, testRepoLocation)};
 	}
 }

@@ -18,12 +18,14 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
  * Tests for {@link AddColocatedRepositoryOperation}.
  */
-public class RemoveColocatedRepositoryOperationTest extends AbstractProvisioningTest {
+public class RemoveColocatedRepositoryOperationTest extends AbstractProvisioningUITest {
 	public void testRemoveSingleRepository() {
 		URI repoLocation = null;
 		try {
@@ -46,12 +48,10 @@ public class RemoveColocatedRepositoryOperationTest extends AbstractProvisioning
 			fail("1.99", e);
 		}
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URI[] repos = manager.getKnownRepositories(0);
+		URI[] repos = metaManager.getKnownRepositories(0);
 		assertTrue("2.0", Arrays.asList(repos).contains(repoLocation));
-		assertTrue("2.1", manager.isEnabled(repoLocation));
+		assertTrue("2.1", metaManager.isEnabled(repoLocation));
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		repos = artifactManager.getKnownRepositories(0);
 		assertTrue("3.0", Arrays.asList(repos).contains(repoLocation));
 		assertTrue("3.1", artifactManager.isEnabled(repoLocation));

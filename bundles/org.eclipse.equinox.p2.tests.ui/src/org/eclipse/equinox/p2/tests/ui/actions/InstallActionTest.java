@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  * @since 3.5
  *
  */
-public class InstallActionTest extends ActionTest {
+public class InstallActionTest extends ProfileModificationActionTest {
 
 	class TestInstallAction extends InstallAction {
 		TestInstallAction(Object[] sel) {

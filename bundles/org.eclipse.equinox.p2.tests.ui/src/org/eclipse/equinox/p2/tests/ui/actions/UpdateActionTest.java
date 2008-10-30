@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  * @since 3.5
  *
  */
-public class UpdateActionTest extends ActionTest {
+public class UpdateActionTest extends ProfileModificationActionTest {
 	class TestUpdateAction extends UpdateAction {
 		TestUpdateAction(Object[] sel) {
 			super(Policy.getDefault(), UpdateActionTest.this.getSelectionProvider(sel), profile.getProfileId(), true);

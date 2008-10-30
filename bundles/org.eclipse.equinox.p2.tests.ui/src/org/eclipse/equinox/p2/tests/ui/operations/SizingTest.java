@@ -18,12 +18,12 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
  * 
  */
-public class SizingTest extends AbstractProvisioningTest {
+public class SizingTest extends AbstractProvisioningUITest {
 	public void testEmptySizing() {
 		String profileId = "testEmptySizing";
 		IProfile profile = createProfile(profileId);
