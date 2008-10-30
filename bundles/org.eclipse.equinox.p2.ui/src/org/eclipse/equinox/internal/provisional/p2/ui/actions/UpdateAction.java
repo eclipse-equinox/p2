@@ -45,7 +45,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		Assert.isNotNull(allReplacements);
 		Assert.isNotNull(plan);
 
-		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);

@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -32,19 +31,17 @@ public class UpdateWizard extends Wizard {
 	AcceptLicensesWizardPage licensePage;
 	protected String profileId;
 	protected IInstallableUnit[] ius;
-	protected LicenseManager licenseManager;
 	ProvisioningPlan plan;
 	AvailableUpdateElement[] elements;
 	Object[] initialSelections;
 
-	public UpdateWizard(Policy policy, String profileId, IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, ProvisioningPlan plan, LicenseManager licenseManager) {
+	public UpdateWizard(Policy policy, String profileId, IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, ProvisioningPlan plan) {
 		super();
 		this.policy = policy;
 		setForcePreviousAndNextButtons(true);
 		setNeedsProgressMonitor(true);
 		this.profileId = profileId;
 		this.ius = iusToReplace;
-		this.licenseManager = licenseManager;
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
 		this.plan = plan;
