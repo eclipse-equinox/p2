@@ -17,7 +17,7 @@ import org.osgi.framework.*;
  * Activator class that registers the update checker service.
  */
 public class Activator implements BundleActivator {
-
+	public static final String ID = "org.eclipse.equinox.p2.updatechecker"; //$NON-NLS-1$
 	private static BundleContext context;
 	private ServiceRegistration registrationChecker;
 

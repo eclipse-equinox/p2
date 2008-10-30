@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -36,7 +37,11 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 public class UpdateChecker implements IUpdateChecker {
 	public static boolean DEBUG = false;
 	public static boolean TRACE = false;
-	private HashSet checkers = new HashSet(); // threads
+	/**
+	 * Map of IUpdateListener->UpdateCheckThread.
+	 */
+	private HashMap checkers = new HashMap();
+
 	IProfileRegistry profileRegistry;
 	IPlanner planner;
 
@@ -62,15 +67,15 @@ public class UpdateChecker implements IUpdateChecker {
 				}
 				while (!done) {
 
-					log("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 					IInstallableUnit[] iusWithUpdates = checkForUpdates(profileId, query);
 					if (iusWithUpdates.length > 0) {
-						log("Notifying listener of available updates"); //$NON-NLS-1$
+						trace("Notifying listener of available updates"); //$NON-NLS-1$
 						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
 						if (!done)
 							listener.updatesAvailable(event);
 					} else {
-						log("No updates were available"); //$NON-NLS-1$
+						trace("No updates were available"); //$NON-NLS-1$
 					}
 					if (delay == ONE_TIME_CHECK || delay <= 0) {
 						done = true;
@@ -81,7 +86,7 @@ public class UpdateChecker implements IUpdateChecker {
 			} catch (InterruptedException e) {
 				// nothing
 			} catch (Exception e) {
-				log("Exception in update check thread", e); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Exception in update check thread", e)); //$NON-NLS-1$
 			}
 		}
 	}
@@ -90,9 +95,11 @@ public class UpdateChecker implements IUpdateChecker {
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
 	public void addUpdateCheck(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
-		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
+		if (checkers.containsKey(listener))
+			return;
+		trace("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 		UpdateCheckThread thread = new UpdateCheckThread(profileId, query, delay, poll, listener);
-		checkers.add(thread);
+		checkers.put(listener, thread);
 		thread.start();
 	}
 
@@ -100,15 +107,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#removeUpdateCheck(org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
 	public void removeUpdateCheck(IUpdateListener listener) {
-		Iterator iter = checkers.iterator();
-		while (iter.hasNext()) {
-			UpdateCheckThread thread = (UpdateCheckThread) iter.next();
-			if (thread.listener == listener) {
-				thread.done = true;
-				checkers.remove(thread);
-				break;
-			}
-		}
+		checkers.remove(listener);
 	}
 
 	/*
@@ -151,15 +150,9 @@ public class UpdateChecker implements IUpdateChecker {
 		return (URI[]) available.toArray(new URI[available.size()]);
 	}
 
-	void log(String string, Throwable e) {
-		System.err.println(string + ": " + e); //$NON-NLS-1$
-		if (DEBUG)
-			e.printStackTrace();
-	}
-
-	void log(String string) {
-		if (TRACE)
-			System.out.println(string);
+	void trace(String message) {
+		if (Tracing.DEBUG_UPDATE_CHECK)
+			Tracing.debug(message);
 	}
 
 	String getTimeStamp() {
