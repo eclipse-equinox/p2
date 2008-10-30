@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 
 public class ProvisioningPlan {
 	private IStatus status;
-	private Operand[] operands;
+	Operand[] operands;
 
 	public ProvisioningPlan(IStatus status) {
 		this(status, new Operand[0]);
@@ -39,4 +45,32 @@ public class ProvisioningPlan {
 		return operands;
 	}
 
+	public IQueryable getRemovals() {
+		return new QueryablePlan(false);
+	}
+
+	public IQueryable getAdditions() {
+		return new QueryablePlan(true);
+	}
+
+	private class QueryablePlan implements IQueryable {
+		private boolean addition;
+
+		public QueryablePlan(boolean add) {
+			this.addition = add;
+		}
+
+		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			Collection list = new ArrayList();
+			for (int i = 0; i < operands.length; i++) {
+				if (!(operands[i] instanceof InstallableUnitOperand))
+					continue;
+				InstallableUnitOperand op = ((InstallableUnitOperand) operands[i]);
+				IInstallableUnit iu = addition ? op.second() : op.first();
+				if (iu != null)
+					list.add(iu);
+			}
+			return query.perform(list.iterator(), collector);
+		}
+	}
 }
