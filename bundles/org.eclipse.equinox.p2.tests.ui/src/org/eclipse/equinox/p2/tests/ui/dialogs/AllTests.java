@@ -8,21 +8,23 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.ui.actions;
+package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import junit.framework.*;
 
 /**
- * Performs all UI action tests.
+ * Performs all UI wizard and dialog tests.
  */
 public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(UninstallActionTest.class);
-		suite.addTestSuite(InstallActionTest.class);
-		suite.addTestSuite(UpdateActionTest.class);
-		suite.addTestSuite(RemoveColocatedRepositoryActionTest.class);
+		suite.addTestSuite(InstallWizardTest.class);
+		suite.addTestSuite(InstalledSoftwarePageTest.class);
+		suite.addTestSuite(UpdateWizardTest.class);
+		suite.addTestSuite(UninstallWizardTest.class);
+		suite.addTestSuite(ManageSitesTest.class);
+
 		return suite;
 	}
 }
