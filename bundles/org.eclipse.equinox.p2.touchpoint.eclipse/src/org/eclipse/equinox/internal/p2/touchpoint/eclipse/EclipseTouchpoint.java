@@ -18,19 +18,16 @@ import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
-
-	private static final TouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	// TODO: phase id constants should be defined elsewhere.
 	public static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
@@ -96,11 +93,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Activator.ID + "." + actionId; //$NON-NLS-1$
 	}
 
-	public TouchpointType getTouchpointType() {
-		//TODO this data probably needs to come from the XML
-		return TOUCHPOINT_TYPE;
-	}
-
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		LazyManipulator manipulator = getManipulator(profile);
@@ -159,18 +151,5 @@ public class EclipseTouchpoint extends Touchpoint {
 	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
 		return PublisherHelper.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey);
-	}
-
-	public static IStatus loadManipulator(Manipulator manipulator) {
-		try {
-			manipulator.load();
-		} catch (IllegalStateException e) {
-			return Util.createError(Messages.error_loading_manipulator);
-		} catch (FrameworkAdminRuntimeException e) {
-			return Util.createError(Messages.error_loading_manipulator);
-		} catch (IOException e) {
-			return Util.createError(Messages.error_loading_manipulator);
-		}
-		return Status.OK_STATUS;
 	}
 }

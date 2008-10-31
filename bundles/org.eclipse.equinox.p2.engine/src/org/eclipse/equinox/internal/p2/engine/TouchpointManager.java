@@ -54,9 +54,6 @@ public class TouchpointManager implements IRegistryChangeListener {
 				try {
 					Touchpoint touchpointInstance = (Touchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
 					if (touchpointInstance != null) {
-						if (!id.equals(touchpointInstance.getTouchpointType().getId())) {
-							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpointInstance.getTouchpointType().getId()));
-						}
 						this.touchpoint = touchpointInstance;
 					} else {
 						String errorMsg = NLS.bind(Messages.TouchpointManager_Null_Creating_Touchpoint_Extension, id);

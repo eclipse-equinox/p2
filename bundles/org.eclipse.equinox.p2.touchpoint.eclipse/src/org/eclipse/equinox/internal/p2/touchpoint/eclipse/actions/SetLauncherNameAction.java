@@ -20,26 +20,25 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 public class SetLauncherNameAction extends ProvisioningAction {
 	public static final String ID = "setLauncherName"; //$NON-NLS-1$
 
-	private IStatus changeName(String newName, Manipulator manipulator, Profile profile) {
-		//force the load to make sure we read the values in the old filename
-		IStatus status = EclipseTouchpoint.loadManipulator(manipulator);
-		if (status != null && !status.isOK())
-			return status;
-		getMemento().put(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
-		profile.setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, newName);
-		manipulator.getLauncherData().setLauncher(Util.getLauncherPath(profile));
-		return Status.OK_STATUS;
-	}
-
 	public IStatus execute(Map parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
-		return changeName((String) parameters.get(ActionConstants.PARM_LAUNCHERNAME), manipulator, profile);
+		getMemento().put(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
+		String launcherName = (String) parameters.get(ActionConstants.PARM_LAUNCHERNAME);
+		setLauncher(manipulator, profile, launcherName);
+		return Status.OK_STATUS;
 	}
 
 	public IStatus undo(Map parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
-		return changeName((String) getMemento().get(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME), manipulator, profile);
+		String previousLauncherName = (String) getMemento().get(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
+		setLauncher(manipulator, profile, previousLauncherName);
+		return Status.OK_STATUS;
+	}
+
+	private static void setLauncher(Manipulator manipulator, Profile profile, String launcherName) {
+		profile.setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, launcherName);
+		manipulator.getLauncherData().setLauncher(Util.getLauncherPath(profile));
 	}
 }

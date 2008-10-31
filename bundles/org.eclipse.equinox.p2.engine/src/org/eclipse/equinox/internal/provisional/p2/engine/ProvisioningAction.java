@@ -26,6 +26,7 @@ public abstract class ProvisioningAction {
 
 	public abstract IStatus undo(Map parameters);
 
+	// TODO: these probably should not be visible
 	public void setTouchpoint(Touchpoint touchpoint) {
 		this.touchpoint = touchpoint;
 	}

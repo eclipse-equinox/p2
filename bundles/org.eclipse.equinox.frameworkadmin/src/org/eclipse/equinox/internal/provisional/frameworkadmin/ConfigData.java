@@ -60,11 +60,11 @@ public class ConfigData {
 	}
 
 	public void addBundle(BundleInfo bundleInfo) {
-		this.bundlesList.add(bundleInfo);
+		bundlesList.add(bundleInfo);
 	}
 
 	public int getBeginingFwStartLevel() {
-		return this.beginningFwStartLevel;
+		return beginningFwStartLevel;
 	}
 
 	public BundleInfo[] getBundles() {
@@ -96,15 +96,15 @@ public class ConfigData {
 	}
 
 	public String getFwName() {
-		return this.fwName;
+		return fwName;
 	}
 
 	public String getFwVersion() {
-		return this.fwVersion;
+		return fwVersion;
 	}
 
 	public int getInitialBundleStartLevel() {
-		return this.initialBundleStartLevel;
+		return initialBundleStartLevel;
 	}
 
 	public String getLauncherName() {
@@ -116,68 +116,74 @@ public class ConfigData {
 	}
 
 	public void initialize() {
-		this.beginningFwStartLevel = BundleInfo.NO_LEVEL;
-		this.initialBundleStartLevel = BundleInfo.NO_LEVEL;
-		this.bundlesList.clear();
-		this.fwIndependentProps.clear();
-		this.fwDependentProps.clear();
+		beginningFwStartLevel = BundleInfo.NO_LEVEL;
+		initialBundleStartLevel = BundleInfo.NO_LEVEL;
+		bundlesList.clear();
+		fwIndependentProps.clear();
+		fwDependentProps.clear();
 	}
 
 	public boolean removeBundle(BundleInfo bundleInfo) {
 		if (bundleInfo == null || bundleInfo.getSymbolicName() == null || bundleInfo.getVersion() == null)
 			throw new IllegalArgumentException("Bundle info can't be null:" + bundleInfo); //$NON-NLS-1$
-		return this.bundlesList.remove(bundleInfo);
+		return bundlesList.remove(bundleInfo);
 	}
 
 	public void setBeginningFwStartLevel(int startLevel) {
-		this.beginningFwStartLevel = startLevel;
+		beginningFwStartLevel = startLevel;
 	}
 
 	public void setBundles(BundleInfo[] bundleInfos) {
-		this.bundlesList.clear();
+		bundlesList.clear();
 		if (bundleInfos != null)
 			for (int i = 0; i < bundleInfos.length; i++)
 				bundlesList.add(bundleInfos[i]);
 	}
 
 	public void setFwDependentProp(String key, String value) {
-		this.fwDependentProps.setProperty(key, value);
+		if (value == null)
+			fwDependentProps.remove(key);
+		else
+			fwDependentProps.setProperty(key, value);
 	}
 
 	public void setFwDependentProps(Properties props) {
-		this.fwDependentProps.clear();
+		fwDependentProps.clear();
 		appendProperties(fwDependentProps, props);
 	}
 
 	public void setFwIndependentProp(String key, String value) {
-		this.fwIndependentProps.setProperty(key, value);
+		if (value == null)
+			fwIndependentProps.remove(key);
+		else
+			fwIndependentProps.setProperty(key, value);
 	}
 
 	public void setFwIndependentProps(Properties props) {
-		this.fwIndependentProps.clear();
+		fwIndependentProps.clear();
 		appendProperties(fwIndependentProps, props);
 	}
 
 	public void setInitialBundleStartLevel(int startLevel) {
-		this.initialBundleStartLevel = startLevel;
+		initialBundleStartLevel = startLevel;
 	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("Class:" + getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("============Independent===============\n"); //$NON-NLS-1$
-		sb.append("fwName=" + this.fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append("fwVersion=" + this.fwVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append("launcherName=" + this.launcherName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append("launcherVersion=" + this.launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append("beginningFwStartLevel=" + this.beginningFwStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append("initialBundleStartLevel=" + this.initialBundleStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwName=" + fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwVersion=" + fwVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherName=" + launcherName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherVersion=" + launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("beginningFwStartLevel=" + beginningFwStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("initialBundleStartLevel=" + initialBundleStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.bundlesList.size() == 0)
 			sb.append("bundlesList=null\n"); //$NON-NLS-1$
 		else {
 			sb.append("bundlesList=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator iter = this.bundlesList.iterator(); iter.hasNext();) {
+			for (Iterator iter = bundlesList.iterator(); iter.hasNext();) {
 				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				i++;
 			}

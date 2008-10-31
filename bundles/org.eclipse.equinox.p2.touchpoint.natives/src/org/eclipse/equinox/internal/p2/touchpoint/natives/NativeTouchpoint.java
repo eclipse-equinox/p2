@@ -22,9 +22,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Version;
 
 public class NativeTouchpoint extends Touchpoint {
 	public static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
@@ -37,7 +37,6 @@ public class NativeTouchpoint extends Touchpoint {
 	public static final String PARM_SOURCE = "source"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
-	public static final String NATIVE_TOUCHPOINT_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
 	public static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
 	public static final String ACTION_UNZIP = "unzip"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
@@ -48,10 +47,6 @@ public class NativeTouchpoint extends Touchpoint {
 
 	public static IStatus createError(String message) {
 		return new Status(IStatus.ERROR, ID, message);
-	}
-
-	public TouchpointType getTouchpointType() {
-		return MetadataFactory.createTouchpointType(NATIVE_TOUCHPOINT_TYPE, new Version(1, 0, 0));
 	}
 
 	private String getInstallFolder(IProfile profile) {

@@ -12,15 +12,12 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
 /**
  * A touchpoint is responsible for executing a given phase for a given 
  * targeted system (eclipse, native). The order of phases is defined in the {@link PhaseSet}.  
  */
 public abstract class Touchpoint {
-
-	public abstract TouchpointType getTouchpointType();
 
 	/** NOT API -- this is for backwards compatibility only */
 	public String qualifyAction(String actionId) {
