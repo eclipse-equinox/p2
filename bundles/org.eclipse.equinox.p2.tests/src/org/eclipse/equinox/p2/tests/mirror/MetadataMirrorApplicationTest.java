@@ -867,7 +867,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			String name = "Destination Name " + destRepoLocation;
 			Map property = new HashMap();
 			property.put(IRepository.PROP_COMPRESSED, "true");
-			getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {
 			fail("2", e);
 		}
