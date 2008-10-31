@@ -102,22 +102,33 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		installPlatformSource(profile2, installFolder);
 
-		attemptToUninstallPlatform(profile2, installFolder);
+		attemptToUninstallRCP(profile2, installFolder);
 
 		rollbackPlatformSource(profile2, installFolder);
 
-		uninstallPlatform(profile2, installFolder);
+		//		uninstallPlatform(profile2, installFolder);
 
 	}
 
-	private void attemptToUninstallPlatform(IProfile profile2, File installFolder) {
-		// TODO Auto-generated method stub
-
+	private void attemptToUninstallRCP(IProfile profile2, File installFolder) {
+		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		assertEquals(1, collect.size());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
+		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
+		IStatus s = director.provision(request, null, new NullProgressMonitor());
+		assertOK("Can not uninstall RCP", s);
+		assertEquals(1, profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor()).size());
 	}
 
-	private void uninstallPlatform(IProfile profile2, File installFolder) {
-		// TODO Auto-generated method stub
-
+	protected void uninstallPlatform(IProfile profile2, File installFolder) {
+		System.out.println("Uninstall the platform");
+		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new Collector(), new NullProgressMonitor());
+		assertEquals(1, collect.size());
+		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
+		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});//, (IInstallableUnit) collect2.iterator().next()});
+		IStatus s = director.provision(request, null, new NullProgressMonitor());
+		assertOK("Can not uninstall platform", s);
 	}
 
 	private void rollbackPlatformSource(IProfile profile2, File installFolder) {
