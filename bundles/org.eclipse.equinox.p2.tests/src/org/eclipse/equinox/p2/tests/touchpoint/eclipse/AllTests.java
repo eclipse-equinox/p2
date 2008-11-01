@@ -21,8 +21,8 @@ public class AllTests extends TestCase {
 		//NOTE: commented tests are in progress
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(EclipseTouchpointTest.class);
-		suite.addTestSuite(AddJVMArgumentActionTest.class);
-		suite.addTestSuite(AddProgramArgumentActionTest.class);
+		//suite.addTestSuite(AddJVMArgumentActionTest.class);
+		//suite.addTestSuite(AddProgramArgumentActionTest.class);
 		//		suite.addTestSuite(AddSourceBundleActionTest.class);
 		//		suite.addTestSuite(CheckTrustActionTest.class);
 		//		suite.addTestSuite(ChmodActionTest.class);
@@ -32,14 +32,14 @@ public class AllTests extends TestCase {
 		//		suite.addTestSuite(LinkActionTest.class);
 		//		suite.addTestSuite(MarkStartedActionTest.class);
 		//		suite.addTestSuite(MkdirActionTest.class);
-		suite.addTestSuite(RemoveJVMArgumentActionTest.class);
-		suite.addTestSuite(RemoveProgramArgumentActionTest.class);
+		//suite.addTestSuite(RemoveJVMArgumentActionTest.class);
+		//suite.addTestSuite(RemoveProgramArgumentActionTest.class);
 		//		suite.addTestSuite(RemoveSourceBundleActionTest.class);
 		//		suite.addTestSuite(RmdirActionTest.class);
-		suite.addTestSuite(SetFrameworkDependentPropertyActionTest.class);
-		suite.addTestSuite(SetFrameworkIndependentPropertyActionTest.class);
-		suite.addTestSuite(SetLauncherNameActionTest.class);
-		suite.addTestSuite(SetProgramPropertyActionTest.class);
+		//.addTestSuite(SetFrameworkDependentPropertyActionTest.class);
+		//suite.addTestSuite(SetFrameworkIndependentPropertyActionTest.class);
+		//suite.addTestSuite(SetLauncherNameActionTest.class);
+		//suite.addTestSuite(SetProgramPropertyActionTest.class);
 		//		suite.addTestSuite(SetStartLevelActionTest.class);
 		//		suite.addTestSuite(UninstallBundleActionTest.class);
 		//		suite.addTestSuite(UninstallFeatureActionTest.class);
