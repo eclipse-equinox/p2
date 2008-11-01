@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -172,7 +171,7 @@ public class Util {
 
 		bundleInfo.setManifest(manifest);
 		try {
-			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
+			Map headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes()), new HashMap());
 			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			if (element == null || element.length == 0)
 				return null;
@@ -183,6 +182,10 @@ public class Util {
 				return null;
 			bundleInfo.setVersion(version);
 		} catch (BundleException e) {
+			// unexpected
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+			return null;
+		} catch (IOException e) {
 			// unexpected
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 			return null;
