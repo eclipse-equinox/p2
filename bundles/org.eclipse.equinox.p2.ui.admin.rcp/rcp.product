@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.1"?>
+<?pde version="3.4"?>
 
 <product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" useFeatures="false">
 
@@ -9,13 +9,20 @@
       </text>
    </aboutInfo>
 
-   <configIni use="custom" path="/org.eclipse.equinox.p2.ui.admin.rcp/config.ini"/>
+   <configIni use="default">
+      <linux>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</linux>
+      <macosx>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</macosx>
+      <solaris>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</solaris>
+      <win32>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</win32>
+   </configIni>
 
    <launcherArgs>
+      <programArgs>-Xms40m-Xmx256m</programArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
+
 
    <launcher name="eclipse">
       <solaris/>
@@ -23,6 +30,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>
@@ -44,15 +52,15 @@
       <plugin id="org.eclipse.equinox.frameworkadmin"/>
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.launcher"/>
-      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
       <plugin id="org.eclipse.equinox.p2.console"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
-      <plugin id="org.eclipse.equinox.p2.metadata"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
@@ -69,7 +77,7 @@
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.swt"/>
-      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86"/>
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.sat4j.core"/>
