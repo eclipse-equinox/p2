@@ -30,7 +30,9 @@ public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
 	public void testExecuteUndo() {
 		Map parameters = new HashMap();
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		IProfile profile = createProfile("test");
+		Properties profileProperties = new Properties();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
+		IProfile profile = createProfile("test", null, profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", operand.second());
