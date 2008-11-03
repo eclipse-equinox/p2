@@ -54,7 +54,7 @@ public class FileUtils {
 	 */
 	public static File[] unzipFile(File zipFile, File outputDir) throws IOException {
 		// check to see if we have a tar'd and gz'd file
-		if (zipFile.getName().toLowerCase().endsWith(".tar.gz")) {
+		if (zipFile.getName().toLowerCase().endsWith(".tar.gz")) { //$NON-NLS-1$
 			try {
 				return untarFile(zipFile, outputDir);
 			} catch (TarException e) {
@@ -357,6 +357,7 @@ public class FileUtils {
 			}
 
 			public void reset() {
+				//nothing
 			}
 		};
 	}
@@ -414,6 +415,7 @@ public class FileUtils {
 			}
 
 			public void reset() {
+				//nothing
 			}
 		};
 	}
