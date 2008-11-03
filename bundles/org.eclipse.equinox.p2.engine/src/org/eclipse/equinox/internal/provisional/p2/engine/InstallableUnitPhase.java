@@ -18,10 +18,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class InstallableUnitPhase extends Phase {
-	protected static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
-	protected static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
-	protected static final String PARM_IU = "iu"; //$NON-NLS-1$
-	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
+	public static final String PARM_IU = "iu"; //$NON-NLS-1$
+	public static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 
 	protected InstallableUnitPhase(String phaseId, int weight) {
 		super(phaseId, weight);

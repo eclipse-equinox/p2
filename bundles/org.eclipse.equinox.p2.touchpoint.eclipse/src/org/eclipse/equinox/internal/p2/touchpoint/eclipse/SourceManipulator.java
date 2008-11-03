@@ -28,6 +28,12 @@ public class SourceManipulator {
 		this.profile = profile;
 	}
 
+	public BundleInfo[] getBundles() throws IOException {
+		if (sourceBundles == null)
+			load();
+		return (BundleInfo[]) sourceBundles.toArray(new BundleInfo[sourceBundles.size()]);
+	}
+
 	public void addBundle(File bundleFile) throws IOException {
 		if (sourceBundles == null)
 			load();
