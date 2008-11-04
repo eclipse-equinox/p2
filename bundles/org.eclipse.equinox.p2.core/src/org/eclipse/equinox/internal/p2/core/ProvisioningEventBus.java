@@ -22,6 +22,12 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	private EventListeners asyncListeners = new EventListeners();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
+	private Object dispatchEventLock = new Object();
+	/* @GuardedBy("dispatchEventLock") */
+	private boolean closed = false;
+	/* @GuardedBy("dispatchEventLock") */
+	private int dispatchingEvents = 0;
+
 	public ProvisioningEventBus() {
 		super();
 	}
@@ -64,6 +70,10 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#publishEvent(java.util.EventObject)
 	 */
 	public void publishEvent(EventObject event) {
+		synchronized (dispatchEventLock) {
+			if (closed)
+				return;
+		}
 		/* queue to hold set of listeners */
 		ListenerQueue listeners = new ListenerQueue(eventManager);
 
@@ -78,7 +88,10 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		listeners = new ListenerQueue(eventManager);
 		synchronized (asyncListeners) {
 			listeners.queueListeners(asyncListeners, this);
-			listeners.dispatchEventAsynchronous(0, event);
+			synchronized (dispatchEventLock) {
+				if (!closed)
+					listeners.dispatchEventAsynchronous(0, event);
+			}
 		}
 	}
 
@@ -86,11 +99,22 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#dispatchEvent(java.lang.Object, java.lang.Object, int, java.lang.Object)
 	 */
 	public void dispatchEvent(Object eventListener, Object listenerObject, int eventAction, Object eventObject) {
+		synchronized (dispatchEventLock) {
+			if (closed)
+				return;
+			dispatchingEvents++;
+		}
 		try {
 			((ProvisioningListener) eventListener).notify((EventObject) eventObject);
 		} catch (Exception e) {
 			e.printStackTrace();
 			//TODO Need to do the appropriate logging
+		} finally {
+			synchronized (dispatchEventLock) {
+				dispatchingEvents--;
+				if (dispatchingEvents == 0)
+					dispatchEventLock.notifyAll();
+			}
 		}
 	}
 
@@ -98,6 +122,21 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#close()
 	 */
 	public void close() {
-		eventManager.close();
+		boolean interrupted = false;
+		synchronized (dispatchEventLock) {
+			eventManager.close();
+			closed = true;
+			while (dispatchingEvents != 0) {
+				try {
+					dispatchEventLock.wait(30000); // we're going to cap waiting time at 30s
+					break;
+				} catch (InterruptedException e) {
+					// keep waiting but flag interrupted
+					interrupted = true;
+				}
+			}
+		}
+		if (interrupted)
+			Thread.currentThread().interrupt();
 	}
 }
