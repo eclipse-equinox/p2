@@ -28,7 +28,7 @@ public class AllTests extends TestCase {
 		//		suite.addTestSuite(ChmodActionTest.class);
 		suite.addTestSuite(CollectActionTest.class);
 		suite.addTestSuite(InstallBundleActionTest.class);
-		//		suite.addTestSuite(InstallFeatureActionTest.class);
+		suite.addTestSuite(InstallFeatureActionTest.class);
 		//		suite.addTestSuite(LinkActionTest.class);
 		suite.addTestSuite(MarkStartedActionTest.class);
 		//		suite.addTestSuite(MkdirActionTest.class);
@@ -42,7 +42,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SetProgramPropertyActionTest.class);
 		suite.addTestSuite(SetStartLevelActionTest.class);
 		suite.addTestSuite(UninstallBundleActionTest.class);
-		//		suite.addTestSuite(UninstallFeatureActionTest.class);
+		suite.addTestSuite(UninstallFeatureActionTest.class);
 		return suite;
 	}
 

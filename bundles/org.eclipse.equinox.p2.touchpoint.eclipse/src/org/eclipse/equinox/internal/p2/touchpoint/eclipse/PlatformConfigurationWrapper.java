@@ -223,6 +223,18 @@ public class PlatformConfigurationWrapper {
 		return Status.OK_STATUS;
 	}
 
+	public boolean containsFeature(URI siteURI, String featureId, String featureVersion) {
+		loadDelegate();
+		if (configuration == null)
+			return false;
+
+		Site site = getSite(siteURI);
+		if (site == null)
+			return false;
+
+		return (site.getFeature(featureId, featureVersion) != null);
+	}
+
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#save()
 	 */

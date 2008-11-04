@@ -286,7 +286,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			try {
 				InputStream in = null;
 				try {
-					in = new BufferedInputStream(new FileInputStream(new File(location, file))); 
+					in = new BufferedInputStream(new FileInputStream(new File(location, file)));
 					props.load(in);
 				} finally {
 					if (in != null)
@@ -364,7 +364,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param feature the feature to process
 	 * @param info the publishing info to update
 	 */
-	public void gatherBundleShapeAdvice(Feature feature, IPublisherInfo info) {
+	public static void gatherBundleShapeAdvice(Feature feature, IPublisherInfo info) {
 		FeatureEntry entries[] = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
@@ -373,7 +373,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, Properties extraProperties) {
+	public static IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -434,7 +434,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * Returns a URI corresponding to the given URL in string form, or null
 	 * if a well formed URI could not be created.
 	 */
-	private URI toURIOrNull(String url) {
+	private static URI toURIOrNull(String url) {
 		if (url == null)
 			return null;
 		try {
@@ -444,7 +444,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private void addExtraProperties(InstallableUnitDescription iu, Properties extraProperties) {
+	private static void addExtraProperties(InstallableUnitDescription iu, Properties extraProperties) {
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
 			while (e.hasMoreElements()) {
@@ -454,7 +454,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
 		if (isPatch(feature))
 			return createPatchIU(feature, featureIU, extraProperties);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
@@ -525,7 +525,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return false;
 	}
 
-	public IInstallableUnit createPatchIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+	public static IInstallableUnit createPatchIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -606,7 +606,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public VersionRange getVersionRange(FeatureEntry entry) {
+	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
 			return VersionRange.emptyRange;
@@ -634,7 +634,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return null;
 	}
 
-	public String getFilter(FeatureEntry entry) {
+	public static String getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
