@@ -819,6 +819,18 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/**
+	 * Shuts down the repository manager.
+	 */
+	public void shutdown() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus != null)
+			bus.addListener(this);
+		saveToPreferences();
+		repositories = null;
+		unavailableRepositories = null;
+	}
+
+	/**
 	 * Optimize the order in which repository suffixes are searched by trying 
 	 * the last successfully loaded suffix first.
 	 */

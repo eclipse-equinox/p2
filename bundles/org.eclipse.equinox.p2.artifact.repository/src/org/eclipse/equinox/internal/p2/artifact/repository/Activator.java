@@ -19,22 +19,27 @@ public class Activator implements BundleActivator {
 
 	private static BundleContext context;
 	private ServiceRegistration repositoryManagerRegistration;
+	private ArtifactRepositoryManager repositoryManager;
 
 	public static BundleContext getContext() {
 		return Activator.context;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		Activator.context = context;
-		ArtifactRepositoryManager repositoryManager = new ArtifactRepositoryManager();
-		repositoryManagerRegistration = context.registerService(IArtifactRepositoryManager.class.getName(), repositoryManager, null);
+	public void start(BundleContext aContext) throws Exception {
+		Activator.context = aContext;
+		repositoryManager = new ArtifactRepositoryManager();
+		repositoryManagerRegistration = aContext.registerService(IArtifactRepositoryManager.class.getName(), repositoryManager, null);
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext aContext) throws Exception {
 		Activator.context = null;
 		if (repositoryManagerRegistration != null)
 			repositoryManagerRegistration.unregister();
 		repositoryManagerRegistration = null;
+		if (repositoryManager != null) {
+			repositoryManager.shutdown();
+			repositoryManager = null;
+		}
 	}
 
 }
