@@ -20,33 +20,31 @@ class ConfigApplier {
 	private static final String LAST_BUNDLES_TXT = "last.bundles.info"; //$NON-NLS-1$
 	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
-	private BundleContext manipulatingContext;
-	private PackageAdmin adminService = null;
-	private StartLevel startLevelService = null;
+	private final BundleContext manipulatingContext;
+	private final PackageAdmin packageAdminService;
+	private final StartLevel startLevelService;
 	private final boolean runningOnEquinox;
 	private final boolean inDevMode;
-	private boolean checkManifestBeforeInstall = false;
 
-	private Bundle callingBundle;
+	private final Bundle callingBundle;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
-		this.manipulatingContext = context;
+		manipulatingContext = context;
 		this.callingBundle = callingBundle;
 		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
 		//System.out.println("vendor=" + vendor);
-		this.runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
-		this.inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
+		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
+		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
 
-		adminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
+		packageAdminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
 
 		ServiceReference startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
 		if (startLevelRef == null)
 			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
 		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
-
 	}
 
 	void install(BundleInfo[] expectedState, URL url, boolean exclusiveMode) {
@@ -65,7 +63,7 @@ class ConfigApplier {
 		Collection toStart = new ArrayList();
 		if (exclusiveMode) {
 			toRefresh.addAll(installBundles(expectedState, toStart));
-			toRefresh.addAll(uninstallBundles(expectedState, adminService));
+			toRefresh.addAll(uninstallBundles(expectedState, packageAdminService));
 		} else {
 			toRefresh.addAll(installBundles(expectedState, toStart));
 			if (toUninstall != null)
@@ -106,7 +104,7 @@ class ConfigApplier {
 		Collection removedBundles = new ArrayList(toUninstall.size());
 		for (Iterator iterator = toUninstall.iterator(); iterator.hasNext();) {
 			BundleInfo current = (BundleInfo) iterator.next();
-			Bundle[] matchingBundles = adminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
+			Bundle[] matchingBundles = packageAdminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
 			for (int j = 0; matchingBundles != null && j < matchingBundles.length; j++) {
 				try {
 					removedBundles.add(matchingBundles[j]);
@@ -174,30 +172,9 @@ class ConfigApplier {
 			String symbolicName = finalList[i].getSymbolicName();
 			String version = finalList[i].getVersion();
 
-			if (checkManifestBeforeInstall) {
-				Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
-				if (manifest == null) {
-					Utils.log(1, null, null, "No bundle found at: " + finalList[i].getLocation(), null); //$NON-NLS-1$
-					finalList[i] = null;
-					continue;
-				}
-
-				//if (manifest != null)
-				try {
-					symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-				} catch (RuntimeException re) {
-					System.err.println("cannot get Manifest :" + finalList[i]); //$NON-NLS-1$
-					throw re;
-				}
-				if (symbolicName != null && symbolicName.indexOf(';') != -1)
-					symbolicName = symbolicName.substring(0, symbolicName.indexOf(';')).trim();
-
-				version = (String) manifest.get(Constants.BUNDLE_VERSION);
-			}
-
 			Bundle[] matches = null;
 			if (symbolicName != null && version != null)
-				matches = adminService.getBundles(symbolicName, getVersionRange(version));
+				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
 
 			String location = finalList[i].getLocation();
 			if (location == null)
@@ -267,15 +244,9 @@ class ConfigApplier {
 	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext context) {
-		if (bundles.length == 0)
+		if (bundles.length == 0 || packageAdminService == null)
 			return;
-		ServiceReference packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		PackageAdmin packageAdmin = null;
-		if (packageAdminRef != null) {
-			packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
-			if (packageAdmin == null)
-				return;
-		}
+
 		final boolean[] flag = new boolean[] {false};
 		FrameworkListener listener = new FrameworkListener() {
 			public void frameworkEvent(FrameworkEvent event) {
@@ -288,7 +259,7 @@ class ConfigApplier {
 			}
 		};
 		context.addFrameworkListener(listener);
-		packageAdmin.refreshPackages(bundles);
+		packageAdminService.refreshPackages(bundles);
 		synchronized (flag) {
 			while (!flag[0]) {
 				try {
@@ -304,7 +275,6 @@ class ConfigApplier {
 		//			}
 		//		}
 		context.removeFrameworkListener(listener);
-		context.ungetService(packageAdminRef);
 	}
 
 	private void startBundles(Bundle[] bundles) {
