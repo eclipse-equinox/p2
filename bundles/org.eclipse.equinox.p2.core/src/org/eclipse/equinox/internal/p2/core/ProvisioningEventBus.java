@@ -18,8 +18,8 @@ import org.eclipse.osgi.framework.eventmgr.*;
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
 public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus {
-	private EventListeners syncListeners = new EventListeners();
-	private EventListeners asyncListeners = new EventListeners();
+	private CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
+	private CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
 	private Object dispatchEventLock = new Object();
@@ -38,11 +38,11 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	public void addListener(ProvisioningListener toAdd) {
 		if (toAdd instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
-				syncListeners.addListener(toAdd, toAdd);
+				syncListeners.put(toAdd, toAdd);
 			}
 		} else {
 			synchronized (asyncListeners) {
-				asyncListeners.addListener(toAdd, toAdd);
+				asyncListeners.put(toAdd, toAdd);
 			}
 		}
 	}
@@ -54,13 +54,13 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		if (toRemove instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
 				if (syncListeners != null) {
-					syncListeners.removeListener(toRemove);
+					syncListeners.remove(toRemove);
 				}
 			}
 		} else {
 			synchronized (asyncListeners) {
 				if (asyncListeners != null) {
-					asyncListeners.removeListener(toRemove);
+					asyncListeners.remove(toRemove);
 				}
 			}
 		}
@@ -80,14 +80,14 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		/* synchronize while building the listener list */
 		synchronized (syncListeners) {
 			/* add set of BundleContexts w/ listeners to queue */
-			listeners.queueListeners(syncListeners, this);
+			listeners.queueListeners(syncListeners.entrySet(), this);
 			/* synchronously dispatch to populate listeners queue */
 			listeners.dispatchEventSynchronous(0, event);
 		}
 
 		listeners = new ListenerQueue(eventManager);
 		synchronized (asyncListeners) {
-			listeners.queueListeners(asyncListeners, this);
+			listeners.queueListeners(asyncListeners.entrySet(), this);
 			synchronized (dispatchEventLock) {
 				if (!closed)
 					listeners.dispatchEventAsynchronous(0, event);

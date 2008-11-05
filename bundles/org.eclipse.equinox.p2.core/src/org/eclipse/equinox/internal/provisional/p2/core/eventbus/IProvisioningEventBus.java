@@ -29,6 +29,11 @@ public interface IProvisioningEventBus extends EventDispatcher {
 
 	public abstract void publishEvent(EventObject event);
 
+	/**
+	 * Closes the event bus.  This will stop dispatching of any events currently
+	 * being processed by the bus. Events published after the bus is closed
+	 * are ignored.
+	 */
 	public abstract void close();
 
 }
