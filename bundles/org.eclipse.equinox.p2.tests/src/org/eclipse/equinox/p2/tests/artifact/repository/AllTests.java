@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		suite.addTestSuite(ArtifactRepositoryManagerTest.class);
+		suite.addTestSuite(Bug252308.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
 		// DISABLING TEST UNTIL WE UPDATE REPOSITORY FILES
 		//suite.addTestSuite(JarURLRepositoryTest.class);

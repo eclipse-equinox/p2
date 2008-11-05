@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -173,12 +172,45 @@ public class MirrorRequest extends ArtifactRequest {
 				destination.close();
 			} catch (IOException e) {
 				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
-					status = new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
-				else
-					status = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+					return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				if (status != null && status.getSeverity() == IStatus.ERROR) {
+					IStatus root = extractRootCause(status);
+					if (root != null && FileNotFoundException.class == root.getException().getClass())
+						return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
+				}
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 			}
 		}
 		return status;
+	}
+
+	/**
+	 * Extract the root cause. The root cause is the first severe non-MultiStatus status 
+	 * containing an exception when searching depth first otherwise null.
+	 * @param status
+	 * @return root cause
+	 */
+	private static IStatus extractRootCause(IStatus status) {
+		if (status == null)
+			return null;
+		if (!status.isMultiStatus())
+			return constraintStatus(status);
+
+		IStatus[] children = ((MultiStatus) status).getChildren();
+		if (children == null)
+			return constraintStatus(status);
+
+		for (int i = 0; i < children.length; i++) {
+			IStatus deeper = extractRootCause(children[i]);
+			if (deeper != null)
+				return deeper;
+		}
+
+		return constraintStatus(status);
+	}
+
+	private static IStatus constraintStatus(IStatus status) {
+		return status.getSeverity() == IStatus.ERROR && status.getException() != null ? status : null;
 	}
 
 	public String toString() {
