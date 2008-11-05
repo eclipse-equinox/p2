@@ -34,7 +34,6 @@ import org.osgi.framework.Version;
  * Much of the code has been deprecated and will be removed.
  *
  */
-// TODO remove the deprecated code and see if there is much left
 public class PublisherHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
