@@ -241,6 +241,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	private static void processPropertiesAdvice(InstallableUnitDescription bundle, String location, IPublisherInfo info) {
+		if (location == null)
+			return;
 		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
 		File bundleFile = new File(location);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
@@ -285,6 +287,8 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	// TODO need to figure out a mapping of this onto real advice and make this generic
 	private static void processInstructionsAdvice(Map touchpointData, String location, IPublisherInfo info) {
+		if (location == null)
+			return;
 		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
 		File bundleFile = new File(location);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
@@ -838,7 +842,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				if (configuratorURL == null)
 					System.out.println("Could not find simpleconfigurator bundle");
 				else {
-					File location = new File(configuratorURL.getFile()); 
+					File location = new File(configuratorURL.getFile());
 					result[result.length - 1] = createBundleDescription(location);
 				}
 			} catch (IOException e) {

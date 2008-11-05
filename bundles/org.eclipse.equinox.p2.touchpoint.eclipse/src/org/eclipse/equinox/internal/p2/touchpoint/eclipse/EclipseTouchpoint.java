@@ -22,8 +22,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.eclipse.BundleNestedAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
@@ -150,6 +151,8 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
-		return PublisherHelper.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey);
+		PublisherInfo info = new PublisherInfo();
+		info.addAdvice(new BundleNestedAdvice());
+		return BundlesAction.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey, info);
 	}
 }

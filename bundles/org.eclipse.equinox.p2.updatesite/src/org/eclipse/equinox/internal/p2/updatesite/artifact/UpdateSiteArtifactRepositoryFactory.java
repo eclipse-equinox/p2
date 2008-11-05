@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
@@ -87,7 +86,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			for (int j = 0; j < featureEntries.length; j++) {
 				FeatureEntry entry = featureEntries[j];
 				if (entry.isPlugin() && !entry.isRequires()) {
-					IArtifactKey key = PublisherHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
+					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
 					ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
 					URI pluginURL = updateSite.getPluginURI(entry);
 					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
