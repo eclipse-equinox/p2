@@ -143,9 +143,6 @@ public class Activator implements BundleActivator {
 			return;
 		if (!startEarly("org.eclipse.equinox.frameworkadmin.equinox")) //$NON-NLS-1$
 			return;
-		IProfile profile = getCurrentProfile(context);
-		if (profile == null)
-			return;
 
 		checkConfigIni();
 
@@ -153,7 +150,7 @@ public class Activator implements BundleActivator {
 		// old .pooled repositories. Remove this call soon.
 		removeOldRepos();
 		// create the watcher for the "drop-ins" folder
-		watchDropins(profile);
+		watchDropins();
 		// keep an eye on the platform.xml
 		watchConfiguration();
 
@@ -452,7 +449,7 @@ public class Activator implements BundleActivator {
 	/*
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
-	private void watchDropins(IProfile profile) {
+	private void watchDropins() {
 		List directories = new ArrayList();
 		File[] dropinsDirectories = getDropinsDirectories();
 		directories.addAll(Arrays.asList(dropinsDirectories));
