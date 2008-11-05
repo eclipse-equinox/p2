@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -33,7 +34,7 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private IQueryable picker;
 
 	private Map variables; //key IU, value corresponding variable in the problem
@@ -76,7 +77,7 @@ public class Projector {
 			long start = 0;
 			if (DEBUG) {
 				start = System.currentTimeMillis();
-				System.out.println("Start projection: " + start); //$NON-NLS-1$
+				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
 			}
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
@@ -103,7 +104,7 @@ public class Projector {
 			persist();
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
-				System.out.println("Projection complete: " + (stop - start)); //$NON-NLS-1$
+				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
@@ -460,7 +461,7 @@ public class Projector {
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
 		} else {
 			if (DEBUG)
-				System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 
@@ -499,7 +500,7 @@ public class Projector {
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
 		} else {
 			if (DEBUG)
-				System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 
@@ -660,7 +661,7 @@ public class Projector {
 		// CNF filename is given on the command line 
 		long start = System.currentTimeMillis();
 		if (DEBUG)
-			System.out.println("Invoking solver: " + start); //$NON-NLS-1$
+			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
 		FileReader fr = null;
 		boolean delete = true;
 		try {
@@ -671,16 +672,16 @@ public class Projector {
 			if (problem.isSatisfiable()) {
 				//				problem.model();
 				if (DEBUG) {
-					System.out.println("Satisfiable !"); //$NON-NLS-1$
-					System.out.println(reader.decode(problem.model()));
+					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
+					Tracing.debug(reader.decode(problem.model()));
 				}
 				backToIU(problem);
 				long stop = System.currentTimeMillis();
 				if (DEBUG)
-					System.out.println("Solver solution found: " + (stop - start)); //$NON-NLS-1$
+					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
 			} else {
 				if (DEBUG)
-					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
+					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
 				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfiable_problem, problemFile)));
 			}
 		} catch (FileNotFoundException e) {
@@ -723,9 +724,9 @@ public class Projector {
 	private void printSolution(Collection state) {
 		ArrayList l = new ArrayList(state);
 		Collections.sort(l);
-		System.out.println("Numbers of IUs selected:" + l.size()); //$NON-NLS-1$
+		Tracing.debug("Numbers of IUs selected:" + l.size()); //$NON-NLS-1$
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
-			System.out.println(iterator.next());
+			Tracing.debug(iterator.next().toString());
 		}
 	}
 

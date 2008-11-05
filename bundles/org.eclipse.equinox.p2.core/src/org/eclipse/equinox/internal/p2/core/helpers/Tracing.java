@@ -30,6 +30,8 @@ public class Tracing {
 	public static boolean DEBUG_MIRRORS = false;
 	public static boolean DEBUG_REMOVE_REPO = false;
 	public static boolean DEBUG_UPDATE_CHECK = false;
+	public static boolean DEBUG_PLANNER_OPERANDS = false;
+	public static boolean DEBUG_PLANNER_PROJECTOR = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -43,6 +45,8 @@ public class Tracing {
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
 				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
 				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
+				DEBUG_PLANNER_OPERANDS = options.getBooleanOption(Activator.ID + "/planner/operands", false); //$NON-NLS-1$
+				DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
 			}
 		}
 	}

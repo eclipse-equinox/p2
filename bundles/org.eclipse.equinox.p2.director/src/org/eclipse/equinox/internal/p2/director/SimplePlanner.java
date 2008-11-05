@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -33,6 +32,8 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class SimplePlanner implements IPlanner {
+	private static boolean DEBUG = Tracing.DEBUG_PLANNER_OPERANDS;
+
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
@@ -54,6 +55,11 @@ public class SimplePlanner implements IPlanner {
 
 		if (status == null)
 			status = Status.OK_STATUS;
+		if (DEBUG) {
+			for (int i = 0; i < operands.length; i++) {
+				Tracing.debug(operands[i].toString());
+			}
+		}
 		return new ProvisioningPlan(status, operands);
 	}
 
