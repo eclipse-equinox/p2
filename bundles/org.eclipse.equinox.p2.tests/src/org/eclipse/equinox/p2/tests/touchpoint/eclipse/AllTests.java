@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(EclipseTouchpointTest.class);
 		suite.addTestSuite(AddJVMArgumentActionTest.class);
 		suite.addTestSuite(AddProgramArgumentActionTest.class);
+		suite.addTestSuite(AddRepositoryActionTest.class);
 		suite.addTestSuite(AddSourceBundleActionTest.class);
 		suite.addTestSuite(CheckTrustActionTest.class);
 		//		suite.addTestSuite(ChmodActionTest.class);
@@ -34,6 +35,7 @@ public class AllTests extends TestCase {
 		//		suite.addTestSuite(MkdirActionTest.class);
 		suite.addTestSuite(RemoveJVMArgumentActionTest.class);
 		suite.addTestSuite(RemoveProgramArgumentActionTest.class);
+		suite.addTestSuite(RemoveRepositoryActionTest.class);
 		suite.addTestSuite(RemoveSourceBundleActionTest.class);
 		//		suite.addTestSuite(RmdirActionTest.class);
 		suite.addTestSuite(SetFrameworkDependentPropertyActionTest.class);

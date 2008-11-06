@@ -29,7 +29,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.mirror;x-internal:=true
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.equinox.p2.updatesite,
-   org.eclipse.pde.ui",
+   org.eclipse.pde.ui,
+   org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.updatesite"
 Import-Package: org.eclipse.equinox.app;resolution:=optional,
  org.eclipse.equinox.internal.p2.core.helpers,

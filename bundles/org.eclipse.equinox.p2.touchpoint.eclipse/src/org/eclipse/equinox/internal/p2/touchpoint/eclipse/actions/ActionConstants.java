@@ -37,4 +37,8 @@ public class ActionConstants {
 	public static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
 	public static final String PARM_PERMISSIONS = "permissions"; //$NON-NLS-1$
 
+	public static final String PARM_REPOSITORY_LOCATION = "location"; //$NON-NLS-1$
+	public static final String PARM_REPOSITORY_TYPE = "type"; //$NON-NLS-1$
+	public static final String PARM_REPOSITORY_ENABLEMENT = "enabled"; //$NON-NLS-1$
+
 }
