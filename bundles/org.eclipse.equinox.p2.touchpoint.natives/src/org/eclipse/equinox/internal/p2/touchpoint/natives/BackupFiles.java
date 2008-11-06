@@ -56,7 +56,6 @@ public class BackupFiles {
 			propsFiles.add(0, propsFile);
 		}
 		SubMonitor subMonitor = SubMonitor.convert(monitor, propsFiles.size());
-		int j = 0;
 		for (Iterator i = propsFiles.iterator(); i.hasNext();) {
 			File propsFile = (File) i.next();
 			restoreFilesFromBackup(propsFile, subMonitor.newChild(1));
