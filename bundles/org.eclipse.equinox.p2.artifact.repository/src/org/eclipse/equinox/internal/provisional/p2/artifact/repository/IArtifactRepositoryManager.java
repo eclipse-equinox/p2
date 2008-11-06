@@ -26,6 +26,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IArtifactRepositoryManager extends IRepositoryManager {
+	/**
+	 * The name used for obtaining a reference to the metadata repository manager service
+	 */
+	public static final String SERVICE_NAME = IArtifactRepositoryManager.class.getName();
+
 	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
 	/**

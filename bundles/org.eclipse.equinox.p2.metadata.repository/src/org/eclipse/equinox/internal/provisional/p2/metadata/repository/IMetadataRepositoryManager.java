@@ -26,6 +26,10 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryable {
+	/**
+	 * The name used for obtaining a reference to the metadata repository manager service
+	 */
+	public static final String SERVICE_NAME = IMetadataRepositoryManager.class.getName();
 
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
