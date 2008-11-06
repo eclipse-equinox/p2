@@ -10,19 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Method;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Version;
 
 /**
  * Test code that is affected by bug 252308 within {@code MirrorRequest}.
  */
-public class Bug252308 extends TestCase {
+public class Bug252308 extends AbstractProvisioningTest {
 
+	private Method transferSingle;
 	private Method extractRootCause;
 
 	/* (non-Javadoc)
@@ -33,10 +36,16 @@ public class Bug252308 extends TestCase {
 		super.setUp();
 		extractRootCause = MirrorRequest.class.getDeclaredMethod("extractRootCause", new Class[] {IStatus.class});
 		extractRootCause.setAccessible(true);
+		transferSingle = MirrorRequest.class.getDeclaredMethod("transferSingle", new Class[] {IArtifactDescriptor.class, IArtifactDescriptor.class, IProgressMonitor.class});
+		transferSingle.setAccessible(true);
 	}
 
 	private IStatus extractRootCause(IStatus status) throws Exception {
 		return (IStatus) extractRootCause.invoke(null, new Object[] {status});
+	}
+
+	private IStatus transferSingle(MirrorRequest request, IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) throws Exception {
+		return (IStatus) transferSingle.invoke(request, new Object[] {destinationDescriptor, sourceDescriptor, monitor});
 	}
 
 	public void testExtractRootCauseNullStatus() throws Exception {
@@ -96,6 +105,31 @@ public class Bug252308 extends TestCase {
 		IStatus status = extractRootCause(multiStatus);
 		assertNotNull(status);
 		assertEquals("id22", status.getPlugin());
+	}
+
+	public void testTransferError() throws Exception {
+		File simpleRepo = getTestData("simple repository", "testData/artifactRepo/transferTestRepo");
+		IArtifactRepository source = null;
+		IArtifactRepository target = null;
+		try {
+			source = getArtifactRepositoryManager().loadRepository(simpleRepo.toURI(), new NullProgressMonitor());
+			target = createArtifactRepository(new File(getTempFolder(), getName()).toURI(), null);
+		} catch (ProvisionException e) {
+			fail("failing setting up the tests", e);
+		}
+
+		IArtifactDescriptor sourceDescriptor = getArtifactKeyFor(source, "osgi.bundle", "missingFromFileSystem", new Version(1, 0, 0))[0];
+		ArtifactDescriptor targetDescriptor = new ArtifactDescriptor(sourceDescriptor);
+		targetDescriptor.setRepositoryProperty("artifact.folder", "true");
+		MirrorRequest request = new MirrorRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", new Version(1, 0, 0)), target, null, null);
+		request.setSourceRepository(source);
+		IStatus s = transferSingle(request, targetDescriptor, sourceDescriptor, new NullProgressMonitor());
+		assertTrue(s.getException().getClass() == FileNotFoundException.class);
+		System.out.println(s);
+	}
+
+	private IArtifactDescriptor[] getArtifactKeyFor(IArtifactRepository repo, String classifier, String id, Version version) {
+		return repo.getArtifactDescriptors(new ArtifactKey(classifier, id, version));
 	}
 
 }
