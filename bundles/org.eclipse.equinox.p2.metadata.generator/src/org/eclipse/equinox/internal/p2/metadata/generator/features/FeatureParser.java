@@ -85,10 +85,6 @@ public class FeatureParser extends DefaultHandler {
 		characters = null;
 	}
 
-	public Feature getResult() {
-		return result;
-	}
-
 	private void loadProperties(File directory, Properties properties) {
 		//skip directories that don't contain a feature.properties file
 		File file = new File(directory, "feature.properties"); //$NON-NLS-1$
@@ -244,18 +240,10 @@ public class FeatureParser extends DefaultHandler {
 			//			System.out.println(NLS.bind(Messages.FeatureParser_IdOrVersionInvalid, (new String[] { id, ver})));
 		} else {
 			result = createFeature(id, ver);
-
-			String os = attributes.getValue("os"); //$NON-NLS-1$
-			String ws = attributes.getValue("ws"); //$NON-NLS-1$
-			String nl = attributes.getValue("nl"); //$NON-NLS-1$
-			String arch = attributes.getValue("arch"); //$NON-NLS-1$
-			result.setEnvironment(os, ws, arch, nl);
-
 			result.setApplication(attributes.getValue("application")); //$NON-NLS-1$
 			result.setPlugin(attributes.getValue("plugin")); //$NON-NLS-1$
 			result.setExclusive(Boolean.valueOf(attributes.getValue("exclusive")).booleanValue()); //$NON-NLS-1$
 			result.setPrimary(Boolean.valueOf(attributes.getValue("primary")).booleanValue()); //$NON-NLS-1$
-			result.setColocationAffinity(attributes.getValue("colocation-affinity")); //$NON-NLS-1$
 
 			//TODO rootURLs
 			if (url != null && "file".equals(url.getProtocol())) { //$NON-NLS-1$
@@ -268,7 +256,6 @@ public class FeatureParser extends DefaultHandler {
 
 			result.setProviderName(localize(attributes.getValue("provider-name"))); //$NON-NLS-1$
 			result.setLabel(localize(attributes.getValue("label"))); //$NON-NLS-1$
-			result.setImage(attributes.getValue("image")); //$NON-NLS-1$
 
 			//			Utils.debug("End process DefaultFeature tag: id:" +id + " ver:" +ver + " url:" + feature.getURL()); 	 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}

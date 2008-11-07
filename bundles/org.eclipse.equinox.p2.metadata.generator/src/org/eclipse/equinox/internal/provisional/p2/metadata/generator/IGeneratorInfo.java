@@ -56,8 +56,6 @@ public interface IGeneratorInfo {
 	 */
 	public ConfigData getConfigData();
 
-	public File getConfigurationLocation();
-
 	public ArrayList getDefaultIUs(Set ius);
 
 	public File getExecutableLocation();
@@ -65,8 +63,6 @@ public interface IGeneratorInfo {
 	public File getFeaturesLocation();
 
 	public String getFlavor();
-
-	public boolean getIsUpdateCompatible();
 
 	public File getJRELocation();
 
@@ -77,8 +73,6 @@ public interface IGeneratorInfo {
 	public String getLauncherConfig();
 
 	public LauncherData getLauncherData();
-
-	public String[][] getMappingRules();
 
 	public IMetadataRepository getMetadataRepository();
 
@@ -108,8 +102,6 @@ public interface IGeneratorInfo {
 	public void setArtifactRepository(IArtifactRepository value);
 
 	public void setFlavor(String value);
-
-	public void setIsUpdateCompatible(boolean isCompatible);
 
 	public void setMetadataRepository(IMetadataRepository value);
 

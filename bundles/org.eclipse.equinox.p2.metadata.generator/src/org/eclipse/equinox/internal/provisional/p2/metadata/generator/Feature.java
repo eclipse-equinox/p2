@@ -20,14 +20,12 @@ import java.util.Map;
 public class Feature {
 
 	private final String id;
-	private String version;
+	private final String version;
 	private String label;
-	private String image;
 	private String pluginId;
 	private boolean primary = false;
 	private boolean exclusive = false;
 	private String application;
-	private String colocationAffinity;
 
 	private URLEntry description;
 	private URLEntry license;
@@ -42,10 +40,6 @@ public class Feature {
 
 	private ArrayList entries;
 	private String providerName;
-	private String os;
-	private String ws;
-	private String arch;
-	private String nl;
 
 	private String location;
 
@@ -77,14 +71,6 @@ public class Feature {
 
 	public String getApplication() {
 		return application;
-	}
-
-	public String getArch() {
-		return arch;
-	}
-
-	public String getColocationAffinity() {
-		return colocationAffinity;
 	}
 
 	public String getCopyright() {
@@ -127,10 +113,6 @@ public class Feature {
 		return id;
 	}
 
-	public String getImage() {
-		return image;
-	}
-
 	public String getInstallHandler() {
 		return installHandler;
 	}
@@ -167,26 +149,12 @@ public class Feature {
 		return this.location;
 	}
 
-	public String getNL() {
-		return nl;
-	}
-
-	public String getOS() {
-		return os;
-	}
-
 	public String getPlugin() {
 		return pluginId;
 	}
 
 	public String getProviderName() {
 		return providerName;
-	}
-
-	public String getUpdateSiteLabel() {
-		if (updateSite != null)
-			return updateSite.getAnnotation();
-		return null;
 	}
 
 	public String getUpdateSiteURL() {
@@ -199,10 +167,6 @@ public class Feature {
 		return version;
 	}
 
-	public String getWS() {
-		return ws;
-	}
-
 	public boolean isExclusive() {
 		return exclusive;
 	}
@@ -213,10 +177,6 @@ public class Feature {
 
 	public void setApplication(String application) {
 		this.application = application;
-	}
-
-	public void setColocationAffinity(String colocationAffinity) {
-		this.colocationAffinity = colocationAffinity;
 	}
 
 	public void setCopyright(String copyright) {
@@ -243,19 +203,8 @@ public class Feature {
 		this.description.setURL(descriptionURL);
 	}
 
-	public void setEnvironment(String os, String ws, String arch, String nl) {
-		this.os = os;
-		this.ws = ws;
-		this.arch = arch;
-		this.nl = nl;
-	}
-
 	public void setExclusive(boolean exclusive) {
 		this.exclusive = exclusive;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
 	}
 
 	public void setInstallHandler(String installHandler) {
@@ -320,10 +269,6 @@ public class Feature {
 
 	public void setURL(String value) {
 		//
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	/**

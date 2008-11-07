@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.features;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
@@ -598,9 +599,6 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		feature.setURLString(urlInfo);
 
-		String type = attributes.getValue("type"); //$NON-NLS-1$
-		feature.setType(type);
-
 		// if one is null, and not the other
 		if (noId ^ noVersion) {
 			String[] values = new String[] {id, ver, getState(currentState)};
@@ -610,43 +608,13 @@ public class DefaultSiteParser extends DefaultHandler {
 			feature.setFeatureVersion(ver);
 		}
 
-		// get label if it exists
-		String label = attributes.getValue("label"); //$NON-NLS-1$
-		if (label != null) {
-			if ("".equals(label.trim())) //$NON-NLS-1$
-				label = null;
-			checkTranslated(label);
-		}
-		feature.setLabel(label);
-
-		// OS
-		String os = attributes.getValue("os"); //$NON-NLS-1$
-		feature.setOS(os);
-
-		// WS
-		String ws = attributes.getValue("ws"); //$NON-NLS-1$
-		feature.setWS(ws);
-
-		// NL
-		String nl = attributes.getValue("nl"); //$NON-NLS-1$
-		feature.setNL(nl);
-
-		// arch
-		String arch = attributes.getValue("arch"); //$NON-NLS-1$
-		feature.setArch(arch);
-
-		//patch
-		String patch = attributes.getValue("patch"); //$NON-NLS-1$
-		feature.setPatch(patch);
-
 		SiteModel site = (SiteModel) objectStack.peek();
 		site.addFeature(feature);
-		feature.setSiteModel(site);
 
 		objectStack.push(feature);
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
-			debug("End Processing DefaultFeature Tag: url:" + urlInfo + " type:" + type); //$NON-NLS-1$ //$NON-NLS-2$
+			debug("End Processing DefaultFeature Tag: url:" + urlInfo); //$NON-NLS-1$
 
 	}
 
@@ -671,70 +639,22 @@ public class DefaultSiteParser extends DefaultHandler {
 		// create site map
 		SiteModel site = new SiteModel();
 
-		// if URL is specified, it replaces the URL of the site
-		// used to calculate the location of features and archives
-		String siteURL = attributes.getValue("url"); //$NON-NLS-1$
-		if (siteURL != null && !("".equals(siteURL.trim()))) { //$NON-NLS-1$
-			if (!siteURL.endsWith("/") && !siteURL.endsWith(File.separator)) { //$NON-NLS-1$
-				siteURL += "/"; //$NON-NLS-1$
-			}
-			site.setLocationURLString(siteURL);
-		}
-
 		// provide default description URL
 		// If <description> is specified, for the site,  it takes precedence		
 		URLEntry description = new URLEntry();
 		description.setURL(DEFAULT_INFO_URL);
 		site.setDescription(description);
 
-		// verify we can parse the site ...if the site has
-		// a different type throw an exception to force reparsing
-		// with the matching parser
-		String type = attributes.getValue("type"); //$NON-NLS-1$
-		site.setType(type);
-
 		// get mirrors, if any
 		String mirrorsURL = attributes.getValue("mirrorsURL"); //$NON-NLS-1$
 		if (mirrorsURL != null && mirrorsURL.trim().length() > 0) {
-			//			URLEntry[] mirrors = getMirrors(mirrorsURL);
-			//			if (mirrors != null)
-			//				site.setMirrors(mirrors);
-			//			else
-
-			//Since we are parsing the site at p2 generation time and the 
-			//mirrors may change, there is no point doing the mirror expansion now
 			site.setMirrorsURLString(mirrorsURL);
 		}
 
-		String pack200 = attributes.getValue("pack200"); //$NON-NLS-1$
-		if (pack200 != null && new Boolean(pack200).booleanValue()) {
-			site.setSupportsPack200(true);
-		}
-
-		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$
-		if (digestURL != null)
-			site.setDigestURLString(digestURL);
-
-		// TODO: Digest locales
-		//			if ((attributes.getValue("availableLocales") != null) && (!attributes.getValue("availableLocales").trim().equals(""))) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-		//				StringTokenizer locals = new StringTokenizer(attributes.getValue("availableLocales"), ","); //$NON-NLS-1$//$NON-NLS-2$
-		//				String[] availableLocals = new String[locals.countTokens()];
-		//				int i = 0;
-		//				while (locals.hasMoreTokens()) {
-		//					availableLocals[i++] = locals.nextToken();
-		//				}
-		//								extendedSite.setAvailableLocals(availableLocals);
-		//			}
-		//		}
-		//
 		if (attributes.getValue(ASSOCIATE_SITES_URL) != null)
 			site.setAssociateSites(getAssociateSites(attributes.getValue(ASSOCIATE_SITES_URL)));
 
 		objectStack.push(site);
-
-		if (Tracing.DEBUG_GENERATOR_PARSING)
-			debug("End process Site tag: siteURL:" + siteURL + " type:" + type);//$NON-NLS-1$ //$NON-NLS-2$
-
 	}
 
 	/**

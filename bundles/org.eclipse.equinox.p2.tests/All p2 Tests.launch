@@ -1,42 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?><launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
+<?xml version="1.0" encoding="UTF-8"?>
+<launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
 <booleanAttribute key="append.args" value="true"/>
 <stringAttribute key="application" value="org.eclipse.pde.junit.runtime.coretestapplication"/>
 <booleanAttribute key="askclear" value="false"/>
 <booleanAttribute key="automaticAdd" value="true"/>
 <booleanAttribute key="automaticValidate" value="false"/>
 <stringAttribute key="bootstrap" value=""/>
-<stringAttribute key="checked" value="[NONE]"/>
 <booleanAttribute key="clearConfig" value="true"/>
 <booleanAttribute key="clearws" value="true"/>
 <booleanAttribute key="clearwslog" value="false"/>
 <booleanAttribute key="com.mountainminds.eclemma.core.INPLACE_INSTRUMENTATION" value="true"/>
 <listAttribute key="com.mountainminds.eclemma.core.INSTRUMENTATION_PATHS">
-<listEntry value="/org.eclipse.equinox.p2.exemplarysetup/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.metadata.repository/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.publisher/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.directorywatcher/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.metadata/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.touchpoint.natives/bin"/>
-<listEntry value="/org.eclipse.equinox.simpleconfigurator/bin"/>
 <listEntry value="/org.eclipse.equinox.p2.artifact.repository/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.metadata.generator/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.updatechecker/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.jarprocessor/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.reconciler.dropins/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.ui.sdk/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.updatesite/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.garbagecollector/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.director/bin"/>
 <listEntry value="/org.eclipse.equinox.p2.touchpoint.eclipse/bin"/>
-<listEntry value="/org.eclipse.equinox.frameworkadmin.equinox/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.core/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.extensionlocation/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.ui/bin"/>
-<listEntry value="/org.eclipse.equinox.p2.installer/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.metadata.generator/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.exemplarysetup/bin"/>
 <listEntry value="/org.eclipse.equinox.p2.director.app/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.updatesite/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.ui.sdk/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.jarprocessor/bin"/>
+<listEntry value="/org.eclipse.equinox.frameworkadmin.equinox/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.reconciler.dropins/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.director/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.updatechecker/bin"/>
 <listEntry value="/org.eclipse.equinox.simpleconfigurator.manipulator/bin"/>
 <listEntry value="/org.eclipse.equinox.p2.engine/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.ui/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.core/bin"/>
 <listEntry value="/org.eclipse.equinox.frameworkadmin/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.garbagecollector/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.directorywatcher/bin"/>
+<listEntry value="/org.eclipse.equinox.simpleconfigurator/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.installer/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.touchpoint.natives/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.metadata.repository/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.extensionlocation/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.publisher/bin"/>
+<listEntry value="/org.eclipse.equinox.p2.metadata/bin"/>
 </listAttribute>
 <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
 <booleanAttribute key="default" value="true"/>
@@ -52,12 +52,11 @@
 <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
 <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit3"/>
-<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/ibm60"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.equinox.p2.tests.AutomatedTests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consolelog"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.equinox.p2.tests"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/builds/eclipse-platform-I20081007-1600-win32.zip"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/builds/eclipse-platform-I20081029-0800-win32.zip"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value="org.eclipse.sdk.ide"/>
 <booleanAttribute key="show_selected_only" value="false"/>

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.features;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.URLEntry;
 
@@ -32,13 +30,8 @@ public class SiteModel {
 	 * Map of String (feature id) -> SiteFeature
 	 */
 	private List features;
-	private URL locationURL;
-	private String locationURLString;
 	private String mirrorsURLString;
-	private boolean supportsPack200;
-	private String type;
 	private URLEntry[] associateSites;
-	private String digestURLString;
 	private List messageKeys;
 	private Map localizations;
 
@@ -91,35 +84,8 @@ public class SiteModel {
 		this.features.add(featureReference);
 	}
 
-	/**
-	 * Returns an array of plug-in and non-plug-in archive reference models
-	 * on this site
-	 * 
-	 * @return an array of archive reference models, or an empty array if there are
-	 * no archives known to this site.
-	 * @since 2.0
-	 */
-	public URLEntry[] getArchives() {
-		if (archiveReferences == null || archiveReferences.size() == 0)
-			return new URLEntry[0];
-
-		return (URLEntry[]) archiveReferences.toArray(new URLEntry[0]);
-	}
-
 	public URLEntry[] getAssociatedSites() {
 		return associateSites;
-	}
-
-	/**
-	 * Returns an array of category models for this site.
-	 * 
-	 * @return array of site category models, or an empty array.
-	 * @since 2.0
-	 */
-	public SiteCategory[] getCategories() {
-		if (categories == null || categories.size() == 0)
-			return new SiteCategory[0];
-		return (SiteCategory[]) categories.values().toArray(new SiteCategory[0]);
 	}
 
 	/**
@@ -151,42 +117,6 @@ public class SiteModel {
 	}
 
 	/**
-	 * Gets the localizations for the site as a map from locale
-	 * to the set of translated properties for that locale.
-	 * 
-	 * @return a map from locale to property set
-	 * @since 3.4
-	 */
-	public Map getLocalizations() {
-		return this.localizations;
-	}
-
-	/**
-	 * Returns the resolved URL for the site.
-	 * 
-	 * @return url, or <code>null</code>
-	 */
-	public URL getLocationURL() {
-		if (locationURL == null && locationURLString != null) {
-			try {
-				locationURL = new URL(locationURLString);
-			} catch (MalformedURLException e) {
-				//ignore and return null
-			}
-		}
-		return locationURL;
-	}
-
-	/**
-	 * Returns the unresolved URL string for the site.
-	 *
-	 * @return url string, or <code>null</code>
-	 */
-	public String getLocationURLString() {
-		return locationURLString;
-	}
-
-	/**
 	 * Return the keys for translatable strings
 	 *
 	 * @return the list of keys for translatable strings; may be null
@@ -203,20 +133,6 @@ public class SiteModel {
 	 */
 	public String getMirrorsURL() {
 		return mirrorsURLString;
-	}
-
-	/** 
-	 * Returns the site type.
-	 * 
-	 * @return site type, or <code>null</code>.
-	 * @since 2.0
-	 */
-	public String getType() {
-		return type;
-	}
-
-	public boolean isPack200Supported() {
-		return supportsPack200;
 	}
 
 	/**
@@ -249,16 +165,6 @@ public class SiteModel {
 	}
 
 	/**
-	 * Sets the unresolved URL for the site.
-	 * 
-	 * @param locationURLString url for the site (as a string)
-	 * @since 2.0
-	 */
-	public void setLocationURLString(String locationURLString) {
-		this.locationURLString = locationURLString;
-	}
-
-	/**
 	 * Sets keys for translatable strings
 	 * 
 	 * @param keys for translatable strings
@@ -280,21 +186,6 @@ public class SiteModel {
 		this.mirrorsURLString = mirrorsURL;
 	}
 
-	public void setSupportsPack200(boolean value) {
-		this.supportsPack200 = value;
-	}
-
-	/**
-	 * Sets the site type.
-	 * Throws a runtime exception if this object is marked read-only.
-	 * 
-	 * @param type site type
-	 * @since 2.0
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	/**
 	 * Sets the associated sites for this update site.
 	 * 
@@ -302,13 +193,5 @@ public class SiteModel {
 	 */
 	public void setAssociateSites(URLEntry[] associateSites) {
 		this.associateSites = associateSites;
-	}
-
-	public void setDigestURLString(String digestURLString) {
-		this.digestURLString = digestURLString;
-	}
-
-	public String getDigestURLString() {
-		return digestURLString;
 	}
 }

@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
@@ -107,8 +106,6 @@ public class Generator {
 	private static final String PRODUCT_INI_SUFFIX = ".ini"; //$NON-NLS-1$
 	private static final String PRODUCT_LAUCHER_SUFFIX = ".launcher"; //$NON-NLS-1$
 	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
-
-	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
@@ -1270,10 +1267,6 @@ public class Generator {
 			}
 		}
 		return mappings;
-	}
-
-	protected IGeneratorInfo getGeneratorInfo() {
-		return info;
 	}
 
 	/**

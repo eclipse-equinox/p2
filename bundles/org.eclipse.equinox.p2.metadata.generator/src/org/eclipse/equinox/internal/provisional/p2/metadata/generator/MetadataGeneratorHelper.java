@@ -729,14 +729,7 @@ public class MetadataGeneratorHelper {
 	 * @deprecated moved to FeaturesAction
 	 */
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU) {
-		return createGroupIU(feature, featureIU, null);
-	}
-
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
-	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
-		return createGroupIU(feature, featureIU, extraProperties, true);
+		return createGroupIU(feature, featureIU, null, true);
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties, boolean transformIds) {

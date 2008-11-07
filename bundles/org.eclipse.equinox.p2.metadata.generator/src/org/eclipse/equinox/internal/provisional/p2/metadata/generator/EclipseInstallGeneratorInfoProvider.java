@@ -50,13 +50,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	private static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl"; //$NON-NLS-1$
 
-	/*
-	 * 	TODO: Temporary for determining whether eclipse installs
-	 * 		  in a profile should support backward compatibility
-	 * 		  with update manager.
-	 */
-	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
-
 	private String os;
 
 	/**
@@ -92,11 +85,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private String flavor;
 	private ServiceTracker frameworkAdminTracker;
 	private Manipulator manipulator;
-	private String[][] mappingRules;
 	private IMetadataRepository metadataRepository;
 	private boolean publishArtifactRepo = false;
 	private boolean publishArtifacts = false;
-	private boolean updateCompatibility = Boolean.valueOf(System.getProperty(UPDATE_COMPATIBILITY, "false")).booleanValue(); //$NON-NLS-1$
 	private String rootId;
 	private String rootVersion;
 	private String productFile = null;
@@ -370,10 +361,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
-	public File getConfigurationLocation() {
-		return configLocation;
-	}
-
 	/**
 	 * @deprecated logic moved to EclipseInstallAction (and related actions)
 	 */
@@ -447,10 +434,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return admin;
 	}
 
-	public boolean getIsUpdateCompatible() {
-		return updateCompatibility;
-	}
-
 	private Collection getIUs(Set ius, String prefix) {
 		Set result = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
@@ -474,10 +457,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public LauncherData getLauncherData() {
 		return manipulator == null ? null : manipulator.getLauncherData();
-	}
-
-	public String[][] getMappingRules() {
-		return mappingRules;
 	}
 
 	public IMetadataRepository getMetadataRepository() {
@@ -587,16 +566,11 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		flavor = value;
 	}
 
-	public void setIsUpdateCompatible(boolean isCompatible) {
-		this.updateCompatibility = isCompatible;
-	}
-
 	public void setLauncherConfig(String value) {
 		launcherConfig = value;
 	}
 
 	public void setMappingRules(String[][] value) {
-		mappingRules = value;
 	}
 
 	public void setMetadataRepository(IMetadataRepository value) {

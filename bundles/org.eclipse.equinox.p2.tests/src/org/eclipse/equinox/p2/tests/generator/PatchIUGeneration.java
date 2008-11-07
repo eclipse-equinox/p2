@@ -24,7 +24,7 @@ public class PatchIUGeneration extends AbstractProvisioningTest {
 		if (feature == null)
 			fail();
 		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, null);
-		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) MetadataGeneratorHelper.createGroupIU(feature, featureIU, null);
+		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) MetadataGeneratorHelper.createGroupIU(feature, featureIU, null, true);
 
 		//Check id
 		assertEquals(patchIU.getId(), "org.eclipse.jdt.3.2.1.patch.feature.group");

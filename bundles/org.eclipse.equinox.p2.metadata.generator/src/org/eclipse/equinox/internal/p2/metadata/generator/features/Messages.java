@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ public final class Messages extends NLS {
 	public static String DefaultSiteParser_Missing;
 	public static String DefaultSiteParser_ParsingStackBackToInitialState;
 	public static String DefaultSiteParser_ElementAlreadySet;
-	public static String DefaultSiteParser_CategoryAlreadySet;
 	public static String DefaultSiteParser_UnknownEndState;
 	public static String DefaultSiteParser_ErrorParsing;
 	public static String DefaultSiteParser_ErrorlineColumnMessage;
@@ -32,8 +31,6 @@ public final class Messages extends NLS {
 	public static String DefaultSiteParser_UnknownState;
 	public static String DefaultSiteParser_InvalidXMLStream;
 	public static String DefaultSiteParser_mirrors;
-	public static String DefaultSiteParser_ErrorReadingDigest;
-
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}

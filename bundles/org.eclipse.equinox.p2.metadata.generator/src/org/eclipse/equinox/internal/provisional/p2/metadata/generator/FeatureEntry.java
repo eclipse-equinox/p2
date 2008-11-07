@@ -16,8 +16,7 @@ import org.osgi.framework.Version;
  */
 public class FeatureEntry {
 	private final String id;
-	private String version;
-	private String url;
+	private final String version;
 	private String os;
 	private String ws;
 	private String arch;
@@ -98,10 +97,6 @@ public class FeatureEntry {
 		return os;
 	}
 
-	public String getURL() {
-		return url;
-	}
-
 	public String getVersion() {
 		return version;
 	}
@@ -163,14 +158,6 @@ public class FeatureEntry {
 
 	public void setUnpack(boolean value) {
 		unpack = value;
-	}
-
-	public void setURL(String value) {
-		url = value;
-	}
-
-	public void setVersion(String value) {
-		version = Version.parseVersion(value).toString();
 	}
 
 	public String toString() {
