@@ -64,6 +64,7 @@ public class TouchpointInstruction {
 	 */
 	public static String encodeAction(String actionName, Map parameters) {
 		StringBuffer result = new StringBuffer(actionName);
+		result.append('(');
 		for (Iterator it = parameters.entrySet().iterator(); it.hasNext();) {
 			Map.Entry entry = (Map.Entry) it.next();
 			result.append(entry.getKey());
@@ -72,6 +73,7 @@ public class TouchpointInstruction {
 			if (it.hasNext())
 				result.append(',');
 		}
+		result.append(')').append(';');
 		return result.toString();
 	}
 
@@ -147,5 +149,12 @@ public class TouchpointInstruction {
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result + ((importAttribute == null) ? 0 : importAttribute.hashCode());
 		return result;
+	}
+
+	/**
+	 * Returns a string representation of this instruction for debugging purposes only.
+	 */
+	public String toString() {
+		return "Instruction[" + body + ',' + importAttribute + ']'; //$NON-NLS-1$
 	}
 }
