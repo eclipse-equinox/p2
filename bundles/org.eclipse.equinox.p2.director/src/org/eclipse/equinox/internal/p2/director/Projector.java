@@ -94,7 +94,7 @@ public class Projector {
 			for (int i = 0; i < ius.length; i++) {
 				createMustHaves(ius[i]);
 			}
-			createOptimizationFunction();
+			createOptimizationFunction(ius);
 			persist();
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
@@ -115,7 +115,7 @@ public class Projector {
 	}
 
 	//Create an optimization function favoring the highest version of each IU  
-	private void createOptimizationFunction() {
+	private void createOptimizationFunction(IInstallableUnit[] ius) {
 		final String MIN_STR = "min:"; //$NON-NLS-1$
 
 		objective = new StringBuffer(MIN_STR);
@@ -154,11 +154,31 @@ public class Projector {
 			objective.append(" -").append(maxWeight).append(" ").append((String) iterator.next()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		if (MIN_STR.equals(objective.toString())) {
+		maxWeight *= POWER;
+		objective.append(' ').append(getPatchesWeight(ius, maxWeight));
+
+		if (MIN_STR.equals(objective.toString().trim())) {
 			objective = new StringBuffer();
 		} else {
 			objective.append(" ;"); //$NON-NLS-1$
 		}
+	}
+
+	protected StringBuffer getPatchesWeight(IInstallableUnit ius[], long weight) {
+		StringBuffer patchesWeight = new StringBuffer();
+		if (patches == null)
+			return patchesWeight;
+		for (int i = 0; i < ius.length; i++) {
+			RequiredCapability[] reqs = ius[i].getRequiredCapabilities();
+			for (int j = 0; j < reqs.length; j++) {
+				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+					IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
+					patchesWeight.append('-').append(weight).append(' ').append(getVariable(match)).append(' ');
+				}
+			}
+		}
+		return patchesWeight;
 	}
 
 	private void createMustHaves(IInstallableUnit iu) {
@@ -298,6 +318,7 @@ public class Projector {
 		}
 
 		Collector patches = getApplicablePatches(iu);
+		expandLifeCycle(iu);
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
 			RequiredCapability[] reqs = iu.getRequiredCapabilities();
@@ -365,6 +386,15 @@ public class Projector {
 					expandRequirement(null, iu, (RequiredCapability) entry.getKey());
 			}
 		}
+	}
+
+	private void expandLifeCycle(IInstallableUnit iu) {
+		if (!(iu instanceof IInstallableUnitPatch))
+			return;
+		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
+		if (patch.getLifeCycle() == null)
+			return;
+		expandNormalRequirement(null, iu, patch.getLifeCycle());
 	}
 
 	private void genericExpandRequirement(String var, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
