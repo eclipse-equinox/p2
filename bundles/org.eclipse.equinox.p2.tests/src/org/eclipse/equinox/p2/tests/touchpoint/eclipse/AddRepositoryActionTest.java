@@ -11,7 +11,8 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -112,29 +113,28 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	public void testFullInstall() {
 		String id = "AddRepositoryActionTest.testFullInstall";
 		Version version = new Version(1, 0, 0);
-		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, createTouchpointData(), true, createUpdateDescriptor(id, version));
+		Map instructions = new HashMap();
+		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
+		TouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
+		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version));
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {iu});
+
+		assertTrue("0.1", !getArtifactRepositoryManager().isEnabled(locationURI));
+
 		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
 		assertTrue("1.0", result.isOK());
-		//TODO check that the repository was added
-
-	}
-
-	private TouchpointData createTouchpointData() {
-		Map args = getValidArguments();
-		Map instructions = new HashMap();
-		StringBuffer addRepoInstruction = new StringBuffer("addRepository(");
-		for (Iterator it = args.entrySet().iterator(); it.hasNext();) {
-			Map.Entry entry = (Map.Entry) it.next();
-			addRepoInstruction.append(entry.getKey());
-			addRepoInstruction.append(':');
-			addRepoInstruction.append(entry.getValue());
-			if (it.hasNext())
-				addRepoInstruction.append(',');
+		//check that the repository was added. This happens asynchronously
+		long waitStart = System.currentTimeMillis();
+		while (!getArtifactRepositoryManager().isEnabled(locationURI)) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//
+			}
+			//will fail if it took too long for the repository to be added
+			assertTrue(System.currentTimeMillis() - waitStart < 10000);
 		}
-		instructions.put("configure", addRepoInstruction.toString());
-		return MetadataFactory.createTouchpointData(instructions);
 	}
 }
