@@ -13,20 +13,23 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Touchpoint data instances contain the additional information needed by a touchpoint
+ * to execute each engine phase it participates in. This includes the instructions to
+ * be executed during each phase, and any additional supporting data needed to
+ * perform the phase.
+ */
 public class TouchpointData {
 
 	/**
-	 * Map of (String->String). The values represent the instructions. The set 
+	 * Map of (String->TouchpointInstruction). The set 
 	 * of keys supported is up to the touchpoint that will process these 
 	 * instructions. This map is never null.
 	 */
 	private Map instructions;
 
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((instructions == null) ? 0 : instructions.hashCode());
-		return result;
+		return 31 * 1 + ((instructions == null) ? 0 : instructions.hashCode());
 	}
 
 	public boolean equals(Object obj) {
@@ -49,16 +52,26 @@ public class TouchpointData {
 		this.instructions = instructions;
 	}
 
+	/**
+	 * Returns the touchpoint instruction corresponding to the given key.
+	 */
 	public TouchpointInstruction getInstructions(String instructionKey) {
 		return (TouchpointInstruction) instructions.get(instructionKey);
 	}
 
-	// Return an unmodifiable collection of the instructions
-	// in the touchpoint data.
+	/**
+	 * Returns an unmodifiable map of the touchpoint instructions. The map
+	 * keys are strings, and the values are instances of {@link TouchpointInstruction}.
+	 * 
+	 * @return the touchpoint instructions
+	 */
 	public Map getInstructions() {
 		return Collections.unmodifiableMap(instructions);
 	}
 
+	/**
+	 * Returns a string representation of the touchpoint data for debugging purposes only.
+	 */
 	public String toString() {
 		return instructions.toString();
 	}
