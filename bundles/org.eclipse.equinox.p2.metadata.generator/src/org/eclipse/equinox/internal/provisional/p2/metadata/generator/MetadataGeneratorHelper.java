@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
@@ -124,13 +123,9 @@ public class MetadataGeneratorHelper {
 	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
-	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
 
 	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
 	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
-
-	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
-	static final Locale PSEUDO_LOCALE = new Locale("zz", "ZZ"); //$NON-NLS-1$//$NON-NLS-2$
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
@@ -205,13 +200,6 @@ public class MetadataGeneratorHelper {
 	/**
 	 * @deprecated moved to BundlesAction
 	 */
-	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
-		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
-	}
-
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
@@ -243,13 +231,6 @@ public class MetadataGeneratorHelper {
 	/**
 	 * @deprecated moved to BundlesAction
 	 */
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
-		return createBundleIU(bd, manifest, isFolderPlugin, key, false);
-	}
-
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
 		Map manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null) {
@@ -257,13 +238,6 @@ public class MetadataGeneratorHelper {
 		}
 
 		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
-	}
-
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations) {
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, false);
 	}
 
 	/**
@@ -644,27 +618,6 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("uninstall", "removeSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(cu);
-	}
-
-	private static void addExtraProperties(IInstallableUnit iiu, Properties extraProperties) {
-		if (iiu instanceof InstallableUnit) {
-			InstallableUnit iu = (InstallableUnit) iiu;
-
-			for (Enumeration e = extraProperties.propertyNames(); e.hasMoreElements();) {
-				String name = (String) e.nextElement();
-				iu.setProperty(name, extraProperties.getProperty(name));
-			}
-		}
-	}
-
-	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
-		ArrayList iusCreated = new ArrayList(1);
-
-		IInstallableUnit iu = createBundleIU(bd, manifest, isFolderPlugin, key);
-		addExtraProperties(iu, extraProperties);
-		iusCreated.add(iu);
-
-		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
 	}
 
 	/**

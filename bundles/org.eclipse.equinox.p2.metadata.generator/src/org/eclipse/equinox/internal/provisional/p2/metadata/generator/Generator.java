@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -389,7 +391,7 @@ public class Generator {
 							format = (String) bundleManifest.get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
-						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+						IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, bd.getSymbolicName(), new Version(bd.getVersion().toString()));
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 						File bundleFile = new File(bd.getLocation());
