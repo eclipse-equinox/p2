@@ -11,12 +11,16 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Version;
 
 /**
  * Tests for {@link org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction}.
@@ -100,5 +104,37 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		result = action.undo(args);
 		assertTrue("1.1", result.isOK());
+	}
+
+	/**
+	 * Tests for install of an IU that adds a repository.
+	 */
+	public void testFullInstall() {
+		String id = "AddRepositoryActionTest.testFullInstall";
+		Version version = new Version(1, 0, 0);
+		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, createTouchpointData(), true, createUpdateDescriptor(id, version));
+		IProfile profile = createProfile(id);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {iu});
+		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		assertTrue("1.0", result.isOK());
+		//TODO check that the repository was added
+
+	}
+
+	private TouchpointData createTouchpointData() {
+		Map args = getValidArguments();
+		Map instructions = new HashMap();
+		StringBuffer addRepoInstruction = new StringBuffer("addRepository(");
+		for (Iterator it = args.entrySet().iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			addRepoInstruction.append(entry.getKey());
+			addRepoInstruction.append(':');
+			addRepoInstruction.append(entry.getValue());
+			if (it.hasNext())
+				addRepoInstruction.append(',');
+		}
+		instructions.put("configure", addRepoInstruction.toString());
+		return MetadataFactory.createTouchpointData(instructions);
 	}
 }

@@ -46,7 +46,7 @@ public class CollectAction extends ProvisioningAction {
 		if (data == null || data.length == 0)
 			return false;
 		for (int i = 0; i < data.length; i++) {
-			if (data[i].getInstructions("zipped") != null) //$NON-NLS-1$
+			if (data[i].getInstruction("zipped") != null) //$NON-NLS-1$
 				return true;
 		}
 		return false;

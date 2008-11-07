@@ -15,9 +15,12 @@ import java.util.Map;
 
 /**
  * Touchpoint data instances contain the additional information needed by a touchpoint
- * to execute each engine phase it participates in. This includes the instructions to
- * be executed during each phase, and any additional supporting data needed to
- * perform the phase.
+ * to execute each engine phase it participates in. This includes the sequence of
+ * instruction statements to be executed during each phase, and any additional 
+ * supporting data needed to perform the phase.
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
+ * @see MetadataFactory#createTouchpointData(Map)
  */
 public class TouchpointData {
 
@@ -48,6 +51,9 @@ public class TouchpointData {
 		return true;
 	}
 
+	/**
+	 * Clients must use the factory method on {@link MetadataFactory}.
+	 */
 	TouchpointData(Map instructions) {
 		this.instructions = instructions;
 	}
@@ -55,7 +61,7 @@ public class TouchpointData {
 	/**
 	 * Returns the touchpoint instruction corresponding to the given key.
 	 */
-	public TouchpointInstruction getInstructions(String instructionKey) {
+	public TouchpointInstruction getInstruction(String instructionKey) {
 		return (TouchpointInstruction) instructions.get(instructionKey);
 	}
 

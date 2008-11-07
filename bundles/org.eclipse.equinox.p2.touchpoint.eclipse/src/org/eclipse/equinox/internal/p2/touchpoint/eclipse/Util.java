@@ -295,7 +295,7 @@ public class Util {
 
 	public static String getManifest(TouchpointData[] data) {
 		for (int i = 0; i < data.length; i++) {
-			TouchpointInstruction manifestInstruction = data[i].getInstructions("manifest"); //$NON-NLS-1$
+			TouchpointInstruction manifestInstruction = data[i].getInstruction("manifest"); //$NON-NLS-1$
 			if (manifestInstruction == null)
 				return null;
 			String manifest = manifestInstruction.getBody();

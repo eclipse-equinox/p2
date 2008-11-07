@@ -120,7 +120,7 @@ public abstract class InstallableUnitPhase extends Phase {
 
 		ArrayList matches = new ArrayList(data.length);
 		for (int i = 0; i < data.length; i++) {
-			TouchpointInstruction instructions = data[i].getInstructions(key);
+			TouchpointInstruction instructions = data[i].getInstruction(key);
 			if (instructions != null)
 				matches.add(instructions);
 		}
