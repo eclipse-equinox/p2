@@ -4,10 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Version;
 
 public class MD5Tests extends AbstractProvisioningTest {
 	File testRepo = null;
@@ -33,6 +35,20 @@ public class MD5Tests extends AbstractProvisioningTest {
 				}
 				assertOK("2.1 " + desc[j], status);
 			}
+		}
+	}
+
+	public void testBug249035_ArtifactIdentity() {
+		//MD5 sum should not affect the identity of the artifact
+
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", new Version("1.0.0")));
+		descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, "42");
+
+		try {
+			repo.getOutputStream(descriptor);
+			fail("3.1 - Expected Artifact exists exception did not occur.");
+		} catch (ProvisionException e) {
+			assertTrue("3.2", e.getMessage().contains("The artifact is already available in the repository"));
 		}
 	}
 

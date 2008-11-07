@@ -171,7 +171,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
-	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
@@ -399,7 +398,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * descriptor existed in the repository, and was successfully removed.
 	 */
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
-		if (((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE) == null) {
+		if (((ArtifactDescriptor) descriptor).getRepositoryProperty(ArtifactDescriptor.ARTIFACT_REFERENCE) == null) {
 			File file = getArtifactFile(descriptor);
 			if (file == null)
 				return false;
@@ -631,7 +630,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			// if the artifact is just a reference then return the reference location
 			if (descriptor instanceof ArtifactDescriptor) {
-				String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE);
+				String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ArtifactDescriptor.ARTIFACT_REFERENCE);
 				if (artifactReference != null) {
 					try {
 						return new URI(artifactReference);
@@ -675,16 +674,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		assertModifiable();
-		// Check if the artifact is already in this repository
-		if (contains(descriptor)) {
-			String msg = NLS.bind(Messages.available_already_in, getLocation().toString());
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, msg, null));
-		}
 
-		// create a copy of the original descriptor that we can manipulate
+		// Create a copy of the original descriptor that we can manipulate and add to our repo.
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
 		if (isFolderBased(descriptor))
 			newDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+
+		// Check if the artifact is already in this repository, check the newDescriptor instead of the original
+		// since the implementation of hash/equals on the descriptor matters here.
+		if (contains(newDescriptor)) {
+			String msg = NLS.bind(Messages.available_already_in, getLocation().toString());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, msg, null));
+		}
 
 		// Determine writing location
 		URI newLocation = createLocation(newDescriptor);

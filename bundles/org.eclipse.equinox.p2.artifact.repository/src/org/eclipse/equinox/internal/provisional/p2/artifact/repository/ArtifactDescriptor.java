@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
  * This represents information about a given artifact stored on a particular byte server.
  */
 public class ArtifactDescriptor implements IArtifactDescriptor {
+	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
@@ -117,6 +118,8 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		processingSteps = value == null ? EMPTY_STEPS : value;
 	}
 
+	// Implementation of both equals and hash depends on the implementation of
+	// SimpleArtifactRepository#getOutputStream(IArtifactDescriptor)
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -132,20 +135,16 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			return false;
 		if (!Arrays.equals(processingSteps, other.processingSteps))
 			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
+
+		//Properties affecting SimpleArtifactRepository#getLocation
+		String locationProperty = getRepositoryProperty(ARTIFACT_REFERENCE);
+		String otherProperty = other.getRepositoryProperty(ARTIFACT_REFERENCE);
+		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
 			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
-			return false;
-		if (repositoryProperties == null) {
-			if (other.repositoryProperties != null)
-				return false;
-		} else if (!repositoryProperties.equals(other.repositoryProperties))
+
+		locationProperty = getRepositoryProperty(FORMAT);
+		otherProperty = other.getRepositoryProperty(FORMAT);
+		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
 			return false;
 
 		return true;
@@ -167,8 +166,9 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		int result = 1;
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + hashCode(processingSteps);
-		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-		result = prime * result + ((repositoryProperties == null) ? 0 : repositoryProperties.hashCode());
+
+		String[] hashProperties = new String[] {getRepositoryProperty(ARTIFACT_REFERENCE), getRepositoryProperty(FORMAT)};
+		result = prime * result + hashCode(hashProperties);
 		return result;
 	}
 
