@@ -81,6 +81,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
 		suite.addTestSuite(ProvisioningPlanQueryTest.class);
+		suite.addTestSuite(Bug254481dataSet1.class);
+		suite.addTestSuite(Bug254481dataSet2.class);
 		return suite;
 	}
 }
