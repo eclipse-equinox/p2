@@ -15,3 +15,6 @@ org.eclipse.equinox.p2.core/metadata/parsing=false
 
 #Detailed debugging information about mirror selection
 org.eclipse.equinox.p2.core/artifacts/mirrors=false
+
+#Detailde debugging information about the projector 
+org.eclipse.equinox.p2.core/planner/projector=false

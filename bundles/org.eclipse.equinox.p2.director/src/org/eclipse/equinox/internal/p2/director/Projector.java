@@ -13,6 +13,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -32,7 +33,7 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private IQueryable picker;
 
 	private Map variables; //key IU, value corresponding variable in the problem

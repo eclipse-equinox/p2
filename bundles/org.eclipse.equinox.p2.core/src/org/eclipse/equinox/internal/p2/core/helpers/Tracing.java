@@ -19,6 +19,7 @@ import org.eclipse.osgi.service.debug.DebugOptions;
  * debug statements.
  */
 public class Tracing {
+
 	//master p2 debug flag
 	public static boolean DEBUG = false;
 
@@ -28,6 +29,7 @@ public class Tracing {
 	public static boolean DEBUG_INSTALL_REGISTRY = false;
 	public static boolean DEBUG_METADATA_PARSING = false;
 	public static boolean DEBUG_MIRRORS = false;
+	public static boolean DEBUG_PLANNER_PROJECTOR = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -39,6 +41,7 @@ public class Tracing {
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
 				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
+				DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
 			}
 		}
 	}
