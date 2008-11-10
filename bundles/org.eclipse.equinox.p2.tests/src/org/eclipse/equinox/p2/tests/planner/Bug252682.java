@@ -11,6 +11,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Version;
 
 public class Bug252682 extends AbstractProvisioningTest {
 	IProfile profile = null;
@@ -22,7 +23,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(reporegistry1, null, false);
 		profile = registry.getProfile("SDKProfile");
 		assertNotNull(profile);
-		//		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", new Version("1.0.100.v20081024")));
+		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", new Version("1.0.100.v20081024")));
 	}
 
 	public void testInstallFeaturePatch() {
@@ -35,12 +36,6 @@ public class Bug252682 extends AbstractProvisioningTest {
 		request.removeInstallableUnits(new IInstallableUnit[] {patch});
 		IPlanner planner = createPlanner();
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertInstallOperand(plan, patch);
-		//[[R]com.ibm.rational.test.lt.arm 7.0.250.v200810021504 --> [R]com.ibm.rational.test.lt.arm 7.0.300.200811041300, 
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("com.ibm.rational.test.lt.arm"), new Collector(), null).size());
-		//[R]com.ibm.rational.test.lt.armbroker 7.0.250.v200810021504 --> [R]com.ibm.rational.test.lt.armbroker 7.0.300.200811041300, 
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("com.ibm.rational.test.lt.armbroker"), new Collector(), null).size());
-		//[R]com.ibm.rational.test.lt.kernel 7.2.151.v200810021605 --> [R]com.ibm.rational.test.lt.kernel 7.2.200.200811041300, 
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("com.ibm.rational.test.lt.kernel"), new Collector(), null).size());
+		assertOK("Installation plan", plan.getStatus());
 	}
 }
