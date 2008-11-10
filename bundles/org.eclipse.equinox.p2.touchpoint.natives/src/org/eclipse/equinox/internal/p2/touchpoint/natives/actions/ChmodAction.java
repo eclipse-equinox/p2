@@ -6,30 +6,34 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Red Hat Incorporated - initial API and implementation
+ *     IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import java.io.IOException;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class ChmodAction extends ProvisioningAction {
-	public IStatus execute(Map parameters) {
-		String targetDir = (String) parameters.get(NativeTouchpoint.PARM_TARGET_DIR);
-		if (targetDir == null)
-			return NativeTouchpoint.createError(NLS.bind(Messages.param_not_set, NativeTouchpoint.PARM_TARGET_DIR, NativeTouchpoint.ACTION_CHMOD));
-		String targetFile = (String) parameters.get(NativeTouchpoint.PARM_TARGET_FILE);
-		if (targetFile == null)
-			return NativeTouchpoint.createError(NLS.bind(Messages.param_not_set, NativeTouchpoint.PARM_TARGET_FILE, NativeTouchpoint.ACTION_CHMOD));
-		String permissions = (String) parameters.get(NativeTouchpoint.PARM_PERMISSIONS);
-		if (permissions == null)
-			return NativeTouchpoint.createError(NLS.bind(Messages.param_not_set, NativeTouchpoint.PARM_PERMISSIONS, NativeTouchpoint.ACTION_CHMOD));
+	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
 
-		new Permissions().chmod(targetDir, targetFile, permissions);
+	public IStatus execute(Map parameters) {
+		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
+		if (targetDir == null)
+			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET_DIR, ACTION_CHMOD));
+		String targetFile = (String) parameters.get(ActionConstants.PARM_TARGET_FILE);
+		if (targetFile == null)
+			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET_FILE, ACTION_CHMOD));
+		String permissions = (String) parameters.get(ActionConstants.PARM_PERMISSIONS);
+		if (permissions == null)
+			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PERMISSIONS, ACTION_CHMOD));
+
+		chmod(targetDir, targetFile, permissions);
 		return Status.OK_STATUS;
 	}
 
@@ -37,4 +41,14 @@ public class ChmodAction extends ProvisioningAction {
 		//TODO: implement undo ??
 		return Status.OK_STATUS;
 	}
+
+	public void chmod(String targetDir, String targetFile, String perms) {
+		Runtime r = Runtime.getRuntime();
+		try {
+			r.exec(new String[] {"chmod", perms, targetDir + IPath.SEPARATOR + targetFile}); //$NON-NLS-1$
+		} catch (IOException e) {
+			// FIXME:  we should probably throw some sort of error here
+		}
+	}
+
 }

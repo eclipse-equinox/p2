@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -24,12 +24,14 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class CollectAction extends ProvisioningAction {
 
+	public static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
+
 	public IStatus execute(Map parameters) {
-		IProfile profile = (IProfile) parameters.get(NativeTouchpoint.PARM_PROFILE);
-		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(NativeTouchpoint.PARM_OPERAND);
+		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
+		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(ActionConstants.PARM_OPERAND);
 		try {
 			IArtifactRequest[] requests = collect(operand.second(), profile);
-			Collection artifactRequests = (Collection) parameters.get(NativeTouchpoint.PARM_ARTIFACT_REQUESTS);
+			Collection artifactRequests = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 			artifactRequests.add(requests);
 		} catch (ProvisionException e) {
 			return e.getStatus();
@@ -46,12 +48,12 @@ public class CollectAction extends ProvisioningAction {
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
-		IArtifactRepository destination = NativeTouchpoint.getDownloadCacheRepo();
+		IArtifactRepository destination = Util.getDownloadCacheRepo();
 		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
 		int count = 0;
 		for (int i = 0; i < toDownload.length; i++) {
 			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = NativeTouchpoint.getArtifactRepositoryManager().createMirrorRequest(toDownload[i], destination, null, null);
+			requests[count++] = Util.getArtifactRepositoryManager().createMirrorRequest(toDownload[i], destination, null, null);
 		}
 
 		if (requests.length == count)

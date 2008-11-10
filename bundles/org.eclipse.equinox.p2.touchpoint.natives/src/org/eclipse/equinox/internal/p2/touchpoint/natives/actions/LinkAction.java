@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -18,32 +19,34 @@ import org.eclipse.osgi.util.NLS;
 
 public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
-	public static final String PARM_TARGET_DIR = "targetDir"; //$NON-NLS-1$
-	public static final String PARM_LINK_NAME = "linkName"; //$NON-NLS-1$
-	public static final String PARM_LINK_TARGET = "linkTarget"; //$NON-NLS-1$
-	public static final String PARM_LINK_FORCE = "force"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
-		String targetDir = (String) parameters.get(PARM_TARGET_DIR);
+		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_TARGET_DIR, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET_DIR, ID), null);
 
-		String linkTarget = (String) parameters.get(PARM_LINK_TARGET);
+		String linkTarget = (String) parameters.get(ActionConstants.PARM_LINK_TARGET);
 		if (linkTarget == null)
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_LINK_TARGET, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_LINK_TARGET, ID), null);
 
-		String linkName = (String) parameters.get(PARM_LINK_NAME);
+		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
 		if (linkName == null)
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, PARM_LINK_NAME, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_LINK_NAME, ID), null);
 
-		String force = (String) parameters.get(PARM_LINK_FORCE);
+		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
 
 		ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue());
 		return Status.OK_STATUS;
 	}
 
 	public IStatus undo(Map parameters) {
-		// TODO Auto-generated method stub
+		String linkTarget = (String) parameters.get(ActionConstants.PARM_LINK_TARGET);
+		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
+
+		if (linkTarget != null && linkName != null) {
+			File linkFile = new File(linkTarget, linkName);
+			linkFile.delete();
+		}
 		return null;
 	}
 
@@ -52,8 +55,7 @@ public class LinkAction extends ProvisioningAction {
 		try {
 			r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// ignore
 		}
 	}
 }

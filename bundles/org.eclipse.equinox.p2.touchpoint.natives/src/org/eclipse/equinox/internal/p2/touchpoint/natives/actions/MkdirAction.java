@@ -6,32 +6,33 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
+package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
 import java.io.File;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
-public class RmdirAction extends ProvisioningAction {
-	public static final String ID = "rmdir"; //$NON-NLS-1$
+public class MkdirAction extends ProvisioningAction {
+	public static final String ID = "mkdir"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
-			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PATH, ID));
-		new File(path).delete();
+			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		new File(path).mkdir();
 		return Status.OK_STATUS;
 	}
 
 	public IStatus undo(Map parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
-			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PATH, ID));
-		new File(path).mkdir();
+			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		new File(path).delete();
 		return Status.OK_STATUS;
 	}
 }

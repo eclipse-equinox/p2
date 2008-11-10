@@ -58,16 +58,6 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ChmodAction"
-          name="chmod"
-          touchpointType="org.eclipse.equinox.p2.osgi"
-          touchpointVersion="1.0.0"
-          version="1.0.0">
-    </action>
- </extension>
- <extension
-       point="org.eclipse.equinox.p2.engine.actions">
-    <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CollectAction"
           name="collect"
           touchpointType="org.eclipse.equinox.p2.osgi"
@@ -98,28 +88,8 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.LinkAction"
-          name="link"
-          touchpointType="org.eclipse.equinox.p2.osgi"
-          touchpointVersion="1.0.0"
-          version="1.0.0">
-    </action>
- </extension>
- <extension
-       point="org.eclipse.equinox.p2.engine.actions">
-    <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.MarkStartedAction"
           name="markStarted"
-          touchpointType="org.eclipse.equinox.p2.osgi"
-          touchpointVersion="1.0.0"
-          version="1.0.0">
-    </action>
- </extension>
- <extension
-       point="org.eclipse.equinox.p2.engine.actions">
-    <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.MkdirAction"
-          name="mkdir"
           touchpointType="org.eclipse.equinox.p2.osgi"
           touchpointVersion="1.0.0"
           version="1.0.0">
@@ -160,16 +130,6 @@
     <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveSourceBundleAction"
           name="removeSourceBundle"
-          touchpointType="org.eclipse.equinox.p2.osgi"
-          touchpointVersion="1.0.0"
-          version="1.0.0">
-    </action>
- </extension>
- <extension
-       point="org.eclipse.equinox.p2.engine.actions">
-    <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RmdirAction"
-          name="rmdir"
           touchpointType="org.eclipse.equinox.p2.osgi"
           touchpointVersion="1.0.0"
           version="1.0.0">
@@ -225,12 +185,6 @@
           version="1.0.0">
     </action>
  </extension>
-	<extension
-			point="org.eclipse.equinox.p2.garbagecollector.marksetproviders"
-			id="EclipseTouchpoint">
-			<run 
-				class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseMarkSetProvider"/>
-	</extension>
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
@@ -251,4 +205,10 @@
           version="1.0.0">
     </action>
  </extension>
+	<extension
+			point="org.eclipse.equinox.p2.garbagecollector.marksetproviders"
+			id="EclipseTouchpoint">
+			<run 
+				class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseMarkSetProvider"/>
+	</extension>
 	</plugin>

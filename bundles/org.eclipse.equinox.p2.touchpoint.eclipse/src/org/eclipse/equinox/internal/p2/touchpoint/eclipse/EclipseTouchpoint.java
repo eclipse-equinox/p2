@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
@@ -42,6 +41,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_SOURCE_BUNDLES = "sourceBundles"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
+	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
+	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "link", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 	private static Map manipulators = new WeakHashMap();
 
@@ -91,7 +92,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public String qualifyAction(String actionId) {
-		return Activator.ID + "." + actionId; //$NON-NLS-1$
+		String touchpointQualifier = NATIVE_ACTIONS.contains(actionId) ? NATIVE_TOUCHPOINT_ID : Activator.ID;
+		return touchpointQualifier + "." + actionId; //$NON-NLS-1$
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
