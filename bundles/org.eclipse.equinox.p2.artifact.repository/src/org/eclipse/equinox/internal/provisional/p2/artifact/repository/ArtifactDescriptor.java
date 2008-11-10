@@ -142,8 +142,8 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
 			return false;
 
-		locationProperty = getRepositoryProperty(FORMAT);
-		otherProperty = other.getRepositoryProperty(FORMAT);
+		locationProperty = getProperty(FORMAT);
+		otherProperty = other.getProperty(FORMAT);
 		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
 			return false;
 
@@ -167,7 +167,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + hashCode(processingSteps);
 
-		String[] hashProperties = new String[] {getRepositoryProperty(ARTIFACT_REFERENCE), getRepositoryProperty(FORMAT)};
+		String[] hashProperties = new String[] {getRepositoryProperty(ARTIFACT_REFERENCE), getProperty(FORMAT)};
 		result = prime * result + hashCode(hashProperties);
 		return result;
 	}
