@@ -66,6 +66,6 @@ public class PP2ShouldFailToInstall extends AbstractProvisioningTest {
 
 	public void testUninstall() {
 		IStatus result = uninstall(profile1, new IInstallableUnit[] {pp1}, planner, engine);
-		assertTrue("1.0", !result.isOK());
+		assertTrue("1.0", result.isOK());
 	}
 }
