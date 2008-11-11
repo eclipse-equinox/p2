@@ -18,8 +18,8 @@ import org.eclipse.osgi.framework.eventmgr.*;
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
 public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus {
-	private CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
-	private CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
+	private EventListeners syncListeners = new EventListeners();
+	private EventListeners asyncListeners = new EventListeners();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
 	private Object dispatchEventLock = new Object();
@@ -28,21 +28,17 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	/* @GuardedBy("dispatchEventLock") */
 	private int dispatchingEvents = 0;
 
-	public ProvisioningEventBus() {
-		super();
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#addListener(org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener)
 	 */
 	public void addListener(ProvisioningListener toAdd) {
 		if (toAdd instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
-				syncListeners.put(toAdd, toAdd);
+				syncListeners.addListener(toAdd, toAdd);
 			}
 		} else {
 			synchronized (asyncListeners) {
-				asyncListeners.put(toAdd, toAdd);
+				asyncListeners.addListener(toAdd, toAdd);
 			}
 		}
 	}
@@ -54,13 +50,13 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		if (toRemove instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
 				if (syncListeners != null) {
-					syncListeners.remove(toRemove);
+					syncListeners.removeListener(toRemove);
 				}
 			}
 		} else {
 			synchronized (asyncListeners) {
 				if (asyncListeners != null) {
-					asyncListeners.remove(toRemove);
+					asyncListeners.removeListener(toRemove);
 				}
 			}
 		}
@@ -80,14 +76,14 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		/* synchronize while building the listener list */
 		synchronized (syncListeners) {
 			/* add set of BundleContexts w/ listeners to queue */
-			listeners.queueListeners(syncListeners.entrySet(), this);
+			listeners.queueListeners(syncListeners, this);
 			/* synchronously dispatch to populate listeners queue */
 			listeners.dispatchEventSynchronous(0, event);
 		}
 
 		listeners = new ListenerQueue(eventManager);
 		synchronized (asyncListeners) {
-			listeners.queueListeners(asyncListeners.entrySet(), this);
+			listeners.queueListeners(asyncListeners, this);
 			synchronized (dispatchEventLock) {
 				if (!closed)
 					listeners.dispatchEventAsynchronous(0, event);

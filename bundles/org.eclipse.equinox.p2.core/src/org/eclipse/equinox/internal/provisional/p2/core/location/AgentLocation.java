@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core.location;
 
-import java.net.URI;
 import java.net.URL;
 
 public interface AgentLocation {
 	public static final String SERVICE_NAME = AgentLocation.class.getName();
 
-	public URI getArtifactRepositoryURI();
+	public URL getArtifactRepositoryURL();
 
-	public URI getMetadataRepositoryURI();
+	public URL getMetadataRepositoryURL();
 
 	/**
 	 * Returns the location where the bundle with the given namespace

@@ -59,7 +59,7 @@ public class QueryableArray implements IQueryable {
 		Set matchingIUs = new HashSet();
 		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
 			IUCapability iuCapability = (IUCapability) iterator.next();
-			if (iuCapability.capability.satisfies(requiredCapability))
+			if (iuCapability.capability.isSatisfiedBy(requiredCapability))
 				matchingIUs.add(iuCapability.iu);
 		}
 		return matchingIUs;

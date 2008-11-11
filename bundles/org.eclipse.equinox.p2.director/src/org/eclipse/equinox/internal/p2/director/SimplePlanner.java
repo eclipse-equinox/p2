@@ -10,14 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -32,8 +31,6 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class SimplePlanner implements IPlanner {
-	private static boolean DEBUG = Tracing.DEBUG_PLANNER_OPERANDS;
-
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
@@ -55,11 +52,6 @@ public class SimplePlanner implements IPlanner {
 
 		if (status == null)
 			status = Status.OK_STATUS;
-		if (DEBUG) {
-			for (int i = 0; i < operands.length; i++) {
-				Tracing.debug(operands[i].toString());
-			}
-		}
 		return new ProvisioningPlan(status, operands);
 	}
 
@@ -178,7 +170,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	public static IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URI[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
+	public static IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
 		Map resultsMap = new HashMap();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
@@ -196,14 +188,11 @@ public class SimplePlanner implements IPlanner {
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
@@ -236,7 +225,7 @@ public class SimplePlanner implements IPlanner {
 
 			IInstallableUnit[] allIUs = updatePlannerInfo(profileChangeRequest);
 
-			URI[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
+			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
 			List extraIUs = new ArrayList(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
@@ -246,14 +235,12 @@ public class SimplePlanner implements IPlanner {
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(allIUs, availableIUs, newSelectionContext);
-			IQueryable slice = slicer.slice(allIUs, sub.newChild(ExpandWork / 4));
+			IQueryable slice = slicer.slice(allIUs, monitor);
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus());
 			Projector projector = new Projector(slice, newSelectionContext);
 			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
-			if (s.getSeverity() == IStatus.CANCEL)
-				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				//log the error from the new solver so it is not lost
@@ -281,8 +268,6 @@ public class SimplePlanner implements IPlanner {
 			Collection oldState = oldStateHelper.attachCUs(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 			return generateProvisioningPlan(s, oldState, newState, profileChangeRequest);
-		} catch (OperationCanceledException e) {
-			return new ProvisioningPlan(Status.CANCEL_STATUS);
 		} finally {
 			sub.done();
 		}
@@ -389,15 +374,13 @@ public class SimplePlanner implements IPlanner {
 		Map resultsMap = new HashMap();
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		URI[] repositories = context.getMetadataRepositories();
+		URL[] repositories = context.getMetadataRepositories();
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new UpdateQuery(toUpdate), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {

@@ -6,7 +6,6 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  * 	Daniel Le Berre - Fix in the encoding and the optimization function
- * Alban Browaeys - Optimized string concatenation in bug 251357
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -77,7 +76,7 @@ public class Projector {
 			long start = 0;
 			if (DEBUG) {
 				start = System.currentTimeMillis();
-				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
+				System.out.println("Start projection: " + start); //$NON-NLS-1$
 			}
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
@@ -90,10 +89,6 @@ public class Projector {
 				iusToEncode = iusToOrder.iterator();
 			}
 			while (iusToEncode.hasNext()) {
-				if (monitor.isCanceled()) {
-					result.merge(Status.CANCEL_STATUS);
-					throw new OperationCanceledException();
-				}
 				processIU((IInstallableUnit) iusToEncode.next());
 			}
 			createConstraintsForSingleton();
@@ -104,7 +99,7 @@ public class Projector {
 			persist();
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
-				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
+				System.out.println("Projection complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
@@ -489,10 +484,10 @@ public class Projector {
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
-		} else {
-			if (DEBUG)
-				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
+
+		if (DEBUG)
+			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, RequiredCapability req, String value) {
@@ -528,10 +523,10 @@ public class Projector {
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
-		} else {
-			if (DEBUG)
-				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
+
+		if (DEBUG)
+			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
@@ -572,8 +567,7 @@ public class Projector {
 		//Generate the regular requirement
 		if (varIu == null)
 			varIu = getVariable(iu);
-		StringBuffer expression = new StringBuffer("-1 "); //$NON-NLS-1$
-		expression.append(varIu);
+		String expression = "-1 " + varIu; //$NON-NLS-1$
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
 		if (DEBUG) {
@@ -586,8 +580,7 @@ public class Projector {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
-				expression.append(" +1 "); //$NON-NLS-1$
-				expression.append(getVariable(match));
+				expression += " +1 " + getVariable(match); //$NON-NLS-1$
 				if (DEBUG) {
 					comment.append(match.toString());
 					comment.append(' ');
@@ -600,8 +593,7 @@ public class Projector {
 				dependencies.add(comment.toString());
 				commentsCount++;
 			}
-			expression.append(" >= 0;"); //$NON-NLS-1$
-			dependencies.add(expression.toString());
+			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 		} else {
 			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			createNegation(varIu);
@@ -685,48 +677,45 @@ public class Projector {
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
+		boolean delete = true;
 		IPBSolver solver = SolverFactory.newEclipseP2();
 		solver.setTimeoutOnConflicts(1000);
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
 		// CNF filename is given on the command line 
 		long start = System.currentTimeMillis();
 		if (DEBUG)
-			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
+			System.out.println("Invoking solver: " + start); //$NON-NLS-1$
 		FileReader fr = null;
-		boolean delete = true;
 		try {
-			if (monitor.isCanceled())
-				return Status.CANCEL_STATUS;
 			fr = new FileReader(problemFile);
 			IProblem problem = reader.parseInstance(fr);
 			if (problem.isSatisfiable()) {
 				//				problem.model();
 				if (DEBUG) {
-					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
-					Tracing.debug(reader.decode(problem.model()));
+					System.out.println("Satisfiable !"); //$NON-NLS-1$
+					System.out.println(reader.decode(problem.model()));
 				}
 				backToIU(problem);
 				long stop = System.currentTimeMillis();
 				if (DEBUG)
-					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
+					System.out.println("Solver solution found: " + (stop - start)); //$NON-NLS-1$
 			} else {
 				if (DEBUG)
-					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
+					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
 				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfiable_problem, problemFile)));
 			}
 		} catch (FileNotFoundException e) {
+			delete = false;
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Missing_opb_file, problemFile)));
 		} catch (ParseFormatException e) {
-			delete = false;
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Format_error, problemFile)));
 		} catch (ContradictionException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Trivial_exception, problemFile)));
 		} catch (TimeoutException e) {
-			delete = false;
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
 			delete = false;
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unexpected_problem, e));
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unexpected_problem, problemFile), e));
 		} finally {
 			try {
 				if (fr != null)
@@ -754,9 +743,9 @@ public class Projector {
 	private void printSolution(Collection state) {
 		ArrayList l = new ArrayList(state);
 		Collections.sort(l);
-		Tracing.debug("Numbers of IUs selected:" + l.size()); //$NON-NLS-1$
+		System.out.println("Numbers of IUs selected:" + l.size()); //$NON-NLS-1$
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
-			Tracing.debug(iterator.next().toString());
+			System.out.println(iterator.next());
 		}
 	}
 

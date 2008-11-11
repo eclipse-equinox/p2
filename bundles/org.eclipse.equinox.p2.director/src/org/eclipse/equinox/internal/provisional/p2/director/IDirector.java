@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import java.net.URI;
+import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -54,5 +54,5 @@ public interface IDirector {
 	 * Returns the location of the director's rollback repository, where information about
 	 * previous profile states is stored.
 	 */
-	public URI getRollbackRepositoryLocation();
+	public URL getRollbackRepositoryLocation();
 }

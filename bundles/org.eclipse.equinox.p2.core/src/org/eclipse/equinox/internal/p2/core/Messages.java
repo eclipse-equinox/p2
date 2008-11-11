@@ -8,20 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.core;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.core.helpers.messages"; //$NON-NLS-1$
-
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.core.messages"; //$NON-NLS-1$
 	static {
-		// load message values from bundle file and assign to fields below
+		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
-	public static String Util_Invalid_Zip_File_Format;
-	public static String Util_Error_Unzipping;
+	private Messages() {
+		// Do not instantiate
+	}
 
+	public static String location_cannotLock;
+	public static String location_cannotLockNIO;
 }

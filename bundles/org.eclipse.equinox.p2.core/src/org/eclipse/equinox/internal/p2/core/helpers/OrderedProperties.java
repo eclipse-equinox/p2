@@ -138,22 +138,15 @@ public class OrderedProperties extends Dictionary implements Map {
 			OrderedProperties rhs = (OrderedProperties) o;
 			if (rhs.propertyMap == this.propertyMap)
 				return true;
-			if (rhs.propertyMap == null)
-				return this.propertyMap.isEmpty();
-			else if (this.propertyMap == null)
-				return rhs.isEmpty();
+			if (rhs.propertyMap == null || this.propertyMap == null)
+				return false;
 			return rhs.propertyMap.equals(this.propertyMap);
 		}
-		if (this.propertyMap == null) {
-			if (o instanceof Map)
-				return ((Map) o).isEmpty();
-			return false;
-		}
-		return this.propertyMap.equals(o);
+		return propertyMap.equals(o);
 	}
 
 	public int hashCode() {
-		return propertyMap == null || propertyMap.isEmpty() ? 0 : propertyMap.hashCode();
+		return propertyMap != null ? propertyMap.hashCode() : 0;
 	}
 
 	public String toString() {

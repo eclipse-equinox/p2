@@ -133,12 +133,17 @@ public class ResolutionHelper {
 
 				// Check to make sure the host meets the requirements of the fragment
 				RequiredCapability reqsFromFragment[] = potentialFragment.getHost();
+				ProvidedCapability hostCapabilities[] = hostIU.getProvidedCapabilities();
 				boolean match = true;
 				boolean requirementMatched = false;
 				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {
 					requirementMatched = false;
-					if (hostIU.satisfies(reqsFromFragment[l]))
-						requirementMatched = true;
+					for (int m = 0; m < hostCapabilities.length; m++) {
+						if (hostCapabilities[m].isSatisfiedBy(reqsFromFragment[l])) {
+							requirementMatched = true;
+							break;
+						}
+					}
 					if (requirementMatched == false) {
 						match = false;
 						break;

@@ -8,10 +8,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -40,14 +40,11 @@ public class SimpleDirector implements IDirector {
 		new FormerState(getRollbackRepositoryLocation());
 	}
 
-	public URI getRollbackRepositoryLocation() {
+	public URL getRollbackRepositoryLocation() {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
 		try {
-			return URIUtil.toURI(new URL(agentLocation.getDataArea(DirectorActivator.PI_DIRECTOR), ROLLBACK_LOCATION));
+			return new URL(agentLocation.getDataArea(DirectorActivator.PI_DIRECTOR), ROLLBACK_LOCATION);
 		} catch (MalformedURLException e) {
-			//we know this can't happen because the above URL is well-formed
-			return null;
-		} catch (URISyntaxException e) {
 			//we know this can't happen because the above URL is well-formed
 			return null;
 		}

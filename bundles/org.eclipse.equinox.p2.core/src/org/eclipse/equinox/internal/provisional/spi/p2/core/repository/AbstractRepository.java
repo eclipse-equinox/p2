@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.core.repository;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -25,14 +25,14 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 */
 public abstract class AbstractRepository extends PlatformObject implements IRepository {
 	protected String description;
-	protected transient URI location;
+	protected transient URL location;
 	protected String name;
 	protected Map properties = new OrderedProperties();
 	protected String provider;
 	protected String type;
 	protected String version;
 
-	protected AbstractRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
+	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
 		this.name = name;
 		this.type = type;
 		this.version = version;
@@ -67,7 +67,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * to be installed in Java.  Can the URL have any protocol?
 	 * @return the URL of the repository.
 	 */
-	public synchronized URI getLocation() {
+	public synchronized URL getLocation() {
 		return location;
 	}
 

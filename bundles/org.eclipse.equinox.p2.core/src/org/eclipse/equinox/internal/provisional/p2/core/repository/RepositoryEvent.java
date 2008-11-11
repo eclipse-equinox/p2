@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core.repository;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.EventObject;
 
 /**
@@ -50,14 +50,6 @@ public class RepositoryEvent extends EventObject {
 	 */
 	public static final int DISCOVERED = 4;
 
-	/**
-	 * A change kind constant (value 8), indicating the repository's enablement
-	 * was changed.  The {{@link #isRepositoryEnabled()} method can be used
-	 * to find out the new enablement state of the repository, and to deduce
-	 * the previous enablement state.
-	 */
-	public static final int ENABLEMENT = 8;
-
 	private final int kind, type;
 
 	private boolean isEnabled;
@@ -70,7 +62,7 @@ public class RepositoryEvent extends EventObject {
 	 * @param kind the kind of change that occurred.
 	 * @param enabled whether the repository is enabled
 	 */
-	public RepositoryEvent(URI location, int repositoryType, int kind, boolean enabled) {
+	public RepositoryEvent(URL location, int repositoryType, int kind, boolean enabled) {
 		super(location);
 		this.kind = kind;
 		this.type = repositoryType;
@@ -85,7 +77,6 @@ public class RepositoryEvent extends EventObject {
 	 * @see #REMOVED
 	 * @see #CHANGED
 	 * @see #DISCOVERED
-	 * @see #ENABLEMENT
 	 */
 	public int getKind() {
 		return kind;
@@ -96,8 +87,8 @@ public class RepositoryEvent extends EventObject {
 	 * 
 	 * @return the location of the repository associated with this event.
 	 */
-	public URI getRepositoryLocation() {
-		return (URI) getSource();
+	public URL getRepositoryLocation() {
+		return (URL) getSource();
 	}
 
 	/**

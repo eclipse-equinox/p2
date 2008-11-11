@@ -12,14 +12,33 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 
 /**
  * A utility class for manipulating URLs. This class works around some of the
  * broken behavior of the java.net.URL class.
  */
 public class URLUtil {
+	/*
+	 * Compares two URL for equality.
+	 * Return false if one of them is null
+	 */
+	public static boolean sameURL(URL url1, URL url2) {
+		if (url1 == url2)
+			return true;
+		if (url1 == null || url2 == null)
+			return false;
+		try {
+			if (toURI(url1).equals(toURI(url2)))
+				return true;
+		} catch (URISyntaxException e) {
+			//fall through below
+		}
+
+		// check if we have two local file references that are case variants
+		File file1 = toFile(url1);
+		return file1 == null ? false : file1.equals(toFile(url2));
+	}
 
 	/**
 	 * Returns the URL as a local file, or <code>null</code> if the given
@@ -36,6 +55,19 @@ public class URLUtil {
 		} catch (Exception e) {
 			//URL contains unencoded characters
 			return new File(url.getFile());
+		}
+	}
+
+	/**
+	 * Returns the URL as a URI. This method will handle broken URLs that are
+	 * not properly encoded (for example they contain unencoded space characters).
+	 */
+	public static URI toURI(URL url) throws URISyntaxException {
+		try {
+			return new URI(url.toExternalForm());
+		} catch (URISyntaxException e) {
+			//try multi-argument URI constructor to perform encoding
+			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 		}
 	}
 }

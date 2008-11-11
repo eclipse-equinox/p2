@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.director;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.100.qualifier
+Bundle-Version: 1.0.4.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
@@ -23,15 +23,15 @@ Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse
  org.eclipse.equinox.internal.p2.resolution;x-internal:=true,
  org.eclipse.equinox.internal.p2.rollback;x-friends:="org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.director;
-  x-friends:="org.eclipse.equinox.p2.console,
-   org.eclipse.equinox.p2.director.app,
-   org.eclipse.equinox.p2.installer,
-   org.eclipse.equinox.p2.reconciler.dropins,
+  x-friends:="org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.ui.admin,
    org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.director.app,
+   org.eclipse.equinox.p2.installer,
+   org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.updatechecker,
-   org.eclipse.pde.ui"
+   org.eclipse.pde.p2.ui"
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,

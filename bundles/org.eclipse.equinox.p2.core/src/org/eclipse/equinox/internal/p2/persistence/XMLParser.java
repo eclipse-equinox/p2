@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import java.net.*;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.StringPool;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 import org.xml.sax.*;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class XMLParser extends DefaultHandler implements XMLConstants {
@@ -269,33 +268,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		/**
-		 * In p2 1.0 we stored URLs, in 1.1 and later we store URIs. This method will
-		 * first check for a URI, and then resort to looking for a URL attribute for
-		 * backwards compatibility.
-		 * @param attributes The attributes to parse
-		 * @param required If true, an exception is thrown if no URI or URL attribute is present
-		 */
-		protected URI parseURIAttribute(Attributes attributes, boolean required) {
-			String location = parseOptionalAttribute(attributes, URI_ATTRIBUTE);
-			try {
-				if (location != null)
-					return new URI(location);
-				if (required)
-					location = parseRequiredAttributes(attributes, new String[] {URL_ATTRIBUTE})[0];
-				else
-					location = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
-				if (location == null)
-					return null;
-				return URIUtil.toURI(new URL(location));
-			} catch (MalformedURLException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location, e);
-			} catch (URISyntaxException e) {
-				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, location, e);
-			}
-			return null;
-		}
-
-		/**
 		 * Parse the attributes of an element with two required attributes.
 		 */
 		protected String[] parseRequiredAttributes(Attributes attributes, String name1, String name2) {
@@ -476,7 +448,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		protected void processCharacters(String data) {
-			this.text = canonicalize(data);
+			this.text = data;
 			if (texts != null) {
 				texts.add(getText());
 			}
@@ -703,11 +675,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void invalidAttributeValue(String element, String attribute, String value) {
-		invalidAttributeValue(element, attribute, value, null);
-	}
-
-	public void invalidAttributeValue(String element, String attribute, String value, Throwable exception) {
-		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), exception);
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), null);
 	}
 
 	public void unexpectedElement(AbstractHandler handler, String element, Attributes attributes) {

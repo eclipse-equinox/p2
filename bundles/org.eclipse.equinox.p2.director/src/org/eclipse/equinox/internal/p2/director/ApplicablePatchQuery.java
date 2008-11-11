@@ -11,14 +11,8 @@ package org.eclipse.equinox.internal.p2.director;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
-/**
- * A query that accepts any patch that applies to a given installable unit.
- */
 public class ApplicablePatchQuery extends Query {
 
-	/**
-	 * A query that matches any patch.
-	 */
 	public static final Query ANY = new Query() {
 		public boolean isMatch(Object candidate) {
 			return candidate instanceof IInstallableUnitPatch;
@@ -27,11 +21,6 @@ public class ApplicablePatchQuery extends Query {
 
 	IInstallableUnit iu;
 
-	/**
-	 * Creates a new patch query on the given installable unit. Patches that can
-	 * be applied to this unit will be accepted as matches by the query.
-	 * @param iu The unit to compare patches against
-	 */
 	public ApplicablePatchQuery(IInstallableUnit iu) {
 		this.iu = iu;
 	}
@@ -41,14 +30,21 @@ public class ApplicablePatchQuery extends Query {
 			return false;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;
 		RequiredCapability[][] scopeDescription = patchIU.getApplicabilityScope();
+		if (scopeDescription == null)
+			return false;
 		if (scopeDescription.length == 0)
 			return true;
 
+		ProvidedCapability[] cap = iu.getProvidedCapabilities();
 		for (int i = 0; i < scopeDescription.length; i++) {
 			int matchedScopeEntry = scopeDescription[i].length;
 			for (int j = 0; j < scopeDescription[i].length; j++) {
-				if (iu.satisfies(scopeDescription[i][j]))
-					matchedScopeEntry--;
+				for (int k = 0; k < cap.length; k++) {
+					if (cap[k].isSatisfiedBy(scopeDescription[i][j])) {
+						matchedScopeEntry--;
+						break;
+					}
+				}
 			}
 			if (matchedScopeEntry == 0)
 				return true;

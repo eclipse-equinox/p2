@@ -21,18 +21,10 @@ public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 
 	public InstallableUnitOperand[] generateOperation(Collection from_, Collection to_) {
-		Collection intersection = new HashSet(from_);
-		intersection.retainAll(to_);
-
-		HashSet tmpFrom = new HashSet(from_);
-		HashSet tmpTo = new HashSet(to_);
-		tmpFrom.removeAll(intersection);
-		tmpTo.removeAll(intersection);
-
-		List from = new ArrayList(tmpFrom);
+		List from = new ArrayList(from_);
 		Collections.sort(from);
 
-		List to = new ArrayList(tmpTo);
+		List to = new ArrayList(to_);
 		Collections.sort(to);
 
 		ArrayList operations = new ArrayList();
@@ -77,9 +69,6 @@ public class OperationGenerator {
 		Set processed = new HashSet();
 		Set removedFromTo = new HashSet();
 
-		if (to.isEmpty() || from.isEmpty())
-			return;
-
 		Map fromById = new HashMap();
 		for (Iterator iterator = from.iterator(); iterator.hasNext();) {
 			IInstallableUnit iuFrom = (IInstallableUnit) iterator.next();
@@ -93,7 +82,7 @@ public class OperationGenerator {
 
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
-			if (iuTo.getId().equals(next(to, toIdx).getId())) { //This handle the case where there are multiple versions of the same IU in the target. Eg we are trying to update from A 1.0.0 to A 1.1.1 and A 1.2.2
+			if (iuTo.getId().equals(next(to, toIdx).getId())) {
 				toIdx = skip(to, iuTo, toIdx) - 1;
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
