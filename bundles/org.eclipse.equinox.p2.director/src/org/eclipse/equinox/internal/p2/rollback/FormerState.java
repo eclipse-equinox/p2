@@ -288,12 +288,10 @@ public class FormerState {
 			if (s.getSeverity() == IStatus.ERROR) {
 				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
-				if (!"true".equalsIgnoreCase(context == null ? null : context.getProperty("org.eclipse.equinox.p2.disable.error.reporting"))) {
-					//We invoke the old resolver to get explanations for now
-					IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, snapshotSelectionContext, false).expand(new NullProgressMonitor());
-					if (!oldResolverStatus.isOK())
-						s = oldResolverStatus;
-				}
+				//We invoke the old resolver to get explanations for now
+				IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, snapshotSelectionContext, false).expand(new NullProgressMonitor());
+				if (!oldResolverStatus.isOK())
+					s = oldResolverStatus;
 				throw new ProvisionException(s);
 			}
 			ius.addAll(projector.extractSolution());

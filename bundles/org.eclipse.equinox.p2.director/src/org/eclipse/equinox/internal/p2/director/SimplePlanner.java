@@ -258,12 +258,10 @@ public class SimplePlanner implements IPlanner {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
-				if (!"true".equalsIgnoreCase(context == null ? null : context.getProperty("org.eclipse.equinox.p2.disable.error.reporting"))) {
-					//We invoke the old resolver to get explanations for now
-					IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-					if (!oldResolverStatus.isOK())
-						s = oldResolverStatus;
-				}
+				//We invoke the old resolver to get explanations for now
+				IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
+				if (!oldResolverStatus.isOK())
+					s = oldResolverStatus;
 				return new ProvisioningPlan(s);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
