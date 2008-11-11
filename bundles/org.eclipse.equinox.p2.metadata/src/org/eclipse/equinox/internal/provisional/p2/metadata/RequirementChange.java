@@ -108,4 +108,8 @@ public class RequirementChange {
 			return false;
 		return true;
 	}
+
+	public String toString() {
+		return applyOn + " --> " + newValue; //$NON-NLS-1$
+	}
 }
