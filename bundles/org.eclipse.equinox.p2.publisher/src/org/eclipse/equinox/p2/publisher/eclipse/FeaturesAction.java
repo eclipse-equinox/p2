@@ -230,7 +230,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param feature the feature we are getting advice for
 	 * @param info the publisher info supplying the advice
 	 */
-	private void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {
+	protected void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {
 		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IFeatureAdvice entry = (IFeatureAdvice) i.next();
