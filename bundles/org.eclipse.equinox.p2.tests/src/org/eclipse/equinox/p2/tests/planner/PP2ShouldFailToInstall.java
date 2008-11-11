@@ -59,10 +59,9 @@ public class PP2ShouldFailToInstall extends AbstractProvisioningTest {
 		if (install(profile1, new IInstallableUnit[] {pp1}, true, planner, engine).getSeverity() == IStatus.ERROR)
 			fail("Setup failed while installing patch");
 
-		if (install(profile1, new IInstallableUnit[] {pp2}, true, planner, engine).getSeverity() == IStatus.ERROR)
-			fail("Setup failed while installing patch");
+		assertEquals(IStatus.ERROR, install(profile1, new IInstallableUnit[] {pp2}, true, planner, engine).getSeverity());
 
-		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, p1b, p2b, pp1, pp2});
+		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, p1b, p2, pp1});
 	}
 
 	public void testUninstall() {
