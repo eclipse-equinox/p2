@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(CollectorTest.class);
 		suite.addTestSuite(FileUtilsTest.class);
 		suite.addTestSuite(OrderedPropertiesTest.class);
 		suite.addTestSuite(URIUtilTest.class);
