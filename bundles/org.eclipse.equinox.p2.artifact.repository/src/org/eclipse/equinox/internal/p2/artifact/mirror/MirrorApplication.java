@@ -70,7 +70,7 @@ public class MirrorApplication implements IApplication {
 	 * as well as creating one manually in case we are running a stand-alone application
 	 * in which no one has registered a manager yet.
 	 */
-	private ArtifactRepositoryManager getManager() {
+	private IArtifactRepositoryManager getManager() {
 		if (cachedManager != null)
 			//TODO remove cast when API is available
 			return (ArtifactRepositoryManager) cachedManager;
@@ -80,8 +80,7 @@ public class MirrorApplication implements IApplication {
 			cachedManager = new ArtifactRepositoryManager();
 			result = cachedManager;
 		}
-		//TODO remove cast when API is available
-		return (ArtifactRepositoryManager) result;
+		return result;
 	}
 
 	private void setupRepositories() throws ProvisionException {

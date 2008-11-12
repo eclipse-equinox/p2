@@ -94,18 +94,16 @@ public class MirrorApplication implements IApplication {
 	 * as well as creating one manually in case we are running a stand-alone application
 	 * in which no one has registered a manager yet.
 	 */
-	private MetadataRepositoryManager getManager() {
+	private IMetadataRepositoryManager getManager() {
 		if (cachedManager != null)
-			//TODO remove cast when API is available
-			return (MetadataRepositoryManager) cachedManager;
+			return cachedManager;
 		IMetadataRepositoryManager result = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		// service not available... create one and hang onto it
 		if (result == null) {
 			cachedManager = new MetadataRepositoryManager();
 			result = cachedManager;
 		}
-		//TODO remove cast when API is available
-		return (MetadataRepositoryManager) result;
+		return result;
 	}
 
 	private IMetadataRepository initializeDestination() throws ProvisionException {

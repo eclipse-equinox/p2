@@ -218,8 +218,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	/**
-	 * TODO make private once API is available. See bug 248269.
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#contains(java.net.URI)
 	 */
 	public boolean contains(URI location) {
 		synchronized (repositoryLock) {

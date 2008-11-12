@@ -62,10 +62,20 @@ public interface IRepositoryManager {
 	 * enabled as a result of this method. Thus the caller can be guaranteed that
 	 * there is a known, enabled repository at the given location when this method returns.
 	 * 
-	 * @param location The location of the metadata repository to add
+	 * @param location The location of the repository to add
 	 * @see #isEnabled(URI)
 	 */
 	public void addRepository(URI location);
+
+	/**
+	 * Returns whether a repository at the given location is in the list of repositories
+	 * tracked by this repository manager.
+	 * 
+	 * @param location The location of the repository to look for
+	 * @return <code>true</code> if the repository is known to this manager,
+	 * and <code>false</code> otherwise
+	 */
+	public boolean contains(URI location);
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.

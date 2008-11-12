@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -63,7 +62,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	 * Returns whether the artifact repository manager contains a repository at the given location.
 	 */
 	protected boolean contains(URI location) {
-		return ((ArtifactRepositoryManager) getArtifactRepositoryManager()).contains(location);
+		return getArtifactRepositoryManager().contains(location);
 	}
 
 	/**
