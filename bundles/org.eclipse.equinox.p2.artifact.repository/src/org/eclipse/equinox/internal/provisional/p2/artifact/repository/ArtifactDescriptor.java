@@ -139,12 +139,13 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		//Properties affecting SimpleArtifactRepository#getLocation
 		String locationProperty = getRepositoryProperty(ARTIFACT_REFERENCE);
 		String otherProperty = other.getRepositoryProperty(ARTIFACT_REFERENCE);
-		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
+		// want not null and the same, or both null
+		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null)
 			return false;
 
 		locationProperty = getProperty(FORMAT);
 		otherProperty = other.getProperty(FORMAT);
-		if ((locationProperty != null && !locationProperty.equals(otherProperty)) || locationProperty != otherProperty)
+		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null)
 			return false;
 
 		return true;
