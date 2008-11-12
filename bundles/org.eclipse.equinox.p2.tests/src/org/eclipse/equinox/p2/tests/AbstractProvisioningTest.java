@@ -8,9 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -1013,8 +1010,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(sourceKeys[i]);
 
-			//TODO call to temporary method for verifying descriptors
-			assertContains(message, sourceDescriptors, destinationDescriptors, false); //order doesn't matter
+			assertEquals(message, sourceDescriptors, destinationDescriptors, false); //order doesn't matter
 		}
 	}
 
@@ -1091,47 +1087,5 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (!expectedArray[i].equals("p2.timestamp")) //time stamp value is expected to change
 				assertEquals(message, expected.get(expectedArray[i]), actual.get(expectedArray[i]));
 		}
-	}
-
-	//TODO Temporary solution. Not biconditional.
-	protected static void assertContains(String message, IArtifactDescriptor[] expected, IArtifactDescriptor[] actual, boolean orderImportant) {
-		// if the order in the array must match exactly, then call the other method
-		if (orderImportant) {
-			assertEquals(message, expected, actual);
-			return;
-		}
-		// otherwise use this method and check that the arrays are equal in any order
-		if (expected == null && actual == null)
-			return;
-		if (expected == actual)
-			return;
-		if (expected == null || actual == null)
-			assertTrue(message + ".1", false);
-		if (expected.length > actual.length)
-			assertTrue(message + ".2", false);
-		boolean[] found = new boolean[expected.length];
-		for (int i = 0; i < expected.length; i++) {
-			for (int j = 0; j < actual.length; j++) {
-				if (!found[i] && isEqual(expected[i], actual[j]))
-					found[i] = true;
-			}
-		}
-		for (int i = 0; i < found.length; i++)
-			if (!found[i])
-				assertTrue(message + ".3." + i, false);
-	}
-
-	//TODO Temporary solution
-	protected static boolean isEqual(IArtifactDescriptor expected, IArtifactDescriptor actual) {
-		if (expected == null && actual == null)
-			return true;
-		if (expected == actual)
-			return true;
-		if (expected == null || actual == null)
-			return false;
-		if (!expected.getArtifactKey().equals(actual.getArtifactKey()))
-			return false;
-
-		return Arrays.equals(expected.getProcessingSteps(), actual.getProcessingSteps());
 	}
 }
