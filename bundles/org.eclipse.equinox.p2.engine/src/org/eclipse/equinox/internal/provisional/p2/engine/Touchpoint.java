@@ -39,4 +39,12 @@ public abstract class Touchpoint {
 	public IStatus completeOperand(IProfile profile, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
+
+	public IStatus commit(IProfile profile) {
+		return Status.OK_STATUS;
+	}
+
+	public IStatus rollback(IProfile profile) {
+		return Status.OK_STATUS;
+	}
 }

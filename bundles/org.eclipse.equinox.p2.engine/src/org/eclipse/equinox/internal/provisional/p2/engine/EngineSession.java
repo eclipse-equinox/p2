@@ -35,19 +35,27 @@ public class EngineSession {
 
 	private ProvisioningContext context;
 
+	private Set touchpoints = new HashSet();
+
 	public EngineSession(IProfile profile, ProvisioningContext context) {
 		this.profile = profile;
 		this.context = context;
 	}
 
-	public void commit() {
+	public IStatus commit() {
+		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
+		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = (Touchpoint) iterator.next();
+			result.add(touchpoint.commit(profile));
+		}
+		return result;
 	}
 
-	public MultiStatus rollback() {
+	public IStatus rollback() {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		if (currentPhase != null) {
-			rollBackPhase(currentPhase, currentActionRecords);
+			result.add(rollBackPhase(currentPhase, currentActionRecords));
 			currentPhase = null;
 			currentActionRecords = null;
 			currentRecord = null;
@@ -57,13 +65,17 @@ public class EngineSession {
 			Object[] pair = (Object[]) it.previous();
 			Phase phase = (Phase) pair[0];
 			List actionRecords = (List) pair[1];
-			rollBackPhase(phase, actionRecords);
+			result.add(rollBackPhase(phase, actionRecords));
 		}
 		phaseActionRecordsPairs.clear();
+		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = (Touchpoint) iterator.next();
+			result.add(touchpoint.rollback(profile));
+		}
 		return result;
 	}
 
-	private MultiStatus rollBackPhase(Phase phase, List actionRecords) {
+	private IStatus rollBackPhase(Phase phase, List actionRecords) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (phase != currentPhase)
@@ -111,5 +123,9 @@ public class EngineSession {
 			currentActionRecords.add(currentRecord);
 		}
 		currentRecord.actions.add(action);
+
+		Touchpoint touchpoint = action.getTouchpoint();
+		if (touchpoint != null)
+			touchpoints.add(touchpoint);
 	}
 }

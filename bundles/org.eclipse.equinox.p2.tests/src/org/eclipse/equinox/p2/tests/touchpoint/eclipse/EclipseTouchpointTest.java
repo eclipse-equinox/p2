@@ -16,7 +16,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testInitializeCompletePhase() {
+	public void testInitializeCompletePhaseCommit() {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
 		Map parameters = new HashMap();
@@ -43,8 +43,11 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "uninstall", parameters);
 		testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertEquals(manipulator, testManipulator);
-		// this will save the manipulator and remove it from the set of tracked manipulators
 		touchpoint.completePhase(null, profile, "uninstall", parameters);
+
+		// this will save the manipulator and remove it from the set of tracked manipulators
+		touchpoint.commit(profile);
+
 		touchpoint.initializePhase(null, profile, "test2", parameters);
 		testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotSame(manipulator, testManipulator);

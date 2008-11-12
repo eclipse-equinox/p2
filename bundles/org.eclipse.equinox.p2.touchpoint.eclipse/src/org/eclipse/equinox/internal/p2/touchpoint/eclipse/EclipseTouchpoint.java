@@ -45,6 +45,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "link", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 	private static Map manipulators = new WeakHashMap();
+	private static Map wrappers = new WeakHashMap();
+	private static Map sourceManipulators = new WeakHashMap();
 
 	private static synchronized LazyManipulator getManipulator(IProfile profile) {
 		LazyManipulator manipulator = (LazyManipulator) manipulators.get(profile);
@@ -61,33 +63,73 @@ public class EclipseTouchpoint extends Touchpoint {
 			manipulator.save(false);
 	}
 
-	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		if (CONFIGURE_PHASE_ID.equals(phaseId) || UNCONFIGURE_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
-			try {
-				saveManipulator(profile);
-			} catch (RuntimeException e) {
-				return Util.createError(Messages.error_saving_manipulator, e);
-			} catch (IOException e) {
-				return Util.createError(Messages.error_saving_manipulator, e);
-			}
+	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProfile profile, LazyManipulator manipulator) {
+		PlatformConfigurationWrapper wrapper = (PlatformConfigurationWrapper) wrappers.get(profile);
+		if (wrapper == null) {
+			File configLocation = Util.getConfigurationFolder(profile);
+			URI poolURI = Util.getBundlePoolLocation(profile);
+			wrapper = new PlatformConfigurationWrapper(configLocation, poolURI, manipulator);
+			wrappers.put(profile, wrapper);
 		}
+		return wrapper;
+	}
 
-		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
-			PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) touchpointParameters.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
-			try {
-				configuration.save();
-			} catch (ProvisionException pe) {
-				return Util.createError(Messages.error_saving_platform_configuration, pe);
-			}
+	private static synchronized void savePlatformConfigurationWrapper(IProfile profile) throws ProvisionException {
+		PlatformConfigurationWrapper wrapper = (PlatformConfigurationWrapper) wrappers.remove(profile);
+		if (wrapper != null)
+			wrapper.save();
+	}
+
+	private static synchronized SourceManipulator getSourceManipulator(IProfile profile) {
+		SourceManipulator sourceManipulator = (SourceManipulator) sourceManipulators.get(profile);
+		if (sourceManipulator == null) {
+			sourceManipulator = new SourceManipulator(profile);
+			sourceManipulators.put(profile, sourceManipulator);
 		}
+		return sourceManipulator;
+	}
 
-		SourceManipulator m = (SourceManipulator) touchpointParameters.get(EclipseTouchpoint.PARM_SOURCE_BUNDLES);
+	private static synchronized void saveSourceManipulator(IProfile profile) throws IOException {
+		SourceManipulator sourceManipulator = (SourceManipulator) sourceManipulators.remove(profile);
+		if (sourceManipulator != null)
+			sourceManipulator.save();
+	}
+
+	private static synchronized void clearProfileState(IProfile profile) {
+		manipulators.remove(profile);
+		wrappers.remove(profile);
+		sourceManipulators.remove(profile);
+	}
+
+	public IStatus commit(IProfile profile) {
 		try {
-			m.save();
+			saveManipulator(profile);
+		} catch (RuntimeException e) {
+			return Util.createError(Messages.error_saving_manipulator, e);
+		} catch (IOException e) {
+			return Util.createError(Messages.error_saving_manipulator, e);
+		}
+		try {
+			savePlatformConfigurationWrapper(profile);
+		} catch (RuntimeException e) {
+			return Util.createError(Messages.error_saving_platform_configuration, e);
+		} catch (ProvisionException pe) {
+			return Util.createError(Messages.error_saving_platform_configuration, pe);
+		}
+
+		try {
+			saveSourceManipulator(profile);
+		} catch (RuntimeException e) {
+			return Util.createError(Messages.error_saving_source_bundles_list, e);
 		} catch (IOException e) {
 			return Util.createError(Messages.error_saving_source_bundles_list, e);
 		}
 
+		return Status.OK_STATUS;
+	}
+
+	public IStatus rollback(IProfile profile) {
+		clearProfileState(profile);
 		return Status.OK_STATUS;
 	}
 
@@ -100,10 +142,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		LazyManipulator manipulator = getManipulator(profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
-		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
-		File configLocation = Util.getConfigurationFolder(profile);
-		URI poolURL = Util.getBundlePoolLocation(profile);
-		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configLocation, poolURL, manipulator));
+		touchpointParameters.put(PARM_SOURCE_BUNDLES, getSourceManipulator(profile));
+		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, getPlatformConfigurationWrapper(profile, manipulator));
 		return null;
 	}
 
