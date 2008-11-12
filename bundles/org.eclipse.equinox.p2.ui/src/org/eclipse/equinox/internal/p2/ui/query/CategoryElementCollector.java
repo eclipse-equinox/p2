@@ -132,15 +132,15 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		ElementQueryDescriptor queryDescriptor = element.getQueryProvider().getQueryDescriptor(element);
 		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
 		if (!collector.isEmpty())
-			getList().add(element);
+			getCollection().add(element);
 	}
 
 	private void removeNestedCategories() {
-		CategoryElement[] categoryIUs = (CategoryElement[]) getList().toArray(new CategoryElement[getList().size()]);
+		CategoryElement[] categoryIUs = (CategoryElement[]) getCollection().toArray(new CategoryElement[getCollection().size()]);
 		// If any other element refers to a category element, remove it from the list
 		for (int i = 0; i < categoryIUs.length; i++) {
 			if (referredIUs.contains(categoryIUs[i].getIU().getId())) {
-				getList().remove(categoryIUs[i]);
+				getCollection().remove(categoryIUs[i]);
 			}
 		}
 	}

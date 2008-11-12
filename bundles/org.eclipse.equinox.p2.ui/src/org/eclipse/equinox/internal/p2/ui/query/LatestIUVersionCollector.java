@@ -46,7 +46,7 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 		Object matchElement = uniqueIds.get(iu.getId());
 		if (matchElement == null || iu.getVersion().compareTo(getIU(matchElement).getVersion()) > 0) {
 			if (matchElement != null)
-				getList().remove(matchElement);
+				getCollection().remove(matchElement);
 			matchElement = makeDefaultElement(iu);
 			uniqueIds.put(iu.getId(), matchElement);
 			return super.accept(matchElement);

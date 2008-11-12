@@ -43,12 +43,6 @@ public class ProfileSynchronizer {
 	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
 	private static final String PROP_FROM_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
-	public class ListCollector extends Collector {
-		public List getList() {
-			return super.getList();
-		}
-	}
-
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	final IProfile profile;

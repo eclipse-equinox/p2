@@ -22,7 +22,7 @@ public class LatestIUVersionCollector extends Collector {
 		Object matchElement = uniqueIds.get(iu.getId());
 		if (matchElement == null || iu.getVersion().compareTo(getIU(matchElement).getVersion()) > 0) {
 			if (matchElement != null)
-				getList().remove(matchElement);
+				getCollection().remove(matchElement);
 
 			matchElement = makeDefaultElement(iu);
 			uniqueIds.put(iu.getId(), matchElement);

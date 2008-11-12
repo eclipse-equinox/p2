@@ -23,7 +23,7 @@ import java.util.*;
  * to perform different processing on the objects passed to it.
  */
 public class Collector {
-	private ArrayList collected = null;
+	private Set collected = null;
 
 	/**
 	 * Creates a new collector.
@@ -45,17 +45,21 @@ public class Collector {
 	 * or <code>false</code> to indicate the traversal should stop.
 	 */
 	public boolean accept(Object object) {
-		getList().add(object);
+		getCollection().add(object);
 		return true;
 	}
 
 	/**
-	 * Returns the list that is being used to collect results.
-	 * @return the list being used to collect results.
+	 * Returns the collection that is being used to collect results. Unlike {@toCollection},
+	 * this returns the actual modifiable collection that is being used to store results. The
+	 * return value is only intended to be used within subclasses and should not be exposed
+	 * outside of a collection class.
+	 * 
+	 * @return the collection being used to collect results.
 	 */
-	protected List getList() {
+	protected Collection getCollection() {
 		if (collected == null)
-			collected = new ArrayList();
+			collected = new HashSet();
 		return collected;
 	}
 
@@ -100,7 +104,12 @@ public class Collector {
 		return result;
 	}
 
+	/**
+	 * Returns the collected objects as an immutable collection.
+	 * 
+	 * @return An unmodifiable collection of the collected objects
+	 */
 	public Collection toCollection() {
-		return collected == null ? Collections.EMPTY_LIST : Collections.unmodifiableList(collected);
+		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
 	}
 }
