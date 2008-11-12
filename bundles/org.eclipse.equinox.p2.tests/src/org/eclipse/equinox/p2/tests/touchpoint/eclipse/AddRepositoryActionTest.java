@@ -47,6 +47,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		super.setUp();
 		action = new AddRepositoryAction();
 		locationURI = new URI(TEST_LOCATION);
+		getArtifactRepositoryManager().removeRepository(locationURI);
 	}
 
 	@Override
@@ -121,13 +122,13 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {iu});
 
-		assertTrue("0.1", !getArtifactRepositoryManager().isEnabled(locationURI));
+		assertTrue("0.1", !getArtifactRepositoryManager().contains(locationURI));
 
 		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
 		assertTrue("1.0", result.isOK());
 		//check that the repository was added. This happens asynchronously
 		long waitStart = System.currentTimeMillis();
-		while (!getArtifactRepositoryManager().isEnabled(locationURI)) {
+		while (!getArtifactRepositoryManager().contains(locationURI)) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
