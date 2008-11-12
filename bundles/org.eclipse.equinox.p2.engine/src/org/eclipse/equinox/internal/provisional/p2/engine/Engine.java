@@ -41,8 +41,9 @@ public class Engine implements IEngine {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
-		Profile profile = (Profile) iprofile;
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+
+		Profile profile = profileRegistry.validate(iprofile);
 
 		profileRegistry.lockProfile(profile);
 		try {

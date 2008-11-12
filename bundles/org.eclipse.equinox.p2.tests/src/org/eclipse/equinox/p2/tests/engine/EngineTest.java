@@ -12,13 +12,14 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -353,6 +354,75 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
 		return MetadataFactory.createResolvedInstallableUnit(iu, cus);
+	}
+
+	public void testIncompatibleProfile() {
+
+		IProfile profile = new IProfile() {
+			public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+				return null;
+			}
+
+			public Map getInstallableUnitProperties(IInstallableUnit iu) {
+				return null;
+			}
+
+			public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
+				return null;
+			}
+
+			public Map getLocalProperties() {
+				return null;
+			}
+
+			public String getLocalProperty(String key) {
+				return null;
+			}
+
+			public IProfile getParentProfile() {
+				return null;
+			}
+
+			public String getProfileId() {
+				return null;
+			}
+
+			public Map getProperties() {
+				return null;
+			}
+
+			public String getProperty(String key) {
+				return null;
+			}
+
+			public String[] getSubProfileIds() {
+				return null;
+			}
+
+			public long getTimestamp() {
+				return 0;
+			}
+
+			public boolean hasSubProfiles() {
+				return false;
+			}
+
+			public boolean isRootProfile() {
+				return false;
+			}
+
+			public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+				return null;
+			}
+		};
+		PhaseSet phaseSet = new DefaultPhaseSet();
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
+		try {
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		} catch (IllegalArgumentException expected) {
+			return;
+		}
+		fail();
 	}
 
 }

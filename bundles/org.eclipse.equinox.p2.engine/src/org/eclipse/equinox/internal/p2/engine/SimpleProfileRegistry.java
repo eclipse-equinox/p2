@@ -601,4 +601,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		lock.unlock(this);
 	}
 
+	public Profile validate(IProfile candidate) {
+		if (candidate instanceof Profile)
+			return (Profile) candidate;
+
+		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	}
 }
