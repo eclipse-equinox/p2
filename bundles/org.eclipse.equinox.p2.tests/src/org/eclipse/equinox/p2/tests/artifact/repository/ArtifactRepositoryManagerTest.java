@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.tests.*;
 
@@ -149,6 +148,20 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(managerContains(location));
 		manager.removeRepository(location);
 		assertTrue(!managerContains(location));
+	}
+
+	/**
+	 * Tests for {@link IRepositoryManager#contains(URI).
+	 */
+	public void testContains() {
+		File site = getTestData("Repositoy", "/testData/artifactRepo/simple/");
+		URI location = site.toURI();
+		manager.removeRepository(location);
+		assertEquals("1.0", false, manager.contains(location));
+		manager.addRepository(location);
+		assertEquals("1.1", true, manager.contains(location));
+		manager.removeRepository(location);
+		assertEquals("1.2", false, manager.contains(location));
 	}
 
 	public void testEnablement() {

@@ -66,6 +66,20 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(!managerContains(location));
 	}
 
+	/**
+	 * Tests for {@link IRepositoryManager#contains(URI).
+	 */
+	public void testContains() {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		URI location = site.toURI();
+		manager.removeRepository(location);
+		assertEquals("1.0", false, manager.contains(location));
+		manager.addRepository(location);
+		assertEquals("1.1", true, manager.contains(location));
+		manager.removeRepository(location);
+		assertEquals("1.2", false, manager.contains(location));
+	}
+
 	public void testEnablement() {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
