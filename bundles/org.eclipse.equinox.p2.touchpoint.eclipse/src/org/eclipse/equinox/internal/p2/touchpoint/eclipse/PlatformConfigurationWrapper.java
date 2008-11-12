@@ -139,6 +139,8 @@ public class PlatformConfigurationWrapper {
 			Site nextSite = (Site) iter.next();
 			try {
 				File nextFile = URIUtil.toFile(URIUtil.fromString(nextSite.getUrl()));
+				if (nextFile == null)
+					continue;
 				if (nextFile.equals(file))
 					return nextSite;
 			} catch (URISyntaxException e) {
