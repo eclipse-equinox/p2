@@ -27,6 +27,7 @@ import org.osgi.framework.Version;
  */
 public abstract class AbstractMetadataRepository extends AbstractRepository implements IMetadataRepository {
 
+	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
 	public static class RepositoryState {
 		public String Name;
 		public String Type;
@@ -43,6 +44,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		super("noName", "noType", "noVersion", null, null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
 	public abstract void initialize(RepositoryState state);
 
 	protected AbstractMetadataRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
