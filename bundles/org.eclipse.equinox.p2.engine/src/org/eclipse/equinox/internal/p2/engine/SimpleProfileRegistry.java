@@ -114,6 +114,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	private static File getDefaultRegistryDirectory() {
 		File registryDirectory = null;
 		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+		if (agent == null)
+			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
 		try {
 			URL registryURL = new URL(agent.getDataArea(EngineActivator.ID), DEFAULT_STORAGE_DIR);
 			registryDirectory = new File(registryURL.getPath());
