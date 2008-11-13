@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activator class that registers the update checker service.
@@ -19,7 +19,6 @@ import org.osgi.framework.*;
 public class Activator implements BundleActivator {
 	public static final String ID = "org.eclipse.equinox.p2.updatechecker"; //$NON-NLS-1$
 	private static BundleContext context;
-	private ServiceRegistration registrationChecker;
 
 	public static BundleContext getContext() {
 		return context;
@@ -27,10 +26,9 @@ public class Activator implements BundleActivator {
 
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		registrationChecker = context.registerService(IUpdateChecker.SERVICE_NAME, new UpdateChecker(), null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		registrationChecker.unregister();
+		Activator.context = null;
 	}
 }

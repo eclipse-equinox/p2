@@ -11,9 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Activator class for the automatic updates plugin
@@ -24,6 +27,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	private static BundleContext context;
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
+	private ServiceRegistration registrationChecker;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
 
@@ -52,7 +56,8 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
-		AutomaticUpdatePlugin.context = bundleContext;
+		context = bundleContext;
+		registrationChecker = context.registerService(IUpdateChecker.SERVICE_NAME, new UpdateChecker(), null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
@@ -66,6 +71,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		}
 		plugin = null;
 		super.stop(bundleContext);
+		context = null;
 	}
 
 	public AutomaticUpdateScheduler getScheduler() {
