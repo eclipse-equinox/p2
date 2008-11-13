@@ -16,6 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -995,5 +996,39 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
 		//make sure artifacts.xml does not exist
 		assertFalse("7", destArtifactsXML.exists());
+	}
+
+	public void testMirrorApplicationWithCompositeSource() {
+		//Setup Make composite repository
+		File repoLocation = new File(getTempFolder(), "CompositeArtifactMirrorTest");
+		AbstractProvisioningTest.delete(repoLocation);
+		IArtifactRepository repo = null;
+		try {
+			repo = getArtifactRepositoryManager().createRepository(repoLocation.toURI(), "artifact name", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("Could not create repository");
+		}
+		//ensure proper type of repository has been created
+		if (!(repo instanceof CompositeArtifactRepository))
+			fail("Repository is not a CompositeArtifactRepository");
+		//Populate source
+		File child1 = getTestData("1", "/testData/mirror/mirrorSourceRepo1 with space");
+		File child2 = getTestData("2", "/testData/mirror/mirrorSourceRepo2");
+		((CompositeArtifactRepository) repo).addChild(child1.toURI());
+		((CompositeArtifactRepository) repo).addChild(child2.toURI());
+
+		runMirrorApplication("Mirroring from Composite Source", repoLocation, destRepoLocation, false);
+
+		try {
+			assertContentEquals("Verifying contents", repo, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+
+			//Verify that result is the same as mirroring from the 2 repositories separately
+			assertContains("3", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("4", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			//checks that the destination has the correct number of keys (no extras)
+			assertEquals("5", getManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+		} catch (ProvisionException e) {
+			fail("Could not load destination", e);
+		}
 	}
 }

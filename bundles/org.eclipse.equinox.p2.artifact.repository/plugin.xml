@@ -14,6 +14,11 @@
 		<filter suffix="artifacts.xml"/>
 		<factory class="org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory"/>
    </extension>
+   
+   <extension id="compositeRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+        <filter suffix="compositeArtifacts.xml"/>
+        <factory class="org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepositoryFactory"/>
+   </extension>
 
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"

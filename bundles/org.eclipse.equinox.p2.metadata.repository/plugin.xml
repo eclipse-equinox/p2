@@ -18,4 +18,8 @@
          </run>
       </application>
    </extension>
+   <extension id="compositeRepository"  point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+        <filter suffix="compositeContent.xml"/>
+        <factory class="org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory"/>
+   </extension>
 </plugin>

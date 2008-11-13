@@ -56,4 +56,8 @@ public interface XMLConstants {
 	// A constant for an empty array of attribute names
 	public static String[] noAttributes = new String[0];
 
+	//Constants for attributes of a composite repository
+	public static final String CHILDREN_ELEMENT = "children"; //$NON-NLS-1$
+	public static final String CHILD_ELEMENT = "child"; //$NON-NLS-1$
+	public static final String LOCATION_ELEMENT = "location"; //$NON-NLS-1$
 }

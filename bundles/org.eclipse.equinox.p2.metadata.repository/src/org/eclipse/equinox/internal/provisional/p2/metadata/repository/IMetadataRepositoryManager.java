@@ -35,6 +35,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository"; //$NON-NLS-1$
+	public static final String TYPE_COMPOSITE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.compositeRepository"; //$NON-NLS-1$
 
 	/**
 	 * Creates and returns a new empty metadata repository of the given type at 

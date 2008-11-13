@@ -665,6 +665,17 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return 0;
 	}
 
+	// Check the format of a required URI attribute
+	public URI checkURI(String element, String attribute, String value) {
+		try {
+			return URIUtil.fromString(value);
+		} catch (URISyntaxException e) {
+			invalidAttributeValue(element, attribute, value);
+		}
+		//TODO ok to return null?
+		return null;
+	}
+
 	public void checkCancel() {
 		if (monitor != null && monitor.isCanceled())
 			throw new OperationCanceledException();

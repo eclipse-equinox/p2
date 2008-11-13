@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(LocalMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
+		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
 		return suite;
 	}
 

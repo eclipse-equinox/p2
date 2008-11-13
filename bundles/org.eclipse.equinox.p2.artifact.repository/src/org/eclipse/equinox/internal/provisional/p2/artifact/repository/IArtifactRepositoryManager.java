@@ -37,6 +37,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
+	public static final String TYPE_COMPOSITE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.compositeRepository"; //$NON-NLS-1$
 
 	/**
 	 * Return a new request to mirror the given artifact into the destination repository.

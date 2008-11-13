@@ -34,4 +34,8 @@ public class Messages extends NLS {
 	public static String XMLParser_Unexpected_Character_Data;
 	public static String XMLParser_Element_Not_Allowed;
 
+	public static String io_failedRead;
+	public static String io_IncompatibleVersion;
+	public static String io_parseError;
+
 }
