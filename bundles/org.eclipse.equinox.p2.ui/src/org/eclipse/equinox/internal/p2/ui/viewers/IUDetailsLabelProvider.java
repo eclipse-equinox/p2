@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -109,8 +109,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				return iu.getId();
 			case IUColumnConfig.COLUMN_VERSION :
 				// If it's an element, determine if version should be shown
-				if (element instanceof IUElement) {
-					if (((IUElement) element).shouldShowVersion())
+				if (element instanceof IIUElement) {
+					if (((IIUElement) element).shouldShowVersion())
 						return iu.getVersion().toString();
 					return BLANK;
 				}
@@ -118,8 +118,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				return iu.getVersion().toString();
 
 			case IUColumnConfig.COLUMN_SIZE :
-				if (element instanceof IUElement && ((IUElement) element).shouldShowSize())
-					return getIUSize((IUElement) element);
+				if (element instanceof IIUElement && ((IIUElement) element).shouldShowSize())
+					return getIUSize((IIUElement) element);
 				return BLANK;
 		}
 		return BLANK;
@@ -135,11 +135,11 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		return null;
 	}
 
-	private String getIUSize(final IUElement element) {
+	private String getIUSize(final IIUElement element) {
 		long size = element.getSize();
 		// If size is already known, or we already tried
 		// to get it, don't try again
-		if (size != IUElement.SIZE_UNKNOWN)
+		if (size != IIUElement.SIZE_UNKNOWN)
 			return getFormattedSize(size);
 		if (!jobs.containsKey(element)) {
 			Job resolveJob = new Job(element.getIU().getId()) {
@@ -157,7 +157,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 						return Status.CANCEL_STATUS;
 
 					// If we still could not compute size, give up
-					if (element.getSize() == IUElement.SIZE_UNKNOWN)
+					if (element.getSize() == IIUElement.SIZE_UNKNOWN)
 						return Status.OK_STATUS;
 
 					if (shell == null || shell.isDisposed())
@@ -187,7 +187,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		if (size == IUElement.SIZE_UNKNOWN || size == IUElement.SIZE_UNAVAILABLE)
+		if (size == IIUElement.SIZE_UNKNOWN || size == IIUElement.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * 
  * @since 3.4
  */
-public class CategoryElement extends RemoteQueriedElement implements IUElement {
+public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
 	private ArrayList ius = new ArrayList(1);
 	private RequiredCapability[] requirements;

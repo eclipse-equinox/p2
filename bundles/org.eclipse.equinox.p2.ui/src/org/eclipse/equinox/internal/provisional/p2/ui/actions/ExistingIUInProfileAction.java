@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -80,7 +80,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		return false;
 	}
 
-	protected boolean isSelectable(IUElement element) {
+	protected boolean isSelectable(IIUElement element) {
 		if (!super.isSelectable(element))
 			return false;
 		Object parent = element.getParent(element);

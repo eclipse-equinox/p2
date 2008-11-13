@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.actions;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.DefaultPhaseSet;
@@ -47,16 +47,16 @@ public abstract class ProfileModificationActionTest extends ActionTest {
 		return new IInstallableUnit[] {top1, top2, locked};
 	}
 
-	protected IUElement[] getTopLevelIUElements() {
-		return new IUElement[] {element(top1), element(top2)};
+	protected IIUElement[] getTopLevelIUElements() {
+		return new IIUElement[] {element(top1), element(top2)};
 	}
 
 	protected Object[] getMixedIUElements() {
-		return new IUElement[] {element(top1), element(top2), element(nested)};
+		return new IIUElement[] {element(top1), element(top2), element(nested)};
 	}
 
 	protected Object[] getTopLevelIUElementsWithLockedIU() {
-		return new IUElement[] {element(top1), element(top2), element(locked)};
+		return new IIUElement[] {element(top1), element(top2), element(locked)};
 	}
 
 	protected Object[] getMixedIUsAndElements() {
@@ -98,7 +98,7 @@ public abstract class ProfileModificationActionTest extends ActionTest {
 		return createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}
 
-	protected IUElement element(IInstallableUnit iu) {
+	protected IIUElement element(IInstallableUnit iu) {
 		return new InstalledIUElement(profileElement, profile.getProfileId(), iu);
 	}
 }

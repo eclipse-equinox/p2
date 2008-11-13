@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveProfilesOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.ProfileChooser;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -184,8 +184,8 @@ public class ProfilesView extends ProvView {
 		return new Profiles(ProvAdminUIActivator.getDefault().getPolicy());
 	}
 
-	ProfileChooser getProfileChooser() {
-		return new ProfileChooser() {
+	IProfileChooser getProfileChooser() {
+		return new IProfileChooser() {
 			public String getProfileId(Shell shell) {
 				Object firstElement = getSelection().getFirstElement();
 				if (firstElement instanceof InstalledIUElement) {

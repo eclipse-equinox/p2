@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -35,7 +35,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 			fail("0.99", e);
 			return;
 		}
-		long size = IUElement.SIZE_NOTAPPLICABLE;
+		long size = IIUElement.SIZE_NOTAPPLICABLE;
 		try {
 			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
 		} catch (ProvisionException e) {
@@ -60,7 +60,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 			fail("0.99", e);
 			return;
 		}
-		long size = IUElement.SIZE_NOTAPPLICABLE;
+		long size = IIUElement.SIZE_NOTAPPLICABLE;
 		try {
 			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
 		} catch (ProvisionException e) {

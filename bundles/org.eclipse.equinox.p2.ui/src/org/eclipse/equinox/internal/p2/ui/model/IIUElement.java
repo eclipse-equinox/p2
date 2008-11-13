@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
  * 
  * @since 3.4
  */
-public interface IUElement {
+public interface IIUElement {
 
 	/**
 	 * Indicates that the size is currently unknown

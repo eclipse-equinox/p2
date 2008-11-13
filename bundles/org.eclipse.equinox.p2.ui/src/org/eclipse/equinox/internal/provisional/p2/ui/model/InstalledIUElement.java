@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * 
  * @since 3.4
  */
-public class InstalledIUElement extends QueriedElement implements IUElement {
+public class InstalledIUElement extends QueriedElement implements IIUElement {
 
 	String profileId;
 	IInstallableUnit iu;

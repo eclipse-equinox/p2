@@ -31,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * 
  * @since 3.4
  */
-public class AvailableIUElement extends QueriedElement implements IUElement {
+public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	IInstallableUnit iu;
 	// Currently this variable is not settable due to the
@@ -40,7 +40,7 @@ public class AvailableIUElement extends QueriedElement implements IUElement {
 	// probably refer to some preference or policy to decide what to do.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=221087
 	private static boolean shouldShowSize = false;
-	long size = IUElement.SIZE_UNKNOWN;
+	long size = IIUElement.SIZE_UNKNOWN;
 	String profileID;
 
 	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID) {
@@ -81,7 +81,7 @@ public class AvailableIUElement extends QueriedElement implements IUElement {
 			size = ProvisioningUtil.getSize(plan, profileID, mon.newChild(50));
 		} catch (ProvisionException e) {
 			handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
-			size = IUElement.SIZE_UNAVAILABLE;
+			size = IIUElement.SIZE_UNAVAILABLE;
 		}
 	}
 

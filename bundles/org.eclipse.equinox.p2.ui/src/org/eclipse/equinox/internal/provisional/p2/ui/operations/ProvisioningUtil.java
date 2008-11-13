@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -241,14 +241,14 @@ public class ProvisioningUtil {
 	public static long getSize(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
 		// If there is nothing to size, return 0
 		if (plan == null)
-			return IUElement.SIZE_NOTAPPLICABLE;
+			return IIUElement.SIZE_NOTAPPLICABLE;
 		if (plan.getOperands().length == 0)
 			return 0;
 		SizingPhaseSet set = new SizingPhaseSet();
 		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), null, monitor);
 		if (status.isOK())
 			return set.getSizing().getDiskSize();
-		return IUElement.SIZE_UNAVAILABLE;
+		return IIUElement.SIZE_UNAVAILABLE;
 	}
 
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {

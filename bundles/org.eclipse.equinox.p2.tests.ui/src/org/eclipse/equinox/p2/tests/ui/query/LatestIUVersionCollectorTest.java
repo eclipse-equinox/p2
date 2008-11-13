@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
 import org.eclipse.equinox.internal.p2.ui.query.LatestIUVersionCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -33,7 +33,7 @@ public class LatestIUVersionCollectorTest extends AvailableIUCollectorTest {
 	protected IInstallableUnit getIU(Object collected) {
 		if (collected instanceof IInstallableUnit)
 			return (IInstallableUnit) collected;
-		return ((IUElement) collected).getIU();
+		return ((IIUElement) collected).getIU();
 	}
 
 	/**

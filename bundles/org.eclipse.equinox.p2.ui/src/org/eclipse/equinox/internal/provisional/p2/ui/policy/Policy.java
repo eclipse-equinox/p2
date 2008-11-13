@@ -43,7 +43,7 @@ public class Policy {
 	private QueryProvider queryProvider;
 	private LicenseManager licenseManager;
 	private PlanValidator planValidator;
-	private ProfileChooser profileChooser;
+	private IProfileChooser profileChooser;
 	private IUViewQueryContext queryContext;
 	private RepositoryManipulator repositoryManipulator;
 
@@ -143,7 +143,7 @@ public class Policy {
 	 * 
 	 * @return the profile chooser
 	 */
-	public ProfileChooser getProfileChooser() {
+	public IProfileChooser getProfileChooser() {
 		if (profileChooser == null) {
 			return getDefaultProfileChooser();
 		}
@@ -157,7 +157,7 @@ public class Policy {
 	 * @param chooser the chooser to use, or <code>null</code> to use 
 	 * the default chooser
 	 */
-	public void setProfileChooser(ProfileChooser chooser) {
+	public void setProfileChooser(IProfileChooser chooser) {
 		profileChooser = chooser;
 	}
 
@@ -249,8 +249,8 @@ public class Policy {
 	 * This profile chooser uses the profile id of the running
 	 * application.
 	 */
-	private ProfileChooser getDefaultProfileChooser() {
-		return new ProfileChooser() {
+	private IProfileChooser getDefaultProfileChooser() {
+		return new IProfileChooser() {
 			public String getProfileId(Shell shell) {
 				return IProfileRegistry.SELF;
 			}

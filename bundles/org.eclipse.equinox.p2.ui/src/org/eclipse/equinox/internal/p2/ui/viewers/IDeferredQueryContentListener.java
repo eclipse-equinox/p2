@@ -22,6 +22,6 @@ import org.eclipse.jface.viewers.Viewer;
  * @since 3.4
  *
  */
-public interface DeferredQueryContentListener extends EventListener {
+public interface IDeferredQueryContentListener extends EventListener {
 	public void inputChanged(Viewer v, Object oldInput, Object newInput);
 }

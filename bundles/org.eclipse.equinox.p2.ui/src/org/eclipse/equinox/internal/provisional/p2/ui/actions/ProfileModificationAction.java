@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -190,8 +190,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		List iusList = new ArrayList(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
-			if (elements.get(i) instanceof IUElement) {
-				IUElement element = (IUElement) elements.get(i);
+			if (elements.get(i) instanceof IIUElement) {
+				IIUElement element = (IIUElement) elements.get(i);
 				if (isSelectable(element))
 					iusList.add(getIU(element));
 			} else {
@@ -203,7 +203,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
 	}
 
-	protected boolean isSelectable(IUElement element) {
+	protected boolean isSelectable(IIUElement element) {
 		return !(element instanceof CategoryElement);
 	}
 
@@ -223,7 +223,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return policy.getPlanValidator();
 	}
 
-	protected ProfileChooser getProfileChooser() {
+	protected IProfileChooser getProfileChooser() {
 		return policy.getProfileChooser();
 	}
 

@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.tests.ui.actions;
 
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -63,7 +63,7 @@ public class InstallActionTest extends ProfileModificationActionTest {
 		assertEquals(2, action.getSelectedIUs().length);
 	}
 
-	protected IUElement element(IInstallableUnit iu) {
+	protected IIUElement element(IInstallableUnit iu) {
 		return new AvailableIUElement(null, iu, profile.getProfileId());
 	}
 }

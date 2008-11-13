@@ -4,7 +4,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositor
 
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 
-import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentListener;
+import org.eclipse.equinox.internal.p2.ui.viewers.IDeferredQueryContentListener;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 
 import java.util.ArrayList;
@@ -188,7 +188,7 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 
 	public void contentProviderSet(final DeferredQueryContentProvider deferredProvider) {
 		this.contentProvider = deferredProvider;
-		deferredProvider.addListener(new DeferredQueryContentListener() {
+		deferredProvider.addListener(new IDeferredQueryContentListener() {
 			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 				if (newInput == null)
 					return;

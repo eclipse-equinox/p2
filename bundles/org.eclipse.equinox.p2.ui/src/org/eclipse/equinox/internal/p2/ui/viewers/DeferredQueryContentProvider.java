@@ -45,11 +45,11 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		// Default constructor
 	}
 
-	public void addListener(DeferredQueryContentListener listener) {
+	public void addListener(IDeferredQueryContentListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(DeferredQueryContentListener listener) {
+	public void removeListener(IDeferredQueryContentListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -61,7 +61,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		if (v instanceof AbstractTreeViewer) {
 			manager = new DeferredQueryTreeContentManager((AbstractTreeViewer) v);
 			viewer = (AbstractTreeViewer) v;
-			manager.setListener(new DeferredQueryTreeListener() {
+			manager.setListener(new IDeferredQueryTreeListener() {
 
 				public void fetchingDeferredChildren(Object parent, Object placeholder) {
 					alreadyQueried.put(parent, placeholder);
@@ -78,7 +78,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		currentInput = newInput;
 		Object[] inputListeners = listeners.getListeners();
 		for (int i = 0; i < inputListeners.length; i++) {
-			((DeferredQueryContentListener) inputListeners[i]).inputChanged(v, oldInput, newInput);
+			((IDeferredQueryContentListener) inputListeners[i]).inputChanged(v, oldInput, newInput);
 		}
 	}
 

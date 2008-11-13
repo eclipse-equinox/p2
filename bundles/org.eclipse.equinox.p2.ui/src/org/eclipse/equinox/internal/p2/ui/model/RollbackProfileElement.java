@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * 
  * @since 3.4
  */
-public class RollbackProfileElement extends RemoteQueriedElement implements IUElement {
+public class RollbackProfileElement extends RemoteQueriedElement implements IIUElement {
 
 	private IInstallableUnit iu;
 	private IProfile snapshot;

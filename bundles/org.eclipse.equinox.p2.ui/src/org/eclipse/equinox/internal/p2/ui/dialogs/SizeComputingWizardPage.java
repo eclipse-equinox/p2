@@ -14,7 +14,7 @@ import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -46,7 +46,7 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 	private Job sizingJob;
 
 	protected void computeSizing(final ProvisioningPlan plan, final String profileId) {
-		size = IUElement.SIZE_UNKNOWN;
+		size = IIUElement.SIZE_UNKNOWN;
 		if (sizingJob != null)
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
@@ -88,7 +88,7 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 
 	protected void updateSizingInfo() {
 		if (sizeInfo != null && !sizeInfo.isDisposed()) {
-			if (size == IUElement.SIZE_NOTAPPLICABLE)
+			if (size == IIUElement.SIZE_NOTAPPLICABLE)
 				sizeInfo.setVisible(false);
 			else {
 				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
@@ -98,7 +98,7 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 	}
 
 	protected String getFormattedSize() {
-		if (size == IUElement.SIZE_UNKNOWN || size == IUElement.SIZE_UNAVAILABLE)
+		if (size == IIUElement.SIZE_UNKNOWN || size == IIUElement.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

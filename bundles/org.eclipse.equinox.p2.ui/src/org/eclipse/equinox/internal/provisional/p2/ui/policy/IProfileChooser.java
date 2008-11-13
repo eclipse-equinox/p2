@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Shell;
  * 
  */
 
-public interface ProfileChooser {
+public interface IProfileChooser {
 	/**
 	 * Return a chosen profile id, or <code>null</code> if there is no profile
 	 * chosen.

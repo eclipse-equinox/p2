@@ -21,7 +21,7 @@ import java.util.EventListener;
  * @since 3.4
  *
  */
-public interface DeferredQueryTreeListener extends EventListener {
+public interface IDeferredQueryTreeListener extends EventListener {
 
 	public void fetchingDeferredChildren(Object parent, Object placeHolder);
 

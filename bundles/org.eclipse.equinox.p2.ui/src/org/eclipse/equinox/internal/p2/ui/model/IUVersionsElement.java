@@ -22,7 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  * 
  * @since 3.4
  */
-public class IUVersionsElement extends QueriedElement implements IUElement {
+public class IUVersionsElement extends QueriedElement implements IIUElement {
 
 	IInstallableUnit iu;
 

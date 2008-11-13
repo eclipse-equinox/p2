@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -101,7 +101,7 @@ public class InstallAction extends ProfileModificationAction {
 		// must be at least one installable unit selected that is
 		// selectable
 		for (int i = 0; i < selectionArray.length; i++) {
-			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IUElement) selectionArray[i]))
+			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IIUElement) selectionArray[i]))
 				return true;
 			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
 			if (iu != null && isSelectable(iu))
@@ -115,8 +115,8 @@ public class InstallAction extends ProfileModificationAction {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isSelectable(org.eclipse.equinox.internal.p2.ui.model.IUElement)
 	 */
-	protected boolean isSelectable(IUElement element) {
-		return super.isSelectable(element) && !(element.getParent(element) instanceof IUElement);
+	protected boolean isSelectable(IIUElement element) {
+		return super.isSelectable(element) && !(element.getParent(element) instanceof IIUElement);
 	}
 
 	protected String getTaskName() {

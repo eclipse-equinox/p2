@@ -40,7 +40,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	}
 
 	Object elementRequested;
-	DeferredQueryTreeListener listener;
+	IDeferredQueryTreeListener listener;
 
 	public DeferredQueryTreeContentManager(AbstractTreeViewer viewer) {
 		super(viewer);
@@ -81,7 +81,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 		return new ElementPendingUpdateAdapter(elementRequested);
 	}
 
-	public void setListener(DeferredQueryTreeListener listener) {
+	public void setListener(IDeferredQueryTreeListener listener) {
 		this.listener = listener;
 	}
 

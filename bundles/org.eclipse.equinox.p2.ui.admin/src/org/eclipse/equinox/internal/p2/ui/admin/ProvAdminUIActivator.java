@@ -145,7 +145,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 				return true;
 			}
 		});
-		policy.setProfileChooser(new ProfileChooser() {
+		policy.setProfileChooser(new IProfileChooser() {
 			public String getProfileId(Shell shell) {
 				// TODO would be nice if the profile chooser dialog let you
 				// create a new profile

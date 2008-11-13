@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
@@ -39,7 +39,7 @@ public class AvailableIUCollectorTest extends QueryTest {
 	 * Returns the IU corresponding to the collected element.
 	 */
 	protected IInstallableUnit getIU(Object collected) {
-		return ((IUElement) collected).getIU();
+		return ((IIUElement) collected).getIU();
 	}
 
 	/**

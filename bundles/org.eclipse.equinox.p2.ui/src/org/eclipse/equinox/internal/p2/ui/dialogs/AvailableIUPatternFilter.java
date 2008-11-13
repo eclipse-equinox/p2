@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
@@ -54,7 +54,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	 * @see org.eclipse.ui.internal.dialogs.PatternFilter#isElementSelectable(java.lang.Object)
 	 */
 	public boolean isElementSelectable(Object element) {
-		return element instanceof IUElement && !(element instanceof CategoryElement);
+		return element instanceof IIUElement && !(element instanceof CategoryElement);
 	}
 
 	/*
@@ -89,8 +89,8 @@ public class AvailableIUPatternFilter extends PatternFilter {
 		}
 
 		String text = null;
-		if (element instanceof IUElement) {
-			IInstallableUnit iu = ((IUElement) element).getIU();
+		if (element instanceof IIUElement) {
+			IInstallableUnit iu = ((IIUElement) element).getIU();
 			if (checkName) {
 				// Get the iu name in the default locale
 				text = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);

@@ -131,7 +131,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=226577
 				// if (element instanceof IUElement) {
 				if (element instanceof CategoryElement) {
-					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IUElement) element).getRequirements());
+					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					if (showLatest)
 						availableIUCollector = new LatestIUVersionElementCollector(queryable, element, true);
 					else
@@ -170,8 +170,8 @@ public class DefaultQueryProvider extends QueryProvider {
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case QueryProvider.INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
-				if (element instanceof IUElement) {
-					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IUElement) element).getRequirements());
+				if (element instanceof IIUElement) {
+					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					Query visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
 					availableIUCollector = new AvailableIUCollector(queryable, element, true);
 					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new InstalledIUCollector(queryable, element));

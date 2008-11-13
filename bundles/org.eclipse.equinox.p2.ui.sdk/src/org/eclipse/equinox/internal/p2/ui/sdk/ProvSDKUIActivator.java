@@ -178,7 +178,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	private void initializePolicies() {
 		Policy policy = new Policy();
-		policy.setProfileChooser(new ProfileChooser() {
+		policy.setProfileChooser(new IProfileChooser() {
 			public String getProfileId(Shell shell) {
 				try {
 					return getSelfProfileId();

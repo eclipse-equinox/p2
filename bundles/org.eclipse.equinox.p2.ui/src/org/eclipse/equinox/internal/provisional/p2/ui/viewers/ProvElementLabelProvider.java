@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -118,9 +118,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (element instanceof IProfile) {
 					return ((IProfile) element).getProperty(IProfile.PROP_NAME);
 				}
-				if (element instanceof IUElement) {
-					if (((IUElement) element).shouldShowVersion())
-						return ((IUElement) element).getIU().getVersion().toString();
+				if (element instanceof IIUElement) {
+					if (((IIUElement) element).shouldShowVersion())
+						return ((IIUElement) element).getIU().getVersion().toString();
 				}
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (iu != null) {
