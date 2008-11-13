@@ -1031,4 +1031,26 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Could not load destination", e);
 		}
 	}
+
+	//for Bug 250527
+	public void testIgnoreErrorsArguement() {
+		File errorSourceLoaction = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
+		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
+		try {
+			//Set ignoreErrors flag.
+			String[] args = new String[] {"-source", errorSourceLoaction.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-ignoreErrors"};
+			//run the mirror application
+			runMirrorApplication("Running with errored source", args);
+		} catch (Exception e) {
+			fail("Running mirror application with errored source failed", e);
+		}
+
+		try {
+			assertEquals("Verifying correct number of Keys", 1, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			//Because only 1 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
+			//Order in which mirror application mirrors artifacts is random.
+		} catch (ProvisionException e) {
+			fail("Error laoding destiantion repo", e);
+		}
+	}
 }
