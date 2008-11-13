@@ -12,14 +12,11 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
 	final static boolean DEBUG = true;
-	private static BundleContext context;
-	private static ServiceTracker installLocationTracker;
+	private static volatile BundleContext context;
 	private ServiceRegistration registration;
-	SimpleConfiguratorManipulatorImpl manipulator = null;
 
 	static BundleContext getContext() {
 		return context;
@@ -29,22 +26,18 @@ public class Activator implements BundleActivator {
 		Dictionary props = new Hashtable();
 		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
 		props.put(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
-		manipulator = new SimpleConfiguratorManipulatorImpl();
+		SimpleConfiguratorManipulatorImpl manipulator = new SimpleConfiguratorManipulatorImpl();
 		registration = context.registerService(ConfiguratorManipulator.class.getName(), manipulator, props);
 	}
 
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.registerConfiguratorManipulator();
+		registerConfiguratorManipulator();
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		if (registration != null)
 			registration.unregister();
-		if (installLocationTracker != null) {
-			installLocationTracker.close();
-			installLocationTracker = null;
-		}
 		Activator.context = null;
 	}
 }
