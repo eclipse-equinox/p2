@@ -14,9 +14,11 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * Activator class for the automatic updates plugin
@@ -25,6 +27,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	private static AutomaticUpdatePlugin plugin;
 	private static BundleContext context;
+	private static PackageAdmin packageAdmin = null;
+	private static ServiceReference packageAdminRef = null;
+
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
 	private ServiceRegistration registrationChecker;
@@ -33,6 +38,21 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	public static BundleContext getContext() {
 		return context;
+	}
+	
+	public static Bundle getBundle(String symbolicName) {
+		if (packageAdmin == null)
+			return null;
+		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
+		if (bundles == null)
+			return null;
+		// Return the first bundle that is not installed or uninstalled
+		for (int i = 0; i < bundles.length; i++) {
+			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return bundles[i];
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -57,6 +77,13 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		context = bundleContext;
+		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
+		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
+
+		// TODO for now we need to manually start up the update checker
+		// because the Eclipse Application launch config won't let me specify bundles to start.
+		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+
 		registrationChecker = context.registerService(IUpdateChecker.SERVICE_NAME, new UpdateChecker(), null);
 	}
 
@@ -69,6 +96,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			updater.shutdown();
 			updater = null;
 		}
+		registrationChecker.unregister();
+		registrationChecker = null;
+		packageAdmin = null;
+		packageAdminRef = null;
 		plugin = null;
 		super.stop(bundleContext);
 		context = null;
