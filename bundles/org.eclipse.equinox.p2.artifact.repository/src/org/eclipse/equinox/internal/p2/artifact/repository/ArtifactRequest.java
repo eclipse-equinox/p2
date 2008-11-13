@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
@@ -23,7 +24,6 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	protected String resolvedKey;
 	protected IArtifactRepository source;
 	protected IStatus result = DEFAULT_STATUS;
-	protected IArtifactDescriptor descriptor;
 
 	public ArtifactRequest(IArtifactKey key) {
 		artifact = key;
@@ -32,10 +32,6 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 
 	public IArtifactKey getArtifactKey() {
 		return artifact;
-	}
-
-	public IArtifactDescriptor getArtifactDescriptor() {
-		return descriptor;
 	}
 
 	/**
@@ -62,19 +58,6 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	 *    reporting is not desired
 	 */
 	abstract public void perform(IProgressMonitor monitor);
-
-	/**
-	 * Sets the descriptor to use when processing this request.
-	 * 
-	 * @param value The descriptor to use when processing this request
-	 */
-	public void setDescriptor(IArtifactDescriptor value) {
-		if (!value.getArtifactKey().equals(artifact))
-			throw new IllegalArgumentException("Descriptor's key must match the request's key"); //$NON-NLS-1$
-		descriptor = value;
-		if (artifact == null)
-			artifact = value.getArtifactKey();
-	}
 
 	/**
 	 * Sets the result of an invocation of {@link #perform(IProgressMonitor)}.

@@ -31,8 +31,8 @@ public class MirrorRequest extends ArtifactRequest {
 	private final IArtifactRepository target;
 
 	private final Properties targetDescriptorProperties;
-
 	private final Properties targetRepositoryProperties;
+	protected IArtifactDescriptor descriptor;
 
 	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Properties targetDescriptorProperties, Properties targetRepositoryProperties) {
 		super(key);
