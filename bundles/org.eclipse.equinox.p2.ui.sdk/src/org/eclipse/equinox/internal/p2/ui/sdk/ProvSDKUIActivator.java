@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -45,8 +44,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
-	private AutomaticUpdateScheduler scheduler;
-	private AutomaticUpdater updater;
 	private ServiceRegistration certificateUIRegistration;
 
 	private IPropertyChangeListener preferenceListener;
@@ -140,25 +137,10 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		writeLicenseRegistry();
-		if (scheduler != null) {
-			scheduler.shutdown();
-			scheduler = null;
-		}
-		if (updater != null) {
-			updater.shutdown();
-			updater = null;
-		}
 		plugin = null;
 		certificateUIRegistration.unregister();
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
-	}
-
-	public AutomaticUpdateScheduler getScheduler() {
-		// If the scheduler was disabled, it does not get initialized
-		if (scheduler == null)
-			scheduler = new AutomaticUpdateScheduler();
-		return scheduler;
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
@@ -166,12 +148,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (busReference == null)
 			return null;
 		return (IProvisioningEventBus) context.getService(busReference);
-	}
-
-	public AutomaticUpdater getAutomaticUpdater() {
-		if (updater == null)
-			updater = new AutomaticUpdater();
-		return updater;
 	}
 
 	/**
@@ -194,10 +170,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			throw new ProvisionException(getNoSelfProfileStatus());
 		}
 		return profile.getProfileId();
-	}
-
-	void setScheduler(AutomaticUpdateScheduler scheduler) {
-		this.scheduler = scheduler;
 	}
 
 	static IStatus getNoSelfProfileStatus() {
@@ -265,6 +237,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				// nothing to do
 			}
 		queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
+		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
 		queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
 		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);

@@ -80,7 +80,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (hideInstalled && profileId != null) {
 					try {
 						IProfile profile = ProvisioningUtil.getProfile(profileId);
-						installedQueryDescriptor = new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector());
+						installedQueryDescriptor = new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector());
 					} catch (ProvisionException e) {
 						// just bail out, we won't try to query the installed
 						installedQueryDescriptor = null;
@@ -159,7 +159,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					return null;
 				Collector collector;
 				if (toUpdate == null) {
-					collector = profile.query(new IUProfilePropertyByIdQuery(profile.getProfileId(), context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
+					collector = profile.query(new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
@@ -185,7 +185,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
 
 				// Just a normal query of the installed IU's, query the profile and look for the visible ones
-				return new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
+				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
 			case QueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {

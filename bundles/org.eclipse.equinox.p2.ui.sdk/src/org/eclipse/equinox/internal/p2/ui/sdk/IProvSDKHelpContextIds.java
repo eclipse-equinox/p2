@@ -13,9 +13,4 @@ public interface IProvSDKHelpContextIds {
 	public static final String PREFIX = ProvSDKUIActivator.PLUGIN_ID + "."; //$NON-NLS-1$
 
 	public static final String PROVISIONING_PREFERENCE_PAGE = PREFIX + "provisioning_preference_page_context"; //$NON-NLS-1$
-
-	public static final String AUTOMATIC_UPDATES_PREFERENCE_PAGE = PREFIX + "automatic_updates_preference_page_context"; //$NON-NLS-1$
-
-	public static final String EXTERNAL_FILES_PREFERENCE_PAGE = PREFIX + "external_files_preference_page_context"; //$NON-NLS-1$
-
 }

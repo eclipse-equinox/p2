@@ -5,12 +5,7 @@
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
 	</extension>
-   <extension
-         point="org.eclipse.ui.startup">
-      <startup class="org.eclipse.equinox.internal.p2.ui.sdk.AutomaticUpdateScheduler">
-      </startup>
-   </extension>
- <extension
+  <extension
          point="org.eclipse.ui.propertyPages">
       <page
             name="%IU.copyright"
@@ -64,13 +59,6 @@
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
  
-      <page
-            name="%automaticUpdatesPrefPage"
-            category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
-            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.AutomaticUpdatesPreferencePage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.AutomaticUpdatesPreferencePage">
-            <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
-      </page>
    </extension>
 
       <extension
@@ -169,13 +157,7 @@
             categoryId="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate">
       </categoryActivityBinding>
    </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ClassicUpdateInitializer">
-      </initializer>
-   </extension>
-     	<extension 
+      	<extension 
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
 	</extension>
