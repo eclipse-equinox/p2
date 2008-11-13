@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -138,7 +139,16 @@ public class AutomaticUpdateScheduler implements IStartup {
 			delay = computeDelay(pref);
 			poll = computePoll(pref);
 		}
-		listener = AutomaticUpdatePlugin.getDefault().getAutomaticUpdater();
+		// We do not access the AutomaticUpdater directly when we register 
+		// the listener. This prevents the UI classes from being started up
+		// too soon.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=227582
+		listener = new IUpdateListener() {
+			public void updatesAvailable(UpdateEvent event) {
+				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().updatesAvailable(event);
+			}
+			
+		};
 		checker.addUpdateCheck(profileId, getProfileQuery(), delay, poll, listener);
 
 	}

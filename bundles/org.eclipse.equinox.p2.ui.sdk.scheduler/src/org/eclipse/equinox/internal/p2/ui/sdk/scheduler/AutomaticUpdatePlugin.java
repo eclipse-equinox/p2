@@ -80,8 +80,12 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
 
-		// TODO for now we need to manually start up the update checker
-		// because the Eclipse Application launch config won't let me specify bundles to start.
+		// TODO for now we need to manually start up the provisioning infrastructure
+		// and the update checker, because the Eclipse Application launch config won't 
+		// let me specify bundles to start.
+		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 
 		registrationChecker = context.registerService(IUpdateChecker.SERVICE_NAME, new UpdateChecker(), null);
