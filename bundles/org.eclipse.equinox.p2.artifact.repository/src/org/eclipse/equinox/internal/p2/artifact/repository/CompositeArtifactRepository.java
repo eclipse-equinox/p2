@@ -59,11 +59,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		save();
 	}
 
-	public CompositeArtifactRepository(URI location, String name, Map properties) {
-		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
-		save();
-	}
-
 	public static URI getActualLocation(URI base, boolean compress) {
 		return getActualLocation(base, compress ? JAR_EXTENSION : XML_EXTENSION);
 	}

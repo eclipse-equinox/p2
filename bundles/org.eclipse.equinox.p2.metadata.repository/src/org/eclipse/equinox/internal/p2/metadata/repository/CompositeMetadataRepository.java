@@ -51,10 +51,6 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return isLocal();
 	}
 
-	public CompositeMetadataRepository() {
-		super();
-	}
-
 	public CompositeMetadataRepository(URI location, String name, Map properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
