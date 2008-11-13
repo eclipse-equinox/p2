@@ -145,7 +145,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				return false;
 			added = repositories.put(getKey(location), info) == null;
 			// save the given repository in the preferences.
-			remember(info);
+			remember(info, true);
 		}
 		if (added && signalAdd)
 			broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, isEnabled);
@@ -661,10 +661,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			saveToPreferences();
 	}
 
-	/*
-	 * Save the list of repositories in the preference store.
+	/**
+	 * Writes the state of the repository information into the appropriate preference node.
+	 * 
+	 * @param info The info to write to the preference node
+	 * @param flush <code>true</code> if the preference node should be flushed to
+	 * disk, and <code>false</code> otherwise
 	 */
-	private boolean remember(RepositoryInfo info) {
+	private boolean remember(RepositoryInfo info, boolean flush) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(info.location));
 		changed |= putValue(node, KEY_URI, info.location.toString());
@@ -674,7 +678,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		changed |= putValue(node, KEY_NAME, info.name);
 		changed |= putValue(node, KEY_SUFFIX, info.suffix);
 		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
-		if (changed)
+		if (changed && flush)
 			saveToPreferences();
 		return changed;
 	}
@@ -813,7 +817,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			if (info == null || info.isEnabled == enablement)
 				return;
 			info.isEnabled = enablement;
-			remember(info);
+			remember(info, true);
 		}
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ENABLEMENT, enablement);
 	}
@@ -824,7 +828,19 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public void shutdown() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus != null)
-			bus.addListener(this);
+			bus.removeListener(this);
+		//ensure all repository state in memory is written to disk
+		synchronized (repositoryLock) {
+			if (repositories != null) {
+				boolean changed = false;
+				for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+					RepositoryInfo info = (RepositoryInfo) it.next();
+					changed |= remember(info, false);
+				}
+				if (changed)
+					saveToPreferences();
+			}
+		}
 		saveToPreferences();
 		repositories = null;
 		unavailableRepositories = null;

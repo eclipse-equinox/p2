@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -24,6 +25,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.tests.*;
+import org.osgi.framework.BundleException;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * Tests API of {@link IArtifactRepositoryManager}.
@@ -89,6 +93,41 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			//expected
 		}
+	}
+
+	/**
+	 * This is regression test for bug 236437. In this bug, the repository preference
+	 * file is being overwritten by an update operation, thus losing all repository state.
+	 */
+	public void testLostArtifactRepositories() {
+		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
+		URI location = site.toURI();
+		manager.addRepository(location);
+		assertTrue("0.1", manager.contains(location));
+
+		//bash the repository preference file (don't try this at home, kids)
+		final String REPO_BUNDLE = "org.eclipse.equinox.p2.artifact.repository";
+		Preferences prefs = new ConfigurationScope().getNode(REPO_BUNDLE).node("repositories");
+		try {
+			String[] children = prefs.childrenNames();
+			for (int i = 0; i < children.length; i++)
+				prefs.node(children[i]).removeNode();
+			prefs.flush();
+		} catch (BackingStoreException e) {
+			fail("0.99", e);
+		}
+
+		//stop and restart the artifact repository bundle (kids, if I ever catch you doing this I'm taking PackageAdmin away)
+		try {
+			TestActivator.getBundle(REPO_BUNDLE).stop();
+			TestActivator.getBundle(REPO_BUNDLE).start();
+		} catch (BundleException e) {
+			fail("1.99", e);
+		}
+
+		//everybody's happy again
+		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		assertTrue("1.0", manager.contains(location));
 	}
 
 	public void testPathWithSpaces() {
