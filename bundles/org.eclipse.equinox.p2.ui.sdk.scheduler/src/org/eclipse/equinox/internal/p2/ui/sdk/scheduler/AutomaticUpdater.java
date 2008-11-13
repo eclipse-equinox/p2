@@ -30,6 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -42,7 +43,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class AutomaticUpdater implements IUpdateListener {
 
-	Preferences prefs;
 	StatusLineCLabelContribution updateAffordance;
 	AutomaticUpdateAction updateAction;
 	IStatusLineManager statusLineManager;
@@ -56,7 +56,6 @@ public class AutomaticUpdater implements IUpdateListener {
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
 
 	public AutomaticUpdater() {
-		prefs = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
 	}
 
 	/*
@@ -64,7 +63,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener#updatesAvailable(org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent)
 	 */
 	public void updatesAvailable(final UpdateEvent event) {
-		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
+		final boolean download = getPreferenceStore().getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
 		iusWithUpdates = event.getIUs();
 		validateUpdates(null, true);
@@ -262,7 +261,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	void createUpdatePopup() {
-		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs);
+		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, getPreferenceStore());
 		popup.open();
 
 	}
@@ -417,6 +416,10 @@ public class AutomaticUpdater implements IUpdateListener {
 			bus.removeListener(profileChangeListener);
 		profileChangeListener = null;
 		statusLineManager = null;
+	}
+	
+	IPreferenceStore getPreferenceStore() {
+		return AutomaticUpdatePlugin.getDefault().getPreferenceStore();
 	}
 
 }

@@ -11,14 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -43,7 +44,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
 	private static final int POPUP_OFFSET = 20;
 
-	Preferences prefs;
+	IPreferenceStore prefs;
 	long remindDelay = -1L;
 	IPropertyChangeListener prefListener;
 	WorkbenchJob remindJob;
@@ -52,7 +53,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	Link remindLink;
 	MouseListener clickListener;
 
-	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, Preferences prefs) {
+	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, IPreferenceStore prefs) {
 		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, true, false, false, AutomaticUpdateMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
