@@ -16,14 +16,15 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
-import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.osgi.framework.Constants;
 
 /**
  * 
  */
-public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulator {
+public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorManipulator {
 	class LocationInfo {
 		String[] prerequisiteLocations = null;
 		String systemBundleLocation = null;
@@ -40,13 +41,10 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	private Set manipulators = new HashSet();
 
-	public static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl"; //$NON-NLS-1$
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation"; //$NON-NLS-1$
 	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
-	public static final String TARGET_CONFIGURATOR_NAME = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
-	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = TARGET_CONFIGURATOR_NAME;
 
 	/**	
 	 * Return the ConfiguratorConfigLocation which is determined 
@@ -307,7 +305,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		}
 	}
 
-	private BundleInfo[] loadConfiguration(URL url, File launcherLocation) throws IOException {
+	public BundleInfo[] loadConfiguration(URL url, File launcherLocation) throws IOException {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
 
@@ -319,87 +317,20 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	 * This method is copied from SimpleConfiguratorUtils class.
 	 */
 	public static List readConfiguration(URL url, File base) throws IOException {
-		List bundles = new ArrayList();
-		BufferedReader r = null;
-		try {
-			r = new BufferedReader(new InputStreamReader(url.openStream()));
-		} catch (IOException e) {
-			//exception opening stream
-			return bundles;
+		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url);
+		List result = new ArrayList(simpleBundles.size());
+
+		URL baseURL = base != null ? base.toURL() : null;
+		for (Iterator iterator = simpleBundles.iterator(); iterator.hasNext();) {
+			org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo simpleInfo = (org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo) iterator.next();
+
+			String location = simpleInfo.getLocation();
+			location = makeAbsolute(location, baseURL);
+			BundleInfo bInfo = new BundleInfo(simpleInfo.getSymbolicName(), simpleInfo.getVersion(), location, simpleInfo.getStartLevel(), simpleInfo.isMarkedAsStarted());
+			result.add(bInfo);
 		}
 
-		// System.out.println("readConfiguration(URL url):url()=" + url);
-		String line;
-		try {
-			URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
-			while ((line = r.readLine()) != null) {
-				if (line.startsWith("#")) //$NON-NLS-1$
-					continue;
-				line = line.trim();// symbolicName,version,location,startlevel,expectedState
-				if (line.length() == 0)
-					continue;
-
-				// (expectedState is an integer).
-				//System.out.println("line=" + line);
-				if (line.startsWith(SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=")) { //$NON-NLS-1$
-					String baseUrlSt = line.substring((SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=").length()); //$NON-NLS-1$
-					if (!baseUrlSt.endsWith("/")) //$NON-NLS-1$
-						baseUrlSt += "/"; //$NON-NLS-1$
-					baseUrl = new URL(url, baseUrlSt);
-					continue;
-				}
-				StringTokenizer tok = new StringTokenizer(line, COMMA, true);
-				String symbolicName = tok.nextToken();
-				if (symbolicName.equals(COMMA))
-					symbolicName = null;
-				else
-					tok.nextToken(); // ,
-
-				String version = tok.nextToken();
-				if (version.equals(COMMA))
-					version = null;
-				else
-					tok.nextToken(); // ,
-
-				String urlSt = tok.nextToken();
-				if (urlSt.equals(COMMA)) {
-					if (symbolicName != null && version != null)
-						urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
-					else
-						urlSt = null;
-				} else
-					tok.nextToken(); // ,
-				try {
-					new URL(urlSt);
-					//						if (DEBUG)
-					//							System.out.println("1 urlSt=" + urlSt);
-				} catch (MalformedURLException e) {
-					urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
-					//						if (DEBUG)
-					//							System.out.println("2 urlSt=" + urlSt);
-				}
-
-				int sl = Integer.parseInt(tok.nextToken().trim());
-				tok.nextToken(); // ,
-				boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
-
-				urlSt = makeAbsolute(urlSt, base != null ? base.toURL() : null);
-				BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
-				bundles.add(bInfo);
-				// System.out.println("tail line=" + line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			// TODO log something
-			// bundleInfos = NULL_BUNDLEINFOS;
-		} finally {
-			try {
-				r.close();
-			} catch (IOException ex) {
-				// ignore
-			}
-		}
-		return bundles;
+		return result;
 	}
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
@@ -425,6 +356,10 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		saveConfiguration(setToSimpleConfig, outputFile, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
+	}
+
+	public void saveConfiguration(List bundleInfoList, File outputFile, File base) throws IOException {
+		saveConfiguration(bundleInfoList, outputFile, base, false);
 	}
 
 	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
