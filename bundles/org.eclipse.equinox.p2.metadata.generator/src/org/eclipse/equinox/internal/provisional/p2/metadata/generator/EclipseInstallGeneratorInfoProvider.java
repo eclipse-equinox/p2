@@ -345,8 +345,15 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
-					bundles.add(bInfo);
+					BundleInfo bInfo;
+					try {
+						bInfo = new BundleInfo(symbolicName, version, new URI(urlSt), sl, markedAsStarted);
+
+						bundles.add(bInfo);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Error coverting url based string to uri: " + e.getMessage());
+					}
 				}
 			} finally {
 				try {
