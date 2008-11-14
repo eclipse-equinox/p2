@@ -170,4 +170,65 @@ public class URIUtilTest extends AbstractProvisioningTest {
 		assertEquals(correctURI, URIUtil.removeFileExtension(testFileWithExtension.toURI()));
 		assertEquals(correctURI, URIUtil.removeFileExtension(testFileWithOutExtension.toURI()));
 	}
+
+	public void testMakeAbsolute() throws URISyntaxException {
+		URI[][] data = new URI[][] {
+		// simple path
+		/*
+		new URI[] {new URI("b"), new URI("file:/c:/a/"), new URI("file:/c:/a/b")}, //
+		new URI[] {new URI("b"), new URI("file:/c:/a"), new URI("file:/c:/a/b")},
+		// common root
+		new URI[] {new URI("plugins/foo.jar"), new URI("file:/c:/eclipse/"), new URI("file:/c:/eclipse/plugins/foo.jar")},
+		// different drives
+		new URI[] {new URI("file:/c:/a/b"), new URI("file:/d:/a/x"), new URI("file:/c:/a/b")}, //
+		new URI[] {new URI("file:/c:/eclipse/plugins/foo.jar"), new URI("file:/d:/eclipse/"), new URI("file:/c:/eclipse/plugins/foo.jar")},
+		// non-local
+		new URI[] {new URI("http:/c:/a/b"), new URI("file:/c:/a/x"), new URI("http:/c:/a/b")}, //
+		new URI[] {new URI("file:/c:/a/b"), new URI("http:/c:/a/x"), new URI("file:/c:/a/b")}, //
+		//
+		new URI[] {new URI("b"), new URI("file:/C:/a/"), new URI("file:/C:/a/b")}, //
+		new URI[] {new URI("b"), new URI("file:/C:/a"), new URI("file:/C:/a/b")}, //
+		new URI[] {new URI("file:/c:/"), new URI("file:/d:/"), new URI("file:/c:/")}, //
+		new URI[] {new URI(""), new URI("file:/c:/"), new URI("file:/c:/")}, //
+		//
+		new URI[] {new URI("../plugins/foo.jar"), new URI("file:/c:/eclipse/configuration"), new URI("file:/c:/eclipse/plugins/foo.jar")}, //
+		*/
+		new URI[] {new URI("file:../plugins/foo.jar"), new URI("file:/c:/eclipse/configuration"), new URI("file:/c:/eclipse/plugins/foo.jar")}, //
+		};
+
+		for (int i = 0; i < data.length; i++) {
+			URI location = data[i][0];
+			URI root = data[i][1];
+			URI expected = data[i][2];
+			URI actual = URIUtil.makeAbsolute(location, root);
+			assertEquals(Integer.toString(i), expected, actual);
+		}
+	}
+
+	public void testMakeRelative() throws URISyntaxException {
+		URI[][] data = new URI[][] {
+		// simple path
+				new URI[] {new URI("file:/c:/a/b"), new URI("file:/c:/a/x"), new URI("b")},
+				// common root
+				new URI[] {new URI("file:/c:/eclipse/plugins/foo.jar"), new URI("file:/c:/eclipse/"), new URI("plugins/foo.jar")},
+				// different drives
+				new URI[] {new URI("file:/c:/a/b"), new URI("file:/d:/a/x"), new URI("file:/c:/a/b")}, //
+				new URI[] {new URI("file:/c:/eclipse/plugins/foo.jar"), new URI("file:/d:/eclipse/"), new URI("file:/c:/eclipse/plugins/foo.jar")},
+				// non-local
+				new URI[] {new URI("http:/c:/a/b"), new URI("file:/c:/a/x"), new URI("http:/c:/a/b")}, //
+				new URI[] {new URI("file:/c:/a/b"), new URI("http:/c:/a/x"), new URI("file:/c:/a/b")}, //
+				//
+				new URI[] {new URI("file:/c:/a/b"), new URI("file:/C:/a/x"), new URI("b")}, //
+				new URI[] {new URI("file:/c:/"), new URI("file:/d:/"), new URI("file:/c:/")}, //
+				new URI[] {new URI("file:/c:/"), new URI("file:/c:/"), new URI("")}, //
+		};
+
+		for (int i = 0; i < data.length; i++) {
+			URI location = data[i][0];
+			URI root = data[i][1];
+			URI expected = data[i][2];
+			URI actual = URIUtil.makeRelative(location, root);
+			assertEquals(Integer.toString(i), expected, actual);
+		}
+	}
 }
