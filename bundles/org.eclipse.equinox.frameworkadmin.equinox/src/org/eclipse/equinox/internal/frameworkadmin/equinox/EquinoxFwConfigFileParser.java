@@ -43,7 +43,7 @@ public class EquinoxFwConfigFileParser {
 
 	}
 
-	private static String getCommandLine(BundleInfo bundleInfo, final URL baseUrl) {
+	private static String getCommandLine(BundleInfo bundleInfo) {
 		String location = bundleInfo.getLocation();
 		if (location == null)
 			return null;
@@ -116,7 +116,7 @@ public class EquinoxFwConfigFileParser {
 				normalizeLocation(bInfos[i]);
 				if (fwJarSt != null && fwJarSt.equals(bInfos[i].getLocation()))
 					continue; //framework jar should not appear in the bundles list
-				sb.append(getCommandLine(bInfos[i], null));
+				sb.append(getCommandLine(bInfos[i]));
 				if (i + 1 < bInfos.length)
 					sb.append(',');
 			}
