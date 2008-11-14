@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -26,9 +25,9 @@ import org.osgi.framework.Constants;
  */
 public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorManipulator {
 	class LocationInfo {
-		String[] prerequisiteLocations = null;
-		String systemBundleLocation = null;
-		String[] systemFragmentedBundleLocations = null;
+		URI[] prerequisiteLocations = null;
+		URI systemBundleLocation = null;
+		URI[] systemFragmentedBundleLocations = null;
 	}
 
 	private final static boolean DEBUG = false;
@@ -98,7 +97,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	}
 
-	static boolean isPrerequisiteBundles(String location, LocationInfo info) {
+	static boolean isPrerequisiteBundles(URI location, LocationInfo info) {
 		boolean ret = false;
 
 		if (info.prerequisiteLocations == null)
@@ -112,7 +111,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return ret;
 	}
 
-	static boolean isSystemBundle(String location, LocationInfo info) {
+	static boolean isSystemBundle(URI location, LocationInfo info) {
 		if (info.systemBundleLocation == null)
 			return false;
 		if (location.equals(info.systemBundleLocation))
@@ -120,7 +119,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return false;
 	}
 
-	static boolean isSystemFragmentBundle(String location, LocationInfo info) {
+	static boolean isSystemFragmentBundle(URI location, LocationInfo info) {
 		boolean ret = false;
 		if (info.systemFragmentedBundleLocations == null)
 			return false;
@@ -142,7 +141,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return false;
 	}
 
-	private static boolean isTargetConfiguratorBundle(String location) {
+	private static boolean isTargetConfiguratorBundle(URI location) {
 		final String symbolic = Utils.getPathFromClause(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME));
 		return (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
 	}
@@ -390,7 +389,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 			for (Iterator ite = bundleInfoList.iterator(); ite.hasNext();) {
 				BundleInfo bInfo = (BundleInfo) ite.next();
-				String location = bInfo.getLocation();
+				URI location = bInfo.getLocation();
 
 				if (bInfo.getSymbolicName() == null)
 					bw.write(COMMA);
@@ -440,7 +439,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return result;
 	}
 
-	public static String makeRelative(String urlString, URL rootURL) {
+	public static URI makeRelative(URI urlString, URL rootURL) {
 		// we only traffic in file: URLs
 		int index = urlString.indexOf(FILE_PROTOCOL);
 		if (index == -1)
@@ -520,7 +519,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				return;
 			}
 		BundleInfo[] prerequisites = state.getPrerequisteBundles(configuratorBundleInfo);
-		info.prerequisiteLocations = new String[prerequisites.length];
+		info.prerequisiteLocations = new URI[prerequisites.length];
 		for (int i = 0; i < prerequisites.length; i++)
 			info.prerequisiteLocations[i] = prerequisites[i].getLocation();
 		return;
@@ -541,7 +540,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		info.systemBundleLocation = systemBundleInfo.getLocation();
 		BundleInfo[] fragments = state.getSystemFragmentedBundles();
-		info.systemFragmentedBundleLocations = new String[fragments.length];
+		info.systemFragmentedBundleLocations = new URI[fragments.length];
 		for (int i = 0; i < fragments.length; i++)
 			info.systemFragmentedBundleLocations[i] = fragments[i].getLocation();
 	}
