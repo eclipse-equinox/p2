@@ -684,6 +684,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
 
+	public static String makeAbsolute(String value, URI base) {
+		return null;
+	}
+
 	public static String makeAbsolute(String urlString, URL rootURL) {
 		// we only traffic in file: URLs
 		int index = urlString.indexOf(FILE_PROTOCOL);
