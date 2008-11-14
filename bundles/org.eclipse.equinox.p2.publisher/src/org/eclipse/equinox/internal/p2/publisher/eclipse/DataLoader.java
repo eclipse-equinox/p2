@@ -10,7 +10,8 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -100,15 +101,8 @@ public class DataLoader {
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 
-					BundleInfo bInfo;
-					try {
-						bInfo = new BundleInfo(symbolicName, version, new URI(urlSt), sl, markedAsStarted);
-
-						bundles.add(bInfo);
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-						throw new IllegalStateException("Error coverting url based string to uri: " + e.getMessage());
-					}
+					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+					bundles.add(bInfo);
 				}
 			} finally {
 				try {
