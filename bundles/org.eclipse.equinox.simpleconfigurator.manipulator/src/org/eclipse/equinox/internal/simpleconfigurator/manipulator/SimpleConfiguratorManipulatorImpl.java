@@ -11,8 +11,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -319,12 +318,12 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url);
 		List result = new ArrayList(simpleBundles.size());
 
-		URL baseURL = base != null ? base.toURL() : null;
+		URI baseURL = base != null ? base.toURI() : null;
 		for (Iterator iterator = simpleBundles.iterator(); iterator.hasNext();) {
 			org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo simpleInfo = (org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo) iterator.next();
 
-			String location = simpleInfo.getLocation();
-			location = makeAbsolute(location, baseURL);
+			URI location = simpleInfo.getLocation();
+			location = URIUtil.makeAbsolute(location, baseURL);
 			BundleInfo bInfo = new BundleInfo(simpleInfo.getSymbolicName(), simpleInfo.getVersion(), location, simpleInfo.getStartLevel(), simpleInfo.isMarkedAsStarted());
 			result.add(bInfo);
 		}
@@ -400,7 +399,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				else
 					bw.write(bInfo.getVersion() + COMMA);
 
-				location = makeRelative(location, base != null ? base.toURL() : null);
+				location = URIUtil.makeRelative(location, base != null ? base.toURI() : null);
 				bw.write(location + COMMA);
 				bw.write(bInfo.getStartLevel() + COMMA + bInfo.isMarkedAsStarted());
 				bw.newLine();
@@ -417,99 +416,6 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-	}
-
-	private static String makeRelative(IPath toRel, IPath base) {
-		String relDevice = toRel.getDevice();
-		String baseDevice = base.getDevice();
-		//if the devices are different, we cannot make one relative to the other
-		if (relDevice != baseDevice && (relDevice == null || !relDevice.equalsIgnoreCase(baseDevice)))
-			return toRel.toOSString();
-		int i = base.matchingFirstSegments(toRel);
-		if (i == 0) {
-			return toRel.toOSString();
-		}
-		String result = ""; //$NON-NLS-1$
-		for (int j = 0; j < (base.segmentCount() - i); j++) {
-			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
-		}
-		if (i == toRel.segmentCount())
-			return "."; //$NON-NLS-1$
-		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
-		return result;
-	}
-
-	public static URI makeRelative(URI urlString, URL rootURL) {
-		// we only traffic in file: URLs
-		int index = urlString.indexOf(FILE_PROTOCOL);
-		if (index == -1)
-			return urlString;
-		index = index + 5;
-
-		// ensure we have an absolute path to start with
-		boolean done = false;
-		URL url = null;
-		String file = urlString;
-		while (!done) {
-			try {
-				url = new URL(file);
-				file = url.getFile();
-			} catch (java.net.MalformedURLException e) {
-				done = true;
-			}
-		}
-		if (url == null || !new File(url.getFile()).isAbsolute())
-			return urlString;
-
-		String rootString = rootURL.toExternalForm();
-		IPath one = new Path(urlString.substring(index));
-		IPath two = new Path(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
-		String deviceOne = one.getDevice();
-		String deviceTwo = two.getDevice();
-		// do checking here because we want to return the exact string we got initially if
-		// we are unable to make it relative.
-		if (deviceOne != deviceTwo && (deviceOne == null || !deviceOne.equalsIgnoreCase(two.getDevice())))
-			return urlString;
-
-		return urlString.substring(0, index) + makeRelative(one, two);
-	}
-
-	public static String makeAbsolute(String original, String rootPath) {
-		IPath path = new Path(original);
-		// ensure we have a relative path to start with
-		if (path.isAbsolute())
-			return original;
-		IPath root = new Path(rootPath);
-		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
-	}
-
-	/*
-	 * Make the given path absolute to the specified root, if applicable. If not, then
-	 * return the path as-is.
-	 */
-	public static String makeAbsolute(String urlString, URL rootURL) {
-		// we only traffic in file: URLs
-		int index = urlString.indexOf(FILE_PROTOCOL);
-		if (index == -1)
-			return urlString;
-		index = index + 5;
-
-		// ensure we have a relative path to start with
-		boolean done = false;
-		URL url = null;
-		String file = urlString;
-		while (!done) {
-			try {
-				url = new URL(file);
-				file = url.getFile();
-			} catch (java.net.MalformedURLException e) {
-				done = true;
-			}
-		}
-		if (url == null || new File(url.getFile()).isAbsolute())
-			return urlString;
-
-		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());
 	}
 
 	void setPrerequisiteBundles(BundleInfo configuratorBundleInfo, BundlesState state, LocationInfo info) {
