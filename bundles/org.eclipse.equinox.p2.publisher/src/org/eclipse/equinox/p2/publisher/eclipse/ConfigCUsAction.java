@@ -11,8 +11,6 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -135,7 +133,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					result.add(bundles[i]);
 				else {
 					try {
-						File location = new File(new URL(bundleInfo.getLocation()).getPath());
+						File location = new File(bundleInfo.getLocation());
 						Dictionary manifest = BundlesAction.loadManifest(location);
 						if (manifest == null)
 							continue;
@@ -145,9 +143,6 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 						newInfo.setVersion((String) manifest.get(Constants.BUNDLE_VERSION));
 						result.add(newInfo);
 					} catch (BundleException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
