@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.simpleconfigurator;
 
 import java.io.*;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
@@ -176,18 +176,27 @@ class ConfigApplier {
 			if (symbolicName != null && version != null)
 				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
 
-			String location = finalList[i].getLocation();
+			URI location = finalList[i].getLocation();
 			if (location == null)
 				continue;
-			if (runningOnEquinox && useReference && location.startsWith("file:")) //$NON-NLS-1$
-				location = "reference:" + location; //$NON-NLS-1$
+
+			String bundleLocation = null;
+			try {
+				bundleLocation = location.toURL().toExternalForm();
+			} catch (MalformedURLException e1) {
+				//protocol not recognized?
+				bundleLocation = location.toString();
+			}
+
+			if (runningOnEquinox && useReference && bundleLocation.startsWith("file:")) //$NON-NLS-1$
+				bundleLocation = "reference:" + bundleLocation; //$NON-NLS-1$
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {
 					//TODO Need to eliminate System Bundle.
 					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
 					// it will be installed unfortunately. 
-					current = manipulatingContext.installBundle(location);
+					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
 					toRefresh.add(current);
@@ -198,7 +207,7 @@ class ConfigApplier {
 					}
 					continue;
 				}
-			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !location.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
+			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !bundleLocation.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
 				// We do not do this for the system bundle (id==0), the manipulating bundle or any bundle installed from the osgi.bundles list (locations starting with "@initial"
 				// The bundle exists; but the location is different.  Unintall the current and install the new one (bug 229700)
 				try {
@@ -206,13 +215,13 @@ class ConfigApplier {
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
-						System.err.println("Can't uninstalll " + symbolicName + '/' + version + " from location " + current.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						System.err.println("Can't uninstall " + symbolicName + '/' + version + " from location " + current.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
 						e.printStackTrace();
 					}
 					continue;
 				}
 				try {
-					current = manipulatingContext.installBundle(location);
+					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
 					toRefresh.add(current);

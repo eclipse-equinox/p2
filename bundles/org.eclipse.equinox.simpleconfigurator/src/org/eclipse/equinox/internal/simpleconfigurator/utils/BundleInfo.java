@@ -8,25 +8,26 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
-/**
+import java.net.URI;
+
+/*
  * This object represents information of a bundle.
- *
  */
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
 
 	private String symbolicName = null;
 	private String version = null;
-	private String location;
+	private URI location;
 
 	private boolean markedAsStarted = false;
 	private int startLevel = NO_LEVEL;
 	private boolean resolved = false;
 
-	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
+	public BundleInfo(String symbolic, String version, URI location, int startLevel, boolean started) {
 		this.symbolicName = symbolic;
 		this.version = version;
-		this.location = location.trim();
+		this.location = location;
 		this.markedAsStarted = started;
 		this.startLevel = startLevel;
 	}
@@ -48,7 +49,7 @@ public class BundleInfo {
 		return false;
 	}
 
-	public String getLocation() {
+	public URI getLocation() {
 		return location;
 	}
 

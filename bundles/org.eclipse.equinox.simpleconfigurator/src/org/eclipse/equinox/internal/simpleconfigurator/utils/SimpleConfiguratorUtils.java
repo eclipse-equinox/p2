@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 
 public class SimpleConfiguratorUtils {
@@ -20,24 +19,29 @@ public class SimpleConfiguratorUtils {
 		try {
 			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
 
+			boolean firstLine = true;
+			int fileFormat = 0;
 			String line;
 			try {
 				URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
 				while ((line = r.readLine()) != null) {
+					if (firstLine) {
+						if (line.startsWith("version=")) {
+							try {
+								fileFormat = Integer.valueOf(line.substring(8)).intValue();
+							} catch (NumberFormatException e) {
+								//TODO stay at version 0?
+							}
+						}
+						firstLine = false;
+					}
+
 					if (line.startsWith("#")) //$NON-NLS-1$
 						continue;
 					line = line.trim();// symbolicName,version,location,startlevel,expectedState
 					if (line.length() == 0)
 						continue;
 
-					// (expectedState is an integer).
-					if (line.startsWith(SimpleConfiguratorConstants.PARAMETER_BASEURL + "=")) { //$NON-NLS-1$
-						String baseUrlSt = line.substring((SimpleConfiguratorConstants.PARAMETER_BASEURL + "=").length()); //$NON-NLS-1$
-						if (!baseUrlSt.endsWith("/")) //$NON-NLS-1$
-							baseUrlSt += "/"; //$NON-NLS-1$
-						baseUrl = new URL(url, baseUrlSt);
-						continue;
-					}
 					StringTokenizer tok = new StringTokenizer(line, ",", true); //$NON-NLS-1$
 					String symbolicName = tok.nextToken();
 					if (symbolicName.equals(",")) //$NON-NLS-1$
@@ -57,25 +61,29 @@ public class SimpleConfiguratorUtils {
 							urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
 						else
 							urlSt = null;
-					} else
+					} else {
+						if (urlSt.startsWith("\"")) {
+							while (!urlSt.endsWith("\""))
+								urlSt += tok.nextToken();
+						}
 						tok.nextToken(); // ,
-					try {
-						Utils.buildURL(urlSt);
-					} catch (MalformedURLException e) {
-						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
 					}
 
 					int sl = Integer.parseInt(tok.nextToken().trim());
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
-					// URL urlBundle = null;
-					// try {
-					// urlBundle = Utils.buildURL(urlSt);
-					// } catch (MalformedURLException e) {
-					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
-					// }
 
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+					URI bundleLocation = null;
+					if (fileFormat == 0) {
+						try {
+							Utils.buildURL(urlSt);
+						} catch (MalformedURLException e) {
+							urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
+						}
+					}
+					bundleLocation = URI.create(urlSt);
+
+					BundleInfo bInfo = new BundleInfo(symbolicName, version, bundleLocation, sl, markedAsStarted);
 					bundles.add(bInfo);
 				}
 			} finally {
