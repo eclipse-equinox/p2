@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.io.File;
 import java.net.*;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**

@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.net.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
