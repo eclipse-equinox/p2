@@ -427,7 +427,7 @@ public class EquinoxBundlesState implements BundlesState {
 				location = new URI(bundles[i].getLocation());
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
-				throw new IllegalStateException("BundleDescription conversion problem", e); //$NON-NLS-1$
+				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage()); //$NON-NLS-1$ //TODO path_fun
 			}
 			BundleInfo original = (BundleInfo) bundleInfoMap.get(location);
 			if (original != null) {

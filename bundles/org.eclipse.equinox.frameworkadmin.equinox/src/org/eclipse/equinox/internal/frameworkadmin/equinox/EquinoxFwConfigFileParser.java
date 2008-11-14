@@ -225,7 +225,7 @@ public class EquinoxFwConfigFileParser {
 						configData.addBundle(new BundleInfo(new URI(realLocation), startLevel, markedAsStarted));
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
-						throw new IllegalStateException("Error creating location", e);
+						throw new IllegalStateException("Error creating location" + e.getMessage());
 					}
 				else {
 					try {
@@ -235,7 +235,7 @@ public class EquinoxFwConfigFileParser {
 						configData.addBundle(new BundleInfo(null, null, new URI(location), startLevel, markedAsStarted));
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
-						throw new IllegalStateException("Error creating location", e);
+						throw new IllegalStateException("Error creating location" + e.getMessage());
 					}
 				}
 			}
