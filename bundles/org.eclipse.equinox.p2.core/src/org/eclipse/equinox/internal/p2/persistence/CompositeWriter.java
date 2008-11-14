@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.URIUtil;
 
 public abstract class CompositeWriter extends XMLWriter implements XMLConstants {
 

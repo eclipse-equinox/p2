@@ -14,9 +14,9 @@ package org.eclipse.equinox.internal.p2.tools.mirror;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
 
 /**
  * An application that performs mirroring of artifacts between repositories.

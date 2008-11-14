@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.tools.ant.*;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.director.app.Application;
 import org.osgi.framework.Version;
 

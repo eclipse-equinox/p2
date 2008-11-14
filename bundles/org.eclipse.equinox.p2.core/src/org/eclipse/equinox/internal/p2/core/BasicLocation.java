@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.core;
 
 import java.net.*;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 
 /**

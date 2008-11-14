@@ -12,11 +12,8 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
