@@ -23,9 +23,15 @@ public class Messages extends NLS {
 	public static String exception_metadataRepoLocationURL;
 	public static String exception_metadataRepoNotWritable;
 	public static String exception_baseLocationNotSpecified;
+	public static String exception_errorParsingManifest;
+	public static String exception_errorLoadingManifest;
+	public static String exception_noPluginConverter;
+
+	public static String exception_noBundlesOrLocations;
 
 	public static String message_generatingMetadata;
 	public static String message_generationCompleted;
+	public static String message_noSimpleconfigurator;
 
 	public static String error_rootIU_generation;
 	static {

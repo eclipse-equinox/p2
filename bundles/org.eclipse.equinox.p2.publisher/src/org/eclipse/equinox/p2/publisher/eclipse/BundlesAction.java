@@ -517,7 +517,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		try {
 			converter = acquirePluginConverter();
 			if (converter == null) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to aquire PluginConverter service during generation for: " + bundleLocation));
+				String message = NLS.bind(Messages.exception_noPluginConverter, bundleLocation);
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 				return null;
 			}
 			return converter.convertManifest(bundleLocation, false, null, true, null);
@@ -561,11 +562,11 @@ public class BundlesAction extends AbstractPublisherAction {
 			ManifestElement.parseBundleManifest(manifestStream, entries);
 			return createBundleDescription(entries, bundleLocation);
 		} catch (IOException e) {
-			String message = "An error occurred while reading the bundle description " + (bundleLocation == null ? "" : bundleLocation.getAbsolutePath() + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+			String message = NLS.bind(Messages.exception_errorParsingManifest, (bundleLocation == null ? "" : bundleLocation.getAbsolutePath()), e.getMessage()); //$NON-NLS-1$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 		} catch (BundleException e) {
-			String message = "An error occurred while reading the bundle description " + (bundleLocation == null ? "" : bundleLocation.getAbsolutePath() + '.'); //$NON-NLS-1$ //$NON-NLS-2$
+			String message = NLS.bind(Messages.exception_errorParsingManifest, (bundleLocation == null ? "" : bundleLocation.getAbsolutePath()), e.getMessage()); //$NON-NLS-1$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 		}
@@ -573,6 +574,16 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public static Dictionary loadManifest(File bundleLocation) {
+		Dictionary manifest = basicLoadManifest(bundleLocation);
+		if (manifest == null)
+			return null;
+		// if the bundle itself does not define its shape, infer the shape from the current form
+		if (manifest.get(BUNDLE_SHAPE) == null)
+			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
+		return manifest;
+	}
+
+	public static Dictionary basicLoadManifest(File bundleLocation) {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		try {
@@ -588,8 +599,8 @@ public class BundlesAction extends AbstractPublisherAction {
 					manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
 			}
 		} catch (IOException e) {
-			//ignore but log
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
+			String message = NLS.bind(Messages.exception_errorLoadingManifest, bundleLocation);
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, message, e));
 		}
 
 		Dictionary manifest = null;
@@ -600,10 +611,12 @@ public class BundlesAction extends AbstractPublisherAction {
 				// real answer is to have people expect a Map but that is a wider change.
 				manifest = new Hashtable(manifestMap);
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
+				String message = NLS.bind(Messages.exception_errorParsingManifest, bundleLocation, e.getMessage());
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
 				return null;
 			} catch (BundleException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
+				String message = NLS.bind(Messages.exception_errorParsingManifest, bundleLocation, e.getMessage());
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
 				return null;
 			} finally {
 				try {
@@ -623,13 +636,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		//Deal with the pre-3.0 plug-in shape who have a default jar manifest.mf
 		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
 			manifest = convertPluginManifest(bundleLocation, true);
-
-		if (manifest == null)
-			return null;
-		// if the bundle itself does not define its shape, infer the shape from the current form
-		if (manifest.get(BUNDLE_SHAPE) == null)
-			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
 		return manifest;
+
 	}
 
 	public BundlesAction(File[] locations) {
@@ -642,7 +650,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		if (bundles == null && locations == null)
-			throw new IllegalStateException("No bundles or locations provided");
+			throw new IllegalStateException(Messages.exception_noBundlesOrLocations);
 		try {
 			if (bundles == null)
 				bundles = getBundleDescriptions(expandLocations(locations), monitor);
@@ -727,15 +735,16 @@ public class BundlesAction extends AbstractPublisherAction {
 						File location = new File(bd.getLocation());
 						IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
 						addProperties((ArtifactDescriptor) ad, location, info);
-						// don't consider any advice here as we want to know about the real form on disk
-						boolean isDir = isDir(bd, info);
-						// if the artifact is a dir then zip it up.
-						// TODO this does not cover all the cases.  What if the current artifact is not in the form it should be in the end?
-						// for example we have a dir on disk but it should be deployed as a JAR?
-						if (isDir)
+
+						// Publish according to the shape on disk
+						File bundleLocation = new File(bd.getLocation());
+						if (bundleLocation.isDirectory())
 							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info);
 						else
 							publishArtifact(ad, new File(bd.getLocation()), info);
+
+						// Create the bundle IU according to any shape advice we have
+						boolean isDir = isDir(bd, info);
 						// FIXME 1.0 merge - need to consider phase instruction advice here.  See Generator#mergeInstructionsAdvice 
 						IInstallableUnit bundleIU = createBundleIU(bd, bundleManifest, isDir, key, info);
 
@@ -838,9 +847,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (addSimpleConfigurator) {
 			// Add simple configurator to the list of bundles
 			try {
-				URL configuratorURL = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar"));
+				URL configuratorURL = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")); //$NON-NLS-1$
 				if (configuratorURL == null)
-					System.out.println("Could not find simpleconfigurator bundle");
+					LogHelper.log(new Status(IStatus.INFO, Activator.ID, Messages.message_noSimpleconfigurator));
 				else {
 					File location = new File(configuratorURL.getFile());
 					result[result.length - 1] = createBundleDescription(location);
