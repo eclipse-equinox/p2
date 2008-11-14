@@ -45,8 +45,8 @@ public class PlatformConfigurationWrapper {
 			if (bis[i].getSymbolicName().equals(searchFor)) {
 				if (bis[i].getLocation() != null) {
 					try {
-						if (bis[i].getLocation().startsWith("file:")) //$NON-NLS-1$
-							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().substring(5)).toURL();
+						if (bis[i].getLocation().getScheme().equals("file")) //$NON-NLS-1$
+							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().getPath()).toURL();
 					} catch (MalformedURLException e) {
 						//do nothing
 					}

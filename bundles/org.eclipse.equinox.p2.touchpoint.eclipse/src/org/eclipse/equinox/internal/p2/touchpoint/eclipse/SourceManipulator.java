@@ -37,13 +37,13 @@ public class SourceManipulator {
 	public void addBundle(File bundleFile) throws IOException {
 		if (sourceBundles == null)
 			load();
-		sourceBundles.add(new BundleInfo(bundleFile.toURL().toString()));
+		sourceBundles.add(new BundleInfo(bundleFile.toURI()));
 	}
 
 	public void addBundle(File bundleFile, String bundleId, Version bundleVersion) throws IOException {
 		if (sourceBundles == null)
 			load();
-		BundleInfo sourceInfo = new BundleInfo(bundleFile.toURL().toString());
+		BundleInfo sourceInfo = new BundleInfo(bundleFile.toURI());
 		sourceInfo.setSymbolicName(bundleId);
 		sourceInfo.setVersion(bundleVersion.toString());
 		sourceBundles.add(sourceInfo);
@@ -55,7 +55,7 @@ public class SourceManipulator {
 
 		BundleInfo sourceInfo = new BundleInfo();
 		if (bundleFile != null)
-			sourceInfo.setLocation(bundleFile.toURL().toString());
+			sourceInfo.setLocation(bundleFile.toURI());
 		sourceInfo.setSymbolicName(bundleId);
 		sourceInfo.setVersion(bundleVersion.toString());
 		sourceBundles.remove(sourceInfo);

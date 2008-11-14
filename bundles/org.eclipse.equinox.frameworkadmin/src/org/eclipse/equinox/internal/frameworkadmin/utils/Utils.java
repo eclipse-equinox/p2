@@ -26,7 +26,7 @@ import org.osgi.framework.Constants;
 
 public class Utils {
 	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
-	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String FILE_SCHEME = "file:"; //$NON-NLS-1$
 	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
 	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 	private static final String PLUGIN_MANIFEST = "plugin.xml"; //$NON-NLS-1$
@@ -197,32 +197,32 @@ public class Utils {
 		return ret;
 	}
 
-	public static String[] getClausesManifestMainAttributes(String location, String name) {
+	public static String[] getClausesManifestMainAttributes(URI location, String name) {
 		return getClauses(getManifestMainAttributes(location, name));
 	}
 
-	public static String getManifestMainAttributes(String location, String name) {
+	public static String getManifestMainAttributes(URI location, String name) {
 		Dictionary manifest = Utils.getOSGiManifest(location);
 		if (manifest == null)
 			throw new RuntimeException("Unable to locate bundle manifest: " + location);
 		return (String) manifest.get(name);
 	}
 
-	public static Dictionary getOSGiManifest(String location) {
+	public static Dictionary getOSGiManifest(URI location) {
 		if (location == null)
 			return null;
 		// if we have a file-based URL that doesn't end in ".jar" then...
-		if (location.startsWith(FILE_PROTOCOL) && !location.endsWith(".jar"))
-			return basicLoadManifest(new File(location.substring(FILE_PROTOCOL.length())));
+		if (location.getScheme().equals(FILE_SCHEME) && !location.getPath().endsWith(".jar"))
+			return basicLoadManifest(new File(location));
 
 		try {
 			JarFile jar = null;
 			File file = null;
-			if (location.startsWith(FILE_PROTOCOL)) {
-				file = new File(location.substring(FILE_PROTOCOL.length()));
+			if (location.getScheme().equals(FILE_SCHEME)) {
+				file = new File(location);
 				jar = new JarFile(file);
 			} else {
-				URL url = new URL("jar:" + location + "!/");
+				URL url = new URL("jar:" + location.toString() + "!/");
 				JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 				jar = jarConnection.getJarFile();
 				// todo should set this var if possible

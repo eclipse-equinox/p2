@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
-import org.eclipse.core.runtime.Path;
+import java.net.URI;
 
 /**
  * This object represents information of a bundle.
@@ -19,10 +19,11 @@ import org.eclipse.core.runtime.Path;
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
 	public static final int NO_BUNDLEID = -1;
+	private static final String FILE_SCHEME = "file:";
 
 	private String symbolicName = null;
 	private String version = null;
-	private String location;
+	private URI location;
 	private long bundleId = NO_BUNDLEID;
 
 	private boolean markedAsStarted = false;
@@ -34,71 +35,46 @@ public class BundleInfo {
 	public BundleInfo() {
 	}
 
-	public BundleInfo(String location) {
-		if (location != null)
-			this.location = location.trim();
+	public BundleInfo(URI location) {
+		this.location = location;
 	}
 
-	public BundleInfo(String location, boolean started) {
-		if (location != null)
-			this.location = location.trim();
+	public BundleInfo(URI location, boolean started) {
+		this.location = location;
 		this.markedAsStarted = started;
 	}
 
-	public BundleInfo(String location, int startLevel) {
-		if (location != null)
-			this.location = location.trim();
+	public BundleInfo(URI location, int startLevel) {
+		this.location = location;
 		this.startLevel = startLevel;
 	}
 
-	public BundleInfo(String location, int startLevel, boolean started) {
-		if (location != null)
-			this.location = location.trim();
+	public BundleInfo(URI location, int startLevel, boolean started) {
+		this.location = location;
 		this.startLevel = startLevel;
 		this.markedAsStarted = started;
 	}
 
-	public BundleInfo(String location, int startLevel, boolean started, long bundleId) {
-		if (location != null)
-			this.location = location.trim();
+	public BundleInfo(URI location, int startLevel, boolean started, long bundleId) {
+		this.location = location;
 		this.startLevel = startLevel;
 		this.markedAsStarted = started;
 		this.bundleId = bundleId;
 	}
 
-	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
+	public BundleInfo(String symbolic, String version, URI location, int startLevel, boolean started) {
 		this.symbolicName = symbolic;
 		this.version = version;
-		if (location != null)
-			this.location = location.trim();
+		this.location = location;
 		this.markedAsStarted = started;
 		this.startLevel = startLevel;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object toCompare) {
-		if (toCompare instanceof BundleInfo) {
-			BundleInfo info = (BundleInfo) toCompare;
-			//if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.url == null || url == null ? true : info.url.equals(url)))
-			if (info.symbolicName != null && info.version != null && symbolicName != null && version != null) {
-				// TODO: the equalsIgnoreCase for location comparison is a bug;
-				//		 need a platform sensitive location comparison method
-				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : new Path(info.location).toFile().equals(new Path(location).toFile())))
-					return true;
-			} else {
-				return (info.location == null || location == null ? false : new Path(info.location).toFile().equals(new Path(location).toFile()));
-			}
-		}
-		return false;
 	}
 
 	public long getBundleId() {
 		return bundleId;
 	}
 
-	public String getLocation() {
+	public URI getLocation() {
 		return location;
 	}
 
@@ -118,15 +94,6 @@ public class BundleInfo {
 		return version;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() {
-		int result = symbolicName == null ? 0 : symbolicName.hashCode();
-		result = result + (version == null ? 0 : version.hashCode());
-		return result;
-	}
-
 	public boolean isMarkedAsStarted() {
 		return markedAsStarted;
 	}
@@ -139,8 +106,8 @@ public class BundleInfo {
 		this.bundleId = bundleId;
 	}
 
-	public void setLocation(String location) {
-		this.location = (location != null ? location.trim() : null);
+	public void setLocation(URI location) {
+		this.location = location;
 
 	}
 
@@ -193,5 +160,42 @@ public class BundleInfo {
 		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append(')');
 		return buffer.toString();
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((symbolicName == null) ? 0 : symbolicName.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+
+		if (obj == null)
+			return false;
+
+		if (getClass() != obj.getClass())
+			return false;
+
+		BundleInfo other = (BundleInfo) obj;
+		if (symbolicName == null) {
+			if (other.symbolicName != null)
+				return false;
+		} else if (!symbolicName.equals(other.symbolicName))
+			return false;
+
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
+
+		if (location == null || other.location == null || location.equals(other.location))
+			return true;
+
+		return false;
 	}
 }

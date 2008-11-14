@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
@@ -44,7 +43,7 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private static String getCommandLine(BundleInfo bundleInfo) {
-		String location = bundleInfo.getLocation();
+		String location = bundleInfo.getLocation().toString();
 		if (location == null)
 			return null;
 		boolean useReference = true;
@@ -171,18 +170,22 @@ public class EquinoxFwConfigFileParser {
 		return false;
 	}
 
+	// TODO: Is this redundant now
 	private static void normalizeLocation(BundleInfo bInfo) {
-		String location = bInfo.getLocation();
-		try {
-			if (location.startsWith("file:")) { //$NON-NLS-1$
-				bInfo.setLocation(new URL(location).toExternalForm());
-			} else {
-				bInfo.setLocation(new File(location).toURL().toExternalForm());
-			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		// TODO: I believe this is redundant now
+		//		String location = bInfo.getLocation();
+		//		try {
+		//			if (location.startsWith("file:")) { //$NON-NLS-1$
+		//				bInfo.setLocation(new URL(location).toExternalForm());
+		//			} else {
+		//				bInfo.setLocation(new File(location).toURL().toExternalForm());
+		//			}
+		//		} catch (MalformedURLException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+
 		//			location = location.substring("file:".length());
 		//			if (!location.startsWith("/"))
 		//				location = "/" + location;
@@ -217,9 +220,24 @@ public class EquinoxFwConfigFileParser {
 				int startLevel = getStartLevel(slAndFlag, token);
 
 				if (realLocation != null)
-					configData.addBundle(new BundleInfo(realLocation, startLevel, markedAsStarted));
-				else
-					configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
+					try {
+						//TODO: Pascal to look at this
+						configData.addBundle(new BundleInfo(new URI(realLocation), startLevel, markedAsStarted));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Error creating location", e);
+					}
+				else {
+					try {
+						//TODO: Pascal to look at this
+						// was --> configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
+
+						configData.addBundle(new BundleInfo(null, null, new URI(location), startLevel, markedAsStarted));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Error creating location", e);
+					}
+				}
 			}
 		}
 	}
@@ -264,7 +282,7 @@ public class EquinoxFwConfigFileParser {
 			if (fwJarString != null) {
 				fwJar = new File(new URL(fwJarString).getFile());
 				launcherData.setFwJar(fwJar);
-				configData.addBundle(new BundleInfo(fwJarString));
+				configData.addBundle(new BundleInfo(fwJar.toURI()));
 			}
 		}
 

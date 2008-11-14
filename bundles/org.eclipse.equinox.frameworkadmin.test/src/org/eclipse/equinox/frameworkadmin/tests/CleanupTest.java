@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.net.URISyntaxException;
+
+import java.net.URI;
+
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
@@ -87,8 +91,8 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
 	}
 
-	public void testWithMutipleBundles() throws IOException {
-		BundleInfo bi = new BundleInfo(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 2);
+	public void testWithMutipleBundles() throws IOException, URISyntaxException {
+		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 

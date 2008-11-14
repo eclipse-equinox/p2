@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.frameworkadmin.utils;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.Constants;
@@ -118,7 +119,7 @@ public class SimpleBundlesState implements BundlesState {
 	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.BundlesState#getPrerequisteBundles(org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo)
 	 */
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
-		String location = bInfo.getLocation();
+		URI location = bInfo.getLocation();
 		final String requiredBundles = Utils.getManifestMainAttributes(location, Constants.REQUIRE_BUNDLE);
 		if (requiredBundles == null)
 			return new BundleInfo[] {this.getSystemBundle()};
@@ -132,7 +133,7 @@ public class SimpleBundlesState implements BundlesState {
 		ret.add(this.getSystemBundle());
 		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			BundleInfo currentBInfo = (BundleInfo) ite.next();
-			String currentLocation = currentBInfo.getLocation();
+			URI currentLocation = currentBInfo.getLocation();
 			String currentSymbolicName = Utils.getManifestMainAttributes(currentLocation, Constants.BUNDLE_SYMBOLICNAME);
 			if (currentSymbolicName == null)
 				continue;
@@ -154,7 +155,7 @@ public class SimpleBundlesState implements BundlesState {
 				BundleInfo bInfo = (BundleInfo) ite.next();
 				//			if (bInfo.getStartLevel() != 1)
 				//				return null;;
-				String location = bInfo.getLocation();
+				URI location = bInfo.getLocation();
 				String bundleName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_NAME);
 				if (systemBundleName.equals(bundleName)) {
 					String bundleVendor = Utils.getManifestMainAttributes(location, Constants.BUNDLE_VENDOR);
@@ -166,7 +167,7 @@ public class SimpleBundlesState implements BundlesState {
 		}
 		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			BundleInfo bInfo = (BundleInfo) ite.next();
-			String location = bInfo.getLocation();
+			URI location = bInfo.getLocation();
 			String symbolicName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
 			symbolicName = Utils.getPathFromClause(symbolicName);
 			if (this.systemBundleSymbolicName.equals(symbolicName))
@@ -183,7 +184,7 @@ public class SimpleBundlesState implements BundlesState {
 		List list = new LinkedList();
 		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			BundleInfo bInfo = (BundleInfo) ite.next();
-			String location = bInfo.getLocation();
+			URI location = bInfo.getLocation();
 			String manifestVersion = Utils.getManifestMainAttributes(location, Constants.BUNDLE_MANIFESTVERSION);
 			if (manifestVersion == null)
 				continue;
@@ -227,20 +228,14 @@ public class SimpleBundlesState implements BundlesState {
 			this.installBundle(bInfos[j]);
 
 		if (getSystemBundle() == null) {
-			try {
-				BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true, 0);
-				this.installBundle(sysBInfo);
-
-			} catch (MalformedURLException e) {
-				// Nothign to do because never happens.
-				e.printStackTrace();
-			}
+			BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURI(), 0, true, 0);
+			this.installBundle(sysBInfo);
 		}
 	}
 
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 
-		String newLocation = bInfo.getLocation();
+		URI newLocation = bInfo.getLocation();
 		Dictionary newManifest = Utils.getOSGiManifest(newLocation);
 		if (newManifest == null) {
 			// TODO log something here
@@ -252,7 +247,7 @@ public class SimpleBundlesState implements BundlesState {
 		boolean found = false;
 		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			BundleInfo currentBInfo = (BundleInfo) ite.next();
-			String location = currentBInfo.getLocation();
+			URI location = currentBInfo.getLocation();
 			if (newLocation.equals(location)) {
 				found = true;
 				break;
@@ -315,12 +310,12 @@ public class SimpleBundlesState implements BundlesState {
 	}
 
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
-		String targetLocation = bInfo.getLocation();
+		URI targetLocation = bInfo.getLocation();
 		int index = -1;
 		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			index++;
 			BundleInfo currentBInfo = (BundleInfo) ite.next();
-			String location = currentBInfo.getLocation();
+			URI location = currentBInfo.getLocation();
 			if (targetLocation.equals(location)) {
 				break;
 			}

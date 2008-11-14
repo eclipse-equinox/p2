@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.net.URI;
+
 import java.io.*;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -55,8 +57,8 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", osgiJar.toURL().toExternalForm(), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", scJar.toURL().toExternalForm(), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", osgiJar.toURI(), 0, true);
+		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", scJar.toURI(), 1, true);
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
 		try {
@@ -74,7 +76,7 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), adjustSlashes(":plugins/org.eclipse.equinox.simpleconfigurator.jar"));
 		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), adjustSlashes(":plugins/org.eclipse.osgi.jar"));
 
-		BundleInfo bi = new BundleInfo(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 2);
+		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
 		manipulator.getConfigData().addBundle(bi);
 		manipulator.save(false);
 //		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm());

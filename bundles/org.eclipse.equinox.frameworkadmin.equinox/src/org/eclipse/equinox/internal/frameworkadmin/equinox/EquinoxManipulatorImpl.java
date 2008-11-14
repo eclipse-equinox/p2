@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
@@ -293,9 +293,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			//			System.out.println("bundles[" + i + "]=" + bundles[i]);
 			try {
 				if (bundles[i].getBundleId() == 0) // SystemBundle
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsolutePath(), -1, true);
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true);
 				else {
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsolutePath(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]));
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -500,8 +500,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		ConfiguratorManipulator previousConfiguratorManipulator = configuratorManipulator;
 		configuratorManipulator = null;
 		for (int i = 0; i < bInfos.length; i++) {
-			String location = bInfos[i].getLocation();
-			location = FileUtils.getRealLocation(this, location, true);
+			URI location = bInfos[i].getLocation();
 			if (!bInfos[i].isMarkedAsStarted())
 				continue;
 			for (int j = 0; j < references.length; j++)

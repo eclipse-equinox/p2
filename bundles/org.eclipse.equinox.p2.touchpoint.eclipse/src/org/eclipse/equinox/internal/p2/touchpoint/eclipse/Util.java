@@ -162,12 +162,7 @@ public class Util {
 
 	public static BundleInfo createBundleInfo(File bundleFile, String manifest) {
 		BundleInfo bundleInfo = new BundleInfo();
-		try {
-			if (bundleFile != null)
-				bundleInfo.setLocation(bundleFile.toURL().toExternalForm());
-		} catch (MalformedURLException e) {
-			//Ignore since we are creating the URL from the file
-		}
+		bundleInfo.setLocation(bundleFile.toURI());
 
 		bundleInfo.setManifest(manifest);
 		try {
