@@ -165,7 +165,8 @@ public class InstallApplication implements IApplication {
 			}
 			return IApplication.EXIT_OK;
 		} finally {
-			advisor.stop();
+			if (advisor != null)
+				advisor.stop();
 		}
 	}
 
