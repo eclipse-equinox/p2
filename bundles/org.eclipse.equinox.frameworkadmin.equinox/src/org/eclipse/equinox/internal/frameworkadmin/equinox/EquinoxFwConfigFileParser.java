@@ -228,15 +228,11 @@ public class EquinoxFwConfigFileParser {
 						throw new IllegalStateException("Error creating location" + e.getMessage());
 					}
 				else {
-					try {
-						//TODO: Pascal to look at this
-						// was --> configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
-
-						configData.addBundle(new BundleInfo(null, null, new URI(location), startLevel, markedAsStarted));
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-						throw new IllegalStateException("Error creating location" + e.getMessage());
-					}
+					//TODO: Pascal to look at this
+					// was --> configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
+					//AN : if realLocation is null, we couldn't find it on disk, we probably only have a symbolic id,
+					//we are working off of a bundles.list from the config.ini
+					configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 				}
 			}
 		}
