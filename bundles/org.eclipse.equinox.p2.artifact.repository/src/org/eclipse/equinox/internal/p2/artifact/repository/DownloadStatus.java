@@ -24,13 +24,6 @@ public class DownloadStatus extends Status {
 	/**
 	 * Constructs a new DownloadStatus with the given attributes.
 	 */
-	public DownloadStatus(int severity, String pluginId, int code, String message, Throwable exception) {
-		super(severity, pluginId, code, message, exception);
-	}
-
-	/**
-	 * Constructs a new DownloadStatus with the given attributes.
-	 */
 	public DownloadStatus(int severity, String pluginId, String message) {
 		super(severity, pluginId, message);
 	}
