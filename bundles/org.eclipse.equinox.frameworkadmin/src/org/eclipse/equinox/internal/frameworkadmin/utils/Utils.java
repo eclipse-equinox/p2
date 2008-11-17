@@ -26,7 +26,7 @@ import org.osgi.framework.Constants;
 
 public class Utils {
 	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
-	private static final String FILE_SCHEME = "file:"; //$NON-NLS-1$
+	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
 	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 	private static final String PLUGIN_MANIFEST = "plugin.xml"; //$NON-NLS-1$
@@ -212,13 +212,13 @@ public class Utils {
 		if (location == null)
 			return null;
 		// if we have a file-based URL that doesn't end in ".jar" then...
-		if (location.getScheme().equals(FILE_SCHEME) && !location.getPath().endsWith(".jar"))
+		if (FILE_SCHEME.equals(location.getScheme()) && !location.getPath().endsWith(".jar"))
 			return basicLoadManifest(new File(location));
 
 		try {
 			JarFile jar = null;
 			File file = null;
-			if (location.getScheme().equals(FILE_SCHEME)) {
+			if (FILE_SCHEME.equals(location.getScheme())) {
 				file = new File(location);
 				jar = new JarFile(file);
 			} else {
