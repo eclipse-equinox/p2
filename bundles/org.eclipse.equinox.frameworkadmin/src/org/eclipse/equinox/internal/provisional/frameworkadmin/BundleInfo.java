@@ -19,10 +19,10 @@ import java.net.URI;
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
 	public static final int NO_BUNDLEID = -1;
-	private static final String FILE_SCHEME = "file:";
 
 	private String symbolicName = null;
 	private String version = null;
+	private URI baseLocation;
 	private URI location;
 	private long bundleId = NO_BUNDLEID;
 
@@ -74,6 +74,10 @@ public class BundleInfo {
 		return bundleId;
 	}
 
+	public URI getBaseLocation() {
+		return baseLocation;
+	}
+
 	public URI getLocation() {
 		return location;
 	}
@@ -106,9 +110,12 @@ public class BundleInfo {
 		this.bundleId = bundleId;
 	}
 
+	public void setBaseLocation(URI baseLocation) {
+		this.baseLocation = baseLocation;
+	}
+
 	public void setLocation(URI location) {
 		this.location = location;
-
 	}
 
 	public void setManifest(String manifest) {
@@ -146,8 +153,12 @@ public class BundleInfo {
 		buffer.append(", "); //$NON-NLS-1$
 		if (version != null)
 			buffer.append(version);
-		buffer.append(", "); //$NON-NLS-1$
-		buffer.append("location="); //$NON-NLS-1$
+
+		if (baseLocation != null) {
+			buffer.append(", baseLocation="); //$NON-NLS-1$
+			buffer.append(baseLocation);
+		}
+		buffer.append(", location="); //$NON-NLS-1$
 		buffer.append(location);
 		buffer.append(", startLevel="); //$NON-NLS-1$
 		buffer.append(startLevel);
@@ -193,9 +204,13 @@ public class BundleInfo {
 		} else if (!version.equals(other.version))
 			return false;
 
-		if (location == null || other.location == null || location.equals(other.location))
+		if (location == null || other.location == null)
 			return true;
 
-		return false;
+		//compare absolute location URIs
+		URI absoluteLocation = baseLocation == null ? location : baseLocation.resolve(location);
+		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : other.baseLocation.resolve(other.location);
+
+		return absoluteLocation.equals(otherAbsoluteLocation);
 	}
 }
