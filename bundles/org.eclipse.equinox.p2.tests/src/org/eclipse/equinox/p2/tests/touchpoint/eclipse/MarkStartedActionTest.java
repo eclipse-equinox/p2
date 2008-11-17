@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
@@ -85,8 +86,8 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		assertTrue(isMarkedStarted(manipulator, osgiTarget, false));
 	}
 
-	private boolean isMarkedStarted(Manipulator manipulator, File osgiTarget, boolean started) throws IOException {
-		String location = osgiTarget.toURL().toExternalForm();
+	private boolean isMarkedStarted(Manipulator manipulator, File osgiTarget, boolean started) {
+		URI location = osgiTarget.toURI();
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (location.equals(bundles[i].getLocation()) && (started == bundles[i].isMarkedAsStarted()))

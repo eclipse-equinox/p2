@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.osgi.framework.Version;
 
-//This class deals with source bundles and how their addition to the sourcerce.info
+//This class deals with source bundles and how their addition to the source.info
 public class SourceManipulator {
 	private List sourceBundles;
 	private IProfile profile;
@@ -32,12 +32,6 @@ public class SourceManipulator {
 		if (sourceBundles == null)
 			load();
 		return (BundleInfo[]) sourceBundles.toArray(new BundleInfo[sourceBundles.size()]);
-	}
-
-	public void addBundle(File bundleFile) throws IOException {
-		if (sourceBundles == null)
-			load();
-		sourceBundles.add(new BundleInfo(bundleFile.toURI()));
 	}
 
 	public void addBundle(File bundleFile, String bundleId, Version bundleVersion) throws IOException {
