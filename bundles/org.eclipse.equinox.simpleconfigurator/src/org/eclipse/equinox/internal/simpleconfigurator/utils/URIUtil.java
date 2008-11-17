@@ -21,8 +21,14 @@ public class URIUtil {
 		String ssp = uriString.substring(colon + 1, hash);
 		String fragment = noHash ? null : uriString.substring(hash + 1);
 		//use java.io.File for constructing file: URIs
-		if (scheme != null && scheme.equals(SCHEME_FILE))
-			return new File(uriString.substring(5)).toURI();
+		if (scheme != null && scheme.equals(SCHEME_FILE)) {
+			File file = new File(uriString.substring(5));
+			if (file.isAbsolute())
+				return file.toURI();
+			scheme = null;
+			if (File.separatorChar != '/')
+				ssp = ssp.replace(File.separatorChar, '/');
+		}
 		return new URI(scheme, ssp, fragment);
 	}
 

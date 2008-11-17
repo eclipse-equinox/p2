@@ -9,7 +9,8 @@
 package org.eclipse.equinox.internal.simpleconfigurator;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
@@ -27,20 +28,18 @@ class ConfigApplier {
 	private final boolean inDevMode;
 
 	private final Bundle callingBundle;
-	private URI baseLocation;
+	private final URI baseLocation;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		manipulatingContext = context;
 		this.callingBundle = callingBundle;
 		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
-		if (runningOnEquinox) {
-			baseLocation = EquinoxUtils.getInstallLocationURI(context);
-		}
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
+		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
+
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
-
 		packageAdminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
 
 		ServiceReference startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
@@ -158,13 +157,9 @@ class ConfigApplier {
 
 	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
 		ArrayList toRefresh = new ArrayList();
-		//printSystemBundle();
 
-		boolean useReference = true;
-		if (manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null)
-			useReference = true;
-		else
-			useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE)).booleanValue();
+		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
+		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.valueOf(useReferenceProperty).booleanValue();
 
 		for (int i = 0; i < finalList.length; i++) {
 			if (finalList[i] == null)
@@ -179,20 +174,8 @@ class ConfigApplier {
 			if (symbolicName != null && version != null)
 				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
 
-			URI location = finalList[i].getLocation();
-			if (location == null)
-				continue;
+			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(finalList[i], useReference);
 
-			String bundleLocation = null;
-			try {
-				bundleLocation = URIUtil.toURL(location).toExternalForm();
-			} catch (MalformedURLException e1) {
-				//protocol not recognized?
-				bundleLocation = location.toString();
-			}
-
-			if (runningOnEquinox && useReference && bundleLocation.startsWith("file:")) //$NON-NLS-1$
-				bundleLocation = "reference:" + bundleLocation; //$NON-NLS-1$
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {

@@ -14,8 +14,6 @@ import java.util.*;
 
 public class SimpleConfiguratorUtils {
 
-	private static final String FILE_SCHEME = "file:";
-
 	public static List readConfiguration(URL url, URI base) throws IOException {
 		List bundles = new ArrayList();
 		BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -95,5 +93,34 @@ public class SimpleConfiguratorUtils {
 				// ignore
 			}
 		}
+	}
+
+	public static String getBundleLocation(BundleInfo bundle, boolean useReference) {
+		String bundleLocation = null;
+		URI location = bundle.getLocation();
+		try {
+			if (location.getScheme() != null)
+				bundleLocation = URIUtil.toURL(location).toExternalForm();
+			else {
+				URI baseLocation = bundle.getBaseLocation();
+				if (baseLocation != null && baseLocation.getScheme() != null) {
+					String scheme = baseLocation.getScheme();
+					String host = baseLocation.getHost();
+					String path = location.getPath();
+					if (scheme.equals("file") && File.separatorChar != '/')
+						path = path.replace(File.separatorChar, '/');
+					URL bundleLocationURL = new URL(scheme, host, path);
+					bundleLocation = bundleLocationURL.toExternalForm();
+				}
+			}
+		} catch (MalformedURLException e1) {
+			// fall through
+		}
+		if (bundleLocation == null)
+			bundleLocation = location.toString();
+
+		if (useReference && bundleLocation.startsWith("file:")) //$NON-NLS-1$
+			bundleLocation = "reference:" + bundleLocation; //$NON-NLS-1$
+		return bundleLocation;
 	}
 }
