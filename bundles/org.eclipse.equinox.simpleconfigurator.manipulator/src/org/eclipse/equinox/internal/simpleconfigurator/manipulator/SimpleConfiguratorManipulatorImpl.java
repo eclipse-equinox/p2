@@ -315,7 +315,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	 * This method is copied from SimpleConfiguratorUtils class.
 	 */
 	public static List readConfiguration(URL url, File base) throws IOException {
-		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url);
+		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url, base.toURI());
 		List result = new ArrayList(simpleBundles.size());
 
 		URI baseURL = base != null ? base.toURI() : null;

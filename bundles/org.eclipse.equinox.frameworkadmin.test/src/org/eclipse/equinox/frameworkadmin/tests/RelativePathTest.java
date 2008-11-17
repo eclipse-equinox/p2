@@ -21,16 +21,6 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		super(name);
 	}
 
-	/**
-	 * Adjusts slashes in a given path string to match current platform. Note that
-	 * because '\' is a valid path character on Linux, we cannot safely convert '\' to '/'.
-	 * Thus all tests should be written using '/' as the path separator, and use this
-	 * method to adjust the paths for platforms where '\' is the path separator (win32).
-	 */
-	private String adjustSlashes(String path) {
-		return File.separatorChar == '\\' ? path.replace('/', '\\') : path;
-	}
-
 	public void testRelativePaths() throws Exception {
 		File installFolder = Activator.getContext().getDataFile(RelativePathTest.class.getName());
 
@@ -73,8 +63,8 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertNotContent(new File(configurationFolder, "config.ini"), installFolder.getAbsolutePath());
 		assertNotContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), installFolder.getAbsolutePath());
 		assertContent(new File(configurationFolder, "config.ini"), ":org.eclipse.equinox.simpleconfigurator.jar");
-		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), adjustSlashes(":plugins/org.eclipse.equinox.simpleconfigurator.jar"));
-		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), adjustSlashes(":plugins/org.eclipse.osgi.jar"));
+		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), ",plugins/org.eclipse.equinox.simpleconfigurator.jar");
+		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), ",plugins/org.eclipse.osgi.jar");
 
 		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
 		manipulator.getConfigData().addBundle(bi);

@@ -44,6 +44,9 @@ public class URIUtil {
 		if (url1.equals(url2))
 			return true;
 
+		if (url1.isAbsolute() != url2.isAbsolute())
+			return false;
+
 		// check if we have two local file references that are case variants
 		File file1 = toFile(url1);
 		return file1 == null ? false : file1.equals(toFile(url2));
