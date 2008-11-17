@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.Properties;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -221,8 +220,7 @@ public class EquinoxFwConfigFileParser {
 
 				if (realLocation != null)
 					try {
-						//TODO: Pascal to look at this
-						configData.addBundle(new BundleInfo(new URI(realLocation), startLevel, markedAsStarted));
+						configData.addBundle(new BundleInfo(URIUtil.fromString(realLocation), startLevel, markedAsStarted));
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 						throw new IllegalStateException("Error creating location" + e.getMessage());
