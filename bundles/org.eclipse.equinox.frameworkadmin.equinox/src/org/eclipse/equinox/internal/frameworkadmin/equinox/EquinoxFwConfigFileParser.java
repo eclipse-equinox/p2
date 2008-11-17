@@ -24,13 +24,9 @@ import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
 	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
-	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.p2.cache"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
-	private static final String KEY_OSGI_FRAMEWORK = "osgi.framework"; //$NON-NLS-1$
-	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
-	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
 
 	private static boolean DEBUG = false;
 	private static String USE_REFERENCE_STRING = null;
@@ -256,7 +252,7 @@ public class EquinoxFwConfigFileParser {
 		Properties props = loadProperties(inputFile);
 
 		//Start figuring out stuffs 
-		URL rootURL = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURL() : null;
+		URI rootURL = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
 
 		Properties sharedConfigProperties = getSharedConfiguration(props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), getOSGiInstallArea(manipulator.getLauncherData()));
 		if (sharedConfigProperties != null) {
@@ -271,15 +267,19 @@ public class EquinoxFwConfigFileParser {
 
 		File fwJar = null;
 		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
-			props.setProperty(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(EquinoxConstants.PROP_OSGI_FW), getOSGiInstallArea(launcherData).toURL()));
-			String fwJarString = props.getProperty(KEY_OSGI_FRAMEWORK);
+			URI absoluteFwJar = null;
+			absoluteFwJar = URIUtil.makeAbsolute(new URI(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), getOSGiInstallArea(launcherData).toURI());
+
+			props.setProperty(EquinoxConstants.PROP_OSGI_FW, absoluteFwJar.toString());
+			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
 			if (fwJarString != null) {
-				fwJar = new File(new URL(fwJarString).getFile());
+				fwJar = URIUtil.toFile(absoluteFwJar);
+				if (fwJar == null)
+					throw new IllegalStateException("Can't determinate the osgi.install area");
 				launcherData.setFwJar(fwJar);
-				configData.addBundle(new BundleInfo(fwJar.toURI()));
+				configData.addBundle(new BundleInfo(absoluteFwJar));
 			}
 		}
-
 		props = makeAbsolute(props, rootURL, fwJar, inputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
@@ -366,31 +366,32 @@ public class EquinoxFwConfigFileParser {
 		return sharedConfigIni;
 	}
 
-	private static Properties makeRelative(Properties props, URL rootURL, File fwJar, File configArea, File osgiInstallArea) throws IOException {
-		for (int i = 0; i < PATHS.length; i++) {
-			String path = props.getProperty(PATHS[i]);
-			if (path != null)
-				props.put(PATHS[i], EquinoxManipulatorImpl.makeRelative(path, rootURL.getFile()));
+	private static Properties makeRelative(Properties props, URI rootURI, File fwJar, File configArea, File osgiInstallArea) throws URISyntaxException {
+		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null)
+			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.makeRelative(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), rootURI).toString());
+
+		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null) {
+			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.makeRelative(URIUtil.fromString(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea.toURI()).toString());
 		}
 
-		if (props.getProperty(KEY_OSGI_FRAMEWORK) != null && osgiInstallArea != null) {
-			props.put(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeRelative(props.getProperty(KEY_OSGI_FRAMEWORK), osgiInstallArea.toURL()));
+		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null && osgiInstallArea != null) {
+			props.setProperty(EquinoxConstants.PROP_OSGI_FW, URIUtil.makeRelative(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), osgiInstallArea.toURI()).toString());
 		}
 
 		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null) {
-			props.put(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL), configArea.toURL()));
+			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.makeRelative(URIUtil.fromString(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea.toURI()).toString());
 		}
 
 		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
-			String url = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
-			if (url != null) {
-				String result = EquinoxManipulatorImpl.makeRelative(url, configArea.toURL());
+			String dataArea = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
+			if (dataArea != null) {
+				String result = URIUtil.makeRelative(URIUtil.fromString(dataArea), configArea.toURI()).toString();
 				//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
-				if (result.startsWith("file:../..")) //$NON-NLS-1$
-					result = url;
-				else if (!result.equals(url) && result.startsWith("file:")) //$NON-NLS-1$
+				if (result.startsWith("../..")) //$NON-NLS-1$
+					result = dataArea;
+				else if (!result.equals(dataArea))
 					result = CONFIG_DIR + result.substring(5);
-				props.put(KEY_ECLIPSE_PROV_DATA_AREA, result);
+				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, result);
 			}
 		}
 
@@ -398,20 +399,17 @@ public class EquinoxFwConfigFileParser {
 		if (value != null && fwJar != null) {
 			File parent = fwJar.getParentFile();
 			if (parent != null)
-				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayRelative(value, parent.toURL()));
+				props.setProperty(KEY_OSGI_BUNDLES, URIUtil.makeRelative(URIUtil.fromString(value), parent.toURI()).toString());
 		}
 		return props;
 	}
 
-	private static Properties makeAbsolute(Properties props, URL rootURL, File fwJar, File configArea, File osgiInstallArea) throws IOException {
-		for (int i = 0; i < PATHS.length; i++) {
-			String path = props.getProperty(PATHS[i]);
-			if (path != null)
-				props.setProperty(PATHS[i], EquinoxManipulatorImpl.makeAbsolute(path, rootURL.getFile()));
-		}
+	private static Properties makeAbsolute(Properties props, URI rootURL, File fwJar, File configArea, File osgiInstallArea) throws URISyntaxException {
+		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null)
+			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), rootURL).toString());
 
 		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null) {
-			props.put(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL), configArea.toURL()));
+			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea.toURI()).toString());
 		}
 
 		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
@@ -419,15 +417,8 @@ public class EquinoxFwConfigFileParser {
 			if (url != null) {
 				if (url.startsWith(CONFIG_DIR))
 					url = "file:" + url.substring(CONFIG_DIR.length()); //$NON-NLS-1$
-				props.put(KEY_ECLIPSE_PROV_DATA_AREA, EquinoxManipulatorImpl.makeAbsolute(url, configArea.toURL()));
+				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, URIUtil.makeAbsolute(URIUtil.fromString(url), configArea.toURI()).toString());
 			}
-		}
-
-		String value = props.getProperty(KEY_OSGI_BUNDLES);
-		if (value != null && fwJar != null) {
-			File parent = fwJar.getParentFile();
-			if (parent != null)
-				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, parent.toURL()));
 		}
 		return props;
 	}
@@ -500,7 +491,7 @@ public class EquinoxFwConfigFileParser {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
-			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
+			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURI(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
 			filterPropertiesFromSharedArea(configProps, launcherData);
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_fwConfigSave, outputFile));
