@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
-import java.net.URL;
+import java.net.*;
 import org.eclipse.equinox.internal.simpleconfigurator.console.ConfiguratorCommandProvider;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -45,6 +45,31 @@ public class EquinoxUtils {
 		} finally {
 			configLocationTracker.close();
 		}
+	}
+
+	public static URI getInstallLocationURI(BundleContext context) {
+		try {
+			ServiceReference[] references = context.getServiceReferences(Location.class.getName(), Location.INSTALL_FILTER);
+			if (references != null && references.length > 0) {
+				ServiceReference reference = references[0];
+				Location installLocation = (Location) context.getService(reference);
+				if (installLocation != null) {
+					try {
+						if (installLocation.isSet()) {
+							URL location = installLocation.getURL();
+							return URIUtil.toURI(location);
+						}
+					} catch (URISyntaxException e) {
+						//TODO: log an error
+					} finally {
+						context.ungetService(reference);
+					}
+				}
+			}
+		} catch (InvalidSyntaxException e) {
+			//TODO: log an error
+		}
+		return null;
 	}
 
 	public static ServiceRegistration registerConsoleCommands(BundleContext context) {

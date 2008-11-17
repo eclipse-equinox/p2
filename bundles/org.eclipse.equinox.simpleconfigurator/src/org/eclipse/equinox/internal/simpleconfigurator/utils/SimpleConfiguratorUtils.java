@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
- * program and the accompanying materials are made available under the terms of
- * the Eclipse Public License v1.0 which accompanies this distribution, and is
- * available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
@@ -14,91 +14,62 @@ import java.util.*;
 
 public class SimpleConfiguratorUtils {
 
-	public static List readConfiguration(URL url) throws IOException {
+	private static final String FILE_SCHEME = "file:";
+
+	public static List readConfiguration(URL url, URI base) throws IOException {
 		List bundles = new ArrayList();
+		BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
 		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
-
-			boolean firstLine = true;
-			int fileFormat = 0;
 			String line;
-			try {
-				URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
-				while ((line = r.readLine()) != null) {
-					if (firstLine) {
-						if (line.startsWith("version=")) {
-							try {
-								fileFormat = Integer.valueOf(line.substring(8)).intValue();
-							} catch (NumberFormatException e) {
-								//TODO stay at version 0?
-							}
-						}
-						firstLine = false;
-					}
+			while ((line = r.readLine()) != null) {
+				line = line.trim();
+				//ignore any comment or empty lines
+				if (line.length() == 0 || line.startsWith("#")) //$NON-NLS-1$
+					continue;
 
-					if (line.startsWith("#")) //$NON-NLS-1$
-						continue;
-					line = line.trim();// symbolicName,version,location,startlevel,expectedState
-					if (line.length() == 0)
-						continue;
-
-					StringTokenizer tok = new StringTokenizer(line, ",", true); //$NON-NLS-1$
-					String symbolicName = tok.nextToken();
-					if (symbolicName.equals(",")) //$NON-NLS-1$
-						symbolicName = null;
-					else
-						tok.nextToken(); // ,
-
-					String version = tok.nextToken();
-					if (version.equals(",")) //$NON-NLS-1$
-						version = null;
-					else
-						tok.nextToken(); // ,
-
-					String urlSt = tok.nextToken();
-					if (urlSt.equals(",")) { //$NON-NLS-1$
-						if (symbolicName != null && version != null)
-							urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
-						else
-							urlSt = null;
-					} else {
-						if (urlSt.startsWith("\"")) {
-							while (!urlSt.endsWith("\""))
-								urlSt += tok.nextToken();
-						}
-						tok.nextToken(); // ,
-					}
-
-					int sl = Integer.parseInt(tok.nextToken().trim());
-					tok.nextToken(); // ,
-					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
-
-					URI bundleLocation = null;
-					if (fileFormat == 0) {
-						try {
-							Utils.buildURL(urlSt);
-						} catch (MalformedURLException e) {
-							urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
-						}
-					}
-					bundleLocation = URI.create(urlSt);
-
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, bundleLocation, sl, markedAsStarted);
-					bundles.add(bInfo);
-				}
-			} finally {
-				try {
-					r.close();
-				} catch (IOException ex) {
-					// ignore
-				}
+				BundleInfo bundleInfo = parseBundleInfoLine(line, base);
+				if (bundleInfo != null)
+					bundles.add(bundleInfo);
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			// TODO log something
-			// bundleInfos = NULL_BUNDLEINFOS;
+		} finally {
+			try {
+				r.close();
+			} catch (IOException ex) {
+				// ignore
+			}
 		}
 		return bundles;
+	}
+
+	public static BundleInfo parseBundleInfoLine(String line, URI base) {
+		// symbolicName,version,location,startLevel,markedAsStarted
+		StringTokenizer tok = new StringTokenizer(line, ","); //$NON-NLS-1$
+		int numberOfTokens = tok.countTokens();
+		if (numberOfTokens < 5)
+			throw new IllegalArgumentException("Line does not contain at least 5 tokens: " + line);
+
+		String symbolicName = tok.nextToken().trim();
+		String version = tok.nextToken().trim();
+		URI location = parseLocation(tok.nextToken().trim());
+		int startLevel = Integer.parseInt(tok.nextToken().trim());
+		boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
+		BundleInfo result = new BundleInfo(symbolicName, version, location, startLevel, markedAsStarted);
+		if (!location.isAbsolute())
+			result.setBaseLocation(base);
+		return result;
+	}
+
+	private static URI parseLocation(String location) {
+		try {
+			URI uri = URIUtil.fromString(location);
+			//check for a comma and if necessary decode it
+			if (uri.getPath().indexOf(',') == -1)
+				return uri;
+			return new URI(uri.getScheme(), uri.getHost(), uri.getPath(), uri.getFragment());
+		} catch (URISyntaxException e) {
+			// ignore and fall through
+		}
+		throw new IllegalArgumentException("Invalid location: " + location);
 	}
 
 	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {

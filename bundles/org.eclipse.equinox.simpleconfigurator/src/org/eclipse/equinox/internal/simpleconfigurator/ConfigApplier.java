@@ -17,7 +17,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
-	private static final String LAST_BUNDLES_TXT = "last.bundles.info"; //$NON-NLS-1$
+	private static final String LAST_BUNDLES_INFO = "last.bundles.info"; //$NON-NLS-1$
 	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
 	private final BundleContext manipulatingContext;
@@ -27,13 +27,15 @@ class ConfigApplier {
 	private final boolean inDevMode;
 
 	private final Bundle callingBundle;
+	private URI baseLocation;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		manipulatingContext = context;
 		this.callingBundle = callingBundle;
-		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
-		//System.out.println("vendor=" + vendor);
 		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
+		if (runningOnEquinox) {
+			baseLocation = EquinoxUtils.getInstallLocationURI(context);
+		}
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
@@ -47,7 +49,15 @@ class ConfigApplier {
 		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
 	}
 
-	void install(BundleInfo[] expectedState, URL url, boolean exclusiveMode) {
+	void install(URL url, boolean exclusiveMode) throws IOException {
+		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url, baseLocation);
+		if (Activator.DEBUG)
+			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
+		if (bundleInfoList.size() == 0)
+			return;
+
+		BundleInfo[] expectedState = Utils.getBundleInfosFromList(bundleInfoList);
+
 		HashSet toUninstall = null;
 		if (!exclusiveMode) {
 			BundleInfo[] lastInstalledBundles = getLastState();
@@ -82,13 +92,6 @@ class ConfigApplier {
 				// do nothing; no resolver package available
 			}
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
-		//if time stamps are the same
-		//  do nothing
-		//  return
-		//if list exists
-		//  force the list in the fwk
-		//else
-		//  discover bundles in folders and force the list in the fwk
 	}
 
 	private Collection getResolvedBundles() {
@@ -121,7 +124,7 @@ class ConfigApplier {
 		InputStream sourceStream = null;
 		OutputStream destinationStream = null;
 
-		File lastBundlesTxt = getLastBundleTxt();
+		File lastBundlesTxt = getLastBundleInfo();
 		try {
 			try {
 				destinationStream = new FileOutputStream(lastBundlesTxt);
@@ -138,16 +141,16 @@ class ConfigApplier {
 		}
 	}
 
-	private File getLastBundleTxt() {
-		return manipulatingContext.getDataFile(LAST_BUNDLES_TXT);
+	private File getLastBundleInfo() {
+		return manipulatingContext.getDataFile(LAST_BUNDLES_INFO);
 	}
 
 	private BundleInfo[] getLastState() {
-		File lastBundlesTxt = getLastBundleTxt();
-		if (!lastBundlesTxt.isFile())
+		File lastBundlesInfo = getLastBundleInfo();
+		if (!lastBundlesInfo.isFile())
 			return null;
 		try {
-			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesTxt.toURL()).toArray(new BundleInfo[1]);
+			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesInfo.toURL(), baseLocation).toArray(new BundleInfo[1]);
 		} catch (IOException e) {
 			return null;
 		}
@@ -182,7 +185,7 @@ class ConfigApplier {
 
 			String bundleLocation = null;
 			try {
-				bundleLocation = location.toURL().toExternalForm();
+				bundleLocation = URIUtil.toURL(location).toExternalForm();
 			} catch (MalformedURLException e1) {
 				//protocol not recognized?
 				bundleLocation = location.toString();
