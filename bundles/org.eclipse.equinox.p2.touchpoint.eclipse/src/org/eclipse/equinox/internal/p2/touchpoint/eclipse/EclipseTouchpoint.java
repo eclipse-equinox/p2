@@ -163,7 +163,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		Class c = null;
 		try {
-			c = Class.forName("org.eclipse.equinox.spi.p2.publisher.PublisherHelper"); //$NON-NLS-1$
+			c = Class.forName("org.eclipse.equinox.p2.publisher.eclipse.BundlesAction"); //$NON-NLS-1$
 			if (c != null)
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
