@@ -8,7 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.updatechecker;
+package org.eclipse.equinox.internal.p2.updatechecker;
+
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -16,7 +18,6 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.updatechecker.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;

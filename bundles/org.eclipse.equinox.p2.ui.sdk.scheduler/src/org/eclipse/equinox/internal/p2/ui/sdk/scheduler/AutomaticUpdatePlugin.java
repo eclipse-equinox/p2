@@ -11,13 +11,10 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
@@ -32,7 +29,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
-	private ServiceRegistration registrationChecker;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
 
@@ -87,8 +83,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-
-		registrationChecker = context.registerService(IUpdateChecker.SERVICE_NAME, new UpdateChecker(), null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
@@ -100,8 +94,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			updater.shutdown();
 			updater = null;
 		}
-		registrationChecker.unregister();
-		registrationChecker = null;
 		packageAdmin = null;
 		packageAdminRef = null;
 		plugin = null;
