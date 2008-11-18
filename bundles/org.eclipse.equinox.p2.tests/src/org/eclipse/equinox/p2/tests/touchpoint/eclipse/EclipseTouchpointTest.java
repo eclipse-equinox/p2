@@ -1,10 +1,18 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 
 public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
@@ -68,4 +76,43 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		touchpoint.initializeOperand(profile, operand, parameters);
 		touchpoint.completeOperand(profile, operand, parameters);
 	}
+
+	public void testPrepareIU() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
+		File targetPlugins = new File(installFolder, "plugins");
+		assertTrue(targetPlugins.mkdir());
+		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
+		copy("2.0", osgiSource, osgiTarget);
+
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
+		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
+		bundlePool.addDescriptor(descriptor);
+
+		Properties extraProperties = new Properties();
+		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
+
+		Dictionary mockManifest = new Properties();
+		mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+		mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
+		mockManifest.put("Bundle-SymbolicName", key.getId()); //$NON-NLS-1$
+		mockManifest.put("Bundle-Version", key.getVersion().toString()); //$NON-NLS-1$
+
+		BundleDescription partialIUbundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
+		IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(partialIUbundleDescription, null, false, key, extraProperties);
+		assertTrue(bundleIUs != null && bundleIUs.length != 0);
+		IInstallableUnit iu = bundleIUs[0];
+		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		IInstallableUnit fullIU = touchpoint.prepareIU(iu, profile);
+		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+	}
+
 }

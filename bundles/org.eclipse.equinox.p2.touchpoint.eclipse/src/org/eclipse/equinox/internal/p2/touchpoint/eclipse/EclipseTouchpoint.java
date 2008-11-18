@@ -159,7 +159,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	private IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
+	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
 
 		Class c = null;
 		try {
