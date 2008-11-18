@@ -268,19 +268,29 @@ public class EquinoxFwConfigFileParser {
 		File fwJar = null;
 		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
 			URI absoluteFwJar = null;
-			absoluteFwJar = URIUtil.makeAbsolute(new URI(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), getOSGiInstallArea(launcherData).toURI());
-
-			props.setProperty(EquinoxConstants.PROP_OSGI_FW, absoluteFwJar.toString());
-			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
-			if (fwJarString != null) {
-				fwJar = URIUtil.toFile(absoluteFwJar);
-				if (fwJar == null)
-					throw new IllegalStateException("Can't determinate the osgi.install area");
-				launcherData.setFwJar(fwJar);
-				configData.addBundle(new BundleInfo(absoluteFwJar));
+			try {
+				absoluteFwJar = URIUtil.makeAbsolute(new URI(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), getOSGiInstallArea(launcherData).toURI());
+			} catch (URISyntaxException e) {
+				// TODO Can we do anything to fix this?
+			}
+			if (absoluteFwJar != null) {
+				props.setProperty(EquinoxConstants.PROP_OSGI_FW, absoluteFwJar.toString());
+				String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
+				if (fwJarString != null) {
+					fwJar = URIUtil.toFile(absoluteFwJar);
+					if (fwJar == null)
+						throw new IllegalStateException("Can't determinate the osgi.install area");
+					launcherData.setFwJar(fwJar);
+					configData.addBundle(new BundleInfo(absoluteFwJar));
+				}
 			}
 		}
-		props = makeAbsolute(props, rootURL, fwJar, inputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
+		try {
+			props = makeAbsolute(props, rootURL, fwJar, inputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
+		} catch (URISyntaxException e) {
+			// TODO should we instead be catching this inside makeAbsolute?
+		}
+
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
@@ -491,7 +501,11 @@ public class EquinoxFwConfigFileParser {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
-			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURI(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
+			try {
+				configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURI(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
+			} catch (URISyntaxException e) {
+				// TODO Should we instead be catching this exception inside makeRelative?
+			}
 			filterPropertiesFromSharedArea(configProps, launcherData);
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_fwConfigSave, outputFile));
