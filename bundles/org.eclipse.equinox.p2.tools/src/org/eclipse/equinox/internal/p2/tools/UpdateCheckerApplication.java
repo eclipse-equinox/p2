@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
+import org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker;
 
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
