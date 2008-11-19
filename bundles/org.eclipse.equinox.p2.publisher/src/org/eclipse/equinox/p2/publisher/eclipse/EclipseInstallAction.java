@@ -18,10 +18,7 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.osgi.framework.Version;
 
-public class EclipseInstallAction implements IPublisherAction {
-	//	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
-	//	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
-
+public class EclipseInstallAction extends AbstractPublisherAction {
 	protected String source;
 	protected String id;
 	protected Version version;
@@ -49,6 +46,7 @@ public class EclipseInstallAction implements IPublisherAction {
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+		monitor = SubMonitor.convert(monitor);
 		this.info = info;
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$

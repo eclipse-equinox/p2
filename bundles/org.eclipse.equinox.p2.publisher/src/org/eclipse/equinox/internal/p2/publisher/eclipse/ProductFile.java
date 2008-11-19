@@ -16,6 +16,7 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -25,6 +26,17 @@ import org.xml.sax.helpers.DefaultHandler;
  * @since 3.1
  */
 public class ProductFile extends DefaultHandler implements IProductDescriptor {
+	private static final String ATTRIBUTE_PATH = "path"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_ICON = "icon"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_FRAGMENT = "fragment"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_APPLICATION = "application"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_LOCATION = "location"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_AUTO_START = "autoStart"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_START_LEVEL = "startLevel"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
+
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$
@@ -55,14 +67,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String OS_SOLARIS = "solaris";//$NON-NLS-1$
 	private static final String OS_MACOSX = "macosx";//$NON-NLS-1$
 
-	private static final String PRODUCT = "product"; //$NON-NLS-1$
-	private static final String CONFIG_INI = "configIni"; //$NON-NLS-1$
-	private static final String LAUNCHER = "launcher"; //$NON-NLS-1$
-	private static final String LAUNCHER_ARGS = "launcherArgs"; //$NON-NLS-1$
-	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
-	private static final String FEATURES = "features"; //$NON-NLS-1$
-	private static final String SPLASH = "splash"; //$NON-NLS-1$
-	//	private static final String P_USE_ICO = "useIco"; //$NON-NLS-1$
+	//element names
+	private static final String EL_FEATURES = "features"; //$NON-NLS-1$
+	private static final String EL_FEATURE = "feature"; //$NON-NLS-1$
+	private static final String EL_PLUGINS = "plugins"; //$NON-NLS-1$
+	private static final String EL_PLUGIN = "plugin"; //$NON-NLS-1$
+	private static final String EL_PRODUCT = "product"; //$NON-NLS-1$
+	private static final String EL_CONFIG_INI = "configIni"; //$NON-NLS-1$
+	private static final String EL_LAUNCHER = "launcher"; //$NON-NLS-1$
+	private static final String EL_LAUNCHER_ARGS = "launcherArgs"; //$NON-NLS-1$
+	private static final String EL_SPLASH = "splash"; //$NON-NLS-1$
+	private static final String EL_CONFIGURATIONS = "configurations"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -82,6 +97,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_VM_ARGS_SOLARIS = 14;
 	private static final int STATE_VM_ARGS_WIN = 15;
 	private static final int STATE_CONFIG_INI = 16;
+	private static final int STATE_CONFIGURATIONS = 17;
 
 	private int state = STATE_START;
 
@@ -103,8 +119,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String application = null;
 	private String version = null;
 	private Properties launcherArgs = new Properties();
-
 	private File location;
+	private List bundleInfos;
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -115,7 +131,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Constructs a feature parser.
+	 * Constructs a product file parser.
 	 */
 	public ProductFile(String location) throws Exception {
 		super();
@@ -159,6 +175,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		both.addAll(p);
 		both.addAll(f);
 		return both;
+	}
+
+	/**
+	 * Returns a List<BundleInfo> for each bundle that has custom configuration data
+	 * in the product file.
+	 * @return A List<BundleInfo>
+	 */
+	public List getBundleInfos() {
+		return bundleInfos != null ? bundleInfos : Collections.EMPTY_LIST;
 	}
 
 	public List getFragments() {
@@ -269,27 +294,29 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
 		switch (state) {
 			case STATE_START :
-				if (PRODUCT.equals(localName)) {
+				if (EL_PRODUCT.equals(localName)) {
 					processProduct(attributes);
 					state = STATE_PRODUCT;
 				}
 				break;
 
 			case STATE_PRODUCT :
-				if (CONFIG_INI.equals(localName)) {
+				if (EL_CONFIG_INI.equals(localName)) {
 					processConfigIni(attributes);
 					state = STATE_CONFIG_INI;
-				} else if (LAUNCHER.equals(localName)) {
+				} else if (EL_LAUNCHER.equals(localName)) {
 					processLauncher(attributes);
 					state = STATE_LAUNCHER;
-				} else if (PLUGINS.equals(localName)) {
+				} else if (EL_PLUGINS.equals(localName)) {
 					state = STATE_PLUGINS;
-				} else if (FEATURES.equals(localName)) {
+				} else if (EL_FEATURES.equals(localName)) {
 					state = STATE_FEATURES;
-				} else if (LAUNCHER_ARGS.equals(localName)) {
+				} else if (EL_LAUNCHER_ARGS.equals(localName)) {
 					state = STATE_LAUNCHER_ARGS;
-				} else if (SPLASH.equals(localName)) {
-					splashLocation = attributes.getValue("location"); //$NON-NLS-1$
+				} else if (EL_SPLASH.equals(localName)) {
+					splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
+				} else if (EL_CONFIGURATIONS.equals(localName)) {
+					state = STATE_CONFIGURATIONS;
 				}
 				break;
 
@@ -339,35 +366,59 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_PLUGINS :
-				if ("plugin".equals(localName)) { //$NON-NLS-1$
+				if (EL_PLUGIN.equals(localName)) {
 					processPlugin(attributes);
 				}
 				break;
 
 			case STATE_FEATURES :
-				if ("feature".equals(localName)) { //$NON-NLS-1$
+				if (EL_FEATURE.equals(localName)) {
 					processFeature(attributes);
+				}
+				break;
+			case STATE_CONFIGURATIONS :
+				if (EL_PLUGIN.equals(localName)) {
+					processPluginConfiguration(attributes);
 				}
 				break;
 		}
 	}
 
+	private void processPluginConfiguration(Attributes attributes) {
+		BundleInfo info = new BundleInfo();
+		info.setSymbolicName(attributes.getValue(ATTRIBUTE_ID));
+		info.setVersion(attributes.getValue(ATTRIBUTE_VERSION));
+		String value = attributes.getValue(ATTRIBUTE_START_LEVEL);
+		if (value != null)
+			info.setStartLevel(Integer.parseInt(value));
+		value = attributes.getValue(ATTRIBUTE_AUTO_START);
+		if (value != null)
+			info.setMarkedAsStarted(Boolean.valueOf(value).booleanValue());
+		if (bundleInfos == null)
+			bundleInfos = new ArrayList();
+		bundleInfos.add(info);
+	}
+
 	public void endElement(String uri, String localName, String qName) {
 		switch (state) {
 			case STATE_PLUGINS :
-				if (PLUGINS.equals(localName))
+				if (EL_PLUGINS.equals(localName))
 					state = STATE_PRODUCT;
 				break;
 			case STATE_FEATURES :
-				if (FEATURES.equals(localName))
+				if (EL_FEATURES.equals(localName))
 					state = STATE_PRODUCT;
 				break;
 			case STATE_LAUNCHER_ARGS :
-				if (LAUNCHER_ARGS.equals(localName))
+				if (EL_LAUNCHER_ARGS.equals(localName))
 					state = STATE_PRODUCT;
 				break;
 			case STATE_LAUNCHER :
-				if (LAUNCHER.equals(localName))
+				if (EL_LAUNCHER.equals(localName))
+					state = STATE_PRODUCT;
+				break;
+			case STATE_CONFIGURATIONS :
+				if (EL_CONFIGURATIONS.equals(localName))
 					state = STATE_PRODUCT;
 				break;
 
@@ -385,7 +436,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_CONFIG_INI :
-				if (CONFIG_INI.equals(localName))
+				if (EL_CONFIG_INI.equals(localName))
 					state = STATE_PRODUCT;
 				else
 					processConfigIniPlatform(localName, false);
@@ -444,38 +495,38 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processPlugin(Attributes attributes) {
-		String fragment = attributes.getValue("fragment"); //$NON-NLS-1$
+		String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
 		if (fragment != null && new Boolean(fragment).booleanValue()) {
 			if (fragments == null)
 				fragments = new ArrayList();
-			fragments.add(attributes.getValue("id")); //$NON-NLS-1$
+			fragments.add(attributes.getValue(ATTRIBUTE_ID));
 		} else {
 			if (plugins == null)
 				plugins = new ArrayList();
-			plugins.add(attributes.getValue("id")); //$NON-NLS-1$
+			plugins.add(attributes.getValue(ATTRIBUTE_ID));
 		}
 	}
 
 	private void processFeature(Attributes attributes) {
 		if (features == null)
 			features = new ArrayList();
-		features.add(attributes.getValue("id")); //$NON-NLS-1$
+		features.add(attributes.getValue(ATTRIBUTE_ID));
 	}
 
 	private void processProduct(Attributes attributes) {
-		id = attributes.getValue("id"); //$NON-NLS-1$
-		productName = attributes.getValue("name"); //$NON-NLS-1$
-		application = attributes.getValue("application"); //$NON-NLS-1$
+		id = attributes.getValue(ATTRIBUTE_ID);
+		productName = attributes.getValue(ATTRIBUTE_NAME);
+		application = attributes.getValue(ATTRIBUTE_APPLICATION);
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
 			useFeatures = Boolean.valueOf(use).booleanValue();
-		version = attributes.getValue("version"); //$NON-NLS-1$
+		version = attributes.getValue(ATTRIBUTE_VERSION);
 	}
 
 	private void processConfigIni(Attributes attributes) {
 		String path = null;
 		if ("custom".equals(attributes.getValue("use"))) { //$NON-NLS-1$//$NON-NLS-2$
-			path = attributes.getValue("path"); //$NON-NLS-1$
+			path = attributes.getValue(ATTRIBUTE_PATH);
 		}
 		String os = attributes.getValue("os"); //$NON-NLS-1$
 		if (os != null && os.length() > 0) {
@@ -498,7 +549,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processLauncher(Attributes attributes) {
-		launcherName = attributes.getValue("name"); //$NON-NLS-1$
+		launcherName = attributes.getValue(ATTRIBUTE_NAME);
 	}
 
 	private void addIcon(String os, String value) {
@@ -526,7 +577,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processIco(Attributes attributes) {
-		addIcon(OS_WIN32, attributes.getValue("path")); //$NON-NLS-1$
+		addIcon(OS_WIN32, attributes.getValue(ATTRIBUTE_PATH));
 	}
 
 	private void processBmp(Attributes attributes) {
@@ -540,10 +591,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processLinux(Attributes attributes) {
-		addIcon(OS_LINUX, attributes.getValue("icon")); //$NON-NLS-1$
+		addIcon(OS_LINUX, attributes.getValue(ATTRIBUTE_ICON));
 	}
 
 	private void processMac(Attributes attributes) {
-		addIcon(OS_MACOSX, attributes.getValue("icon")); //$NON-NLS-1$
+		addIcon(OS_MACOSX, attributes.getValue(ATTRIBUTE_ICON));
 	}
 }

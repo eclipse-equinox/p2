@@ -92,7 +92,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILaunchingAdvic
 	}
 
 	public BundleInfo[] getBundles() {
-		return configData.getBundles();
+		ArrayList result = new ArrayList();
+		result.addAll(Arrays.asList(configData.getBundles()));
+		result.addAll(product.getBundleInfos());
+		return (BundleInfo[]) result.toArray(new BundleInfo[result.size()]);
 	}
 
 	public Properties getProperties() {

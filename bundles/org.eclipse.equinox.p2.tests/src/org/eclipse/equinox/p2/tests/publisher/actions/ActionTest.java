@@ -144,12 +144,23 @@ public abstract class ActionTest extends TestCase {
 	 * Call this method to setup Publisher Info, not <code>insertPublisherInfoBehavior</code>
 	 */
 	public void setupPublisherInfo() {
-		publisherInfo = createMock(IPublisherInfo.class);
+		publisherInfo = createPublisherInfoMock();
 
 		String[] config = getArrayFromString(configSpec, COMMA_SEPARATOR);
 		expect(publisherInfo.getConfigurations()).andReturn(config).anyTimes();
 		insertPublisherInfoBehavior();
 		replay(publisherInfo);
+	}
+
+	/**
+	 * Creates the mock object for the IPublisherInfo. Subclasses
+	 * can override to create a nice or strict mock instead.
+	 * @return The publisher info mock
+	 * @see org.easymock.EasyMock#createNiceMock(Class)
+	 * @see org.easymock.EasyMock#createStrictMock(Class)
+	 */
+	protected IPublisherInfo createPublisherInfoMock() {
+		return createMock(IPublisherInfo.class);
 	}
 
 	/**
