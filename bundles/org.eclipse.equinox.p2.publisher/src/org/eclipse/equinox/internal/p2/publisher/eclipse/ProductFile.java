@@ -126,8 +126,21 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (text == null || text.trim().length() == 0)
 			return ""; //$NON-NLS-1$
 
-		text = text.replaceAll("\\r|\\n|\\f|\\t", " "); //$NON-NLS-1$ //$NON-NLS-2$
-		return text.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuffer result = new StringBuffer(text.length());
+		boolean haveSpace = false;
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (haveSpace)
+					continue;
+				haveSpace = true;
+				result.append(" "); //$NON-NLS-1$
+			} else {
+				haveSpace = false;
+				result.append(c);
+			}
+		}
+		return result.toString();
 	}
 
 	/**
