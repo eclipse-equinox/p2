@@ -171,11 +171,11 @@ public class Utils {
 		}
 	}
 
-	public static void createParentDir(File file) throws IOException {
+	public static boolean createParentDir(File file) {
 		File parent = file.getParentFile();
 		if (parent == null)
-			return;
-		parent.mkdirs();
+			return false;
+		return parent.mkdirs();
 	}
 
 	public static BundleInfo[] getBundleInfosFromList(List list) {

@@ -258,6 +258,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
 		}
 
 		ConfigData data = manipulator.getConfigData();

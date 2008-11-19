@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
@@ -81,20 +80,20 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 	}
 
+	//This returns the location of the <eclipse>.ini file
 	static File getLauncherConfigLocation(LauncherData launcherData) {
-		File launcherConfigLocation = launcherData.getLauncherConfigLocation();
-		if (launcherConfigLocation != null)
-			return launcherConfigLocation;
+		File launcherIni = launcherData.getLauncherConfigLocation();
+		if (launcherIni != null)
+			return launcherIni;
 
 		File launcher = launcherData.getLauncher();
 		if (launcher == null)
 			return null;
 		String launcherName = launcher.getName();
-		int dotLocation = launcherName.lastIndexOf(".");
+		int dotLocation = launcherName.lastIndexOf('.');
 		if (dotLocation != -1)
 			launcherName = launcherName.substring(0, dotLocation);
-		File result = new File(launcher.getParent() + File.separator + launcherName + EquinoxConstants.INI_EXTENSION);
-		//		launcherData.setLauncherConfigLocation(result);
+		File result = new File(launcher.getParentFile(), launcherName + EquinoxConstants.INI_EXTENSION);
 		return result;
 	}
 
@@ -282,7 +281,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
 		// 2. Create a Manipulator object fully initialized to the current running fw.
 
 		ServiceReference reference = context.getServiceReference(StartLevel.class.getName());
@@ -336,10 +334,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		BundlesState bundlesState = null;
 		if (EquinoxBundlesState.checkFullySupported()) {
-			//	bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true, runtime);
 			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, !launcherData.isClean());
 			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
-
 		} else {
 			bundlesState = new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 			platformProperties.clear();
@@ -361,15 +357,18 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			// use launcher. -- > load from LaucnherConfig file.
 			// the parameters in memory will be updated.
 			EclipseLauncherParser parser = new EclipseLauncherParser();
-			parser.read(launcherData);
+			parser.read(launcherConfigFile, launcherData);
 		}
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 
 		File fwConfigFile = new File(launcherData.getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
 		if (fwConfigFile.exists())
-			parser.readFwConfig(this, fwConfigFile);
-
+			try {
+				parser.readFwConfig(this, fwConfigFile);
+			} catch (URISyntaxException e) {
+				throw new FrameworkAdminRuntimeException(e, "loading");
+			}
 	}
 
 	// Save all parameter in memory into proper config files.
@@ -412,7 +411,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (!stateIsEmpty) {
 				// Use launcher. -- > save LauncherConfig file.
 				EclipseLauncherParser launcherParser = new EclipseLauncherParser();
-				launcherParser.save(launcherData, true, backup);
+				launcherParser.save(launcherData, backup);
 			} else {
 				// No bundles in configuration, so delete the launcher config file
 				launcherConfigFile.delete();

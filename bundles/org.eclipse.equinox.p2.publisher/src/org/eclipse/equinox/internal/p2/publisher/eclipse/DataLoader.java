@@ -163,6 +163,8 @@ public class DataLoader {
 				parser.readFwConfig(manipulator, configurationLocation);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
+		} catch (URISyntaxException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
 		}
 		ConfigData data = manipulator.getConfigData();
 		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);

@@ -12,7 +12,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
@@ -80,13 +80,8 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		try {
 			baseDir = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIGURATOR_FOLDER);
 			File targetFile = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIG_LIST);
-			try {
-				Utils.createParentDir(targetFile);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (!Utils.createParentDir(targetFile))
 				return null;
-			}
 			return targetFile.toURL();
 		} catch (MalformedURLException e) {
 			// Never happen. ignore.
@@ -351,7 +346,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		if (!configuratorConfigUrl.getProtocol().equals("file")) //$NON-NLS-1$
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
-		saveConfiguration(setToSimpleConfig, outputFile, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()), backup);
+		saveConfiguration(setToSimpleConfig, outputFile, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
@@ -481,7 +476,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
-		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()));
+		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()));
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)

@@ -718,8 +718,9 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void createStateIndexes() {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
+		File osgiArea = ParserUtils.getOSGiInstallArea(manipulator.getLauncherData());
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
+			URI location = FileUtils.getRealLocation(osgiArea != null ? osgiArea.toURI() : null, currentInstalledBundles[i].getLocation());
 			locationStateIndex.put(location, currentInstalledBundles[i]);
 			nameVersionStateIndex.put(getKey(currentInstalledBundles[i]), currentInstalledBundles[i]);
 		}
@@ -727,13 +728,15 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void addBundleToState(BundleDescription bundleDescription) {
 		state.addBundle(bundleDescription);
-		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
+		File osgiArea = ParserUtils.getOSGiInstallArea(manipulator.getLauncherData());
+		URI location = FileUtils.getRealLocation(osgiArea.toURI() != null ? osgiArea.toURI() : null, bundleDescription.getLocation());
 		locationStateIndex.put(location, bundleDescription);
 		nameVersionStateIndex.put(getKey(bundleDescription), bundleDescription);
 	}
 
 	private void removeBundleFromState(BundleDescription bundleDescription) {
-		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
+		File osgiArea = ParserUtils.getOSGiInstallArea(manipulator.getLauncherData());
+		URI location = FileUtils.getRealLocation(osgiArea != null ? osgiArea.toURI() : null, bundleDescription.getLocation());
 		locationStateIndex.remove(location);
 		nameVersionStateIndex.remove(getKey(bundleDescription));
 		state.removeBundle(bundleDescription);
