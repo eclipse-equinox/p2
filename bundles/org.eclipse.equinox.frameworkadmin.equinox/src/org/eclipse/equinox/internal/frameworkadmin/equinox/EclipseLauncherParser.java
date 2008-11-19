@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
@@ -119,6 +120,8 @@ public class EclipseLauncherParser {
 		if (osgiInstallArea == null)
 			osgiInstallArea = launcherFolder;
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
+		if (configArea == null)
+			throw new FrameworkAdminRuntimeException("config area is null", "");
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
 		getFrameworkJar(lines, launcherFolder, launcherData);
@@ -228,7 +231,11 @@ public class EclipseLauncherParser {
 	private URI getConfigurationLocation(String[] lines, URI osgiInstallArea, LauncherData data) {
 		String configuration = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
 		if (configuration == null)
-			return null;
+			try {
+				return URIUtil.makeAbsolute(new URI("configuration"), osgiInstallArea);
+			} catch (URISyntaxException e1) {
+				//ignore
+			}
 
 		URI result = null;
 		try {
