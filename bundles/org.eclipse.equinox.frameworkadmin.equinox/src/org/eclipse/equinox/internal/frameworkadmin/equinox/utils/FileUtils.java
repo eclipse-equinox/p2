@@ -119,4 +119,12 @@ public class FileUtils {
 		}
 		return result != null ? result.getAbsoluteFile().toURI() : null;
 	}
+
+	public static URI fromPath(String path) throws URISyntaxException {
+		File f = new File(path);
+		if (f.isAbsolute())
+			return f.toURI();
+		return URIUtil.fromString("file:" + path);
+	}
+
 }

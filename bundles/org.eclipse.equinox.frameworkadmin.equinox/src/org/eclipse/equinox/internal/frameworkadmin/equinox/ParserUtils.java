@@ -1,16 +1,20 @@
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.osgi.service.log.LogService;
 
 public class ParserUtils {
 	public static File getOSGiInstallArea(LauncherData launcherData) {
 		if (launcherData == null)
 			return null;
 
+		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
 		File result = getOSGiInstallArea(launcherData.getProgramArgs());
 		if (result != null)
 			return result;
@@ -20,6 +24,23 @@ public class ParserUtils {
 		if (launcherData.getLauncher() != null)
 			return launcherData.getLauncher().getParentFile();
 		return null;
+	}
+
+	public static URI getFrameworkJar(String[] lines, URI launcherFolder) {
+		String fwk = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
+		if (fwk == null) {
+			//Search the file system using the default location
+			URI location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, new File(URIUtil.toFile(launcherFolder), EquinoxConstants.PLUGINS_DIR));
+			if (location != null)
+				return location;
+			return null;
+		}
+		try {
+			return URIUtil.makeAbsolute(URIUtil.fromString(fwk), launcherFolder);
+		} catch (URISyntaxException e) {
+			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + fwk);
+			return null;
+		}
 	}
 
 	public static File getOSGiInstallArea(String[] args) {
@@ -82,7 +103,8 @@ public class ParserUtils {
 			if (values != null && args[i].charAt(1) == '-') {
 				break;
 			}
-			values.add(args[i].trim());
+			if (values != null)
+				values.add(args[i].trim());
 		}
 		if (values != null)
 			return (String[]) values.toArray(new String[values.size()]);

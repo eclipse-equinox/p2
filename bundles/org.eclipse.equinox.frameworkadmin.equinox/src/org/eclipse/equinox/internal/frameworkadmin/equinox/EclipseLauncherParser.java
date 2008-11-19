@@ -116,6 +116,8 @@ public class EclipseLauncherParser {
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
 		URI osgiInstallArea = getOSGiInstallArea(lines, launcherData);
+		if (osgiInstallArea == null)
+			osgiInstallArea = launcherFolder;
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
@@ -230,7 +232,7 @@ public class EclipseLauncherParser {
 
 		URI result = null;
 		try {
-			result = URIUtil.makeAbsolute(URIUtil.fromString(configuration), osgiInstallArea);
+			result = URIUtil.makeAbsolute(FileUtils.fromPath(configuration), osgiInstallArea);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result.toString(), lines);
 			data.setFwConfigLocation(URIUtil.toFile(result));
 		} catch (URISyntaxException e) {
