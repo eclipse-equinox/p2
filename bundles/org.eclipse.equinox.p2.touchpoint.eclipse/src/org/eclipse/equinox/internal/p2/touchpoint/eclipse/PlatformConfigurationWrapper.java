@@ -131,9 +131,16 @@ public class PlatformConfigurationWrapper {
 		List sites = configuration.getSites();
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site nextSite = (Site) iter.next();
-			String nextURL = nextSite.getUrl();
-			if (new Path(nextURL).equals(new Path(url.toExternalForm()))) {
-				return nextSite;
+			try {
+				URL nextURL = new URL(nextSite.getUrl());
+				if (!url.getProtocol().equals(nextURL.getProtocol()))
+					continue;
+
+				if (new Path(url.getPath()).equals(new Path(nextURL.getPath()))) {
+					return nextSite;
+				}
+			} catch (MalformedURLException e) {
+				// ignore
 			}
 		}
 		return null;

@@ -143,16 +143,18 @@ public class Utils {
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	private static String makeRelative(IPath toRel, IPath base) {
+		if (toRel.getDevice() != null && !toRel.getDevice().equalsIgnoreCase(base.getDevice()))
+			return toRel.toOSString();
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();
 		}
-		String result = ""; //$NON-NLS-1$
+		String result = "";
 		for (int j = 0; j < (base.segmentCount() - i); j++) {
-			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
+			result += ".." + Path.SEPARATOR;
 		}
 		if (i == toRel.segmentCount())
-			return "."; //$NON-NLS-1$
+			return ".";
 		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
 		return result;
 	}
