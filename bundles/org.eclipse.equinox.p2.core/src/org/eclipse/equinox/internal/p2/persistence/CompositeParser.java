@@ -75,7 +75,8 @@ public abstract class CompositeParser extends XMLParser implements XMLConstants 
 		}
 
 		protected void finished() {
-			repos.add(currentRepo);
+			if (currentRepo != null)
+				repos.add(currentRepo);
 		}
 	}
 }

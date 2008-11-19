@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository class='org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository' version='1.0.0'?>
+<repository name='artifact name' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.compressed' value='false'/>
+    <property name='p2.timestamp' value='1226685461796'/>
+  </properties>
+  <children size='2'>
+    <child locotion='http://www.eclipse.org/foo'/>
+    <child location='http://www.eclipse.org/bar'/>
+</repository>

@@ -336,7 +336,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				filteredRequests.add(requests[i]);
 			}
 		}
-		return (IArtifactRequest[]) filteredRequests.toArray();
+
+		IArtifactRequest[] filteredArtifactRequests = new IArtifactRequest[filteredRequests.size()];
+		filteredRequests.toArray(filteredArtifactRequests);
+		return filteredArtifactRequests;
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requests) {

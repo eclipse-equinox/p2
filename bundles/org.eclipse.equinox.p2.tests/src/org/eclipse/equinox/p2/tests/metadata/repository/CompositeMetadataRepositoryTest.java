@@ -14,7 +14,9 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -296,12 +298,42 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after removeAllChildren", 0, compRepo.getChildren().size());
 	}
 
+	public void testValidate() {
+		//Setup: create an uncompressed repository
+		createRepo(false);
+		assertEquals("Verifying repository's status is OK", Status.OK_STATUS, (new CompositeMetadataRepositoryFactory()).validate(repoLocation.toURI(), null));
+	}
+
 	public void testCompressedPersistence() {
 		persistenceTest(true);
 	}
 
 	public void testUncompressedPersistence() {
 		persistenceTest(false);
+	}
+
+	public void testSyntaxErrorWhileParsing() {
+		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/syntaxError");
+
+		try {
+			getMetadataRepositoryManager().loadRepository(badCompositeContent.toURI(), null);
+			//Error while parsing expected
+			fail("Expected ProvisionException has not been thrown");
+		} catch (ProvisionException e) {
+			//expected.
+			//TODO more meaningful verification?
+		}
+	}
+
+	public void testMissingRequireattributeWhileParsing() {
+		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/missingRequiredAttribute");
+		CompositeMetadataRepository compRepo = null;
+		try {
+			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(badCompositeContent.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Error loading repository", e);
+		}
+		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
 	}
 
 	private void persistenceTest(boolean compressed) {

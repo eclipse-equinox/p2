@@ -17,7 +17,8 @@ import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.StringPool;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -728,6 +729,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	public void duplicateElement(AbstractHandler handler, String element, Attributes attributes) {
 		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Duplicate_Element, new Object[] {handler.getName(), element, toString(attributes)}), null);
+		//ignore the duplicate element entirely because we have already logged it
+		new IgnoringHandler(handler);
 	}
 
 	public void unexpectedCharacterData(AbstractHandler handler, String cdata) {
