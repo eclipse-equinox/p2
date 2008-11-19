@@ -119,11 +119,24 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	private void writeBundlesList(Properties props, URI base, BundleInfo[] bundles) {
+	private void writeBundlesList(ConfigData configData, Properties props, URI base, BundleInfo[] bundles) {
+		//framework jar does not get stored on the bundle list, figure out who that is.
+		String value = getFwProperty(configData, EquinoxConstants.PROP_OSGI_FW);
+		URI fwJar = null;
+		try {
+			fwJar = (value != null) ? URIUtil.fromString(value) : null;
+		} catch (URISyntaxException e) {
+			// else use osgi
+		}
+
 		StringBuffer osgiBundlesList = new StringBuffer();
 		for (int j = 0; j < bundles.length; j++) {
-			if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[j].getSymbolicName()))
+			if (fwJar != null) {
+				if (URIUtil.sameURI(fwJar, bundles[j].getLocation()))
+					continue;
+			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[j].getSymbolicName()))
 				continue;
+
 			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], URIUtil.makeRelative(bundles[j].getLocation(), base)));
 		}
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
@@ -176,7 +189,7 @@ public class EquinoxFwConfigFileParser {
 		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_PATH))
 		//			if (launcherData.getLauncher() == null)
 		//				launcherPath = value;
-		String[] KNOWN_PROPERTIES = {EquinoxConstants.PROP_LAUNCHER_PATH, KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, KEY_ECLIPSE_PROV_DATA_AREA, EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL, EquinoxConstants.PROP_OSGI_FW};
+		String[] KNOWN_PROPERTIES = {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL};
 		top: for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			for (int i = 0; i < KNOWN_PROPERTIES.length; i++) {
@@ -237,9 +250,10 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void writeFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props) {
-		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null)
+		String value = getFwProperty(configData, EquinoxConstants.PROP_OSGI_FW);
+		if (value != null)
 			try {
-				props.setProperty(EquinoxConstants.PROP_OSGI_FW, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), ParserUtils.getOSGiInstallArea(launcherData).toURI())));
+				props.setProperty(EquinoxConstants.PROP_OSGI_FW, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(value), ParserUtils.getOSGiInstallArea(launcherData).toURI())));
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				Log.log(LogService.LOG_WARNING, "can't make relative fwk jar location");
@@ -315,19 +329,17 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	private void writep2DataArea(Properties props, URI configArea) throws URISyntaxException {
-		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
-			String dataArea = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
-			if (dataArea != null) {
-				String result = URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(dataArea), configArea));
-				//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
-				//FIXME NEed to review if this logic is correct
-				if (result.startsWith("../..")) //$NON-NLS-1$
-					result = dataArea;
-				else if (!result.equals(dataArea))
-					result = CONFIG_DIR + result.substring(5);
-				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, result);
-			}
+	private void writep2DataArea(ConfigData configData, Properties props, URI configArea) throws URISyntaxException {
+		String dataArea = getFwProperty(configData, KEY_ECLIPSE_PROV_DATA_AREA);
+		if (dataArea != null) {
+			String result = URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(dataArea), configArea));
+			//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
+			//FIXME NEed to review if this logic is correct
+			if (result.startsWith("../..")) //$NON-NLS-1$
+				result = dataArea;
+			else if (!result.equals(dataArea))
+				result = CONFIG_DIR + result.substring(5);
+			props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, result);
 		}
 	}
 
@@ -336,9 +348,10 @@ public class EquinoxFwConfigFileParser {
 			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), root).toString());
 	}
 
-	private void writeLauncherPath(Properties props, URI root) throws URISyntaxException {
-		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null)
-			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), root)));
+	private void writeLauncherPath(ConfigData configData, Properties props, URI root) throws URISyntaxException {
+		String value = getFwProperty(configData, EquinoxConstants.PROP_LAUNCHER_PATH);
+		if (value != null)
+			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(value), root)));
 	}
 
 	private void readSimpleConfiguratorURL(Properties props, URI configArea) throws URISyntaxException {
@@ -346,10 +359,17 @@ public class EquinoxFwConfigFileParser {
 			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea).toString());
 	}
 
-	private void writeSimpleConfiguratorURL(Properties props, URI configArea) throws URISyntaxException {
+	private void writeSimpleConfiguratorURL(ConfigData configData, Properties props, URI configArea) throws URISyntaxException {
 		//FIXME How would someone set such a value.....
-		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null)
-			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea)));
+		String value = getFwProperty(configData, KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		if (value != null)
+			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(value), configArea)));
+	}
+
+	private String getFwProperty(ConfigData data, String key) {
+		if (isFwDependent(key))
+			return data.getFwDependentProp(key);
+		return data.getFwIndependentProp(key);
 	}
 
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
@@ -377,11 +397,11 @@ public class EquinoxFwConfigFileParser {
 		Properties configProps = new Properties();
 		writeFwJarLocation(configData, launcherData, configProps);
 		try {
-			writeLauncherPath(configProps, null);
+			writeLauncherPath(configData, configProps, null);
 			URI configArea = null;
-			writep2DataArea(configProps, configArea);
-			writeSimpleConfiguratorURL(configProps, configArea);
-			writeBundlesList(configProps, ParserUtils.getOSGiInstallArea(launcherData).toURI(), bInfos);
+			writep2DataArea(configData, configProps, configArea);
+			writeSimpleConfiguratorURL(configData, configProps, configArea);
+			writeBundlesList(configData, configProps, ParserUtils.getOSGiInstallArea(launcherData).toURI(), bInfos);
 			writeInitialStartLevel(configData, configProps);
 			writeDefaultStartLevel(configData, configProps);
 		} catch (URISyntaxException e) {
