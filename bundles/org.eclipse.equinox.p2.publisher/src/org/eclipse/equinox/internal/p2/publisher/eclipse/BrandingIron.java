@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
+import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.pde.internal.swt.tools.IconExe;
 
 /**
@@ -26,6 +27,7 @@ public class BrandingIron {
 	private static final String STRING_START = "<string>"; //$NON-NLS-1$
 	private static final String STRING_END = "</string>"; //$NON-NLS-1$
 	private static final String XDOC_ICON = "-Xdock:icon=../Resources/Eclipse.icns"; //$NON-NLS-1$
+	private static final String XDOC_ICON_PREFIX = "-Xdock:icon=../Resources/"; //$NON-NLS-1$
 
 	private String[] icons = null;
 	private String root;
@@ -42,7 +44,7 @@ public class BrandingIron {
 	}
 
 	public void setIcons(String value) {
-		icons = value.split(",\\s*"); //$NON-NLS-1$
+		icons = Utils.getTokens(value, ",");//$NON-NLS-1$
 		if (icons[0].startsWith("${")) { //$NON-NLS-1$
 			if (icons.length > 1) {
 				String[] temp = new String[icons.length - 1];
@@ -50,6 +52,12 @@ public class BrandingIron {
 				icons = temp;
 			} else {
 				icons = null;
+			}
+		}
+		//trim whitespace
+		if (icons != null) {
+			for (int i = 0; i < icons.length; i++) {
+				icons[i] = icons[i].trim();
 			}
 		}
 	}
@@ -312,7 +320,7 @@ public class BrandingIron {
 		if (iconName.length() > 0) {
 			int xdoc = scan(buffer, 0, XDOC_ICON);
 			if (xdoc != -1) {
-				String icns = XDOC_ICON.replaceFirst("Eclipse.icns", iconName); //$NON-NLS-1$
+				String icns = XDOC_ICON_PREFIX + iconName;
 				buffer.replace(xdoc, xdoc + XDOC_ICON.length(), icns);
 			}
 		}
