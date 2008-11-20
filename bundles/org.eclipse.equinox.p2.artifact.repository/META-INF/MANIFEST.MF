@@ -43,6 +43,7 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.mirror;x-internal:=true
    org.eclipse.equinox.p2.extensionlocation,
    org.eclipse.equinox.p2.updatesite"
 Import-Package: javax.xml.parsers,
+ org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.equinox.app;version="1.0.0";resolution:=optional,
  org.eclipse.equinox.internal.p2.core.helpers,

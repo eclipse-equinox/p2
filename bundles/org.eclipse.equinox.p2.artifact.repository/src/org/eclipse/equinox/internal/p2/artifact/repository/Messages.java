@@ -38,6 +38,12 @@ public class Messages extends NLS {
 	public static String sar_reportStatus;
 
 	public static String mirror_alreadyExists;
+	public static String message_mirroringStatus;
+	public static String exception_comparatorNotFound;
+	public static String exception_noComparators;
+	public static String exception_destinationNotModifiable;
+	public static String exception_needSourceDestination;
+	public static String exception_malformedRepoURI;
 
 	static {
 		// initialize resource bundles
