@@ -100,9 +100,10 @@ public class EquinoxFwConfigFileParser {
 
 				int indexStartInfo = entry.indexOf('@');
 				String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
-				URI realLocation;
+				URI realLocation = null;
 				try {
-					realLocation = URIUtil.makeAbsolute(URIUtil.fromString(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
+					if (manipulator.getLauncherData().getFwJar() != null)
+						realLocation = URIUtil.makeAbsolute(URIUtil.fromString(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
 				} catch (URISyntaxException e) {
 					Log.log(LogService.LOG_ERROR, "Can't make absolute...");
 					continue;

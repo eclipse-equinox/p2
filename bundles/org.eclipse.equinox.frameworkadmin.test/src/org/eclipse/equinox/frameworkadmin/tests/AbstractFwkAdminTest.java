@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.io.IOException;
+
+import java.io.FileNotFoundException;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -138,6 +142,26 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			//ignore, caught before
 		} catch (IOException e) {
 			fail("String: " + search + " not found in " + file.getAbsolutePath());
+		}
+	}
+
+	public void assertPropertyNotContain(File file, String property, String search) {
+		Properties p = new Properties();
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			p.load(fis);
+		} catch (FileNotFoundException e) {
+			fail("Can't find file " + file);
+		} catch (IOException e) {
+			fail("Error reading " + file);
+		} finally {
+			if (fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					//ignore
+				}
 		}
 	}
 
@@ -304,9 +328,9 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		try {
 			out = new FileOutputStream(location);
 			properties.store(out, "#header");
-		} catch(IOException e) {
+		} catch (IOException e) {
 			fail("Faile writing config.ini in" + location);
-		}finally {
+		} finally {
 			try {
 				out.flush();
 				out.close();
@@ -316,14 +340,13 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			out = null;
 		}
 	}
-	
 
 	public void assertContains(String message, BundleInfo[] bundles, URI location) {
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].getLocation().equals(location))
 				return;
 		}
-		fail(message +  " Can't find the bundle info " + location);
+		fail(message + " Can't find the bundle info " + location);
 	}
-	
+
 }
