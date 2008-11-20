@@ -58,12 +58,14 @@ public class SimpleConfiguratorUtils {
 	}
 
 	private static URI parseLocation(String location) {
+
+		int encodedCommaIndex = location.indexOf("%2C");
+		while (encodedCommaIndex != -1) {
+			location = location.substring(0, encodedCommaIndex) + "," + location.substring(encodedCommaIndex + 3);
+		}
+
 		try {
-			URI uri = URIUtil.fromString(location);
-			//check for a comma and if necessary decode it
-			if (uri.getPath().indexOf(',') == -1)
-				return uri;
-			return new URI(uri.getScheme(), uri.getHost(), uri.getPath(), uri.getFragment());
+			return URIUtil.fromString(location);
 		} catch (URISyntaxException e) {
 			// ignore and fall through
 		}
