@@ -311,10 +311,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	}
 
 	public void saveConfiguration(BundleInfo[] configuration, File outputFile, File base) throws IOException {
-		saveConfiguration(Arrays.asList(configuration), outputFile, base, false);
+		saveConfiguration(configuration, outputFile, base, false);
 	}
 
-	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
+	private void saveConfiguration(BundleInfo[] configuration, File outputFile, File base, boolean backup) throws IOException {
 		if (backup && outputFile.exists()) {
 			File backupFile = Utils.getSimpleDataFormattedFile(outputFile);
 			if (!outputFile.renameTo(backupFile)) {
@@ -322,10 +322,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[bundleInfoList.size()];
-		int i = 0;
-		for (Iterator iterator = bundleInfoList.iterator(); iterator.hasNext();) {
-			BundleInfo bundleInfo = (BundleInfo) iterator.next();
+		// convert to SimpleConfigurator BundleInfo Type
+		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[configuration.length];
+		for (int i = 0; i < configuration.length; i++) {
+			BundleInfo bundleInfo = (BundleInfo) configuration[i];
 			URI location = URIUtil.makeRelative(bundleInfo.getLocation(), base != null ? base.toURI() : null);
 			simpleInfos[i++] = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo(bundleInfo.getSymbolicName(), bundleInfo.getVersion(), location, bundleInfo.getStartLevel(), bundleInfo.isMarkedAsStarted());
 		}
@@ -341,7 +341,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return configData.getBundles();
 
 		File outputFile = getConfigFile(manipulator);
-		saveConfiguration(setToSimpleConfig, outputFile, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()), backup);
+		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
