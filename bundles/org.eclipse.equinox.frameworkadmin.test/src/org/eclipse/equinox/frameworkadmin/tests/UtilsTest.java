@@ -40,7 +40,7 @@ public class UtilsTest extends AbstractFwkAdminTest {
 
 		File other = new File(installFolder, "other/org.foo_1.2.4");
 		other.mkdirs();
-		manipulator.getConfigData().setFwDependentProp("osgi.syspath", other.getParentFile().getAbsolutePath());
+		manipulator.getConfigData().setProperty("osgi.syspath", other.getParentFile().getAbsolutePath());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), other.toURL());
 	}
 }

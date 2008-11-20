@@ -167,7 +167,7 @@ public class DataLoader {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
 		}
 		ConfigData data = manipulator.getConfigData();
-		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		String value = data.getProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
 		if (value != null) {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
@@ -179,7 +179,7 @@ public class DataLoader {
 				// ignore
 			}
 			try {
-				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configurationLocation.toURL()));
+				data.setProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configurationLocation.toURL()));
 			} catch (MalformedURLException e) {
 				//ignore
 			}

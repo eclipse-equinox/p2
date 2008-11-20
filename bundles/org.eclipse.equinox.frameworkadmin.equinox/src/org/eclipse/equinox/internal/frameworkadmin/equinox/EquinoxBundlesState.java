@@ -270,7 +270,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, BundleInfo[] bInfos) {
-		this.composeNewState(launcherData, configData, configData.getFwDependentProps(), bInfos);
+		this.composeNewState(launcherData, configData, configData.getProperties(), bInfos);
 	}
 
 	/**
@@ -524,7 +524,7 @@ public class EquinoxBundlesState implements BundlesState {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
 				// TODO default value should be set more precisely.
 				File installArea = null;
-				String installAreaSt = configData.getFwDependentProp(EquinoxConstants.PROP_INSTALL);
+				String installAreaSt = configData.getProperty(EquinoxConstants.PROP_INSTALL);
 				if (installAreaSt == null) {
 					if (manipulator.getLauncherData().getLauncher() == null) {
 						// TODO implement

@@ -309,10 +309,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			String value = props.getProperty(key);
 			if (toBeEliminated(key))
 				continue;
-			if (EquinoxFwConfigFileParser.isFwDependent(key))
-				configData.setFwDependentProp(key, value);
-			else
-				configData.setFwIndependentProp(key, value);
+			configData.setProperty(key, value);
 		}
 
 		// update initialBundleStartLevel
@@ -460,13 +457,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		BundleInfo[] bInfos = configData.getBundles();
 		for (int i = 0; i < bInfos.length; i++)
 			this.configData.addBundle(bInfos[i]);
-		this.configData.setFwIndependentProps(configData.getFwIndependentProps());
+		this.configData.setProperties(configData.getProperties());
 		if (this.configData.getFwName().equals(configData.getFwName()))
 			if (this.configData.getFwVersion().equals(configData.getFwVersion())) {
 				// TODO refine the algorithm to copying fw dependent props.
 				//  configData.getFwName()/getFwVersion()/
 				//	getLauncherName()/getLauncherVersion() might be taken into consideration. 
-				this.configData.setFwDependentProps(configData.getFwDependentProps());
+				this.configData.setProperties(configData.getProperties());
 			}
 	}
 

@@ -53,7 +53,7 @@ public class ReaderTest4 extends AbstractFwkAdminTest {
 		}
 		
 		assertEquals(new File(installFolder, "conf"), manipulator.getLauncherData().getFwConfigLocation());  
-		assertEquals("bar", manipulator.getConfigData().getFwIndependentProp("foo"));
+		assertEquals("bar", manipulator.getConfigData().getProperty("foo"));
 	}
 
 	protected void tearDown() throws Exception {

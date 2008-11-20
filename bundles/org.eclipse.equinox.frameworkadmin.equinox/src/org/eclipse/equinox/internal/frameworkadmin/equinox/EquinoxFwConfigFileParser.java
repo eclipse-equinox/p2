@@ -84,13 +84,6 @@ public class EquinoxFwConfigFileParser {
 		return BundleInfo.NO_LEVEL;
 	}
 
-	static boolean isFwDependent(String key) {
-		// TODO This algorithm is temporal. 
-		if (key.startsWith(EquinoxConstants.PROP_EQUINOX_DEPENDENT_PREFIX))
-			return true;
-		return false;
-	}
-
 	private void readBundlesList(Manipulator manipulator, URI osgiInstallArea, String value) throws NumberFormatException {
 		ConfigData configData = manipulator.getConfigData();
 		if (value != null) {
@@ -204,10 +197,7 @@ public class EquinoxFwConfigFileParser {
 					continue top;
 			}
 			String value = props.getProperty(key);
-			if (isFwDependent(key))
-				configData.setFwDependentProp(key, value);
-			else
-				configData.setFwIndependentProp(key, value);
+			configData.setProperty(key, value);
 		}
 		if (launcherName != null && launcherPath != null) {
 			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
@@ -334,13 +324,16 @@ public class EquinoxFwConfigFileParser {
 	private void writep2DataArea(ConfigData configData, Properties props, URI configArea) throws URISyntaxException {
 		String dataArea = getFwProperty(configData, KEY_ECLIPSE_PROV_DATA_AREA);
 		if (dataArea != null) {
+			if (dataArea.startsWith(CONFIG_DIR)) {
+				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, dataArea);
+				return;
+			}
 			String result = URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(dataArea), configArea));
 			//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
-			//FIXME NEed to review if this logic is correct
 			if (result.startsWith("../..")) //$NON-NLS-1$
 				result = dataArea;
 			else if (!result.equals(dataArea))
-				result = CONFIG_DIR + result.substring(5);
+				result = CONFIG_DIR + result;
 			props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, result);
 		}
 	}
@@ -369,9 +362,7 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private String getFwProperty(ConfigData data, String key) {
-		if (isFwDependent(key))
-			return data.getFwDependentProp(key);
-		return data.getFwIndependentProp(key);
+		return data.getProperty(key);
 	}
 
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
@@ -411,21 +402,10 @@ public class EquinoxFwConfigFileParser {
 		} catch (URISyntaxException e) {
 			throw new FrameworkAdminRuntimeException(e, "saving config.ini");
 		}
-		//		final File launcher = launcherData.getLauncher();
-		//		if (launcher != null) {
-		//			String launcherName = launcher.getName();
-		//			if (launcherName.endsWith(EquinoxConstants.EXE_EXTENSION)) {
-		//				props.setProperty(EquinoxConstants.PROP_LAUNCHER_NAME, launcherName.substring(0, launcherName.lastIndexOf(EquinoxConstants.EXE_EXTENSION)));
-		//				props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, launcher.getParentFile().getAbsolutePath());
-		//			}
-		//		}
-		//		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null)
-		//			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.makeRelative(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), rootURI).toString());
 
-		//TODO The following merging operations are suspicious.
-		configProps = Utils.appendProperties(configProps, configData.getFwIndependentProps());
-
-		configProps = Utils.appendProperties(configProps, configData.getFwDependentProps());
+		Properties original = configData.getProperties();
+		original.putAll(configProps);
+		configProps = original;
 
 		//Deal with the fw jar and ensure it is not set. 
 		//TODO This can't be done before because of the previous calls to appendProperties

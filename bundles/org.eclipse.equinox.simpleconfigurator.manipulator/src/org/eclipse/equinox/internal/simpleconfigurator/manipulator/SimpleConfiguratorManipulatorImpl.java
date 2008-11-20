@@ -342,7 +342,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		File outputFile = getConfigFile(manipulator);
 		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()), backup);
-		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
+		configData.setProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
 
@@ -406,7 +406,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-		Utils.appendProperties(properties, manipulator.getConfigData().getFwIndependentProps());
+		Utils.appendProperties(properties, manipulator.getConfigData().getProperties());
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		File configFile = getConfigFile(manipulator);
 

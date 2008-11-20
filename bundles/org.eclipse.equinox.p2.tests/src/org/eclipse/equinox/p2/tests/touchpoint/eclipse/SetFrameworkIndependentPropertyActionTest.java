@@ -42,15 +42,15 @@ public class SetFrameworkIndependentPropertyActionTest extends AbstractProvision
 
 		String frameworkDependentPropertyName = "test";
 		String frameworkDependentPropertyValue = "true";
-		assertFalse(manipulator.getConfigData().getFwIndependentProps().containsKey(frameworkDependentPropertyName));
+		assertFalse(manipulator.getConfigData().getProperties().containsKey(frameworkDependentPropertyName));
 		parameters.put(ActionConstants.PARM_PROP_NAME, frameworkDependentPropertyName);
 		parameters.put(ActionConstants.PARM_PROP_VALUE, frameworkDependentPropertyValue);
 		parameters = Collections.unmodifiableMap(parameters);
 
 		SetFrameworkIndependentPropertyAction action = new SetFrameworkIndependentPropertyAction();
 		action.execute(parameters);
-		assertEquals("true", manipulator.getConfigData().getFwIndependentProp(frameworkDependentPropertyName));
+		assertEquals("true", manipulator.getConfigData().getProperty(frameworkDependentPropertyName));
 		action.undo(parameters);
-		assertFalse(manipulator.getConfigData().getFwIndependentProps().containsKey(frameworkDependentPropertyName));
+		assertFalse(manipulator.getConfigData().getProperties().containsKey(frameworkDependentPropertyName));
 	}
 }

@@ -41,7 +41,7 @@ public class ReaderTest3 extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 		assertEquals(new File(installFolder, "configuration"), manipulator.getLauncherData().getFwConfigLocation()); 
-		assertEquals("bar", manipulator.getConfigData().getFwIndependentProp("foo"));
+		assertEquals("bar", manipulator.getConfigData().getProperty("foo"));
 	}
 
 	protected void tearDown() throws Exception {

@@ -34,8 +34,7 @@ public class ConfigAdvice extends AbstractAdvice implements IConfigAdvice {
 
 	public Properties getProperties() {
 		Properties result = new Properties();
-		result.putAll(data.getFwDependentProps());
-		result.putAll(data.getFwIndependentProps());
+		result.putAll(data.getProperties());
 		return result;
 	}
 

@@ -25,28 +25,28 @@ public class TestEclipseDataArea extends FwkAdminAndSimpleConfiguratorTest {
 	}
 
 	public void testp2DataArea() throws IOException {
-		m.getConfigData().setFwDependentProp("eclipse.p2.data.area", "@config.dir/../p2");
+		m.getConfigData().setProperty("eclipse.p2.data.area", "@config.dir/../p2");
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 
-		m.getConfigData().setFwDependentProp("eclipse.p2.data.area", new File(getConfigurationFolder(), "p2").getAbsoluteFile().toURL().toExternalForm());
+		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "p2").getAbsoluteFile().toURL().toExternalForm());
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/p2");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/p2");
 
-		m.getConfigData().setFwDependentProp("eclipse.p2.data.area", new File(getConfigurationFolder(), "../p2").getAbsoluteFile().toURL().toExternalForm());
+		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "../p2").getAbsoluteFile().toURL().toExternalForm());
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 
-		m.getConfigData().setFwDependentProp("eclipse.p2.data.area", "file:d:/tmp/foo/bar/p2");
+		m.getConfigData().setProperty("eclipse.p2.data.area", "file:d:/tmp/foo/bar/p2");
 		m.save(false);
 		assertContent(getConfigIni(), "/tmp/foo/bar/p2");
 		m.load();

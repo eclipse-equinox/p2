@@ -50,7 +50,7 @@ public class FileUtils {
 
 	//This mimics the logic of EclipseStarter#getSysPath();
 	private static String getSysPath(final Manipulator manipulator) {
-		Properties properties = manipulator.getConfigData().getFwDependentProps();
+		Properties properties = manipulator.getConfigData().getProperties();
 		String path = (String) properties.get(EquinoxConstants.PROP_OSGI_SYSPATH);
 		if (path != null)
 			return path;

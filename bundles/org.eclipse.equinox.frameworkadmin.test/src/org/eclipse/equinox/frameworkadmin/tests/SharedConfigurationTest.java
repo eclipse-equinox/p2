@@ -43,8 +43,8 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 		
-		assertEquals("false", manipulator.getConfigData().getFwIndependentProp("config.shared"));
-		assertEquals("true", manipulator.getConfigData().getFwIndependentProp("from.parent"));
+		assertEquals("false", manipulator.getConfigData().getProperty("config.shared"));
+		assertEquals("true", manipulator.getConfigData().getProperty("from.parent"));
 	}
 
 	public void testSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -72,8 +72,8 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 		
-		assertEquals("true", manipulator.getConfigData().getFwIndependentProp("config.shared"));
-		assertEquals("true", manipulator.getConfigData().getFwIndependentProp("from.parent"));
+		assertEquals("true", manipulator.getConfigData().getProperty("config.shared"));
+		assertEquals("true", manipulator.getConfigData().getProperty("from.parent"));
 	}
 	
 	public void testNotSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -101,7 +101,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 		
-		assertEquals("false", manipulator.getConfigData().getFwIndependentProp("config.shared"));
-		assertEquals(null, manipulator.getConfigData().getFwIndependentProp("from.parent"));
+		assertEquals("false", manipulator.getConfigData().getProperty("config.shared"));
+		assertEquals(null, manipulator.getConfigData().getProperty("from.parent"));
 	}
 }
