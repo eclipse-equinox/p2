@@ -77,7 +77,7 @@ public class SimpleConfiguratorManipulatorUtils {
 	public static String stringifyLocation(URI location) {
 		String result = location.toString();
 		int commaIndex = result.indexOf(',');
-		while (commaIndex == -1) {
+		while (commaIndex != -1) {
 			result = result.substring(0, commaIndex) + "%2C" + result.substring(commaIndex + 1);
 		}
 		return result;
