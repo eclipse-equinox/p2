@@ -100,7 +100,13 @@ public class EquinoxFwConfigFileParser {
 
 				int indexStartInfo = entry.indexOf('@');
 				String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
-				URI realLocation = FileUtils.getEclipseRealLocation(osgiInstallArea, location);
+				URI realLocation;
+				try {
+					realLocation = URIUtil.makeAbsolute(URIUtil.fromString(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
+				} catch (URISyntaxException e) {
+					Log.log(LogService.LOG_ERROR, "Can't make absolute...");
+					continue;
+				}
 				String slAndFlag = (indexStartInfo > -1) ? entry.substring(indexStartInfo + 1) : null;
 
 				boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag);
@@ -240,13 +246,15 @@ public class EquinoxFwConfigFileParser {
 				fwJar = URIUtil.toFile(absoluteFwJar);
 				if (fwJar == null)
 					throw new IllegalStateException("Can't determinate the osgi.framework location");
+				//Here we overwrite the value read from eclipse.ini, because the value of osgi.framework always takes precedence.
 				launcherData.setFwJar(fwJar);
-				configData.addBundle(new BundleInfo(absoluteFwJar));
 			} else {
 				throw new IllegalStateException("Can't determinate the osgi.framework location");
 			}
 		}
-		return fwJar;
+		if (launcherData.getFwJar() != null)
+			configData.addBundle(new BundleInfo(launcherData.getFwJar().toURI()));
+		return launcherData.getFwJar();
 	}
 
 	private void writeFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props) {
@@ -398,7 +406,7 @@ public class EquinoxFwConfigFileParser {
 		writeFwJarLocation(configData, launcherData, configProps);
 		try {
 			writeLauncherPath(configData, configProps, null);
-			URI configArea = null;
+			URI configArea = manipulator.getLauncherData().getFwConfigLocation().toURI();
 			writep2DataArea(configData, configProps, configArea);
 			writeSimpleConfiguratorURL(configData, configProps, configArea);
 			writeBundlesList(configData, configProps, ParserUtils.getOSGiInstallArea(launcherData).toURI(), bInfos);

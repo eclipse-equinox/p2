@@ -175,6 +175,8 @@ public class Utils {
 		File parent = file.getParentFile();
 		if (parent == null)
 			return false;
+		if (parent.exists())
+			return true;
 		return parent.mkdirs();
 	}
 

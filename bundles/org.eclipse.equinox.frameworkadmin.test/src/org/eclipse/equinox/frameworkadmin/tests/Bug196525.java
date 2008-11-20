@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URISyntaxException;
-
-import java.net.URI;
-
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -75,6 +74,12 @@ public class Bug196525 extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 
+		try {
+			assertContains("1.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))));
+			assertContains("2.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))));
+		} catch (URISyntaxException e) {
+			fail("Unexpected failure while creating URI");
+		}
 		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2, true);
 
 		manipulator.getConfigData().addBundle(bundle1Bi);

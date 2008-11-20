@@ -80,10 +80,10 @@ public class EclipseLauncherParser {
 	}
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
-	private URI getOSGiInstallArea(String[] lines, LauncherData launcherData) {
-		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines);
+	private URI getOSGiInstallArea(String[] lines, URI base) {
+		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, base);
 		if (osgiInstallArea != null)
-			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), launcherData.getLauncher().getParentFile().toURI());
+			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), base);
 		return null;
 	}
 
@@ -116,7 +116,7 @@ public class EclipseLauncherParser {
 
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
-		URI osgiInstallArea = getOSGiInstallArea(lines, launcherData);
+		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder);
 		if (osgiInstallArea == null)
 			osgiInstallArea = launcherFolder;
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
@@ -176,8 +176,10 @@ public class EclipseLauncherParser {
 			return;
 		}
 		try {
-			URI location = URIUtil.makeAbsolute(URIUtil.fromString(fwk), launcherFolder);
+			URI location = URIUtil.makeAbsolute(FileUtils.fromPath(fwk), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_FW, location.toString(), lines);
+			if (location != null)
+				launcherData.setFwJar(URIUtil.toFile(location));
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + fwk);
 			return;
@@ -279,7 +281,7 @@ public class EclipseLauncherParser {
 
 		URI result = null;
 		try {
-			result = URIUtil.makeAbsolute(URIUtil.fromString(startup), launcherFolder);
+			result = URIUtil.makeAbsolute(FileUtils.fromPath(startup), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, result.toString(), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + startup);

@@ -15,7 +15,7 @@ public class ParserUtils {
 			return null;
 
 		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
-		File result = getOSGiInstallArea(launcherData.getProgramArgs());
+		File result = getOSGiInstallArea(launcherData.getProgramArgs(), launcherData.getLauncher().getParentFile().toURI());
 		if (result != null)
 			return result;
 
@@ -43,15 +43,17 @@ public class ParserUtils {
 		}
 	}
 
-	public static File getOSGiInstallArea(String[] args) {
+	//This method should only be used to determine the osgi install area when reading the eclipse.ini
+	public static File getOSGiInstallArea(String[] args, URI base) {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
 		if (install != null)
 			return new File(install);
 		String startup = getValueForArgument(EquinoxConstants.OPTION_STARTUP, args);
-		if (startup != null)
-			return fromOSGiJarToOSGiInstallArea(startup);
+		if (startup != null) {
+			return URIUtil.toFile(URIUtil.makeAbsolute(fromOSGiJarToOSGiInstallArea(startup).toURI(), base));
+		}
 		return null;
 	}
 
