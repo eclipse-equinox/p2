@@ -299,7 +299,10 @@ public class FileUtils {
 	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer) throws IOException {
 		InputStream input = new FileInputStream(source);
 		try {
-			ZipEntry zipEntry = new ZipEntry(pathComputer.computePath(source).toString());
+			IPath entryPath = pathComputer.computePath(source);
+			if (entryPath.segmentCount() == 0)
+				throw new IOException("Cannot have an empty zip entry."); //$NON-NLS-1$
+			ZipEntry zipEntry = new ZipEntry(entryPath.toString());
 			zipEntry.setTime(source.lastModified());
 			output.putNextEntry(zipEntry);
 			copyStream(input, true, output, false);
