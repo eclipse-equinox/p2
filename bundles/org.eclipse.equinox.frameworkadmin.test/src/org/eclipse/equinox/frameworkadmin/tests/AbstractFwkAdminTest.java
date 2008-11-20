@@ -320,7 +320,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 
 	public void assertContains(String message, BundleInfo[] bundles, URI location) {
 		for (int i = 0; i < bundles.length; i++) {
-			if (bundles[i].getLocation().equals(location.toString()))
+			if (bundles[i].getLocation().equals(location))
 				return;
 		}
 		fail(message +  " Can't find the bundle info " + location);
