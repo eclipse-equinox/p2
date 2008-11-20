@@ -8,8 +8,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
@@ -31,27 +33,23 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	private final static boolean DEBUG = false;
 
-	static String CONFIG_LOCATION = SimpleConfiguratorManipulatorImpl.CONFIG_LIST;
-	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
-	private static final String COMMA = ","; //$NON-NLS-1$
-
 	private static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
-
-	private Set manipulators = new HashSet();
 
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation"; //$NON-NLS-1$
 	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 
+	private Set manipulators = new HashSet();
+
 	/**	
-	 * Return the ConfiguratorConfigLocation which is determined 
+	 * Return the ConfiguratorConfigFile which is determined 
 	 * by the parameters set in Manipulator. 
 	 * 
 	 * @param manipulator
-	 * @return URL
+	 * @return File
 	 */
-	private static URL getConfigLocation(Manipulator manipulator) throws IllegalStateException {
+	private static File getConfigFile(Manipulator manipulator) throws IllegalStateException {
 		File fwConfigLoc = manipulator.getLauncherData().getFwConfigLocation();
 		File baseDir = null;
 		if (fwConfigLoc == null) {
@@ -77,18 +75,11 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 					baseDir = fwConfigLoc;
 			}
 		}
-		try {
-			baseDir = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIGURATOR_FOLDER);
-			File targetFile = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIG_LIST);
-			if (!Utils.createParentDir(targetFile))
-				return null;
-			return targetFile.toURL();
-		} catch (MalformedURLException e) {
-			// Never happen. ignore.
-			e.printStackTrace();
+		File configuratorFolder = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIGURATOR_FOLDER);
+		File targetFile = new File(configuratorFolder, SimpleConfiguratorManipulatorImpl.CONFIG_LIST);
+		if (!Utils.createParentDir(targetFile))
 			return null;
-		}
-
+		return targetFile;
 	}
 
 	static boolean isPrerequisiteBundles(URI location, LocationInfo info) {
@@ -298,32 +289,47 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		}
 	}
 
-	public BundleInfo[] loadConfiguration(URL url, File launcherLocation) throws IOException {
+	public BundleInfo[] loadConfiguration(URL url, File base) throws IOException {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
 
-		List bundleInfoList = readConfiguration(url, launcherLocation);
-		return Utils.getBundleInfosFromList(bundleInfoList);
-	}
-
-	/**
-	 * This method is copied from SimpleConfiguratorUtils class.
-	 */
-	public static List readConfiguration(URL url, File base) throws IOException {
 		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url, base.toURI());
-		List result = new ArrayList(simpleBundles.size());
 
-		URI baseURL = base != null ? base.toURI() : null;
+		// convert to FrameworkAdmin BundleInfo Type
+		BundleInfo[] result = new BundleInfo[simpleBundles.size()];
+		int i = 0;
 		for (Iterator iterator = simpleBundles.iterator(); iterator.hasNext();) {
 			org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo simpleInfo = (org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo) iterator.next();
-
 			URI location = simpleInfo.getLocation();
-			location = URIUtil.makeAbsolute(location, baseURL);
-			BundleInfo bInfo = new BundleInfo(simpleInfo.getSymbolicName(), simpleInfo.getVersion(), location, simpleInfo.getStartLevel(), simpleInfo.isMarkedAsStarted());
-			result.add(bInfo);
+			if (!location.isAbsolute() && simpleInfo.getBaseLocation() != null)
+				location = URIUtil.makeAbsolute(location, simpleInfo.getBaseLocation());
+
+			BundleInfo bundleInfo = new BundleInfo(simpleInfo.getSymbolicName(), simpleInfo.getVersion(), location, simpleInfo.getStartLevel(), simpleInfo.isMarkedAsStarted());
+			result[i++] = bundleInfo;
+		}
+		return result;
+	}
+
+	public void saveConfiguration(BundleInfo[] configuration, File outputFile, File base) throws IOException {
+		saveConfiguration(Arrays.asList(configuration), outputFile, base, false);
+	}
+
+	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
+		if (backup && outputFile.exists()) {
+			File backupFile = Utils.getSimpleDataFormattedFile(outputFile);
+			if (!outputFile.renameTo(backupFile)) {
+				throw new IOException("Fail to rename from (" + outputFile + ") to (" + backupFile + ")");
+			}
 		}
 
-		return result;
+		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[bundleInfoList.size()];
+		int i = 0;
+		for (Iterator iterator = bundleInfoList.iterator(); iterator.hasNext();) {
+			BundleInfo bundleInfo = (BundleInfo) iterator.next();
+			URI location = URIUtil.makeRelative(bundleInfo.getLocation(), base != null ? base.toURI() : null);
+			simpleInfos[i++] = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo(bundleInfo.getSymbolicName(), bundleInfo.getVersion(), location, bundleInfo.getStartLevel(), bundleInfo.isMarkedAsStarted());
+		}
+		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
 	}
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
@@ -331,86 +337,13 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		List setToSimpleConfig = new LinkedList();
 		ConfigData configData = manipulator.getConfigData();
 
-		//try {
 		if (!divideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
 			return configData.getBundles();
-		//} catch (Exception e) {
-		//	e.printStackTrace();
-		//	System.exit(-1);
-		//}
-		//		if (DEBUG) {
-		//			System.out.println("setToInitialConfig=\n" + SimpleConfiguratorUtils.getListSt(setToInitialConfig));
-		//			System.out.println("setToSimpleConfig=\n" + SimpleConfiguratorUtils.getListSt(setToSimpleConfig));
-		//		}
-		URL configuratorConfigUrl = getConfigLocation(manipulator);
-		if (!configuratorConfigUrl.getProtocol().equals("file")) //$NON-NLS-1$
-			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
-		File outputFile = new File(configuratorConfigUrl.getFile());
+
+		File outputFile = getConfigFile(manipulator);
 		saveConfiguration(setToSimpleConfig, outputFile, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
-	}
-
-	public void saveConfiguration(List bundleInfoList, File outputFile, File base) throws IOException {
-		saveConfiguration(bundleInfoList, outputFile, base, false);
-	}
-
-	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
-		if (DEBUG) {
-			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath()); //$NON-NLS-1$
-		}
-		BufferedWriter bw;
-		if (backup)
-			if (outputFile.exists()) {
-				File dest = Utils.getSimpleDataFormattedFile(outputFile);
-				if (!outputFile.renameTo(dest)) {
-					throw new IOException("Fail to rename from (" + outputFile + ") to (" + dest + ")");
-				}
-			}
-
-		Collections.sort(bundleInfoList, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof BundleInfo && o2 instanceof BundleInfo) {
-					return ((BundleInfo) o1).getSymbolicName().compareTo(((BundleInfo) o2).getSymbolicName());
-				}
-				return 0;
-			}
-		});
-
-		if (bundleInfoList.size() > 0) {
-			Utils.createParentDir(outputFile);
-			bw = new BufferedWriter(new FileWriter(outputFile));
-
-			for (Iterator ite = bundleInfoList.iterator(); ite.hasNext();) {
-				BundleInfo bInfo = (BundleInfo) ite.next();
-				URI location = bInfo.getLocation();
-
-				if (bInfo.getSymbolicName() == null)
-					bw.write(COMMA);
-				else
-					bw.write(bInfo.getSymbolicName() + COMMA);
-				if (bInfo.getVersion() == null)
-					bw.write(COMMA);
-				else
-					bw.write(bInfo.getVersion() + COMMA);
-
-				location = URIUtil.makeRelative(location, base != null ? base.toURI() : null);
-				bw.write(location + COMMA);
-				bw.write(bInfo.getStartLevel() + COMMA + bInfo.isMarkedAsStarted());
-				bw.newLine();
-			}
-			bw.flush();
-			bw.close();
-		} else {
-			if (outputFile.exists()) {
-				outputFile.delete();
-			}
-			File parentDir = outputFile.getParentFile();
-			if (parentDir.exists()) {
-				parentDir.delete();
-			}
-		}
-
 	}
 
 	void setPrerequisiteBundles(BundleInfo configuratorBundleInfo, BundlesState state, LocationInfo info) {
@@ -462,7 +395,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return;
 		Properties properties = new Properties();
 		String[] jvmArgs = manipulator.getLauncherData().getJvmArgs();
-		for (int i = 0; i < jvmArgs.length; i++)
+		for (int i = 0; i < jvmArgs.length; i++) {
 			if (jvmArgs[i].startsWith("-D")) { //$NON-NLS-1$
 				int index = jvmArgs[i].indexOf("="); //$NON-NLS-1$
 				if (index > 0 && jvmArgs[i].length() > 2) {
@@ -471,12 +404,13 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 					properties.setProperty(key, value);
 				}
 			}
+		}
 
 		Utils.appendProperties(properties, manipulator.getConfigData().getFwIndependentProps());
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
-		URL configuratorConfigUrl = getConfigLocation(manipulator);
+		File configFile = getConfigFile(manipulator);
 
-		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()));
+		BundleInfo[] toInstall = loadConfiguration(configFile.toURL(), ParserUtils.getOSGiInstallArea(manipulator.getLauncherData()));
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)
@@ -509,7 +443,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	}
 
 	public void cleanup(Manipulator manipulator) {
-		File outputFile = new File(getConfigLocation(manipulator).getFile());
+		File outputFile = getConfigFile(manipulator);
 		outputFile.delete();
 
 		if (outputFile.getParentFile().isDirectory())

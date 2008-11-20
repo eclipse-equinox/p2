@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 
@@ -35,10 +34,10 @@ public interface SimpleConfiguratorManipulator extends ConfiguratorManipulator {
 
 	/**
 	 * 
-	 * @param bundleInfoList
+	 * @param bundleConfiguration
 	 * @param outputFile
 	 * @param base
 	 * @throws IOException
 	 */
-	public void saveConfiguration(List bundleInfoList, File outputFile, File base) throws IOException;
+	public void saveConfiguration(BundleInfo[] configuration, File outputFile, File base) throws IOException;
 }

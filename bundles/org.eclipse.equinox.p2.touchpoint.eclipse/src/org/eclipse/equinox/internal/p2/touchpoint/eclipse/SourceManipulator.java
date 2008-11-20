@@ -11,8 +11,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
@@ -23,9 +22,11 @@ public class SourceManipulator {
 	private List sourceBundles;
 	private IProfile profile;
 	boolean changed = false;
+	private SimpleConfiguratorManipulatorImpl manipulator;
 
 	public SourceManipulator(IProfile profile) {
 		this.profile = profile;
+		this.manipulator = new SimpleConfiguratorManipulatorImpl();
 	}
 
 	public BundleInfo[] getBundles() throws IOException {
@@ -57,12 +58,12 @@ public class SourceManipulator {
 
 	public void save() throws IOException {
 		if (sourceBundles != null)
-			SimpleConfiguratorManipulatorImpl.saveConfiguration(sourceBundles, getFileLocation(), getLauncherLocation(), false);
+			manipulator.saveConfiguration((BundleInfo[]) sourceBundles.toArray(new BundleInfo[sourceBundles.size()]), getFileLocation(), getLauncherLocation());
 	}
 
 	private void load() throws MalformedURLException, IOException {
 		if (getFileLocation().exists())
-			sourceBundles = SimpleConfiguratorManipulatorImpl.readConfiguration(getFileLocation().toURL(), getLauncherLocation());
+			sourceBundles = new ArrayList(Arrays.asList(manipulator.loadConfiguration(getFileLocation().toURL(), getLauncherLocation())));
 		else
 			sourceBundles = new ArrayList();
 	}
