@@ -143,7 +143,7 @@ public class EquinoxFwConfigFileParser {
 			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[j].getSymbolicName()))
 				continue;
 
-			URI location = fwJar != null ? URIUtil.makeRelative(bundles[j].getLocation(), fwJar.toURI()) : bundles[j].getLocation();
+			URI location = fwJar != null ? URIUtil.makeRelative(bundles[j].getLocation(), fwJar.getParentFile().toURI()) : bundles[j].getLocation();
 			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], location));
 		}
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
