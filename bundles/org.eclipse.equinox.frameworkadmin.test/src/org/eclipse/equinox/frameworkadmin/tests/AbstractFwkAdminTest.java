@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.io.IOException;
-
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.Properties;
 import junit.framework.TestCase;
@@ -317,4 +316,14 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			out = null;
 		}
 	}
+	
+
+	public void assertContains(String message, BundleInfo[] bundles, URI location) {
+		for (int i = 0; i < bundles.length; i++) {
+			if (bundles[i].getLocation().equals(location.toString()))
+				return;
+		}
+		fail(message +  " Can't find the bundle info " + location);
+	}
+	
 }
