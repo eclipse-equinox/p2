@@ -39,7 +39,8 @@ public class SimpleConfiguratorManipulatorUtils {
 		try {
 			writer = new BufferedWriter(new FileWriter(outputFile));
 			for (int i = 0; i < simpleInfos.length; i++) {
-				writeBundleInfoLine(simpleInfos[i], writer);
+				writer.write(createBundleInfoLine(simpleInfos[i]));
+				writer.newLine();
 			}
 		} catch (IOException e) {
 			caughtException = e;
@@ -58,27 +59,27 @@ public class SimpleConfiguratorManipulatorUtils {
 			throw caughtException;
 	}
 
-	public static void writeBundleInfoLine(BundleInfo bundleInfo, BufferedWriter writer) throws IOException {
+	public static String createBundleInfoLine(BundleInfo bundleInfo) throws IOException {
 		// symbolicName,version,location,startLevel,markedAsStarted
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(bundleInfo.getSymbolicName());
 		buffer.append(',');
 		buffer.append(bundleInfo.getVersion());
 		buffer.append(',');
-		buffer.append(stringifyLocation(bundleInfo.getLocation()));
+		buffer.append(createBundleLocation(bundleInfo.getLocation()));
 		buffer.append(',');
 		buffer.append(bundleInfo.getStartLevel());
 		buffer.append(',');
 		buffer.append(bundleInfo.isMarkedAsStarted());
-		writer.write(buffer.toString());
-		writer.newLine();
+		return buffer.toString();
 	}
 
-	public static String stringifyLocation(URI location) {
+	public static String createBundleLocation(URI location) {
 		String result = location.toString();
 		int commaIndex = result.indexOf(',');
 		while (commaIndex != -1) {
 			result = result.substring(0, commaIndex) + "%2C" + result.substring(commaIndex + 1);
+			commaIndex = result.indexOf(',');
 		}
 		return result;
 	}

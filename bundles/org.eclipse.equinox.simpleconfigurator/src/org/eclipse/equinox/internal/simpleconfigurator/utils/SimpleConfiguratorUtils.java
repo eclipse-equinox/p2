@@ -62,6 +62,7 @@ public class SimpleConfiguratorUtils {
 		int encodedCommaIndex = location.indexOf("%2C");
 		while (encodedCommaIndex != -1) {
 			location = location.substring(0, encodedCommaIndex) + "," + location.substring(encodedCommaIndex + 3);
+			encodedCommaIndex = location.indexOf("%2C");
 		}
 
 		try {
