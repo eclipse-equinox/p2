@@ -27,6 +27,7 @@ public class EquinoxFwConfigFileParser {
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String REFERENCE_SCHEME = "reference:"; //$NON-NLS-1$
+	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static boolean DEBUG = false;
 
 	public EquinoxFwConfigFileParser(BundleContext context) {
@@ -38,7 +39,7 @@ public class EquinoxFwConfigFileParser {
 		if (URIUtil.isFileURI(location))
 			locationString.append(URIUtil.toUnencodedString(location));
 		else if (location.getScheme() == null)
-			locationString.append("file:").append(URIUtil.toUnencodedString(location));
+			locationString.append(FILE_PROTOCOL).append(URIUtil.toUnencodedString(location));
 		else
 			locationString = new StringBuffer(URIUtil.toUnencodedString(location));
 
@@ -113,38 +114,37 @@ public class EquinoxFwConfigFileParser {
 				boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag);
 				int startLevel = getStartLevel(slAndFlag);
 
-				if (realLocation != null)
+				if (realLocation != null) {
 					configData.addBundle(new BundleInfo(realLocation, startLevel, markedAsStarted));
-				else {
-					//TODO: Pascal to look at this
-					// was --> configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
-					//AN : if realLocation is null, we couldn't find it on disk, we probably only have a symbolic id,
-					//we are working off of a bundles.list from the config.ini
-					configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
+					return;
 				}
+				if (location != null && location.startsWith(FILE_PROTOCOL))
+					try {
+						configData.addBundle(new BundleInfo(URIUtil.fromString(location), startLevel, markedAsStarted));
+						return;
+					} catch (URISyntaxException e) {
+						//Ignore
+					}
+
+				//Fallback case, we use the location as a string
+				configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 			}
 		}
 	}
 
-	private void writeBundlesList(ConfigData configData, Properties props, URI base, BundleInfo[] bundles) {
+	private void writeBundlesList(File fwJar, Properties props, URI base, BundleInfo[] bundles) {
 		//framework jar does not get stored on the bundle list, figure out who that is.
-		String value = getFwProperty(configData, EquinoxConstants.PROP_OSGI_FW);
-		URI fwJar = null;
-		try {
-			fwJar = (value != null) ? URIUtil.fromString(value) : null;
-		} catch (URISyntaxException e) {
-			// else use osgi
-		}
 
 		StringBuffer osgiBundlesList = new StringBuffer();
 		for (int j = 0; j < bundles.length; j++) {
 			if (fwJar != null) {
-				if (URIUtil.sameURI(fwJar, bundles[j].getLocation()))
+				if (URIUtil.sameURI(fwJar.toURI(), bundles[j].getLocation()))
 					continue;
 			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[j].getSymbolicName()))
 				continue;
 
-			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], URIUtil.makeRelative(bundles[j].getLocation(), base)));
+			URI location = fwJar != null ? URIUtil.makeRelative(bundles[j].getLocation(), fwJar.toURI()) : bundles[j].getLocation();
+			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], location));
 		}
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
 	}
@@ -259,16 +259,9 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void writeFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props) {
-		String value = getFwProperty(configData, EquinoxConstants.PROP_OSGI_FW);
-		if (value != null)
-			try {
-				props.setProperty(EquinoxConstants.PROP_OSGI_FW, URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(value), ParserUtils.getOSGiInstallArea(launcherData).toURI())));
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				Log.log(LogService.LOG_WARNING, "can't make relative fwk jar location");
-			}
-		else
-			props.remove(EquinoxConstants.PROP_OSGI_FW);
+		if (launcherData.getFwJar() == null)
+			return;
+		props.setProperty(EquinoxConstants.PROP_OSGI_FW, URIUtil.toUnencodedString(URIUtil.makeRelative(launcherData.getFwJar().toURI(), ParserUtils.getOSGiInstallArea(launcherData).toURI())));
 	}
 
 	private static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
@@ -384,8 +377,10 @@ public class EquinoxFwConfigFileParser {
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
 		ConfigData configData = manipulator.getConfigData();
 		LauncherData launcherData = manipulator.getLauncherData();
-		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+		//Get the OSGi jar from the bundle.info
+		File fwJar = EquinoxBundlesState.getSystemBundleFromBundleInfos(configData);
 		launcherData.setFwJar(fwJar);
+
 		File outputFile = launcherData.getFwConfigLocation();
 		if (outputFile.exists()) {
 			if (outputFile.isFile()) {
@@ -410,7 +405,7 @@ public class EquinoxFwConfigFileParser {
 			URI configArea = manipulator.getLauncherData().getFwConfigLocation().toURI();
 			writep2DataArea(configData, configProps, configArea);
 			writeSimpleConfiguratorURL(configData, configProps, configArea);
-			writeBundlesList(configData, configProps, ParserUtils.getOSGiInstallArea(launcherData).toURI(), bInfos);
+			writeBundlesList(launcherData.getFwJar(), configProps, ParserUtils.getOSGiInstallArea(launcherData).toURI(), bInfos);
 			writeInitialStartLevel(configData, configProps);
 			writeDefaultStartLevel(configData, configProps);
 		} catch (URISyntaxException e) {

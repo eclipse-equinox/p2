@@ -66,7 +66,7 @@ public class EclipseLauncherParser {
 
 		if (launcherData.getJvm() != null) {
 			lines.add(EquinoxConstants.OPTION_VM);
-			lines.add(launcherData.getJvm().getAbsolutePath());
+			lines.add(URIUtil.makeRelative(launcherData.getJvm().toURI(), launcherData.getLauncher().getParentFile().toURI()));
 		}
 		final String[] jvmArgs = launcherData.getJvmArgs();
 		if (jvmArgs != null && jvmArgs.length != 0) {
@@ -87,32 +87,11 @@ public class EclipseLauncherParser {
 		return null;
 	}
 
-	private String[] loadFile(File file) throws IOException {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(file));
-
-			String line;
-			List list = new LinkedList();
-			while ((line = br.readLine()) != null) {
-				list.add(line);
-			}
-			return (String[]) list.toArray(new String[list.size()]);
-		} finally {
-			if (br != null)
-				try {
-					br.close();
-				} catch (IOException e) {
-					//Ignore
-				}
-		}
-	}
-
 	void read(File launcherConfigFile, LauncherData launcherData) throws IOException {
 		if (!launcherConfigFile.exists())
 			return;
 
-		String[] lines = loadFile(launcherConfigFile);
+		String[] lines = FileUtils.loadFile(launcherConfigFile);
 
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
@@ -140,21 +119,33 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void getVM(String[] lines, URI launcherIniFile, LauncherData launcherData) {
+	private void getVM(String[] lines, URI launcherFolder, LauncherData launcherData) {
 		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
 		if (vm == null)
 			return;
 
 		URI VMFullPath;
 		try {
-			VMFullPath = URIUtil.makeAbsolute(URIUtil.fromString(vm), launcherIniFile);
+			VMFullPath = URIUtil.makeAbsolute(FileUtils.fromPath(vm), launcherFolder);
 			launcherData.setJvm(URIUtil.toFile(VMFullPath));
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, VMFullPath.toString(), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + vm);
 			return;
 		}
+	}
 
+	private void setVM(String[] lines, URI launcherFolder) {
+		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
+		if (vm == null)
+			return;
+
+		try {
+			URI VMRelativePath = URIUtil.makeRelative(URIUtil.fromString(vm), launcherFolder);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, URIUtil.toUnencodedString(VMRelativePath), lines);
+		} catch (URISyntaxException e) {
+			Log.log(LogService.LOG_ERROR, "can't make relative of:" + vm);
+		}
 	}
 
 	private void getJVMArgs(String[] lines, LauncherData launcherData) {
@@ -320,6 +311,8 @@ public class EclipseLauncherParser {
 		setLauncherLibrary(lines, launcherFolder.toURI());
 		setStartup(lines, launcherFolder.toURI());
 		setFrameworkJar(lines, osgiInstallArea.toURI());
+		setVM(lines, launcherFolder.toURI());
+		//		getFrameworkJar(lines, launcherFolder, launcherData);
 
 		// backup file if exists.		
 		if (backup)

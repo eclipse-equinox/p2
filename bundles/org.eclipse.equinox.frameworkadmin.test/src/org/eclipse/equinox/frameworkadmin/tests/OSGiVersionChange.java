@@ -121,6 +121,6 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 
 		Manipulator newManipulator = getNewManipulator(workArea);
-		assertEquals(newManipulator.getConfigData().getBundles().length, 1);
+		assertEquals(1, newManipulator.getConfigData().getBundles().length);
 	}
 }

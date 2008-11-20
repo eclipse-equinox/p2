@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
+
 import java.io.IOException;
 
-import java.io.FileNotFoundException;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 
 import java.io.*;
 import java.net.URI;
@@ -144,7 +146,20 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("String: " + search + " not found in " + file.getAbsolutePath());
 		}
 	}
-
+	
+	public void assertIniFileNotContain(File file, String argument, String value) {
+		String[] args = null;
+		try {
+			args = FileUtils.loadFile(file);
+		} catch (IOException e) {
+			fail("Can't read file " + file);
+		}
+		String tmp = ParserUtils.getValueForArgument(argument, args);
+		if (tmp == null)
+			return;
+			
+		assertTrue(tmp.indexOf(value) == -1);
+	}
 	public void assertPropertyNotContain(File file, String property, String search) {
 		Properties p = new Properties();
 		FileInputStream fis = null;

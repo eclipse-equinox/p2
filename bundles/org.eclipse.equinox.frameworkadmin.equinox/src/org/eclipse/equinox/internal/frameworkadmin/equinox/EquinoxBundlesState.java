@@ -119,7 +119,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return null;
 	}
 
-	private static File getSystemBundleFromBundleInfos(ConfigData configData) {
+	protected static File getSystemBundleFromBundleInfos(ConfigData configData) {
 		BundleInfo[] bundleInfos = configData.getBundles();
 		return getSystemBundleFromBundleInfos(bundleInfos);
 	}

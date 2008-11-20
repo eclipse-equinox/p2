@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 
-import java.io.File;
+import java.io.*;
 import java.net.*;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
@@ -162,6 +162,27 @@ public class FileUtils {
 		if (f.isAbsolute())
 			return f.toURI();
 		return URIUtil.fromString("file:" + path);
+	}
+
+	public static String[] loadFile(File file) throws IOException {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(file));
+
+			String line;
+			List list = new LinkedList();
+			while ((line = br.readLine()) != null) {
+				list.add(line);
+			}
+			return (String[]) list.toArray(new String[list.size()]);
+		} finally {
+			if (br != null)
+				try {
+					br.close();
+				} catch (IOException e) {
+					//Ignore
+				}
+		}
 	}
 
 }
