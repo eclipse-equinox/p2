@@ -63,7 +63,7 @@ public class SimpleConfiguratorUtils {
 		return result;
 	}
 
-	private static URI parseLocation(String location) {
+	public static URI parseLocation(String location) {
 		// decode any commas we previously encoded when writing this line
 		int encodedCommaIndex = location.indexOf(ENCODED_COMMA);
 		while (encodedCommaIndex != -1) {
