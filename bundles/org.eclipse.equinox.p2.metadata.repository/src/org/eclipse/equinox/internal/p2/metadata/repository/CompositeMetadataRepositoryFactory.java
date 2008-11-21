@@ -29,6 +29,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+	public static final String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
 	public IMetadataRepository create(URI location, String name, String type, Map properties) {
 		return new CompositeMetadataRepository(location, name, properties);
@@ -56,7 +57,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
-		localFile = Activator.getCacheManager().createCache(location, monitor);
+		localFile = Activator.getCacheManager().createCache(location, CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			//there is no remote file in either form
 			String msg = NLS.bind(Messages.io_failedRead, location);
@@ -102,7 +103,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 				if (localFile.getAbsolutePath().endsWith(JAR_EXTENSION)) {
 					jarStream = new JarInputStream(inStream);
 					JarEntry jarEntry = jarStream.getNextJarEntry();
-					String entryName = CompositeMetadataRepository.CONTENT_FILENAME + CompositeMetadataRepository.XML_EXTENSION;
+					String entryName = CONTENT_FILENAME + CompositeMetadataRepository.XML_EXTENSION;
 					while (jarEntry != null && (!entryName.equals(jarEntry.getName()))) {
 						jarEntry = jarStream.getNextJarEntry();
 					}

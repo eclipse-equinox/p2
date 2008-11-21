@@ -56,7 +56,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
-		localFile = Activator.getCacheManager().createCache(location, monitor);
+		localFile = Activator.getCacheManager().createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			//there is no remote file in either form
 			String msg = NLS.bind(Messages.io_failedRead, location);

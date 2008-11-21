@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.util.EventObject;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -35,9 +35,10 @@ import org.osgi.framework.ServiceReference;
  */
 public class CacheManager {
 	private static SynchronousProvisioningListener busListener;
-	private static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
+
+	private final HashSet knownPrefixes = new HashSet(5);
 
 	/**
 	 * Returns a hash of the URL.
@@ -50,15 +51,17 @@ public class CacheManager {
 	 * Returns a local cache file with the contents of the given remote location,
 	 * or <code>null</code> if a local cache could not be created.
 	 * 
-	 * @param repositoryLocation
-	 * @param monitor - a progress monitor
+	 * @param repositoryLocation The remote location to be cached
+	 * @param prefix The prefix to use when creating the cache file
+	 * @param monitor a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
 	 * if the location is not a repository.
 	 * @throws IOException
 	 * @throws ProvisionException
 	 */
-	public File createCache(URI repositoryLocation, IProgressMonitor monitor) throws IOException, ProvisionException {
-		File cacheFile = getCache(repositoryLocation);
+	public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException, ProvisionException {
+		knownPrefixes.add(prefix);
+		File cacheFile = getCache(repositoryLocation, prefix);
 		URI jarLocation = URLMetadataRepository.getActualLocation(repositoryLocation, JAR_EXTENSION);
 		URI xmlLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -69,14 +72,14 @@ public class CacheManager {
 			long lastModifiedRemote = getTransport().getLastModified(jarLocation);
 			URI remoteFile;
 			if (lastModifiedRemote != 0) {
-				cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
+				cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
 				remoteFile = jarLocation;
 			} else {
 				lastModifiedRemote = getTransport().getLastModified(xmlLocation);
 				if (lastModifiedRemote == 0)
 					// no jar or xml file found
 					return null;
-				cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + XML_EXTENSION);
+				cacheFile = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
 				remoteFile = xmlLocation;
 			}
 			cacheFile.getParentFile().mkdirs();
@@ -98,25 +101,29 @@ public class CacheManager {
 	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
-		File cacheFile = getCache(repositoryLocation);
-		if (cacheFile != null)
-			safeDelete(cacheFile);
+		for (Iterator it = knownPrefixes.iterator(); it.hasNext();) {
+			String prefix = (String) it.next();
+			File cacheFile = getCache(repositoryLocation, prefix);
+			if (cacheFile != null)
+				safeDelete(cacheFile);
+		}
 	}
 
 	/**
-	 * Determines the local filepath of the repository's cache file.
-	 * @param repositoryLocation
+	 * Determines the local file path of the repository's cache file.
+	 * @param repositoryLocation The location to compute the cache for
+	 * @param prefix The prefix to use for this location
 	 * @return A {@link File} pointing to the cache file or <code>null</code> if
 	 * the cache file does not exist.
 	 */
-	private File getCache(URI repositoryLocation) {
+	private File getCache(URI repositoryLocation, String prefix) {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
 		int hashCode = computeHash(repositoryLocation);
-		File cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
+		File cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
 		if (!cacheFile.exists()) {
-			cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + XML_EXTENSION);
+			cacheFile = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
 			if (!cacheFile.exists())
 				return null;
 		}

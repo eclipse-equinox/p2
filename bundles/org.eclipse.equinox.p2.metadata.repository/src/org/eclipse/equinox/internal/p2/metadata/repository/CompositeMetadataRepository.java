@@ -16,7 +16,8 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -35,7 +36,6 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	static final public String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
 	private ArrayList childrenURIs = new ArrayList();
 
@@ -129,15 +129,15 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
 		String path = spec.getAbsolutePath();
-		if (path.endsWith(CONTENT_FILENAME + extension)) {
+		if (path.endsWith(CompositeMetadataRepositoryFactory.CONTENT_FILENAME + extension)) {
 			//todo this is the old code that doesn't look right
 			//			return new File(spec + extension);
 			return spec;
 		}
 		if (path.endsWith("/")) //$NON-NLS-1$
-			path += CONTENT_FILENAME;
+			path += CompositeMetadataRepositoryFactory.CONTENT_FILENAME;
 		else
-			path += "/" + CONTENT_FILENAME; //$NON-NLS-1$
+			path += "/" + CompositeMetadataRepositoryFactory.CONTENT_FILENAME; //$NON-NLS-1$
 		return new File(path + extension);
 	}
 
@@ -195,7 +195,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	public static URI getActualLocationURI(URI base, String extension) {
 		if (extension == null)
 			extension = XML_EXTENSION;
-		return URIUtil.append(base, CONTENT_FILENAME + extension);
+		return URIUtil.append(base, CompositeMetadataRepositoryFactory.CONTENT_FILENAME + extension);
 	}
 
 	//TODO this should never be called. What do we do?
