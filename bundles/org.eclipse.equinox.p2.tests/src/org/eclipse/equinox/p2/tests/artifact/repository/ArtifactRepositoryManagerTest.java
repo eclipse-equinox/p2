@@ -203,6 +203,19 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("1.2", false, manager.contains(location));
 	}
 
+	/**
+	 * Tests parsing a repository with a duplicate element. See bug 255401.
+	 */
+	public void testDuplicateElement() {
+		try {
+			File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
+			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(duplicateElementXML.toURI(), null);
+			assertEquals("Ensure correct number of artifact keys exist", 2, repo.getArtifactKeys().length);
+		} catch (ProvisionException e) {
+			fail("Error occured while loading repository with duplicate elements", e);
+		}
+	}
+
 	public void testEnablement() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
 		URI location = site.toURI();
