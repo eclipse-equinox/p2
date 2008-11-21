@@ -34,4 +34,12 @@ public class SimpleConfiguratorManipulatorUtilsTest extends AbstractProvisioning
 		assertEquals(bundleInfo, SimpleConfiguratorUtils.parseBundleInfoLine(line, null));
 	}
 
+	public void testWriteBundleInfoLineWithAtSymbol() throws URISyntaxException, IOException {
+		String expectedLine = "javax.servlet,2.4.0.v200806031604,plugin@s/javax.servlet_2.4.0.v200806031604.jar,4,false";
+		BundleInfo bundleInfo = new BundleInfo("javax.servlet", "2.4.0.v200806031604", new URI("plugin@s/javax.servlet_2.4.0.v200806031604.jar"), 4, false);
+		String line = SimpleConfiguratorManipulatorUtils.createBundleInfoLine(bundleInfo);
+		assertEquals(expectedLine, line);
+		assertEquals(bundleInfo, SimpleConfiguratorUtils.parseBundleInfoLine(line, null));
+	}
+
 }
