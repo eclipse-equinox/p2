@@ -3,7 +3,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -15,7 +15,7 @@ public class ParserUtils {
 			return null;
 
 		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
-		File result = getOSGiInstallArea(launcherData.getProgramArgs(), launcherData.getLauncher().getParentFile().toURI());
+		File result = getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData.getLauncher().getParentFile().toURI());
 		if (result != null)
 			return result;
 
@@ -26,7 +26,7 @@ public class ParserUtils {
 		return null;
 	}
 
-	public static URI getFrameworkJar(String[] lines, URI launcherFolder) {
+	public static URI getFrameworkJar(List lines, URI launcherFolder) {
 		String fwk = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
 		if (fwk == null) {
 			//Search the file system using the default location
@@ -44,7 +44,7 @@ public class ParserUtils {
 	}
 
 	//This method should only be used to determine the osgi install area when reading the eclipse.ini
-	public static File getOSGiInstallArea(String[] args, URI base) {
+	public static File getOSGiInstallArea(List args, URI base) {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
@@ -64,66 +64,85 @@ public class ParserUtils {
 		return parentFolder.toFile();
 	}
 
-	public static boolean isArgumentSet(String arg, String[] args) {
-		if (arg == null || args == null || args.length == 0)
+	public static boolean isArgumentSet(String arg, List args) {
+		if (arg == null || args == null || args.size() == 0)
 			return false;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i] == null)
+		for (int i = 0; i < args.size(); i++) {
+			if (args.get(i) == null)
 				continue;
-			if (args[i].equalsIgnoreCase(arg)) {
+			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static String getValueForArgument(String arg, String[] args) {
-		if (arg == null || args == null || args.length == 0)
+	public static String getValueForArgument(String arg, List args) {
+		if (arg == null || args == null || args.size() == 0)
 			return null;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i] == null)
+		for (int i = 0; i < args.size(); i++) {
+			if (args.get(i) == null)
 				continue;
-			if (args[i].equalsIgnoreCase(arg)) {
-				if (i + 1 < args.length && args[i + 1] != null && args[i + 1].charAt(1) != '-')
-					return args[i + 1];
+			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
+				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-')
+					return (String) args.get(i + 1);
 			}
 		}
 		return null;
 	}
 
-	public static String[] getMultiValuedArgument(String arg, String[] args) {
-		if (arg == null || args == null || args.length == 0)
+	public static String[] getMultiValuedArgument(String arg, List args) {
+		if (arg == null || args == null || args.size() == 0)
 			return null;
 		ArrayList values = null;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i] == null)
+		for (int i = 0; i < args.size(); i++) {
+			if (args.get(i) == null)
 				continue;
-			if (arg.equalsIgnoreCase(args[i])) {
+			if (arg.equalsIgnoreCase((String) args.get(i))) {
 				values = new ArrayList();
 				continue;
 			}
-			if (values != null && args[i].charAt(1) == '-') {
+			if (values != null && ((String) args.get(i)).charAt(1) == '-') {
 				break;
 			}
 			if (values != null)
-				values.add(args[i].trim());
+				values.add(((String) args.get(i)).trim());
 		}
 		if (values != null)
 			return (String[]) values.toArray(new String[values.size()]);
 		return null;
 	}
 
-	public static boolean setValueForArgument(String arg, String value, String[] args) {
-		if (arg == null || args == null || args.length == 0)
+	//Setting null as an argument for value will cause the argument and the value to both be removed
+	public static boolean setValueForArgument(String arg, String value, List args) {
+		if (arg == null || args == null || args.size() == 0)
 			return false;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i] == null)
+		for (int i = 0; i < args.size(); i++) {
+			if (args.get(i) == null)
 				continue;
-			String currentArg = args[i].trim();
+			String currentArg = ((String) args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
-				if (i + 1 < args.length && args[i + 1] != null && args[i + 1].charAt(1) != '-') {
-					args[i + 1] = value;
+				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-') {
+					args.set(i + 1, value);
 					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean removeArgument(String arg, String value, List args) {
+		if (arg == null || args == null || args.size() == 0)
+			return false;
+		for (int i = 0; i < args.size(); i++) {
+			if (args.get(i) == null)
+				continue;
+			String currentArg = ((String) args.get(i)).trim();
+			if (currentArg.equalsIgnoreCase(arg)) {
+				args.set(i, null);
+				while (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-') {
+					args.set(i + 1, value);
+					i++;
 				}
 			}
 		}

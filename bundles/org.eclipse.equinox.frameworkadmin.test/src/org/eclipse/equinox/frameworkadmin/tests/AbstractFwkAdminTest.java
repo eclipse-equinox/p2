@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
-
-import java.io.IOException;
-
-import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -148,7 +145,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 	
 	public void assertIniFileNotContain(File file, String argument, String value) {
-		String[] args = null;
+		List args = null;
 		try {
 			args = FileUtils.loadFile(file);
 		} catch (IOException e) {

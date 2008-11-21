@@ -164,17 +164,17 @@ public class FileUtils {
 		return URIUtil.fromString("file:" + path);
 	}
 
-	public static String[] loadFile(File file) throws IOException {
+	public static List loadFile(File file) throws IOException {
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(file));
 
 			String line;
-			List list = new LinkedList();
+			List list = new ArrayList();
 			while ((line = br.readLine()) != null) {
 				list.add(line);
 			}
-			return (String[]) list.toArray(new String[list.size()]);
+			return list;
 		} finally {
 			if (br != null)
 				try {

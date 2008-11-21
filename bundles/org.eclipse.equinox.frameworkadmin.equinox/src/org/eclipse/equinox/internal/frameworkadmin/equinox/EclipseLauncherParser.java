@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -24,102 +23,53 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
 public class EclipseLauncherParser {
-
-	private String[] buildNewCommandLine(LauncherData launcherData, File outputFile) {
-		List lines = new LinkedList();
-
-		boolean startUpFlag = false;
-		final String[] programArgs = launcherData.getProgramArgs();
-		if (programArgs != null && programArgs.length != 0)
-			for (int i = 0; i < programArgs.length; i++) {
-				if (programArgs[i].equals(EquinoxConstants.OPTION_STARTUP) && (programArgs[i + 1] != null || programArgs[i + 1].length() != 0)) {
-					lines.add(programArgs[i]);
-					lines.add(programArgs[++i]);
-					startUpFlag = true;
-				} else
-					lines.add(programArgs[i]);
-			}
-		if (launcherData.isClean())
-			lines.add(EquinoxConstants.OPTION_CLEAN);
-		File fwPersistentDataLocation = launcherData.getFwPersistentDataLocation();
-		File fwConfigLocation = launcherData.getFwConfigLocation();
-		if (fwPersistentDataLocation != null) {
-			if (fwConfigLocation != null) {
-				if (!fwPersistentDataLocation.equals(fwConfigLocation))
-					throw new IllegalStateException();
-			}
-			launcherData.setFwConfigLocation(fwPersistentDataLocation);
-		} else if (fwConfigLocation != null)
-			launcherData.setFwPersistentDataLocation(fwConfigLocation, launcherData.isClean());
-
-		if (launcherData.getFwConfigLocation() != null) {
-			lines.add(EquinoxConstants.OPTION_CONFIGURATION);
-			lines.add(launcherData.getFwConfigLocation().getAbsolutePath());
-		}
-
-		if (!startUpFlag)
-			if (launcherData.getFwJar() != null) {
-				lines.add(EquinoxConstants.OPTION_FW);
-				String path = launcherData.getFwJar().getAbsolutePath();
-				lines.add(path);
-			}
-
-		if (launcherData.getJvm() != null) {
-			lines.add(EquinoxConstants.OPTION_VM);
-			lines.add(URIUtil.makeRelative(launcherData.getJvm().toURI(), launcherData.getLauncher().getParentFile().toURI()));
-		}
-		final String[] jvmArgs = launcherData.getJvmArgs();
-		if (jvmArgs != null && jvmArgs.length != 0) {
-			lines.add(EquinoxConstants.OPTION_VMARGS);
-			for (int i = 0; i < jvmArgs.length; i++)
-				lines.add(jvmArgs[i]);
-		}
-		String[] ret = new String[lines.size()];
-		lines.toArray(ret);
-		return ret;
-	}
-
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
-	private URI getOSGiInstallArea(String[] lines, URI base) {
+	private URI getOSGiInstallArea(List lines, URI base) {
 		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, base);
 		if (osgiInstallArea != null)
 			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), base);
 		return null;
 	}
 
+	//	private void setInstall(String[] lines, File osgiInstallArea, File launcherFolder) {
+	//		if (!new File(launcherFolder, "plugins").equals(osgiInstallArea))
+	//			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, URIUtil.toUnencodedString(osgiInstallArea.toURI()), lines);
+	//	}
+
 	void read(File launcherConfigFile, LauncherData launcherData) throws IOException {
 		if (!launcherConfigFile.exists())
 			return;
 
-		String[] lines = FileUtils.loadFile(launcherConfigFile);
+		List lines = FileUtils.loadFile(launcherConfigFile);
 
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
+		getFrameworkJar(lines, launcherFolder, launcherData);
 		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder);
-		if (osgiInstallArea == null)
-			osgiInstallArea = launcherFolder;
+		if (osgiInstallArea == null) {
+			osgiInstallArea = launcherData.getFwJar() != null ? launcherData.getFwJar().getParentFile().toURI() : launcherFolder;
+		}
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
 		if (configArea == null)
 			throw new FrameworkAdminRuntimeException("config area is null", "");
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
-		getFrameworkJar(lines, launcherFolder, launcherData);
 		getJVMArgs(lines, launcherData);
 		getVM(lines, launcherFolder, launcherData);
 
-		launcherData.setProgramArgs(lines);
+		launcherData.setProgramArgs((String[]) lines.toArray(new String[lines.size()]));
 
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, launcherConfigFile.getAbsolutePath()));
 	}
 
-	private void getPersistentDataLocation(String[] lines, URI osgiInstallArea, URI configArea, LauncherData launcherData) {
+	private void getPersistentDataLocation(List lines, URI osgiInstallArea, URI configArea, LauncherData launcherData) {
 		//TODO The setting of the -clean could only do properly once config.ini has been read
 		if (launcherData.getFwPersistentDataLocation() == null) {
 			launcherData.setFwPersistentDataLocation(URIUtil.toFile(configArea), ParserUtils.isArgumentSet(EquinoxConstants.OPTION_CLEAN, lines));
 		}
 	}
 
-	private void getVM(String[] lines, URI launcherFolder, LauncherData launcherData) {
+	private void getVM(List lines, URI launcherFolder, LauncherData launcherData) {
 		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
 		if (vm == null)
 			return;
@@ -135,7 +85,7 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void setVM(String[] lines, URI launcherFolder) {
+	private void setVM(List lines, URI launcherFolder) {
 		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
 		if (vm == null)
 			return;
@@ -148,13 +98,24 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void getJVMArgs(String[] lines, LauncherData launcherData) {
+	private void getJVMArgs(List lines, LauncherData launcherData) {
 		String[] vmargs = ParserUtils.getMultiValuedArgument(EquinoxConstants.OPTION_VMARGS, lines);
 		if (vmargs != null)
 			launcherData.setJvmArgs(vmargs);
 	}
 
-	private void getFrameworkJar(String[] lines, URI launcherFolder, LauncherData launcherData) {
+	private void setJVMArgs(List lines, LauncherData launcherData) {
+		ParserUtils.removeArgument(EquinoxConstants.OPTION_VMARGS, null, lines);
+		if (launcherData.getJvmArgs() == null || launcherData.getJvmArgs().length == 0)
+			return;
+		String[] args = launcherData.getJvmArgs();
+		lines.add(EquinoxConstants.OPTION_VMARGS);
+		for (int i = 0; i < args.length; i++) {
+			lines.add(args[i]);
+		}
+	}
+
+	private void getFrameworkJar(List lines, URI launcherFolder, LauncherData launcherData) {
 		File fwJar = launcherData.getFwJar();
 		if (fwJar != null)
 			return;
@@ -177,21 +138,22 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void setFrameworkJar(String[] lines, URI osgiInstallArea) {
-		String fwkJar = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
-		if (fwkJar == null)
+	private void setFrameworkJar(List lines, File osgiJar) {
+		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
+		if (startup != null || osgiJar == null)
 			return;
 
-		try {
-			URI result = URIUtil.makeRelative(URIUtil.fromString(fwkJar), osgiInstallArea);
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_FW, URIUtil.toUnencodedString(result), lines);
-		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + fwkJar);
-			return;
+		String fwkJar = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
+		String newValue = osgiJar.getAbsolutePath();
+		if (fwkJar != null)
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_FW, newValue, lines);
+		else {
+			lines.add(EquinoxConstants.OPTION_FW);
+			lines.add(newValue);
 		}
 	}
 
-	private URI getLauncherLibrary(String[] lines, URI launcherFolder) {
+	private URI getLauncherLibrary(List lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
 		if (launcherLibrary == null)
 			return null;
@@ -207,13 +169,13 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setLauncherLibrary(String[] lines, URI launcherFolder) {
+	private void setLauncherLibrary(List lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
 		if (launcherLibrary == null)
 			return;
 
 		try {
-			URI result = URIUtil.makeRelative(URIUtil.fromString(launcherLibrary), launcherFolder);
+			URI result = URIUtil.makeRelative(FileUtils.fromPath(launcherLibrary), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, URIUtil.toUnencodedString(result), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + launcherLibrary);
@@ -221,7 +183,7 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private URI getConfigurationLocation(String[] lines, URI osgiInstallArea, LauncherData data) {
+	private URI getConfigurationLocation(List lines, URI osgiInstallArea, LauncherData data) {
 		String configuration = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
 		if (configuration == null)
 			try {
@@ -242,30 +204,25 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setConfigurationLocation(String[] lines, URI osgiInstallArea) {
-		String configuration = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
-		if (configuration == null)
-			return;
-
-		try {
-			//FIXME The call 
-			String result = URIUtil.toUnencodedString(URIUtil.makeRelative(URIUtil.fromString(configuration), osgiInstallArea));
-			if (result.equals("configuration")) {
-				ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, null, lines);
-				for (int i = 0; i < lines.length; i++) {
-					if (lines[i] != null && lines[i].equals(EquinoxConstants.OPTION_CONFIGURATION))
-						lines[i] = null;
-				}
-			} else {
-				ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result, lines);
-			}
-		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + configuration);
+	private void setConfigurationLocation(List lines, URI osgiInstallArea, LauncherData data) {
+		String result = URIUtil.toUnencodedString(URIUtil.makeRelative(data.getFwConfigLocation().toURI(), osgiInstallArea));
+		//We don't write the default
+		if (result.equals("configuration")) {
+			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines) != null)
+				ParserUtils.removeArgument(EquinoxConstants.OPTION_CONFIGURATION, result, lines);
 			return;
 		}
+
+		if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines) == null) {
+			lines.add(EquinoxConstants.OPTION_CONFIGURATION);
+			lines.add(result);
+		} else {
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result, lines);
+		}
+		return;
 	}
 
-	private URI getStartup(String[] lines, URI launcherFolder) {
+	private URI getStartup(List lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
 		if (startup == null)
 			return null;
@@ -281,13 +238,13 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setStartup(String[] lines, URI launcherFolder) {
+	private void setStartup(List lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
 		if (startup == null)
 			return;
 
 		try {
-			URI result = URIUtil.makeRelative(URIUtil.fromString(startup), launcherFolder);
+			URI result = URIUtil.makeRelative(FileUtils.fromPath(startup), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, URIUtil.toUnencodedString(result), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make relative of:" + startup);
@@ -305,14 +262,18 @@ public class EclipseLauncherParser {
 		}
 		//Tweak all the values to make them relative
 		File launcherFolder = launcherData.getLauncher().getParentFile();
-		String[] lines = buildNewCommandLine(launcherData, launcherConfigFile);
+		List newlines = new ArrayList();
+		newlines.addAll(Arrays.asList(launcherData.getProgramArgs()));
+
+		setStartup(newlines, launcherFolder.toURI());
+		//Get the osgi install area
 		File osgiInstallArea = ParserUtils.getOSGiInstallArea(launcherData);
-		setConfigurationLocation(lines, osgiInstallArea.toURI());
-		setLauncherLibrary(lines, launcherFolder.toURI());
-		setStartup(lines, launcherFolder.toURI());
-		setFrameworkJar(lines, osgiInstallArea.toURI());
-		setVM(lines, launcherFolder.toURI());
-		//		getFrameworkJar(lines, launcherFolder, launcherData);
+		//setInstall(lines, osgiInstallArea, launcherFolder);
+		setConfigurationLocation(newlines, osgiInstallArea.toURI(), launcherData);
+		setLauncherLibrary(newlines, launcherFolder.toURI());
+		setFrameworkJar(newlines, launcherData.getFwJar());
+		setVM(newlines, launcherFolder.toURI());
+		setJVMArgs(newlines, launcherData);
 
 		// backup file if exists.		
 		if (backup)
@@ -326,8 +287,11 @@ public class EclipseLauncherParser {
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(launcherConfigFile));
-			for (int j = 0; j < lines.length; j++) {
-				bw.write(lines[j]);
+			for (int j = 0; j < newlines.size(); j++) {
+				String arg = (String) newlines.get(j);
+				if (arg == null)
+					continue;
+				bw.write(arg);
 				bw.newLine();
 			}
 			bw.flush();
