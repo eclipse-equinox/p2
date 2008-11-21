@@ -11,7 +11,6 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class SimpleConfiguratorManipulatorUtilsTest extends AbstractProvisioningTest {
 
 	public void testWriteBundleInfoLine() throws URISyntaxException, IOException {
-
 		String expectedLine1 = "javax.servlet,2.4.0.v200806031604,plugins/javax.servlet_2.4.0.v200806031604.jar,4,false";
 		BundleInfo bundleInfo1 = new BundleInfo("javax.servlet", "2.4.0.v200806031604", new URI("plugins/javax.servlet_2.4.0.v200806031604.jar"), 4, false);
 		String line1 = SimpleConfiguratorManipulatorUtils.createBundleInfoLine(bundleInfo1);
