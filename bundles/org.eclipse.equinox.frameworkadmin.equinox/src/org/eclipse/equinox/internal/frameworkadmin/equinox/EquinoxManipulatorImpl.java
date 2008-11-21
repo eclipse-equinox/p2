@@ -378,11 +378,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		} catch (IllegalStateException e) {
 			// ignore.
 		}
-		//		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
-		//		if (fwJar != null)
-		//			launcherData.setFwJar(fwJar);
 
-		//if (context != null)
 		ConfiguratorManipulator previousConfigurator = setConfiguratorManipulator();
 		if (previousConfigurator != null)
 			previousConfigurator.cleanup(this);
@@ -392,9 +388,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			try {
 				newBInfos = configuratorManipulator.save(this, backup);
 			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
 				if (LOG_ILLEGALSTATEEXCEPTION)
-					Log.log(LogService.LOG_WARNING, this, "save()", e);
+					Log.log(LogService.LOG_WARNING, this, "save()", e); //$NON-NLS-1$
 				newBInfos = configData.getBundles();
 			}
 		} else {
@@ -416,23 +411,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
-
-		//		//if (context != null)
-		//		setConfiguratorManipulator();
-		//
-		//		BundleInfo[] newBInfos = null;
-		//		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
-		//			try {
-		//				newBInfos = configuratorManipulator.save(this, backup);
-		//			} catch (IllegalStateException e) {
-		//				// TODO Auto-generated catch block
-		//				if (LOG_ILLEGALSTATEEXCEPTION)
-		//					Log.log(LogService.LOG_WARNING, this, "save()", e);
-		//				newBInfos = configData.getBundles();
-		//			}
-		//		} else {
-		//			newBInfos = configData.getBundles();
-		//		}
 
 		if (!stateIsEmpty) {
 			// Save FwConfigFile
