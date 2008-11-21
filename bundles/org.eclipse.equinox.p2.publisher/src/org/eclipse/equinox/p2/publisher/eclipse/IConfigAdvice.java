@@ -15,8 +15,6 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 public interface IConfigAdvice extends IPublisherAdvice {
 
-	public static final String ID = "config_advice"; //$NON-NLS-1$
-
 	public BundleInfo[] getBundles();
 
 	public Properties getProperties();

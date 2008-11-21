@@ -14,7 +14,6 @@ import org.osgi.framework.Version;
 
 public interface IVersionAdvice extends IPublisherAdvice {
 
-	public static final String ID = "version_advice"; //$NON-NLS-1$
 	public static final String NS_BUNDLE = "bundle"; //$NON-NLS-1$
 	public static final String NS_FEATURE = "feature"; //$NON-NLS-1$
 	public static final String NS_ROOT = "root"; //$NON-NLS-1$
