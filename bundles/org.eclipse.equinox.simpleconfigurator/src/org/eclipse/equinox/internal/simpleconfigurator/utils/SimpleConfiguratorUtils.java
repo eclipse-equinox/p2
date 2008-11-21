@@ -14,6 +14,12 @@ import java.util.*;
 
 public class SimpleConfiguratorUtils {
 
+	private static final String FILE_SCHEME = "file";
+	private static final String REFERENCE_PREFIX = "reference:";
+	private static final String FILE_PREFIX = "file:";
+	private static final String COMMA = ",";
+	private static final String ENCODED_COMMA = "%2C";
+
 	public static List readConfiguration(URL url, URI base) throws IOException {
 		List bundles = new ArrayList();
 		BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -41,7 +47,7 @@ public class SimpleConfiguratorUtils {
 
 	public static BundleInfo parseBundleInfoLine(String line, URI base) {
 		// symbolicName,version,location,startLevel,markedAsStarted
-		StringTokenizer tok = new StringTokenizer(line, ","); //$NON-NLS-1$
+		StringTokenizer tok = new StringTokenizer(line, COMMA); //$NON-NLS-1$
 		int numberOfTokens = tok.countTokens();
 		if (numberOfTokens < 5)
 			throw new IllegalArgumentException("Line does not contain at least 5 tokens: " + line);
@@ -58,19 +64,49 @@ public class SimpleConfiguratorUtils {
 	}
 
 	private static URI parseLocation(String location) {
-
-		int encodedCommaIndex = location.indexOf("%2C");
+		// decode any commas we previously encoded when writing this line
+		int encodedCommaIndex = location.indexOf(ENCODED_COMMA);
 		while (encodedCommaIndex != -1) {
-			location = location.substring(0, encodedCommaIndex) + "," + location.substring(encodedCommaIndex + 3);
-			encodedCommaIndex = location.indexOf("%2C");
+			location = location.substring(0, encodedCommaIndex) + COMMA + location.substring(encodedCommaIndex + 3);
+			encodedCommaIndex = location.indexOf(ENCODED_COMMA);
+		}
+
+		if (File.separatorChar != '/') {
+			int colon = location.indexOf(':');
+			String scheme = colon < 0 ? null : location.substring(0, colon);
+			if (scheme == null || scheme.equals(FILE_SCHEME))
+				location = location.replace(File.separatorChar, '/');
+		}
+
+		try {
+			URI uri = new URI(location);
+			if (!uri.isOpaque())
+				return uri;
+		} catch (URISyntaxException e1) {
+			// this will catch the use of invalid URI characters (e.g. spaces, etc.)
+			// ignore and fall through
 		}
 
 		try {
 			return URIUtil.fromString(location);
 		} catch (URISyntaxException e) {
-			// ignore and fall through
+			throw new IllegalArgumentException("Invalid location: " + location);
 		}
-		throw new IllegalArgumentException("Invalid location: " + location);
+	}
+
+	private static boolean validateURI(URI uri) {
+		// relative URIs when written scheme:a/b are considered opaque and indicate an improperly constructed URI string
+		if (uri.isOpaque())
+			return false;
+
+		// We check here for any improperly constructed file URI.
+		if (File.separatorChar == '/')
+			return true;
+
+		if (uri.isAbsolute() && !uri.getScheme().equals(FILE_SCHEME))
+			return true;
+
+		return -1 == uri.getPath().indexOf(File.separatorChar);
 	}
 
 	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {
@@ -110,8 +146,6 @@ public class SimpleConfiguratorUtils {
 					String scheme = baseLocation.getScheme();
 					String host = baseLocation.getHost();
 					String path = location.getPath();
-					if (scheme.equals("file") && File.separatorChar != '/')
-						path = path.replace(File.separatorChar, '/');
 					URL bundleLocationURL = new URL(scheme, host, path);
 					bundleLocation = bundleLocationURL.toExternalForm();
 				}
@@ -122,8 +156,8 @@ public class SimpleConfiguratorUtils {
 		if (bundleLocation == null)
 			bundleLocation = location.toString();
 
-		if (useReference && bundleLocation.startsWith("file:")) //$NON-NLS-1$
-			bundleLocation = "reference:" + bundleLocation; //$NON-NLS-1$
+		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) //$NON-NLS-1$
+			bundleLocation = REFERENCE_PREFIX + bundleLocation; //$NON-NLS-1$
 		return bundleLocation;
 	}
 }

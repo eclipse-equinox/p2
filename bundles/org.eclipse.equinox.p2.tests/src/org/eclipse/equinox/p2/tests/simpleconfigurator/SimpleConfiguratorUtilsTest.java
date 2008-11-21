@@ -34,9 +34,9 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
 			assertEquals("[" + i + "]", canonicalInfo, info);
 			if (info.getLocation().isAbsolute())
-				assertEquals(absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
 			else
-				assertEquals(relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
 		}
 	}
 }
