@@ -35,7 +35,7 @@ public class MirrorApplication implements IApplication {
 	private URI destinationLocation;
 	private IArtifactRepository source;
 	private IArtifactRepository destination;
-	private boolean append = false;
+	private boolean append = true;
 	private boolean raw = false;
 	private boolean failOnError = true;
 	private boolean verbose = false;
@@ -52,7 +52,7 @@ public class MirrorApplication implements IApplication {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
-
+		
 		Mirroring mirroring = new Mirroring(source, destination, raw);
 		mirroring.setCompare(compare);
 		mirroring.setComparatorId(comparatorID);
@@ -136,8 +136,8 @@ public class MirrorApplication implements IApplication {
 			// check for args without parameters (i.e., a flag arg)
 			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
 				raw = true;
-			if (args[i].equalsIgnoreCase("-append")) //$NON-NLS-1$
-				append = true;
+			if (args[i].equalsIgnoreCase("-emptyRepository")) //$NON-NLS-1$
+				append = false;
 			if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
 				failOnError = false;
 			if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
@@ -153,8 +153,8 @@ public class MirrorApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
-				comparatorID = arg;
-
+					comparatorID = arg;
+					
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
 					sourceLocation = URIUtil.fromString(arg);

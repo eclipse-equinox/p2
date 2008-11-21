@@ -19,13 +19,11 @@ import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 
 /**
@@ -37,10 +35,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	protected File sourceRepo2Location; //anotherfeature
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
-
-	private IArtifactRepositoryManager getManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
-	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
@@ -63,11 +57,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	protected void tearDown() throws Exception {
 		//remove all the repositories
-		getManager().removeRepository(destRepoLocation.toURI());
-		getManager().removeRepository(sourceRepoLocation.toURI());
-		getManager().removeRepository(sourceRepo2Location.toURI());
-		getManager().removeRepository(sourceRepo3Location.toURI());
-		getManager().removeRepository(sourceRepo4Location.toURI());
+		getArtifactRepositoryManager().removeRepository(destRepoLocation.toURI());
+		getArtifactRepositoryManager().removeRepository(sourceRepoLocation.toURI());
+		getArtifactRepositoryManager().removeRepository(sourceRepo2Location.toURI());
+		getArtifactRepositoryManager().removeRepository(sourceRepo3Location.toURI());
+		getArtifactRepositoryManager().removeRepository(sourceRepo4Location.toURI());
 
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -120,14 +114,14 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 	/**
 	 * Runs mirror application with default arguments. source is the source repo, 
-	 * destination is the destination repo, append is if the "-append" argument is needed
+	 * destination is the destination repo, append is if the "-emptyRepository" argument should be excluded
 	 * 
 	 * Note: We use URL here because command line applications traffic in unencoded URLs,
 	 * so we can't use java.net.URI which will always use the encoded form
 	 */
 	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", append ? "-append" : ""};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", append ? "" : "-emptyRepository"};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -164,7 +158,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup ensure setup completes successfully
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -184,7 +178,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -204,7 +198,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -224,7 +218,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -244,7 +238,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -254,8 +248,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContains(message + ".5", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains(message + ".6", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains(message + ".5", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains(message + ".6", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".7", e);
 		}
@@ -272,11 +266,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: Create an empty repository
 		File emptyRepository = new File(getTempFolder(), getUniqueString());
 		//Setup: remove repository if it exists
-		getManager().removeRepository(emptyRepository.toURI());
+		getArtifactRepositoryManager().removeRepository(emptyRepository.toURI());
 		//Setup: delete any data that may be in the folder
 		delete(emptyRepository);
 		try {
-			getManager().createRepository(emptyRepository.toURI(), "Empty Repository", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getArtifactRepositoryManager().createRepository(emptyRepository.toURI(), "Empty Repository", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail(message + ".1", e);
 		}
@@ -330,105 +324,105 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to an empty repository with "-append"
+	 * Tests mirroring all artifacts in a repository to an empty repository
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToEmptyWithAppend() {
+	public void testArtifactMirrorToEmpty() {
 		artifactMirrorToEmpty("1.0", true); // run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("1.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("1.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("1.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to an empty repository without "-append"
+	 * Tests mirroring all artifacts in a repository to an empty repository with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToEmptyWithoutAppend() {
+	public void testArtifactMirrorToEmptyWithEmptyRepository() {
 		artifactMirrorToEmpty("2.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("2.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("2.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("2.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data with "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data
 	 * Source contains A, B
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToFullDuplicateWithAppend() {
+	public void testArtifactMirrorToFullDuplicate() {
 		artifactMirrorToFullDuplicate("3.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("3.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("3.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("3.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data wihtout "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToFullDuplicateWithoutAppend() {
+	public void testArtifactMirrorToFullDuplicateWithEmptyRepository() {
 		artifactMirrorToFullDuplicate("4.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("4.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("4.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("4.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries with "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries
 	 * Source contains A, B
 	 * Target contains C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithAppend() {
+	public void testArtifactMirrorToPopulated() {
 		artifactMirrorToPopulated("5.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContains("5.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("5.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("5.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("5.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("5.3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("5.4", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries without "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithoutAppend() {
+	public void testArtifactMirrorToPopulatedWithEmptyRepository() {
 		artifactMirrorToPopulated("6.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("6.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("6.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("6.2", e);
 		}
@@ -440,107 +434,107 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPartialDuplicateWithAppend() {
+	public void testArtifactMirrorToPartialDuplicate() {
 		artifactMirrorToPartialDuplicate("7.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("7.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("7.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("7.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with partially duplicate data
+	 * Tests mirroring all artifacts in a repository to a repository populated with partially duplicate data with "-overwrite"
 	 * Source contains A, B, C, D
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPartialDuplicateWithoutAppend() {
+	public void testArtifactMirrorToPartialDuplicateWithEmptyRepository() {
 		artifactMirrorToPartialDuplicate("8.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("8.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("8.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("8.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data with "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data
 	 * Source contains A, B
 	 * Target contains A, B, C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithFullDuplicateWithAppend() {
+	public void testArtifactMirrorToPopulatedWithFullDuplicate() {
 		artifactMirrorToPopulatedWithFullDuplicate("9.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("9.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("9.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("9.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data without "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains A, B, C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithFullDuplicateWithoutAppend() {
+	public void testArtifactMirrorToPopulatedWithFullDuplicateWithEmptyRepository() {
 		artifactMirrorToPopulatedWithFullDuplicate("10.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("10.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("10.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("10.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data with "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data
 	 * Source contains A, B, C, D
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D, E, F
 	 */
-	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithAppend() {
+	public void testArtifactMirrorToPopulatedWithPartialDuplicate() {
 		artifactMirrorToPopulatedWithPartialDuplicate("11.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContains("11.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("11.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("11.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("11.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo3Location.toURI(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("11.3", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("11.4", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data without "-append"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data with "-emptyRepository"
 	 * Source contains A, B, C, D
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithoutAppend() {
+	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithEmptyRepository() {
 		artifactMirrorToPopulatedWithPartialDuplicate("12.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("12.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("12.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("12.2", e);
 		}
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given an invalid source repository with "-append"
+	 * Tests MirrorApplication's behaviour when given an invalid source repository
 	 */
 	public void testArtifactMirrorFromInvalid() {
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
@@ -558,7 +552,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given an invalid destination repository with "-append"
+	 * Tests MirrorApplication's behaviour when given an invalid destination repository
 	 */
 	public void testArtifactMirrorToInvalid() {
 		try {
@@ -577,7 +571,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository with "-append"
+	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository
 	 */
 	public void testArtifactMirrorBothInvalid() {
 		//Setup: create a file that is not a valid repository
@@ -599,7 +593,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring an empty repository to another empty repository with "-append"
+	 * Tests mirroring an empty repository to another empty repository
 	 * Source contains
 	 * Target contains
 	 * Expected is
@@ -609,58 +603,58 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("16.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("16.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("16.2", e);
 		}
 
 		//remove the emptyRepository
-		getManager().removeRepository(emptyRepository.toURI());
+		getArtifactRepositoryManager().removeRepository(emptyRepository.toURI());
 		//delete any left over data
 		delete(emptyRepository);
 	}
 
 	/**
-	 * Tests mirroring an empty repository to a populated repository with "-append"
+	 * Tests mirroring an empty repository to a populated repository
 	 * Source contains
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorEmptyToPopulatedWithAppend() {
+	public void testArtifactMirrorEmptyToPopulated() {
 		File emptyRepository = artifactMirrorEmptyToPopulated("17.0", true);
 
 		try {
 			//verify destination's content
-			assertContains("17.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContentEquals("17.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("17.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("17.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("17.3", e);
 		}
 
 		//remove the empty repository
-		getManager().removeRepository(emptyRepository.toURI());
+		getArtifactRepositoryManager().removeRepository(emptyRepository.toURI());
 		//remove any leftover data
 		delete(emptyRepository);
 	}
 
 	/**
-	 * Tests mirroring an empty repository to a populated repository without "-append"
+	 * Tests mirroring an empty repository to a populated repository with "-emptyRepository"
 	 * Source contains
 	 * Target contains A, B
 	 * Expected is
 	 */
-	public void testArtifactMirrorEmptyToPopulatedWithoutAppend() {
+	public void testArtifactMirrorEmptyToPopulatedWithEmptyRepository() {
 		File emptyRepository = artifactMirrorEmptyToPopulated("18.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("18.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("18.1", getArtifactRepositoryManager().loadRepository(emptyRepository.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("18.2", e);
 		}
 
 		//remove the empty repository
-		getManager().removeRepository(emptyRepository.toURI());
+		getArtifactRepositoryManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
@@ -680,7 +674,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("19.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("19.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("19.3", e);
 		}
@@ -701,10 +695,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("20.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("20.3", getManager().loadRepository(sourceRepo4Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("20.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("20.3", getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo4Location.toURI(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("20.4", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("20.5", e);
 		}
@@ -776,8 +770,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		artifactMirrorToEmpty("24.0", true);
 
 		try {
-			IArtifactRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURI(), null);
-			IArtifactRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURI(), null);
+			IArtifactRepository sourceRepository = getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
+			IArtifactRepository destinationRepository = getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
 			assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
 		} catch (ProvisionException e) {
@@ -794,7 +788,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		Map properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
-			properties = getManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
+			properties = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
 		} catch (ProvisionException e) {
 			fail("25.0", e);
 		}
@@ -803,7 +797,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		artifactMirrorToEmpty("25.2", true);
 
 		try {
-			IArtifactRepository repository = getManager().loadRepository(destRepoLocation.toURI(), null);
+			IArtifactRepository repository = getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("25.3", name, repository.getName());
 			assertRepositoryProperties("25.4", properties, repository.getProperties());
 		} catch (ProvisionException e) {
@@ -826,9 +820,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Verify Contents
-			assertContentEquals("26.4", getManager().loadRepository(packedRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("26.4", getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//Verify files on disk
-			assertFileSizes("26.5", (SimpleArtifactRepository) getManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertFileSizes("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("26.6", e);
 		}
@@ -844,8 +838,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactRepository destinationRepo = null;
 
 		try {
-			packedRepo = getManager().loadRepository(packedRepoLocation.toURI(), null);
-			destinationRepo = getManager().createRepository(destRepoLocation.toURI(), "Test Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			packedRepo = getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null);
+			destinationRepo = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), "Test Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e1) {
 			fail("");
 		}
@@ -936,7 +930,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the destination
 		try {
 			String name = "Destination Name " + destRepoLocation;
-			getManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail("2", e);
 		}
@@ -974,7 +968,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			String name = "Destination Name " + destRepoLocation;
 			Map property = new HashMap();
 			property.put(IRepository.PROP_COMPRESSED, "true");
-			getManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
+			getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {
 			fail("2", e);
 		}
@@ -1023,10 +1017,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContentEquals("Verifying contents", repo, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 
 			//Verify that result is the same as mirroring from the 2 repositories separately
-			assertContains("3", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("4", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("4", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5", getManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("5", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}

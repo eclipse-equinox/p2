@@ -34,7 +34,7 @@ public class MirrorApplication implements IApplication {
 	private IMetadataRepository source;
 	private IMetadataRepository destination;
 	private boolean transitive = false;
-	private boolean append = false;
+	private boolean append = true;
 	private IMetadataRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
 	private boolean destinationLoaded = false;
@@ -135,8 +135,8 @@ public class MirrorApplication implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			if (args[i].equalsIgnoreCase("-append")) //$NON-NLS-1$
-				append = true;
+			if (args[i].equalsIgnoreCase("-emptyRepository")) //$NON-NLS-1$
+				append = false;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 

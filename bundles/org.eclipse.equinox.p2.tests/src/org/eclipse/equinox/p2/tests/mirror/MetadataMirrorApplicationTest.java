@@ -15,7 +15,6 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -26,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 
 /**
@@ -38,10 +36,6 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	protected File sourceRepo2Location; //anotherfeature
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
-
-	private IMetadataRepositoryManager getManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
@@ -64,11 +58,11 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	protected void tearDown() throws Exception {
 		//remove all the repositories
-		getManager().removeRepository(destRepoLocation.toURI());
-		getManager().removeRepository(sourceRepoLocation.toURI());
-		getManager().removeRepository(sourceRepo2Location.toURI());
-		getManager().removeRepository(sourceRepo3Location.toURI());
-		getManager().removeRepository(sourceRepo4Location.toURI());
+		getMetadataRepositoryManager().removeRepository(destRepoLocation.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepoLocation.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepo2Location.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepo3Location.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepo4Location.toURI());
 
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -121,14 +115,14 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 	/**
 	 * Runs mirror application with default arguments. source is the source repo, 
-	 * destination is the destination repo, append is if the "-append" argument is needed
+	 * destination is the destination repo, append is if the "-emptyRepository" argument should be excluded
 	 * 
 	 * Note: We use URL here because command line applications traffic in unencoded URLs,
 	 * so we can't use java.net.URI which will always use the encoded form
 	 */
 	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "-append" : ""};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "" : "-EmptyRepository"};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -186,7 +180,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: ensure setup completed successfully
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -207,7 +201,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -227,7 +221,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify contents
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -247,7 +241,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -267,7 +261,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContentEquals(message + ".1", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals(message + ".1", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".2", e);
 		}
@@ -277,8 +271,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: verify
-			assertContains(message + ".5", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains(message + ".6", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains(message + ".5", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains(message + ".6", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail(message + ".7", e);
 		}
@@ -296,11 +290,11 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: Create an empty repository
 		File emptyRepository = new File(getTempFolder(), getUniqueString());
 		//Setup: remove repository if it exists
-		getManager().removeRepository(emptyRepository.toURI());
+		getMetadataRepositoryManager().removeRepository(emptyRepository.toURI());
 		//Setup: delete any data that may be in the folder
 		AbstractProvisioningTest.delete(emptyRepository);
 		try {
-			getManager().createRepository(emptyRepository.toURI(), "Empty Repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getMetadataRepositoryManager().createRepository(emptyRepository.toURI(), "Empty Repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail(message + ".1", e);
 		}
@@ -321,105 +315,105 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to an empty repository with "-append" 
+	 * Tests mirroring all metadata in a repository to an empty repository 
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToEmptyWithAppend() {
+	public void testMetadataMirrorToEmpty() {
 		metadataMirrorToEmpty("1.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("1.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("1.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("1.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to an empty repository without "-append"
+	 * Tests mirroring all metadata in a repository to an empty repository with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToEmptyWithoutAppend() {
+	public void testMetadataMirrorToEmptyWithEmptyRepository() {
 		metadataMirrorToEmpty("2.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("2.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("2.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("2.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with exact duplicate data with "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with exact duplicate data
 	 * Source contains A, B
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToFullDuplicateWithAppend() {
+	public void testMetadataMirrorToFullDuplicate() {
 		metadataMirrorToFullDuplicate("3.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("3.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("3.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("3.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with exact duplicate data wihtout "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with exact duplicate data with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToFullDuplicateWithoutAppend() {
+	public void testMetadataMirrorToFullDuplicateWithEmptyRepository() {
 		metadataMirrorToFullDuplicate("4.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("4.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("4.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("4.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with non-duplicate entries with "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with non-duplicate entries
 	 * Source contains A, B
 	 * Target contains C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testMetadataMirrorToPopulatedWithAppend() {
+	public void testMetadataMirrorToPopulated() {
 		metadataMirrorToPopulated("5.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContains("5.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("5.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("5.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("5.2", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("5.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("5.4", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with non-duplicate entries without "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with non-duplicate entries with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains C, D
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToPopulatedWithoutAppend() {
+	public void testMetadataMirrorToPopulatedWithEmptyRepository() {
 		metadataMirrorToPopulated("6.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("6.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("6.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("6.2", e);
 		}
@@ -431,107 +425,107 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testMetadataMirrorToPartialDuplicateWithAppend() {
+	public void testMetadataMirrorToPartialDuplicate() {
 		metadataMirrorToPartialDuplicate("7.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("7.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("7.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("7.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with partially duplicate data
+	 * Tests mirroring all metadata in a repository to a repository populated with partially duplicate data with "-emptyRepository"
 	 * Source contains A, B, C, D
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testMetadataMirrorToPartialDuplicateWithoutAppend() {
+	public void testMetadataMirrorToPartialDuplicateWithEmptyRepository() {
 		metadataMirrorToPartialDuplicate("8.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("8.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("8.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("8.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with both full duplicate and non-duplicate data with "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with both full duplicate and non-duplicate data
 	 * Source contains A, B
 	 * Target contains A, B, C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testMetadataMirrorToPopulatedWithFullDuplicateWithAppend() {
+	public void testMetadataMirrorToPopulatedWithFullDuplicate() {
 		metadataMirrorToPopulatedWithFullDuplicate("9.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContentEquals("9.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("9.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("9.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with both full duplicate and non-duplicate data without "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with both full duplicate and non-duplicate data with "-emptyRepository"
 	 * Source contains A, B
 	 * Target contains A, B, C, D
 	 * Expected is A, B
 	 */
-	public void testMetadataMirrorToPopulatedWithFullDuplicateWithoutAppend() {
+	public void testMetadataMirrorToPopulatedWithFullDuplicateWithEmptyRepository() {
 		metadataMirrorToPopulatedWithFullDuplicate("10.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("10.1", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("10.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("10.2", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with both partial duplicate and non-duplicate data with "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with both partial duplicate and non-duplicate data
 	 * Source contains A, B, C, D
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D, E, F
 	 */
-	public void testMetadataMirrorToPopulatedWithPartialDuplicateWithAppend() {
+	public void testMetadataMirrorToPopulatedWithPartialDuplicate() {
 		metadataMirrorToPopulatedWithPartialDuplicate("11.0", true); //run the test with append set to true
 
 		try {
 			//verify destination's content
-			assertContains("11.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("11.2", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("11.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("11.2", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getNumUnique(getManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo3Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("11.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("11.4", e);
 		}
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to a repository populated with both partial duplicate and non-duplicate data without "-append"
+	 * Tests mirroring all metadata in a repository to a repository populated with both partial duplicate and non-duplicate data with "-emptyRepository"
 	 * Source contains A, B, C, D
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D
 	 */
-	public void testMetadataMirrorToPopulatedWithPartialDuplicateWithoutAppend() {
+	public void testMetadataMirrorToPopulatedWithPartialDuplicateWithEmptyRepository() {
 		metadataMirrorToPopulatedWithPartialDuplicate("12.0", false); //run the test with append set to false
 
 		try {
 			//verify destination's content
-			assertContentEquals("12.1", getManager().loadRepository(sourceRepo3Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("12.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("12.2", e);
 		}
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given an invalid source repository with "-append"
+	 * Tests MirrorApplication's behaviour when given an invalid source repository
 	 */
 	public void testMetadataMirrorFromInvalid() {
 		//get a temp folder
@@ -551,7 +545,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given an invalid destination repository with "-append"
+	 * Tests MirrorApplication's behaviour when given an invalid destination repository
 	 */
 	public void testMetadataMirrorToInvalid() {
 		URI invalidDestRepository;
@@ -568,7 +562,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository with "-append"
+	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository
 	 */
 	public void testMetadataMirrorBothInvalid() {
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
@@ -587,7 +581,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring an empty repository to another empty repository with "-append"
+	 * Tests mirroring an empty repository to another empty repository
 	 * Source contains
 	 * Target contains
 	 * Expected is
@@ -597,58 +591,58 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("16.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("16.1", getMetadataRepositoryManager().loadRepository(emptyRepository.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("16.2", e);
 		}
 
 		//remove the empty repository
-		getManager().removeRepository(emptyRepository.toURI());
+		getMetadataRepositoryManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
 
 	/**
-	 * Tests mirroring an empty repository to a populated repository with "-append"
+	 * Tests mirroring an empty repository to a populated repository
 	 * Source contains
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorEmptyToPopulatedWithAppend() {
+	public void testArtifactMirrorEmptyToPopulated() {
 		File emptyRepository = metadataMirrorEmptyToPopulated("17.0", true);
 
 		try {
 			//verify destination's content
-			assertContains("17.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContentEquals("17.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("17.1", getMetadataRepositoryManager().loadRepository(emptyRepository.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("17.2", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("17.3", e);
 		}
 
 		//remove the empty repository
-		getManager().removeRepository(emptyRepository.toURI());
+		getMetadataRepositoryManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
 
 	/**
-	 * Tests mirroring an empty repository to a populated repository without "-append"
+	 * Tests mirroring an empty repository to a populated repository with "-emptyRepository"
 	 * Source contains
 	 * Target contains A, B
 	 * Expected is
 	 */
-	public void testArtifactMirrorEmptyToPopulatedWithoutAppend() {
+	public void testArtifactMirrorEmptyToPopulatedWithEmptyRepository() {
 		File emptyRepository = metadataMirrorEmptyToPopulated("18.0", false);
 
 		try {
 			//verify destination's content
-			assertContentEquals("18.1", getManager().loadRepository(emptyRepository.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("18.1", getMetadataRepositoryManager().loadRepository(emptyRepository.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("18.2", e);
 		}
 
 		//remove the empty repository
-		getManager().removeRepository(emptyRepository.toURI());
+		getMetadataRepositoryManager().removeRepository(emptyRepository.toURI());
 		//delete any leftover data
 		delete(emptyRepository);
 	}
@@ -668,7 +662,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContentEquals("19.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContentEquals("19.2", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("19.3", e);
 		}
@@ -689,10 +683,10 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//verify destination's content
-			assertContains("20.2", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("20.3", getManager().loadRepository(sourceRepo4Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("20.2", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("20.3", getMetadataRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo4Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("20.4", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getMetadataRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("20.5", e);
 		}
@@ -762,8 +756,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		metadataMirrorToEmpty("24.0", true);
 
 		try {
-			IMetadataRepository sourceRepository = getManager().loadRepository(sourceRepoLocation.toURI(), null);
-			IMetadataRepository destinationRepository = getManager().loadRepository(destRepoLocation.toURI(), null);
+			IMetadataRepository sourceRepository = getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
+			IMetadataRepository destinationRepository = getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
 			assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
 		} catch (ProvisionException e) {
@@ -780,7 +774,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		Map properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
-			properties = getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
+			properties = getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
 		} catch (ProvisionException e) {
 			fail("25.0", e);
 		}
@@ -789,7 +783,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		metadataMirrorToEmpty("25.2", true);
 
 		try {
-			IMetadataRepository repository = getManager().loadRepository(destRepoLocation.toURI(), null);
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
 			assertEquals("25.3", name, repository.getName());
 			assertRepositoryProperties("25.4", properties, repository.getProperties());
 		} catch (ProvisionException e) {
@@ -832,7 +826,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the destination
 		try {
 			String name = "Destination Name " + destRepoLocation;
-			getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
 			fail("2", e);
 		}
@@ -868,7 +862,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			String name = "Destination Name " + destRepoLocation;
 			Map property = new HashMap();
 			property.put(IRepository.PROP_COMPRESSED, "true");
-			getManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
+			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {
 			fail("2", e);
 		}
@@ -917,10 +911,10 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContentEquals("Verifying contents", repo, getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 
 			//Verify that result is the same as mirroring from the 2 repositories seperately
-			assertContains("3", getManager().loadRepository(sourceRepoLocation.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("4", getManager().loadRepository(sourceRepo2Location.toURI(), null), getManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("3", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertContains("4", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5", getNumUnique(getManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
+			assertEquals("5", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}

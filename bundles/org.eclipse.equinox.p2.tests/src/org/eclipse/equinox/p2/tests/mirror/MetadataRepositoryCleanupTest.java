@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -29,13 +28,6 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature
 	protected File bystanderRepoLocation; //anotherfeature
-
-	/**
-	 * Returns whether the artifact repository manager contains a repository at the given location.
-	 */
-	protected boolean contains(URI location) {
-		return getMetadataRepositoryManager().contains(location);
-	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -118,10 +110,8 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("1.0", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(sourceRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(destRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -142,10 +132,8 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("2.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(sourceRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(destRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -167,10 +155,8 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("3.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(destRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(sourceRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
 	}
 
 	/**
@@ -194,10 +180,8 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("4.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(destRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(sourceRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
 	}
 
 	/**
@@ -221,13 +205,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("5.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(sourceRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(destRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
 		//Ensure bystander was not effected by the mirror application
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(bystanderRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -252,13 +233,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("6.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(sourceRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(destRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
 		//Ensure bystander was not effected by the mirror application
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(bystanderRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -284,13 +262,10 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("7.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(destRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertFalse(contains(sourceRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
+		assertFalse(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
 		//Ensure bystander was not effected by the mirror application
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(bystanderRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(bystanderRepoLocation.toURI()));
 	}
 
 	/**
@@ -318,12 +293,9 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 			fail("8.2", e);
 		}
 
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(destRepoLocation.toURI()));
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(sourceRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(destRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(sourceRepoLocation.toURI()));
 		//Ensure bystander was not effected by the mirror application
-		//TODO modify the contains statement once the API is available
-		assertTrue(contains(bystanderRepoLocation.toURI()));
+		assertTrue(getMetadataRepositoryManager().contains(bystanderRepoLocation.toURI()));
 	}
 }
