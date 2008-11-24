@@ -3,19 +3,20 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.osgi.service.log.LogService;
 
 public class ParserUtils {
-	public static File getOSGiInstallArea(LauncherData launcherData) {
+	public static File getOSGiInstallArea(List programArgs, LauncherData launcherData) {
 		if (launcherData == null)
 			return null;
 
 		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
-		File result = getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData.getLauncher().getParentFile().toURI());
+		File result = getOSGiInstallArea(programArgs, launcherData.getLauncher().getParentFile().toURI());
 		if (result != null)
 			return result;
 
@@ -65,7 +66,7 @@ public class ParserUtils {
 	}
 
 	public static boolean isArgumentSet(String arg, List args) {
-		if (arg == null || args == null || args.size() == 0)
+		if (arg == null || args == null)
 			return false;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
@@ -78,7 +79,7 @@ public class ParserUtils {
 	}
 
 	public static String getValueForArgument(String arg, List args) {
-		if (arg == null || args == null || args.size() == 0)
+		if (arg == null || args == null)
 			return null;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
@@ -92,7 +93,7 @@ public class ParserUtils {
 	}
 
 	public static String[] getMultiValuedArgument(String arg, List args) {
-		if (arg == null || args == null || args.size() == 0)
+		if (arg == null || args == null)
 			return null;
 		ArrayList values = null;
 		for (int i = 0; i < args.size(); i++) {
@@ -113,9 +114,8 @@ public class ParserUtils {
 		return null;
 	}
 
-	//Setting null as an argument for value will cause the argument and the value to both be removed
 	public static boolean setValueForArgument(String arg, String value, List args) {
-		if (arg == null || args == null || args.size() == 0)
+		if (arg == null || args == null)
 			return false;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
@@ -131,8 +131,8 @@ public class ParserUtils {
 		return false;
 	}
 
-	public static boolean removeArgument(String arg, String value, List args) {
-		if (arg == null || args == null || args.size() == 0)
+	public static boolean removeArgument(String arg, List args) {
+		if (arg == null || args == null)
 			return false;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
@@ -141,7 +141,7 @@ public class ParserUtils {
 			if (currentArg.equalsIgnoreCase(arg)) {
 				args.set(i, null);
 				while (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-') {
-					args.set(i + 1, value);
+					args.set(i + 1, null);
 					i++;
 				}
 			}
