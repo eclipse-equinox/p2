@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArti
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -53,8 +52,7 @@ public class RemoveSourceBundleActionTest extends AbstractProvisioningTest {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
-		Map manifest = (Map) bundleDescription.getUserObject();
-		IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, manifest, osgiTarget.isDirectory(), key, new PublisherInfo());
+		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();

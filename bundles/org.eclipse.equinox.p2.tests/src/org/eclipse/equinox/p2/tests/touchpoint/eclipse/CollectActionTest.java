@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -54,8 +53,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		//IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		//bundlePool.addDescriptor(descriptor);
 
-		Map manifest = (Map) bundleDescription.getUserObject();
-		IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, manifest, osgiTarget.isDirectory(), key, new PublisherInfo());
+		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

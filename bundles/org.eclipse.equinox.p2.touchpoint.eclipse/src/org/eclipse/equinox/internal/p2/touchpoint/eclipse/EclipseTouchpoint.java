@@ -22,8 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.BundleNestedAdvice;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
@@ -194,7 +193,9 @@ public class EclipseTouchpoint extends Touchpoint {
 	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
 		PublisherInfo info = new PublisherInfo();
-		info.addAdvice(new BundleNestedAdvice());
-		return BundlesAction.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey, info);
+		info.addAdvice(new AdviceFileAdvice(new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
+		info.addAdvice(new BundleShapeAdvice(bundleDescription.getSymbolicName(), bundleDescription.getVersion(), shape));
+		return BundlesAction.createBundleIU(bundleDescription, artifactKey, info);
 	}
 }

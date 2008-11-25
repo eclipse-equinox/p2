@@ -22,8 +22,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactD
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Constants;
@@ -206,9 +207,12 @@ public class PublisherHelper {
 		}
 	}
 
-	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
+	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
 		ArrayList iusCreated = new ArrayList(1);
-		IInstallableUnit iu = BundlesAction.createBundleIU(bd, manifest, isFolderPlugin, key, new PublisherInfo());
+		IPublisherInfo info = new PublisherInfo();
+		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), bd.getVersion(), shape));
+		IInstallableUnit iu = BundlesAction.createBundleIU(bd, key, info);
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
 		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));

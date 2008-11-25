@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.publisher.*;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -102,7 +101,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherResult results) {
-		String id = FeaturesAction.getTransformedId(feature.getFeatureIdentifier(), false, true);
+		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		Version version = new Version(feature.getFeatureVersion());
 		// TODO look elsewhere as well.  Perhaps in the metadata repos and some advice.
 		Collection ius = results.getIUs(id, null);

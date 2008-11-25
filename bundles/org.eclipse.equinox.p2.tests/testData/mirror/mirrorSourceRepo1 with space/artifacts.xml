@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?artifactRepository class='org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository' version='1.0.0'?>
-<repository name='file:/C:/Program Files/eclipse/workspace/site/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
-  <properties size='2'>
+<repository name='file:/C:/Program Files/eclipse/workspace/site/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
+  <properties size='3'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1221488783484'/>
+    <property name='p2.timestamp' value='1227546187421'/>
+    <property name='p2.system' value='true'/>
   </properties>
   <mappings size='3'>
     <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>

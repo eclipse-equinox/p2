@@ -30,7 +30,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -205,6 +208,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name, Version version, TouchpointData tpData) {
 		return createIUFragment(null, name, version, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, tpData);
+	}
+
+	public IInstallableUnit createBundleIU(BundleDescription bd, boolean isFolder, IArtifactKey key) {
+		PublisherInfo info = new PublisherInfo();
+		String shape = isFolder ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), bd.getVersion(), shape));
+		return BundlesAction.createBundleIU(bd, key, info);
 	}
 
 	public static IDirector createDirector() {

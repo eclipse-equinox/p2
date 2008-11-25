@@ -78,9 +78,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
-	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
 
-	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL};
 	public static final String[] BUNDLE_LOCALIZED_PROPERTIES = {Constants.BUNDLE_NAME, Constants.BUNDLE_DESCRIPTION, Constants.BUNDLE_VENDOR, Constants.BUNDLE_CONTACTADDRESS, Constants.BUNDLE_DOCURL, Constants.BUNDLE_UPDATELOCATION};
 	public static final int BUNDLE_LOCALIZATION_INDEX = BUNDLE_LOCALIZED_PROPERTIES.length;
@@ -126,14 +124,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, IPublisherInfo info) {
+	public static IInstallableUnit createBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
+		Map manifest = (Map) bd.getUserObject();
 		Map manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null)
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, info);
-	}
-
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, IPublisherInfo info) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
@@ -224,11 +219,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		// Define the immutable metadata for this IU. In this case immutable means
 		// that this is something that will not impact the configuration.
 		Map touchpointData = new HashMap();
-		if (isFolderPlugin)
-			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
-		processInstructionsAdvice(touchpointData, bd.getLocation(), info);
-		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		if (isDir(bd, info))
+			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		iu.addTouchpointData(processTouchpointAdvice(touchpointData, info));
 
 		processPropertiesAdvice(iu, bd.getLocation(), info);
 		return MetadataFactory.createInstallableUnit(iu);
@@ -285,29 +279,17 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	// TODO need to figure out a mapping of this onto real advice and make this generic
-	private static void processInstructionsAdvice(Map touchpointData, String location, IPublisherInfo info) {
-		if (location == null)
-			return;
-		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
-		File bundleFile = new File(location);
+	/**
+	 * Merges all touchpoint advice into the current set of touchpoint data.
+	 */
+	private static TouchpointData processTouchpointAdvice(Map currentInstructions, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, ITouchpointAdvice.class);
+		TouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IBundleAdvice entry = (IBundleAdvice) i.next();
-			Map bundleAdvice = entry.getInstructions(bundleFile);
-			if (bundleAdvice == null)
-				continue;
-			for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
-				String key = (String) iterator.next();
-				if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
-					String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
-					String instructions = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
-					if (instructions.length() > 0)
-						instructions += ";"; //$NON-NLS-1$
-					instructions += ((String) bundleAdvice.get(key)).trim();
-					touchpointData.put(phase, instructions);
-				}
-			}
+			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
+			result = entry.getTouchpointData(result);
 		}
+		return result;
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
@@ -556,23 +538,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		return createBundleDescription(manifest, bundleLocation);
 	}
 
-	public static BundleDescription createBundleDescription(InputStream manifestStream, File bundleLocation) {
-		Hashtable entries = new Hashtable();
-		try {
-			ManifestElement.parseBundleManifest(manifestStream, entries);
-			return createBundleDescription(entries, bundleLocation);
-		} catch (IOException e) {
-			String message = NLS.bind(Messages.exception_errorParsingManifest, (bundleLocation == null ? "" : bundleLocation.getAbsolutePath()), e.getMessage()); //$NON-NLS-1$
-			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
-			LogHelper.log(status);
-		} catch (BundleException e) {
-			String message = NLS.bind(Messages.exception_errorParsingManifest, (bundleLocation == null ? "" : bundleLocation.getAbsolutePath()), e.getMessage()); //$NON-NLS-1$
-			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
-			LogHelper.log(status);
-		}
-		return null;
-	}
-
 	public static Dictionary loadManifest(File bundleLocation) {
 		Dictionary manifest = basicLoadManifest(bundleLocation);
 		if (manifest == null)
@@ -731,6 +696,7 @@ public class BundlesAction extends AbstractPublisherAction {
 							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
 						}
 					} else {
+						createAdviceFileAdvice(bundles[i], info);
 						IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 						File location = new File(bd.getLocation());
 						IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
@@ -744,9 +710,7 @@ public class BundlesAction extends AbstractPublisherAction {
 							publishArtifact(ad, new File(bd.getLocation()), info);
 
 						// Create the bundle IU according to any shape advice we have
-						boolean isDir = isDir(bd, info);
-						// FIXME 1.0 merge - need to consider phase instruction advice here.  See Generator#mergeInstructionsAdvice 
-						IInstallableUnit bundleIU = createBundleIU(bd, bundleManifest, isDir, key, info);
+						IInstallableUnit bundleIU = createBundleIU(bd, key, info);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -770,6 +734,15 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	/**
+	 * Adds advice for any p2.inf file found in this bundle.
+	 */
+	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo info) {
+		String location = bundleDescription.getLocation();
+		if (location != null)
+			info.addAdvice(new AdviceFileAdvice(new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+	}
+
+	/**
 	 * Add all of the advice for the bundle at the given location to the given descriptor.
 	 * @param descriptor the descriptor to decorate
 	 * @param location the location of the bundle
@@ -789,7 +762,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private boolean isDir(BundleDescription bundle, IPublisherInfo info) {
+	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {
 		Collection advice = info.getAdvice(null, true, bundle.getSymbolicName(), bundle.getVersion(), IBundleShapeAdvice.class);
 		// if the advice has a shape, use it
 		if (advice != null && !advice.isEmpty()) {

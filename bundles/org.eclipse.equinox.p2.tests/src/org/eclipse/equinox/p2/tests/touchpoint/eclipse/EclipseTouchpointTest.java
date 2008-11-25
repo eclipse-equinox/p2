@@ -106,7 +106,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		mockManifest.put("Bundle-Version", key.getVersion().toString()); //$NON-NLS-1$
 
 		BundleDescription partialIUbundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
-		IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(partialIUbundleDescription, null, false, key, extraProperties);
+		IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(partialIUbundleDescription, false, key, extraProperties);
 		assertTrue(bundleIUs != null && bundleIUs.length != 0);
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());

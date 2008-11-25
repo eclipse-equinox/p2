@@ -10,12 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
 import java.util.zip.ZipInputStream;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -74,6 +75,14 @@ public class BundlesActionTest extends ActionTest {
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 
+	private Capture<ITouchpointAdvice> tpAdvice;
+
+	@Override
+	public void setupPublisherInfo() {
+		tpAdvice = new Capture<ITouchpointAdvice>();
+		super.setupPublisherInfo();
+	}
+
 	public void testAll() throws Exception {
 		File[] files = TEST_BASE.listFiles();
 		testAction = new BundlesAction(files);
@@ -111,13 +120,13 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(ius.size() == 1);
 		IInstallableUnit bundle1IU = (IInstallableUnit) ius.get(0);
 
-		assertNotNull(bundle1IU);
-		assertEquals(bundle1IU.getVersion(), TEST1_BUNDLE_VERSION);
+		assertNotNull("1.0", bundle1IU);
+		assertEquals("1.1", bundle1IU.getVersion(), TEST1_BUNDLE_VERSION);
 
 		// check required capabilities
 		RequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
-		assertTrue(requiredCapability.length == 1 /*num of tested elements*/);
+		assertEquals("2.0", 1, requiredCapability.length);
 
 		// check provided capabilities
 		ProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
@@ -125,7 +134,20 @@ public class BundlesActionTest extends ActionTest {
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, TEST1_BUNDLE_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(providedCapabilities.length == 4 /*num of tested elements*/);
+		assertEquals("2.1", 4, providedCapabilities.length);
+
+		TouchpointData[] data = bundle1IU.getTouchpointData();
+		boolean found = false;
+		for (int i = 0; i < data.length; i++) {
+			TouchpointInstruction configure = data[i].getInstruction("configure");
+			if (configure == null)
+				continue;
+			String body = configure.getBody();
+			if (body != null && body.indexOf("download.eclipse.org/releases/ganymede") > 0) {
+				found = true;
+			}
+		}
+		assertTrue("3.0", found);
 	}
 
 	private void verifyBundle2() {
@@ -179,8 +201,7 @@ public class BundlesActionTest extends ActionTest {
 		IBundleAdvice bundleAdvice = EasyMock.createMock(IBundleAdvice.class);
 		expect(bundleAdvice.getArtifactProperties(TEST_FILE1)).andReturn(sarProperties).anyTimes();
 		expect(bundleAdvice.getArtifactProperties(TEST_FILE2)).andReturn(sdkProperties).anyTimes();
-		expect(bundleAdvice.getInstructions((File) EasyMock.anyObject())).andReturn(new HashMap()).anyTimes();
-		expect(bundleAdvice.getIUProperties((File) EasyMock.anyObject())).andReturn(new Properties()).anyTimes();
+		expect(bundleAdvice.getIUProperties((File) anyObject())).andReturn(new Properties()).anyTimes();
 
 		EasyMock.replay(bundleAdvice);
 		ArrayList adviceCollection = new ArrayList();
@@ -191,5 +212,10 @@ public class BundlesActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, new Version("1.0.0.qualifier"), IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, null, null, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
+
+		//capture any touchpoint advice, and return the captured advice when the action asks for it
+		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
+		EasyMock.expectLastCall().anyTimes();
+		expect(publisherInfo.getAdvice(null, false, null, null, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
 	}
 }

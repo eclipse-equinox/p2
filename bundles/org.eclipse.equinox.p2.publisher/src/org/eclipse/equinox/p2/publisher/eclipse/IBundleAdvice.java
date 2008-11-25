@@ -10,7 +10,6 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
@@ -31,12 +30,4 @@ public interface IBundleAdvice extends IPublisherAdvice {
 	 * @return extra properties for the given feature
 	 */
 	public Properties getArtifactProperties(File location);
-
-	/**
-	 * Returns a list of additional touchpoint instructions to add to the IU published
-	 * for the bundle at the given location.
-	 * @param location
-	 * @return additonal touchpoint instructions
-	 */
-	public Map getInstructions(File location);
 }

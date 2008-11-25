@@ -1,0 +1,3 @@
+instructions.install = \
+    ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);\
+    chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);

@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -64,13 +63,13 @@ public class RemoteFeaturesAction extends FeaturesAction {
 					mockManifest.put("Bundle-Version", entry.getVersion()); //$NON-NLS-1$
 					BundleDescription bundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
 					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-					IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(bundleDescription, null, entry.isUnpack(), key, extraProperties);
+					IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(bundleDescription, entry.isUnpack(), key, extraProperties);
 					for (int n = 0; n < bundleIUs.length; n++)
 						result.addIU(bundleIUs[n], IPublisherResult.ROOT);
 				}
 			}
-			IInstallableUnit featureIU = createFeatureJarIU(feature, null, null);
-			IInstallableUnit groupIU = createGroupIU(feature, featureIU, null);
+			IInstallableUnit featureIU = createFeatureJarIU(feature, null, new PublisherInfo());
+			IInstallableUnit groupIU = createGroupIU(feature, featureIU, new PublisherInfo());
 			result.addIU(featureIU, IPublisherResult.ROOT);
 			result.addIU(groupIU, IPublisherResult.ROOT);
 		}

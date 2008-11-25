@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -55,7 +56,7 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, featureTarget);
 		((ArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
-		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, null, null);
+		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, null, new PublisherInfo());
 
 		bundlePool.addDescriptor(descriptor);
 

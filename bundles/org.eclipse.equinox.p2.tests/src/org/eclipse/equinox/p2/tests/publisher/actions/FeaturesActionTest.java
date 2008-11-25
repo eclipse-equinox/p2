@@ -10,12 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.zip.ZipInputStream;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -43,25 +44,34 @@ public class FeaturesActionTest extends ActionTest {
 	private Version barVersion = new Version("1.1.1"); //$NON-NLS-1$
 	private String BAR = "bar"; //$NON-NLS-1$
 	private String FOO = "foo"; //$NON-NLS-1$
+	private Capture<ITouchpointAdvice> tpAdvice;
 
 	public void setUp() throws Exception {
 		testAction = new FeaturesAction(new File[] {root});
+		tpAdvice = new Capture<ITouchpointAdvice>();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
-	public void testStuff() throws Exception {
+	/**
+	 * Tests publishing two simple features.
+	 */
+	public void testSimple() throws Exception {
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyRepositoryContents();
 		debug("Completed FeaturesAction."); //$NON-NLS-1$
 	}
 
-	private void verifyRepositoryContents() throws Exception {
-		verifyArtifactRepository();
-		verifyResults();
+	public void testFeaturePatch() {
+		//TODO add a test for generating a feature patch
 	}
 
-	private void verifyResults() {
+	private void verifyRepositoryContents() throws Exception {
+		verifyArtifacts();
+		verifyMetadata();
+	}
+
+	private void verifyMetadata() {
 		//{foo.feature.jar=[foo.feature.jar 1.0.0], bar.feature.jar=[bar.feature.jar 1.1.1], foo.feature.group=[foo.feature.group 1.0.0], bar.feature.group=[bar.feature.group 1.1.1]}
 		ArrayList fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.jar", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
@@ -78,7 +88,8 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(fooVersion));
 
 		//zipped=true
-		String fooValue = ((TouchpointInstruction) foo.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		TouchpointData[] tpData = foo.getTouchpointData();
+		String fooValue = ((TouchpointInstruction) tpData[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		RequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
@@ -89,6 +100,16 @@ public class FeaturesActionTest extends ActionTest {
 		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
 		assertTrue(fooProvidedCapabilities.length == 3);
+
+		//feature group IU for foo
+		fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
+		assertTrue(fooIUs.size() == 1);
+		IInstallableUnit fooGroup = (IInstallableUnit) fooIUs.get(0);
+		tpData = fooGroup.getTouchpointData();
+		assertEquals(1, tpData.length);
+		TouchpointInstruction instruction = tpData[0].getInstruction("install");
+		assertNotNull(instruction);
+		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
 
 		/*verify bar*/
 		ArrayList barIUs = new ArrayList(publisherResult.getIUs("bar.feature.jar", IPublisherResult.ROOT)); //$NON-NLS-1$
@@ -123,7 +144,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(barProvidedCapabilities.length == 3);
 	}
 
-	private void verifyArtifactRepository() throws IOException {
+	private void verifyArtifacts() throws IOException {
 		ZipInputStream actualStream = artifactRepository.getZipInputStream(FOO_KEY);
 		Map expected = getFileMap(new HashMap(), new File[] {new File(root, FOO)}, new Path(new File(root, FOO).getAbsolutePath()));
 		TestData.assertContains(expected, actualStream, true);
@@ -142,6 +163,11 @@ public class FeaturesActionTest extends ActionTest {
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
+
+		//capture any touchpoint advice, and return the captured advice when the action asks for it
+		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
+		EasyMock.expectLastCall().anyTimes();
+		expect(publisherInfo.getAdvice(null, false, null, null, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {
