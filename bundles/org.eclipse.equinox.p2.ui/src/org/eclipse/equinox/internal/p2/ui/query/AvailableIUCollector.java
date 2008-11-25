@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 
 /**
@@ -26,9 +28,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 public class AvailableIUCollector extends QueriedElementCollector {
 
 	private boolean makeCategories;
-	private ElementQueryDescriptor installedQueryDescriptor;
+	private IProfile profile;
 	private boolean hideInstalledIUs = false;
-	Collection installedElements = null;
 	private boolean drillDownChild = false;
 
 	public AvailableIUCollector(IQueryable queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
@@ -37,9 +38,9 @@ public class AvailableIUCollector extends QueriedElementCollector {
 		this.drillDownChild = makeDrillDownChild;
 	}
 
-	public void hideInstalledIUs(ElementQueryDescriptor installedQuery) {
-		installedQueryDescriptor = installedQuery;
-		hideInstalledIUs = true;
+	public void markInstalledIUs(IProfile targetProfile, boolean hideInstalled) {
+		this.profile = targetProfile;
+		hideInstalledIUs = hideInstalled;
 	}
 
 	/**
@@ -50,29 +51,53 @@ public class AvailableIUCollector extends QueriedElementCollector {
 	 * or <code>false</code> to indicate the query should stop.
 	 */
 	public boolean accept(Object match) {
-		if (hideInstalledIUs && installedElements == null)
-			initializeInstalledElements();
-		if (hideInstalledIUs) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(match, IInstallableUnit.class);
-			if (installedElements.contains(iu))
-				return true;
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(match, IInstallableUnit.class);
+		boolean isUpdate = false;
+		boolean isInstalled = false;
+		if (profile != null && iu != null) {
+			Collector collector = profile.query(new InstallableUnitQuery(iu.getId()), new Collector(), null);
+			Iterator iter = collector.iterator();
+			// We are typically iterating over only one IU unless it's a non-singleton.
+			while (iter.hasNext()) {
+				IInstallableUnit installed = (IInstallableUnit) iter.next();
+				if (installed.getVersion().compareTo(iu.getVersion()) < 0)
+					isUpdate = true;
+				else {
+					isUpdate = false;
+					isInstalled = true;
+				}
+			}
 		}
-		// If it's not an IU, it's an element and work is done
+		// if we are hiding, hide anything that is the same iu or older
+		if (hideInstalledIUs && isInstalled && !isUpdate) {
+			return true;
+		}
+
+		// subclass already made this an element, just set the install flag
+		if (match instanceof AvailableIUElement) {
+			AvailableIUElement element = (AvailableIUElement) match;
+			element.setIsInstalled(isInstalled);
+			element.setIsUpdate(isUpdate);
+			return super.accept(match);
+		}
+		// If it's not an IU or element, we have nothing to do here
 		if (!(match instanceof IInstallableUnit))
 			return super.accept(match);
 
 		// We need to make an element
-		IInstallableUnit iu = (IInstallableUnit) match;
 		if (makeCategories && isCategory(iu))
 			return super.accept(new CategoryElement(parent, iu));
-		return super.accept(makeDefaultElement(iu));
+
+		IIUElement element = makeDefaultElement(iu);
+		if (element instanceof AvailableIUElement) {
+			AvailableIUElement availableElement = (AvailableIUElement) element;
+			availableElement.setIsInstalled(isInstalled);
+			availableElement.setIsUpdate(isUpdate);
+		}
+		return super.accept(element);
 	}
 
-	private void initializeInstalledElements() {
-		installedElements = installedQueryDescriptor.queryable.query(installedQueryDescriptor.query, installedQueryDescriptor.collector, null).toCollection();
-	}
-
-	protected Object makeDefaultElement(IInstallableUnit iu) {
+	protected IIUElement makeDefaultElement(IInstallableUnit iu) {
 		if (parent instanceof AvailableIUElement)
 			drillDownChild = ((AvailableIUElement) parent).shouldShowChildren();
 		return new AvailableIUElement(parent, iu, null, drillDownChild);

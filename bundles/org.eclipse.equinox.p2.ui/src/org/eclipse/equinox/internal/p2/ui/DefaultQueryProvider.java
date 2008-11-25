@@ -76,14 +76,13 @@ public class DefaultQueryProvider extends QueryProvider {
 				ElementQueryDescriptor installedQueryDescriptor = null;
 				boolean showLatest = context.getShowLatestVersionsOnly();
 				boolean hideInstalled = context.getHideAlreadyInstalled();
+				IProfile targetProfile = null;
 				String profileId = context.getInstalledProfileId();
-				if (hideInstalled && profileId != null) {
+				if (profileId != null) {
 					try {
-						IProfile profile = ProvisioningUtil.getProfile(profileId);
-						installedQueryDescriptor = new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector());
+						targetProfile = ProvisioningUtil.getProfile(profileId);
 					} catch (ProvisionException e) {
 						// just bail out, we won't try to query the installed
-						installedQueryDescriptor = null;
 					}
 				}
 
@@ -106,8 +105,8 @@ public class DefaultQueryProvider extends QueryProvider {
 							collector = new LatestIUVersionElementCollector(queryable, element, false, context.getShowAvailableChildren());
 						else
 							collector = new AvailableIUCollector(queryable, element, false, context.getShowAvailableChildren());
-						if (hideInstalled && installedQueryDescriptor != null)
-							collector.hideInstalledIUs(installedQueryDescriptor);
+						if (targetProfile != null)
+							collector.markInstalledIUs(targetProfile, hideInstalled);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, collector);
 					}
 					// Installed content not a concern for collecting categories
@@ -120,8 +119,8 @@ public class DefaultQueryProvider extends QueryProvider {
 					// Will have to look at all categories and groups and from there, figure out what's left
 					Query firstPassQuery = new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false);
 					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(queryable, element, false, context.getShowAvailableChildren()) : new AvailableIUCollector(queryable, element, false, context.getShowAvailableChildren());
-					if (hideInstalled && installedQueryDescriptor != null)
-						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
+					if (targetProfile != null)
+						availableIUCollector.markInstalledIUs(targetProfile, hideInstalled);
 					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(queryable, element, availableIUCollector));
 
 				}
@@ -136,8 +135,8 @@ public class DefaultQueryProvider extends QueryProvider {
 						availableIUCollector = new LatestIUVersionElementCollector(queryable, element, true, drillDown);
 					else
 						availableIUCollector = new AvailableIUCollector(queryable, element, true, drillDown);
-					if (hideInstalled && installedQueryDescriptor != null)
-						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
+					if (targetProfile != null)
+						availableIUCollector.markInstalledIUs(targetProfile, hideInstalled);
 					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false), meetsAnyRequirementQuery}, true), availableIUCollector);
 				}
 				return null;

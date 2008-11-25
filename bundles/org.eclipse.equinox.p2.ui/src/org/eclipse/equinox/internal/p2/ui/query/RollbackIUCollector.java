@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -26,7 +27,7 @@ public class RollbackIUCollector extends AvailableIUCollector {
 		super(queryable, parent, false, true);
 	}
 
-	protected Object makeDefaultElement(IInstallableUnit iu) {
+	protected IIUElement makeDefaultElement(IInstallableUnit iu) {
 		return new RollbackProfileElement(parent, iu);
 	}
 }

@@ -36,6 +36,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	IInstallableUnit iu;
 	boolean shouldShowChildren = Policy.getDefault().getQueryContext().getShowAvailableChildren();
+	boolean isInstalled = false;
+	boolean isUpdate = false;
 
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
@@ -59,7 +61,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
-		return ProvUIImages.IMG_UNINSTALLED_IU;
+		if (isInstalled)
+			return ProvUIImages.IMG_DISABLED_IU;
+		return ProvUIImages.IMG_IU;
 	}
 
 	public String getLabel(Object o) {
@@ -154,5 +158,21 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		if (iu == null)
 			return "NULL"; //$NON-NLS-1$
 		return iu.toString();
+	}
+
+	public void setIsInstalled(boolean isInstalled) {
+		this.isInstalled = isInstalled;
+	}
+
+	public boolean isInstalled() {
+		return isInstalled;
+	}
+
+	public void setIsUpdate(boolean isUpdate) {
+		this.isUpdate = isUpdate;
+	}
+
+	public boolean isUpdate() {
+		return isUpdate;
 	}
 }

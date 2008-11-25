@@ -14,12 +14,10 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 import org.osgi.framework.Version;
 
@@ -121,13 +119,13 @@ public class AvailableIUCollectorTest extends QueryTest {
 	 * Tests hiding installed IUs.
 	 */
 	public void testHideInstalled() {
+		IProfile profile = createProfile("TestProfile");
+
 		AvailableIUCollector collector = createCollector(true);
 		IInstallableUnit installed = createIU("installed");
 		IInstallableUnit notInstalled = createIU("notInstalled");
-		Query installedQuery = new InstallableUnitQuery("installed");
-		ElementQueryDescriptor installedDescriptor = new ElementQueryDescriptor(new MockQueryable(installed), installedQuery, new Collector());
-		assertTrue("1.0", installedDescriptor.isComplete());
-		collector.hideInstalledIUs(installedDescriptor);
+		install(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
+		collector.markInstalledIUs(profile, true);
 
 		//now feed in the installed and non-installed units, and the installed unit should be ignored.
 		collector.accept(installed);
