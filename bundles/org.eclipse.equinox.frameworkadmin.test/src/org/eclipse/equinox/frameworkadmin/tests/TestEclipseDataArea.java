@@ -46,12 +46,14 @@ public class TestEclipseDataArea extends FwkAdminAndSimpleConfiguratorTest {
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 
-		m.getConfigData().setProperty("eclipse.p2.data.area", "file:d:/tmp/foo/bar/p2");
+		m.getConfigData().setProperty("eclipse.p2.data.area", "file:/d:/tmp/foo/bar/p2");
 		m.save(false);
 		assertContent(getConfigIni(), "/tmp/foo/bar/p2");
+		assertNotContent(getConfigIni(), "@config.dir");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "/tmp/foo/bar/p2");
+		assertNotContent(getConfigIni(), "@config.dir");
 
 	}
 }
