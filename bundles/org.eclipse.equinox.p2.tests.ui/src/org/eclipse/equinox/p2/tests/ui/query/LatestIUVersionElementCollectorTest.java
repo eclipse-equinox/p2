@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.tests.MockQueryable;
 import org.osgi.framework.Version;
 
 /**
- * Tests for {@link LatestIUVersionCollector}. This has all the tests of the superclass,
+ * Tests for {@link LatestIUVersionElementCollector}. This has all the tests of the superclass,
  * plus some extras for testing the latest IU capabilities.
  */
 public class LatestIUVersionElementCollectorTest extends AvailableIUCollectorTest {
