@@ -85,7 +85,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			return ProvUIImages.getImage(ProvUIImages.IMG_PROFILE);
 		}
 		if (obj instanceof IInstallableUnit) {
-			return ProvUIImages.getImage(ProvUIImages.IMG_UNINSTALLED_IU);
+			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
 		if (obj instanceof IArtifactRepository) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_ARTIFACT_REPOSITORY);
@@ -97,7 +97,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 		}
 		if (obj instanceof RequiredCapability) {
-			return ProvUIImages.getImage(ProvUIImages.IMG_UNINSTALLED_IU);
+			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
 		return null;
 	}

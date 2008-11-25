@@ -36,7 +36,7 @@ public class ProvUIImages {
 	public final static String IMG_ARTIFACT_REPOSITORY = "obj/artifact_repo_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_METADATA_REPOSITORY = "obj/metadata_repo_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_UNINSTALLED_IU = "obj/uninstalled_iu_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_DISABLED_IU = "obj/uninstalled_iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
 	// tools
