@@ -37,7 +37,7 @@ final class AutomaticUpdateAction extends UpdateAction {
 	private boolean suppressWizard = false;
 
 	AutomaticUpdateAction(AutomaticUpdater automaticUpdater, ISelectionProvider selectionProvider, String profileId) {
-		super(Policy.getDefault(), selectionProvider, profileId, false);
+		super(new Policy(), selectionProvider, profileId, false);
 		this.automaticUpdater = automaticUpdater;
 	}
 
