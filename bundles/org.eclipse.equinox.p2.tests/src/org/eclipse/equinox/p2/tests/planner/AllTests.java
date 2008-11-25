@@ -72,6 +72,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTestUpdate.class);
 		suite.addTestSuite(PatchTestUpdate2.class);
 		suite.addTestSuite(PatchTestUpdate3.class);
+		suite.addTestSuite(PatchTestUpdate4.class);
+		suite.addTestSuite(PatchTestUpdate5.class);
 		suite.addTestSuite(PP2ShouldFailToInstall.class);
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
