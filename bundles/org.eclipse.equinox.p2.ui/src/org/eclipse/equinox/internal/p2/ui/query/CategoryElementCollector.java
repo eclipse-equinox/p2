@@ -30,6 +30,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 
 	private boolean groupUncategorized;
 	private Set referredIUs = new HashSet();
+	private boolean dummyCategoryCreated = false;
 
 	public CategoryElementCollector(IQueryable queryable, Object parent, boolean showUncategorized) {
 		super(queryable, parent);
@@ -66,7 +67,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	}
 
 	private void cleanList() {
-		if (groupUncategorized)
+		if (groupUncategorized && !dummyCategoryCreated)
 			createDummyCategory();
 		removeNestedCategories();
 	}
@@ -131,8 +132,10 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		// referred to.
 		ElementQueryDescriptor queryDescriptor = element.getQueryProvider().getQueryDescriptor(element);
 		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
-		if (!collector.isEmpty())
+		if (!collector.isEmpty()) {
 			getCollection().add(element);
+			dummyCategoryCreated = true;
+		}
 	}
 
 	private void removeNestedCategories() {

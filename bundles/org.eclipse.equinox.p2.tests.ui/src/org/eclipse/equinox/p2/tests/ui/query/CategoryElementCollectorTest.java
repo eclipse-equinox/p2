@@ -50,6 +50,16 @@ public class CategoryElementCollectorTest extends QueryTest {
 	}
 
 	/**
+	 * Regression test for bug 256029 - multiple uncategorized categories created
+	 */
+	public void testBug256029() {
+		//if we have an uncategorized category, the collector is not initially empty
+		CategoryElementCollector collector = createCollector(true);
+		assertTrue("1.0", !collector.isEmpty());
+		assertEquals("1.1", collector.size(), 1);
+	}
+
+	/**
 	 * Tests for the {@link Collector#size()} method.
 	 */
 	public void testSize() {
