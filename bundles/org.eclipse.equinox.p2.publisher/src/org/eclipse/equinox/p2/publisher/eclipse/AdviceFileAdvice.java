@@ -92,7 +92,13 @@ public class AdviceFileAdvice implements ITouchpointAdvice {
 	}
 
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
-		return false;
+		// when to turn this on?  for now only when the p2.inf exists on disk.  It may be too expensive to grab 
+		// it out of jars when looking at an old update site.
+		File location = basePath.toFile();
+		if (location == null || !location.isDirectory())
+			return false;
+
+		return new File(location, adviceFilePath.toString()).exists();
 	}
 
 	/*(non-Javadoc)
@@ -105,8 +111,8 @@ public class AdviceFileAdvice implements ITouchpointAdvice {
 			String key = (String) iterator.next();
 			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
 				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
-				String instruction = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
-				if (instruction.length() > 0)
+				String instruction = touchpointData.containsKey(phase) ? ((TouchpointInstruction) touchpointData.get(phase)).getBody() : ""; //$NON-NLS-1$
+				if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
 					instruction += ";"; //$NON-NLS-1$
 				instruction += ((String) bundleAdvice.get(key)).trim();
 				touchpointData.put(phase, instruction);
