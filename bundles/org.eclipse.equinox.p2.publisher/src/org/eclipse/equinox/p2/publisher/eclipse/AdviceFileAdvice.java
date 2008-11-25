@@ -111,9 +111,13 @@ public class AdviceFileAdvice implements ITouchpointAdvice {
 			String key = (String) iterator.next();
 			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
 				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
-				String instruction = touchpointData.containsKey(phase) ? ((TouchpointInstruction) touchpointData.get(phase)).getBody() : ""; //$NON-NLS-1$
-				if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
-					instruction += ";"; //$NON-NLS-1$
+				String instruction = ""; //$NON-NLS-1$
+				if (touchpointData.containsKey(phase)) {
+					Object previous = touchpointData.get(phase);
+					instruction = previous instanceof TouchpointInstruction ? ((TouchpointInstruction) previous).getBody() : (String) previous;
+					if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
+						instruction += ";"; //$NON-NLS-1$
+				}
 				instruction += ((String) bundleAdvice.get(key)).trim();
 				touchpointData.put(phase, instruction);
 			}
