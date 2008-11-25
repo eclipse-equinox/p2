@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -104,21 +103,11 @@ public abstract class StructuredIUGroup {
 	}
 
 	public IInstallableUnit[] getSelectedIUs() {
-		return elementsToIUs(((IStructuredSelection) viewer.getSelection()).toList());
+		return ElementUtils.elementsToIUs(getSelectedIUElements());
 	}
 
-	protected IInstallableUnit[] elementsToIUs(List elements) {
-		List iusList = new ArrayList(elements.size());
-		for (int i = 0; i < elements.size(); i++) {
-			IInstallableUnit iu = getIU(elements.get(i));
-			if (iu != null)
-				iusList.add(iu);
-		}
-		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
-	}
-
-	protected IInstallableUnit getIU(Object element) {
-		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+	public Object[] getSelectedIUElements() {
+		return ((IStructuredSelection) viewer.getSelection()).toArray();
 	}
 
 	protected int convertHorizontalDLUsToPixels(int dlus) {

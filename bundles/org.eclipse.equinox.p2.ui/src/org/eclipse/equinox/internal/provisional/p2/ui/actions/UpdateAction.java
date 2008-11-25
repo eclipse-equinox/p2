@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.PlanStatusHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -29,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class UpdateAction extends ExistingIUInProfileAction {
 
-	ArrayList allReplacements; // cache all the replacements found to seed the wizard
+	IUElementListRoot root; // root that will be used to seed the wizard
 	HashMap latestReplacements;
 	boolean resolveIsVisible = true;
 
@@ -42,10 +43,10 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		// Caches should have been created while formulating the plan
 		Assert.isNotNull(latestReplacements);
-		Assert.isNotNull(allReplacements);
+		Assert.isNotNull(root);
 		Assert.isNotNull(plan);
 
-		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan);
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), plan);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
@@ -57,7 +58,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		// Here we create a profile change request by finding the latest version available for any replacement.
 		ArrayList toBeUpdated = new ArrayList();
 		latestReplacements = new HashMap();
-		allReplacements = new ArrayList();
+		ArrayList allReplacements = new ArrayList();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, ius.length);
 		for (int i = 0; i < ius.length; i++) {
 			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(new Updates(targetProfileId, new IInstallableUnit[] {ius[i]}));
@@ -65,14 +66,16 @@ public class UpdateAction extends ExistingIUInProfileAction {
 			if (iter.hasNext())
 				toBeUpdated.add(ius[i]);
 			ArrayList currentReplacements = new ArrayList();
+			root = new IUElementListRoot();
 			while (iter.hasNext()) {
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 				if (iu != null) {
-					AvailableUpdateElement element = new AvailableUpdateElement(null, iu, ius[i], targetProfileId);
+					AvailableUpdateElement element = new AvailableUpdateElement(root, iu, ius[i], targetProfileId, true);
 					currentReplacements.add(element);
 					allReplacements.add(element);
 				}
 			}
+			root.setChildren(allReplacements.toArray());
 			for (int j = 0; j < currentReplacements.size(); j++) {
 				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
 				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());

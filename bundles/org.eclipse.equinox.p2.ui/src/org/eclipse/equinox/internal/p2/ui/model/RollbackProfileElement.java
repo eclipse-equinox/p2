@@ -137,4 +137,11 @@ public class RollbackProfileElement extends RemoteQueriedElement implements IIUE
 	public RequiredCapability[] getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
+	 */
+	public boolean shouldShowChildren() {
+		return false;
+	}
 }

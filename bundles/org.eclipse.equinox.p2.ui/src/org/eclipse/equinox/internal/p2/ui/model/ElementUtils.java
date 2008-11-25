@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.swt.widgets.Shell;
@@ -68,6 +69,22 @@ public class ElementUtils {
 			}
 		};
 		job.schedule();
+	}
+
+	public static IInstallableUnit getIU(Object element) {
+		if (element instanceof IInstallableUnit)
+			return (IInstallableUnit) element;
+		if (element instanceof IIUElement)
+			return ((IIUElement) element).getIU();
+		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+	}
+
+	public static IInstallableUnit[] elementsToIUs(Object[] elements) {
+		IInstallableUnit[] theIUs = new IInstallableUnit[elements.length];
+		for (int i = 0; i < elements.length; i++) {
+			theIUs[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+		}
+		return theIUs;
 	}
 
 	static boolean containsURI(URI[] locations, URI url) {

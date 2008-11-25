@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
@@ -35,7 +34,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
-public class AvailableIUsPage extends WizardPage {
+public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 	private static final String DIALOG_SETTINGS_SECTION = "AvailableIUsPage"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
@@ -43,9 +42,9 @@ public class AvailableIUsPage extends WizardPage {
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_WIDTH = 300;
 
-	InstallWizard wizard;
 	String profileId;
 	Policy policy;
+	Object[] initialSelections;
 	QueryableMetadataRepositoryManager manager;
 	IUViewQueryContext queryContext;
 	AvailableIUGroup availableIUGroup;
@@ -56,11 +55,10 @@ public class AvailableIUsPage extends WizardPage {
 	StructuredViewerProvisioningListener profileListener;
 	Display display;
 
-	public AvailableIUsPage(Policy policy, String profileId, InstallWizard wizard, QueryableMetadataRepositoryManager manager) {
+	public AvailableIUsPage(Policy policy, String profileId, QueryableMetadataRepositoryManager manager) {
 		super("AvailableSoftwarePage"); //$NON-NLS-1$
 		this.policy = policy;
 		this.profileId = profileId;
-		this.wizard = wizard;
 		this.manager = manager;
 		makeQueryContext();
 		setTitle(ProvUIMessages.AvailableIUsPage_Title);
@@ -353,6 +351,9 @@ public class AvailableIUsPage extends WizardPage {
 		showInstalledCheckbox.setSelection(!queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
 		availableIUGroup.updateTreeColumns();
+		if (initialSelections != null)
+			availableIUGroup.setInitialSelections(initialSelections);
+
 		Control focusControl = null;
 		focusControl = availableIUGroup.getDefaultFocusControl();
 		if (focusControl != null)
@@ -452,5 +453,29 @@ public class AvailableIUsPage extends WizardPage {
 	 */
 	public boolean canFlipToNextPage() {
 		return isPageComplete();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#getCheckedIUElements()
+	 */
+	public Object[] getCheckedIUElements() {
+		return availableIUGroup.getCheckedLeafIUs();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#getSelectedIUElements()
+	 */
+	public Object[] getSelectedIUElements() {
+		return availableIUGroup.getSelectedIUElements();
+	}
+
+	/**
+	 * Set the initial selections to be used in this page.  This method has no effect
+	 * once the page has been created.
+	 * 
+	 * @param elements
+	 */
+	public void setInitialSelections(Object[] elements) {
+		initialSelections = elements;
 	}
 }

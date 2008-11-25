@@ -266,8 +266,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Get the selected IU's
 	 * @return the array of selected IU's
 	 */
+	// overridden for visibility in the public package
 	public IInstallableUnit[] getSelectedIUs() {
 		return super.getSelectedIUs();
+	}
+
+	// overridden for visibility
+	public Object[] getSelectedIUElements() {
+		return super.getSelectedIUElements();
 	}
 
 	public CheckboxTreeViewer getCheckboxTreeViewer() {
@@ -413,5 +419,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		GridData data = super.getViewerGridData();
 		data.heightHint = convertVerticalDLUsToPixels(240);
 		return data;
+	}
+
+	// TODO this is potentially very expensive if used indiscriminately, need to doc the
+	// expected preconditions
+	public void setInitialSelections(Object[] selections) {
+		for (int i = 0; i < selections.length; i++) {
+			getCheckboxTreeViewer().expandToLevel(selections[i], AbstractTreeViewer.ALL_LEVELS);
+			getCheckboxTreeViewer().setSubtreeChecked(selections[i], true);
+		}
 	}
 }

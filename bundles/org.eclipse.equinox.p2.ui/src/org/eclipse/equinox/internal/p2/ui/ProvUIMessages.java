@@ -64,6 +64,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationAction_NoChangeRequestProvided;
 	public static String ProfileModificationAction_NoExplanationProvided;
+	public static String ProfileModificationAction_NoProfileOrSelection;
 	public static String ProfileModificationAction_NoProfileToModify;
 	public static String ProfileModificationAction_ResolutionOperationLabel;
 	public static String ProfileModificationAction_UnexpectedError;
@@ -95,11 +96,14 @@ public class ProvUIMessages extends NLS {
 	public static String InstallIUCommandTooltip;
 	public static String InstallIUProgress;
 	public static String InstallWizardPage_NoCheckboxDescription;
+	public static String InstallWizardPage_Title;
 	public static String UninstallDialog_UninstallMessage;
 	public static String UninstallIUOperationLabel;
 	public static String UninstallIUCommandLabel;
 	public static String UninstallIUCommandTooltip;
 	public static String UninstallIUProgress;
+	public static String UninstallWizardPage_Description;
+	public static String UninstallWizardPage_Title;
 	public static String UpdateIUOperationLabel;
 	public static String UpdateIUCommandLabel;
 	public static String UpdateIUCommandTooltip;
@@ -238,5 +242,7 @@ public class ProvUIMessages extends NLS {
 	public static String ServiceUI_OK;
 	public static String UpdateOrInstallWizardPage_Size;
 	public static String Updates_Label;
+	public static String UpdateWizardPage_Description;
+	public static String UpdateWizardPage_Title;
 
 }

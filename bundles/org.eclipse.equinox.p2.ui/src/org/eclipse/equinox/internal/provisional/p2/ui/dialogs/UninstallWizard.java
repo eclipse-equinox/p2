@@ -10,42 +10,52 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.UninstallWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class UninstallWizard extends Wizard {
+public class UninstallWizard extends ProvisioningOperationWizard {
 
-	UninstallWizardPage page;
-	Policy policy;
-	String profileId;
-	IInstallableUnit[] ius;
-	ProvisioningPlan plan;
+	static IUElementListRoot makeElementRoot(Object[] selectedElements, String profileId) {
+		IUElementListRoot elementRoot = new IUElementListRoot();
+		ArrayList list = new ArrayList(selectedElements.length);
+		for (int i = 0; i < selectedElements.length; i++) {
+			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
+			if (iu != null)
+				list.add(new InstalledIUElement(elementRoot, profileId, iu));
+		}
+		elementRoot.setChildren(list.toArray());
+		return elementRoot;
+	}
 
-	public UninstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, ProvisioningPlan initialProvisioningPlan) {
-		super();
-		this.policy = policy;
+	public UninstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, ProvisioningPlan initialPlan) {
+		super(policy, profileId, makeElementRoot(ius, profileId), ius, initialPlan);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
-		this.profileId = profileId;
-		this.ius = ius;
-		this.plan = initialProvisioningPlan;
 	}
 
-	public void addPages() {
-		page = new UninstallWizardPage(policy, ius, profileId, plan);
-		addPage(page);
+	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
+		ISelectableIUsPage page = new SelectableIUsPage(policy, profileId, input, selections, profileId);
+		page.setTitle(ProvUIMessages.UninstallIUOperationLabel);
+		page.setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
+		return page;
 	}
 
-	public boolean performFinish() {
-		return page.performFinish();
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, ProvisioningPlan plan) {
+		return new UninstallWizardPage(policy, input, profileId, plan);
 	}
 
+	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
+		return makeElementRoot(selectedElements, profileId);
+	}
 }

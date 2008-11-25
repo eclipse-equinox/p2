@@ -52,4 +52,6 @@ public interface IIUElement {
 	public RequiredCapability[] getRequirements();
 
 	public Object getParent(Object obj);
+
+	public boolean shouldShowChildren();
 }

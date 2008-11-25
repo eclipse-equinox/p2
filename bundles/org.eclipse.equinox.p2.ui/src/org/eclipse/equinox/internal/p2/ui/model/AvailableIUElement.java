@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
@@ -34,6 +35,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	IInstallableUnit iu;
+	boolean shouldShowChildren = Policy.getDefault().getQueryContext().getShowAvailableChildren();
+
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
 	// If we reinstate the ability to compute individual sizes we would
@@ -43,10 +46,11 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	long size = IIUElement.SIZE_UNKNOWN;
 	String profileID;
 
-	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID) {
+	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID, boolean showChildren) {
 		super(parent);
 		this.iu = iu;
 		this.profileID = profileID;
+		this.shouldShowChildren = showChildren;
 	}
 
 	/*
@@ -119,5 +123,36 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	 */
 	public RequiredCapability[] getRequirements() {
 		return iu.getRequiredCapabilities();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
+	 */
+	public boolean shouldShowChildren() {
+		return shouldShowChildren;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof AvailableIUElement))
+			return false;
+		if (iu == null)
+			return false;
+		return iu.equals(((AvailableIUElement) obj).getIU());
+	}
+
+	public int hashCode() {
+		if (iu == null)
+			return 0;
+		return iu.hashCode();
+	}
+
+	public String toString() {
+		if (iu == null)
+			return "NULL"; //$NON-NLS-1$
+		return iu.toString();
 	}
 }

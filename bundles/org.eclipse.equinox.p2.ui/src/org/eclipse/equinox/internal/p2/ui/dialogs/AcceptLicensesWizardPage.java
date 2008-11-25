@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.util.*;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -92,10 +93,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_ItemsLabel);
 		iuViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		setTableColumns(iuViewer.getTable());
-		iuViewer.setContentProvider(new StaticContentProvider(iusWithUnacceptedLicenses));
+		iuViewer.setContentProvider(new ProvElementContentProvider());
 		iuViewer.setLabelProvider(new IUDetailsLabelProvider());
 		iuViewer.setComparator(new ViewerComparator());
-		iuViewer.setInput(iusWithUnacceptedLicenses);
+		iuViewer.setInput(new IUElementListRoot(iusWithUnacceptedLicenses));
 
 		iuViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {

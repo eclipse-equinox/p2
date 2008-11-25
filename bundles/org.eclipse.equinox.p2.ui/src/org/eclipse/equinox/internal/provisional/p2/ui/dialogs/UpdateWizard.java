@@ -11,74 +11,50 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.AcceptLicensesWizardPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.UpdateWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class UpdateWizard extends Wizard {
-	UpdateWizardPage mainPage;
-	Policy policy;
-	AcceptLicensesWizardPage licensePage;
-	protected String profileId;
-	protected IInstallableUnit[] ius;
-	ProvisioningPlan plan;
-	AvailableUpdateElement[] elements;
-	Object[] initialSelections;
+public class UpdateWizard extends WizardWithLicenses {
+	IInstallableUnit[] iusToReplace;
 
-	public UpdateWizard(Policy policy, String profileId, IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, ProvisioningPlan plan) {
-		super();
-		this.policy = policy;
-		setForcePreviousAndNextButtons(true);
-		setNeedsProgressMonitor(true);
-		this.profileId = profileId;
-		this.ius = iusToReplace;
+	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan) {
+		super(policy, profileId, root, initialSelections, initialPlan);
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
-		this.plan = plan;
-		this.elements = elements;
-		this.initialSelections = initialSelections;
 	}
 
-	public void addPages() {
-		addPage(mainPage = createMainPage());
-		addPage(licensePage = createLicensesPage());
+	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
+		SelectableIUsPage page = new SelectableIUsPage(policy, profileId, input, selections, profileId);
+		page.setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
+		page.setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
+		return page;
 	}
 
-	protected UpdateWizardPage createMainPage() {
-		return new UpdateWizardPage(policy, ius, elements, initialSelections, profileId, plan, this);
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot root, ProvisioningPlan plan) {
+		return new UpdateWizardPage(policy, root, profileId, plan);
 	}
 
-	protected AcceptLicensesWizardPage createLicensesPage() {
-		return new AcceptLicensesWizardPage(policy, UpdateWizardPage.getReplacementIUs(initialSelections), plan);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
-	 */
-	public IWizardPage getNextPage(IWizardPage page) {
-		if (page == mainPage && licensePage.hasLicensesToAccept())
-			return licensePage;
-		return null;
-	}
-
-	public boolean performFinish() {
-		licensePage.performFinish();
-		return mainPage.performFinish();
-	}
-
-	public void planChanged(IInstallableUnit[] selectedIUs, ProvisioningPlan newPlan) {
-		this.ius = selectedIUs;
-		licensePage.update(selectedIUs, newPlan);
+	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
+		IUElementListRoot elementRoot = new IUElementListRoot();
+		ArrayList list = new ArrayList(selectedElements.length);
+		for (int i = 0; i < selectedElements.length; i++) {
+			if (selectedElements[i] instanceof AvailableUpdateElement) {
+				AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
+				AvailableUpdateElement newElement = new AvailableUpdateElement(elementRoot, element.getIU(), element.getIUToBeUpdated(), profileId, policy.getQueryContext().getShowProvisioningPlanChildren());
+				list.add(newElement);
+			}
+		}
+		elementRoot.setChildren(list.toArray());
+		return elementRoot;
 	}
 }

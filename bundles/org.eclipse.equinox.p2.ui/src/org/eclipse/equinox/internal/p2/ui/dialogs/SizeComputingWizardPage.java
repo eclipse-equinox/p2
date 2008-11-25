@@ -15,9 +15,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.osgi.util.NLS;
@@ -30,20 +31,15 @@ import org.eclipse.swt.widgets.Label;
  * 
  * @since 3.5
  */
-public abstract class SizeComputingWizardPage extends ProfileModificationWizardPage {
-	/**
-	 * @param id
-	 * @param ius
-	 * @param profileID
-	 * @param initialPlan
-	 */
-	protected SizeComputingWizardPage(Policy policy, String id, IInstallableUnit[] ius, String profileID, ProvisioningPlan initialPlan) {
-		super(policy, id, ius, profileID, initialPlan);
+public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
+
+	protected SizeComputingWizardPage(Policy policy, String id, IUElementListRoot root, String profileID, ProvisioningPlan initialPlan) {
+		super(policy, id, root, profileID, initialPlan);
 	}
 
 	protected Label sizeInfo;
 	protected long size;
-	private Job sizingJob;
+	Job sizingJob;
 
 	protected void computeSizing(final ProvisioningPlan plan, final String profileId) {
 		size = IIUElement.SIZE_UNKNOWN;
@@ -114,8 +110,12 @@ public abstract class SizeComputingWizardPage extends ProfileModificationWizardP
 		}
 	}
 
-	protected void checkedIUsChanged() {
-		super.checkedIUsChanged();
+	public void recomputePlan(IUElementListRoot root) {
+		super.recomputePlan(root);
 		computeSizing(getCurrentPlan(), getProfileId());
+	}
+
+	protected IQueryable getQueryable(ProvisioningPlan plan) {
+		return plan.getAdditions();
 	}
 }

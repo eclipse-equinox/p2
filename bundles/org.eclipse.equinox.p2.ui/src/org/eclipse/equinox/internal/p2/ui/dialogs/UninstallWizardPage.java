@@ -13,26 +13,32 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
-public class UninstallWizardPage extends ProfileModificationWizardPage {
+public class UninstallWizardPage extends ResolutionWizardPage {
 
-	public UninstallWizardPage(Policy policy, IInstallableUnit[] ius, String profileId, ProvisioningPlan plan) {
-		super(policy, "UninstallWizard", ius, profileId, plan); //$NON-NLS-1$
-		setTitle(ProvUIMessages.UninstallIUOperationLabel);
-		setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
+	public UninstallWizardPage(Policy policy, IUElementListRoot root, String profileId, ProvisioningPlan initialPlan) {
+		super(policy, "UninstallWizard", root, profileId, initialPlan); //$NON-NLS-1$
+		setTitle(ProvUIMessages.UninstallWizardPage_Title);
+		setDescription(ProvUIMessages.UninstallWizardPage_Description);
 	}
 
 	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
-		request.removeInstallableUnits(elementsToIUs(selectedElements));
+		request.removeInstallableUnits(ElementUtils.elementsToIUs(selectedElements));
 		return request;
 	}
 
 	protected String getOperationLabel() {
 		return ProvUIMessages.UninstallIUOperationLabel;
+	}
+
+	protected IQueryable getQueryable(ProvisioningPlan plan) {
+		return plan.getRemovals();
 	}
 }

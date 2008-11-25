@@ -10,38 +10,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class InstallWizard extends Wizard {
+public class InstallWizard extends WizardWithLicenses {
 
-	Policy policy;
-	AvailableIUsPage mainPage;
-	InstallWizardPage resolutionPage;
-	AcceptLicensesWizardPage licensePage;
 	QueryableMetadataRepositoryManager manager;
-	String profileId;
-	IInstallableUnit[] ius;
-	ProvisioningPlan plan;
 
-	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, ProvisioningPlan plan, QueryableMetadataRepositoryManager manager) {
-		this.policy = policy;
-		this.profileId = profileId;
-		this.plan = plan;
-		this.ius = ius;
+	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, ProvisioningPlan initialPlan, QueryableMetadataRepositoryManager manager) {
+		super(policy, profileId, null, initialSelections, initialPlan);
 		this.manager = manager;
-		setForcePreviousAndNextButtons(true);
-		setNeedsProgressMonitor(true);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
 	}
@@ -50,51 +38,27 @@ public class InstallWizard extends Wizard {
 		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy, false));
 	}
 
-	protected InstallWizardPage createResolutionPage() {
-		return new InstallWizardPage(policy, profileId, ius, plan, this);
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, ProvisioningPlan initialPlan) {
+		return new InstallWizardPage(policy, profileId, input, initialPlan);
 	}
 
-	protected AvailableIUsPage createMainPage() {
-		return new AvailableIUsPage(policy, profileId, this, manager);
+	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
+		AvailableIUsPage page = new AvailableIUsPage(policy, profileId, manager);
+		if (selections != null && selections.length > 0)
+			page.setInitialSelections(selections);
+		return page;
+
 	}
 
-	protected AcceptLicensesWizardPage createLicensesPage() {
-		return new AcceptLicensesWizardPage(policy, ius, plan);
-	}
-
-	public void addPages() {
-		// If the ius are already established, we don't need the first page
-		if (ius == null)
-			addPage(mainPage = createMainPage());
-		addPage(resolutionPage = createResolutionPage());
-		addPage(licensePage = createLicensesPage());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
-	 */
-	public IWizardPage getNextPage(IWizardPage page) {
-		if (page == mainPage) {
-			resolutionPage.updateIUs();
-			licensePage.update(resolutionPage.getSelectedIUs(), resolutionPage.getCurrentPlan());
-			return resolutionPage;
+	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
+		IUElementListRoot elementRoot = new IUElementListRoot();
+		ArrayList list = new ArrayList(selectedElements.length);
+		for (int i = 0; i < selectedElements.length; i++) {
+			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
+			if (iu != null)
+				list.add(new AvailableIUElement(elementRoot, iu, profileId, policy.getQueryContext().getShowProvisioningPlanChildren()));
 		}
-		if (page == resolutionPage && licensePage.hasLicensesToAccept())
-			return licensePage;
-		return null;
-	}
-
-	public boolean performFinish() {
-		if (mainPage != null)
-			mainPage.performFinish();
-		licensePage.performFinish();
-		return resolutionPage.performFinish();
-	}
-
-	public IInstallableUnit[] getCheckedIUs() {
-		if (mainPage == null)
-			return resolutionPage.getSelectedIUs();
-		return mainPage.getCheckedIUs();
+		elementRoot.setChildren(list.toArray());
+		return elementRoot;
 	}
 }

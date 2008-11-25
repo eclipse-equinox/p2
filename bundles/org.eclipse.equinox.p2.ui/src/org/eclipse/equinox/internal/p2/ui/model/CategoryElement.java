@@ -104,4 +104,11 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return requirements;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
+	 */
+	public boolean shouldShowChildren() {
+		return true;
+	}
+
 }
