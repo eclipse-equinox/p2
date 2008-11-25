@@ -64,6 +64,6 @@ public class InstallActionTest extends ProfileModificationActionTest {
 	}
 
 	protected IIUElement element(IInstallableUnit iu) {
-		return new AvailableIUElement(null, iu, profile.getProfileId());
+		return new AvailableIUElement(null, iu, profile.getProfileId(), true);
 	}
 }

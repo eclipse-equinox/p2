@@ -103,9 +103,9 @@ public class DefaultQueryProvider extends QueryProvider {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUCollector collector;
 						if (showLatest)
-							collector = new LatestIUVersionElementCollector(queryable, element, false);
+							collector = new LatestIUVersionElementCollector(queryable, element, false, context.getShowAvailableChildren());
 						else
-							collector = new AvailableIUCollector(queryable, element, false);
+							collector = new AvailableIUCollector(queryable, element, false, context.getShowAvailableChildren());
 						if (hideInstalled && installedQueryDescriptor != null)
 							collector.hideInstalledIUs(installedQueryDescriptor);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, collector);
@@ -119,23 +119,23 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (element instanceof UncategorizedCategoryElement) {
 					// Will have to look at all categories and groups and from there, figure out what's left
 					Query firstPassQuery = new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false);
-					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(queryable, element, false) : new AvailableIUCollector(queryable, element, false);
+					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(queryable, element, false, context.getShowAvailableChildren()) : new AvailableIUCollector(queryable, element, false, context.getShowAvailableChildren());
 					if (hideInstalled && installedQueryDescriptor != null)
 						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
 					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(queryable, element, availableIUCollector));
 
 				}
-				// If it's a category, we get the requirements and show all requirements
-				// that are also visible in the available list.  Note this same query could be used to drill
-				// down into any IU's requirements, but we choose not to do this (yet) in the available view.
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=226577
-				// if (element instanceof IUElement) {
-				if (element instanceof CategoryElement) {
+				// If it's a category or some other IUElement to drill down in, we get the requirements and show all requirements
+				// that are also visible in the available list.  
+				if (element instanceof CategoryElement || (element instanceof IIUElement && ((IIUElement) element).shouldShowChildren())) {
+					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
+					// continue to do so.
+					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
 					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					if (showLatest)
-						availableIUCollector = new LatestIUVersionElementCollector(queryable, element, true);
+						availableIUCollector = new LatestIUVersionElementCollector(queryable, element, true, drillDown);
 					else
-						availableIUCollector = new AvailableIUCollector(queryable, element, true);
+						availableIUCollector = new AvailableIUCollector(queryable, element, true, drillDown);
 					if (hideInstalled && installedQueryDescriptor != null)
 						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
 					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false), meetsAnyRequirementQuery}, true), availableIUCollector);
@@ -164,16 +164,15 @@ public class DefaultQueryProvider extends QueryProvider {
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
 				if (context.getShowLatestVersionsOnly())
-					collector = new LatestIUVersionCollector(updateQueryable, element, true);
+					collector = new LatestIUVersionElementCollector(updateQueryable, element, true, false);
 				else
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case QueryProvider.INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
-				if (element instanceof IIUElement) {
+				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					Query visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
-					availableIUCollector = new AvailableIUCollector(queryable, element, true);
 					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new InstalledIUCollector(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);

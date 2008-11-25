@@ -29,10 +29,12 @@ public class AvailableIUCollector extends QueriedElementCollector {
 	private ElementQueryDescriptor installedQueryDescriptor;
 	private boolean hideInstalledIUs = false;
 	Collection installedElements = null;
+	private boolean drillDownChild = false;
 
-	public AvailableIUCollector(IQueryable queryable, Object parent, boolean makeCategories) {
+	public AvailableIUCollector(IQueryable queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
 		super(queryable, parent);
 		this.makeCategories = makeCategories;
+		this.drillDownChild = makeDrillDownChild;
 	}
 
 	public void hideInstalledIUs(ElementQueryDescriptor installedQuery) {
@@ -71,7 +73,9 @@ public class AvailableIUCollector extends QueriedElementCollector {
 	}
 
 	protected Object makeDefaultElement(IInstallableUnit iu) {
-		return new AvailableIUElement(parent, iu, null);
+		if (parent instanceof AvailableIUElement)
+			drillDownChild = ((AvailableIUElement) parent).shouldShowChildren();
+		return new AvailableIUElement(parent, iu, null, drillDownChild);
 	}
 
 	protected boolean isCategory(IInstallableUnit iu) {

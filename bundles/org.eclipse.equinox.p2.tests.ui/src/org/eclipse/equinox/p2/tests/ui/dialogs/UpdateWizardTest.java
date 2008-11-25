@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -30,7 +29,7 @@ public class UpdateWizardTest extends AbstractProvisioningUITest {
 	public void testWizard() {
 		// this test is fairly useless until we seed it with real data and some mock profile, but
 		// at least we open the wizard up.
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), IProfileRegistry.SELF, new IInstallableUnit[0], new AvailableUpdateElement[0], new Object[0], null);
+		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), IProfileRegistry.SELF, new IUElementListRoot(), new Object[0], null);
 		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();

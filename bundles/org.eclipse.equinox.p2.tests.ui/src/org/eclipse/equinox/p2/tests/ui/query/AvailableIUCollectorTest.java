@@ -32,7 +32,7 @@ public class AvailableIUCollectorTest extends QueryTest {
 	}
 
 	protected AvailableIUCollector createCollector(boolean makeCategories) {
-		return new AvailableIUCollector(new MockQueryable(), null, makeCategories);
+		return new AvailableIUCollector(new MockQueryable(), null, makeCategories, true);
 	}
 
 	/**

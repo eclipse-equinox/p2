@@ -10,15 +10,53 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
 import org.eclipse.equinox.internal.p2.ui.query.LatestIUVersionElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.MockQueryable;
+import org.osgi.framework.Version;
 
 /**
- * 
+ * Tests for {@link LatestIUVersionCollector}. This has all the tests of the superclass,
+ * plus some extras for testing the latest IU capabilities.
  */
-public class LatestIUVersionElementCollectorTest extends LatestIUVersionCollectorTest {
+public class LatestIUVersionElementCollectorTest extends AvailableIUCollectorTest {
+
 	protected AvailableIUCollector createCollector(boolean makeCategories) {
-		return new LatestIUVersionElementCollector(new MockQueryable(), null, makeCategories);
+		return new LatestIUVersionElementCollector(new MockQueryable(), null, makeCategories, true);
+	}
+
+	/**
+	 * Returns the IU corresponding to the collected element.
+	 */
+	protected IInstallableUnit getIU(Object collected) {
+		if (collected instanceof IInstallableUnit)
+			return (IInstallableUnit) collected;
+		return ((IIUElement) collected).getIU();
+	}
+
+	/**
+	 * Tests collecting items AvailableIUCollector doesn't care about.
+	 */
+	public void testCollectObject() {
+		AvailableIUCollector collector = createCollector();
+		Object object = new Object();
+		collector.accept(object);
+		assertEquals("1.0", 0, collector.size());
+	}
+
+	/**
+	 * Tests that only the latest version is collected.
+	 */
+	public void testCollectLatestIU() {
+		AvailableIUCollector collector = createCollector();
+		IInstallableUnit unit1 = createIU("f1", new Version(1, 0, 0));
+		IInstallableUnit unit2 = createIU("f1", new Version(1, 0, 1));
+		collector.accept(unit1);
+		collector.accept(unit2);
+		assertEquals("1.0", 1, collector.size());
+		IInstallableUnit collectedIU = getIU(collector.iterator().next());
+		assertEquals("1.1", unit2, collectedIU);
 	}
 }

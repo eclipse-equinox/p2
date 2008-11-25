@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 public class RollbackIUCollector extends AvailableIUCollector {
 
 	public RollbackIUCollector(IQueryable queryable, Object parent) {
-		super(queryable, parent, false);
+		super(queryable, parent, false, true);
 	}
 
 	protected Object makeDefaultElement(IInstallableUnit iu) {

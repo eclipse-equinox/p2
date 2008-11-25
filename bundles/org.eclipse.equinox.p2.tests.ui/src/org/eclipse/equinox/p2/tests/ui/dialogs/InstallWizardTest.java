@@ -47,9 +47,12 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			// test initial wizard state
 			assertTrue(page1.getSelectedIUs().length == 0);
 			assertFalse(page1.isPageComplete());
-			assertFalse(page2.isPageComplete());
-			// no licenses selected
-			assertTrue(page3.isPageComplete());
+
+			// resolution page not created
+			assertNull(page2);
+
+			// no license page created yet
+			assertNull(page3);
 
 			// Test the API.  Note we aren't testing much about correctness since
 			// there is not a lot of API to test the state of the UI.  However

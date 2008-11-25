@@ -23,7 +23,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AvailableIUCollectorTest.class);
 		suite.addTestSuite(CategoryElementCollectorTest.class);
 		suite.addTestSuite(IUPropertyUtilsTest.class);
-		suite.addTestSuite(LatestIUVersionCollectorTest.class);
 		suite.addTestSuite(LatestIUVersionElementCollectorTest.class);
 		suite.addTestSuite(QueryableMetadataRepositoryManagerTest.class);
 		return suite;
