@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
+import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
@@ -27,7 +28,8 @@ public class Activator implements BundleActivator {
 		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
 		props.put(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
 		SimpleConfiguratorManipulatorImpl manipulator = new SimpleConfiguratorManipulatorImpl();
-		registration = context.registerService(ConfiguratorManipulator.class.getName(), manipulator, props);
+		String[] clazzes = new String[] {ConfiguratorManipulator.class.getName(), SimpleConfiguratorManipulator.class.getName()};
+		registration = context.registerService(clazzes, manipulator, props);
 	}
 
 	public void start(BundleContext bundleContext) throws Exception {

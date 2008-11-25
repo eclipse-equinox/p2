@@ -57,8 +57,8 @@ public class LazyManipulator implements Manipulator {
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
 		}
 		//TODO These values should be inserted by a configuration unit (bug 204124)
-		manipulator.getConfigData().setFwDependentProp("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$
-		manipulator.getConfigData().setFwDependentProp("eclipse.p2.data.area", Util.computeRelativeAgentLocation(profile)); //$NON-NLS-1$
+		manipulator.getConfigData().setProperty("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$
+		manipulator.getConfigData().setProperty("eclipse.p2.data.area", Util.computeRelativeAgentLocation(profile)); //$NON-NLS-1$
 	}
 
 	public static FrameworkAdmin getFrameworkAdmin() {

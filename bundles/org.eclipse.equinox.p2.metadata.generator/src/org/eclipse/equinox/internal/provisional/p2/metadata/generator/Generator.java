@@ -275,7 +275,7 @@ public class Generator {
 	private String[] getConfigurationStrings(ConfigData configData) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
-		for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
+		for (Iterator iterator = configData.getProperties().entrySet().iterator(); iterator.hasNext();) {
 			Entry aProperty = (Entry) iterator.next();
 			String key = ((String) aProperty.getKey());
 			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -283,7 +283,7 @@ public class Generator {
 			configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
+		for (Iterator iterator = configData.getProperties().entrySet().iterator(); iterator.hasNext();) {
 			Entry aProperty = (Entry) iterator.next();
 			String key = ((String) aProperty.getKey());
 			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

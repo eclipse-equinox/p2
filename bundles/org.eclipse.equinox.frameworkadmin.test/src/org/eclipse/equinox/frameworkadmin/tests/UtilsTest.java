@@ -9,7 +9,6 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
-import java.net.URL;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
@@ -35,13 +34,13 @@ public class UtilsTest extends AbstractFwkAdminTest {
 
 		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "eclipse"));
 
-		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo")), foo2.toURL());
-		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo_1.2.3.abc")), foo1.toURL());
-		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo.x86_64")), foo_64.toURL());
+		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), foo2.toURI());
+		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo_1.2.3.abc"), foo1.toURI());
+		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo.x86_64"), foo_64.toURI());
 
 		File other = new File(installFolder, "other/org.foo_1.2.4");
 		other.mkdirs();
-		manipulator.getConfigData().setFwDependentProp("osgi.syspath", other.getParentFile().getAbsolutePath());
-		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo")), other.toURL());
+		manipulator.getConfigData().setProperty("osgi.syspath", other.getParentFile().getAbsolutePath());
+		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), other.toURI());
 	}
 }

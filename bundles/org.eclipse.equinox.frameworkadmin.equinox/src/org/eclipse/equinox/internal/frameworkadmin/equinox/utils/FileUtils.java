@@ -10,42 +10,36 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.osgi.framework.Version;
 
 public class FileUtils {
-
 	private static String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static String REFERENCE_PROTOCOL = "reference:"; //$NON-NLS-1$
 	private static String INITIAL_PREFIX = "initial@"; //$NON-NLS-1$
 
-	/**
-	 * locations that are URLs are returned as is.  Otherwise, resolve the location against
-	 * the given Manipulator
-	 * 
-	 * @param manipulator
-	 * @param location
-	 * @return a URL string for the actual location, or null
-	 */
 	// based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchForBundle
-	public static String getEclipseRealLocation(final Manipulator manipulator, String location) {
+	public static URI getEclipseRealLocation(Manipulator manipulator, String location) {
 		//if this is some form of URL just return it
 		try {
 			new URL(location);
-			return location;
+			return URIUtil.makeAbsolute(URIUtil.fromString(location), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getLauncherData()).toURI());
+		} catch (URISyntaxException e) {
+			// expected
 		} catch (MalformedURLException e) {
-			//expected
+			// expected
 		}
 
 		File base = new File(location);
 		if (!base.isAbsolute()) {
-			String pluginsDir = getSyspath(manipulator);
+			String pluginsDir = getSysPath(manipulator);
 			if (pluginsDir == null)
 				return null;
 			base = new File(pluginsDir, location);
@@ -54,8 +48,9 @@ public class FileUtils {
 		return getEclipsePluginFullLocation(base.getName(), base.getParentFile());
 	}
 
-	private static String getSyspath(final Manipulator manipulator) {
-		Properties properties = manipulator.getConfigData().getFwDependentProps();
+	//This mimics the logic of EclipseStarter#getSysPath();
+	private static String getSysPath(final Manipulator manipulator) {
+		Properties properties = manipulator.getConfigData().getProperties();
 		String path = (String) properties.get(EquinoxConstants.PROP_OSGI_SYSPATH);
 		if (path != null)
 			return path;
@@ -82,7 +77,7 @@ public class FileUtils {
 		return null;
 	}
 
-	public static String getRealLocation(Manipulator manipulator, final String location, boolean useEclipse) {
+	public static String removeEquinoxSpecificProtocols(String location) {
 		if (location == null)
 			return null;
 		String ret = location;
@@ -90,11 +85,11 @@ public class FileUtils {
 			ret = location.substring(REFERENCE_PROTOCOL.length());
 		else if (location.startsWith(INITIAL_PREFIX))
 			ret = location.substring(INITIAL_PREFIX.length());
+		return ret;
+	}
 
-		if (!useEclipse)
-			return ret;
-
-		return FileUtils.getEclipseRealLocation(manipulator, ret);
+	public static URI getRealLocation(Manipulator manipulator, final String location) {
+		return FileUtils.getEclipseRealLocation(manipulator, removeEquinoxSpecificProtocols(location));
 	}
 
 	/**
@@ -125,7 +120,7 @@ public class FileUtils {
 	 * @return a URL string for the found plugin, or null
 	 */
 	// Based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchFor
-	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
+	public static URI getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
 		if (bundlesDir == null)
 			return null;
 		File[] candidates = bundlesDir.listFiles();
@@ -159,10 +154,54 @@ public class FileUtils {
 				result = candidates[i];
 			}
 		}
+		return result != null ? result.getAbsoluteFile().toURI() : null;
+	}
+
+	public static URI fromPath(String path) throws URISyntaxException {
+		File f = new File(path);
+		if (f.isAbsolute())
+			return f.toURI();
+		return URIUtil.fromString(FILE_PROTOCOL + path);
+	}
+
+	public static String toPath(URI uri) {
+		if (!FILE_PROTOCOL.equalsIgnoreCase(uri.getScheme()))
+			return new File(URIUtil.toUnencodedString(uri)).getPath();
+		return URIUtil.toFile(uri).getAbsolutePath();
+	}
+
+	public static String toFileURL(URI uri) {
+		if (uri.getScheme() != null)
+			return URIUtil.toUnencodedString(uri);
+		return FILE_PROTOCOL + URIUtil.toUnencodedString(uri);
+	}
+
+	public static URI fromFileURL(String url) throws URISyntaxException {
+		if (url.startsWith(FILE_PROTOCOL)) {
+			return URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length()));
+		}
+		throw new URISyntaxException(url, "Not a file url");
+	}
+
+	public static List loadFile(File file) throws IOException {
+		BufferedReader br = null;
 		try {
-			return result != null ? result.getAbsoluteFile().toURL().toExternalForm() : null;
-		} catch (MalformedURLException e) {
-			return null;
+			br = new BufferedReader(new FileReader(file));
+
+			String line;
+			List list = new ArrayList();
+			while ((line = br.readLine()) != null) {
+				list.add(line);
+			}
+			return list;
+		} finally {
+			if (br != null)
+				try {
+					br.close();
+				} catch (IOException e) {
+					//Ignore
+				}
 		}
 	}
+
 }

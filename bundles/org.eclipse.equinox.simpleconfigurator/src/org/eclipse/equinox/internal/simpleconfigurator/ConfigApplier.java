@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.simpleconfigurator;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
@@ -17,7 +18,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
-	private static final String LAST_BUNDLES_TXT = "last.bundles.info"; //$NON-NLS-1$
+	private static final String LAST_BUNDLES_INFO = "last.bundles.info"; //$NON-NLS-1$
 	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
 	private final BundleContext manipulatingContext;
@@ -27,18 +28,18 @@ class ConfigApplier {
 	private final boolean inDevMode;
 
 	private final Bundle callingBundle;
+	private final URI baseLocation;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		manipulatingContext = context;
 		this.callingBundle = callingBundle;
-		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
-		//System.out.println("vendor=" + vendor);
 		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
+		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
+
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
-
 		packageAdminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
 
 		ServiceReference startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
@@ -47,7 +48,15 @@ class ConfigApplier {
 		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
 	}
 
-	void install(BundleInfo[] expectedState, URL url, boolean exclusiveMode) {
+	void install(URL url, boolean exclusiveMode) throws IOException {
+		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url, baseLocation);
+		if (Activator.DEBUG)
+			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
+		if (bundleInfoList.size() == 0)
+			return;
+
+		BundleInfo[] expectedState = Utils.getBundleInfosFromList(bundleInfoList);
+
 		HashSet toUninstall = null;
 		if (!exclusiveMode) {
 			BundleInfo[] lastInstalledBundles = getLastState();
@@ -82,13 +91,6 @@ class ConfigApplier {
 				// do nothing; no resolver package available
 			}
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
-		//if time stamps are the same
-		//  do nothing
-		//  return
-		//if list exists
-		//  force the list in the fwk
-		//else
-		//  discover bundles in folders and force the list in the fwk
 	}
 
 	private Collection getResolvedBundles() {
@@ -121,7 +123,7 @@ class ConfigApplier {
 		InputStream sourceStream = null;
 		OutputStream destinationStream = null;
 
-		File lastBundlesTxt = getLastBundleTxt();
+		File lastBundlesTxt = getLastBundleInfo();
 		try {
 			try {
 				destinationStream = new FileOutputStream(lastBundlesTxt);
@@ -138,16 +140,16 @@ class ConfigApplier {
 		}
 	}
 
-	private File getLastBundleTxt() {
-		return manipulatingContext.getDataFile(LAST_BUNDLES_TXT);
+	private File getLastBundleInfo() {
+		return manipulatingContext.getDataFile(LAST_BUNDLES_INFO);
 	}
 
 	private BundleInfo[] getLastState() {
-		File lastBundlesTxt = getLastBundleTxt();
-		if (!lastBundlesTxt.isFile())
+		File lastBundlesInfo = getLastBundleInfo();
+		if (!lastBundlesInfo.isFile())
 			return null;
 		try {
-			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesTxt.toURL()).toArray(new BundleInfo[1]);
+			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesInfo.toURL(), baseLocation).toArray(new BundleInfo[1]);
 		} catch (IOException e) {
 			return null;
 		}
@@ -155,13 +157,9 @@ class ConfigApplier {
 
 	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
 		ArrayList toRefresh = new ArrayList();
-		//printSystemBundle();
 
-		boolean useReference = true;
-		if (manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null)
-			useReference = true;
-		else
-			useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE)).booleanValue();
+		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
+		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.valueOf(useReferenceProperty).booleanValue();
 
 		for (int i = 0; i < finalList.length; i++) {
 			if (finalList[i] == null)
@@ -176,18 +174,15 @@ class ConfigApplier {
 			if (symbolicName != null && version != null)
 				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
 
-			String location = finalList[i].getLocation();
-			if (location == null)
-				continue;
-			if (runningOnEquinox && useReference && location.startsWith("file:")) //$NON-NLS-1$
-				location = "reference:" + location; //$NON-NLS-1$
+			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(finalList[i], useReference);
+
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {
 					//TODO Need to eliminate System Bundle.
 					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
 					// it will be installed unfortunately. 
-					current = manipulatingContext.installBundle(location);
+					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
 					toRefresh.add(current);
@@ -198,7 +193,7 @@ class ConfigApplier {
 					}
 					continue;
 				}
-			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !location.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
+			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !bundleLocation.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
 				// We do not do this for the system bundle (id==0), the manipulating bundle or any bundle installed from the osgi.bundles list (locations starting with "@initial"
 				// The bundle exists; but the location is different.  Unintall the current and install the new one (bug 229700)
 				try {
@@ -206,13 +201,13 @@ class ConfigApplier {
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
-						System.err.println("Can't uninstalll " + symbolicName + '/' + version + " from location " + current.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						System.err.println("Can't uninstall " + symbolicName + '/' + version + " from location " + current.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
 						e.printStackTrace();
 					}
 					continue;
 				}
 				try {
-					current = manipulatingContext.installBundle(location);
+					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
 					toRefresh.add(current);

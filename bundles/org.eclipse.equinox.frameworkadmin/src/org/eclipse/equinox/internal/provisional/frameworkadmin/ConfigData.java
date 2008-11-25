@@ -47,9 +47,8 @@ public class ConfigData {
 	private int initialBundleStartLevel = BundleInfo.NO_LEVEL;
 	// List of BundleInfo
 	private LinkedHashSet bundlesList = new LinkedHashSet();
-	private Properties fwIndependentProps = new Properties();
 
-	private Properties fwDependentProps = new Properties();
+	private Properties properties = new Properties();
 
 	public ConfigData(String fwName, String fwVersion, String launcherName, String launcherVersion) {
 		this.fwName = fwName;
@@ -75,23 +74,13 @@ public class ConfigData {
 		return ret;
 	}
 
-	public String getFwDependentProp(String key) {
-		return fwDependentProps.getProperty(key);
+	public String getProperty(String key) {
+		return properties.getProperty(key);
 	}
 
-	public Properties getFwDependentProps() {
+	public Properties getProperties() {
 		Properties ret = new Properties();
-		appendProperties(ret, fwDependentProps);
-		return ret;
-	}
-
-	public String getFwIndependentProp(String key) {
-		return fwIndependentProps.getProperty(key);
-	}
-
-	public Properties getFwIndependentProps() {
-		Properties ret = new Properties();
-		appendProperties(ret, fwIndependentProps);
+		appendProperties(ret, properties);
 		return ret;
 	}
 
@@ -119,8 +108,8 @@ public class ConfigData {
 		beginningFwStartLevel = BundleInfo.NO_LEVEL;
 		initialBundleStartLevel = BundleInfo.NO_LEVEL;
 		bundlesList.clear();
-		fwIndependentProps.clear();
-		fwDependentProps.clear();
+		properties.clear();
+		properties.clear();
 	}
 
 	public boolean removeBundle(BundleInfo bundleInfo) {
@@ -140,28 +129,16 @@ public class ConfigData {
 				bundlesList.add(bundleInfos[i]);
 	}
 
-	public void setFwDependentProp(String key, String value) {
+	public void setProperty(String key, String value) {
 		if (value == null)
-			fwDependentProps.remove(key);
+			properties.remove(key);
 		else
-			fwDependentProps.setProperty(key, value);
+			properties.setProperty(key, value);
 	}
 
-	public void setFwDependentProps(Properties props) {
-		fwDependentProps.clear();
-		appendProperties(fwDependentProps, props);
-	}
-
-	public void setFwIndependentProp(String key, String value) {
-		if (value == null)
-			fwIndependentProps.remove(key);
-		else
-			fwIndependentProps.setProperty(key, value);
-	}
-
-	public void setFwIndependentProps(Properties props) {
-		fwIndependentProps.clear();
-		appendProperties(fwIndependentProps, props);
+	public void setProperties(Properties props) {
+		properties.clear();
+		appendProperties(properties, props);
 	}
 
 	public void setInitialBundleStartLevel(int startLevel) {
@@ -189,12 +166,9 @@ public class ConfigData {
 			}
 		}
 
-		sb.append("============ Fw Independent Props ===============\n"); //$NON-NLS-1$
+		sb.append("============ Properties ===============\n"); //$NON-NLS-1$
 		sb.append("fwIndependentProps="); //$NON-NLS-1$
-		setPropsStrings(sb, fwIndependentProps);
-		sb.append("============ Fw Dependent Props ===============\n"); //$NON-NLS-1$
-		sb.append("fwDependentProps="); //$NON-NLS-1$
-		setPropsStrings(sb, fwDependentProps);
+		setPropsStrings(sb, properties);
 		return sb.toString();
 	}
 

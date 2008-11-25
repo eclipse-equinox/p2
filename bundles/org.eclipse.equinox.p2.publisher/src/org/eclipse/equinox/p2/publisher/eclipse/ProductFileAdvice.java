@@ -43,10 +43,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILaunchingAdvic
 			result = loader.getConfigData();
 		else
 			result = generateConfigData();
-		result.setFwIndependentProp("eclipse.product", product.getId()); //$NON-NLS-1$
+		result.setProperty("eclipse.product", product.getId()); //$NON-NLS-1$
 		String location = getSplashLocation();
 		if (location != null)
-			result.setFwIndependentProp("osgi.splashPath", location); //$NON-NLS-1$
+			result.setProperty("osgi.splashPath", location); //$NON-NLS-1$
 		return result;
 	}
 
@@ -100,8 +100,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILaunchingAdvic
 
 	public Properties getProperties() {
 		Properties result = new Properties();
-		result.putAll(configData.getFwDependentProps());
-		result.putAll(configData.getFwIndependentProps());
+		result.putAll(configData.getProperties());
 		return result;
 	}
 

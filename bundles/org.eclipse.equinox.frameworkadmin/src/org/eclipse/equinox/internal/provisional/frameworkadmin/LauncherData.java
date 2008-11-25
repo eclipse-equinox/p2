@@ -23,7 +23,6 @@ import java.util.*;
  * @see Manipulator
  */
 public class LauncherData {
-	//private static final String[] NULL_STRINGS = new String[0];
 	private File fwPersistentDataLocation = null;
 	private File jvm = null;
 	private List jvmArgs = new LinkedList();

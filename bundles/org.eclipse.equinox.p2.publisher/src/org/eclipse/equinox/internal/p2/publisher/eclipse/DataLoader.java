@@ -10,8 +10,7 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -101,8 +100,15 @@ public class DataLoader {
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
-					bundles.add(bInfo);
+					BundleInfo bInfo;
+					try {
+						bInfo = new BundleInfo(symbolicName, version, new URI(urlSt), sl, markedAsStarted);
+
+						bundles.add(bInfo);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Error coverting url based string to uri: " + e.getMessage());
+					}
 				}
 			} finally {
 				try {
@@ -157,9 +163,11 @@ public class DataLoader {
 				parser.readFwConfig(manipulator, configurationLocation);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
+		} catch (URISyntaxException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
 		}
 		ConfigData data = manipulator.getConfigData();
-		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		String value = data.getProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
 		if (value != null) {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
@@ -171,7 +179,7 @@ public class DataLoader {
 				// ignore
 			}
 			try {
-				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configurationLocation.toURL()));
+				data.setProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configurationLocation.toURL()));
 			} catch (MalformedURLException e) {
 				//ignore
 			}

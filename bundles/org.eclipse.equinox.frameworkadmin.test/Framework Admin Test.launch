@@ -6,33 +6,31 @@
 <booleanAttribute key="automaticAdd" value="true"/>
 <booleanAttribute key="automaticValidate" value="false"/>
 <stringAttribute key="bootstrap" value=""/>
-<stringAttribute key="checked" value="[NONE]"/>
 <booleanAttribute key="clearConfig" value="true"/>
 <booleanAttribute key="clearws" value="true"/>
 <booleanAttribute key="clearwslog" value="false"/>
 <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
 <booleanAttribute key="default" value="false"/>
-<stringAttribute key="deselected_workspace_plugins" value="org.eclipse.equinox.p2.updatechecker.app,org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.ui,org.eclipse.ecf,org.eclipse.equinox.p2.tests,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.repositoryoptimizer,org.eclipse.equinox.p2.director,org.eclipse.equinox.p2.director.app,ie.wombat.jbdiff,ie.wombat.jbdiff.test,org.eclipse.equinox.p2.target,org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.download,org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.ui.sdk,org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.sar.test,org.eclipse.equinox.p2.metadata,org.eclipse.ecf.filetransfer,org.eclipse.equinox.p2.touchpoint.natives,org.eclipse.equinox.p2.sar,org.eclipse.equinox.p2.exemplarysetup,org.eclipse.equinox.p2.console,org.eclipse.equinox.simpleconfigurator.test,org.eclipse.equinox.p2.artifact.processors,org.eclipse.test.performance,zzTest,org.eclipse.equinox.p2.tools,org.eclipse.ecf.identity,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.ecf.provider.filetransfer,org.eclipse.equinox.simpleconfigurator,org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.updatechecker,org.eclipse.equinox.p2.jarprocessor"/>
+<stringAttribute key="deselected_workspace_plugins" value="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.ui,org.eclipse.ecf,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.sar,org.eclipse.ecf.identity,org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.jarprocessor,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.tests,org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.director,ie.wombat.jbdiff,ie.wombat.jbdiff.test,org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.ui.sdk,org.eclipse.equinox.p2.engine,org.eclipse.ecf.filetransfer,org.eclipse.equinox.p2.metadata,org.eclipse.equinox.p2.touchpoint.natives,org.eclipse.equinox.p2.exemplarysetup,org.eclipse.equinox.p2.console,org.eclipse.equinox.p2.artifact.processors,org.eclipse.equinox.p2.tools,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.ecf.provider.filetransfer,org.eclipse.equinox.p2.updatechecker"/>
 <booleanAttribute key="includeOptional" value="true"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/org.eclipse.equinox.frameworkadmin.test"/>
+<listEntry value="/org.eclipse.equinox.frameworkadmin.test/src/org/eclipse/equinox/frameworkadmin/tests/AllTests.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
+<listEntry value="1"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=org.eclipse.equinox.frameworkadmin.test"/>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
 <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
-<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit3"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.equinox.frameworkadmin.tests.AllTests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl}"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.equinox.frameworkadmin.test"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value="org.eclipse.equinox.p2.director.app.product"/>
-<stringAttribute key="selected_target_plugins" value="com.ibm.icu,javax.servlet,org.eclipse.ant.core,org.eclipse.core.commands,org.eclipse.core.contenttype,org.eclipse.core.databinding,org.eclipse.core.expressions,org.eclipse.core.filesystem,org.eclipse.core.filesystem.win32.x86,org.eclipse.core.jobs,org.eclipse.core.net,org.eclipse.core.resources,org.eclipse.core.resources.compatibility,org.eclipse.core.resources.win32,org.eclipse.core.runtime,org.eclipse.core.runtime.compatibility.auth,org.eclipse.core.runtime.compatibility.registry,org.eclipse.core.variables,org.eclipse.equinox.app,org.eclipse.equinox.common,org.eclipse.equinox.preferences,org.eclipse.equinox.registry,org.eclipse.help,org.eclipse.jface,org.eclipse.jface.databinding,org.eclipse.jface.text,org.eclipse.osgi,org.eclipse.osgi.services,org.eclipse.swt,org.eclipse.swt.win32.win32.x86,org.eclipse.text,org.eclipse.ui,org.eclipse.ui.forms,org.eclipse.ui.ide,org.eclipse.ui.views,org.eclipse.ui.win32,org.eclipse.ui.workbench,org.eclipse.update.core.win32,org.eclipse.update.ui"/>
+<stringAttribute key="selected_target_plugins" value="org.eclipse.ui.win32,org.eclipse.core.net,org.eclipse.osgi,org.eclipse.core.resources.compatibility,org.eclipse.help,org.eclipse.ui,org.eclipse.core.databinding,org.eclipse.core.jobs,org.eclipse.swt,org.eclipse.core.runtime.compatibility.auth,org.eclipse.equinox.registry,org.eclipse.core.filesystem,org.eclipse.swt.win32.win32.x86,org.eclipse.core.resources,org.eclipse.equinox.common,org.eclipse.ui.ide,org.eclipse.text,org.eclipse.ui.forms,org.eclipse.core.runtime,org.eclipse.jface,org.eclipse.equinox.app,org.eclipse.update.core.win32,org.eclipse.core.filesystem.win32.x86,org.eclipse.core.expressions,org.eclipse.core.variables,org.eclipse.equinox.preferences,org.eclipse.ant.core,org.eclipse.core.contenttype,org.eclipse.ui.workbench,org.eclipse.ui.views,org.eclipse.osgi.services,com.ibm.icu,org.eclipse.jface.text,org.eclipse.update.ui,javax.servlet,org.eclipse.jface.databinding,org.eclipse.core.commands,org.eclipse.core.runtime.compatibility.registry"/>
 <booleanAttribute key="show_selected_only" value="false"/>
 <stringAttribute key="templateConfig" value="${target_home}\configuration\config.ini"/>
 <booleanAttribute key="tracing" value="false"/>

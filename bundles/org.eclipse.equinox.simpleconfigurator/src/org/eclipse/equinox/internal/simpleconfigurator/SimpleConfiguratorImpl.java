@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.Bundle;
@@ -114,14 +113,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 				return;
 			configurationURL = url;
 
-			List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
-			if (Activator.DEBUG)
-				System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
-			if (bundleInfoList.size() == 0)
-				return;
 			if (this.configApplier == null)
 				configApplier = new ConfigApplier(context, bundle);
-			configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), url, isExclusiveInstallation());
+			configApplier.install(url, isExclusiveInstallation());
 		}
 	}
 

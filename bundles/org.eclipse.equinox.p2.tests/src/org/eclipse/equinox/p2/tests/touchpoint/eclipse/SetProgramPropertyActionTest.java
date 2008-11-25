@@ -42,16 +42,16 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 
 		String frameworkDependentPropertyName = "test";
 		String frameworkDependentPropertyValue = "true";
-		assertFalse(manipulator.getConfigData().getFwDependentProps().containsKey(frameworkDependentPropertyName));
+		assertFalse(manipulator.getConfigData().getProperties().containsKey(frameworkDependentPropertyName));
 		parameters.put(ActionConstants.PARM_PROP_NAME, frameworkDependentPropertyName);
 		parameters.put(ActionConstants.PARM_PROP_VALUE, frameworkDependentPropertyValue);
 		parameters = Collections.unmodifiableMap(parameters);
 
 		SetProgramPropertyAction action = new SetProgramPropertyAction();
 		action.execute(parameters);
-		assertEquals("true", manipulator.getConfigData().getFwDependentProp(frameworkDependentPropertyName));
+		assertEquals("true", manipulator.getConfigData().getProperty(frameworkDependentPropertyName));
 		action.undo(parameters);
-		assertFalse(manipulator.getConfigData().getFwDependentProps().containsKey(frameworkDependentPropertyName));
+		assertFalse(manipulator.getConfigData().getProperties().containsKey(frameworkDependentPropertyName));
 	}
 
 }

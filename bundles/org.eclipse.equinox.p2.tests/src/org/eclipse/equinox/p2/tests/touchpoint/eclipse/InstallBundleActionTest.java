@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
@@ -80,8 +81,8 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 		assertFalse(inBundles(manipulator, osgiTarget));
 	}
 
-	private boolean inBundles(Manipulator manipulator, File osgiTarget) throws IOException {
-		String location = osgiTarget.toURL().toExternalForm();
+	private boolean inBundles(Manipulator manipulator, File osgiTarget) {
+		URI location = osgiTarget.toURI();
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (location.equals(bundles[i].getLocation()))

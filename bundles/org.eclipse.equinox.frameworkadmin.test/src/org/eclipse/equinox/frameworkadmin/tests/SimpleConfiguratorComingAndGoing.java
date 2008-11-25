@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.net.URISyntaxException;
+
+import java.net.URI;
+
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
@@ -28,8 +32,8 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 		m = createMinimalConfiguration(SimpleConfiguratorComingAndGoing.class.getName());
 	}
 
-	public void testWithMutipleBundles() throws IOException, BundleException {
-		BundleInfo bi = new BundleInfo(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 2);
+	public void testWithMutipleBundles() throws IOException, BundleException, URISyntaxException {
+		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 
@@ -56,7 +60,7 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 			//TODO We ignore the framework JAR location not set exception
 		}
 
-		newManipulator.getConfigData().addBundle(new BundleInfo(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm(), 1, true));
+		newManipulator.getConfigData().addBundle(new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm()), 1, true));
 		newManipulator.save(false);
 
 		assertContent(getBundleTxt(), "org.eclipse.osgi");

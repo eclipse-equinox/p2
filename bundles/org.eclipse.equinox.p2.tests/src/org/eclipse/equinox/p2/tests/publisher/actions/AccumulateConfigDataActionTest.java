@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.easymock.Capture;
@@ -19,6 +20,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -53,18 +55,18 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		debug("Completed AccumulateConfigDataActionTest."); //$NON-NLS-1$
 	}
 
-	private void verifyLaunchAdvice() {
+	private void verifyLaunchAdvice() throws URISyntaxException {
 		LaunchingAdvice captured = launchingAdviceCapture.getValue();
 		String[] programArgs = captured.getProgramArguments();
 		assertTrue(programArgs.length == 4);
 		assertTrue(programArgs[0].equalsIgnoreCase("-startup")); //$NON-NLS-1$
 
 		Path path1 = new Path(TestActivator.getTestDataFolder().getPath() + FOO);
-		assertTrue(new Path(programArgs[1]).equals(path1));
+		assertTrue(path1.toFile().toURI().equals(URIUtil.fromString(programArgs[1])));
 		assertTrue(programArgs[2].equalsIgnoreCase("--launcher.library"));//$NON-NLS-1$
 
 		Path path2 = new Path(TestActivator.getTestDataFolder().getPath() + BAR);
-		assertTrue(new Path(programArgs[3]).equals(path2));
+		assertTrue(path2.toFile().toURI().equals(URIUtil.fromString(programArgs[3])));
 
 		String[] vmArgs = captured.getVMArguments();
 		assertTrue(vmArgs.length == 0);

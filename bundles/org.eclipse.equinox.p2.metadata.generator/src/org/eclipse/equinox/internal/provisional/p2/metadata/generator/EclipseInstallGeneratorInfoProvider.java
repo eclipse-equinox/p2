@@ -258,10 +258,12 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
 		}
 
 		ConfigData data = manipulator.getConfigData();
-		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		String value = data.getProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
 		if (value != null) {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
@@ -274,7 +276,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			}
 
 			try {
-				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
+				data.setProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
 			} catch (MalformedURLException e) {
 				//ignore
 			}
@@ -345,8 +347,15 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
-					bundles.add(bInfo);
+					BundleInfo bInfo;
+					try {
+						bInfo = new BundleInfo(symbolicName, version, new URI(urlSt), sl, markedAsStarted);
+
+						bundles.add(bInfo);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Error coverting url based string to uri: " + e.getMessage());
+					}
 				}
 			} finally {
 				try {

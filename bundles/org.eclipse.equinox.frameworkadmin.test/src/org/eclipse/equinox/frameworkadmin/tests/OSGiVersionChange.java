@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.net.URISyntaxException;
+
+import java.net.URI;
+
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -37,10 +41,10 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 				break;
 			}
 		}
-		defaultManipulator.getConfigData().removeBundle(osgi);
+		assertEquals(true, defaultManipulator.getConfigData().removeBundle(osgi));
 		defaultManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertNotContent(getConfigIni(), "org.eclipse.osgi");
+		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
 	public void testRemovalUsingOtherManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -56,7 +60,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		newManipulator.getConfigData().removeBundle(osgi);
 		newManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertNotContent(getConfigIni(), "org.eclipse.osgi");
+		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
 	public void testAdditionUsingOtherManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -68,7 +72,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 				break;
 			}
 		}
-		defaultManipulator.getConfigData().removeBundle(osgi);
+		assertEquals(true, defaultManipulator.getConfigData().removeBundle(osgi));
 		defaultManipulator.save(false);
 
 		Manipulator newManipulator = getNewManipulator(workArea);
@@ -76,10 +80,10 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		newManipulator.getConfigData().addBundle(osgi);
 		newManipulator.save(false);
 		assertContent(getBundleTxt(), "org.eclipse.osgi");
-		assertContent(getConfigIni(), "org.eclipse.osgi");
+		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
-	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException {
+	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, URISyntaxException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
 		for (int i = 0; i < infos.length; i++) {
@@ -94,7 +98,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		//These two constants describe the data file used in the test
 		final String FILENAME = "org.eclipse.osgi_3.4.0.jar";
 		final String VERSION = "3.4.0.v20071105";
-		BundleInfo newOSGi = new BundleInfo("org.eclipse.osgi", "3.4.0.v20071105", FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/" + FILENAME)).toExternalForm(), 0, true);
+		BundleInfo newOSGi = new BundleInfo("org.eclipse.osgi", "3.4.0.v20071105", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/" + FILENAME)).toExternalForm()), 0, true);
 		defaultManipulator.getConfigData().addBundle(newOSGi);
 		defaultManipulator.save(false);
 		assertContent(getBundleTxt(), VERSION);
@@ -114,9 +118,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		defaultManipulator.getConfigData().removeBundle(osgi);
 		defaultManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertNotContent(getConfigIni(), "org.eclipse.osgi");
+		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 
 		Manipulator newManipulator = getNewManipulator(workArea);
-		assertEquals(newManipulator.getConfigData().getBundles().length, 1);
+		assertEquals(1, newManipulator.getConfigData().getBundles().length);
 	}
 }

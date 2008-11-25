@@ -26,8 +26,8 @@ public class SetFrameworkIndependentPropertyAction extends ProvisioningAction {
 		if (propName == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
 		String propValue = (String) parameters.get(ActionConstants.PARM_PROP_VALUE);
-		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
-		manipulator.getConfigData().setFwIndependentProp(propName, propValue);
+		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, manipulator.getConfigData().getProperty(propName));
+		manipulator.getConfigData().setProperty(propName, propValue);
 		return Status.OK_STATUS;
 	}
 
@@ -37,7 +37,7 @@ public class SetFrameworkIndependentPropertyAction extends ProvisioningAction {
 		if (propName == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
 		String previousValue = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
-		manipulator.getConfigData().setFwIndependentProp(propName, previousValue);
+		manipulator.getConfigData().setProperty(propName, previousValue);
 		return Status.OK_STATUS;
 	}
 }

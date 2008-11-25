@@ -8,47 +8,31 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
-/**
+import java.net.URI;
+
+/*
  * This object represents information of a bundle.
- *
  */
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
 
 	private String symbolicName = null;
 	private String version = null;
-	private String location;
+	private URI location;
+	private URI baseLocation;
 
 	private boolean markedAsStarted = false;
 	private int startLevel = NO_LEVEL;
-	private boolean resolved = false;
 
-	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
+	public BundleInfo(String symbolic, String version, URI location, int startLevel, boolean started) {
 		this.symbolicName = symbolic;
 		this.version = version;
-		this.location = location.trim();
+		this.location = location;
 		this.markedAsStarted = started;
 		this.startLevel = startLevel;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object toCompare) {
-		if (toCompare instanceof BundleInfo) {
-			BundleInfo info = (BundleInfo) toCompare;
-			//if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.url == null || url == null ? true : info.url.equals(url)))
-			if (info.symbolicName != null && info.version != null && symbolicName != null && version != null) {
-				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : info.location.equals(location)))
-					return true;
-			} else {
-				return (info.location == null || location == null ? false : info.location.equals(location));
-			}
-		}
-		return false;
-	}
-
-	public String getLocation() {
+	public URI getLocation() {
 		return location;
 	}
 
@@ -64,18 +48,16 @@ public class BundleInfo {
 		return version;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() {
-		int result = symbolicName == null ? 0 : symbolicName.hashCode();
-		result = result + (version == null ? 0 : version.hashCode());
-		result = result + (location == null ? 0 : location.hashCode());
-		return result;
-	}
-
 	public boolean isMarkedAsStarted() {
 		return markedAsStarted;
+	}
+
+	public URI getBaseLocation() {
+		return baseLocation;
+	}
+
+	public void setBaseLocation(URI baseLocation) {
+		this.baseLocation = baseLocation;
 	}
 
 	/* (non-Javadoc)
@@ -89,16 +71,58 @@ public class BundleInfo {
 		buffer.append(", "); //$NON-NLS-1$
 		if (version != null)
 			buffer.append(version);
-		buffer.append(", "); //$NON-NLS-1$
-		buffer.append("location="); //$NON-NLS-1$
+		if (baseLocation != null) {
+			buffer.append(", baseLocation="); //$NON-NLS-1$
+			buffer.append(baseLocation);
+		}
+		buffer.append(", location="); //$NON-NLS-1$
 		buffer.append(location);
 		buffer.append(", startLevel="); //$NON-NLS-1$
 		buffer.append(startLevel);
 		buffer.append(", toBeStarted="); //$NON-NLS-1$
 		buffer.append(markedAsStarted);
-		buffer.append(", resolved="); //$NON-NLS-1$
-		buffer.append(resolved);
 		buffer.append(')');
 		return buffer.toString();
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((symbolicName == null) ? 0 : symbolicName.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+
+		if (obj == null)
+			return false;
+
+		if (getClass() != obj.getClass())
+			return false;
+
+		BundleInfo other = (BundleInfo) obj;
+		if (symbolicName == null) {
+			if (other.symbolicName != null)
+				return false;
+		} else if (!symbolicName.equals(other.symbolicName))
+			return false;
+
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
+
+		if (location == null || other.location == null)
+			return true;
+
+		//compare absolute location URIs
+		URI absoluteLocation = baseLocation == null ? location : baseLocation.resolve(location);
+		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : other.baseLocation.resolve(other.location);
+
+		return URIUtil.sameURI(absoluteLocation, otherAbsoluteLocation);
 	}
 }

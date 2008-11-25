@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
@@ -118,7 +119,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return null;
 	}
 
-	private static File getSystemBundleFromBundleInfos(ConfigData configData) {
+	protected static File getSystemBundleFromBundleInfos(ConfigData configData) {
 		BundleInfo[] bundleInfos = configData.getBundles();
 		return getSystemBundleFromBundleInfos(bundleInfos);
 	}
@@ -143,20 +144,15 @@ public class EquinoxBundlesState implements BundlesState {
 	public static File isSystemBundle(BundleInfo bundleInfo) {
 		if (bundleInfo == null || bundleInfo.getLocation() == null)
 			return null;
-		String bundleLocation = bundleInfo.getLocation();
-		if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
-			bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
-		if (bundleLocation.startsWith("file:")) { //$NON-NLS-1$
-			try {
-				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
-				if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
-					if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
-						return new File(bundleLocation.substring("file:".length())); //$NON-NLS-1$
-			} catch (RuntimeException e) {
-				e.printStackTrace();
-			}
+		URI bundleLocation = bundleInfo.getLocation();
+		try {
+			String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
+			if (bundleLocation.getPath().indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
+				if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
+					return new File(bundleLocation);
+		} catch (RuntimeException e) {
+			e.printStackTrace();
 		}
-
 		return null;
 	}
 
@@ -274,7 +270,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, BundleInfo[] bInfos) {
-		this.composeNewState(launcherData, configData, configData.getFwDependentProps(), bInfos);
+		this.composeNewState(launcherData, configData, configData.getProperties(), bInfos);
 	}
 
 	/**
@@ -374,13 +370,13 @@ public class EquinoxBundlesState implements BundlesState {
 		boolean markedAsStarted = false;
 		int sl = BundleInfo.NO_LEVEL;
 
-		String location = null;
+		URI location = null;
 		String symbolicNameTarget = toConvert.getSymbolicName();
 		Version versionTarget = toConvert.getVersion();
 		try {
 			File fwJar = manipulator.getLauncherData().getFwJar();
 			if (fwJar != null) {
-				String fwJarLocation = fwJar.toURL().toExternalForm();
+				URI fwJarLocation = fwJar.toURI();
 				String[] clauses = Utils.getClausesManifestMainAttributes(fwJarLocation, Constants.BUNDLE_SYMBOLICNAME);
 				String fwJarSymbolicName = Utils.getPathFromClause(clauses[0]);
 				String fwJarVersionSt = Utils.getManifestMainAttributes(fwJarLocation, Constants.BUNDLE_VERSION);
@@ -389,15 +385,13 @@ public class EquinoxBundlesState implements BundlesState {
 					markedAsStarted = true;
 				}
 			}
-		} catch (MalformedURLException e1) {
-			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
 		} catch (FrameworkAdminRuntimeException e1) {
 			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
 		}
 		return createBundleInfo(toConvert, markedAsStarted, sl, location);
 	}
 
-	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, String location) {
+	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, URI location) {
 		BundleInfo result = new BundleInfo();
 		result.setSymbolicName(toConvert.getSymbolicName());
 		result.setVersion(toConvert.getVersion().toString());
@@ -425,7 +419,16 @@ public class EquinoxBundlesState implements BundlesState {
 
 			boolean markedAsStarted = false;
 			int sl = BundleInfo.NO_LEVEL;
-			String location = FileUtils.getEclipseRealLocation(manipulator, bundles[i].getLocation());
+
+			//URI location = FileUtils.getEclipseRealLocation(manipulator, bundles[i].getLocation());
+			//TODO: I believe this is always an absolute URI
+			URI location;
+			try {
+				location = new URI(bundles[i].getLocation());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage()); //$NON-NLS-1$ //TODO path_fun
+			}
 			BundleInfo original = (BundleInfo) bundleInfoMap.get(location);
 			if (original != null) {
 				markedAsStarted = original.isMarkedAsStarted();
@@ -447,7 +450,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
 		Set set = new HashSet();
-		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
+		URI realLocation = bInfo.getLocation();
 		BundleDescription bundle = getBundleByLocation(realLocation);
 		ImportPackageSpecification[] imports = bundle.getImportPackages();
 		for (int i = 0; i < imports.length; i++) {
@@ -493,7 +496,7 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) {
-		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
+		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
 		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
 		StateHelper helper = platformAdmin.getStateHelper();
@@ -521,7 +524,7 @@ public class EquinoxBundlesState implements BundlesState {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
 				// TODO default value should be set more precisely.
 				File installArea = null;
-				String installAreaSt = configData.getFwDependentProp(EquinoxConstants.PROP_INSTALL);
+				String installAreaSt = configData.getProperty(EquinoxConstants.PROP_INSTALL);
 				if (installAreaSt == null) {
 					if (manipulator.getLauncherData().getLauncher() == null) {
 						// TODO implement
@@ -548,7 +551,7 @@ public class EquinoxBundlesState implements BundlesState {
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
-		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
+		URI realLocation = bInfo.getLocation();
 		if (getBundleByLocation(realLocation) != null)
 			return;
 
@@ -567,7 +570,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 		try {
 			bInfo.setBundleId(++maxId);
-			BundleDescription newBundleDescription = soFactory.createBundleDescription(state, manifest, realLocation, bInfo.getBundleId());
+			BundleDescription newBundleDescription = soFactory.createBundleDescription(state, manifest, realLocation.toString(), bInfo.getBundleId());
 			addBundleToState(newBundleDescription);
 			manipulator.getConfigData().addBundle(bInfo);
 		} catch (BundleException e) {
@@ -584,7 +587,7 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	public boolean isResolved(BundleInfo bInfo) {
-		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
+		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
 		if (description == null)
 			return false;
@@ -676,8 +679,8 @@ public class EquinoxBundlesState implements BundlesState {
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		long id = DEFAULT_TIMESTAMP;
-		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
-		BundleDescription bundle = getBundleByLocation(realLocation);
+		URI realLocation = bInfo.getLocation();
+		BundleDescription bundle = getBundleByLocation(bInfo.getLocation());
 		if (bundle != null)
 			id = bundle.getBundleId();
 
@@ -688,7 +691,7 @@ public class EquinoxBundlesState implements BundlesState {
 					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation())); //$NON-NLS-1$
 					return;
 				}
-				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest, realLocation, id);
+				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest, realLocation.toString(), id);
 				removeBundleFromState(bundleDescription);
 				manipulator.getConfigData().removeBundle(bInfo);
 			} catch (BundleException e) {
@@ -697,8 +700,10 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 	}
 
-	private BundleDescription getBundleByLocation(String location) {
-		return (BundleDescription) locationStateIndex.get(location);
+	private BundleDescription getBundleByLocation(URI location) {
+		if (location == null)
+			return null;
+		return (BundleDescription) locationStateIndex.get(location.toString());
 	}
 
 	private BundleDescription getBundleByNameVersion(String bundleSymbolicName, String bundleVersion) {
@@ -716,7 +721,7 @@ public class EquinoxBundlesState implements BundlesState {
 	private void createStateIndexes() {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
+			URI location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation().toString());
 			locationStateIndex.put(location, currentInstalledBundles[i]);
 			nameVersionStateIndex.put(getKey(currentInstalledBundles[i]), currentInstalledBundles[i]);
 		}
@@ -724,13 +729,13 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void addBundleToState(BundleDescription bundleDescription) {
 		state.addBundle(bundleDescription);
-		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
+		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation().toString());
 		locationStateIndex.put(location, bundleDescription);
 		nameVersionStateIndex.put(getKey(bundleDescription), bundleDescription);
 	}
 
 	private void removeBundleFromState(BundleDescription bundleDescription) {
-		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
+		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation().toString());
 		locationStateIndex.remove(location);
 		nameVersionStateIndex.remove(getKey(bundleDescription));
 		state.removeBundle(bundleDescription);

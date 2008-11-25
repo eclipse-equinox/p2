@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import org.osgi.framework.BundleException;
-
-import java.io.File;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -69,7 +68,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 		return file.delete();
 	}
-	
+
 	public FrameworkAdmin getEquinoxFrameworkAdmin() throws BundleException {
 		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
@@ -144,6 +143,39 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("String: " + search + " not found in " + file.getAbsolutePath());
 		}
 	}
+	
+	public void assertIniFileNotContain(File file, String argument, String value) {
+		List args = null;
+		try {
+			args = FileUtils.loadFile(file);
+		} catch (IOException e) {
+			fail("Can't read file " + file);
+		}
+		String tmp = ParserUtils.getValueForArgument(argument, args);
+		if (tmp == null)
+			return;
+			
+		assertTrue(tmp.indexOf(value) == -1);
+	}
+	public void assertPropertyNotContain(File file, String property, String search) {
+		Properties p = new Properties();
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			p.load(fis);
+		} catch (FileNotFoundException e) {
+			fail("Can't find file " + file);
+		} catch (IOException e) {
+			fail("Error reading " + file);
+		} finally {
+			if (fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					//ignore
+				}
+		}
+	}
 
 	public void assertContent(File file, String search) {
 		if (!file.exists())
@@ -192,7 +224,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
 		}
 	}
-	
+
 	/*
 	 * Copy
 	 * - if we have a file, then copy the file
@@ -242,7 +274,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			}
 		}
 	}
-	
+
 	/*
 	 * Look up and return a file handle to the given entry in the bundle.
 	 */
@@ -264,7 +296,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		// avoid compile error... should never reach this code
 		return null;
 	}
-	
+
 	protected Manipulator getFrameworkManipulator(File configuration, File launcher) throws BundleException {
 		startSimpleConfiguratormManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
@@ -273,7 +305,60 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configuration);
 		launcherData.setLauncher(launcher);
-		
+
 		return manipulator;
 	}
+
+	//This is a dumb helper writing out the values as they have been passed to it.
+	protected void writeEclipseIni(File location, String[] lines) {
+		location.getParentFile().mkdirs();
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(location));
+			for (int j = 0; j < lines.length; j++) {
+				bw.write(lines[j]);
+				bw.newLine();
+			}
+			bw.flush();
+
+		} catch (IOException e) {
+			fail("Fail writing eclipse.ini file");
+		} finally {
+			if (bw != null)
+				try {
+					bw.close();
+				} catch (IOException e) {
+					fail("Fail writing eclipse.ini file in " + location);
+				}
+		}
+	}
+
+	//This is a dumb helper writing out the values as they have been passed to it
+	protected void writeConfigIni(File location, Properties properties) {
+		location.getParentFile().mkdirs();
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(location);
+			properties.store(out, "#header");
+		} catch (IOException e) {
+			fail("Faile writing config.ini in" + location);
+		} finally {
+			try {
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			out = null;
+		}
+	}
+
+	public void assertContains(String message, BundleInfo[] bundles, URI location) {
+		for (int i = 0; i < bundles.length; i++) {
+			if (bundles[i].getLocation().equals(location))
+				return;
+		}
+		fail(message + " Can't find the bundle info " + location);
+	}
+
 }
