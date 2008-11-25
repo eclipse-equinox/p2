@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -25,11 +26,15 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
  */
 public abstract class QueriedElement extends ProvElement {
 
+	protected IQueryable queryable;
+	// This cache is used internally to facilitate child elements
+	// that want to eliminate duplicates from the parent hierarchy.
+	// This cache is *not* used as a general purpose child cache.
+	private Collection cachedChildren;
+
 	protected QueriedElement(Object parent) {
 		super(parent);
 	}
-
-	protected IQueryable queryable;
 
 	public Policy getPolicy() {
 		Object parent = getParent(this);
@@ -80,13 +85,24 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		cachedChildren = Collections.EMPTY_LIST;
 		if (getQueryProvider() == null)
 			return new Object[0];
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this);
 		if (queryDescriptor == null || !isSufficientForQuery(queryDescriptor))
 			return new Object[0];
 		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, monitor);
-		return queryDescriptor.collector.toArray(Object.class);
+		cachedChildren = queryDescriptor.collector.toCollection();
+		if (queryDescriptor.collector.size() > 0) {
+			Collection returnedChildren = new HashSet();
+			returnedChildren.addAll(queryDescriptor.collector.toCollection());
+			Object[] siblings = getSiblings();
+			for (int i = 0; i < siblings.length; i++) {
+				returnedChildren.remove(siblings[i]);
+			}
+			return returnedChildren.toArray();
+		}
+		return new Object[0];
 	}
 
 	public void setQueryable(IQueryable queryable) {
@@ -143,4 +159,16 @@ public abstract class QueriedElement extends ProvElement {
 		return queryDescriptor.isComplete();
 	}
 
+	public Object[] getCachedChildren() {
+		return cachedChildren.toArray();
+	}
+
+	protected Object[] getSiblings() {
+		Object parent = getParent(this);
+		if (parent instanceof QueriedElement)
+			return ((QueriedElement) parent).getCachedChildren();
+		if (parent instanceof IUElementListRoot)
+			return ((IUElementListRoot) parent).getChildren(parent);
+		return new Object[0];
+	}
 }
