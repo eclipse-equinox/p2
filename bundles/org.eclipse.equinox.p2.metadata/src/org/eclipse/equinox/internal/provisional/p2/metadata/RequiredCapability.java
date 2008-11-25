@@ -133,10 +133,18 @@ public class RequiredCapability {
 		return optional;
 	}
 
+	/**
+	 * TODO This object shouldn't be mutable since it makes equality unstable, and
+	 * introduces lifecycle issues (how are the changes persisted, etc)
+	 */
 	public void setFilter(String filter) {
 		this.filter = filter;
 	}
 
+	/**
+	 * TODO This object shouldn't be mutable since it makes equality unstable, and
+	 * introduces lifecycle issues (how are the changes persisted, etc)
+	 */
 	public void setSelectors(String[] selectors) {
 		this.selectors = selectors;
 	}
