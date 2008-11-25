@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug196525.class);
 		suite.addTestSuite(CleanupTest.class);
 		suite.addTestSuite(LauncherConfigLocationTest.class);
+		suite.addTestSuite(ManipulatorTests.class);
 		suite.addTestSuite(NoConfigurationValueInEclipseIni.class);
 		suite.addTestSuite(NoRenamingLauncherIni.class);
 		suite.addTestSuite(OSGiVersionChange.class);
@@ -32,6 +33,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ReaderTest4.class);
 		suite.addTestSuite(ReaderTest5.class);
 		suite.addTestSuite(RelativePathTest.class);
+		suite.addTestSuite(RemovingABundle.class);
 		suite.addTestSuite(RemovingAllBundles.class);
 		suite.addTestSuite(RenamingLauncherIni.class);
 		suite.addTestSuite(SharedConfigurationTest.class);
