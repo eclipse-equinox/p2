@@ -40,6 +40,12 @@ public class IUViewQueryContext {
 	// Whether to group items in repos by category.  Note this only makes sense when the
 	// view type is AVAILABLE_VIEW_BY_REPO
 	private boolean useCategories = true;
+	// Whether to drill down into installed items
+	private boolean showInstallChildren = true;
+	// Whether to drill down into available items
+	private boolean showAvailableChildren = false;
+	// Whether to drill down into items in a provisioning plan
+	private boolean showProvisioningPlanChildren = true;
 
 	private String profileId = null;
 	// What repositories to show
@@ -133,5 +139,29 @@ public class IUViewQueryContext {
 
 	public boolean getUseCategories() {
 		return useCategories;
+	}
+
+	public boolean getShowInstallChildren() {
+		return showInstallChildren;
+	}
+
+	public void setShowInstallChildren(boolean showChildren) {
+		showInstallChildren = showChildren;
+	}
+
+	public boolean getShowAvailableChildren() {
+		return showAvailableChildren;
+	}
+
+	public void setShowAvailableChildren(boolean showChildren) {
+		showAvailableChildren = showChildren;
+	}
+
+	public boolean getShowProvisioningPlanChildren() {
+		return showProvisioningPlanChildren;
+	}
+
+	public void setShowProvisioningPlanChildren(boolean showChildren) {
+		showProvisioningPlanChildren = showChildren;
 	}
 }

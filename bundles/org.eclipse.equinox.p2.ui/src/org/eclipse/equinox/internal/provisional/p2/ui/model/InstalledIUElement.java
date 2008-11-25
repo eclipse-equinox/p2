@@ -94,4 +94,35 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return QueryProvider.INSTALLED_IUS;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
+	 */
+	public boolean shouldShowChildren() {
+		return true;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof InstalledIUElement))
+			return false;
+		if (iu == null)
+			return false;
+		return iu.equals(((InstalledIUElement) obj).getIU());
+	}
+
+	public int hashCode() {
+		if (iu == null)
+			return 0;
+		return iu.hashCode();
+	}
+
+	public String toString() {
+		if (iu == null)
+			return "NULL"; //$NON-NLS-1$
+		return iu.toString();
+	}
+
 }
