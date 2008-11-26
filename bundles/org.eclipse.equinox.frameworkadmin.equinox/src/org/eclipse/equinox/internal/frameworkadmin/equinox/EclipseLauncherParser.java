@@ -27,7 +27,7 @@ public class EclipseLauncherParser {
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
 	private URI getOSGiInstallArea(List lines, URI base) {
-		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, base);
+		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, base);
 		if (osgiInstallArea != null)
 			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), base);
 		return null;
@@ -93,17 +93,13 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void setVM(List lines, URI launcherFolder) {
-		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
-		if (vm == null)
+	private void setVM(List lines, File vm, URI launcherFolder) {
+		if (vm == null) {
+			ParserUtils.removeArgument(EquinoxConstants.OPTION_VM, lines);
 			return;
-
-		try {
-			URI VMRelativePath = URIUtil.makeRelative(URIUtil.fromString(vm), launcherFolder);
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath), lines);
-		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make relative of:" + vm);
 		}
+		URI VMRelativePath = URIUtil.makeRelative(vm.toURI(), launcherFolder);
+		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath), lines);
 	}
 
 	private void getJVMArgs(List lines, LauncherData launcherData) {
@@ -235,12 +231,12 @@ public class EclipseLauncherParser {
 		setStartup(newlines, launcherFolder.toURI());
 		setInstall(newlines, launcherData, launcherFolder);
 		//Get the osgi install area
-		File osgiInstallArea = ParserUtils.getOSGiInstallArea(newlines, launcherData);
+		File osgiInstallArea = ParserUtils.getOSGiInstallArea(newlines, null, launcherData);
 		//setInstall(lines, osgiInstallArea, launcherFolder);
 		setConfigurationLocation(newlines, osgiInstallArea.toURI(), launcherData);
 		setLauncherLibrary(newlines, launcherFolder.toURI());
 		//		setFrameworkJar(newlines, launcherData.getFwJar());
-		setVM(newlines, launcherFolder.toURI());
+		setVM(newlines, launcherData.getJvm(), launcherFolder.toURI());
 		setJVMArgs(newlines, launcherData);
 
 		//We are done, let's update the program args in the launcher data
@@ -275,5 +271,6 @@ public class EclipseLauncherParser {
 			if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
 				previousLauncherIni.delete();
 		}
+		launcherData.setLauncherConfigLocation(launcherConfigFile);
 	}
 }

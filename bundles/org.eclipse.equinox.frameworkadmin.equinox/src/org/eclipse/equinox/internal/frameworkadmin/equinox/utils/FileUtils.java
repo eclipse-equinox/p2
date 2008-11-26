@@ -30,7 +30,7 @@ public class FileUtils {
 		//if this is some form of URL just return it
 		try {
 			new URL(location);
-			return URIUtil.makeAbsolute(URIUtil.fromString(location), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getLauncherData()).toURI());
+			return URIUtil.makeAbsolute(URIUtil.fromString(location), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()).toURI());
 		} catch (URISyntaxException e) {
 			// expected
 		} catch (MalformedURLException e) {

@@ -13,20 +13,19 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.osgi.service.log.LogService;
 
 public class ParserUtils {
-	public static File getOSGiInstallArea(List programArgs, LauncherData launcherData) {
+	public static File getOSGiInstallArea(List programArgs, Properties properties, LauncherData launcherData) {
 		if (launcherData == null)
 			return null;
 
 		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
-		File result = getOSGiInstallArea(programArgs, launcherData.getLauncher().getParentFile().toURI());
+		File result = getOSGiInstallArea(programArgs, properties, launcherData.getLauncher() == null ? null : launcherData.getLauncher().getParentFile().toURI());
 		if (result != null)
 			return result;
 
@@ -55,14 +54,16 @@ public class ParserUtils {
 	}
 
 	//This method should only be used to determine the osgi install area when reading the eclipse.ini
-	public static File getOSGiInstallArea(List args, URI base) {
+	public static File getOSGiInstallArea(List args, Properties properties, URI base) {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
 		if (install != null)
 			return new File(install);
+		if (properties != null && properties.getProperty("osgi.install.area") != null)
+			return new File(properties.getProperty("osgi.install.area"));
 		String startup = getValueForArgument(EquinoxConstants.OPTION_STARTUP, args);
-		if (startup != null) {
+		if (startup != null && base != null) {
 			return URIUtil.toFile(URIUtil.makeAbsolute(fromOSGiJarToOSGiInstallArea(startup).toURI(), base));
 		}
 		return null;

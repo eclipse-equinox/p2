@@ -56,7 +56,7 @@ public class PatchFailingToInstall extends AbstractProvisioningTest {
 		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
 			fail("Setup failed");
 
-		if (install(profile1, new IInstallableUnit[] {pp1}, true, planner, engine).getSeverity() == IStatus.ERROR)
+		if (install(profile1, new IInstallableUnit[] {pp1}, false, planner, engine).getSeverity() == IStatus.ERROR)
 			fail("Setup failed while installing patch");
 
 		if (install(profile1, new IInstallableUnit[] {pp2}, true, planner, engine).getSeverity() == IStatus.ERROR)

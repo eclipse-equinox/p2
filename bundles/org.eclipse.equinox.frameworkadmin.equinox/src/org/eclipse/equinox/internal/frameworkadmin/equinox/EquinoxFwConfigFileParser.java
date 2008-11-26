@@ -166,7 +166,7 @@ public class EquinoxFwConfigFileParser {
 		Properties props = loadProperties(inputFile);
 
 		// load shared configuration properties
-		Properties sharedConfigProperties = getSharedConfiguration(props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getLauncherData()));
+		Properties sharedConfigProperties = getSharedConfiguration(props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), props, manipulator.getLauncherData()));
 		if (sharedConfigProperties != null) {
 			sharedConfigProperties.putAll(props);
 			props = sharedConfigProperties;
@@ -180,7 +180,7 @@ public class EquinoxFwConfigFileParser {
 		readLauncherPath(props, rootURL);
 		readp2DataArea(props, configArea);
 		readSimpleConfiguratorURL(props, configArea);
-		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData).toURI(), props.getProperty(EquinoxConstants.PROP_BUNDLES));
+		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props.getProperty(EquinoxConstants.PROP_BUNDLES));
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
 		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
@@ -229,7 +229,7 @@ public class EquinoxFwConfigFileParser {
 		File fwJar = null;
 		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
 			URI absoluteFwJar = null;
-			absoluteFwJar = URIUtil.makeAbsolute(FileUtils.fromFileURL(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData).toURI());
+			absoluteFwJar = URIUtil.makeAbsolute(FileUtils.fromFileURL(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configData.getProperties(), launcherData).toURI());
 
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, absoluteFwJar.toString());
 			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
@@ -251,7 +251,7 @@ public class EquinoxFwConfigFileParser {
 	private void writeFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props) {
 		if (launcherData.getFwJar() == null)
 			return;
-		props.setProperty(EquinoxConstants.PROP_OSGI_FW, FileUtils.toFileURL(URIUtil.makeRelative(launcherData.getFwJar().toURI(), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData).toURI())));
+		props.setProperty(EquinoxConstants.PROP_OSGI_FW, FileUtils.toFileURL(URIUtil.makeRelative(launcherData.getFwJar().toURI(), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configData.getProperties(), launcherData).toURI())));
 	}
 
 	private static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
@@ -399,7 +399,7 @@ public class EquinoxFwConfigFileParser {
 			URI configArea = manipulator.getLauncherData().getFwConfigLocation().toURI();
 			writep2DataArea(configData, configProps, configArea);
 			writeSimpleConfiguratorURL(configData, configProps, configArea);
-			writeBundlesList(launcherData.getFwJar(), configProps, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData).toURI(), bInfos);
+			writeBundlesList(launcherData.getFwJar(), configProps, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData).toURI(), bInfos);
 			writeInitialStartLevel(configData, configProps);
 			writeDefaultStartLevel(configData, configProps);
 		} catch (URISyntaxException e) {
@@ -450,7 +450,7 @@ public class EquinoxFwConfigFileParser {
 
 	private void filterPropertiesFromSharedArea(Properties configProps, LauncherData launcherData) {
 		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base 
-		Properties sharedConfigProperties = getSharedConfiguration(configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), launcherData));
+		Properties sharedConfigProperties = getSharedConfiguration(configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData));
 		if (sharedConfigProperties == null)
 			return;
 		Enumeration keys = configProps.propertyNames();

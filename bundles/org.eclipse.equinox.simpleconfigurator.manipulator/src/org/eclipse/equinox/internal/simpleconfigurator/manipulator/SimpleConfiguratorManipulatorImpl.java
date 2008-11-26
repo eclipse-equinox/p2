@@ -341,7 +341,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return configData.getBundles();
 
 		File outputFile = getConfigFile(manipulator);
-		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getLauncherData()), backup);
+		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()), backup);
 		configData.setProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
@@ -410,7 +410,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		File configFile = getConfigFile(manipulator);
 
-		BundleInfo[] toInstall = loadConfiguration(configFile.toURL(), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getLauncherData()));
+		BundleInfo[] toInstall = loadConfiguration(configFile.toURL(), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()));
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)
