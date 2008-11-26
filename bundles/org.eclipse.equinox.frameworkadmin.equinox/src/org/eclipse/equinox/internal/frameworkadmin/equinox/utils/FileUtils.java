@@ -158,6 +158,14 @@ public class FileUtils {
 	}
 
 	public static URI fromPath(String path) throws URISyntaxException {
+		if (path.startsWith(FILE_PROTOCOL)) {
+			try {
+				return new URI(path);
+			} catch (URISyntaxException e) {
+				path = path.substring(FILE_PROTOCOL.length() + 1);
+			}
+		}
+
 		File f = new File(path);
 		if (f.isAbsolute())
 			return f.toURI();

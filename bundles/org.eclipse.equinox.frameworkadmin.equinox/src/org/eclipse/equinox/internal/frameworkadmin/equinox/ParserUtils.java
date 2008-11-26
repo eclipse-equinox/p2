@@ -20,6 +20,8 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.osgi.service.log.LogService;
 
 public class ParserUtils {
+	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+
 	public static File getOSGiInstallArea(List programArgs, Properties properties, LauncherData launcherData) {
 		if (launcherData == null)
 			return null;
@@ -58,13 +60,35 @@ public class ParserUtils {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
-		if (install != null)
-			return new File(install);
-		if (properties != null && properties.getProperty("osgi.install.area") != null)
-			return new File(properties.getProperty("osgi.install.area"));
+		if (install == null && properties != null)
+			install = properties.getProperty("osgi.install.area");
+
+		if (install != null) {
+			if (install.startsWith(FILE_PROTOCOL))
+				install = install.substring(FILE_PROTOCOL.length() + 1);
+			File installFile = new File(install);
+			if (installFile.isAbsolute())
+				return installFile;
+			return URIUtil.toFile(URIUtil.makeAbsolute(installFile.toURI(), base));
+		}
+
 		String startup = getValueForArgument(EquinoxConstants.OPTION_STARTUP, args);
 		if (startup != null && base != null) {
-			return URIUtil.toFile(URIUtil.makeAbsolute(fromOSGiJarToOSGiInstallArea(startup).toURI(), base));
+			if (startup.startsWith(FILE_PROTOCOL)) {
+				try {
+					URI startupURI = new URI(startup);
+					startup = new File(startupURI).getAbsolutePath();
+				} catch (URISyntaxException e) {
+					startup = startup.substring(FILE_PROTOCOL.length() + 1);
+				}
+			}
+
+			File osgiInstallArea = fromOSGiJarToOSGiInstallArea(startup);
+			if (osgiInstallArea.isAbsolute())
+				return osgiInstallArea;
+
+			File baseFile = new File(base);
+			return new File(baseFile, osgiInstallArea.getPath());
 		}
 		return null;
 	}

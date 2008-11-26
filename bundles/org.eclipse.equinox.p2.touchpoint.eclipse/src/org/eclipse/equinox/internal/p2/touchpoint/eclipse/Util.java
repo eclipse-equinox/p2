@@ -162,7 +162,8 @@ public class Util {
 
 	public static BundleInfo createBundleInfo(File bundleFile, String manifest) {
 		BundleInfo bundleInfo = new BundleInfo();
-		bundleInfo.setLocation(bundleFile.toURI());
+		if (bundleFile != null)
+			bundleInfo.setLocation(bundleFile.toURI());
 
 		bundleInfo.setManifest(manifest);
 		try {
