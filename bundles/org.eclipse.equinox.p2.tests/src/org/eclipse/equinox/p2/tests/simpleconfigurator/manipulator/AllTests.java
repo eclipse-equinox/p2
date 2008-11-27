@@ -20,6 +20,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(SimpleConfiguratorManipulatorUtilsTest.class);
+		suite.addTestSuite(SimpleConfiguratorManipulatorTests.class);
 		return suite;
 	}
 }

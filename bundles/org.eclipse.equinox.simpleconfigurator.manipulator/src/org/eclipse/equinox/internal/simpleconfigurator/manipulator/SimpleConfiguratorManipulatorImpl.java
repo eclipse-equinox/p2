@@ -326,7 +326,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[configuration.length];
 		for (int i = 0; i < configuration.length; i++) {
 			BundleInfo bundleInfo = (BundleInfo) configuration[i];
-			URI location = URIUtil.makeRelative(bundleInfo.getLocation(), base != null ? base.toURI() : null);
+			URI location = base != null ? URIUtil.makeRelative(bundleInfo.getLocation(), base.toURI()) : bundleInfo.getLocation();
 			simpleInfos[i] = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo(bundleInfo.getSymbolicName(), bundleInfo.getVersion(), location, bundleInfo.getStartLevel(), bundleInfo.isMarkedAsStarted());
 		}
 		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
