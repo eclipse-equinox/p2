@@ -24,24 +24,26 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		File folder = getTestFolder("saveConfiguration");
 		File infoFile = new File(folder, "bundle.info");
 
+		File baseFile = getTempFolder();
+
 		//absolute location written with base
 		BundleInfo[] bundles = new BundleInfo[] {new BundleInfo(new File(folder, "plugins/a_1.0.0.jar").toURI())};
 		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
 		manipulator.saveConfiguration(bundles, infoFile, folder);
-		bundles = manipulator.loadConfiguration(infoFile.toURL(), new File("/"));
-		assertEquals(bundles[0].getLocation(), new File("/plugins/a_1.0.0.jar").toURI());
+		bundles = manipulator.loadConfiguration(infoFile.toURL(), baseFile);
+		assertEquals(bundles[0].getLocation(), new File(baseFile, "plugins/a_1.0.0.jar").toURI());
 
 		//relative location written with null base
 		bundles = new BundleInfo[] {new BundleInfo(new URI("plugins/b_1.0.0.jar"))};
 		manipulator.saveConfiguration(bundles, infoFile, null);
-		bundles = manipulator.loadConfiguration(infoFile.toURL(), new File("/"));
-		assertEquals(bundles[0].getLocation(), new File("/plugins/b_1.0.0.jar").toURI());
+		bundles = manipulator.loadConfiguration(infoFile.toURL(), baseFile);
+		assertEquals(bundles[0].getLocation(), new File(baseFile, "plugins/b_1.0.0.jar").toURI());
 
 		//absolute location written with null base
 		URI absolute = new File(folder, "plugins/c_1.0.0.jar").toURI();
 		bundles = new BundleInfo[] {new BundleInfo(absolute)};
 		manipulator.saveConfiguration(bundles, infoFile, null);
-		bundles = manipulator.loadConfiguration(infoFile.toURL(), new File("/"));
+		bundles = manipulator.loadConfiguration(infoFile.toURL(), baseFile);
 		assertEquals(bundles[0].getLocation(), absolute);
 	}
 }
