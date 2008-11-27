@@ -39,7 +39,7 @@
        point="org.eclipse.equinox.p2.engine.actions">
     <action
           class="org.eclipse.equinox.internal.p2.touchpoint.natives.actions.LinkAction"
-          name="link"
+          name="ln"
           touchpointType="org.eclipse.equinox.p2.native"
           touchpointVersion="1.0.0"
           version="1.0.0">

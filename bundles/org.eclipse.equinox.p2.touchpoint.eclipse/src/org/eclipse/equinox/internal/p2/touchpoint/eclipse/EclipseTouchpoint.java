@@ -41,7 +41,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "link", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "ln", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 	private static Map manipulators = new WeakHashMap();
 	private static Map wrappers = new WeakHashMap();
