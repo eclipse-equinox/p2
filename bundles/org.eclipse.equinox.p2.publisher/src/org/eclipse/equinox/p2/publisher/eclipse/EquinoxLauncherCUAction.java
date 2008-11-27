@@ -81,7 +81,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 				bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			}
 			String filter = configSpec == null ? null : createFilterSpec(configSpec);
-			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(id, version, false, bundle, flavor, null);
+			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(id, version, false, bundle, flavor, filter);
 			if (cu != null)
 				results.addIU(cu, IPublisherResult.ROOT);
 		}
