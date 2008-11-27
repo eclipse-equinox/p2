@@ -94,21 +94,6 @@ public class SimpleConfiguratorUtils {
 		}
 	}
 
-	private static boolean validateURI(URI uri) {
-		// relative URIs when written scheme:a/b are considered opaque and indicate an improperly constructed URI string
-		if (uri.isOpaque())
-			return false;
-
-		// We check here for any improperly constructed file URI.
-		if (File.separatorChar == '/')
-			return true;
-
-		if (uri.isAbsolute() && !uri.getScheme().equals(FILE_SCHEME))
-			return true;
-
-		return -1 == uri.getPath().indexOf(File.separatorChar);
-	}
-
 	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {
 		source = new BufferedInputStream(source);
 		destination = new BufferedOutputStream(destination);
