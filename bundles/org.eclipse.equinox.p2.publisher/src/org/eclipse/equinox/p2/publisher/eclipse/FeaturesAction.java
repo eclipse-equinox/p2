@@ -424,7 +424,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 			createAdviceFileAdvice(feature, info);
 
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-			Properties props = getFeatureAdvice(feature, info);
 			IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, info);
 			publishFeatureArtifacts(feature, featureIU, info);
 			result.addIU(featureIU, IPublisherResult.ROOT);
