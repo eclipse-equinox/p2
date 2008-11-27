@@ -86,7 +86,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private boolean useBold = false;
 	private IUDetailsLabelProvider labelProvider;
 	private Display display;
-	DeferredFetchFilteredTree filteredTree;
+	DelayedFilterCheckboxTree filteredTree;
 	Job lastRequestedLoadJob;
 
 	/**
@@ -130,7 +130,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
-		filteredTree = new DeferredFetchFilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, new IViewMenuProvider() {
+		filteredTree = new DelayedFilterCheckboxTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, new IViewMenuProvider() {
 
 			public void fillViewMenu(IMenuManager viewMenu) {
 				viewByRepo = new ChangeViewAction(ProvUIMessages.AvailableIUGroup_ViewBySite, IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);

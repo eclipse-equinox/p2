@@ -15,13 +15,12 @@ import java.util.EventListener;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * A listening interface used to signal when fetching begins and
- * ends.  Used by clients who wish to coordinate fetching with other
- * jobs that must occur in the viewer.
+ * A listening interface used to signal clients when input changes
+ * in a viewer.
  * 
  * @since 3.4
  *
  */
-public interface IDeferredQueryContentListener extends EventListener {
+public interface IInputChangeListener extends EventListener {
 	public void inputChanged(Viewer v, Object oldInput, Object newInput);
 }

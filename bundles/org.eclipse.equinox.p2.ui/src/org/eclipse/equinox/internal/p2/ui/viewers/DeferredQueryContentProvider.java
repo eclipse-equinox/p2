@@ -45,11 +45,11 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		// Default constructor
 	}
 
-	public void addListener(IDeferredQueryContentListener listener) {
+	public void addListener(IInputChangeListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(IDeferredQueryContentListener listener) {
+	public void removeListener(IInputChangeListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -78,7 +78,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		currentInput = newInput;
 		Object[] inputListeners = listeners.getListeners();
 		for (int i = 0; i < inputListeners.length; i++) {
-			((IDeferredQueryContentListener) inputListeners[i]).inputChanged(v, oldInput, newInput);
+			((IInputChangeListener) inputListeners[i]).inputChanged(v, oldInput, newInput);
 		}
 	}
 
