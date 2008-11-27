@@ -73,7 +73,6 @@ public class DefaultQueryProvider extends QueryProvider {
 				// collectors will use to reject content.  We can't use a compound query because the
 				// queryables are different (profile for installed content, repo for available content)
 				AvailableIUCollector availableIUCollector;
-				ElementQueryDescriptor installedQueryDescriptor = null;
 				boolean showLatest = context.getShowLatestVersionsOnly();
 				boolean hideInstalled = context.getHideAlreadyInstalled();
 				IProfile targetProfile = null;
