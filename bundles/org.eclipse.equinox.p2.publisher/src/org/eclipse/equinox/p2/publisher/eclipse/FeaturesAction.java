@@ -226,7 +226,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private Object[] createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
+	protected Object[] createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
 		String id = featureId + '_' + descriptor.getKey();
