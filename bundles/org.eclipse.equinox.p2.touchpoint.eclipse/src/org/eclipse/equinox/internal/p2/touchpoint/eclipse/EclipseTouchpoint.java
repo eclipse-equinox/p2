@@ -101,30 +101,30 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IStatus commit(IProfile profile) {
+		MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		try {
 			saveManipulator(profile);
 		} catch (RuntimeException e) {
-			return Util.createError(Messages.error_saving_manipulator, e);
+			status.add(Util.createError(Messages.error_saving_manipulator, e));
 		} catch (IOException e) {
-			return Util.createError(Messages.error_saving_manipulator, e);
+			status.add(Util.createError(Messages.error_saving_manipulator, e));
 		}
 		try {
 			savePlatformConfigurationWrapper(profile);
 		} catch (RuntimeException e) {
-			return Util.createError(Messages.error_saving_platform_configuration, e);
+			status.add(Util.createError(Messages.error_saving_platform_configuration, e));
 		} catch (ProvisionException pe) {
-			return Util.createError(Messages.error_saving_platform_configuration, pe);
+			status.add(Util.createError(Messages.error_saving_platform_configuration, pe));
 		}
 
 		try {
 			saveSourceManipulator(profile);
 		} catch (RuntimeException e) {
-			return Util.createError(Messages.error_saving_source_bundles_list, e);
+			status.add(Util.createError(Messages.error_saving_source_bundles_list, e));
 		} catch (IOException e) {
-			return Util.createError(Messages.error_saving_source_bundles_list, e);
+			status.add(Util.createError(Messages.error_saving_source_bundles_list, e));
 		}
-
-		return Status.OK_STATUS;
+		return status;
 	}
 
 	public IStatus rollback(IProfile profile) {
