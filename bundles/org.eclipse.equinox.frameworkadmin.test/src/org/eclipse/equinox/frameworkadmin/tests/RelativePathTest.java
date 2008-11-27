@@ -63,8 +63,9 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertNotContent(new File(configurationFolder, "config.ini"), installFolder.getAbsolutePath());
 		assertNotContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), installFolder.getAbsolutePath());
 		assertContent(new File(configurationFolder, "config.ini"), ":org.eclipse.equinox.simpleconfigurator.jar");
-		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), ",plugins/org.eclipse.equinox.simpleconfigurator.jar");
-		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), ",plugins/org.eclipse.osgi.jar");
+		//Note: This is testing for old style bundle locations
+		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), "file:plugins/org.eclipse.equinox.simpleconfigurator.jar");
+		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), "file:plugins/org.eclipse.osgi.jar");
 
 		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
 		manipulator.getConfigData().addBundle(bi);

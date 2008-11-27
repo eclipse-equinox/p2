@@ -14,8 +14,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
+import org.osgi.framework.Version;
 
 public class SimpleConfiguratorManipulatorUtils {
+
+	private static final Version OLD_VERSION = new Version("1.0.100");
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 
@@ -44,10 +47,20 @@ public class SimpleConfiguratorManipulatorUtils {
 		Utils.createParentDir(outputFile);
 		BufferedWriter writer = null;
 		IOException caughtException = null;
+		boolean oldStyle = false;
+		for (int i = 0; i < simpleInfos.length; i++) {
+			if (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
+				Version version = new Version(simpleInfos[i].getVersion());
+				if (version.compareTo(OLD_VERSION) < 0)
+					oldStyle = true;
+				break;
+			}
+		}
+
 		try {
 			writer = new BufferedWriter(new FileWriter(outputFile));
 			for (int i = 0; i < simpleInfos.length; i++) {
-				writer.write(createBundleInfoLine(simpleInfos[i]));
+				writer.write(createBundleInfoLine(simpleInfos[i], oldStyle));
 				writer.newLine();
 			}
 		} catch (IOException e) {
@@ -67,14 +80,14 @@ public class SimpleConfiguratorManipulatorUtils {
 			throw caughtException;
 	}
 
-	public static String createBundleInfoLine(BundleInfo bundleInfo) throws IOException {
+	public static String createBundleInfoLine(BundleInfo bundleInfo, boolean oldStyle) throws IOException {
 		// symbolicName,version,location,startLevel,markedAsStarted
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(bundleInfo.getSymbolicName());
 		buffer.append(',');
 		buffer.append(bundleInfo.getVersion());
 		buffer.append(',');
-		buffer.append(createBundleLocation(bundleInfo.getLocation()));
+		buffer.append(createBundleLocation(bundleInfo.getLocation(), oldStyle));
 		buffer.append(',');
 		buffer.append(bundleInfo.getStartLevel());
 		buffer.append(',');
@@ -82,7 +95,14 @@ public class SimpleConfiguratorManipulatorUtils {
 		return buffer.toString();
 	}
 
-	public static String createBundleLocation(URI location) {
+	public static String createBundleLocation(URI location, boolean oldStyle) {
+		if (oldStyle) {
+			String scheme = location.getScheme();
+			if (scheme == null)
+				scheme = "file";
+			return scheme + ":" + location.getSchemeSpecificPart();
+		}
+
 		String result = location.toString();
 		int commaIndex = result.indexOf(',');
 		while (commaIndex != -1) {
