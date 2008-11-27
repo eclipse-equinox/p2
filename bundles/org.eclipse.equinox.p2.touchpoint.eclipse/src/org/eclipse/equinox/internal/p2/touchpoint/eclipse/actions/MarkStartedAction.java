@@ -38,9 +38,9 @@ public class MarkStartedAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
 		IArtifactKey artifactKey = artifacts[0];
+
+		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(artifactKey, profile);
-		if (bundleFile == null || !bundleFile.exists())
-			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 
 		String manifest = Util.getManifest(iu.getTouchpointData());
 		if (manifest == null)
@@ -71,9 +71,8 @@ public class MarkStartedAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
 		IArtifactKey artifactKey = artifacts[0];
+		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(artifactKey, profile);
-		if (bundleFile == null || !bundleFile.exists())
-			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 
 		String manifest = Util.getManifest(iu.getTouchpointData());
 		if (manifest == null)

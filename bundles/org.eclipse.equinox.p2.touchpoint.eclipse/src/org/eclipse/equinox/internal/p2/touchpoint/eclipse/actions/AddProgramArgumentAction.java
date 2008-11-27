@@ -8,12 +8,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import java.io.File;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class AddProgramArgumentAction extends ProvisioningAction {
@@ -27,7 +31,7 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 
 		if (programArg.equals(ActionConstants.PARM_ARTIFACT)) {
 			try {
-				programArg = Util.resolveArtifactParam(parameters);
+				programArg = resolveArtifactParam(parameters);
 			} catch (CoreException e) {
 				return e.getStatus();
 			}
@@ -45,7 +49,7 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 
 		if (programArg.equals(ActionConstants.PARM_ARTIFACT)) {
 			try {
-				programArg = Util.resolveArtifactParam(parameters);
+				programArg = resolveArtifactParam(parameters);
 			} catch (CoreException e) {
 				return e.getStatus();
 			}
@@ -53,5 +57,20 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 
 		manipulator.getLauncherData().removeProgramArg(programArg);
 		return Status.OK_STATUS;
+	}
+
+	private static String resolveArtifactParam(Map parameters) throws CoreException {
+		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			throw new CoreException(Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu)));
+
+		IArtifactKey artifactKey = artifacts[0];
+
+		File fileLocation = Util.getArtifactFile(artifactKey, profile);
+		if (fileLocation == null || !fileLocation.exists())
+			throw new CoreException(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
+		return fileLocation.getAbsolutePath();
 	}
 }

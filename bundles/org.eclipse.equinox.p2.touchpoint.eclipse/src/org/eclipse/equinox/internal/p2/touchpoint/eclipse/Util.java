@@ -17,7 +17,6 @@ import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -326,21 +325,6 @@ public class Util {
 
 	public static IStatus createError(String message, Exception e) {
 		return new Status(IStatus.ERROR, Activator.ID, message, e);
-	}
-
-	public static String resolveArtifactParam(Map parameters) throws CoreException {
-		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
-		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
-			throw new CoreException(createError(NLS.bind(Messages.iu_contains_no_arifacts, iu)));
-
-		IArtifactKey artifactKey = artifacts[0];
-
-		File fileLocation = Util.getArtifactFile(artifactKey, profile);
-		if (fileLocation == null || !fileLocation.exists())
-			throw new CoreException(createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
-		return fileLocation.getAbsolutePath();
 	}
 
 	public static File getLauncherConfigLocation(IProfile profile) {
