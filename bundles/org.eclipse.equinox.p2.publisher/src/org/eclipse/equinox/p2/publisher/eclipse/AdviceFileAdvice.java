@@ -92,12 +92,10 @@ public class AdviceFileAdvice implements ITouchpointAdvice {
 	}
 
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
-		// when to turn this on?  for now only when the p2.inf exists on disk.  It may be too expensive to grab 
-		// it out of jars when looking at an old update site.
+		// only process this advice if there is an advice file present
 		File location = basePath.toFile();
-		if (location == null || !location.isDirectory())
-			return false;
-
+		if (!location.isDirectory())
+			return location.exists();
 		return new File(location, adviceFilePath.toString()).exists();
 	}
 
