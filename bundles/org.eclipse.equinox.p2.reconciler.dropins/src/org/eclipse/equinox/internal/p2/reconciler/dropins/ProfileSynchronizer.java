@@ -70,10 +70,6 @@ public class ProfileSynchronizer {
 		if (isUpToDate())
 			return Status.OK_STATUS;
 
-		IStatus status = synchronizeCacheExtensions();
-		if (!status.isOK())
-			return status;
-
 		ProvisioningContext context = getContext();
 		ProfileChangeRequest request = createProfileChangeRequest(context);
 
@@ -85,7 +81,7 @@ public class ProfileSynchronizer {
 			//create the provisioning plan
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
 
-			status = plan.getStatus();
+			IStatus status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL || plan.getOperands().length == 0)
 				return status;
 
@@ -208,7 +204,7 @@ public class ProfileSynchronizer {
 		return result;
 	}
 
-	private IStatus synchronizeCacheExtensions() {
+	private String synchronizeCacheExtensions() {
 		List currentExtensions = new ArrayList();
 		StringBuffer buffer = new StringBuffer();
 
@@ -253,15 +249,16 @@ public class ProfileSynchronizer {
 		}
 
 		if (previousExtensions.size() == currentExtensions.size() && previousExtensions.containsAll(currentExtensions))
-			return Status.OK_STATUS;
+			return null;
 
-		Operand operand = new PropertyOperand(CACHE_EXTENSIONS, previousExtensionsProperty, currentExtensionsProperty);
-
-		return executeOperands(new ProvisioningContext(new URI[0]), new Operand[] {operand}, null);
+		return currentExtensionsProperty;
 	}
 
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		String updatedCacheExtensions = synchronizeCacheExtensions();
+		if (updatedCacheExtensions != null)
+			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
 
 		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue();
 		if (resolve)
@@ -323,7 +320,7 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
-		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve)
+		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && updatedCacheExtensions == null)
 			return null;
 
 		context.setExtraIUs(toAdd);
@@ -356,15 +353,11 @@ public class ProfileSynchronizer {
 
 	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		Operand[] operands = plan.getOperands();
-		return executeOperands(provisioningContext, operands, monitor);
-	}
-
-	private IStatus executeOperands(ProvisioningContext provisioningContext, Operand[] operands, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
-			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_CHECK_TRUST);
+			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
 			IStatus engineResult = engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
 			return engineResult;
 		} finally {
