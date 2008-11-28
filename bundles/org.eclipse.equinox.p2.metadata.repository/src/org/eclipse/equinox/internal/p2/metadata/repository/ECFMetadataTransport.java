@@ -345,6 +345,9 @@ public class ECFMetadataTransport {
 			retrievalContainer.setConnectContextForAuthentication(context);
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
+			if (e.getErrorCode() == 401)
+				throw ERROR_401;
+			//try to figure out if we have a 401 by parsing the exception message
 			IStatus status = e.getStatus();
 			Throwable exception = status.getException();
 			if (exception instanceof IOException) {
