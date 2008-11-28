@@ -233,6 +233,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	public static void copy(String message, File source, File target) {
 		if (!source.exists())
 			return;
+		target.getParentFile().mkdirs();
 		if (source.isDirectory()) {
 			if (target.exists() && target.isFile())
 				target.delete();
