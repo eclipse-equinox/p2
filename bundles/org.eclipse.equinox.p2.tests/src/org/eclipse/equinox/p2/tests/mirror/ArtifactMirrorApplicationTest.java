@@ -16,6 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
+import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -24,7 +25,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 
 /**
  * Test API of the basic mirror application functionality's implementation.
@@ -1045,6 +1049,62 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			//Order in which mirror application mirrors artifacts is random.
 		} catch (ProvisionException e) {
 			fail("Error laoding destiantion repo", e);
+		}
+	}
+
+	public void testCompareUsingMD5Comparator() {
+		//Setup create descriptors with different md5 values
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
+		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
+		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
+		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
+
+		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
+		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+
+		//Setup make repositories
+		File repo1Location = getTestFolder(getUniqueString());
+		File repo2Location = getTestFolder(getUniqueString());
+		IArtifactRepository repo1 = null;
+		IArtifactRepository repo2 = null;
+		try {
+			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo1.addDescriptor(descriptor1);
+			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo2.addDescriptor(descriptor2);
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		//Comparator prints to stderr, redirect that to a file
+		PrintStream oldErr = System.err;
+		PrintStream newErr = null;
+		try {
+			newErr = new PrintStream(new FileOutputStream(repo2Location.getAbsolutePath() + "/out.out"));
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting stderr", e);
+		}
+		System.setErr(newErr);
+		try {
+			//Set compare flag.
+			String[] args = new String[] {"-source", repo1Location.toURL().toExternalForm(), "-destination", repo2Location.toURL().toExternalForm(), "-verbose", "-compare"};
+			//run the mirror application
+			runMirrorApplication("Running with duplicate descriptors with different md5 values", args);
+		} catch (Exception e) {
+			fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
+		}
+		System.setErr(oldErr);
+		newErr.close();
+
+		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
+		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
+		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {repo1, repo2, descriptor1});
+		try {
+			assertLogContainsLine(new File(repo2Location, "/out.out"), msg);
+		} catch (Exception e) {
+			fail("error verifying output", e);
 		}
 	}
 }

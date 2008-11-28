@@ -30,45 +30,12 @@ public class Mirroring {
 	private boolean raw;
 	private boolean compare = false;
 	private IArtifactComparator comparator;
-	private String comparatorID = null;
-
-	private static final String comparatorPoint = "org.eclipse.equinox.p2.artifact.repository.comparators"; //$NON-NLS-1$
-	private static final String ATTR_ID = "id"; //$NON-NLS-1$
-	private static final String ATTR_CLASS = "class"; //$NON-NLS-1$
+	private String comparatorID;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
-			comparator = computeComparators();
+			comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
 		return comparator;
-	}
-
-	private IArtifactComparator computeComparators() {
-		IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(comparatorPoint);
-
-		IConfigurationElement element = null;
-		if (comparatorID == null && extensions.length > 0) {
-			element = extensions[0]; //just take the first one
-		} else {
-			for (int i = 0; i < extensions.length; i++) {
-				if (extensions[i].getAttribute(ATTR_ID).equals(comparatorID)) {
-					element = extensions[i];
-					break;
-				}
-			}
-		}
-		if (element != null) {
-			try {
-				Object execExt = element.createExecutableExtension(ATTR_CLASS);
-				if (execExt instanceof IArtifactComparator)
-					return (IArtifactComparator) execExt;
-			} catch (Exception e) {
-				//fall through
-			}
-		}
-
-		if (comparatorID != null)
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_comparatorNotFound, comparatorID));
-		throw new IllegalArgumentException(Messages.exception_noComparators);
 	}
 
 	public Mirroring(IArtifactRepository source, IArtifactRepository destination, boolean raw) {
@@ -89,7 +56,7 @@ public class Mirroring {
 		if (!destination.isModifiable())
 			throw new IllegalStateException(NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
 		if (compare)
-			getComparator(); //initialize the comparator. Only needed if we're comparing.
+			getComparator(); //initialize the comparator. Only needed if we're comparing. Used to force error if comparatorID is invalid.
 		IArtifactKey[] keys = source.getArtifactKeys();
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
 		for (int i = 0; i < keys.length; i++) {
@@ -113,6 +80,7 @@ public class Mirroring {
 				if (verbose)
 					System.out.println("Mirroring: " + descriptor.getArtifactKey() + " (Descriptor: " + descriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				repositoryStream = destination.getOutputStream(newDescriptor);
+
 				return source.getRawArtifact(descriptor, repositoryStream, new NullProgressMonitor());
 			} finally {
 				if (repositoryStream != null) {
@@ -129,10 +97,36 @@ public class Mirroring {
 				String message = NLS.bind(Messages.mirror_alreadyExists, descriptor, destination);
 				if (!compare)
 					return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, e);
-				return getComparator().compare(source, descriptor, destination, newDescriptor);
 
+				return compareToDestination(descriptor, e);
 			}
 			return e.getStatus();
 		}
+	}
+
+	/**
+	 * Takes an IArtifactDescriptor descriptor and the ProvisionException that was thrown when destination.getOutputStream(descriptor)
+	 * and compares descriptor to the duplicate descriptor in the destination.
+	 * 
+	 * Callers should verify the ProvisionException was thrown due to the artifact existing in the destination before invoking this method.
+	 * @param descriptor
+	 * @param e
+	 * @return the status of the compare
+	 */
+	private IStatus compareToDestination(IArtifactDescriptor descriptor, ProvisionException e) {
+		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor.getArtifactKey());
+		IArtifactDescriptor destDescriptor = null;
+		boolean descriptorMatched = false;
+		for (int i = 0; i < destDescriptors.length && !descriptorMatched; i++) {
+			if (destDescriptors[i].equals(descriptor)) {
+				destDescriptor = destDescriptors[i];
+				descriptorMatched = true;
+			}
+		}
+
+		if (descriptorMatched)
+			return getComparator().compare(source, descriptor, destination, destDescriptor);
+
+		return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, e);
 	}
 }

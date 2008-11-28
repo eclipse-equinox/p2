@@ -45,6 +45,8 @@ public class Messages extends NLS {
 	public static String exception_needSourceDestination;
 	public static String exception_malformedRepoURI;
 
+	public static String Mirroring_NO_MATCHING_DESCRIPTOR;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

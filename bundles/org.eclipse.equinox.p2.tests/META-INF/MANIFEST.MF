@@ -7,6 +7,7 @@ Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.artifact.mirror,
+ org.eclipse.equinox.internal.p2.artifact.processors.md5,
  org.eclipse.equinox.internal.p2.artifact.processors.pack200,
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
