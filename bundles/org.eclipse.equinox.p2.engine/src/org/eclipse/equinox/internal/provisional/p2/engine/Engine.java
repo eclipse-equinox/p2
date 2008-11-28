@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -54,13 +55,16 @@ public class Engine implements IEngine {
 			MultiStatus result = phaseSet.perform(session, profile, operands, context, monitor);
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
-				session.rollback();
+				IStatus status = session.rollback();
+				if (status.matches(IStatus.ERROR))
+					LogHelper.log(status);
 			} else {
-				if (profile.isChanged()) {
+				if (profile.isChanged())
 					profileRegistry.updateProfile(profile);
-				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
-				session.commit();
+				IStatus status = session.commit();
+				if (status.matches(IStatus.ERROR))
+					LogHelper.log(status);
 			}
 			//if there is only one child status, return that status instead because it will have more context
 			IStatus[] children = result.getChildren();

@@ -35,6 +35,11 @@ public class Messages extends NLS {
 	public static String phaseid_not_set;
 	public static String Engine_Operation_Canceled_By_User;
 	public static String InstallableUnitEvent_type_not_install_or_uninstall;
+	public static String touchpoint_commit_error;
+	public static String touchpoint_rollback_error;
+	public static String phase_undo_error;
+	public static String session_commit_error;
+	public static String session_rollback_error;
 
 	static {
 		// initialize resource bundle

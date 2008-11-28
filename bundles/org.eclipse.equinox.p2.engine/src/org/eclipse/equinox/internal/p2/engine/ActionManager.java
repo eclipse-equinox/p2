@@ -57,15 +57,13 @@ public class ActionManager implements IRegistryChangeListener {
 				if (touchpointType != null) {
 					String touchpointVersion = actionElement.getAttribute(TOUCHPOINT_VERSION);
 					Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(touchpointType, touchpointVersion);
-					if (touchpoint == null) {
-						reportError(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, touchpointType, actionId));
-						return null;
-					}
+					if (touchpoint == null)
+						throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, touchpointType, actionId));
 					action.setTouchpoint(touchpoint);
 				}
 				return action;
 			} catch (CoreException e) {
-				reportError(NLS.bind(Messages.ActionManager_Exception_Creating_Action_Extension, actionId));
+				throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Exception_Creating_Action_Extension, actionId));
 			}
 		}
 		return null;

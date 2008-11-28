@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.osgi.util.NLS;
 
 public class EngineSession {
 
@@ -43,19 +44,44 @@ public class EngineSession {
 	}
 
 	public IStatus commit() {
-		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
 			Touchpoint touchpoint = (Touchpoint) iterator.next();
-			result.add(touchpoint.commit(profile));
+			try {
+				status.add(touchpoint.commit(profile));
+			} catch (RuntimeException e) {
+				// "touchpoint.commit" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_commit_error, touchpoint.getClass().getName()), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_commit_error, touchpoint.getClass().getName()), e));
+			}
 		}
-		return result;
+
+		if (status.matches(IStatus.ERROR)) {
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, NLS.bind(Messages.session_commit_error, profile.getProfileId()), null);
+			result.merge(status);
+			return result;
+		}
+		return status;
 	}
 
 	public IStatus rollback() {
-		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+
 		if (currentPhase != null) {
-			result.add(rollBackPhase(currentPhase, currentActionRecords));
+			try {
+				status.add(rollBackPhase(currentPhase, currentActionRecords));
+			} catch (RuntimeException e) {
+				// "phase.undo" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, currentPhase.getClass().getName()), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, currentPhase.getClass().getName()), e));
+			}
 			currentPhase = null;
 			currentActionRecords = null;
 			currentRecord = null;
@@ -65,14 +91,39 @@ public class EngineSession {
 			Object[] pair = (Object[]) it.previous();
 			Phase phase = (Phase) pair[0];
 			List actionRecords = (List) pair[1];
-			result.add(rollBackPhase(phase, actionRecords));
+			try {
+				status.add(rollBackPhase(phase, actionRecords));
+			} catch (RuntimeException e) {
+				// "phase.undo" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, phase.getClass().getName()), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, phase.getClass().getName()), e));
+			}
 		}
+
 		phaseActionRecordsPairs.clear();
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = (Touchpoint) iterator.next();
-			result.add(touchpoint.rollback(profile));
+			try {
+				Touchpoint touchpoint = (Touchpoint) iterator.next();
+				status.add(touchpoint.commit(profile));
+			} catch (RuntimeException e) {
+				// "touchpoint.commit" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, Touchpoint.class.getName()), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, Touchpoint.class.getName()), e));
+			}
 		}
-		return result;
+
+		if (status.matches(IStatus.ERROR)) {
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, NLS.bind(Messages.session_commit_error, profile.getProfileId()), null);
+			result.merge(status);
+			return result;
+		}
+		return status;
 	}
 
 	private IStatus rollBackPhase(Phase phase, List actionRecords) {

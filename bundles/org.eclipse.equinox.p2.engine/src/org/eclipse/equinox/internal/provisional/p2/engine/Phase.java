@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
 	protected static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
@@ -190,7 +191,7 @@ public abstract class Phase {
 			Touchpoint touchpoint = action.getTouchpoint();
 			if (touchpoint != null) {
 				mergeStatus(status, initializeTouchpointParameters(profile, operand, operandParameters, touchpoint, new NullProgressMonitor()));
-				if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+				if (status.matches(IStatus.ERROR))
 					return;
 
 				parameters = (Map) touchpointToTouchpointOperandParameters.get(touchpoint);
@@ -250,7 +251,7 @@ public abstract class Phase {
 	 * this phase. Subclasses should override.
 	 */
 	protected String getProblemMessage() {
-		return Messages.phase_error;
+		return NLS.bind(Messages.phase_error, getClass().getName());
 	}
 
 }
