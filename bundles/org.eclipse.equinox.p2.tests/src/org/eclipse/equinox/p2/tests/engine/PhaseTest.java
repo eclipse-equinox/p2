@@ -257,8 +257,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new ProvidedCapability[0], NO_PROPERTIES, TouchpointType.NONE, touchpointData, false);
 		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		if (!status.isOK()) {
-			System.out.println(status);
-			fail();
+			fail(status.toString());
 		}
 
 		assertEquals(TestAction.class, ((ParameterizedProvisioningAction) actionsList1.get(0)).getAction().getClass());

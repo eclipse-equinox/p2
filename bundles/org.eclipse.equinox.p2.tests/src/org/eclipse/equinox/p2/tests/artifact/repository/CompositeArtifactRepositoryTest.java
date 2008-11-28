@@ -426,7 +426,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		try {
 			OutputStream repositoryStream = null;
 			try {
-				System.out.println("Getting Artifact: " + descriptors[0].getArtifactKey() + " (Descriptor: " + descriptors[0] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				//System.out.println("Getting Artifact: " + descriptors[0].getArtifactKey() + " (Descriptor: " + descriptors[0] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				repositoryStream = destinationRepo.getOutputStream(newDescriptor);
 				if (repositoryStream == null)
 					fail("Error while obtaining OutputStream");

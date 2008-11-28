@@ -861,7 +861,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 					try {
 						OutputStream repositoryStream = null;
 						try {
-							System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							//System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							repositoryStream = destinationRepo.getOutputStream(newDescriptor);
 							if (repositoryStream == null)
 								return;

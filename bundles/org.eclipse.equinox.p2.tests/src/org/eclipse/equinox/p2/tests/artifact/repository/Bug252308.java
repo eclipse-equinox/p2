@@ -124,8 +124,7 @@ public class Bug252308 extends AbstractProvisioningTest {
 		MirrorRequest request = new MirrorRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", new Version(1, 0, 0)), target, null, null);
 		request.setSourceRepository(source);
 		IStatus s = transferSingle(request, targetDescriptor, sourceDescriptor, new NullProgressMonitor());
-		assertTrue(s.getException().getClass() == FileNotFoundException.class);
-		System.out.println(s);
+		assertTrue(s.toString(), s.getException().getClass() == FileNotFoundException.class);
 	}
 
 	private IArtifactDescriptor[] getArtifactKeyFor(IArtifactRepository repo, String classifier, String id, Version version) {
