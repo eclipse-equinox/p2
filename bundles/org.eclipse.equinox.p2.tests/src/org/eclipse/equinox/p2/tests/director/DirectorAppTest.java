@@ -73,7 +73,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 	private String[] getSingleRepoArgs(String message, File metadataRepo, File artifactRepo, File destinationRepo, String installIU) {
 		String[] args = new String[0];
 		try {
-			args = new String[] {"-metadataRepository", metadataRepo.toURL().toExternalForm(), "-artifactRepository", artifactRepo.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.toURL().toExternalForm(), "-roaming", "-vmargs", "-Declipse.p2.data.area=", destinationRepo.toURL().toExternalForm()};
+			args = new String[] {"-metadataRepository", metadataRepo.toURL().toExternalForm(), "-artifactRepository", artifactRepo.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming", "-vmargs", "-Declipse.p2.data.area=", destinationRepo.toURL().toExternalForm()};
 		} catch (MalformedURLException e) {
 			fail(message, e);
 		}
@@ -86,7 +86,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 	private String[] getMultipleRepoArgs(String message, File metadataRepo1, File metadataRepo2, File artifactRepo1, File artifactRepo2, File destinationRepo, String installIU) {
 		String[] args = new String[0];
 		try {
-			args = new String[] {"-metadataRepository", metadataRepo1.toURL().toExternalForm() + "," + metadataRepo2.toURL().toExternalForm(), "-artifactRepository", artifactRepo1.toURL().toExternalForm() + "," + artifactRepo2.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.toURL().toExternalForm(), "-roaming", "-vmargs", "-Declipse.p2.data.area=", destinationRepo.toURL().toExternalForm()};
+			args = new String[] {"-metadataRepository", metadataRepo1.toURL().toExternalForm() + "," + metadataRepo2.toURL().toExternalForm(), "-artifactRepository", artifactRepo1.toURL().toExternalForm() + "," + artifactRepo2.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming", "-vmargs", "-Declipse.p2.data.area=", destinationRepo.toURL().toExternalForm()};
 		} catch (MalformedURLException e) {
 			fail(message, e);
 		}
