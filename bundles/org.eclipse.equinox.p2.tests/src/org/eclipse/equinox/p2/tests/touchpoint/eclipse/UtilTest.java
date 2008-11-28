@@ -45,7 +45,7 @@ public class UtilTest extends AbstractProvisioningTest {
 		return new TestSuite(UtilTest.class);
 	}
 
-	public void testDefaultBundlePool() throws MalformedURLException {
+	public void testDefaultBundlePool() {
 		IProfile profile = createProfile("test");
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		try {

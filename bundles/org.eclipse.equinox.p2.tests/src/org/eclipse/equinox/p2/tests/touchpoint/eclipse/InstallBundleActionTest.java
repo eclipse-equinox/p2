@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
@@ -38,7 +37,7 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() throws IOException {
+	public void testExecuteUndo() {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

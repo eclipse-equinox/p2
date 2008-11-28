@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
@@ -61,7 +60,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(programArg));
 	}
 
-	public void testExecuteUndoWithArtifact() throws IOException {
+	public void testExecuteUndoWithArtifact() {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
