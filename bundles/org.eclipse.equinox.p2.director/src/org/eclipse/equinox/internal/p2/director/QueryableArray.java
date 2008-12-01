@@ -78,7 +78,7 @@ public class QueryableArray implements IQueryable {
 				String name = providedCapabilities[i].getName();
 				List iuCapabilities = (List) namedCapabilityIndex.get(name);
 				if (iuCapabilities == null) {
-					iuCapabilities = new ArrayList();
+					iuCapabilities = new ArrayList(5);
 					namedCapabilityIndex.put(name, iuCapabilities);
 				}
 				iuCapabilities.add(new IUCapability(iu, providedCapabilities[i]));
