@@ -47,9 +47,14 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
+		suite.setName(BasicTests.class.getName());
 		suite.addTest(new BasicTests("testNonSingleton"));
 		suite.addTest(new BasicTests("testSingleton"));
 		suite.addTest(new BasicTests("testDirectoryBasedPlugin"));
+		suite.addTest(new BasicTests("testSimpleRepoWithSiteXMLPlaceHolder"));
+		// NOTE: Enable this tests when we can handle a simple repo without the site.xml placeholder
+		// see bug 252752
+		//suite.addTest(new BasicTests("testSimpleRepo"));
 		return suite;
 	}
 
@@ -174,5 +179,69 @@ public class BasicTests extends AbstractReconcilerTest {
 		reconcile("99.2");
 		assertDoesNotExistInBundlesInfo("99.3", "mySingletonBundle", "1.0.0");
 		assertDoesNotExistInBundlesInfo("99.4", "mySingletonBundle", "2.0.0");
+	}
+
+	/*
+	 * Tests adding a simplerepo to the dropins folder. Note we need a dummy site.mxl for now
+	 * We likely still need this tests for backwards compatability
+	 */
+	public void testSimpleRepoWithSiteXMLPlaceHolder() {
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+
+		// copy bundles and repo files to dropins and reconcile
+		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
+		add("1.0", "dropins/simplerepo/plugins", jar);
+		jar = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");
+		add("1.1", "dropins/simplerepo/plugins", jar);
+
+		File artifactRepo = getTestData("2.0", "testData/reconciler/simplerepo/artifacts.xml");
+		add("1.1", "dropins/simplerepo", artifactRepo);
+		File metadataRepo = getTestData("2.0", "testData/reconciler/simplerepo/content.xml");
+		add("1.1", "dropins/simplerepo", metadataRepo);
+		File dummySiteXML = getTestData("2.0", "testData/reconciler/simplerepo/site.xml");
+		add("1.1", "dropins/simplerepo", dummySiteXML);
+
+		reconcile("2.0");
+
+		// bundle should exist - both versions since we have non-singleton bundles
+		assertDoesNotExistInBundlesInfo("2.1", "myBundle", "1.0.0");
+		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
+
+		// cleanup
+		remove("99.0", "dropins", "simpleRepo");
+		reconcile("99.1");
+		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
+	}
+
+	/*
+	 * Tests adding a simplerepo to the dropins folder. Note we need a dummy site.mxl for now
+	 * We likely still need this tests for backwards compatability
+	 */
+	public void testSimpleRepo() {
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+
+		// copy bundles and repo files to dropins and reconcile
+		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
+		add("1.0", "dropins/simplerepo/plugins", jar);
+		jar = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");
+		add("1.1", "dropins/simplerepo/plugins", jar);
+
+		File artifactRepo = getTestData("2.0", "testData/reconciler/simplerepo/artifacts.xml");
+		add("1.1", "dropins/simplerepo", artifactRepo);
+		File metadataRepo = getTestData("2.0", "testData/reconciler/simplerepo/content.xml");
+		add("1.1", "dropins/simplerepo", metadataRepo);
+
+		reconcile("2.0");
+
+		// bundle should exist - both versions since we have non-singleton bundles
+		assertDoesNotExistInBundlesInfo("2.1", "myBundle", "1.0.0");
+		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
+
+		// cleanup
+		remove("99.0", "dropins", "simpleRepo");
+		reconcile("99.1");
+		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
 	}
 }
