@@ -111,7 +111,8 @@ public class QueryableMetadataRepositoryManagerTest extends QueryTest {
 
 		manager.loadAll(getMonitor());
 
-		assertTrue("1.1", manager.areRepositoriesLoaded());
+		//we can never be sure that repositories are loaded because the repository manager cache can be flushed at any time
+		//		assertTrue("1.1", manager.areRepositoriesLoaded());
 	}
 
 	/**
