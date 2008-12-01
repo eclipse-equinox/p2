@@ -6,6 +6,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -67,7 +68,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 	public void testIsSurrogate() throws ProvisionException {
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertFalse(handler.isSurrogate(profile));
-		Profile surrogateProfile = handler.createProfile(PROFILE_NAME);
+		IProfile surrogateProfile = handler.createProfile(PROFILE_NAME);
 		assertTrue(handler.isSurrogate(surrogateProfile));
 	}
 
@@ -76,7 +77,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		profile.addInstallableUnit(createIU("test"));
 		saveProfile(registry, profile);
-		Profile surrogateProfile = handler.createProfile(PROFILE_NAME);
+		IProfile surrogateProfile = handler.createProfile(PROFILE_NAME);
 		assertTrue(handler.isSurrogate(surrogateProfile));
 		assertEquals(0, surrogateProfile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		assertEquals(1, surrogateProfile.available(InstallableUnitQuery.ANY, new Collector(), null).size());
@@ -87,7 +88,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(createIU("test"));
 		profile.setInstallableUnitProperty(createIU("test"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
 		saveProfile(registry, profile);
-		Profile surrogateProfile = handler.createProfile(PROFILE_NAME);
+		IProfile surrogateProfile = handler.createProfile(PROFILE_NAME);
 		assertEquals(1, surrogateProfile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		// HashSet used here to eliminate duplicates
 		assertEquals(1, new HashSet(surrogateProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()).size());
@@ -96,8 +97,10 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		// HashSet used here to eliminate duplicates
 		assertEquals(1, new HashSet(surrogateProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()).size());
 
-		surrogateProfile.addInstallableUnit(createIU("surrogate.test"));
-		surrogateProfile.setInstallableUnitProperty(createIU("surrogate.test"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
+		Profile writeableSurrogateProfile = (Profile) surrogateProfile;
+
+		writeableSurrogateProfile.addInstallableUnit(createIU("surrogate.test"));
+		writeableSurrogateProfile.setInstallableUnitProperty(createIU("surrogate.test"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
 		assertEquals(2, surrogateProfile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		// HashSet used here to eliminate duplicates
 		assertEquals(2, new HashSet(surrogateProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()).size());
@@ -110,7 +113,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		assertEquals(3, new HashSet(surrogateProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()).size());
 
 		//Strictly speaking this should not be necessary however without resetting the timestamp this test will sometimes fail
-		surrogateProfile.setProperty(PROP_SHARED_TIMESTAMP, null);
+		writeableSurrogateProfile.setProperty(PROP_SHARED_TIMESTAMP, null);
 		handler.updateProfile(surrogateProfile);
 		assertEquals(3, surrogateProfile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		// HashSet used here to eliminate duplicates

@@ -133,7 +133,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(createIU("test"));
 		assertEquals(1, profile.available(InstallableUnitQuery.ANY, new Collector(), null).size());
 		profile.setSurrogateProfileHandler(new ISurrogateProfileHandler() {
-			public Profile createProfile(String id) {
+			public IProfile createProfile(String id) {
 				return null;
 			}
 
@@ -145,7 +145,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				return collector;
 			}
 
-			public boolean updateProfile(Profile selfProfile) {
+			public boolean updateProfile(IProfile selfProfile) {
 				return false;
 			}
 		});

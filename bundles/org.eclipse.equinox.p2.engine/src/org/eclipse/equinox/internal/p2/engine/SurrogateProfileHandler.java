@@ -141,7 +141,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#createProfile(java.lang.String)
 	 */
-	public Profile createProfile(String id) {
+	public IProfile createProfile(String id) {
 		final IProfile sharedProfile = getProfileRegistry().getProfile(id);
 		if (sharedProfile == null)
 			return null;
@@ -172,7 +172,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		return profile.query(query, collector, monitor);
 	}
 
-	public boolean updateProfile(Profile userProfile) {
+	public boolean updateProfile(IProfile userProfile) {
 		final IProfile sharedProfile = getProfileRegistry().getProfile(userProfile.getProfileId());
 		if (sharedProfile == null)
 			throw new IllegalStateException(NLS.bind(Messages.shared_profile_not_found, userProfile.getProfileId()));
@@ -183,13 +183,14 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		if (userSharedTimeStamp != null && userSharedTimeStamp.equals(sharedTimeStamp))
 			return false;
 
-		updateProperties(sharedProfile, userProfile);
-		removeUserProfileBaseIUs(userProfile);
+		Profile writableUserProfile = (Profile) userProfile;
+		updateProperties(sharedProfile, writableUserProfile);
+		removeUserProfileBaseIUs(writableUserProfile);
 		if (!userProfile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty()) {
-			userProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
-			markRootsOptional(userProfile);
+			writableUserProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
+			markRootsOptional(writableUserProfile);
 		}
-		addSharedProfileBaseIUs(sharedProfile, userProfile);
+		addSharedProfileBaseIUs(sharedProfile, writableUserProfile);
 		return true;
 	}
 }

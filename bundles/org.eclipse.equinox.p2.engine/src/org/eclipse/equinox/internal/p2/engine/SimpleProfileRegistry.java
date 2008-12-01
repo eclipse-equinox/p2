@@ -190,7 +190,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (surrogateProfileHandler == null)
 			return null;
 
-		Profile profile = surrogateProfileHandler.createProfile(id);
+		Profile profile = (Profile) surrogateProfileHandler.createProfile(id);
 		if (profile == null)
 			return null;
 
