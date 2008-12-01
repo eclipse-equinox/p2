@@ -17,8 +17,10 @@ import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
@@ -28,6 +30,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -99,6 +103,30 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("3.0", true, listener.lastEnablement);
 		assertEquals("3.1", true, manager.isEnabled(location));
 		listener.reset();
+	}
+
+	/**
+	 * Adds a repository that has a non-standard (non ECF) scheme.  This should
+	 * return REPOSITORY_NOT_FOUND, since any other status code gets logged.
+	 * 
+	 * @throws URISyntaxException
+	 */
+	public void testFailedConnection() throws URISyntaxException {
+		URI location = new URI("invalid://example");
+		MetadataRepositoryFactory factory;
+
+		factory = new SimpleMetadataRepositoryFactory();
+		try {
+			factory.load(location, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		}
+		factory = new UpdateSiteMetadataRepositoryFactory();
+		try {
+			factory.load(location, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		}
 	}
 
 	/**

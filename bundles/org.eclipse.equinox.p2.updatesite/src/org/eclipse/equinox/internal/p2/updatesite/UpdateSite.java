@@ -149,6 +149,10 @@ public class UpdateSite {
 				deleteSiteFile = false;
 				return siteFile;
 			}
+			// The transfer failed. Check if the file is not present
+			if (0 == getTransport().getLastModified(actualLocation))
+				throw new FileNotFoundException(actualLocation.toString());
+
 			failure = transferResult.getException();
 		} catch (IOException e) {
 			failure = e;
