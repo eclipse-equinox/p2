@@ -18,6 +18,8 @@ import org.osgi.framework.Version;
 
 public class SimpleConfiguratorManipulatorUtils {
 
+	private static final String VERSION_PREFIX = "#version=";
+	private static final String VERSION_1 = "1";
 	private static final Version OLD_VERSION = new Version("1.0.100");
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
@@ -59,6 +61,11 @@ public class SimpleConfiguratorManipulatorUtils {
 
 		try {
 			writer = new BufferedWriter(new FileWriter(outputFile));
+			// version line
+			writer.write(createVersionLine());
+			writer.newLine();
+
+			// bundle info lines
 			for (int i = 0; i < simpleInfos.length; i++) {
 				writer.write(createBundleInfoLine(simpleInfos[i], oldStyle));
 				writer.newLine();
@@ -78,6 +85,10 @@ public class SimpleConfiguratorManipulatorUtils {
 		}
 		if (caughtException != null)
 			throw caughtException;
+	}
+
+	public static String createVersionLine() {
+		return VERSION_PREFIX + VERSION_1;
 	}
 
 	public static String createBundleInfoLine(BundleInfo bundleInfo, boolean oldStyle) throws IOException {

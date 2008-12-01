@@ -14,6 +14,8 @@ import java.util.*;
 
 public class SimpleConfiguratorUtils {
 
+	private static final String VERSION_PREFIX = "#version=";
+	private static final String VERSION_1 = "1";
 	private static final String FILE_SCHEME = "file";
 	private static final String REFERENCE_PREFIX = "reference:";
 	private static final String FILE_PREFIX = "file:";
@@ -28,8 +30,13 @@ public class SimpleConfiguratorUtils {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines
-				if (line.length() == 0 || line.startsWith("#")) //$NON-NLS-1$
+				if (line.length() == 0) //$NON-NLS-1$
 					continue;
+
+				if (line.startsWith("#")) {//$NON-NLS-1$
+					parseCommentLine(line);
+					continue;
+				}
 
 				BundleInfo bundleInfo = parseBundleInfoLine(line, base);
 				if (bundleInfo != null)
@@ -43,6 +50,15 @@ public class SimpleConfiguratorUtils {
 			}
 		}
 		return bundles;
+	}
+
+	public static void parseCommentLine(String line) {
+		// version
+		if (line.startsWith(VERSION_PREFIX)) {
+			String version = line.substring(VERSION_PREFIX.length());
+			if (!VERSION_1.equals(version))
+				throw new IllegalArgumentException("Invalid version: " + version);
+		}
 	}
 
 	public static BundleInfo parseBundleInfoLine(String line, URI base) {

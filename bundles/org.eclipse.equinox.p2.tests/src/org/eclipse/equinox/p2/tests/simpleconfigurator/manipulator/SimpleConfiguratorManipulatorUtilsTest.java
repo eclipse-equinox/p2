@@ -52,4 +52,17 @@ public class SimpleConfiguratorManipulatorUtilsTest extends AbstractProvisioning
 		assertEquals(bundleInfo, SimpleConfiguratorUtils.parseBundleInfoLine(line, null));
 	}
 
+	public void testWriteVersionLine() {
+		String expectedVersionPrefix = "#version=";
+		String versionLine = SimpleConfiguratorManipulatorUtils.createVersionLine();
+		assertTrue(versionLine.startsWith(expectedVersionPrefix));
+
+		SimpleConfiguratorUtils.parseCommentLine(versionLine);
+		try {
+			SimpleConfiguratorUtils.parseCommentLine(expectedVersionPrefix + "999");
+		} catch (IllegalArgumentException e) {
+			return;
+		}
+		fail("improper version error not caught");
+	}
 }

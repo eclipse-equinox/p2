@@ -113,4 +113,16 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testReadVersionLine() {
+		String versionPrefix = "#version=";
+
+		SimpleConfiguratorUtils.parseCommentLine(versionPrefix + "1");
+		try {
+			SimpleConfiguratorUtils.parseCommentLine(versionPrefix + "999");
+		} catch (IllegalArgumentException e) {
+			return;
+		}
+		fail("improper version error not caught");
+	}
+
 }
