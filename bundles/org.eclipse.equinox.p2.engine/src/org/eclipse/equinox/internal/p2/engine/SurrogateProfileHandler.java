@@ -116,9 +116,15 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
 		File configurationFolder = new File(configurationLocation.getURL().getPath());
+		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
+
+		// We need to check that the configuration folder is not a file system root. 
+		// some of the profiles resources are stored as siblings to the configuration folder.
+		// also see bug 230384
+		if (configurationFolder.getParentFile() == null)
+			throw new IllegalArgumentException("Configuration folder must not be a file system root."); //$NON-NLS-1$
 
 		userProfile.setProperty(IProfile.PROP_CACHE, configurationFolder.getParentFile().getAbsolutePath());
-		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
 
 		File launcherConfigFile = new File(configurationFolder, ECLIPSE_INI_IGNORED);
 		userProfile.setProperty(IProfile.PROP_LAUNCHER_CONFIGURATION, launcherConfigFile.getAbsolutePath());
