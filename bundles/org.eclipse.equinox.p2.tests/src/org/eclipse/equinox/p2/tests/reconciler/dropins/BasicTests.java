@@ -209,7 +209,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
 
 		// cleanup
-		remove("99.0", "dropins", "simpleRepo");
+		remove("99.0", "dropins", "simplerepo");
 		reconcile("99.1");
 		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
 	}
@@ -240,7 +240,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
 
 		// cleanup
-		remove("99.0", "dropins", "simpleRepo");
+		remove("99.0", "dropins", "simplerepo");
 		reconcile("99.1");
 		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
 	}
