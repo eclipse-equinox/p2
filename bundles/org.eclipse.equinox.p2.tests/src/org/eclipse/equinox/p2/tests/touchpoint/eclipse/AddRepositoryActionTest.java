@@ -137,5 +137,11 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 			//will fail if it took too long for the repository to be added
 			assertTrue(System.currentTimeMillis() - waitStart < 10000);
 		}
+
+		profile = getProfile(id);
+		String value = profile.getProperty(IProfile.PROP_METADATA_REPOSITORIES);
+		assertNull("2.0", value);
+		value = profile.getProperty(IProfile.PROP_ARTIFACT_REPOSITORIES);
+		assertEquals("2.1", TEST_LOCATION, value);
 	}
 }
