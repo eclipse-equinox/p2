@@ -12,33 +12,24 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 
 /**
  * An action that adds a repository to the list of known repositories.
  */
-public class RemoveRepositoryAction extends ProvisioningAction {
+public class RemoveRepositoryAction extends RepositoryAction {
 	public static final String ID = "removeRepository"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
 		try {
-			RepositoryEvent event = AddRepositoryAction.createEvent(parameters);
-			if (event.getRepositoryType() == IRepository.TYPE_METADATA) {
-				IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
-				if (manager != null)
-					manager.removeRepository(event.getRepositoryLocation());
-			} else if (event.getRepositoryType() == IRepository.TYPE_ARTIFACT) {
-				IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
-				if (manager != null)
-					manager.removeRepository(event.getRepositoryLocation());
-			}
+			RepositoryEvent event = createEvent(parameters);
+			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
+			if (profile != null)
+				removeRepositoryFromProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+			//if we are provisioning into the self profile, update the current set of repositories in this configuration
+			if (isSelfProfile(profile))
+				removeFromSelf(event);
 		} catch (CoreException e) {
 			return e.getStatus();
 		}
@@ -46,13 +37,21 @@ public class RemoveRepositoryAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map parameters) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		try {
-			if (bus != null)
-				bus.publishEvent(AddRepositoryAction.createEvent(parameters));
+			RepositoryEvent event = createEvent(parameters);
+			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
+			if (profile != null)
+				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+			//if we are provisioning into the self profile, update the current set of repositories in this configuration
+			if (isSelfProfile(profile))
+				addToSelf(event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();
 		}
+	}
+
+	protected String getId() {
+		return ID;
 	}
 }

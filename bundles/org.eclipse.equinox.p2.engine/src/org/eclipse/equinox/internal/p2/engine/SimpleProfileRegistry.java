@@ -10,20 +10,22 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.*;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -231,7 +233,49 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			updateSelfProfile = false;
 			updateSelfProfile(result);
 		}
+		publishRepositoryReferences(result);
 		return result;
+	}
+
+	/**
+	 * Publishes any repository references for the currently running profile in this registry.
+	 */
+	private void publishRepositoryReferences(Map profileMap) {
+		Profile profile = (Profile) profileMap.get(self);
+		if (profile == null)
+			return;
+		String repos = profile.getProperty(IProfile.PROP_METADATA_REPOSITORIES);
+		if (repos != null) {
+			IRepositoryManager manager = (IRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			doPublishRepositories(manager, repos);
+		}
+		repos = profile.getProperty(IProfile.PROP_ARTIFACT_REPOSITORIES);
+		if (repos != null) {
+			IRepositoryManager manager = (IRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			doPublishRepositories(manager, repos);
+		}
+	}
+
+	/**
+	 * Adds the given list of repositories to the given repository manager.
+	 */
+	private void doPublishRepositories(IRepositoryManager manager, String repos) {
+		StringTokenizer tokens = new StringTokenizer(repos, ","); //$NON-NLS-1$
+		while (tokens.hasMoreTokens())
+			manager.addRepository(decodeURI(tokens.nextToken()));
+	}
+
+	/**
+	 * Decodes a URI that has had literal comma characters encoded.
+	 */
+	private URI decodeURI(String locationString) {
+		//convert escaped commas back to literal commas
+		int nextComma = locationString.indexOf("${#44}"); //$NON-NLS-1$
+		while (nextComma > 0) {
+			locationString = locationString.substring(0, nextComma) + ',' + locationString.substring(nextComma + 6);
+			nextComma = locationString.indexOf("${#44}");//$NON-NLS-1$
+		}
+		return URI.create(locationString);
 	}
 
 	public synchronized void updateProfile(Profile profile) {

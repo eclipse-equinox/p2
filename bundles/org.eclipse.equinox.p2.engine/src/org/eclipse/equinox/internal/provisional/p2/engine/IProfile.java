@@ -78,6 +78,22 @@ public interface IProfile extends IQueryable {
 	 */
 	public static final String PROP_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
 
+	/**
+	 * Profile property constant for a String property indicating additional metadata repositories 
+	 * associated with this profile. The format of the property value is a comma-separated 
+	 * list of repository location URIs, where any literal comma characters are encoded 
+	 * with the corresponding unicode escape sequence (${#44}).
+	 */
+	public static final String PROP_METADATA_REPOSITORIES = "org.eclipse.equinox.p2.metadataRepositories"; //$NON-NLS-1$
+
+	/**
+	 * Profile property constant for a String property indicating additional artifact repositories 
+	 * associated with this profile. The format of the property value is a comma-separated 
+	 * list of repository location URIs, where any literal comma characters are encoded 
+	 * with the corresponding unicode escape sequence (${#44}).
+	 */
+	public static final String PROP_ARTIFACT_REPOSITORIES = "org.eclipse.equinox.p2.artifactRepositories"; //$NON-NLS-1$
+
 	public String getProfileId();
 
 	public IProfile getParentProfile();
