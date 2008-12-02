@@ -30,7 +30,6 @@ public class Activator implements BundleActivator {
 	private IProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
 
-	private MetadataRepositoryManager defaultManager;
 	private ServiceRegistration registrationDefaultManager;
 
 	//	private ArtifactRepositoryManager artifactRepoManager;
@@ -45,6 +44,8 @@ public class Activator implements BundleActivator {
 	private IPlanner planner;
 	private ServiceRegistration registrationPlanner;
 
+	private ServiceReference metadataRepositoryReference;
+
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
 		Activator.context = aContext;
@@ -52,8 +53,6 @@ public class Activator implements BundleActivator {
 		registerEventBus();
 		//create the profile registry
 		registerProfileRegistry();
-		//create metadata repositories
-		registerDefaultMetadataRepoManager();
 		registerMetadataCache();
 
 		//create the director and planner.  The planner must be
@@ -114,32 +113,36 @@ public class Activator implements BundleActivator {
 		profileRegistry = null;
 	}
 
-	private void registerDefaultMetadataRepoManager() {
-		defaultManager = new MetadataRepositoryManager();
-		registrationDefaultManager = context.registerService(IMetadataRepositoryManager.class.getName(), defaultManager, null);
+	/**
+	 * Returns a metadata repository manager, registering a service if there isn't
+	 * one registered already.
+	 */
+	private IMetadataRepositoryManager getMetadataRepositoryManager() {
+		//register a metadata repository manager if there isn't one already registered
+		metadataRepositoryReference = context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
+		if (metadataRepositoryReference == null) {
+			IMetadataRepositoryManager manager = new MetadataRepositoryManager();
+			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
+			return manager;
+		}
+		return (IMetadataRepositoryManager) context.getService(metadataRepositoryReference);
 	}
 
 	private void unregisterDefaultMetadataRepoManager() {
-		registrationDefaultManager.unregister();
-		registrationDefaultManager = null;
-		defaultManager = null;
+		//unregister the service if we registered it
+		if (registrationDefaultManager != null) {
+			registrationDefaultManager.unregister();
+			registrationDefaultManager = null;
+		}
+		//unget the service if we obtained it from someone else
+		if (metadataRepositoryReference != null) {
+			context.ungetService(metadataRepositoryReference);
+			metadataRepositoryReference = null;
+		}
 	}
 
-	//	private void registerDefaultArtifactRepoManager() {
-	//		artifactRepoManager = new ArtifactRepositoryManager();
-	//		registrationArtifactRepoManager = context.registerService(IArtifactRepositoryManager.class.getName(), artifactRepoManager, null);
-	//	}
-	//
-	//	private void unregisterDefaultArtifactRepoManager() {
-	//		registrationArtifactRepoManager.unregister();
-	//		artifactRepoManager = null;
-	//	}
-
 	private void registerMetadataCache() {
-		//TODO: we need to start metadata cache at a specific time, because it relies on IMetadataRepositoryManager
-		//being present. Really, MetadataCache should just wait until metadata repository service
-		//is available and then initialize itself
-		new MetadataCache();
+		new MetadataCache(getMetadataRepositoryManager());
 	}
 
 	private void registerEventBus() {

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
 
@@ -20,6 +20,8 @@ public class Activator implements BundleActivator {
 
 	private static BundleContext bundleContext;
 	private static CacheManager cacheManager;
+	private ServiceRegistration repositoryManagerRegistration;
+	private MetadataRepositoryManager repositoryManager;
 
 	public static BundleContext getContext() {
 		return bundleContext;
@@ -33,6 +35,8 @@ public class Activator implements BundleActivator {
 		Activator.bundleContext = context;
 		cacheManager = new CacheManager();
 		cacheManager.registerRepoEventListener();
+		repositoryManager = new MetadataRepositoryManager();
+		repositoryManagerRegistration = context.registerService(IMetadataRepositoryManager.class.getName(), repositoryManager, null);
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -41,5 +45,12 @@ public class Activator implements BundleActivator {
 			cacheManager = null;
 		}
 		Activator.bundleContext = null;
+		if (repositoryManagerRegistration != null)
+			repositoryManagerRegistration.unregister();
+		repositoryManagerRegistration = null;
+		if (repositoryManager != null) {
+			repositoryManager.shutdown();
+			repositoryManager = null;
+		}
 	}
 }

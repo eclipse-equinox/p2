@@ -31,17 +31,18 @@ public class MetadataCache {
 	private IProvisioningEventBus bus;
 	private URI location;
 	//tracks the IUs that have been installed but not yet committed
-	//TODO: This will work if a single profile is being modified but we should consider how to handle multiple concurrent profile changes.OD
+	//TODO: This will work if a single profile is being modified but we should consider how to handle multiple concurrent profile changes.
 	final ArrayList toAdd = new ArrayList();
+	private final IMetadataRepositoryManager manager;
 
-	public MetadataCache() {
+	public MetadataCache(IMetadataRepositoryManager manager) {
+		this.manager = manager;
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
 		location = (agentLocation != null ? agentLocation.getMetadataRepositoryURI() : null);
 		hookListener();
 	}
 
 	IMetadataRepository getRepository() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		try {
 			return manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
