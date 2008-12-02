@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -40,26 +41,24 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	}
 
 	/**
-	 * Execute the update command.
+	 * Execute the command.
 	 */
 	public Object execute(ExecutionEvent event) {
-		String profileId;
-
-		// Need to figure out the profile we are using and open a dialog
 		try {
-			profileId = ProvSDKUIActivator.getSelfProfileId();
+			final String profileId = ProvSDKUIActivator.getSelfProfileId();
+			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+				public void run() {
+					doExecuteAndLoad(profileId, preloadRepositories());
+				}
+			});
+
 		} catch (ProvisionException e) {
-			profileId = null;
-		}
-		if (profileId != null) {
-			doExecuteAndLoad(profileId, preloadRepositories());
-		} else {
 			MessageDialog.openInformation(null, ProvSDKMessages.Handler_SDKUpdateUIMessageTitle, ProvSDKMessages.Handler_CannotLaunchUI);
 		}
 		return null;
 	}
 
-	private void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
+	void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
 		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
 		if (preloadRepositories) {
 			if (loadJob == null) {
