@@ -72,5 +72,12 @@ public interface IPublisherInfo {
 	 */
 	public void addAdvice(IPublisherAdvice advice);
 
+	/**
+	 * Returns the configurations being published. Each configuration is a string of the form
+	 * ws.os.arch describing the window system, operating system, and architecture of each
+	 * configuration.
+	 * @return The configurations being published
+	 * @see AbstractPublisherAction#createConfigSpec(String, String, String)
+	 */
 	public String[] getConfigurations();
 }
