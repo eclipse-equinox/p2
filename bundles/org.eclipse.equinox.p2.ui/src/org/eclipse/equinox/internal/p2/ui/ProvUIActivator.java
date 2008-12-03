@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
@@ -92,7 +93,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 
-		initializeImages();
 		addProfileChangeListener();
 	}
 
@@ -163,29 +163,30 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getProvisioningEventBus().removeListener(listener);
 	}
 
-	private void initializeImages() {
-		createImageDescriptor(ProvUIImages.IMG_METADATA_REPOSITORY);
-		createImageDescriptor(ProvUIImages.IMG_ARTIFACT_REPOSITORY);
-		createImageDescriptor(ProvUIImages.IMG_IU);
-		createImageDescriptor(ProvUIImages.IMG_DISABLED_IU);
-		createImageDescriptor(ProvUIImages.IMG_CATEGORY);
-		createImageDescriptor(ProvUIImages.IMG_PROFILE);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE_PROBLEMS);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE_HOT);
-		createImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL);
-		createImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT);
-		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL);
-		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE);
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		createImageDescriptor(ProvUIImages.IMG_METADATA_REPOSITORY, reg);
+		createImageDescriptor(ProvUIImages.IMG_ARTIFACT_REPOSITORY, reg);
+		createImageDescriptor(ProvUIImages.IMG_IU, reg);
+		createImageDescriptor(ProvUIImages.IMG_DISABLED_IU, reg);
+		createImageDescriptor(ProvUIImages.IMG_UPDATED_IU, reg);
+		createImageDescriptor(ProvUIImages.IMG_CATEGORY, reg);
+		createImageDescriptor(ProvUIImages.IMG_PROFILE, reg);
+		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE, reg);
+		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE_PROBLEMS, reg);
+		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE, reg);
+		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE_HOT, reg);
+		createImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL, reg);
+		createImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT, reg);
+		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL, reg);
+		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE, reg);
 	}
 
 	/**
-	 * Creates an image and places it in the image registry.
+	 * Creates the specified image descriptor and registers it
 	 */
-	private void createImageDescriptor(String id) {
+	private void createImageDescriptor(String id, ImageRegistry reg) {
 		URL url = FileLocator.find(getBundle(), new Path(ProvUIImages.ICON_PATH + id), null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
-		getImageRegistry().put(id, desc);
+		reg.put(id, desc);
 	}
 }
