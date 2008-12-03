@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -20,7 +19,7 @@ public class PublisherInfo implements IPublisherInfo {
 	private int artifactOptions = 0;
 	private IMetadataRepository metadataRepository;
 	private IArtifactRepository artifactRepository;
-	private String[] configurations;
+	private String[] configurations = new String[0];
 	private List adviceList = new ArrayList(11);
 
 	public void addAdvice(IPublisherAdvice advice) {
