@@ -97,9 +97,10 @@ public class PlanStatusHelper {
 				}
 			if (!iusInPlan) {
 				MultiStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlanStatusHelper_NothingToDo, null);
-				status.add(getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null));
 				if (plan.getStatus() != null)
 					status.merge(plan.getStatus());
+				else
+					status.add(getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null));
 				return status;
 			}
 		}
