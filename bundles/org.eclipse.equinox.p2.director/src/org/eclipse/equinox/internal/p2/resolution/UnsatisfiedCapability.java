@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.resolution;
 
+import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * Represents a provisioning dependency that was not satisfied during
@@ -50,9 +52,31 @@ public class UnsatisfiedCapability {
 	}
 
 	/**
-	 * For debugging purposes only.
+	 * Prints out a human-readable representation of an unsatisfied capability
 	 */
 	public String toString() {
-		return "[" + owner + "] " + require.toString(); //$NON-NLS-1$ //$NON-NLS-2$
+		return NLS.bind(Messages.Director_Unsatisfied_Dependency, owner, require);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof UnsatisfiedCapability))
+			return false;
+		if (owner == null || require == null)
+			return false;
+		return owner.equals(((UnsatisfiedCapability) obj).getOwner()) && require.equals(((UnsatisfiedCapability) obj).getRequiredCapability());
+	}
+
+	public int hashCode() {
+		if (owner == null || require == null)
+			return 0;
+		return 31 * owner.hashCode() + require.hashCode();
 	}
 }

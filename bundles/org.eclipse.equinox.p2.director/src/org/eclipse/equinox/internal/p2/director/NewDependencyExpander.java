@@ -52,28 +52,7 @@ public class NewDependencyExpander {
 		public String toString() {
 			if (req == null)
 				return "[]"; //$NON-NLS-1$
-			StringBuffer result = new StringBuffer();
-			if (IInstallableUnit.NAMESPACE_IU_ID.equals(req.getNamespace())) {
-				//print nothing for an IU id dependency because this is the default (most common) case
-				result.append(""); //$NON-NLS-1$
-			} else if ("osgi.bundle".equals(req.getNamespace())) { //$NON-NLS-1$
-				result.append("bundle"); //$NON-NLS-1$
-			} else if ("java.package".equals(req.getNamespace())) { //$NON-NLS-1$
-				result.append("package"); //$NON-NLS-1$
-			} else {
-				result.append(req.getNamespace());
-			}
-			if (result.length() > 0)
-				result.append(' ');
-			result.append(req.getName());
-			result.append(' ');
-			VersionRange range = req.getRange();
-			//for an exact version match, print a simpler expression
-			if (range.getMinimum().equals(range.getMaximum()))
-				result.append('[').append(range.getMinimum()).append(']');
-			else
-				result.append(range);
-			return result.toString();
+			return req.toString();
 		}
 	}
 
@@ -282,8 +261,7 @@ public class NewDependencyExpander {
 			for (int i = 0; i < required.length; i++) {
 				if (required[i].equals(req)) {
 					UnsatisfiedCapability unsatisfied = new UnsatisfiedCapability(req, unit);
-					String msg = NLS.bind(Messages.Director_Unsatisfied_Dependency, unsatisfied);
-					problems.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, msg));
+					problems.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, unsatisfied.toString()));
 				}
 			}
 		}
@@ -459,7 +437,7 @@ public class NewDependencyExpander {
 	 * which we have an available installable unit.
 	 */
 	private UnsatisfiedCapability[] collectUnsatisfiedDependencies(UnsatisfiedCapability[] unresolved) {
-		ArrayList reallyUnsatisfied = new ArrayList(unresolved.length);
+		HashSet reallyUnsatisfied = new HashSet(unresolved.length);
 		for (int i = 0; i < unresolved.length; i++) {
 			List all = (List) must.get(new MatchKey(unresolved[i].getRequiredCapability()));
 			if (all != null) {
@@ -601,7 +579,7 @@ public class NewDependencyExpander {
 		toInstall.removeAll(alreadyInstalled);
 		UnsatisfiedCapability[] unsatisfied = collectUnsatisfiedDependencies(resolver.install(toInstall, alreadyInstalled));
 		for (int i = 0; i < unsatisfied.length; i++) {
-			problems.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unsatisfied_Dependency, unsatisfied[i])));
+			problems.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, unsatisfied[i].toString()));
 		}
 	}
 
