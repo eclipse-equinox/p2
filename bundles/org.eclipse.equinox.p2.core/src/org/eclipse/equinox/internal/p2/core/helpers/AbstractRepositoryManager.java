@@ -516,7 +516,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				info.name = value;
 			if (IRepository.PROP_SYSTEM.equals(key))
 				//only true is value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
-				info.isSystem = Boolean.parseBoolean(value);
+				info.isSystem = Boolean.valueOf(value).booleanValue();
 			// Key not known
 		}
 	}
