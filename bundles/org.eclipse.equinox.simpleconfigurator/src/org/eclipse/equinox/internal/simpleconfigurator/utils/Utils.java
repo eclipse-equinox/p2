@@ -8,13 +8,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.jar.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import org.eclipse.equinox.internal.simpleconfigurator.Activator;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 
 /*
  * This class was copied from org.eclipse.equinox.internal.frameworkadmin.utils
@@ -67,107 +65,9 @@ public class Utils {
 		return ret;
 	}
 
-	public static Dictionary getOSGiManifest(String location) {
-		if (location.startsWith("file:") && !location.endsWith(".jar"))
-			return basicLoadManifest(new File(location.substring("file:".length())));
-
-		try {
-			URL url = new URL("jar:" + location + "!/");
-			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-			Manifest manifest = jarConnection.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			Hashtable table = new Hashtable();
-			for (java.util.Iterator ite = attributes.keySet().iterator(); ite.hasNext();) {
-
-				String key = ite.next().toString();
-				// While table contains non OSGiManifest, it doesn't matter.
-				table.put(key, attributes.getValue(key));
-			}
-			return table;
-		} catch (MalformedURLException e1) {
-			if (Activator.DEBUG) {
-				System.err.println("location=" + location);
-				e1.printStackTrace();
-			}
-		} catch (IOException e) {
-			if (Activator.DEBUG) {
-				System.err.println("location=" + location);
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
-
-	//Return a dictionary representing a manifest. The data may result from plugin.xml conversion  
-	private static Dictionary basicLoadManifest(File bundleLocation) {
-		InputStream manifestStream = null;
-		ZipFile jarFile = null;
-		try {
-			String fileExtention = bundleLocation.getName();
-			fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
-			if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
-				jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
-				if (manifestEntry != null) {
-					manifestStream = jarFile.getInputStream(manifestEntry);
-				}
-			} else {
-				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
-			}
-		} catch (IOException e) {
-			//ignore
-		}
-		Dictionary manifest = null;
-
-		//It is not a manifest, but a plugin or a fragment
-
-		if (manifestStream != null) {
-			try {
-				Manifest m = new Manifest(manifestStream);
-				manifest = manifestToProperties(m.getMainAttributes());
-			} catch (IOException ioe) {
-				return null;
-			} finally {
-				try {
-					manifestStream.close();
-				} catch (IOException e1) {
-					//Ignore
-				}
-				try {
-					if (jarFile != null)
-						jarFile.close();
-				} catch (IOException e2) {
-					//Ignore
-				}
-			}
-		}
-		return manifest;
-	}
-
-	private static Properties manifestToProperties(Attributes d) {
-		Iterator iter = d.keySet().iterator();
-		Properties result = new Properties();
-		while (iter.hasNext()) {
-			Attributes.Name key = (Attributes.Name) iter.next();
-			result.put(key.toString(), d.get(key));
-		}
-		return result;
-	}
-
 	public static URL getUrl(String protocol, String host, String file) throws MalformedURLException {// throws ManipulatorException {
 		file = Utils.replaceAll(file, File.separator, "/");
 		return new URL(protocol, host, file);
-	}
-
-	public static URL getUrlInFull(String path, URL from) throws MalformedURLException {//throws ManipulatorException {
-		Utils.checkFullUrl(from, "from");
-		path = Utils.replaceAll(path, File.separator, "/");
-		String fromSt = Utils.removeLastCh(from.toExternalForm(), '/');
-		if (path.startsWith("/")) {
-			String fileSt = from.getFile();
-			return Utils.buildURL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
-		}
-		return Utils.buildURL(fromSt + "/" + path);
 	}
 
 	public static String removeLastCh(String target, char ch) {
