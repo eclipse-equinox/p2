@@ -424,14 +424,20 @@ public class FeaturesAction extends AbstractPublisherAction {
 			createAdviceFileAdvice(feature, info);
 
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-			IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, info);
-			publishFeatureArtifacts(feature, featureIU, info);
-			result.addIU(featureIU, IPublisherResult.ROOT);
+			IInstallableUnit featureIU = generateFeatureJarIU(feature, childIUs, info);
+			if (featureIU != null) {
+				publishFeatureArtifacts(feature, featureIU, info);
+				result.addIU(featureIU, IPublisherResult.ROOT);
+			}
 			generateSiteReferences(feature, result, info);
 
 			IInstallableUnit groupIU = createGroupIU(feature, featureIU, info);
 			result.addIU(groupIU, IPublisherResult.ROOT);
 		}
+	}
+
+	protected IInstallableUnit generateFeatureJarIU(Feature feature, ArrayList childIUs, IPublisherInfo info) {
+		return createFeatureJarIU(feature, childIUs, info);
 	}
 
 	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo info) {
