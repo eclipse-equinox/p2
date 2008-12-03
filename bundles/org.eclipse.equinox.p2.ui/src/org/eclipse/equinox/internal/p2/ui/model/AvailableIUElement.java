@@ -61,7 +61,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
-		if (isInstalled)
+		if (isUpdate)
+			return ProvUIImages.IMG_UPDATED_IU;
+		else if (isInstalled)
 			return ProvUIImages.IMG_DISABLED_IU;
 		return ProvUIImages.IMG_IU;
 	}
