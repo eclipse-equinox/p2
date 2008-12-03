@@ -68,7 +68,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getProvidedCapabilities()));
 		}
-		return original.getProvidedCapabilities();
+		return (ProvidedCapability[]) result.toArray(new ProvidedCapability[result.size()]);
 	}
 
 	public RequiredCapability[] getRequiredCapabilities() {
