@@ -92,11 +92,7 @@ public abstract class ResolutionWizardPage extends WizardPage {
 			TreeColumn tc = new TreeColumn(tree, SWT.LEFT, i);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
-			if (columns[i].columnField == IUColumnConfig.COLUMN_SIZE) {
-				tc.setAlignment(SWT.RIGHT);
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
-			} else
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+			tc.setWidth(convertWidthInCharsToPixels(columns[i].defaultColumnWidth));
 		}
 
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -186,7 +182,11 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {
-		return ProvUI.getIUColumnConfig();
+		// TODO we could consider making this settable via API, but for now we rely on
+		// a standard column config.  We intentionally use the IU's id as one of the columns, because
+		// resolution errors are reported by ID.
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
+
 	}
 
 	public void recomputePlan(IUElementListRoot root) {
