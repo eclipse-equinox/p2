@@ -739,7 +739,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo info) {
 		String location = bundleDescription.getLocation();
 		if (location != null)
-			info.addAdvice(new AdviceFileAdvice(new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+			info.addAdvice(new AdviceFileAdvice(bundleDescription.getSymbolicName(), bundleDescription.getVersion(), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
 	}
 
 	/**

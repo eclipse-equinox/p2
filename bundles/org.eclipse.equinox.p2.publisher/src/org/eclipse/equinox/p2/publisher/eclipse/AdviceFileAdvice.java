@@ -7,6 +7,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.osgi.framework.Version;
 
 /**
@@ -14,7 +15,7 @@ import org.osgi.framework.Version;
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice implements ITouchpointAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice {
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
 	 */
@@ -29,10 +30,12 @@ public class AdviceFileAdvice implements ITouchpointAdvice {
 	 * is a directory, then <tt>adviceFilePath</tt> is appended to this location to
 	 * obtain the location of the advice file. If <tt>basePath</tt> is a file, then
 	 * <tt>adviceFilePath</tt> is used to 
+	 * @param id The symbolic id of the installable unit this advice applies to
+	 * @param version The version of the installable unit this advice applies to
 	 * @param basePath
 	 * @param adviceFilePath
 	 */
-	public AdviceFileAdvice(IPath basePath, IPath adviceFilePath) {
+	public AdviceFileAdvice(String id, Version version, IPath basePath, IPath adviceFilePath) {
 		this.basePath = basePath;
 		this.adviceFilePath = adviceFilePath;
 	}

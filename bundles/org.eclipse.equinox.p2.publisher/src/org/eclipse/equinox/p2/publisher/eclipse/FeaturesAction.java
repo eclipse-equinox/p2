@@ -207,7 +207,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		//assume p2.inf is co-located with feature.xml
 		String location = feature.getLocation();
 		if (location != null)
-			info.addAdvice(new AdviceFileAdvice(new Path(location), new Path("p2.inf"))); //$NON-NLS-1$
+			info.addAdvice(new AdviceFileAdvice(feature.getId(), new Version(feature.getVersion()), new Path(location), new Path("p2.inf"))); //$NON-NLS-1$
 	}
 
 	/**
@@ -426,8 +426,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
 			IInstallableUnit featureIU = generateFeatureJarIU(feature, childIUs, info);
 			if (featureIU != null) {
-				publishFeatureArtifacts(feature, featureIU, info);
-				result.addIU(featureIU, IPublisherResult.ROOT);
+			publishFeatureArtifacts(feature, featureIU, info);
+			result.addIU(featureIU, IPublisherResult.ROOT);
 			}
 			generateSiteReferences(feature, result, info);
 

@@ -193,7 +193,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
 		PublisherInfo info = new PublisherInfo();
-		info.addAdvice(new AdviceFileAdvice(new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+		info.addAdvice(new AdviceFileAdvice(bundleDescription.getSymbolicName(), bundleDescription.getVersion(), new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
 		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bundleDescription.getSymbolicName(), bundleDescription.getVersion(), shape));
 		return BundlesAction.createBundleIU(bundleDescription, artifactKey, info);

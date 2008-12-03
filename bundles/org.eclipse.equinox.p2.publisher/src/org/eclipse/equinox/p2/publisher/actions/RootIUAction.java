@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -51,6 +52,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
 		processCapabilityAdvice(descriptor, info);
+		processTouchpointAdvice(descriptor);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
@@ -58,6 +60,16 @@ public class RootIUAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 		// TODO why do we create a category here?
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
+	}
+
+	private void processTouchpointAdvice(InstallableUnitDescription descriptor) {
+		Collection allAdvice = info.getAdvice(null, true, id, version, ITouchpointAdvice.class);
+		if (allAdvice == null || allAdvice.isEmpty())
+			return;
+		TouchpointData touchpointData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
+		for (Iterator it = allAdvice.iterator(); it.hasNext();)
+			touchpointData = ((ITouchpointAdvice) it.next()).getTouchpointData(touchpointData);
+		descriptor.addTouchpointData(touchpointData);
 	}
 
 	/**
@@ -133,7 +145,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		return null;
 	}
 
-	public static InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, Version version, String name, Collection requires, boolean configureLauncherData) {
+	private InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, Version version, String name, Collection requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(id);

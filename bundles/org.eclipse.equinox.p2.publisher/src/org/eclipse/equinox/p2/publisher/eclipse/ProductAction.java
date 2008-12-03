@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.*;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -67,7 +68,18 @@ public class ProductAction extends EclipseInstallAction {
 		ProductFile product = loadProduct();
 		executableName = product.getLauncherName();
 		createProductAdvice(product);
+		createAdviceFileAdvice(product);
 		createRootAdvice(product);
+	}
+
+	/**
+	 * Create advice for a p2.inf file co-located with the product file, if any.
+	 */
+	private void createAdviceFileAdvice(ProductFile product) {
+		File productFileLocation = product.getLocation();
+		if (productFileLocation == null)
+			return;
+		info.addAdvice(new AdviceFileAdvice(product.getId(), new Version(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf"))); //$NON-NLS-1$
 	}
 
 	protected void createRootAdvice(ProductFile product) {
