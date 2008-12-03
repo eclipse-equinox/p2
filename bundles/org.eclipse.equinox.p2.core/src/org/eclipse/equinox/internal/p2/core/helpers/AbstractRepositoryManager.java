@@ -107,7 +107,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			info.description = repository.getDescription();
 			info.location = repository.getLocation();
 			String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
-			info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+			if (value != null)
+				info.isSystem = Boolean.valueOf(value).booleanValue();
 			info.suffix = suffix;
 		}
 		// save the given repository in the preferences.
@@ -496,6 +497,27 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				return Boolean.toString(info.isSystem);
 			// Key not known, return null
 			return null;
+		}
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
+	 */
+	public void setRepositoryProperty(URI location, String key, String value) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null)
+				return;// Repository not found
+			if (IRepository.PROP_DESCRIPTION.equals(key))
+				info.description = value;
+			if (IRepository.PROP_NAME.equals(key))
+				info.name = value;
+			if (IRepository.PROP_SYSTEM.equals(key))
+				//only true is value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
+				info.isSystem = Boolean.parseBoolean(value);
+			// Key not known
 		}
 	}
 

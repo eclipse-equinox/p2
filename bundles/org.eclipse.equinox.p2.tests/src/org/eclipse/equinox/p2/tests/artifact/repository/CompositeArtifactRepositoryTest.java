@@ -593,6 +593,38 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
 	}
 
+	public void testEnabledAndSystemValues() {
+		//Setup make repositories
+		File repo1Location = getTestFolder(getUniqueString());
+		File repo2Location = getTestFolder(getUniqueString());
+		File compRepoLocation = getTestFolder(getUniqueString());
+		CompositeArtifactRepository compRepo = null;
+		try {
+			getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			//Only 1 child should be loaded in the manager
+			getArtifactRepositoryManager().removeRepository(repo2Location.toURI());
+			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		compRepo.addChild(repo1Location.toURI());
+		compRepo.addChild(repo2Location.toURI());
+
+		//force composite repository to load all children
+		compRepo.getArtifactKeys();
+
+		assertTrue("Ensuring previously loaded repo is enabled", getArtifactRepositoryManager().isEnabled(repo1Location.toURI()));
+		String repo1System = getArtifactRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
+		//if repo1System is null we want to fail
+		assertFalse("Ensuring previously loaded repo is not system", repo1System != null ? repo1System.equals(Boolean.toString(true)) : true);
+		assertFalse("Ensuring not previously loaded repo is not enabled", getArtifactRepositoryManager().isEnabled(repo2Location.toURI()));
+		String repo2System = getArtifactRepositoryManager().getRepositoryProperty(repo2Location.toURI(), IRepository.PROP_SYSTEM);
+		//if repo2System is null we want to fail
+		assertTrue("Ensuring not previously loaded repo is system", repo2System != null ? repo2System.equals(Boolean.toString(true)) : false);
+	}
+
 	private void persistenceTest(boolean compressed) {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(compressed);

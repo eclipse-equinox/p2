@@ -22,8 +22,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.*;
 import org.eclipse.equinox.p2.tests.*;
 import org.osgi.framework.BundleException;
 import org.osgi.service.prefs.BackingStoreException;
@@ -139,6 +138,35 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("=.99", e);
 		}
+	}
+
+	/**
+	 * Tests for {@link IRepositoryManager#setRepositoryProperty}.
+	 */
+	public void testSetRepositoryProperty() {
+		File site = getTestData("Repositoy", "/testData/artifactRepo/simple/");
+		URI location = site.toURI();
+		manager.removeRepository(location);
+		manager.addRepository(location);
+
+		//set some properties different from what the repository contains
+		manager.setRepositoryProperty(location, IRepository.PROP_NAME, "TestName");
+		manager.setRepositoryProperty(location, IRepository.PROP_DESCRIPTION, "TestDescription");
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "true");
+		assertEquals("1.0", "TestName", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("1.1", "TestDescription", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("1.2", "true", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
+
+		//loading the repository should overwrite test values
+		try {
+			manager.loadRepository(location, getMonitor());
+		} catch (ProvisionException e) {
+			fail("1.99", e);
+		}
+
+		assertEquals("2.0", "Good Test Repository", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("2.1", "Good test repository description", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("2.2", "false", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
 	}
 
 	public void testUpdateSitePathWithSpaces() {

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?metadataRepository class='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'?>
-<repository name='update site: file:/C:/1target/provmiddle/org.eclipse.equinox.p2.tests/testData/updatesite/site' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+<repository name='Good Test Repository' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1' description='Good test repository description'>
   <properties size='3'>
     <property name='p2.system' value='true'/>
     <property name='p2.timestamp' value='1221680367875'/>

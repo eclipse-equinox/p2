@@ -85,7 +85,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 					//set enabled to false so repositories do not polled twice
 					getManager().setEnabled(currentURI, false);
 					//set repository to system to hide from users
-					currentRepo.setProperty(IRepository.PROP_SYSTEM, "true");
+					getManager().setRepositoryProperty(currentURI, IRepository.PROP_SYSTEM, String.valueOf(true));
 				}
 				//get the query results. Collector should take care of duplicates
 				currentRepo.query(query, collector, monitor);

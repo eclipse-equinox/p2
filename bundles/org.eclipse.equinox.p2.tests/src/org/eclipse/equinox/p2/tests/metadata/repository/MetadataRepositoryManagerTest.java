@@ -323,6 +323,35 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests for {@link IRepositoryManager#setRepositoryProperty}.
+	 */
+	public void testSetRepositoryProperty() {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		URI location = site.toURI();
+		manager.removeRepository(location);
+		manager.addRepository(location);
+
+		//set some properties different from what the repository contains
+		manager.setRepositoryProperty(location, IRepository.PROP_NAME, "TestName");
+		manager.setRepositoryProperty(location, IRepository.PROP_DESCRIPTION, "TestDescription");
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "false");
+		assertEquals("1.0", "TestName", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("1.1", "TestDescription", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("1.2", "false", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
+
+		//loading the repository should overwrite test values
+		try {
+			manager.loadRepository(location, getMonitor());
+		} catch (ProvisionException e) {
+			fail("1.99", e);
+		}
+
+		assertEquals("2.0", "Good Test Repository", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("2.1", "Good test repository description", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("2.2", "true", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
+	}
+
+	/**
 	 * Tests that trailing slashes do not affect repository identity.
 	 */
 	public void testTrailingSlashes() {

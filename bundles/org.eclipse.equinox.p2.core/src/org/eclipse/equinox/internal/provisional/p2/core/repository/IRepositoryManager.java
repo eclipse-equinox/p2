@@ -118,8 +118,32 @@ public interface IRepositoryManager {
 	 * could not be determined without loading the repository.
 	 * 
 	 * @see IRepository#getProperties()
+	 * @see #setRepositoryProperty(URI, String, String)
 	 */
 	public String getRepositoryProperty(URI location, String key);
+
+	/**
+	 * Sets the property associated with the repository at the given URI, 
+	 * without loading the repository.
+	 * <p>
+	 * This method stores properties in a cache in the repository manager and does
+	 * not write the property to the backing repository. This is useful for making
+	 * repository properties available without incurring the cost of loading the repository.
+	 * When the repository is loaded, it will overwrite any conflicting properties that
+	 * have been set using this method.
+	 * </p>
+	 * <p>
+	 * To persistently set a property on a repository, clients must load
+	 * the repository and call {@link IRepository#setProperty(String, String)}.
+	 * </p>
+	 * 
+	 * @param location the URI of the repository in question
+	 * @param key the String key of the property desired
+	 * @param value the value to set the property to
+	 * @see #getRepositoryProperty(URI, String)
+	 * @see IRepository#setProperty(String, String)
+	 */
+	public void setRepositoryProperty(URI location, String key, String value);
 
 	/**
 	 * Returns the enablement value of a repository.  Disabled repositories are known

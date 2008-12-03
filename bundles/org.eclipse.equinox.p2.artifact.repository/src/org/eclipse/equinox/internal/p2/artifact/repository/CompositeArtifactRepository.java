@@ -17,7 +17,8 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -153,14 +154,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && !contains;) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				contains = current.contains(key);
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
@@ -175,14 +169,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && !contains;) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				contains = current.contains(descriptor);
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
@@ -197,14 +184,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext();) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				IArtifactDescriptor[] tempResult = current.getArtifactDescriptors(key);
 				for (int i = 0; i < tempResult.length; i++)
 					//duplicate checking
@@ -223,14 +203,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext();) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				IArtifactKey[] tempResult = current.getArtifactKeys();
 				for (int i = 0; i < tempResult.length; i++)
 					//duplicate checking
@@ -250,14 +223,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && requests.length > 0;) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				IArtifactRequest[] applicable = getRequestsForRepository(current, requests);
 				IStatus dlStatus = current.getArtifacts(applicable, subMonitor.newChild(requests.length));
 				multiStatus.add(dlStatus);
@@ -280,14 +246,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		while (repositoryIterator.hasNext()) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				IStatus status = current.getArtifact(descriptor, destination, subMonitor.newChild(1));
 				if (status.isOK())
 					return status;
@@ -308,14 +267,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		while (repositoryIterator.hasNext()) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IArtifactRepository current = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					current.setProperty(IRepository.PROP_SYSTEM, "true");
-				}
+				IArtifactRepository current = load(currentURI);
 				IStatus status = current.getRawArtifact(descriptor, destination, subMonitor.newChild(1));
 				if (status.isOK())
 					return status;
@@ -398,5 +350,18 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private IArtifactRepository load(URI repoURI) throws ProvisionException {
+		boolean loaded = getManager().contains(repoURI);
+		IArtifactRepository repo = getManager().loadRepository(repoURI, null);
+		if (!loaded) {
+			//set enabled to false so repositories do not get polled twice
+			getManager().setEnabled(repoURI, false);
+			//set repository to system to hide from users
+			getManager().setRepositoryProperty(repoURI, IRepository.PROP_SYSTEM, String.valueOf(true));
+		}
+
+		return repo;
 	}
 }
