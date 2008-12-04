@@ -100,6 +100,17 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
+	public boolean addChild(URI childURI, String comparatorID) {
+		if (isSane(childURI, comparatorID)) {
+			addChild(childURI);
+			//Add was successful
+			return true;
+		}
+
+		//Add was not successful
+		return false;
+	}
+
 	public void removeChild(URI childURI) {
 		childrenURIs.remove(childURI);
 		save();
@@ -118,35 +129,35 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * Composite repositories should be unable to directly modify their sub repositories
 	 */
 	public synchronized void addDescriptor(IArtifactDescriptor descriptor) {
-		throw new UnsupportedOperationException("Cannot add descriptors to a composite repository");
+		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their sub repositories
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
-		throw new UnsupportedOperationException("Cannot add descriptors to a composite repository");
+		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their sub repositories
 	 */
 	public void removeDescriptor(IArtifactKey key) {
-		throw new UnsupportedOperationException("Cannot remove descriptors from a composite repository");
+		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their sub repositories
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		throw new UnsupportedOperationException("Cannot remove descriptors from a composite repository");
+		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their sub repositories
 	 */
 	public synchronized void removeAll() {
-		throw new UnsupportedOperationException("Cannot remove descriptors from a composite repository");
+		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	public boolean contains(IArtifactKey key) {
@@ -219,7 +230,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, "Messages while trying children repositories.", null);
+		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
 		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && requests.length > 0;) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
@@ -242,7 +253,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, childrenURIs.size());
 		Iterator repositoryIterator = childrenURIs.iterator();
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, "Messages while trying children repositories.", null);
+		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
 		while (repositoryIterator.hasNext()) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
@@ -263,7 +274,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, childrenURIs.size());
 		Iterator repositoryIterator = childrenURIs.iterator();
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, "Messages while trying children repositories.", null);
+		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
 		while (repositoryIterator.hasNext()) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
@@ -363,5 +374,90 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 
 		return repo;
+	}
+
+	/**
+	 * A wrapper method that ensures a specified repository is compared against all children.
+	 * @param toCheckURI
+	 * @param comparatorID
+	 * @return true if toCheckRepo is consistent, false if toCheckRepo contains an equal descriptor to that of s child and they refer to different artifacts on disk.
+	 */
+	private boolean isSane(URI toCheckURI, String comparatorID) {
+		return isSane(toCheckURI, comparatorID, 0);
+	}
+
+	/**
+	 * A method to check if the content of a repository is consistent with the other children by
+	 * comparing content using the artifactComparator specified by the comparatorID
+	 * startingIndex is used for optimization purposes (ensuring no redundant or self checks are made)
+	 * @param toCheckURI
+	 * @param comparatorID
+	 * @param startingIndex
+	 * @return true if toCheckRepo is consistent, false if toCheckRepo contains an equal descriptor to that of s child and they refer to different artifacts on disk.
+	 */
+	private boolean isSane(URI toCheckURI, String comparatorID, int startingIndex) {
+		IArtifactRepository toCheckRepo = null;
+		try {
+			toCheckRepo = load(toCheckURI);
+		} catch (ProvisionException e) {
+			//repository failed the load.
+			LogHelper.log(e);
+			return false;
+		}
+
+		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
+		for (int m = startingIndex; m < childrenURIs.size(); m++) {
+			try {
+				URI currentURI = (URI) childrenURIs.get(m);
+				IArtifactRepository current = load(currentURI);
+				IArtifactKey[] toCheckKeys = toCheckRepo.getArtifactKeys();
+
+				for (int i = 0; i < toCheckKeys.length; i++) {
+					if (current.contains(toCheckKeys[i]) && !current.equals(toCheckRepo)) {
+						IArtifactDescriptor[] toCheckDescriptors = toCheckRepo.getArtifactDescriptors(toCheckKeys[i]);
+						Map currentDescriptors = createDescriptorMap(current.getArtifactDescriptors(toCheckKeys[i]));
+						for (int j = 0; j < toCheckDescriptors.length; j++) {
+							if (current.contains(toCheckDescriptors[j]) && currentDescriptors.containsKey(toCheckDescriptors[j])) {
+								IArtifactDescriptor descriptor = (IArtifactDescriptor) currentDescriptors.get(toCheckDescriptors[j]);
+								IStatus compareResult = comparator.compare(current, descriptor, toCheckRepo, toCheckDescriptors[j]);
+								if (!compareResult.isOK()) {
+									LogHelper.log(compareResult);
+									return false;
+								}
+							}
+
+						}
+					}
+				}
+			} catch (ProvisionException e) {
+				//repository failed the load.
+				LogHelper.log(e);
+			}
+		}
+		return true;
+	}
+
+	private Map createDescriptorMap(IArtifactDescriptor[] descriptors) {
+		Map map = new HashMap(descriptors.length);
+		for (int i = 0; i < descriptors.length; i++) {
+			map.put(descriptors[i], descriptors[i]);
+		}
+		return map;
+	}
+
+	/**
+	 * A method that verifies that all children with matching artifact descriptors contain the same set of bytes
+	 * The verification is done using the artifactComparator specified by comparatorID
+	 * Assumes more valuable logging and output is the responsibility of the artifactComparator implementation.
+	 * @param comparatorID
+	 * @returns true if the repository is consistent, false if two equal descriptors refer to different artifacts on disk.
+	 */
+	public boolean validate(String comparatorID) {
+		for (int i = 0; i < childrenURIs.size(); i++) {
+			if (!isSane((URI) childrenURIs.get(i), comparatorID, i + 1))
+				return false;
+		}
+
+		return true;
 	}
 }

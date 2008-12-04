@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -194,7 +195,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		try {
 			repo = manager.createRepository(repositoryFile.toURI(), "TestRepo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
 		} catch (ProvisionException e) {
-			fail("Cannot create repository: ", e);;
+			fail("Cannot create repository: ", e);
 		}
 		Map properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
@@ -591,6 +592,81 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error loading repository", e);
 		}
 		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
+	}
+
+	public void testValidate() {
+		//Setup create descriptors with different md5 values
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
+		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
+		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
+		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
+
+		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
+		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+
+		//Setup make repositories
+		File repo1Location = getTestFolder(getUniqueString());
+		File repo2Location = getTestFolder(getUniqueString());
+		File compRepoLocation = getTestFolder(getUniqueString());
+		IArtifactRepository repo1 = null;
+		IArtifactRepository repo2 = null;
+		CompositeArtifactRepository compRepo = null;
+		try {
+			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo1.addDescriptor(descriptor1);
+			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo2.addDescriptor(descriptor2);
+			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+			getArtifactRepositoryManager().removeRepository(repo1Location.toURI());
+			getArtifactRepositoryManager().removeRepository(repo2Location.toURI());
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		//Add the conflicting repositories
+		compRepo.addChild(repo1Location.toURI());
+		compRepo.addChild(repo2Location.toURI());
+
+		//validate using the MD5 Comparator
+		assertFalse("Running verify on invalid repository", compRepo.validate(MD5ArtifactComparator.MD5_COMPARATOR_ID));
+	}
+
+	public void testAddChildWithValidate() {
+		//Setup create descriptors with different md5 values
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
+		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
+		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
+		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
+
+		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
+		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+
+		//Setup make repositories
+		File repo1Location = getTestFolder(getUniqueString());
+		File repo2Location = getTestFolder(getUniqueString());
+		File compRepoLocation = getTestFolder(getUniqueString());
+		IArtifactRepository repo1 = null;
+		IArtifactRepository repo2 = null;
+		CompositeArtifactRepository compRepo = null;
+		try {
+			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo1.addDescriptor(descriptor1);
+			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo2.addDescriptor(descriptor2);
+			getArtifactRepositoryManager().removeRepository(repo1Location.toURI());
+			getArtifactRepositoryManager().removeRepository(repo2Location.toURI());
+			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		//Add conflicting repositories
+		assertTrue("Adding first child with validate", compRepo.addChild(repo1Location.toURI(), MD5ArtifactComparator.MD5_COMPARATOR_ID));
+		assertFalse("Adding conflicting child with validate", compRepo.addChild(repo2Location.toURI(), MD5ArtifactComparator.MD5_COMPARATOR_ID));
+
+		assertEquals("Asserting Composite Repository only has 1 child", 1, compRepo.getChildren().size());
 	}
 
 	public void testEnabledAndSystemValues() {

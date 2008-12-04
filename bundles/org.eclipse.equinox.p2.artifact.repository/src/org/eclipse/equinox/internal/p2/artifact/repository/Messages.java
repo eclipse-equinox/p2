@@ -39,11 +39,14 @@ public class Messages extends NLS {
 
 	public static String mirror_alreadyExists;
 	public static String message_mirroringStatus;
+	public static String message_childrenRepos;
 	public static String exception_comparatorNotFound;
 	public static String exception_noComparators;
 	public static String exception_destinationNotModifiable;
 	public static String exception_needSourceDestination;
 	public static String exception_malformedRepoURI;
+	public static String exception_unsupportedAddToComposite;
+	public static String exception_unsupportedRemoveFromComposite;
 
 	public static String Mirroring_NO_MATCHING_DESCRIPTOR;
 
