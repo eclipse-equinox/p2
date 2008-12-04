@@ -352,7 +352,7 @@ public class ProfileSynchronizer {
 			Tracing.debug(PREFIX + "No IU properties to add."); //$NON-NLS-1$
 		} else {
 			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
+				Object key = iter.next();
 				Tracing.debug(PREFIX + "Adding IU property: " + key + "->" + propsToAdd.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
@@ -370,7 +370,7 @@ public class ProfileSynchronizer {
 			Tracing.debug(PREFIX + "No IU properties to remove."); //$NON-NLS-1$
 		} else {
 			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
+				Object key = iter.next();
 				Tracing.debug(PREFIX + "Removing IU property: " + key + "->" + propsToRemove.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
