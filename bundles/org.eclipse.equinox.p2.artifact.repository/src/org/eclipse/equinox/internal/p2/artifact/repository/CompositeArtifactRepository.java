@@ -410,22 +410,28 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			try {
 				URI currentURI = (URI) childrenURIs.get(m);
 				IArtifactRepository current = load(currentURI);
-				IArtifactKey[] toCheckKeys = toCheckRepo.getArtifactKeys();
+				if (!current.equals(toCheckRepo)) {
+					IArtifactKey[] toCheckKeys = toCheckRepo.getArtifactKeys();
+					for (int i = 0; i < toCheckKeys.length; i++) {
+						IArtifactKey key = toCheckKeys[i];
+						if (!current.contains(key))
+							continue;
 
-				for (int i = 0; i < toCheckKeys.length; i++) {
-					if (current.contains(toCheckKeys[i]) && !current.equals(toCheckRepo)) {
-						IArtifactDescriptor[] toCheckDescriptors = toCheckRepo.getArtifactDescriptors(toCheckKeys[i]);
-						Map currentDescriptors = createDescriptorMap(current.getArtifactDescriptors(toCheckKeys[i]));
+						IArtifactDescriptor[] toCheckDescriptors = toCheckRepo.getArtifactDescriptors(key);
+						IArtifactDescriptor[] currentDescriptors = current.getArtifactDescriptors(key);
 						for (int j = 0; j < toCheckDescriptors.length; j++) {
-							if (current.contains(toCheckDescriptors[j]) && currentDescriptors.containsKey(toCheckDescriptors[j])) {
-								IArtifactDescriptor descriptor = (IArtifactDescriptor) currentDescriptors.get(toCheckDescriptors[j]);
-								IStatus compareResult = comparator.compare(current, descriptor, toCheckRepo, toCheckDescriptors[j]);
-								if (!compareResult.isOK()) {
-									LogHelper.log(compareResult);
-									return false;
+							if (!current.contains(toCheckDescriptors[j]))
+								continue;
+							for (int k = 0; k < currentDescriptors.length; k++) {
+								if (currentDescriptors[k].equals(toCheckDescriptors[j])) {
+									IStatus compareResult = ArtifactComparatorFactory.getArtifactComparator(comparatorID).compare(current, currentDescriptors[k], toCheckRepo, toCheckDescriptors[j]);
+									if (!compareResult.isOK()) {
+										LogHelper.log(compareResult);
+										return false;
+									}
+									break;
 								}
 							}
-
 						}
 					}
 				}
@@ -435,14 +441,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			}
 		}
 		return true;
-	}
-
-	private Map createDescriptorMap(IArtifactDescriptor[] descriptors) {
-		Map map = new HashMap(descriptors.length);
-		for (int i = 0; i < descriptors.length; i++) {
-			map.put(descriptors[i], descriptors[i]);
-		}
-		return map;
 	}
 
 	/**
