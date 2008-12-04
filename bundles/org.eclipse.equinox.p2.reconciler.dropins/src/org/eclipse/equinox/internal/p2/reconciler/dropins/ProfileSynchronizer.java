@@ -15,8 +15,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -320,13 +319,61 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
-		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && updatedCacheExtensions == null)
+		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && updatedCacheExtensions == null) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug("[reconciler] Nothing to do."); //$NON-NLS-1$
 			return null;
+		}
 
 		context.setExtraIUs(toAdd);
 		request.addInstallableUnits((IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]));
 		request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]));
+		debug(request);
 		return request;
+	}
+
+	/*
+	 * If debugging is turned on, then print out the details for the given profile change request.
+	 */
+	private void debug(ProfileChangeRequest request) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		final String PREFIX = "[reconciler] "; //$NON-NLS-1$
+		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
+		if (toAdd == null || toAdd.length == 0) {
+			Tracing.debug(PREFIX + "No installable units to add."); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < toAdd.length; i++) {
+				Tracing.debug(PREFIX + "Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion()); //$NON-NLS-1$
+			}
+		}
+		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
+		if (propsToAdd == null || propsToAdd.isEmpty()) {
+			Tracing.debug(PREFIX + "No IU properties to add."); //$NON-NLS-1$
+		} else {
+			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				Tracing.debug(PREFIX + "Adding IU property: " + key + "->" + propsToAdd.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+
+		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
+		if (toRemove == null || toRemove.length == 0) {
+			Tracing.debug(PREFIX + "No installable units to remove."); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < toRemove.length; i++) {
+				Tracing.debug(PREFIX + "Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion()); //$NON-NLS-1$
+			}
+		}
+		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
+		if (propsToRemove == null || propsToRemove.isEmpty()) {
+			Tracing.debug(PREFIX + "No IU properties to remove."); //$NON-NLS-1$
+		} else {
+			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				Tracing.debug(PREFIX + "Removing IU property: " + key + "->" + propsToRemove.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
 	}
 
 	private Collector getAllIUsFromRepos() {

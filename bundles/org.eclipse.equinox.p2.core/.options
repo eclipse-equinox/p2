@@ -25,5 +25,8 @@ org.eclipse.equinox.p2.core/updatechecker=false
 #Detailed debugging information about the operands being generated
 org.eclipse.equinox.p2.core/planner/operands=false
 
-#Detailde debugging information about the projector 
+#Detailed debugging information about the projector 
 org.eclipse.equinox.p2.core/planner/projector=false
+
+#Detailed debugging information about the reconciler 
+org.eclipse.equinox.p2.core/reconciler=false
