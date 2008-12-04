@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
@@ -28,22 +29,24 @@ public class ActionManager implements IRegistryChangeListener {
 	private static final String TOUCHPOINT_TYPE = "touchpointType"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_VERSION = "touchpointVersion"; //$NON-NLS-1$
 
-	private static ActionManager instance;
-
-	public static synchronized ActionManager getInstance() {
-		if (instance == null) {
-			instance = new ActionManager();
-		}
-		return instance;
-	}
-
 	private HashMap actionMap;
+	private TouchpointManager touchpointManager;
 
-	private ActionManager() {
+	public ActionManager() {
+		this.touchpointManager = new TouchpointManager();
 		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
 	}
 
-	public ProvisioningAction getAction(String actionId) {
+	public ProvisioningAction getTouchpointQualifiedAction(String actionId, TouchpointType type) {
+		if (actionId.indexOf('.') == -1) {
+			if (type == null || type == TouchpointType.NONE)
+				return null;
+
+			Touchpoint touchpoint = touchpointManager.getTouchpoint(type);
+			if (touchpoint == null)
+				throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, type.toString(), actionId));
+			actionId = touchpoint.qualifyAction(actionId);
+		}
 		return getAction(actionId, null);
 	}
 
@@ -56,7 +59,7 @@ public class ActionManager implements IRegistryChangeListener {
 				String touchpointType = actionElement.getAttribute(TOUCHPOINT_TYPE);
 				if (touchpointType != null) {
 					String touchpointVersion = actionElement.getAttribute(TOUCHPOINT_VERSION);
-					Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(touchpointType, touchpointVersion);
+					Touchpoint touchpoint = touchpointManager.getTouchpoint(touchpointType, touchpointVersion);
 					if (touchpoint == null)
 						throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, touchpointType, actionId));
 					action.setTouchpoint(touchpoint);

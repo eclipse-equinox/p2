@@ -19,9 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 public class Engine implements IEngine {
 
 	private final IProvisioningEventBus eventBus;
+	private ActionManager actionManager;
 
 	public Engine(IProvisioningEventBus eventBus) {
 		this.eventBus = eventBus;
+		this.actionManager = new ActionManager();
 	}
 
 	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
@@ -50,7 +52,7 @@ public class Engine implements IEngine {
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
-			EngineSession session = new EngineSession(profile, context);
+			EngineSession session = new EngineSession(profile, context, actionManager);
 
 			MultiStatus result = phaseSet.perform(session, profile, operands, context, monitor);
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {

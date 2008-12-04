@@ -11,11 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.internal.p2.engine.InstructionParser;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.osgi.util.NLS;
 
 public abstract class InstallableUnitPhase extends Phase {
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
@@ -74,41 +75,15 @@ public abstract class InstallableUnitPhase extends Phase {
 		return true;
 	}
 
-	/**
-	 * Returns the touchpoint corresponding to the operand, or null if no corresponding
-	 * touchpoint is available.
-	 */
-	protected final static Touchpoint getTouchpoint(InstallableUnitOperand operand) {
-		return TouchpointManager.getInstance().getTouchpoint(getTouchpointType(operand));
-	}
-
-	private static Touchpoint getTouchpoint(IInstallableUnit unit) {
-		return TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-	}
-
-	/**
-	 * Returns the touchpoint type corresponding to the operand. Never returns null.
-	 */
-	private final static TouchpointType getTouchpointType(InstallableUnitOperand operand) {
-		IInstallableUnit unit = operand.second();
-		if (unit == null)
-			unit = operand.first();
-		return unit.getTouchpointType();
-	}
-
 	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
 		TouchpointInstruction[] instructions = getInstructions(unit, key);
 		if (instructions == null || instructions.length == 0)
 			return null;
-		Touchpoint touchpoint = getTouchpoint(unit);
-		//TODO Need to propagate an exception if the touchpoint is not present
-		if (touchpoint == null) {
-			throw new IllegalStateException(NLS.bind(Messages.required_touchpoint_not_found, unit.getTouchpointType()));
-		}
-		InstructionParser parser = new InstructionParser(this, touchpoint);
+
 		List actions = new ArrayList();
+		InstructionParser instructionParser = new InstructionParser(actionManager);
 		for (int i = 0; i < instructions.length; i++) {
-			actions.addAll(Arrays.asList(parser.parseActions(instructions[i])));
+			actions.addAll(Arrays.asList(instructionParser.parseActions(instructions[i], unit.getTouchpointType())));
 		}
 		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
 	}

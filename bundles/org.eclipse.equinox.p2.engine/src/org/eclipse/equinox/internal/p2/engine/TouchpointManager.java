@@ -23,15 +23,6 @@ import org.osgi.framework.Version;
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
 public class TouchpointManager implements IRegistryChangeListener {
 
-	private static TouchpointManager instance;
-
-	public static TouchpointManager getInstance() {
-		if (instance == null) {
-			instance = new TouchpointManager();
-		}
-		return instance;
-	}
-
 	private static final String PT_TOUCHPOINTS = "touchpoints"; //$NON-NLS-1$
 	private static final String ELEMENT_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
@@ -94,7 +85,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	// TODO: Figure out locking, concurrency requirements for touchpoints.
 	private Map touchpointEntries;
 
-	private TouchpointManager() {
+	public TouchpointManager() {
 		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
 	}
 

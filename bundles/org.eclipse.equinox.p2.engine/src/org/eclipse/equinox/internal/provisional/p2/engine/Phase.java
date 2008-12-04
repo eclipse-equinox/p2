@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.osgi.util.NLS;
 
@@ -30,6 +31,7 @@ public abstract class Phase {
 	private Map phaseParameters = new HashMap();
 	private Map touchpointToTouchpointPhaseParameters = new HashMap();
 	private Map touchpointToTouchpointOperandParameters = new HashMap();
+	protected ActionManager actionManager;
 
 	protected Phase(String phaseId, int weight) {
 		if (phaseId == null || phaseId.length() == 0)
@@ -46,6 +48,7 @@ public abstract class Phase {
 
 	public final MultiStatus perform(EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		actionManager = session.getActionManager();
 		try {
 			perform(status, session, profile, operands, context, monitor);
 		} catch (OperationCanceledException e) {
@@ -58,6 +61,8 @@ public abstract class Phase {
 		} catch (LinkageError e) {
 			// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
 			status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
+		} finally {
+			actionManager = null;
 		}
 
 		if (status.matches(IStatus.CANCEL)) {

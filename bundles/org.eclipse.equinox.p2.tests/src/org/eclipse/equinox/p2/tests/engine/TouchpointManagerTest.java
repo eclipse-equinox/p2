@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -34,17 +33,17 @@ public class TouchpointManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testGetTouchpointByType() {
-		TouchpointManager manager = TouchpointManager.getInstance();
-		assertNotNull(manager.getTouchpoint(TouchpointType.NONE));
+		TouchpointManager manager = new TouchpointManager();
+		assertNotNull(manager.getTouchpoint(InstructionParserTest.TOUCHPOINT_TYPE));
 	}
 
 	public void testGetTouchpointByIdWithVersion() {
-		TouchpointManager manager = TouchpointManager.getInstance();
+		TouchpointManager manager = new TouchpointManager();
 		assertNotNull(manager.getTouchpoint("phaseTest", "1.0.0"));
 	}
 
 	public void testGetTouchpointByIdWithNullVersion() {
-		TouchpointManager manager = TouchpointManager.getInstance();
+		TouchpointManager manager = new TouchpointManager();
 		assertNotNull(manager.getTouchpoint("phaseTest", null));
 	}
 }

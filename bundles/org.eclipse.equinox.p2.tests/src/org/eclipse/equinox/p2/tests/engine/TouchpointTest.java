@@ -13,7 +13,8 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -58,8 +59,11 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return super.initializePhase(monitor, profile, phaseId, touchpointParameters);
 		}
 
-		public TouchpointType getTouchpointType() {
-			return MetadataFactory.createTouchpointType("test", new Version("1.0.0"));
+		public void resetCounters() {
+			completeOperand = 0;
+			completePhase = 0;
+			initializeOperand = 0;
+			initializePhase = 0;
 		}
 	}
 
@@ -82,6 +86,10 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			assertEquals(0, completeOperand);
 			return null;
 		}
+
+		public String qualifyAction(String actionId) {
+			return "operandtest." + actionId;
+		}
 	}
 
 	public static class PhaseTestTouchpoint extends TestTouchpoint {
@@ -102,6 +110,10 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			assertEquals(1, initializePhase);
 			assertEquals(0, completePhase);
 			return null;
+		}
+
+		public String qualifyAction(String actionId) {
+			return "phasetest." + actionId;
 		}
 	}
 
@@ -127,6 +139,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testInitCompleteOperand() {
+		if (testTouchpoint != null)
+			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))}, null, new NullProgressMonitor());
@@ -135,11 +149,13 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testInitCompletePhase() {
+		if (testTouchpoint != null)
+			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))}, null, new NullProgressMonitor());
-		assertEquals(1, testTouchpoint.initializeOperand);
-		assertEquals(1, testTouchpoint.completeOperand);
+		assertEquals(1, testTouchpoint.initializePhase);
+		assertEquals(1, testTouchpoint.completePhase);
 	}
 
 	private IInstallableUnit createTestIU(String touchpointName) {

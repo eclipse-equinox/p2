@@ -13,9 +13,9 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts
@@ -29,6 +29,10 @@ public class CheckTrust extends InstallableUnitPhase {
 		super(PHASE_ID, weight);
 	}
 
+	protected boolean isApplicable(InstallableUnitOperand op) {
+		return (op.second() != null);
+	}
+
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);
 
@@ -40,9 +44,17 @@ public class CheckTrust extends InstallableUnitPhase {
 		return status;
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		String actionId = getTouchpoint(currentOperand).qualifyAction(phaseId);
-		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
+	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+		IInstallableUnit unit = operand.second();
+		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		if (parsedActions != null)
+			return parsedActions;
+
+		TouchpointType type = unit.getTouchpointType();
+		if (type == null || type == TouchpointType.NONE)
+			return null;
+
+		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
 		if (action == null) {
 			return null;
 		}

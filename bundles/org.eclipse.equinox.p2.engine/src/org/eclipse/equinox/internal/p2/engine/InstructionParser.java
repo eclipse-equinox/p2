@@ -12,8 +12,9 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointInstruction;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
@@ -31,22 +32,19 @@ public class InstructionParser {
 	}
 
 	private static final String VERSION_EQUALS = "version="; //$NON-NLS-1$
-	InstallableUnitPhase phase;
-	Touchpoint defaultTouchpoint;
+	private ActionManager actionManager;
 
-	public InstructionParser(InstallableUnitPhase phase, Touchpoint defaultTouchpoint) {
-		Assert.isNotNull(phase);
-		Assert.isNotNull(defaultTouchpoint);
-		this.phase = phase;
-		this.defaultTouchpoint = defaultTouchpoint;
+	public InstructionParser(ActionManager actionManager) {
+		Assert.isNotNull(actionManager);
+		this.actionManager = actionManager;
 	}
 
-	public ProvisioningAction[] parseActions(TouchpointInstruction instruction) {
+	public ProvisioningAction[] parseActions(TouchpointInstruction instruction, TouchpointType touchpointType) {
 		List actions = new ArrayList();
 		Map importMap = parseImportAttribute(instruction.getImportAttribute());
 		StringTokenizer tokenizer = new StringTokenizer(instruction.getBody(), ";"); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
-			actions.add(parseAction(tokenizer.nextToken(), importMap));
+			actions.add(parseAction(tokenizer.nextToken(), importMap, touchpointType));
 		}
 
 		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
@@ -70,17 +68,18 @@ public class InstructionParser {
 					actionVersionRange = new VersionRange(actionAttribute.substring(VERSION_EQUALS.length() + 1));
 			}
 			result.put(actionKey, new ActionEntry(actionId, actionVersionRange));
+			result.put(actionId, new ActionEntry(actionId, actionVersionRange));
 		}
 		return result;
 	}
 
-	private ProvisioningAction parseAction(String statement, Map qualifier) {
+	private ProvisioningAction parseAction(String statement, Map qualifier, TouchpointType touchpointType) {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
 		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
 			throw new IllegalArgumentException(statement);
 		String actionName = statement.substring(0, openBracket).trim();
-		ProvisioningAction action = lookupAction(actionName, qualifier);
+		ProvisioningAction action = lookupAction(actionName, qualifier, touchpointType);
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
@@ -100,17 +99,15 @@ public class InstructionParser {
 		return new ParameterizedProvisioningAction(action, parameters);
 	}
 
-	private ProvisioningAction lookupAction(String actionId, Map importMap) {
+	private ProvisioningAction lookupAction(String actionId, Map importMap, TouchpointType touchpointType) {
 		VersionRange versionRange = null;
-		if (actionId.indexOf('.') == -1) {
-			ActionEntry actionEntry = (ActionEntry) importMap.get(actionId);
-			if (actionEntry != null) {
-				actionId = actionEntry.actionId;
-				versionRange = actionEntry.versionRange;
-			} else
-				actionId = defaultTouchpoint.qualifyAction(actionId);
+		ActionEntry actionEntry = (ActionEntry) importMap.get(actionId);
+		if (actionEntry != null) {
+			actionId = actionEntry.actionId;
+			versionRange = actionEntry.versionRange;
 		}
-		ProvisioningAction action = ActionManager.getInstance().getAction(actionId, versionRange);
+
+		ProvisioningAction action = (actionId.indexOf('.') != -1) ? actionManager.getAction(actionId, versionRange) : actionManager.getTouchpointQualifiedAction(actionId, touchpointType);
 		if (action == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
 

@@ -94,23 +94,21 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	private String self;
 
 	//Whether the registry should update the self profile when the registry is restored
-	private boolean updateSelfProfile = true;
+	private boolean updateSelfProfile;
 
 	private File store;
 
 	ISurrogateProfileHandler surrogateProfileHandler;
+
+	public SimpleProfileRegistry() {
+		this(null, new SurrogateProfileHandler(), true);
+	}
 
 	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
 		store = (registryDirectory != null) ? registryDirectory : getDefaultRegistryDirectory();
 		surrogateProfileHandler = handler;
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 		this.updateSelfProfile = updateSelfProfile;
-	}
-
-	public SimpleProfileRegistry() {
-		store = getDefaultRegistryDirectory();
-		surrogateProfileHandler = new SurrogateProfileHandler();
-		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 	}
 
 	private static File getDefaultRegistryDirectory() {

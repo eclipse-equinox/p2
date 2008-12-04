@@ -14,11 +14,11 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
@@ -38,11 +38,19 @@ public class Collect extends InstallableUnitPhase {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		String actionId = getTouchpoint(currentOperand).qualifyAction(phaseId);
-		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
+	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+		IInstallableUnit unit = operand.second();
+		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		if (parsedActions != null)
+			return parsedActions;
+
+		TouchpointType type = unit.getTouchpointType();
+		if (type == null || type == TouchpointType.NONE)
+			return null;
+
+		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
 		if (action == null) {
-			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
+			return null;
 		}
 		return new ProvisioningAction[] {action};
 	}

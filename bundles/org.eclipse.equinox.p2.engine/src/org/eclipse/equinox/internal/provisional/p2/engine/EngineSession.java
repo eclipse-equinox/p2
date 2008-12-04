@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.osgi.util.NLS;
 
@@ -38,12 +39,19 @@ public class EngineSession {
 
 	private Set touchpoints = new HashSet();
 
-	public EngineSession(IProfile profile, ProvisioningContext context) {
+	private ActionManager actionManager;
+
+	public EngineSession(IProfile profile, ProvisioningContext context, ActionManager actionManager) {
 		this.profile = profile;
 		this.context = context;
+		this.actionManager = actionManager;
 	}
 
-	public IStatus commit() {
+	ActionManager getActionManager() {
+		return actionManager;
+	}
+
+	IStatus commit() {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
@@ -68,7 +76,7 @@ public class EngineSession {
 		return status;
 	}
 
-	public IStatus rollback() {
+	IStatus rollback() {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (currentPhase != null) {

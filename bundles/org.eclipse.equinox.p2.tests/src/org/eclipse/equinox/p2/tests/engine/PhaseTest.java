@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.NullAction;
 import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -78,20 +77,19 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 
 		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-			final Touchpoint touchpoint = getTouchpoint(operand);
-			ProvisioningAction action = new ProvisioningAction() {
-				public IStatus execute(Map parameters) {
-					return null;
-				}
+			IInstallableUnit unit = operand.second();
+			ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+			if (parsedActions != null)
+				return parsedActions;
 
-				public IStatus undo(Map parameters) {
-					return null;
-				}
+			TouchpointType type = unit.getTouchpointType();
+			if (type == null || type == TouchpointType.NONE)
+				return null;
 
-				public Touchpoint getTouchpoint() {
-					return touchpoint;
-				}
-			};
+			ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
+			if (action == null) {
+				throw new IllegalArgumentException("action not found: " + phaseId);
+			}
 			return new ProvisioningAction[] {action};
 		}
 	}
@@ -251,8 +249,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("PhaseTest");
 
 		Map instructions = new HashMap();
-		instructions.put("test1", MetadataFactory.createTouchpointInstruction("phasetest.test()", null));
-		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test()", null));
+		instructions.put("test1", MetadataFactory.createTouchpointInstruction("test1.test()", null));
+		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test2.test()", null));
 		TouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new ProvidedCapability[0], NO_PROPERTIES, TouchpointType.NONE, touchpointData, false);
 		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
@@ -261,7 +259,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 
 		assertEquals(TestAction.class, ((ParameterizedProvisioningAction) actionsList1.get(0)).getAction().getClass());
-		assertEquals(NullAction.class, ((ParameterizedProvisioningAction) actionsList2.get(0)).getAction().getClass());
+		assertEquals(TestAction.class, ((ParameterizedProvisioningAction) actionsList2.get(0)).getAction().getClass());
 	}
 
 }

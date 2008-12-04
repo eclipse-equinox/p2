@@ -10,21 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
 public class Sizing extends InstallableUnitPhase {
-	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
+	private static final String PHASE_ID = "sizing"; //$NON-NLS-1$
+	private static final String COLLECT_PHASE_ID = "collect"; //$NON-NLS-1$
 
 	private long sizeOnDisk;
 	private long dlSize;
@@ -45,12 +45,19 @@ public class Sizing extends InstallableUnitPhase {
 		return dlSize;
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		String actionId = getTouchpoint(currentOperand).qualifyAction("collect"); //$NON-NLS-1$
+	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+		IInstallableUnit unit = operand.second();
+		ProvisioningAction[] parsedActions = getActions(unit, COLLECT_PHASE_ID);
+		if (parsedActions != null)
+			return parsedActions;
 
-		ProvisioningAction action = ActionManager.getInstance().getAction(actionId);
+		TouchpointType type = unit.getTouchpointType();
+		if (type == null || type == TouchpointType.NONE)
+			return null;
+
+		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(COLLECT_PHASE_ID, type);
 		if (action == null) {
-			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
+			return null;
 		}
 		return new ProvisioningAction[] {action};
 	}
