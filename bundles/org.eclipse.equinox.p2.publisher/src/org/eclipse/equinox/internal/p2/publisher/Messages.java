@@ -23,7 +23,7 @@ public class Messages extends NLS {
 	public static String exception_metadataRepoLocationURL;
 	public static String exception_metadataRepoNotWritable;
 	public static String exception_baseLocationNotSpecified;
-	public static String exception_errorParsingManifest;
+	public static String exception_errorReadingManifest;
 	public static String exception_errorLoadingManifest;
 	public static String exception_noPluginConverter;
 

@@ -576,11 +576,11 @@ public class BundlesAction extends AbstractPublisherAction {
 				// real answer is to have people expect a Map but that is a wider change.
 				manifest = new Hashtable(manifestMap);
 			} catch (IOException e) {
-				String message = NLS.bind(Messages.exception_errorParsingManifest, bundleLocation, e.getMessage());
+				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
 				return null;
 			} catch (BundleException e) {
-				String message = NLS.bind(Messages.exception_errorParsingManifest, bundleLocation, e.getMessage());
+				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
 				return null;
 			} finally {
