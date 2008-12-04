@@ -24,6 +24,11 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AllOrbit.class);
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
+		suite.addTestSuite(Bug249605.class);
+		//		suite.addTestSuite(Bug252682.class);
+		suite.addTestSuite(Bug254481dataSet1.class);
+		suite.addTestSuite(Bug254481dataSet2.class);
+		suite.addTestSuite(Bug255984.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DropinsScenario.class);
 		suite.addTestSuite(GreedyRequirement.class);
@@ -85,9 +90,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SimpleSingleton.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
-		suite.addTestSuite(ProvisioningPlanQueryTest.class);
-		suite.addTestSuite(Bug254481dataSet1.class);
-		suite.addTestSuite(Bug254481dataSet2.class);
 		return suite;
 	}
 }
