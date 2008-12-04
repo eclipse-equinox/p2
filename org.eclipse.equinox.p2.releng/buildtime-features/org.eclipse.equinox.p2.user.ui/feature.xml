@@ -17,11 +17,7 @@
    <license url="%licenseURL">
       %license
    </license>
-
-   <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
-   </url>
-
+    
    <plugin
          id="org.eclipse.equinox.p2.director"
          download-size="0"
