@@ -94,7 +94,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String namespace = ConfigCUsAction.getAbstractCUCapabilityNamespace(idBase, TYPE, flavor, configSpec);
 		String capabilityId = ConfigCUsAction.getAbstractCUCapabilityId(idBase, TYPE, flavor, configSpec);
-		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version); 
+		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version);
 		ProvidedCapability selfCapability = createSelfCapability(id, version);
 		iu.setCapabilities(new ProvidedCapability[] {selfCapability, executableCapability});
 
@@ -112,7 +112,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String os = config[1];
 		String arch = config[2];
 		String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
-		if (!Constants.OS_MACOSX.equals(os))
+		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
 		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
@@ -180,11 +180,11 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private void mungeExecutableFileName(File file, ExecutablesDescriptor descriptor) {
 		if (file.getName().equals("launcher")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse"); //$NON-NLS-1$
-			file.renameTo(newFile); 
+			file.renameTo(newFile);
 			descriptor.replace(file, newFile);
 		} else if (file.getName().equals("launcher.exe")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse.exe"); //$NON-NLS-1$
-			file.renameTo(newFile); 
+			file.renameTo(newFile);
 			descriptor.replace(file, newFile);
 		}
 	}

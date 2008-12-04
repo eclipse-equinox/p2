@@ -791,7 +791,7 @@ public class Generator {
 		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion), launcherCapability});
 
 		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
-		if (!Constants.OS_MACOSX.equals(os))
+		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
 		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.rootIUs.add(MetadataFactory.createInstallableUnit(iu));
