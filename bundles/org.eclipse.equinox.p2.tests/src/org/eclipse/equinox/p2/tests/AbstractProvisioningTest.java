@@ -438,6 +438,47 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
 
+	public static void changeVersion(InstallableUnitDescription desc, Version newVersion) {
+		ProvidedCapability[] capabilities = desc.getProvidedCapabilities();
+		for (int i = 0; i < capabilities.length; i++) {
+			if (desc.getVersion().equals(capabilities[i].getVersion()))
+				capabilities[i] = MetadataFactory.createProvidedCapability(capabilities[i].getNamespace(), capabilities[i].getName(), newVersion);
+		}
+		desc.setVersion(newVersion);
+	}
+
+	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
+		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
+		desc.setArtifacts(prototype.getArtifacts());
+		ProvidedCapability originalCapabilities[] = prototype.getProvidedCapabilities();
+		ProvidedCapability newCapabilities[] = new ProvidedCapability[originalCapabilities.length];
+		for (int i = 0; i < originalCapabilities.length; i++) {
+			newCapabilities[i] = MetadataFactory.createProvidedCapability(originalCapabilities[i].getNamespace(), originalCapabilities[i].getName(), originalCapabilities[i].getVersion());
+		}
+		desc.setCapabilities(newCapabilities);
+		desc.setCopyright(prototype.getCopyright());
+		desc.setFilter(prototype.getFilter());
+		desc.setId(prototype.getId());
+		desc.setLicense(prototype.getLicense());
+		RequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
+		RequiredCapability[] newRequirements = new RequiredCapability[originalRequirements.length];
+		for (int i = 0; i < newRequirements.length; i++) {
+			newRequirements[i] = MetadataFactory.createRequiredCapability(originalRequirements[i].getNamespace(), originalRequirements[i].getName(), originalRequirements[i].getRange(), originalRequirements[i].getFilter(), originalRequirements[i].isOptional(), originalRequirements[i].isMultiple(), originalRequirements[i].isGreedy());
+		}
+		desc.setRequiredCapabilities(prototype.getRequiredCapabilities());
+		desc.setSingleton(prototype.isSingleton());
+		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
+		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getId(), prototype.getUpdateDescriptor().getRange(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
+		desc.setVersion(prototype.getVersion());
+		Map prototypeProperties = prototype.getProperties();
+		Set entries = prototypeProperties.entrySet();
+		for (Iterator iterator = entries.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			desc.setProperty((String) entry.getKey(), (String) entry.getValue());
+		}
+		return desc;
+	}
+
 	public static IPlanner createPlanner() {
 		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
 	}
