@@ -45,6 +45,7 @@ public class ProductActionTest extends ActionTest {
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(RootIUAdvice.class), EasyMock.capture(rootIUAdviceCapture)));
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ProductFileAdvice.class), EasyMock.capture(productFileAdviceCapture)));
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
+		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
 		//Return an empty list every time getAdvice is called
 		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(Collections.emptyList());
 		expectLastCall().anyTimes();
