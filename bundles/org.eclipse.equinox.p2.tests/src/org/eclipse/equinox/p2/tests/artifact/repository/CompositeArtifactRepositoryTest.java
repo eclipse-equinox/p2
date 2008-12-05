@@ -12,9 +12,10 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URISyntaxException;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -560,6 +561,41 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		if (!(repo2File.exists() && destFile2.exists()))
 			fail("File does not exist on disk");
 		assertTrue(repo2File.length() == destFile2.length());
+	}
+
+	public void testLoadingRepository() {
+		File knownGoodRepoLocation = getTestData("1", "/testData/artifactRepo/composite/Good");
+
+		CompositeArtifactRepository compRepo = null;
+		try {
+			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Error Loading repository", e);
+		}
+
+		ArrayList children = compRepo.getChildren();
+
+		try {
+			//ensure children are correct
+			URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
+			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child1));
+			URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
+			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child2));
+			assertEquals("Ensure correct number of children", 2, children.size());
+		} catch (URISyntaxException e) {
+			fail("Error creating URIs for verifiaction", e);
+		}
+
+		//ensure correct properties
+		assertEquals("Ensure correct name", "artifact name", compRepo.getName());
+		Map properties = compRepo.getProperties();
+		assertEquals("Ensure correct number of properties", 2, properties.size());
+		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		assertTrue("Ensure timestamp value is not null", timestamp != null);
+		assertEquals("Ensure correct timestamp value", "1226685461796", timestamp);
+		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		assertTrue("Ensure timestamp value is not null", compressed != null);
+		assertEquals("Ensure correct timestamp value", "false", compressed);
 	}
 
 	public void testCompressedPersistence() {
