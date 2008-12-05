@@ -83,13 +83,13 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 				try {
 					stream.close();
 				} catch (IOException e) {
-					// boo
+					// ignore secondary failure
 				}
 			if (jar != null)
 				try {
 					jar.close();
 				} catch (IOException e) {
-					// boo
+					// ignore secondary failure
 				}
 		}
 	}
