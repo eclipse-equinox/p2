@@ -19,13 +19,10 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.updatesite.messages"; //$NON-NLS-1$
 
-	public static String ErrorCreatingRepository;
 	public static String ErrorReadingDigest;
 	public static String ErrorReadingFeature;
 	public static String ErrorReadingSite;
 	public static String InvalidRepositoryLocation;
-	public static String MalformedArchiveURL;
-	public static String PlatformAdminNotRegistered;
 	public static String Error_Generation;
 
 	public static String io_failedRead;
@@ -41,7 +38,6 @@ public class Messages extends NLS {
 	public static String DefaultSiteParser_Missing;
 	public static String DefaultSiteParser_ParsingStackBackToInitialState;
 	public static String DefaultSiteParser_ElementAlreadySet;
-	public static String DefaultSiteParser_CategoryAlreadySet;
 	public static String DefaultSiteParser_UnknownEndState;
 	public static String DefaultSiteParser_ErrorParsing;
 	public static String DefaultSiteParser_ErrorlineColumnMessage;

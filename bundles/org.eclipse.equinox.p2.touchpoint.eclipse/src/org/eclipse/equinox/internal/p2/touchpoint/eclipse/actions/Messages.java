@@ -15,7 +15,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.messages"; //$NON-NLS-1$
 	public static String artifact_file_not_found;
-	public static String action_not_instantiated;
 	public static String parameter_not_set;
 	public static String iu_contains_no_arifacts;
 	public static String no_matching_artifact;
@@ -23,7 +22,6 @@ public class Messages extends NLS {
 	public static String failed_bundleinfo;
 	public static String cannot_configure_source_bundle;
 	public static String error_parsing_startlevel;
-	public static String artifact_not_directory;
 	public static String no_bundle_pool;
 
 	static {
