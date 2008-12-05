@@ -53,7 +53,18 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 
 		String install = Platform.getInstallLocation().getURL().getPath();
 		File plugins = new File(install, "plugins");
-		verifier.verify(workingDir, new String[] {plugins.getAbsolutePath()});
+
+		PrintStream oldOut = System.out;
+		PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"));
+		System.setOut(newOut);
+
+		try {
+			verifier.verify(workingDir, new String[] {plugins.getAbsolutePath()});
+		} finally {
+			System.setOut(oldOut);
+			newOut.close();
+		}
+
 	}
 
 	public void testPackUnpackVerify() throws Exception {
@@ -88,9 +99,18 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		options.outputDir = packed.getAbsolutePath();
 		options.input = input;
 
-		JarProcessorExecutor executor = new JarProcessorExecutor();
-		executor.runJarProcessor(options);
+		PrintStream oldOut = System.out;
+		PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"));
+		System.setOut(newOut);
 
-		Verifier.main(new String[] {"-dir", packed.getAbsolutePath(), packed.getAbsolutePath()});
+		try {
+			JarProcessorExecutor executor = new JarProcessorExecutor();
+			executor.runJarProcessor(options);
+
+			Verifier.main(new String[] {"-dir", packed.getAbsolutePath(), packed.getAbsolutePath()});
+		} finally {
+			System.setOut(oldOut);
+			newOut.close();
+		}
 	}
 }
