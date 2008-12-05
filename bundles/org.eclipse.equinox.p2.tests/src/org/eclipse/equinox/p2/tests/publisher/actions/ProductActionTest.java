@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.osgi.framework.Version;
 
 @SuppressWarnings( {"unchecked"})
@@ -32,6 +33,7 @@ public class ProductActionTest extends ActionTest {
 	private Capture<RootIUAdvice> rootIUAdviceCapture;
 	private Capture<ProductFileAdvice> productFileAdviceCapture;
 	String source = "";
+	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 
 	@Override
 	protected IPublisherInfo createPublisherInfoMock() {
@@ -42,6 +44,7 @@ public class ProductActionTest extends ActionTest {
 	protected void insertPublisherInfoBehavior() {
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(RootIUAdvice.class), EasyMock.capture(rootIUAdviceCapture)));
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ProductFileAdvice.class), EasyMock.capture(productFileAdviceCapture)));
+		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		//Return an empty list every time getAdvice is called
 		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(Collections.emptyList());
 		expectLastCall().anyTimes();
