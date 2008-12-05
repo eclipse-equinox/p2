@@ -54,6 +54,38 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testParseBundleInfoWithSpaces() throws MalformedURLException {
+
+		File baseFile = getTempFolder();
+		URI baseURI = baseFile.toURI();
+
+		String canonicalForm = "javax.servlet,2.4.0.v200806031604,plugin%20s/javax.servlet_2.4.0.v200806031604.jar,4,false";
+		BundleInfo canonicalInfo = SimpleConfiguratorUtils.parseBundleInfoLine(canonicalForm, baseURI);
+		File canonicalFile = new File(baseFile, "plugin s/javax.servlet_2.4.0.v200806031604.jar");
+
+		String line[] = new String[6];
+		line[0] = "javax.servlet,2.4.0.v200806031604,file:plugin s/javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[1] = "javax.servlet,2.4.0.v200806031604,plugin s\\javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[2] = "javax.servlet,2.4.0.v200806031604,file:plugin s\\javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[3] = "javax.servlet,2.4.0.v200806031604,file:" + canonicalFile.toString() + ",4,false";
+		line[4] = "javax.servlet,2.4.0.v200806031604," + canonicalFile.toURL().toExternalForm() + ",4,false";
+		line[5] = "javax.servlet,2.4.0.v200806031604," + canonicalFile.toURI().toString() + ",4,false";
+
+		String relativeBundleLocation = "reference:file:plugin s/javax.servlet_2.4.0.v200806031604.jar";
+		String absoluteBundleLocation = "reference:" + canonicalFile.toURL().toExternalForm();
+
+		for (int i = 0; i < line.length; i++) {
+			if (line[i].indexOf('\\') != -1 && !WINDOWS)
+				continue;
+			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
+			assertEquals("[" + i + "]", canonicalInfo, info);
+			if (info.getLocation().isAbsolute())
+				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			else
+				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+		}
+	}
+
 	public void testParseUNCBundleInfo() throws MalformedURLException {
 
 		if (!WINDOWS)

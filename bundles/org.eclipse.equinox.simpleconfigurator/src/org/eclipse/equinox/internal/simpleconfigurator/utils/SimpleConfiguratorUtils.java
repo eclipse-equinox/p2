@@ -135,27 +135,29 @@ public class SimpleConfiguratorUtils {
 		}
 	}
 
+	// This will produce an unencoded URL string
 	public static String getBundleLocation(BundleInfo bundle, boolean useReference) {
-		String bundleLocation = null;
 		URI location = bundle.getLocation();
-		try {
-			if (location.getScheme() != null)
-				bundleLocation = URIUtil.toURL(location).toExternalForm();
-			else {
-				URI baseLocation = bundle.getBaseLocation();
-				if (baseLocation != null && baseLocation.getScheme() != null) {
-					String scheme = baseLocation.getScheme();
-					String host = baseLocation.getHost();
-					String path = location.getPath();
-					URL bundleLocationURL = new URL(scheme, host, path);
-					bundleLocation = bundleLocationURL.toExternalForm();
-				}
+		String scheme = location.getScheme();
+		String host = location.getHost();
+		String path = location.getPath();
+
+		if (location.getScheme() == null) {
+			URI baseLocation = bundle.getBaseLocation();
+			if (baseLocation != null && baseLocation.getScheme() != null) {
+				scheme = baseLocation.getScheme();
+				host = baseLocation.getHost();
 			}
-		} catch (MalformedURLException e1) {
-			// fall through
 		}
-		if (bundleLocation == null)
+
+		String bundleLocation = null;
+		try {
+			URL bundleLocationURL = new URL(scheme, host, path);
+			bundleLocation = bundleLocationURL.toExternalForm();
+
+		} catch (MalformedURLException e1) {
 			bundleLocation = location.toString();
+		}
 
 		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) //$NON-NLS-1$
 			bundleLocation = REFERENCE_PREFIX + bundleLocation; //$NON-NLS-1$
