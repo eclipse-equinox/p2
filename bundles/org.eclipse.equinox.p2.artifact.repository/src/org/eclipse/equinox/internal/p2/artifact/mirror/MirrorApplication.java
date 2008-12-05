@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -33,8 +34,10 @@ public class MirrorApplication implements IApplication {
 
 	private URI sourceLocation;
 	private URI destinationLocation;
+	private URI baselineLocation;
 	private IArtifactRepository source;
 	private IArtifactRepository destination;
+	private IArtifactRepository baseline;
 	private boolean append = true;
 	private boolean raw = false;
 	private boolean failOnError = true;
@@ -42,6 +45,7 @@ public class MirrorApplication implements IApplication {
 	private IArtifactRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
 	private boolean destinationLoaded = false;
+	private boolean baselineLoaded = false;
 	private boolean compare = false;
 	private String comparatorID = MD5ArtifactComparator.MD5_COMPARATOR_ID; //use MD5 as default
 
@@ -52,25 +56,27 @@ public class MirrorApplication implements IApplication {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
-		
+
 		Mirroring mirroring = new Mirroring(source, destination, raw);
 		mirroring.setCompare(compare);
 		mirroring.setComparatorId(comparatorID);
+		mirroring.setBaseline(baseline);
 
 		IStatus result = mirroring.run(failOnError, verbose);
-		IStatus[] children = result.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			if (verbose && !children[i].isOK()) {
-				System.err.println(children[i].getMessage());
-				if (children[i].getSeverity() == IStatus.ERROR)
-					LogHelper.log(children[i]);
-			}
+		if (verbose && !result.isOK()) {
+			System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
+			FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+			if (log != null)
+				System.err.println("Log file location: " + log.getFile()); //$NON-NLS-1$
+			LogHelper.log(result);
 		}
 		//if the repository was not already loaded before the mirror application started, close it.
 		if (!sourceLoaded)
 			getManager().removeRepository(sourceLocation);
 		if (!destinationLoaded)
 			getManager().removeRepository(destinationLocation);
+		if (baselineLocation != null && !baselineLoaded)
+			getManager().removeRepository(baselineLocation);
 
 		return IApplication.EXIT_OK;
 	}
@@ -103,6 +109,11 @@ public class MirrorApplication implements IApplication {
 		//must execute before initializeDestination is called
 		source = getManager().loadRepository(sourceLocation, null);
 		destination = initializeDestination();
+
+		if (baselineLocation != null) {
+			baselineLoaded = getManager().contains(baselineLocation);
+			baseline = getManager().loadRepository(baselineLocation, null);
+		}
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
@@ -153,13 +164,17 @@ public class MirrorApplication implements IApplication {
 			String arg = args[++i];
 
 			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
-					comparatorID = arg;
-					
+				comparatorID = arg;
+
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
 					sourceLocation = URIUtil.fromString(arg);
 				if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
 					destinationLocation = URIUtil.fromString(arg);
+				if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
+					baselineLocation = URIUtil.fromString(arg);
+					compare = true;
+				}
 			} catch (URISyntaxException e) {
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_malformedRepoURI, arg));
 			}

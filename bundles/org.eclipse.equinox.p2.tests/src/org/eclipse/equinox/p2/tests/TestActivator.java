@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -26,6 +28,14 @@ public class TestActivator implements BundleActivator {
 
 	public static BundleContext getContext() {
 		return context;
+	}
+
+	/*
+	 * Return a file handle to the framework log file, or null if it is not available.
+	 */
+	public static File getLogFile() {
+		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(context, FrameworkLog.class.getName());
+		return log == null ? null : log.getFile();
 	}
 
 	public void start(BundleContext context) throws Exception {

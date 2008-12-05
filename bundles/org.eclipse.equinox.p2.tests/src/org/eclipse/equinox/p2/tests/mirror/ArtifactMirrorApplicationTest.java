@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
@@ -1081,7 +1082,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
 		try {
-			newErr = new PrintStream(new FileOutputStream(repo2Location.getAbsolutePath() + "/out.out"));
+			newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "out.out")));
 		} catch (FileNotFoundException e) {
 			fail("Error redirecting stderr", e);
 		}
@@ -1102,7 +1103,78 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
 		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {repo1, repo2, descriptor1});
 		try {
-			assertLogContainsLine(new File(repo2Location, "/out.out"), msg);
+			assertLogContainsLine(TestActivator.getLogFile(), msg);
+		} catch (Exception e) {
+			fail("error verifying output", e);
+		}
+	}
+
+	public void testBaselineCompareUsingMD5Comparator() {
+		//Setup create descriptors with different md5 values
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
+		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/content.xml");
+
+		//Setup Copy the file to the baseline
+		File repoLocation = getTestFolder(getUniqueString());
+		File baselineLocation = getTestFolder(getUniqueString());
+		File baselineBinaryDirectory = new File(baselineLocation, "binary");
+		baselineBinaryDirectory.mkdir();
+		File baselineContentLocation = new File(baselineBinaryDirectory, "testKeyId_1.2.3");
+		AbstractProvisioningTest.copy("Copying File to baseline", artifact2, baselineContentLocation);
+
+		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
+		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
+
+		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
+		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+
+		//Setup make repositories
+		IArtifactRepository repo = null;
+		IArtifactRepository baseline = null;
+		try {
+			repo = getArtifactRepositoryManager().createRepository(repoLocation.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			repo.addDescriptor(descriptor1);
+			baseline = getArtifactRepositoryManager().createRepository(baselineLocation.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			baseline.addDescriptor(descriptor2);
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		//Comparator prints to stderr, redirect that to a file
+		PrintStream oldErr = System.err;
+		PrintStream newErr = null;
+		try {
+			destRepoLocation.mkdir();
+			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "out.out")));
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting stderr", e);
+		}
+		System.setErr(newErr);
+		try {
+			//Set compareAgaist
+			String[] args = new String[] {"-source", repoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-compareAgainst", baselineLocation.toURL().toExternalForm(), "-verbose", "-compare"};
+			//run the mirror application
+			runMirrorApplication("Running with baseline compare", args);
+		} catch (Exception e) {
+			fail("Running mirror application with baseline compare", e);
+		}
+		System.setErr(oldErr);
+		newErr.close();
+
+		IArtifactRepository destination = null;
+		try {
+			destination = getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Error loading destination", e);
+		}
+
+		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
+		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
+		assertEquals("Ensuring destination contains the descriptor from the baseline", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {baseline, repo, descriptor1});
+		try {
+			assertLogContainsLine(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
 			fail("error verifying output", e);
 		}
