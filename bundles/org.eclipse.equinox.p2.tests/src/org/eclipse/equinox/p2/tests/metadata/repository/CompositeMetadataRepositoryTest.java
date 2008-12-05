@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
@@ -334,6 +335,38 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("Error loading repository", e);
 		}
 		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
+	}
+
+	public void testEnabledAndSystemValues() {
+		//Setup make repositories
+		File repo1Location = getTestFolder(getUniqueString());
+		File repo2Location = getTestFolder(getUniqueString());
+		File compRepoLocation = getTestFolder(getUniqueString());
+		CompositeMetadataRepository compRepo = null;
+		try {
+			getMetadataRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			getMetadataRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			//Only 1 child should be loaded in the manager
+			getMetadataRepositoryManager().removeRepository(repo2Location.toURI());
+			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("Error creating repositories", e);
+		}
+
+		compRepo.addChild(repo1Location.toURI());
+		compRepo.addChild(repo2Location.toURI());
+
+		//force composite repository to load all children
+		compRepo.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+
+		assertTrue("Ensuring previously loaded repo is enabled", getMetadataRepositoryManager().isEnabled(repo1Location.toURI()));
+		String repo1System = getMetadataRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
+		//if repo1System is null we want to fail
+		assertFalse("Ensuring previously loaded repo is not system", repo1System != null ? repo1System.equals(Boolean.toString(true)) : true);
+		assertFalse("Ensuring not previously loaded repo is not enabled", getMetadataRepositoryManager().isEnabled(repo2Location.toURI()));
+		String repo2System = getMetadataRepositoryManager().getRepositoryProperty(repo2Location.toURI(), IRepository.PROP_SYSTEM);
+		//if repo2System is null we want to fail
+		assertTrue("Ensuring not previously loaded repo is system", repo2System != null ? repo2System.equals(Boolean.toString(true)) : false);
 	}
 
 	private void persistenceTest(boolean compressed) {
