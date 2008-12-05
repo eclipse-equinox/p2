@@ -125,7 +125,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.directorywatcher,
-   org.eclipse.equinox.p2.publisher",
+   org.eclipse.equinox.p2.publisher,
+   org.eclipse.equinox.p2.director.app",
  org.eclipse.equinox.internal.provisional.p2.query;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,

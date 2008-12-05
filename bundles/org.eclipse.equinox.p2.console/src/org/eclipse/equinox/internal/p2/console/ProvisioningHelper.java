@@ -163,7 +163,9 @@ public class ProvisioningHelper {
 		} else {
 			queryable = getMetadataRepository(location);
 		}
-		return queryable.query(query, collector, monitor);
+		if (queryable != null)
+			return queryable.query(query, collector, monitor);
+		return collector;
 	}
 
 	public static URI[] getMetadataRepositories() {

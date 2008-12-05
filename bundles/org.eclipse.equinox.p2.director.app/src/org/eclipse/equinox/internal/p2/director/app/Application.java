@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -46,19 +47,15 @@ public class Application implements IApplication {
 
 	public static final String[] COMMAND_NAMES = {"-installIU", "-uninstallIU", "-list"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	//	private ServiceRegistration directorRegistration;
-	//	private ServiceRegistration plannerRegistration;
-	//	private ServiceRegistration engineRegistration;
-	//	private ServiceRegistration busRegistration;
-	//	private ServiceRegistration metadataManagerRegistration;
-	//	private ServiceRegistration artifactManagerRegistration;
-	//	private IProvisioningEventBus bus;
-
 	private Path destination;
 
 	private URI[] artifactRepositoryLocations;
-
 	private URI[] metadataRepositoryLocations;
+
+	private URI[] metadataReposForRemoval;
+	private URI[] artifactReposForRemoval;
+	private IArtifactRepositoryManager artifactManager;
+	private IMetadataRepositoryManager metadataManager;
 
 	private String root;
 	private Version version = null;
@@ -168,15 +165,20 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
-			IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-			if (manager == null) {
+			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+			if (artifactManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
 			} else {
+				int removalIdx = 0;
 				boolean anyValid = false; // do we have any valid repos or did they all fail to load?
+				artifactReposForRemoval = new URI[artifactRepositoryLocations.length];
 				for (int i = 0; i < artifactRepositoryLocations.length; i++) {
 					try {
-						manager.loadRepository(artifactRepositoryLocations[i], null);
+						if (!artifactManager.contains(artifactRepositoryLocations[i])) {
+							artifactManager.loadRepository(artifactRepositoryLocations[i], null);
+							artifactReposForRemoval[removalIdx++] = artifactRepositoryLocations[i];
+						}
 						anyValid = true;
 					} catch (ProvisionException e) {
 						//one of the repositories did not load
@@ -193,15 +195,20 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("metadataRepository"); //$NON-NLS-1$
 		} else {
-			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
-			if (manager == null) {
+			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			if (metadataManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
 			} else {
+				int removalIdx = 0;
 				boolean anyValid = false; // do we have any valid repos or did they all fail to load?
+				metadataReposForRemoval = new URI[metadataRepositoryLocations.length];
 				for (int i = 0; i < metadataRepositoryLocations.length; i++) {
 					try {
-						manager.loadRepository(metadataRepositoryLocations[i], null);
+						if (!metadataManager.contains(metadataRepositoryLocations[i])) {
+							metadataManager.loadRepository(metadataRepositoryLocations[i], null);
+							metadataReposForRemoval[removalIdx++] = metadataRepositoryLocations[i];
+						}
 						anyValid = true;
 					} catch (ProvisionException e) {
 						//one of the repositories did not load
@@ -375,46 +382,48 @@ public class Application implements IApplication {
 		IStatus operationStatus = Status.OK_STATUS;
 		InstallableUnitQuery query;
 		Collector roots;
-		switch (command) {
-			case COMMAND_INSTALL :
-			case COMMAND_UNINSTALL :
-				initializeRepositories(command == COMMAND_INSTALL);
+		try {
+			initializeRepositories(command == COMMAND_INSTALL);
+			switch (command) {
+				case COMMAND_INSTALL :
+				case COMMAND_UNINSTALL :
 
-				IProfile profile = initializeProfile();
-				query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-				roots = ProvisioningHelper.getInstallableUnits(null, query, new LatestIUVersionCollector(), new NullProgressMonitor());
-				if (roots.size() <= 0)
-					roots = profile.query(query, roots, new NullProgressMonitor());
-				if (roots.size() <= 0) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
-					System.out.println(NLS.bind(Messages.Missing_IU, root));
-					return EXIT_ERROR;
-				}
-				if (!updateRoamingProperties(profile).isOK()) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
-					System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
-					return EXIT_ERROR;
-				}
-				ProvisioningContext context = new ProvisioningContext();
-				ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
-				printRequest(request);
-				operationStatus = planAndExecute(profile, context, request);
-				break;
-			case COMMAND_LIST :
-				query = new InstallableUnitQuery(null, VersionRange.emptyRange);
-				if (metadataRepositoryLocations == null)
-					missingArgument("metadataRepository"); //$NON-NLS-1$
+					IProfile profile = initializeProfile();
+					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
+					roots = collectRootIUs(metadataRepositoryLocations, query, new LatestIUVersionCollector());
+					if (roots.size() <= 0)
+						roots = profile.query(query, roots, new NullProgressMonitor());
+					if (roots.size() <= 0) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
+						System.out.println(NLS.bind(Messages.Missing_IU, root));
+						return EXIT_ERROR;
+					}
+					if (!updateRoamingProperties(profile).isOK()) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
+						System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
+						return EXIT_ERROR;
+					}
+					ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
+					context.setArtifactRepositories(artifactRepositoryLocations);
+					ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
+					printRequest(request);
+					operationStatus = planAndExecute(profile, context, request);
+					break;
+				case COMMAND_LIST :
+					query = new InstallableUnitQuery(null, VersionRange.emptyRange);
+					if (metadataRepositoryLocations == null)
+						missingArgument("metadataRepository"); //$NON-NLS-1$
 
-				for (int i = 0; i < metadataRepositoryLocations.length; i++) {
-					roots = ProvisioningHelper.getInstallableUnits(metadataRepositoryLocations[i], query, new NullProgressMonitor());
-
+					roots = collectRootIUs(metadataRepositoryLocations, query, null);
 					Iterator unitIterator = roots.iterator();
 					while (unitIterator.hasNext()) {
 						IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
 						System.out.println(iu.getId());
 					}
-				}
-				break;
+					break;
+			}
+		} finally {
+			cleanupRepositories();
 		}
 
 		time += System.currentTimeMillis();
@@ -426,6 +435,32 @@ public class Application implements IApplication {
 			return EXIT_ERROR;
 		}
 		return IApplication.EXIT_OK;
+	}
+
+	private void cleanupRepositories() {
+		if (artifactReposForRemoval != null && artifactManager != null) {
+			for (int i = 0; i < artifactReposForRemoval.length && artifactReposForRemoval[i] != null; i++) {
+				artifactManager.removeRepository(artifactReposForRemoval[i]);
+			}
+		}
+		if (metadataReposForRemoval != null && metadataManager != null) {
+			for (int i = 0; i < metadataReposForRemoval.length && metadataReposForRemoval[i] != null; i++) {
+				metadataManager.removeRepository(metadataReposForRemoval[i]);
+			}
+		}
+	}
+
+	private Collector collectRootIUs(URI[] locations, InstallableUnitQuery query, Collector collector) {
+		IProgressMonitor nullMonitor = new NullProgressMonitor();
+
+		if (locations == null || locations.length == 0)
+			return ProvisioningHelper.getInstallableUnits(null, query, collector, nullMonitor);
+
+		Collector result = collector != null ? collector : new Collector();
+		for (int i = 0; i < locations.length; i++) {
+			result = ProvisioningHelper.getInstallableUnits(locations[i], query, result, nullMonitor);
+		}
+		return result;
 	}
 
 	private synchronized void setPackageAdmin(PackageAdmin service) {
@@ -510,6 +545,8 @@ public class Application implements IApplication {
 				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Ignored_repo, urlSpecs[i])));
 			}
 		}
+		if (result.size() == 0)
+			return null;
 		return (URI[]) result.toArray(new URI[result.size()]);
 	}
 

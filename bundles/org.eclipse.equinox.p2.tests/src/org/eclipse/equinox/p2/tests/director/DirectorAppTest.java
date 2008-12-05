@@ -8,13 +8,19 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.director.app.Activator;
 import org.eclipse.equinox.internal.p2.director.app.Application;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 
@@ -31,6 +37,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		application.start(new IApplicationContext() {
 
 			public void applicationRunning() {
+				//empty
 			}
 
 			public Map getArguments() {
@@ -525,6 +532,94 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		assertFalse("11.12", destinationRepo.exists());
 
 		//Cleanup: delete the folders
+		delete(destinationRepo);
+	}
+
+	/** 
+	 * Test that the application only considers repositories that are pass in and not those that are previously known
+	 * by the managers
+	 */
+	public void testOnlyUsePassedInRepos() throws Exception {
+		File artifactRepo1 = getTestData("12.0", "/testData/mirror/mirrorSourceRepo3");
+		File metadataRepo1 = getTestData("12.1", "/testData/mirror/mirrorSourceRepo3");
+
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		//make repo3 known to the managers
+		artifactManager.loadRepository(artifactRepo1.toURI(), new NullProgressMonitor());
+		metadataManager.loadRepository(metadataRepo1.toURI(), new NullProgressMonitor());
+
+		int numKnownRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
+		numKnownRepos += metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
+
+		File artifactRepo2 = getTestData("12.2", "/testData/mirror/mirrorSourceRepo4");
+		File metadataRepo2 = getTestData("12.3", "/testData/mirror/mirrorSourceRepo4");
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		String[] args = getSingleRepoArgs("12.4", metadataRepo2, artifactRepo2, destinationRepo, "yetanotherplugin");
+
+		destinationRepo.mkdirs();
+		PrintStream oldOut = System.out;
+		PrintStream newOut = new PrintStream(new FileOutputStream(destinationRepo + "/out.out"));
+		System.setOut(newOut);
+
+		try {
+			runDirectorApp("12.5", args);
+		} finally {
+			System.setOut(oldOut);
+			newOut.close();
+		}
+
+		assertLogContainsLine(new File(destinationRepo, "out.out"), "The installable unit yetanotherplugin has not been found.");
+
+		assertEquals(numKnownRepos, artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length + metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length);
+
+		artifactManager.removeRepository(artifactRepo1.toURI());
+		metadataManager.removeRepository(metadataRepo1.toURI());
+		delete(destinationRepo);
+	}
+
+	/**
+	 * Test the ProvisioningContext only uses the passed in repos and not all known repos.
+	 * Expect to install helloworld_1.0.0 not helloworld_1.0.1
+	 * @throws Exception
+	 */
+	public void testPassedInRepos_ProvisioningContext() throws Exception {
+		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
+		File metadataRepo1 = getTestData("13.1", "/testData/mirror/mirrorSourceRepo4");
+
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		//make repo4 known to the managers
+		artifactManager.loadRepository(artifactRepo1.toURI(), new NullProgressMonitor());
+		metadataManager.loadRepository(metadataRepo1.toURI(), new NullProgressMonitor());
+
+		File artifactRepo2 = getTestData("13.2", "/testData/mirror/mirrorSourceRepo3");
+		File metadataRepo2 = getTestData("13.3", "/testData/mirror/mirrorSourceRepo3");
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		String[] args = getSingleRepoArgs("13.4", metadataRepo2, artifactRepo2, destinationRepo, "helloworld");
+
+		destinationRepo.mkdirs();
+		PrintStream oldOut = System.out;
+		PrintStream newOut = new PrintStream(new FileOutputStream(destinationRepo + "/out.out"));
+		System.setOut(newOut);
+
+		try {
+			runDirectorApp("13.5", args);
+		} finally {
+			System.setOut(oldOut);
+			newOut.close();
+		}
+
+		assertLogContainsLine(new File(destinationRepo, "out.out"), "Installing helloworld 1.0.0.");
+
+		artifactManager.removeRepository(artifactRepo1.toURI());
+		metadataManager.removeRepository(metadataRepo1.toURI());
 		delete(destinationRepo);
 	}
 }
