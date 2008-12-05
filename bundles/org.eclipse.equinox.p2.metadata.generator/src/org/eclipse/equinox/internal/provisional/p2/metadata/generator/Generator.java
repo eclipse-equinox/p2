@@ -265,7 +265,15 @@ public class Generator {
 		touchpointData.put("configure", configurationData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
 		//look for additional touchpoint instructions in a p2.inf file
-		MetadataGeneratorHelper.mergeInstructionsAdvice(touchpointData, MetadataGeneratorHelper.getBundleAdvice(info.getProductFile(), "p2.inf")); //$NON-NLS-1$
+		final String productFileLocation = info.getProductFile();
+		if (productFileLocation != null) {
+			File productFilePath = new File(productFileLocation);
+			if (productFilePath.exists()) {
+				Map advice = MetadataGeneratorHelper.getBundleAdvice(productFilePath.getParent(), "p2.inf");//$NON-NLS-1$
+				if (advice != null)
+					MetadataGeneratorHelper.mergeInstructionsAdvice(touchpointData, advice);
+			}
+		}
 
 		root.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return root;

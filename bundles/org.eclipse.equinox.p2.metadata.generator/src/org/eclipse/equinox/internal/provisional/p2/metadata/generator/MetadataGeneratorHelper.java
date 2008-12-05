@@ -349,7 +349,7 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 
 		if (useNestedAdvice)
-			mergeInstructionsAdvice(touchpointData, getBundleAdvice(bd.getLocation()));
+			mergeInstructionsAdvice(touchpointData, getBundleAdvice(bd.getLocation(), BUNDLE_ADVICE_FILE));
 
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
@@ -357,9 +357,9 @@ public class MetadataGeneratorHelper {
 	}
 
 	/**
-	 * @deprecated moved to BundlesAction
+	 * @deprecated moved to AdviceFileAdvice
 	 */
-	private static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
+	public static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
 		if (touchpointData == null || bundleAdvice == null)
 			return;
 
@@ -1200,9 +1200,9 @@ public class MetadataGeneratorHelper {
 	}
 
 	/**
-	 * @deprecated moved to BundlesAction
+	 * @deprecated moved to AdviceFileAdvice
 	 */
-	public static Map getBundleAdvice(String bundleLocation) {
+	public static Map getBundleAdvice(String bundleLocation, String suffixLocation) {
 		if (bundleLocation == null)
 			return Collections.EMPTY_MAP;
 
@@ -1213,7 +1213,7 @@ public class MetadataGeneratorHelper {
 		ZipFile jar = null;
 		InputStream stream = null;
 		if (bundle.isDirectory()) {
-			File adviceFile = new File(bundle, BUNDLE_ADVICE_FILE);
+			File adviceFile = new File(bundle, suffixLocation);
 			if (adviceFile.exists()) {
 				try {
 					stream = new BufferedInputStream(new FileInputStream(adviceFile));
@@ -1224,7 +1224,7 @@ public class MetadataGeneratorHelper {
 		} else if (bundle.isFile()) {
 			try {
 				jar = new ZipFile(bundle);
-				ZipEntry entry = jar.getEntry(BUNDLE_ADVICE_FILE);
+				ZipEntry entry = jar.getEntry(suffixLocation);
 				if (entry != null)
 					stream = new BufferedInputStream(jar.getInputStream(entry));
 			} catch (IOException e) {
