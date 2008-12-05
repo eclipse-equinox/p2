@@ -321,12 +321,18 @@ public class MetadataFactory {
 	public static TouchpointType createTouchpointType(String id, Version version) {
 		Assert.isNotNull(id);
 		Assert.isNotNull(version);
-		TouchpointType result = getCachedTouchpointType(id, version);
-		if (result != null)
+
+		if (id.equals(TouchpointType.NONE.getId()) && version.equals(TouchpointType.NONE.getVersion()))
+			return TouchpointType.NONE;
+
+		synchronized (typeCache) {
+			TouchpointType result = getCachedTouchpointType(id, version);
+			if (result != null)
+				return result;
+			result = new TouchpointType(id, version);
+			putCachedTouchpointType(result);
 			return result;
-		result = new TouchpointType(id, version);
-		putCachedTouchpointType(result);
-		return result;
+		}
 	}
 
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
@@ -334,11 +340,9 @@ public class MetadataFactory {
 	}
 
 	private static TouchpointType getCachedTouchpointType(String id, Version version) {
-		synchronized (typeCache) {
-			for (int i = 0; i < typeCache.length; i++) {
-				if (typeCache[i] != null && typeCache[i].getId().equals(id) && typeCache[i].getVersion().equals(version))
-					return typeCache[i];
-			}
+		for (int i = 0; i < typeCache.length; i++) {
+			if (typeCache[i] != null && typeCache[i].getId().equals(id) && typeCache[i].getVersion().equals(version))
+				return typeCache[i];
 		}
 		return null;
 	}

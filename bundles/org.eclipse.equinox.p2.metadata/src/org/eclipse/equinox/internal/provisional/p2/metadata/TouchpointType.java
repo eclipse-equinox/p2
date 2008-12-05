@@ -21,7 +21,7 @@ public class TouchpointType {
 	 * A touchpoint type indicating that the "null" touchpoint should be used.
 	 * The null touchpoint does not participate in any install phase.
 	 */
-	public static final TouchpointType NONE = MetadataFactory.createTouchpointType("null", Version.emptyVersion); //$NON-NLS-1$
+	public static final TouchpointType NONE = new TouchpointType("null", Version.emptyVersion); //$NON-NLS-1$
 
 	private String id;//never null
 	private Version version;//never null
