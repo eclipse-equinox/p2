@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 /**
  * Abstract class to set up the mock query provider
  */
-public abstract class QueryTest extends AbstractProvisioningTest {
+public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		// use test query provider

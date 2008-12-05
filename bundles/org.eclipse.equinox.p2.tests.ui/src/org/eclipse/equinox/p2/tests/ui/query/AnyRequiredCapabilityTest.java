@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.tests.TestData;
 /**
  * Tests for {@link AnyRequiredCapabilityQuery}.
  */
-public class AnyRequiredCapabilityTest extends QueryTest {
+public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 	public void testMatchOtherObjects() {
 		RequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
 		AnyRequiredCapabilityQuery query = new AnyRequiredCapabilityQuery(requires);

@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 /**
  * Tests for {@link IUPropertyUtils}.
  */
-public class IUPropertyUtilsTest extends QueryTest {
+public class IUPropertyUtilsTest extends AbstractQueryTest {
 	public void testFeatureProperties() {
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");

@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.tests.MockQueryable;
 /**
  * Tests for {@link CategoryElementCollector}.
  */
-public class CategoryElementCollectorTest extends QueryTest {
+public class CategoryElementCollectorTest extends AbstractQueryTest {
 	private CategoryElementCollector createCollector(boolean showCategorized) {
 		IInstallableUnit category = createIU("default category");
 		return new CategoryElementCollector(new MockQueryable(category), null, showCategorized);

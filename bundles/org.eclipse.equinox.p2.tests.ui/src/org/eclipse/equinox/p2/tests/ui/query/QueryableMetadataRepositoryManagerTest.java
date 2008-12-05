@@ -27,7 +27,7 @@ import org.osgi.framework.Version;
 /**
  * Tests for {@link QueryableMetadataRepositoryManager}.
  */
-public class QueryableMetadataRepositoryManagerTest extends QueryTest {
+public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	/**
 	 * Tests querying against a non-existent repository
 	 */

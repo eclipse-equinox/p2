@@ -24,7 +24,7 @@ import org.osgi.framework.Version;
 /**
  * Tests for {@link AvailableIUCollector}.
  */
-public class AvailableIUCollectorTest extends QueryTest {
+public class AvailableIUCollectorTest extends AbstractQueryTest {
 	protected AvailableIUCollector createCollector() {
 		return createCollector(true);
 	}
