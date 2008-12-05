@@ -29,21 +29,16 @@ public class MetadataFactory {
 			super();
 		}
 
-		public void addTouchpointData(TouchpointData data) {
-			Assert.isNotNull(data);
-			unit().addTouchpointData(data);
-		}
-
-		public String getId() {
-			return unit().getId();
-		}
-
-		public Version getVersion() {
-			return unit().getVersion();
-		}
-
-		public RequiredCapability[] getRequiredCapabilities() {
-			return unit().getRequiredCapabilities();
+		public void addProvidedCapabilities(Collection addtional) {
+			if (addtional == null || addtional.size() == 0)
+				return;
+			ProvidedCapability[] current = unit().getProvidedCapabilities();
+			ProvidedCapability[] result = new ProvidedCapability[addtional.size() + current.length];
+			System.arraycopy(current, 0, result, 0, current.length);
+			int j = current.length;
+			for (Iterator i = addtional.iterator(); i.hasNext();)
+				result[j++] = (ProvidedCapability) i.next();
+			unit().setCapabilities(result);
 		}
 
 		public void addRequiredCapabilities(Collection addtional) {
@@ -58,20 +53,36 @@ public class MetadataFactory {
 			unit().setRequiredCapabilities(result);
 		}
 
+		public void addTouchpointData(TouchpointData data) {
+			Assert.isNotNull(data);
+			unit().addTouchpointData(data);
+		}
+
+		public String getId() {
+			return unit().getId();
+		}
+
 		public ProvidedCapability[] getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
 
-		public void addProvidedCapabilities(Collection addtional) {
-			if (addtional == null || addtional.size() == 0)
-				return;
-			ProvidedCapability[] current = unit().getProvidedCapabilities();
-			ProvidedCapability[] result = new ProvidedCapability[addtional.size() + current.length];
-			System.arraycopy(current, 0, result, 0, current.length);
-			int j = current.length;
-			for (Iterator i = addtional.iterator(); i.hasNext();)
-				result[j++] = (ProvidedCapability) i.next();
-			unit().setCapabilities(result);
+		public RequiredCapability[] getRequiredCapabilities() {
+			return unit().getRequiredCapabilities();
+		}
+
+		/**
+		 * Returns the current touchpoint data on this installable unit description. The
+		 * touchpoint data may change if further data is added to the description.
+		 * 
+		 * @return The current touchpoint data on this description
+		 */
+		public TouchpointData[] getTouchpointData() {
+			return unit().getTouchpointData();
+
+		}
+
+		public Version getVersion() {
+			return unit().getVersion();
 		}
 
 		public void setArtifacts(IArtifactKey[] value) {
@@ -80,6 +91,10 @@ public class MetadataFactory {
 
 		public void setCapabilities(ProvidedCapability[] exportedCapabilities) {
 			unit().setCapabilities(exportedCapabilities);
+		}
+
+		public void setCopyright(Copyright copyright) {
+			unit().setCopyright(copyright);
 		}
 
 		public void setFilter(String filter) {
@@ -92,10 +107,6 @@ public class MetadataFactory {
 
 		public void setLicense(License license) {
 			unit().setLicense(license);
-		}
-
-		public void setCopyright(Copyright copyright) {
-			unit().setCopyright(copyright);
 		}
 
 		public void setProperty(String key, String value) {
@@ -114,12 +125,12 @@ public class MetadataFactory {
 			unit().setTouchpointType(type);
 		}
 
-		public void setVersion(Version newVersion) {
-			unit().setVersion(newVersion);
-		}
-
 		public void setUpdateDescriptor(IUpdateDescriptor updateInfo) {
 			unit().setUpdateDescriptor(updateInfo);
+		}
+
+		public void setVersion(Version newVersion) {
+			unit().setVersion(newVersion);
 		}
 
 		InstallableUnit unit() {
@@ -151,6 +162,16 @@ public class MetadataFactory {
 
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
+		public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+			if (applyTo == null)
+				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
+			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
+		}
+
+		public void setLifeCycle(RequiredCapability lifeCycle) {
+			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
+		}
+
 		public void setRequirementChanges(RequirementChange[] changes) {
 			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
 		}
@@ -161,16 +182,6 @@ public class MetadataFactory {
 				((InstallableUnitPatch) unit()).setApplicabilityScope(new RequiredCapability[0][0]);
 			}
 			return unit;
-		}
-
-		public void setApplicabilityScope(RequiredCapability[][] applyTo) {
-			if (applyTo == null)
-				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
-			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
-		}
-
-		public void setLifeCycle(RequiredCapability lifeCycle) {
-			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
 		}
 	}
 
@@ -296,6 +307,10 @@ public class MetadataFactory {
 		return new TouchpointData(result);
 	}
 
+	public static TouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
+		return new TouchpointInstruction(body, importAttribute);
+	}
+
 	/**
 	 * Returns a {@link TouchpointType} with the given id and version.
 	 * 
@@ -314,6 +329,10 @@ public class MetadataFactory {
 		return result;
 	}
 
+	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
+		return new UpdateDescriptor(id, range, severity, description);
+	}
+
 	private static TouchpointType getCachedTouchpointType(String id, Version version) {
 		synchronized (typeCache) {
 			for (int i = 0; i < typeCache.length; i++) {
@@ -328,13 +347,5 @@ public class MetadataFactory {
 		//simple rotating buffer
 		typeCache[typeCacheOffset] = result;
 		typeCacheOffset = (typeCacheOffset + 1) % typeCache.length;
-	}
-
-	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
-		return new UpdateDescriptor(id, range, severity, description);
-	}
-
-	public static TouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
-		return new TouchpointInstruction(body, importAttribute);
 	}
 }
