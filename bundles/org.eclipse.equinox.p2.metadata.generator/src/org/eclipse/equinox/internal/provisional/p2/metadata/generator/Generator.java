@@ -262,9 +262,11 @@ public class Generator {
 				unconfigurationData += dataStrings[1];
 			}
 		}
-
 		touchpointData.put("configure", configurationData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
+		//look for additional touchpoint instructions in a p2.inf file
+		MetadataGeneratorHelper.mergeInstructionsAdvice(touchpointData, MetadataGeneratorHelper.getBundleAdvice(info.getProductFile(), "p2.inf")); //$NON-NLS-1$
+
 		root.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return root;
 	}
