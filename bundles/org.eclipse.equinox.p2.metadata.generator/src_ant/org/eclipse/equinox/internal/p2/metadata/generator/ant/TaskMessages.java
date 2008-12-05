@@ -16,8 +16,6 @@ public class TaskMessages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.generator.ant.messages";//$NON-NLS-1$
 
 	public static String exception_errorOccurredCallingGenerator;
-	public static String exception_errorArtifactRepo;
-	public static String exception_errorMetadataRepo;
 
 	static {
 		// load message values from bundle file

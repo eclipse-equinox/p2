@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,12 +27,8 @@ public class Messages extends NLS {
 	public static String XMLParser_Error_At_Name_Line;
 	public static String XMLParser_Error_At_Name_Line_Column;
 	public static String XMLParser_Missing_Required_Attribute;
-	public static String XMLParser_Unexpected_Attribute;
 	public static String XMLParser_Illegal_Value_For_Attribute;
-	public static String XMLParser_Unexpected_Element;
 	public static String XMLParser_Duplicate_Element;
-	public static String XMLParser_Unexpected_Character_Data;
-	public static String XMLParser_Element_Not_Allowed;
 
 	public static String io_failedRead;
 	public static String io_IncompatibleVersion;

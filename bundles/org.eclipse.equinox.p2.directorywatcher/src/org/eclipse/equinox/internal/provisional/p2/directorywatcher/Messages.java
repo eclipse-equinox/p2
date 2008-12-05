@@ -11,9 +11,7 @@ public class Messages extends NLS {
 	public static String failed_create_metadata_repo;
 	public static String filename_missing;
 	public static String metadata_repo_manager_not_registered;
-	public static String multiple_bundle_ius;
 	public static String null_folder;
-	public static String platformadmin_not_registered;
 	public static String thread_not_started;
 	public static String thread_started;
 	static {

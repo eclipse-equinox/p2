@@ -52,11 +52,8 @@ class Messages extends NLS {
 	public static String TouchpointManager_Conflicting_Touchpoint_Types;
 	public static String TouchpointManager_Exception_Creating_Touchpoint_Extension;
 	public static String TouchpointManager_Incorrectly_Named_Extension;
-	public static String TouchpointManager_No_Extension_Point;
 	public static String TouchpointManager_Null_Creating_Touchpoint_Extension;
 	public static String TouchpointManager_Null_Touchpoint_Type_Argument;
-	public static String TouchpointManager_Required_Touchpoint_Not_Found;
-	public static String TouchpointManager_Touchpoint_Type_Mismatch;
 
 	public static String shared_profile_not_found;
 

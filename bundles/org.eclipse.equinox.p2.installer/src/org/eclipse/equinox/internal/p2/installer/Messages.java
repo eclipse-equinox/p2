@@ -23,9 +23,7 @@ public class Messages extends NLS {
 	public static String App_FailedStart;
 	public static String App_InvalidSite;
 	public static String App_LaunchFailed;
-	public static String App_Launching;
 	public static String App_NoInstallLocation;
-	public static String App_NoSite;
 	public static String Dialog_BrowseButton;
 	public static String Dialog_CancelButton;
 	public static String Dialog_CloseButton;

@@ -41,7 +41,6 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
 	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
-	public static String InstallDialog_InstallSelectionMessage;
 	public static String InstalledSoftwarePage_RevertLabel;
 	public static String InstalledSoftwarePage_RevertTooltip;
 	public static String IUCopyrightPropertyPage_NoCopyright;
@@ -64,10 +63,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationAction_NoChangeRequestProvided;
 	public static String ProfileModificationAction_NoExplanationProvided;
-	public static String ProfileModificationAction_NoProfileOrSelection;
-	public static String ProfileModificationAction_NoProfileToModify;
 	public static String ProfileModificationAction_ResolutionOperationLabel;
-	public static String ProfileModificationAction_UnexpectedError;
 	public static String ProfileModificationWizardPage_DetailsLabel;
 	public static String ProfileModificationWizardPage_NothingSelected;
 	public static String ProfileModificationWizardPage_ResolutionOperationLabel;
@@ -79,7 +75,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningUtil_NoPlannerFound;
 	public static String ProvisioningUtil_NoDirectorFound;
 	public static String ProvisioningUtil_NoEngineFound;
-	public static String ProvisioningUtil_RepositoryNotFound;
 
 	// viewer support
 	public static String ProvDropAdapter_InvalidDropTarget;
@@ -113,10 +108,8 @@ public class ProvUIMessages extends NLS {
 	public static String RemoveColocatedRepositoryAction_Label;
 	public static String RemoveColocatedRepositoryAction_OperationLabel;
 	public static String RemoveColocatedRepositoryAction_Tooltip;
-	public static String RevertIUOperationLabel;
 	public static String RevertIUCommandLabel;
 	public static String RevertIUCommandTooltip;
-	public static String RevertIUProgress;
 
 	// Property pages
 	public static String IUPropertyPage_NoIUSelected;
@@ -197,7 +190,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_InstallDialogError;
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_IdColumnTitle;
-	public static String ProvUI_SizeColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
 	public static String ProvUIActivator_ExceptionDuringProfileChange;

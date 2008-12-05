@@ -27,7 +27,6 @@ public class Messages extends NLS {
 	public static String Missing_IU;
 	public static String Missing_planner;
 
-	public static String Listing;
 	public static String Ambigous_Command;
 	public static String Application_NoManager;
 	public static String Application_NoRepositories;

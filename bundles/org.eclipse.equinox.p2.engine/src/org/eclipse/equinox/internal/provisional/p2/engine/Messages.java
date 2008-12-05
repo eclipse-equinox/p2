@@ -27,7 +27,6 @@ public class Messages extends NLS {
 	public static String null_phases;
 	public static String null_phaseset;
 	public static String null_profile;
-	public static String required_touchpoint_not_found;
 	public static String phase_error;
 	public static String phase_not_started;
 	public static String phase_started;
@@ -39,7 +38,6 @@ public class Messages extends NLS {
 	public static String touchpoint_rollback_error;
 	public static String phase_undo_error;
 	public static String session_commit_error;
-	public static String session_rollback_error;
 
 	static {
 		// initialize resource bundle

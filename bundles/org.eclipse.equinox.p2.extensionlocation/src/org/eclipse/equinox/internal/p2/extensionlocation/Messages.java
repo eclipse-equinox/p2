@@ -16,7 +16,6 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.extensionlocation.messages"; //$NON-NLS-1$
 	public static String error_update_site;
 	public static String failed_create_local_artifact_repository;
-	public static String failed_create_local_repo;
 	public static String not_directory;
 	public static String not_eclipse_extension;
 	public static String not_file_protocol;
