@@ -46,7 +46,8 @@ public abstract class Query {
 		while (iterator.hasNext()) {
 			Object candidate = iterator.next();
 			if (isMatch(candidate))
-				result.accept(candidate);
+				if (!result.accept(candidate))
+					break;
 		}
 		return result;
 	}
