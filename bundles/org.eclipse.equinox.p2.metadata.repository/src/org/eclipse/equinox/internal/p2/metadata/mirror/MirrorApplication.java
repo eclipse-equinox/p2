@@ -137,10 +137,6 @@ public class MirrorApplication implements IApplication {
 		if (args == null)
 			return;
 		for (int i = 0; i < args.length; i++) {
-			// check for args without parameters (i.e., a flag arg)
-			if (args[i].equalsIgnoreCase("-emptyRepository")) //$NON-NLS-1$
-				append = false;
-
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
 			// an arg with a param so continue.
@@ -150,6 +146,9 @@ public class MirrorApplication implements IApplication {
 
 			if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
 				destinationName = arg;
+			if (args[i - 1].equalsIgnoreCase("-writeMode")) //$NON-NLS-1$
+				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
+					append = false;
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$

@@ -149,8 +149,6 @@ public class MirrorApplication implements IApplication {
 			// check for args without parameters (i.e., a flag arg)
 			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
 				raw = true;
-			if (args[i].equalsIgnoreCase("-emptyRepository")) //$NON-NLS-1$
-				append = false;
 			if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
 				failOnError = false;
 			if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
@@ -169,6 +167,9 @@ public class MirrorApplication implements IApplication {
 				comparatorID = arg;
 			if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
 				destinationName = arg;
+			if (args[i - 1].equalsIgnoreCase("-writeMode")) //$NON-NLS-1$
+				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
+					append = false;
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$

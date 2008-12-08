@@ -119,14 +119,14 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 	/**
 	 * Runs mirror application with default arguments. source is the source repo, 
-	 * destination is the destination repo, append is if the "-emptyRepository" argument should be excluded
+	 * destination is the destination repo, append is if the "-writeMode clean" argument should be excluded
 	 * 
 	 * Note: We use URL here because command line applications traffic in unencoded URLs,
 	 * so we can't use java.net.URI which will always use the encoded form
 	 */
 	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", append ? "" : "-emptyRepository"};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", "-writeMode", append ? "" : "clean"};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -346,12 +346,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to an empty repository with "-emptyRepository"
+	 * Tests mirroring all artifacts in a repository to an empty repository with "-writeMode clean"
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToEmptyWithEmptyRepository() {
+	public void testArtifactMirrorToEmptyWithClean() {
 		artifactMirrorToEmpty("2.0", false);
 
 		try {
@@ -380,12 +380,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data with "-emptyRepository"
+	 * Tests mirroring all artifacts in a repository to a repository populated with exact duplicate data with "-writeMode clean"
 	 * Source contains A, B
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToFullDuplicateWithEmptyRepository() {
+	public void testArtifactMirrorToFullDuplicateWithClean() {
 		artifactMirrorToFullDuplicate("4.0", false);
 
 		try {
@@ -417,12 +417,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries with "-emptyRepository"
+	 * Tests mirroring all artifacts in a repository to a repository populated with non-duplicate entries with "-writeMode clean"
 	 * Source contains A, B
 	 * Target contains C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithEmptyRepository() {
+	public void testArtifactMirrorToPopulatedWithClean() {
 		artifactMirrorToPopulated("6.0", false);
 
 		try {
@@ -451,12 +451,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with partially duplicate data with "-overwrite"
+	 * Tests mirroring all artifacts in a repository to a repository populated with partially duplicate data with "-writeMode clean"
 	 * Source contains A, B, C, D
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPartialDuplicateWithEmptyRepository() {
+	public void testArtifactMirrorToPartialDuplicateWithClean() {
 		artifactMirrorToPartialDuplicate("8.0", false);
 
 		try {
@@ -485,12 +485,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data with "-emptyRepository"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both full duplicate and non-duplicate data with "-writeMode clean"
 	 * Source contains A, B
 	 * Target contains A, B, C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithFullDuplicateWithEmptyRepository() {
+	public void testArtifactMirrorToPopulatedWithFullDuplicateWithClean() {
 		artifactMirrorToPopulatedWithFullDuplicate("10.0", false);
 
 		try {
@@ -522,12 +522,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data with "-emptyRepository"
+	 * Tests mirroring all artifacts in a repository to a repository populated with both partial duplicate and non-duplicate data with "-writeMode clean"
 	 * Source contains A, B, C, D
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithEmptyRepository() {
+	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithClean() {
 		artifactMirrorToPopulatedWithPartialDuplicate("12.0", false);
 
 		try {
@@ -643,12 +643,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring an empty repository to a populated repository with "-emptyRepository"
+	 * Tests mirroring an empty repository to a populated repository with "-writeMode clean"
 	 * Source contains
 	 * Target contains A, B
 	 * Expected is
 	 */
-	public void testArtifactMirrorEmptyToPopulatedWithEmptyRepository() {
+	public void testArtifactMirrorEmptyToPopulatedWithClean() {
 		File emptyRepository = artifactMirrorEmptyToPopulated("18.0", false);
 
 		try {
