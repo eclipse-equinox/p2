@@ -37,6 +37,12 @@ public class ActionManager implements IRegistryChangeListener {
 		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
 	}
 
+	public Touchpoint getTouchpointPoint(TouchpointType type) {
+		if (type == null || type == TouchpointType.NONE)
+			return null;
+		return touchpointManager.getTouchpoint(type);
+	}
+
 	public ProvisioningAction getTouchpointQualifiedAction(String actionId, TouchpointType type) {
 		if (actionId.indexOf('.') == -1) {
 			if (type == null || type == TouchpointType.NONE)
