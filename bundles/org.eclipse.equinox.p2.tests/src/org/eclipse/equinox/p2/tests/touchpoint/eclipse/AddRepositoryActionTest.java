@@ -126,18 +126,8 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
 		assertTrue("1.0", result.isOK());
-		//check that the repository was added. This happens asynchronously
-		long waitStart = System.currentTimeMillis();
-		while (!getArtifactRepositoryManager().contains(locationURI)) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				//
-			}
-			//will fail if it took too long for the repository to be added
-			assertTrue(System.currentTimeMillis() - waitStart < 10000);
-		}
 
+		//check that profile property is set
 		profile = getProfile(id);
 		String value = profile.getProperty(IProfile.PROP_METADATA_REPOSITORIES);
 		assertNull("2.0", value);
