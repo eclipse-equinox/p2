@@ -68,7 +68,9 @@ public class Mirroring {
 			IArtifactKey key = keys[i];
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
-				multiStatus.add(mirror(descriptors[j], verbose));
+				IStatus result = mirror(descriptors[j], verbose);
+				if (!result.isOK())
+					multiStatus.add(result);
 				//stop mirroring as soon as we have an error
 				if (failOnError && multiStatus.getSeverity() == IStatus.ERROR)
 					return multiStatus;
