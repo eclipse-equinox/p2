@@ -38,6 +38,7 @@ public class MirrorApplication implements IApplication {
 	private IMetadataRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
 	private boolean destinationLoaded = false;
+	private String destinationName;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -111,6 +112,8 @@ public class MirrorApplication implements IApplication {
 			IMetadataRepository repository = getManager().loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Metadata repository not modifiable: " + destinationLocation); //$NON-NLS-1$
+			if (destinationName != null)
+				repository.setName(destinationName);
 			if (!append)
 				repository.removeAll();
 			return repository;
@@ -120,7 +123,7 @@ public class MirrorApplication implements IApplication {
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		return getManager().createRepository(destinationLocation, source.getName(), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
+		return getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
 	}
 
 	/* (non-Javadoc)
@@ -144,6 +147,9 @@ public class MirrorApplication implements IApplication {
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;
 			String arg = args[++i];
+
+			if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
+				destinationName = arg;
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$

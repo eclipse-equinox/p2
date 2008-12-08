@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.artifact.mirror;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
@@ -48,6 +47,7 @@ public class MirrorApplication implements IApplication {
 	private boolean baselineLoaded = false;
 	private boolean compare = false;
 	private String comparatorID = MD5ArtifactComparator.MD5_COMPARATOR_ID; //use MD5 as default
+	private String destinationName;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
@@ -121,6 +121,8 @@ public class MirrorApplication implements IApplication {
 			IArtifactRepository repository = getManager().loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_destinationNotModifiable, destinationLocation));
+			if (destinationName != null)
+				repository.setName(destinationName);
 			if (!append)
 				repository.removeAll();
 			return repository;
@@ -130,7 +132,7 @@ public class MirrorApplication implements IApplication {
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		return getManager().createRepository(destinationLocation, source.getName(), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
+		return getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
 	}
 
 	/* (non-Javadoc)
@@ -165,6 +167,8 @@ public class MirrorApplication implements IApplication {
 
 			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
 				comparatorID = arg;
+			if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
+				destinationName = arg;
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$

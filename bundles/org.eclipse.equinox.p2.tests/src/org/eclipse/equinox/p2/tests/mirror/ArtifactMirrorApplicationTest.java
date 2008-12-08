@@ -811,6 +811,64 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 *  * Ensures that a repository created by the mirror application has specified name
+	 * For Bug 256909
+	 */
+	public void testNewArtifactRepoWithNewName() {
+		String name = "Bug 256909 test - new";
+		try {
+			//set the arguments
+			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-destinationName", name};
+			//run the mirror application
+			runMirrorApplication("Bug 256909 Test", args);
+		} catch (MalformedURLException e) {
+			fail("Error creating URLs for Source/Detination", e);
+		} catch (Exception e) {
+			fail("Error running mirror application", e);
+		}
+
+		try {
+			assertEquals("Assert name was set correct", name, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getName());
+		} catch (ProvisionException e) {
+			fail("Cannot obtain destination", e);
+		}
+	}
+
+	/**
+	 * Ensures that an existing destination used by the mirror application is given specified name
+	 * For Bug 256909
+	 */
+	public void testExistingArtifactRepoWithNewName() {
+		String oldName = "The original naem for Bug 256909 test - existing";
+		String newName = "Bug 256909 test - existing";
+		//Setup create the repository
+		IArtifactRepository destinationRepo = null;
+		try {
+			destinationRepo = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), oldName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			fail("Error creating repo at destination", e);
+		}
+		assertEquals("Assert name is set correctly before mirror", oldName, destinationRepo.getName());
+
+		try {
+			//set the arguments
+			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-destinationName", newName};
+			//run the mirror application
+			runMirrorApplication("Bug 256909 Test", args);
+		} catch (MalformedURLException e) {
+			fail("Error creating URLs for Source/Detination", e);
+		} catch (Exception e) {
+			fail("Error running mirror application", e);
+		}
+
+		try {
+			assertEquals("Assert name is set correctly after mirror", newName, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getName());
+		} catch (ProvisionException e) {
+			fail("Error loading destination", e);
+		}
+	}
+
+	/**
 	 * Verifies that the mirror application copies files (including packed files) correctly
 	 */
 	public void testArtifactFileCopying() {
