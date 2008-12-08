@@ -52,6 +52,8 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		manipulator.getLauncherData().addProgramArg(EquinoxConstants.OPTION_STARTUP);
 		manipulator.getLauncherData().addProgramArg(launcherJar.toURI().toString());
 		
+		manipulator.getLauncherData().setFwJar(osgiJar);
+		
 		try {
 			manipulator.save(false);
 		} catch (IllegalStateException e) {

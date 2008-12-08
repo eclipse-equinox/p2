@@ -93,7 +93,7 @@ public class ParserUtils {
 		return null;
 	}
 
-	private static File fromOSGiJarToOSGiInstallArea(String path) {
+	public static File fromOSGiJarToOSGiInstallArea(String path) {
 		IPath parentFolder = new Path(path).removeLastSegments(1);
 		if (parentFolder.lastSegment().equalsIgnoreCase("plugins")) //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
