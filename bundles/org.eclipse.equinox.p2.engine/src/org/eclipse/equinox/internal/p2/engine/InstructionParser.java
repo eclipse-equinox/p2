@@ -77,7 +77,7 @@ public class InstructionParser {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
 		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
-			throw new IllegalArgumentException(statement);
+			throw new IllegalArgumentException(NLS.bind(Messages.action_syntax_error, statement));
 		String actionName = statement.substring(0, openBracket).trim();
 		ProvisioningAction action = lookupAction(actionName, qualifier, touchpointType);
 
@@ -91,7 +91,7 @@ public class InstructionParser {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
 			if (colonIndex == -1)
-				throw new IllegalArgumentException(statement);
+				throw new IllegalArgumentException(NLS.bind(Messages.action_syntax_error, statement));
 			String name = nameValuePair.substring(0, colonIndex).trim();
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			parameters.put(name, value);

@@ -18,6 +18,8 @@ import org.eclipse.osgi.util.NLS;
 
 public class EngineSession {
 
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+
 	private static class ActionsRecord {
 		Operand operand;
 		List actions = new ArrayList();
@@ -170,21 +172,61 @@ public class EngineSession {
 		phaseActionRecordsPairs.add(new Object[] {currentPhase, currentActionRecords});
 		currentPhase = null;
 		currentActionRecords = null;
+	}
+
+	void recordOperandStart(Operand operand) {
+		if (operand == null)
+			throw new IllegalArgumentException(Messages.null_operand);
+
+		if (currentRecord != null)
+			throw new IllegalStateException(Messages.operand_started);
+
+		currentRecord = new ActionsRecord(operand);
+		currentActionRecords.add(currentRecord);
+	}
+
+	void recordOperandEnd(Operand operand) {
+		if (currentRecord == null)
+			throw new IllegalStateException(Messages.operand_not_started);
+
+		if (currentRecord.operand != operand)
+			throw new IllegalArgumentException(Messages.not_current_operand);
+
 		currentRecord = null;
 	}
 
-	void recordAction(ProvisioningAction action, Operand operand) {
-		if (action == null || operand == null)
-			throw new IllegalArgumentException(Messages.action_or_iu_operand_null);
+	void recordAction(ProvisioningAction action) {
+		if (action == null)
+			throw new IllegalArgumentException(Messages.null_action);
 
-		if (currentRecord == null || operand != currentRecord.operand) {
-			currentRecord = new ActionsRecord(operand);
-			currentActionRecords.add(currentRecord);
-		}
 		currentRecord.actions.add(action);
 
 		Touchpoint touchpoint = action.getTouchpoint();
 		if (touchpoint != null)
 			touchpoints.add(touchpoint);
+	}
+
+	public String getContextString() {
+		return NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), getCurrentPhaseId(), getCurrentOperandId(), getCurrentActionId()});
+	}
+
+	private Object getCurrentActionId() {
+		if (currentRecord == null || currentRecord.actions.isEmpty())
+			return EMPTY_STRING;
+
+		Object currentAction = currentRecord.actions.get(currentRecord.actions.size() - 1);
+		return currentAction.getClass().getName();
+	}
+
+	private String getCurrentPhaseId() {
+		if (currentPhase == null)
+			return EMPTY_STRING;
+		return currentPhase.getClass().getName();
+	}
+
+	private String getCurrentOperandId() {
+		if (currentRecord == null)
+			return EMPTY_STRING;
+		return currentRecord.operand.toString();
 	}
 }

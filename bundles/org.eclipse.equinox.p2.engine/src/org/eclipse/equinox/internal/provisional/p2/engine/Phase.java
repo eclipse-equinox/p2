@@ -71,6 +71,7 @@ public abstract class Phase {
 			return result;
 		} else if (status.matches(IStatus.ERROR)) {
 			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, getProblemMessage(), null);
+			result.add(new Status(IStatus.ERROR, EngineActivator.ID, session.getContextString(), null));
 			result.merge(status);
 			return result;
 		}
@@ -116,6 +117,7 @@ public abstract class Phase {
 			if (!isApplicable(operand))
 				continue;
 
+			session.recordOperandStart(operand);
 			ProvisioningAction[] actions = getActions(operand);
 			Map operandParameters = new HashMap(phaseParameters);
 			operandParameters.put(PARM_OPERAND, operand);
@@ -136,16 +138,18 @@ public abstract class Phase {
 
 						parameters = (Map) touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
-					session.recordAction(action, operand);
+					session.recordAction(action);
 					mergeStatus(status, action.execute(parameters));
 					if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 						return;
+
 				}
 			}
 
 			mergeStatus(status, completeOperand(profile, operand, operandParameters, subMonitor));
 			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 				return;
+			session.recordOperandEnd(operand);
 			subMonitor.worked(1);
 		}
 	}

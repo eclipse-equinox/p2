@@ -54,8 +54,8 @@ class Messages extends NLS {
 	public static String TouchpointManager_Incorrectly_Named_Extension;
 	public static String TouchpointManager_Null_Creating_Touchpoint_Extension;
 	public static String TouchpointManager_Null_Touchpoint_Type_Argument;
-
 	public static String shared_profile_not_found;
+	public static String action_syntax_error;
 
 	static {
 		// initialize resource bundles
