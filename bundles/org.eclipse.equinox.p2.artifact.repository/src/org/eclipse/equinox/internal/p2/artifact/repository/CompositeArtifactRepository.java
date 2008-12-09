@@ -424,7 +424,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 								continue;
 							for (int k = 0; k < currentDescriptors.length; k++) {
 								if (currentDescriptors[k].equals(toCheckDescriptors[j])) {
-									IStatus compareResult = ArtifactComparatorFactory.getArtifactComparator(comparatorID).compare(current, currentDescriptors[k], toCheckRepo, toCheckDescriptors[j]);
+									IStatus compareResult = comparator.compare(current, currentDescriptors[k], toCheckRepo, toCheckDescriptors[j]);
 									if (!compareResult.isOK()) {
 										LogHelper.log(compareResult);
 										return false;
