@@ -20,7 +20,7 @@ public class SimpleConfiguratorManipulatorUtils {
 
 	private static final String VERSION_PREFIX = "#version=";
 	private static final String VERSION_1 = "1";
-	private static final Version OLD_VERSION = new Version("1.0.100");
+	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206");
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 
@@ -53,7 +53,7 @@ public class SimpleConfiguratorManipulatorUtils {
 		for (int i = 0; i < simpleInfos.length; i++) {
 			if (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
 				Version version = new Version(simpleInfos[i].getVersion());
-				if (version.compareTo(OLD_VERSION) < 0)
+				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
 					oldStyle = true;
 				break;
 			}
