@@ -68,10 +68,8 @@ public class EclipseLauncherParser {
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
 		getJVMArgs(lines, launcherData);
+		getProgramArgs(lines, launcherData);
 		getVM(lines, launcherFolder, launcherData);
-
-		launcherData.setProgramArgs(null);
-		launcherData.setProgramArgs((String[]) lines.toArray(new String[lines.size()]));
 
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, launcherConfigFile.getAbsolutePath()));
 	}
@@ -109,9 +107,20 @@ public class EclipseLauncherParser {
 	}
 
 	private void getJVMArgs(List lines, LauncherData launcherData) {
-		String[] vmargs = ParserUtils.getMultiValuedArgument(EquinoxConstants.OPTION_VMARGS, lines);
-		if (vmargs != null)
-			launcherData.setJvmArgs(vmargs);
+		ArrayList vmargs = new ArrayList(lines.size());
+		boolean foundVmArgs = false;
+		for (Iterator iterator = lines.iterator(); iterator.hasNext();) {
+			String line = (String) iterator.next();
+			if (!foundVmArgs) {
+				if (EquinoxConstants.OPTION_VMARGS.equals(line))
+					foundVmArgs = true;
+				continue;
+			}
+			vmargs.add(line);
+		}
+
+		launcherData.setJvmArgs(null);
+		launcherData.setJvmArgs((String[]) vmargs.toArray(new String[vmargs.size()]));
 	}
 
 	private void setJVMArgs(List lines, LauncherData launcherData) {
@@ -123,6 +132,18 @@ public class EclipseLauncherParser {
 		for (int i = 0; i < args.length; i++) {
 			lines.add(args[i]);
 		}
+	}
+
+	private void getProgramArgs(List lines, LauncherData launcherData) {
+		ArrayList args = new ArrayList(lines.size());
+		for (Iterator iterator = lines.iterator(); iterator.hasNext();) {
+			String line = (String) iterator.next();
+			if (EquinoxConstants.OPTION_VMARGS.equals(line))
+				break;
+			args.add(line);
+		}
+		launcherData.setProgramArgs(null);
+		launcherData.setProgramArgs((String[]) args.toArray(new String[args.size()]));
 	}
 
 	private URI getLauncherLibrary(List lines, URI launcherFolder) {
@@ -243,11 +264,13 @@ public class EclipseLauncherParser {
 		setLauncherLibrary(newlines, launcherFolder.toURI());
 		//		setFrameworkJar(newlines, launcherData.getFwJar());
 		setVM(newlines, launcherData.getJvm(), launcherFolder.toURI());
-		setJVMArgs(newlines, launcherData);
 
 		//We are done, let's update the program args in the launcher data
 		launcherData.setProgramArgs(null);
 		launcherData.setProgramArgs((String[]) newlines.toArray(new String[newlines.size()]));
+
+		//append jvm args
+		setJVMArgs(newlines, launcherData);
 
 		// backup file if exists.		
 		if (backup)
