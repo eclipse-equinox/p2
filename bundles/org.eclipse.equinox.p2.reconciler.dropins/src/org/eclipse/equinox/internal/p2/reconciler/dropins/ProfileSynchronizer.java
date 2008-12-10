@@ -71,9 +71,17 @@ public class ProfileSynchronizer {
 
 		ProvisioningContext context = getContext();
 		ProfileChangeRequest request = createProfileChangeRequest(context);
-
-		if (request == null)
+		String updatedCacheExtensions = synchronizeCacheExtensions();
+		if (request == null) {
+			if (updatedCacheExtensions != null) {
+				Operand operand = new PropertyOperand(CACHE_EXTENSIONS, null, updatedCacheExtensions);
+				return executeOperands(new Operand[] {operand}, context, null);
+			}
 			return Status.OK_STATUS;
+		}
+
+		if (updatedCacheExtensions != null)
+			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
 
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try {
@@ -255,9 +263,6 @@ public class ProfileSynchronizer {
 
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		String updatedCacheExtensions = synchronizeCacheExtensions();
-		if (updatedCacheExtensions != null)
-			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
 
 		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue();
 		if (resolve)
@@ -319,7 +324,7 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
-		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && updatedCacheExtensions == null) {
+		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve) {
 			if (Tracing.DEBUG_RECONCILER)
 				Tracing.debug("[reconciler] Nothing to do."); //$NON-NLS-1$
 			return null;
@@ -400,6 +405,10 @@ public class ProfileSynchronizer {
 
 	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		Operand[] operands = plan.getOperands();
+		return executeOperands(operands, provisioningContext, monitor);
+	}
+
+	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
