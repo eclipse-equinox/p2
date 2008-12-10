@@ -53,6 +53,7 @@ public class Activator implements BundleActivator {
 		registerEventBus();
 		//create the profile registry
 		registerProfileRegistry();
+		registerMetadataRepositoryManager();
 		registerMetadataCache();
 
 		//create the director and planner.  The planner must be
@@ -117,32 +118,31 @@ public class Activator implements BundleActivator {
 	 * Returns a metadata repository manager, registering a service if there isn't
 	 * one registered already.
 	 */
-	private IMetadataRepositoryManager getMetadataRepositoryManager() {
+	private void registerMetadataRepositoryManager() {
 		//register a metadata repository manager if there isn't one already registered
 		metadataRepositoryReference = context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		if (metadataRepositoryReference == null) {
-			IMetadataRepositoryManager manager = new MetadataRepositoryManager();
-			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
-			return manager;
+			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, new MetadataRepositoryManager(), null);
+			metadataRepositoryReference = registrationDefaultManager.getReference();
 		}
-		return (IMetadataRepositoryManager) context.getService(metadataRepositoryReference);
 	}
 
 	private void unregisterDefaultMetadataRepoManager() {
+		//unget the service obtained for the metadata cache
+		if (metadataRepositoryReference != null) {
+			context.ungetService(metadataRepositoryReference);
+			metadataRepositoryReference = null;
+		}
+
 		//unregister the service if we registered it
 		if (registrationDefaultManager != null) {
 			registrationDefaultManager.unregister();
 			registrationDefaultManager = null;
 		}
-		//unget the service if we obtained it from someone else
-		if (metadataRepositoryReference != null) {
-			context.ungetService(metadataRepositoryReference);
-			metadataRepositoryReference = null;
-		}
 	}
 
 	private void registerMetadataCache() {
-		new MetadataCache(getMetadataRepositoryManager());
+		new MetadataCache(((IMetadataRepositoryManager) context.getService(metadataRepositoryReference)));
 	}
 
 	private void registerEventBus() {
