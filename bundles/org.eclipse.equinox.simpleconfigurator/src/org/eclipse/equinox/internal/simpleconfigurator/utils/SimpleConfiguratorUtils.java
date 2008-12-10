@@ -24,7 +24,16 @@ public class SimpleConfiguratorUtils {
 
 	public static List readConfiguration(URL url, URI base) throws IOException {
 		List bundles = new ArrayList();
-		BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
+
+		BufferedReader r = null;
+		try {
+			r = new BufferedReader(new InputStreamReader(url.openStream()));
+		} catch (IOException e) {
+			// if the exception is a FNF we return an empty bundle list
+			if (e instanceof FileNotFoundException)
+				return bundles;
+			throw e;
+		}
 		try {
 			String line;
 			while ((line = r.readLine()) != null) {

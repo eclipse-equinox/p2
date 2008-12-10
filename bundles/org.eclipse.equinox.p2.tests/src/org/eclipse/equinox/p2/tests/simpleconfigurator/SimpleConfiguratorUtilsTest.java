@@ -157,4 +157,14 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		fail("improper version error not caught");
 	}
 
+	public void testReadMissingBundleInfo() {
+
+		File bundleInfoFile = new File(getTempFolder(), "bundle.info");
+		assertFalse(bundleInfoFile.exists());
+		try {
+			assertEquals(0, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
+		} catch (IOException e) {
+			fail();
+		}
+	}
 }
