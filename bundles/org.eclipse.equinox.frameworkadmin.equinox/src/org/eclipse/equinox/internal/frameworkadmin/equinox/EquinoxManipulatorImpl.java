@@ -33,6 +33,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
 	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String IGNORED = "ignored"; //$NON-NLS-1$
 
 	/**
 	 * If the fwConfigLocation is a file and its name does not equal "config.ini",
@@ -350,7 +351,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	private void loadWithoutFwPersistentData() throws IOException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
-		if (launcherConfigFile != null) {
+		if (launcherConfigFile != null && !launcherConfigFile.getName().endsWith(IGNORED)) {
 			// use launcher. -- > load from LaucnherConfig file.
 			// the parameters in memory will be updated.
 			EclipseLauncherParser parser = new EclipseLauncherParser();
