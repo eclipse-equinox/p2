@@ -15,6 +15,7 @@ import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -99,7 +100,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page == mainPage) {
 			if (resolutionPage != null) {
-				if (mainPageSelectionsHaveChanged()) {
+				if (shouldRecomputePlan()) {
 					// any initial plan that was passed in is no longer valid, no need to hang on to it
 					plan = null;
 					planSelections = mainPage.getCheckedIUElements();
@@ -107,7 +108,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 					planChanged();
 				}
 			} else {
-				if (plan != null && mainPageSelectionsHaveChanged())
+				if (plan != null && shouldRecomputePlan())
 					plan = null;
 				resolutionPage = createResolutionPage(makeResolutionElementRoot(mainPage.getCheckedIUElements()), plan);
 				planChanged();
@@ -116,6 +117,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			return resolutionPage;
 		}
 		return null;
+	}
+
+	private boolean shouldRecomputePlan() {
+		return ProvisioningOperationRunner.hasScheduledOperationsFor(profileId) || mainPageSelectionsHaveChanged();
 	}
 
 	private boolean mainPageSelectionsHaveChanged() {

@@ -176,6 +176,7 @@ public class ProvUIMessages extends NLS {
 	public static String PlanStatusHelper_Items;
 	public static String PlanStatusHelper_NothingToDo;
 	public static String PlanStatusHelper_AlreadyInstalled;
+	public static String PlanStatusHelper_AnotherOperationInProgress;
 	public static String PlanStatusHelper_Launch;
 	public static String PlanStatusHelper_RequestAltered;
 	public static String PlanStatusHelper_RequiresUpdateManager;

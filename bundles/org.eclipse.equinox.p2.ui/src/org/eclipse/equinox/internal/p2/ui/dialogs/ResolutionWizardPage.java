@@ -267,6 +267,13 @@ public abstract class ResolutionWizardPage extends WizardPage {
 				// Log warnings for later support
 				ProvUI.reportStatus(currentStatus, StatusManager.LOG);
 			}
+		} else {
+			// Check to see if another operation is in progress
+			if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
+				messageType = IMessageProvider.ERROR;
+				currentStatus = PlanStatusHelper.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
+				pageComplete = false;
+			}
 		}
 		setPageComplete(pageComplete);
 		setMessage(getMessageText(), messageType);

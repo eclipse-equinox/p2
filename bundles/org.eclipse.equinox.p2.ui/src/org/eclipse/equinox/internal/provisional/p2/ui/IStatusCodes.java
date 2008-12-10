@@ -30,4 +30,5 @@ public interface IStatusCodes {
 	public static final int IGNORED_ALREADY_INSTALLED = 10004;
 	public static final int UNEXPECTED_NOTHING_TO_DO = 10005;
 	public static final int EXPECTED_NOTHING_TO_DO = 10006;
+	public static final int OPERATION_ALREADY_IN_PROGRESS = 10007;
 }
