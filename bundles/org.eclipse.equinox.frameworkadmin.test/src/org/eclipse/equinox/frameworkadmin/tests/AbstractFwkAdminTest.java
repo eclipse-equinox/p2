@@ -20,11 +20,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
 public abstract class AbstractFwkAdminTest extends TestCase {
 	private ServiceTracker fwAdminTracker;
+	private File testFolder;
 
 	public AbstractFwkAdminTest(String name) {
 		super(name);
@@ -95,6 +97,31 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		return (FrameworkAdmin) fwAdminTracker.getService();
 	}
 
+	protected File getTestFolder(String name) {
+		Location instanceLocation = Platform.getInstanceLocation();
+		URL url = instanceLocation != null ? instanceLocation.getURL() : null;
+		if (instanceLocation == null || !instanceLocation.isSet() || url == null) {
+			testFolder = Activator.getContext().getDataFile(name);
+		} else {
+			testFolder = new File(url.getFile(), name);
+		}
+
+		if (testFolder.exists())
+			delete(testFolder);
+		testFolder.mkdirs();
+		return testFolder;
+	}
+
+	protected void runTest() throws Throwable {
+		super.runTest();
+
+		//clean up after success
+		if (testFolder != null && testFolder.exists()) {
+			delete(testFolder);
+			testFolder = null;
+		}
+	}
+
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (fwAdminTracker != null) {
@@ -143,7 +170,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("String: " + search + " not found in " + file.getAbsolutePath());
 		}
 	}
-	
+
 	public void assertIniFileNotContain(File file, String argument, String value) {
 		List args = null;
 		try {
@@ -154,9 +181,10 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		String tmp = ParserUtils.getValueForArgument(argument, args);
 		if (tmp == null)
 			return;
-			
+
 		assertTrue(tmp.indexOf(value) == -1);
 	}
+
 	public void assertPropertyNotContain(File file, String property, String search) {
 		Properties p = new Properties();
 		FileInputStream fis = null;
@@ -177,17 +205,35 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
+	public void assertEquals(String[] array1, String[] array2) {
+		if (array1 == null || array2 == null) {
+			if (array1 == array2)
+				return;
+			fail(array1 + " not equal to " + array2);
+		}
+		assertEquals(array1.length, array2.length);
+		for (int i = 0; i < array1.length; i++) {
+			assertEquals(array1[i], array2[i]);
+		}
+	}
+
 	public void assertContent(File file, String search) {
+		assertContents(file, new String [] { search } );
+	}
+	public void assertContents(File file, String [] lines) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");
+		int idx = 0;
 		try {
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));
 				while (reader.ready()) {
 					String line = reader.readLine();
-					if (line.indexOf(search) >= 0)
-						return;
+					if (line.indexOf(lines[idx]) >= 0) {
+						if(++idx >= lines.length)
+							return;
+					}
 				}
 			} finally {
 				if (reader != null)
@@ -196,9 +242,9 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		} catch (FileNotFoundException e) {
 			//ignore, caught before
 		} catch (IOException e) {
-			fail("String: " + search + " not found in " + file.getAbsolutePath());
+			fail("String: " + lines[idx] + " not found in " + file.getAbsolutePath());
 		}
-		fail("String:" + search + " not found");
+		fail("String:" + lines[idx] + " not found");
 	}
 
 	public void startSimpleConfiguratormManipulator() {

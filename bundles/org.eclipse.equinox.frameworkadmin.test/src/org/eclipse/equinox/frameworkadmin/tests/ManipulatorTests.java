@@ -11,13 +11,11 @@
 
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URI;
-
 import java.io.*;
+import java.net.URI;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class ManipulatorTests extends AbstractFwkAdminTest {
 
@@ -27,24 +25,52 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 
 	public void testBug212361_osgiInBundlesList() throws Exception {
 		File installFolder = Activator.getContext().getDataFile("212361");
-		File configurationFolder = new File( installFolder, "configuration");
+		File configurationFolder = new File(installFolder, "configuration");
 		Manipulator manipulator = getFrameworkManipulator(configurationFolder, new File(installFolder, "foo"));
-		
+
 		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
 		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm()), 1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
-		
+
 		manipulator.save(false);
-		
+
 		Properties configIni = new Properties();
-		InputStream in = new BufferedInputStream(new FileInputStream(new File(configurationFolder, "config.ini")) );
+		InputStream in = new BufferedInputStream(new FileInputStream(new File(configurationFolder, "config.ini")));
 		configIni.load(in);
 		in.close();
-		
+
 		String bundles = (String) configIni.get("osgi.bundles");
 		assertTrue(bundles.indexOf("org.eclipse.osgi") == -1);
 	}
 
+	public void testBug258126_ProgramArgs_VMArgs() throws Exception {
+		File installFolder = getTestFolder("258126");
+		File ini = new File(installFolder, "eclipse.ini");
+		writeEclipseIni(ini, new String[] {"-foo", "bar", "-vmargs", "-Xmx256m"});
+
+		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
+		Manipulator manipulator = fwkAdmin.getManipulator();
+		LauncherData launcherData = manipulator.getLauncherData();
+		launcherData.setLauncher(new File(installFolder, "eclipse"));
+		try {
+			manipulator.load();
+		} catch (IllegalStateException e) {
+			//TODO We ignore the framework JAR location not set exception
+		}
+
+		assertEquals(launcherData.getJvmArgs(), new String[] {"-Xmx256m"});
+		assertEquals(launcherData.getProgramArgs(), new String[] {"-foo", "bar"});
+
+		launcherData.addJvmArg("-Xms64m");
+		launcherData.addProgramArg("-console");
+
+		//eclipse.ini won't save unless we actually have something in the configuration
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
+		manipulator.getConfigData().addBundle(osgiBi);
+		manipulator.save(false);
+
+		assertContents(ini, new String[] {"-foo", "bar", "-console", "-vmargs", "-Xmx256m", "-Xms64m"});
+	}
 }
