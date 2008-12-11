@@ -126,7 +126,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
 		//set the default arguments
-		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-verbose", "-writeMode", append ? "" : "clean"};
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), "-writeMode", append ? "" : "clean"};
 		//run the mirror application
 		runMirrorApplication(message, args);
 	}
@@ -818,7 +818,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		String name = "Bug 256909 test - new";
 		try {
 			//set the arguments
-			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-destinationName", name};
+			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-destinationName", name};
 			//run the mirror application
 			runMirrorApplication("Bug 256909 Test", args);
 		} catch (MalformedURLException e) {
@@ -852,7 +852,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//set the arguments
-			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-destinationName", newName};
+			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-destinationName", newName};
 			//run the mirror application
 			runMirrorApplication("Bug 256909 Test", args);
 		} catch (MalformedURLException e) {
@@ -1091,11 +1091,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 	//for Bug 250527
 	public void testIgnoreErrorsArguement() {
-		File errorSourceLoaction = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
+		File errorSourceLocation = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
 		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
 		try {
 			//Set ignoreErrors flag.
-			String[] args = new String[] {"-source", errorSourceLoaction.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose", "-ignoreErrors"};
+			String[] args = new String[] {"-source", errorSourceLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-ignoreErrors"};
 			//run the mirror application
 			runMirrorApplication("Running with errored source", args);
 		} catch (Exception e) {
@@ -1139,12 +1139,16 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Comparator prints to stderr, redirect that to a file
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
+		PrintStream oldOut = System.out;
+		PrintStream newOut = null;
 		try {
-			newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "out.out")));
+			newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.err")));
+			newOut = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.out")));
 		} catch (FileNotFoundException e) {
-			fail("Error redirecting stderr", e);
+			fail("Error redirecting outputs", e);
 		}
 		System.setErr(newErr);
+		System.setOut(newOut);
 		try {
 			//Set compare flag.
 			String[] args = new String[] {"-source", repo1Location.toURL().toExternalForm(), "-destination", repo2Location.toURL().toExternalForm(), "-verbose", "-compare"};
@@ -1155,6 +1159,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		}
 		System.setErr(oldErr);
 		newErr.close();
+		System.setOut(oldOut);
+		newOut.close();
 
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
@@ -1202,13 +1208,17 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Comparator prints to stderr, redirect that to a file
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
+		PrintStream oldOut = System.out;
+		PrintStream newOut = null;
 		try {
 			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "out.out")));
+			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
 		} catch (FileNotFoundException e) {
-			fail("Error redirecting stderr", e);
+			fail("Error redirecting outputs", e);
 		}
 		System.setErr(newErr);
+		System.setOut(newOut);
 		try {
 			//Set compareAgaist
 			String[] args = new String[] {"-source", repoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-compareAgainst", baselineLocation.toURL().toExternalForm(), "-verbose", "-compare"};
@@ -1219,6 +1229,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		}
 		System.setErr(oldErr);
 		newErr.close();
+		System.setOut(oldOut);
+		newOut.close();
 
 		IArtifactRepository destination = null;
 		try {
