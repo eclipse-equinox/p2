@@ -102,6 +102,13 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	/**
+	 * Returns a collection of {@link RepositoryReference}.
+	 */
+	public Collection getReferences() {
+		return repositories;
+	}
+
+	/**
 	 * Asserts that this repository is modifiable, throwing a runtime exception if
 	 * it is not. This is suitable for use by subclasses when an attempt is made
 	 * to write to a repository.
