@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Branded Product" id="branded.product" application="org.eclipse.ui.ide.workbench" version="3.5.0.I20081118" useFeatures="true">
+
+   <aboutInfo>
+      <image path="/org.eclipse.equinox.p2.tests/testData/ProductActionTest/brandedProduct/about.gif"/>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgsMac>-showsplash
+org.eclipse.platform</programArgsMac>
+      <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
+-XstartOnFirstThread
+-Xms40m
+-Xmx256m
+-XX:MaxPermSize=256m
+-Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.eclipse.equinox.p2.tests/testData/ProductActionTest/brandedProduct/brando.gif"/>
+
+   <splash
+      startupProgressRect="5,275,445,15"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
+   <launcher name="brando">
+      <solaris/>
+      <win useIco="true">
+         <ico path="/org.eclipse.equinox.p2.tests/testData/ProductActionTest/brandedProduct/eclipse.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+   <license>
+        <url>http://license.location.com/license/</url>
+        <text>
+   License text
+         </text>
+   </license>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.equinox.p2.user.ui" version="1.0.0.qualifier"/>
+   </features>
+
+
+</product>

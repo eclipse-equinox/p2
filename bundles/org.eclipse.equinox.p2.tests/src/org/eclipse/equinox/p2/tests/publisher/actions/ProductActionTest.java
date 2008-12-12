@@ -14,11 +14,13 @@ import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -56,6 +58,19 @@ public class ProductActionTest extends ActionTest {
 		productFileAdviceCapture = new Capture<ProductFileAdvice>();
 		setupPublisherInfo();
 		setupPublisherResult();
+	}
+
+	/**
+	 * Tests publishing a product containing a branded application with a custom
+	 * splash screen, icon, etc.
+	 */
+	public void testBrandedApplication() throws IOException {
+		testAction = new ProductAction(source, TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString(), flavorArg, executablesFeatureLocation);
+		testAction.perform(publisherInfo, publisherResult, null);
+		Collection ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, ius.size());
+
+		//TODO assert branding was done correctly
 	}
 
 	/**
