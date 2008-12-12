@@ -40,7 +40,7 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 	 */
 	public void testPatchingDroppedInFeature() {
 		// TODO enable once we fix being able to patch a feature from the drop-ins
-		if (true)
+		if (DISABLED)
 			return;
 		assertInitialized();
 		// copy the feature into the dropins folder
@@ -78,7 +78,7 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 	 */
 	public void testAddBundle() {
 		// TODO enable this test when bug 240370 is fixed.
-		if (true)
+		if (DISABLED)
 			return;
 		assertInitialized();
 		File file = getTestData("1.0", "testData/reconciler/features/myFeature_1.0.0");

@@ -29,6 +29,7 @@ import org.osgi.framework.Bundle;
  * Tests running the metadata generator against Eclipse 3.3 features.
  */
 public class EclipseSDK33Test extends AbstractProvisioningTest {
+
 	public static Test suite() {
 		return new TestSuite(EclipseSDK33Test.class);
 	}
@@ -45,7 +46,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 	 * TODO This test is currently failing on the build machine for an unknown reason.
 	 */
 	public void testGeneration() {
-		if (true)
+		if (DISABLED)
 			return;
 		IGeneratorInfo generatorInfo = createGeneratorInfo();
 		Generator generator = new Generator(generatorInfo);

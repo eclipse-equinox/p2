@@ -56,6 +56,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static final TouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap());
 
+	//flag used to disable currently failing (invalid) tests. This should always be set to true
+	protected boolean DISABLED = true;
+
 	/**
 	 * Tracks the metadata repositories created by this test instance. The repositories
 	 * will be removed automatically at the end of the test.

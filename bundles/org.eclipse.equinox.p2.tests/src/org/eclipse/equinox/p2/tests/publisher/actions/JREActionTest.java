@@ -44,7 +44,7 @@ public class JREActionTest extends ActionTest {
 
 	public void test14() throws Exception {
 		// TODO currently failing so comment it out
-		if (true)
+		if (DISABLED)
 			return;
 		testAction = new JREAction(publisherInfo, J14);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
@@ -54,7 +54,7 @@ public class JREActionTest extends ActionTest {
 
 	public void test15() throws Exception {
 		// TODO currently failing so comment it out
-		if (true)
+		if (DISABLED)
 			return;
 		testAction = new JREAction(publisherInfo, J15);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());

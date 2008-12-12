@@ -14,17 +14,17 @@ import static org.easymock.EasyMock.*;
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 @SuppressWarnings( {"cast", "restriction", "unchecked"})
-public abstract class ActionTest extends TestCase {
+public abstract class ActionTest extends AbstractProvisioningTest {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$
 	private static final boolean DEBUG = false;
