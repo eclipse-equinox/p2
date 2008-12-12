@@ -211,10 +211,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return features;
 	}
 
-	public boolean containsPlugin(String plugin) {
-		return (plugins != null && plugins.contains(plugin)) || (fragments != null && fragments.contains(plugin));
-	}
-
 	/**
 	 * Parses the specified url and constructs a feature
 	 */
