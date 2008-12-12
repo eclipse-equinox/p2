@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
@@ -68,6 +69,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	private final List messageKeys = new ArrayList(4);
 
 	private MultiStatus status;
+	private final URI siteLocation;
 
 	/*
 	 * 
@@ -125,8 +127,9 @@ public class DefaultSiteParser extends DefaultHandler {
 	/**
 	 * Constructs a site parser.
 	 */
-	public DefaultSiteParser() {
+	public DefaultSiteParser(URI siteLocation) {
 		super();
+		this.siteLocation = siteLocation;
 		stateStack = new Stack();
 		objectStack = new Stack();
 		status = null;
@@ -726,8 +729,12 @@ public class DefaultSiteParser extends DefaultHandler {
 		//			}
 		//		}
 		//
-		if (attributes.getValue(ASSOCIATE_SITES_URL) != null)
-			site.setAssociateSites(getAssociateSites(attributes.getValue(ASSOCIATE_SITES_URL)));
+		final String associateURL = attributes.getValue(ASSOCIATE_SITES_URL);
+		if (associateURL != null) {
+			//resolve the URI relative to the site location
+			URI resolvedLocation = siteLocation.resolve(associateURL);
+			site.setAssociateSites(getAssociateSites(resolvedLocation.toString()));
+		}
 
 		objectStack.push(site);
 

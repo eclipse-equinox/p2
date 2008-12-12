@@ -91,7 +91,7 @@ public class UpdateSite {
 		InputStream input = null;
 		File siteFile = loadSiteFile(location, monitor);
 		try {
-			DefaultSiteParser siteParser = new DefaultSiteParser();
+			DefaultSiteParser siteParser = new DefaultSiteParser(location);
 			Checksum checksum = new CRC32();
 			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
