@@ -88,7 +88,8 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			if (sub.isCanceled())
 				return result;
 			if (query == null) {
-				result.accept(repoLocations.get(i));
+				if (!result.accept(repoLocations.get(i)))
+					break;
 				sub.worked(2);
 			} else {
 				URI location = (URI) repoLocations.get(i);

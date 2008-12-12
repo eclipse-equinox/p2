@@ -64,7 +64,8 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoLocations.length);
 		for (int i = 0; i < repoLocations.length; i++) {
 			if (query == null || query.isMatch(repoLocations[i]))
-				result.accept(repoLocations[i]);
+				if (!result.accept(repoLocations[i]))
+					break;
 			monitor.worked(1);
 		}
 		monitor.done();

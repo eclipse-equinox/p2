@@ -56,7 +56,8 @@ public class QueryableUpdates implements IQueryable {
 				if (monitor.isCanceled())
 					return result;
 				if (query.isMatch(allUpdates.get(i)))
-					result.accept(allUpdates.get(i));
+					if (!result.accept(allUpdates.get(i)))
+						break;
 				monitor.worked(totalWork / 2 / allUpdates.size());
 			}
 		} catch (OperationCanceledException e) {

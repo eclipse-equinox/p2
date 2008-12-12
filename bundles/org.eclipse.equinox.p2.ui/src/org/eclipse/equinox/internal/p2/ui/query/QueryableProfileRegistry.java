@@ -36,7 +36,8 @@ public class QueryableProfileRegistry implements IQueryable {
 		try {
 			for (int i = 0; i < profiles.length; i++) {
 				if (query.isMatch(profiles[i]))
-					result.accept(profiles[i]);
+					if (!result.accept(profiles[i]))
+						break;
 				sub.worked(1);
 			}
 		} finally {
