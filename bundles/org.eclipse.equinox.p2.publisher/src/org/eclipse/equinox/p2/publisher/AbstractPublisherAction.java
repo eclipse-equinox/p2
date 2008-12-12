@@ -28,7 +28,6 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
-	public static final int AS_IS = 1;
 	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
