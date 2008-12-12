@@ -45,6 +45,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		suite.addTest(new ConfigurationTests("test_249607"));
 		suite.addTest(new ConfigurationTests("test_249898"));
 		suite.addTest(new ConfigurationTests("test_232094"));
+		suite.addTest(new ConfigurationTests("testSiteEnabled"));
 		return suite;
 	}
 
@@ -62,6 +63,8 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		// make sure the feature is listed in a site in the configuration
 		Configuration config = getConfiguration();
 		assertFeatureExists("3.0", config, "myFeature", "1.0.0");
+		assertTrue("3.1", isInstalled("myBundle", "1.0.0"));
+		assertExistsInBundlesInfo("3.2", "myBundle", "1.0.0");
 
 		// cleanup
 		remove("99.0", "dropins/plugins", bundleFile.getName());
@@ -71,6 +74,59 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertFalse("99.4", isInstalled("myFeature.feature", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("99.5", "myBundle");
 		assertFalse("99.6", isInstalled("myBundle", "1.0.0"));
+	}
+
+	/*
+	 * Test discovering a site in a platform.xml file and installing the bundles from it.
+	 * Then change the site to be disabled and then re-reconcile.
+	 */
+	public void testSiteEnabled() {
+		assertInitialized();
+		File temp = getTempFolder();
+		toRemove.add(temp);
+		Configuration configuration = getConfiguration();
+		String siteLocation = new File(temp, "eclipse").toURI().toString();
+
+		File source = getTestData("2.0", "testData/reconciler/ext.jar");
+		copy("2.1", source, temp);
+
+		/* this is the entry to add to the site.xml file
+		<site enabled="true" policy="USER-EXCLUDE" updateable="false" url="file:C:/share/1/">
+			<feature id="bbb.feature" version="1.0.0" />
+		</site>
+		*/
+		assertDoesNotExistInBundlesInfo("3.01", "bbb");
+		assertDoesNotExistInBundlesInfo("3.02", "ccc");
+		assertFalse("3.11", isInstalled("bbb", "1.0.0"));
+		assertFalse("3.12", isInstalled("ccc", "1.0.0"));
+		Site site = createSite(Site.POLICY_USER_EXCLUDE, true, false, siteLocation, null);
+		Feature feature = createFeature(site, "bbb.feature", "1.0.0", "features/bbb.feature_1.0.0/");
+		site.addFeature(feature);
+		configuration.add(site);
+		save("3.2", configuration);
+		reconcile("3.3");
+		assertExistsInBundlesInfo("3.41", "bbb");
+		assertExistsInBundlesInfo("3.42", "ccc");
+		assertTrue("3.51", isInstalled("bbb", "1.0.0"));
+		assertTrue("3.52", isInstalled("ccc", "1.0.0"));
+		// make sure the feature is listed in a site in the configuration
+		configuration = getConfiguration();
+		assertFeatureExists("3.6", configuration, "bbb.feature", "1.0.0");
+
+		// change the configuration so the site is disabled
+		assertTrue("4.0", removeSite(configuration, siteLocation));
+		site = createSite(Site.POLICY_USER_EXCLUDE, false, false, siteLocation, null);
+		feature = createFeature(site, "bbb.feature", "1.0.0", "features/bbb.feature_1.0.0/");
+		site.addFeature(feature);
+		configuration.add(site);
+		save("4.1", configuration);
+		reconcile("4.2");
+
+		// verify
+		assertDoesNotExistInBundlesInfo("5.01", "bbb");
+		assertDoesNotExistInBundlesInfo("5.02", "ccc");
+		assertFalse("5.11", isInstalled("bbb", "1.0.0"));
+		assertFalse("5.12", isInstalled("ccc", "1.0.0"));
 	}
 
 	/*

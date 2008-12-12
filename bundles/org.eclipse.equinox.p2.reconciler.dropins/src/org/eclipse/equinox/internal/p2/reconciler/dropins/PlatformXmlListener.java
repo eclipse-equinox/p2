@@ -197,6 +197,10 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							continue;
 						}
 					}
+					if (!site.isEnabled()) {
+						toBeRemoved.add(site);
+						continue;
+					}
 					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
 					URI location = URIUtil.fromString(eclipseExtensionURL);
 					Map properties = new HashMap();
