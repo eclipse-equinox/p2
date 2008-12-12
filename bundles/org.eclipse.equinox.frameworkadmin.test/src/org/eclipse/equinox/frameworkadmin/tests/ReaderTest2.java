@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.util.Properties;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Properties;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 

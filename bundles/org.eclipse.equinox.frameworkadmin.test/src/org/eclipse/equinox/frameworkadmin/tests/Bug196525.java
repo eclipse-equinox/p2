@@ -12,7 +12,6 @@ package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
@@ -52,8 +51,8 @@ public class Bug196525 extends AbstractFwkAdminTest {
 			//TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm()), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
+		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
@@ -80,7 +79,7 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		} catch (URISyntaxException e) {
 			fail("Unexpected failure while creating URI");
 		}
-		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2, true);
+		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, true);
 
 		manipulator.getConfigData().addBundle(bundle1Bi);
 

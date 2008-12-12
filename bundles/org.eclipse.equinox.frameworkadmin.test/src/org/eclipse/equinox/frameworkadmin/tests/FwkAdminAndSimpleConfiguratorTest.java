@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URI;
-
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -54,8 +53,8 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	protected Manipulator createMinimalConfiguration(String workArea) throws Exception {
 		Manipulator manipulator = getNewManipulator(workArea);
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm()), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
+		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);

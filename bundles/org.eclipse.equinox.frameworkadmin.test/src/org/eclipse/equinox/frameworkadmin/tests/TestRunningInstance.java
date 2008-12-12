@@ -1,7 +1,6 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import org.eclipse.core.runtime.Platform;
-
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.*;
 

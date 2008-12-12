@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URI;
-
 import java.io.*;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
@@ -67,7 +66,7 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), "file:plugins/org.eclipse.equinox.simpleconfigurator.jar");
 		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), "file:plugins/org.eclipse.osgi.jar");
 
-		BundleInfo bi = new BundleInfo(new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 2);
+		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2);
 		manipulator.getConfigData().addBundle(bi);
 		manipulator.save(false);
 //		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm());

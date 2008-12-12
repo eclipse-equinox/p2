@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URI;
-
-import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -30,7 +26,7 @@ public class RemovingABundle extends FwkAdminAndSimpleConfiguratorTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		Manipulator manipulator = createMinimalConfiguration(RemovingABundle.class.getName());
-		manipulator.getConfigData().addBundle(new BundleInfo("bundle_1", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm()), 4, false));
+		manipulator.getConfigData().addBundle(new BundleInfo("bundle_1", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 4, false));
 		manipulator.save(false);
 
 		File fooINI = new File(getInstallFolder(), getLauncherName() +".ini");

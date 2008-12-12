@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URISyntaxException;
-
-import java.net.URI;
-
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -98,7 +96,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		//These two constants describe the data file used in the test
 		final String FILENAME = "org.eclipse.osgi_3.4.0.jar";
 		final String VERSION = "3.4.0.v20071105";
-		BundleInfo newOSGi = new BundleInfo("org.eclipse.osgi", "3.4.0.v20071105", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/" + FILENAME)).toExternalForm()), 0, true);
+		BundleInfo newOSGi = new BundleInfo("org.eclipse.osgi", "3.4.0.v20071105", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/" + FILENAME))), 0, true);
 		defaultManipulator.getConfigData().addBundle(newOSGi);
 		defaultManipulator.save(false);
 		assertContent(getBundleTxt(), VERSION);

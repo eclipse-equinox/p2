@@ -12,9 +12,9 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.*;
-import java.net.URI;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class ManipulatorTests extends AbstractFwkAdminTest {
@@ -28,8 +28,8 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		File configurationFolder = new File(installFolder, "configuration");
 		Manipulator manipulator = getFrameworkManipulator(configurationFolder, new File(installFolder, "foo"));
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm()), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
+		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
@@ -67,7 +67,7 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		launcherData.addProgramArg("-console");
 
 		//eclipse.ini won't save unless we actually have something in the configuration
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", new URI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm()), 0, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.save(false);
 
