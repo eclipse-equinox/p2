@@ -177,9 +177,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * Generates and publishes a reference to an update site location
 	 * @param location The update site location
 	 * @param featureId the identifier of the feature where the error occurred, or null
-	 * @param metadataRepo The repo into which the references are added
+	 * @param metadataRepo The repository into which the references are added
 	 */
 	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
+		if (metadataRepo == null)
+			return;
 		try {
 			URI associateLocation = new URI(location);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.ENABLED);
