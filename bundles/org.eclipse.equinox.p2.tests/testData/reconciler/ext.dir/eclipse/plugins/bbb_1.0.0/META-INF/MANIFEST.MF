@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bbb Plug-in
+Bundle-SymbolicName: bbb
+Bundle-Version: 1.0.0
+

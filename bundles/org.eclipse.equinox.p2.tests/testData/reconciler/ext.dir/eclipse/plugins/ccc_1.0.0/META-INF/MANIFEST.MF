@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ccc Plug-in
+Bundle-SymbolicName: ccc;singleton:=true
+Bundle-Version: 1.0.0
+
