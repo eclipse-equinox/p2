@@ -1,4 +1,4 @@
-#Wed Oct 29 23:33:45 EDT 2008
+#Fri Dec 12 15:45:18 EST 2008
 eclipse.preferences.version=1
 instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
 org.eclipse.jdt.core.builder.cleanOutputFolder=clean
@@ -22,6 +22,7 @@ org.eclipse.jdt.core.compiler.problem.annotationSuperInterface=warning
 org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
 org.eclipse.jdt.core.compiler.problem.autoboxing=ignore
 org.eclipse.jdt.core.compiler.problem.comparingIdentical=warning
+org.eclipse.jdt.core.compiler.problem.deadCode=error
 org.eclipse.jdt.core.compiler.problem.deprecation=warning
 org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode=disabled
 org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod=enabled
