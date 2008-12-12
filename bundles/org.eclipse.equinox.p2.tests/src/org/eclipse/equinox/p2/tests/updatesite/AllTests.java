@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(SiteXMLActionTest.class);
 		suite.addTestSuite(UpdateSiteTest.class);
 		return suite;
 	}
