@@ -10,23 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Touchpoint data instances contain the additional information needed by a touchpoint
  * to execute each engine phase it participates in. This includes the sequence of
- * instruction statements to be executed during each phase, and any additional 
+ * instruction statements to be executed during each phase, and any additional
  * supporting data needed to perform the phase.
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @see MetadataFactory#createTouchpointData(Map)
  */
 public class TouchpointData {
 
 	/**
-	 * Map of (String->TouchpointInstruction). The set 
-	 * of keys supported is up to the touchpoint that will process these 
+	 * Map of (String->TouchpointInstruction). The set
+	 * of keys supported is up to the touchpoint that will process these
 	 * instructions. This map is never null.
 	 */
 	private Map instructions;
@@ -68,7 +68,7 @@ public class TouchpointData {
 	/**
 	 * Returns an unmodifiable map of the touchpoint instructions. The map
 	 * keys are strings, and the values are instances of {@link TouchpointInstruction}.
-	 * 
+	 *
 	 * @return the touchpoint instructions
 	 */
 	public Map getInstructions() {
@@ -79,6 +79,11 @@ public class TouchpointData {
 	 * Returns a string representation of the touchpoint data for debugging purposes only.
 	 */
 	public String toString() {
-		return instructions.toString();
+		StringBuffer result = new StringBuffer();
+		for (Iterator iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
+			Entry instruction = (Entry) iterator.next();
+			result.append(instruction.getKey()).append(" -> ").append(instruction.getValue()).append('\n'); //$NON-NLS-1$
+		}
+		return result.toString();
 	}
 }
