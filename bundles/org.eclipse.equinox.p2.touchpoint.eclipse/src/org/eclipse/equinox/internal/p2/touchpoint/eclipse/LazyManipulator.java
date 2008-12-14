@@ -11,6 +11,8 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -47,18 +49,23 @@ public class LazyManipulator implements Manipulator {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//if fwJar is not included, this exception will be thrown. But ignore it. 
+			//if fwJar is not included, this exception will be thrown. But ignore it.
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
+			throw new IllegalStateException(Messages.error_loading_manipulator);
 		} catch (FrameworkAdminRuntimeException e) {
-			// TODO: consider throwing an exception
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
 		} catch (IOException e) {
-			// TODO: consider throwing an exception
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
+			throw new IllegalStateException(Messages.error_loading_manipulator);
 		}
 		//TODO These values should be inserted by a configuration unit (bug 204124)
 		manipulator.getConfigData().setProperty("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$
-		manipulator.getConfigData().setProperty("eclipse.p2.data.area", Util.computeRelativeAgentLocation(profile)); //$NON-NLS-1$
+		try {
+			manipulator.getConfigData().setProperty("eclipse.p2.data.area", URIUtil.toURI(Util.getAgentLocation().getURL()).toString()); //$NON-NLS-1$
+		} catch (URISyntaxException e) {
+			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
+			throw new IllegalStateException(Messages.error_loading_manipulator);
+		}
 	}
 
 	public static FrameworkAdmin getFrameworkAdmin() {

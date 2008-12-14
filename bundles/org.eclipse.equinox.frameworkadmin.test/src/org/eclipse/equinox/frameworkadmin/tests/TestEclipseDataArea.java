@@ -3,7 +3,7 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
@@ -32,27 +32,27 @@ public class TestEclipseDataArea extends FwkAdminAndSimpleConfiguratorTest {
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 
-		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "p2").getAbsoluteFile().toURL().toExternalForm());
+		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "p2").getAbsoluteFile().toURI().toString());
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/p2");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/p2");
 
-		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "../p2").getAbsoluteFile().toURL().toExternalForm());
+		m.getConfigData().setProperty("eclipse.p2.data.area", new File(getConfigurationFolder(), "../p2").getAbsoluteFile().toURI().toString());
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 		m.load();
 		m.save(false);
 		assertContent(getConfigIni(), "@config.dir/../p2");
 
-		m.getConfigData().setProperty("eclipse.p2.data.area", "file:/d:/tmp/foo/bar/p2");
+		m.getConfigData().setProperty("eclipse.p2.data.area", "file:/d:/tmp/fo%20o/bar/p2");
 		m.save(false);
-		assertContent(getConfigIni(), "/tmp/foo/bar/p2");
+		assertContent(getConfigIni(), "/tmp/fo o/bar/p2");
 		assertNotContent(getConfigIni(), "@config.dir");
 		m.load();
 		m.save(false);
-		assertContent(getConfigIni(), "/tmp/foo/bar/p2");
+		assertContent(getConfigIni(), "/tmp/fo o/bar/p2");
 		assertNotContent(getConfigIni(), "@config.dir");
 
 	}

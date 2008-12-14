@@ -26,7 +26,7 @@ import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * 
+ *
  */
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
@@ -37,12 +37,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	/**
 	 * If the fwConfigLocation is a file and its name does not equal "config.ini",
-	 * throw an IllegaStateException. 
+	 * throw an IllegaStateException.
 	 * If the fwConfigLocation is a file and its name equals "config.ini",
 	 * fwConfigLocation will be updated by its parent directory.
-	 * 
+	 *
 	 * Then, reset fwConfigLocation and fwPersistentDataLocation to be matched.
-	 * 
+	 *
 	 * @param launcherData
 	 */
 	static void checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(LauncherData launcherData) {
@@ -128,7 +128,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (runtime)
 			initializeRuntime();
 		// XXX For Equinox, default value of Initial Bundle Start Level is 4.
-		// Precisely speaking, it's not correct. 
+		// Precisely speaking, it's not correct.
 		// Equinox doesn't support setting initial bundle start level as an OSGi terminology.
 		// Only bundles installed by config.ini and updateconfigurator will have that start level(4).
 		// Others has a start level of 1.
@@ -144,7 +144,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		if (platformProperties.isEmpty())
 			return new EquinoxBundlesState(context, fwAdmin, this, false);
-		// XXX checking if fwDependent or fwIndependent platformProperties are updated after the platformProperties was created might be required for better implementation.		
+		// XXX checking if fwDependent or fwIndependent platformProperties are updated after the platformProperties was created might be required for better implementation.
 		return new EquinoxBundlesState(context, fwAdmin, this, platformProperties);
 	}
 
@@ -170,7 +170,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	/**
 	 * Return the configuration location.
-	 * 
+	 *
 	 * @see Location
 	 */
 	private File getRunningConfigurationLocation() {
@@ -250,7 +250,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return ret;
 	}
 
-	//	// 
+	//	//
 	//	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
 	//		this.load(true);
 	//	}
@@ -401,7 +401,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			previousConfigurator.cleanup(this);
 
 		BundleInfo[] newBInfos = null;
-		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
+		if (configuratorManipulator != null) { // Optimize BundleInfo[]
 			try {
 				newBInfos = configuratorManipulator.save(this, backup);
 			} catch (IllegalStateException e) {
@@ -441,18 +441,18 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (this.configData.getFwVersion().equals(configData.getFwVersion())) {
 				// TODO refine the algorithm to copying fw dependent props.
 				//  configData.getFwName()/getFwVersion()/
-				//	getLauncherName()/getLauncherVersion() might be taken into consideration. 
+				//	getLauncherName()/getLauncherVersion() might be taken into consideration.
 				this.configData.setProperties(configData.getProperties());
 			}
 	}
 
 	/**
-	 * 1. get all ServiceReferences of ConfiguratorManipulator.   
-	 * 2. Check if there any ConfiguratorBundle in the Bundles list that can be manipulated by 
+	 * 1. get all ServiceReferences of ConfiguratorManipulator.
+	 * 2. Check if there any ConfiguratorBundle in the Bundles list that can be manipulated by
 	 * 	the available ConfiguratorManipulators.
 	 * 3. Choose the one that will be firstly started among them.
-	 * 4. set the object that corresponds to the chosen ConfiguratorBundle.  
-	 * 
+	 * 4. set the object that corresponds to the chosen ConfiguratorBundle.
+	 *
 	 */
 	private ConfiguratorManipulator setConfiguratorManipulator() {
 		if (context == null) {
@@ -471,7 +471,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		BundleInfo[] bInfos = configData.getBundles();
 		int initialBSL = configData.getInitialBundleStartLevel();
 		bInfos = Utils.sortBundleInfos(bInfos, initialBSL);
-		//int index = -1;	
+		//int index = -1;
 		ConfiguratorManipulator previousConfiguratorManipulator = configuratorManipulator;
 		configuratorManipulator = null;
 		for (int i = 0; i < bInfos.length; i++) {
@@ -501,7 +501,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (launcherData.getFwVersion().equals(value.getFwVersion())) {
 				// TODO launcherData.getFwName()/getFwVersion()/
 				//	getLauncherName()/getLauncherVersion() might be taken into consideration
-				//  for copying . 
+				//  for copying .
 				launcherData.setFwJar(value.getFwJar());
 				launcherData.setHome(value.getHome());
 				launcherData.setLauncher(value.getLauncher());
@@ -511,11 +511,11 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	/**
 	 * Temporal implementation.
-	 * 
+	 *
 	 * If a property of the given key should be eliminated
 	 *  from FwDependentProperties and FwIndependentProperties,
 	 *  return true. Otherwise false.
-	 * 
+	 *
 	 * @param key
 	 * @return true if it should be elimineted from FwDependentProperties and FwIndependentProperties,
 	 */
@@ -562,7 +562,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	/*
 	 * Make the given path relative to the specified root, if applicable. If not, then
 	 * return the path as-is.
-	 * 
+	 *
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	private static String makeRelative(IPath toRel, IPath base) {
@@ -647,7 +647,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	/*
 	 * Make the given path absolute to the specified root, if applicable. If not, then
 	 * return the path as-is.
-	 * 
+	 *
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	public static String makeAbsolute(String original, String rootPath) {

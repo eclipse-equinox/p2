@@ -300,25 +300,6 @@ public class Util {
 		return null;
 	}
 
-	/**
-	 * Returns the agent location, if possible as a path relative to the configuration
-	 * directory using the @config.dir substitution variable. AgentLocation will
-	 * substitute this variable with the configuration folder location on startup.
-	 * If the agent location is not a sub-directory of the configuration folder, this
-	 * method simply returns the absolute agent location expressed as a URL.
-	 */
-	public static String computeRelativeAgentLocation(IProfile profile) {
-		URL agentURL = Util.getAgentLocation().getURL();
-		//TODO handle proper path/url conversion
-		IPath agentPath = new Path(agentURL.getPath());
-		IPath configPath = new Path(Util.getConfigurationFolder(profile).getAbsolutePath());
-		if (configPath.isPrefixOf(agentPath))
-			return "@config.dir/" + agentPath.removeFirstSegments(configPath.segmentCount()).makeRelative().setDevice(null); //$NON-NLS-1$
-		if (agentPath.removeLastSegments(1).equals(configPath.removeLastSegments(1)))
-			return "@config.dir/../" + agentPath.lastSegment(); //$NON-NLS-1$
-		return agentURL.toString();
-	}
-
 	public static IStatus createError(String message) {
 		return createError(message, null);
 	}

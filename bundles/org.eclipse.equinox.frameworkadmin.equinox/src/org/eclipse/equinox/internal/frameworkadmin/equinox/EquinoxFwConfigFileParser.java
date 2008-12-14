@@ -144,7 +144,7 @@ public class EquinoxFwConfigFileParser {
 
 	/**
 	 * inputFile must be not a directory but a file.
-	 * 
+	 *
 	 * @param manipulator
 	 * @param inputFile
 	 * @throws IOException
@@ -172,7 +172,7 @@ public class EquinoxFwConfigFileParser {
 			props = sharedConfigProperties;
 		}
 
-		//Start figuring out stuffs 
+		//Start figuring out stuffs
 		URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
 
 		readFwJarLocation(configData, launcherData, props);
@@ -328,7 +328,7 @@ public class EquinoxFwConfigFileParser {
 				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, dataArea);
 				return;
 			}
-			URI relative = URIUtil.makeRelative(URIUtil.fromString(dataArea), configArea);
+			URI relative = URIUtil.makeRelative(new URI(dataArea), configArea);
 			String result = URIUtil.toUnencodedString(relative);
 			//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
 			if (result.startsWith("../..")) //$NON-NLS-1$
@@ -337,7 +337,7 @@ public class EquinoxFwConfigFileParser {
 				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, CONFIG_DIR + result);
 				return;
 			}
-			props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, FileUtils.toFileURL(URIUtil.fromString(result)));
+			props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, FileUtils.toFileURL(new URI(result)));
 		}
 	}
 
@@ -417,7 +417,7 @@ public class EquinoxFwConfigFileParser {
 		original.putAll(configProps);
 		configProps = original;
 
-		//Deal with the fw jar and ensure it is not set. 
+		//Deal with the fw jar and ensure it is not set.
 		//TODO This can't be done before because of the previous calls to appendProperties
 
 		if (configProps == null || configProps.size() == 0) {
@@ -456,7 +456,7 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void filterPropertiesFromSharedArea(Properties configProps, LauncherData launcherData) {
-		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base 
+		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base
 		Properties sharedConfigProperties = getSharedConfiguration(configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData));
 		if (sharedConfigProperties == null)
 			return;
