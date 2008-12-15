@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(InstallActionTest.class);
 		suite.addTestSuite(UpdateActionTest.class);
 		suite.addTestSuite(RemoveColocatedRepositoryActionTest.class);
+		suite.addTestSuite(ElementUtilsTest.class);
 		return suite;
 	}
 }
