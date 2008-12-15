@@ -423,10 +423,15 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	// TODO this is potentially very expensive if used indiscriminately, need to doc the
 	// expected preconditions
-	public void setInitialSelections(Object[] selections) {
+	public void setChecked(Object[] selections) {
+		ContainerCheckedTreeViewer checkViewer = filteredTree.getCheckboxTreeViewer();
+		Object element = new Object();
 		for (int i = 0; i < selections.length; i++) {
-			getCheckboxTreeViewer().expandToLevel(selections[i], AbstractTreeViewer.ALL_LEVELS);
-			getCheckboxTreeViewer().setSubtreeChecked(selections[i], true);
+			element = selections[i];
+			checkViewer.expandToLevel(selections[i], AbstractTreeViewer.ALL_LEVELS);
+			checkViewer.setSubtreeChecked(selections[i], true);
 		}
+		// Relying on knowledge that DelayedFilterCheckbox doesn't care which element is in the listener
+		checkViewer.fireCheckStateChanged(element, true);
 	}
 }
