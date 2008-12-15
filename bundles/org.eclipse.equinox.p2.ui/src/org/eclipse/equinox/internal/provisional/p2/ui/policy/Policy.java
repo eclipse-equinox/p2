@@ -145,7 +145,7 @@ public class Policy {
 	 */
 	public IProfileChooser getProfileChooser() {
 		if (profileChooser == null) {
-			return getDefaultProfileChooser();
+			profileChooser = getDefaultProfileChooser();
 		}
 		return profileChooser;
 	}
@@ -169,7 +169,7 @@ public class Policy {
 	 */
 	public IUViewQueryContext getQueryContext() {
 		if (queryContext == null) {
-			return getDefaultQueryContext();
+			queryContext = getDefaultQueryContext();
 		}
 		return queryContext;
 	}
@@ -193,7 +193,7 @@ public class Policy {
 	 */
 	public RepositoryManipulator getRepositoryManipulator() {
 		if (repositoryManipulator == null) {
-			return getDefaultRepositoryManipulator();
+			repositoryManipulator = getDefaultRepositoryManipulator();
 		}
 		return repositoryManipulator;
 	}

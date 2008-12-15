@@ -94,8 +94,9 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 						}
 					}
 					checkState.removeAll(toRemove);
+				} else if (event.getChecked()) {
+					rememberLeafCheckState();
 				}
-
 			}
 		});
 		return checkboxViewer;
@@ -302,7 +303,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 			checkState = new ArrayList(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!v.getGrayed(checked[i]))
-				checkState.add(checked[i]);
+				if (!checkState.contains(checked[i]))
+					checkState.add(checked[i]);
 	}
 
 	void restoreLeafCheckState() {
@@ -328,7 +330,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 			checkboxViewer.fireCheckStateChanged(element, true);
 	}
 
-	public CheckboxTreeViewer getCheckboxTreeViewer() {
+	public ContainerCheckedTreeViewer getCheckboxTreeViewer() {
 		return checkboxViewer;
 	}
 
