@@ -32,7 +32,7 @@ import org.osgi.framework.Version;
 
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
-	private static File output;
+	protected static File output;
 	protected static Set toRemove = new HashSet();
 	private static boolean initialized = false;
 
@@ -73,7 +73,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Run the given command.
 	 */
-	private void run(String message, String[] commandArray) {
+	protected static void run(String message, String[] commandArray) {
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
 			process.waitFor();
@@ -237,13 +237,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return isInBundlesInfo(bundleId, null);
 	}
 
+	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
+		File bundlesInfo = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+		return isInBundlesInfo(bundleId, version, bundlesInfo);
+	}
+
 	/*
 	 * Return a boolean value indicating whether or not a bundle with the given id
 	 * is listed in the bundles.info file. If the version is non-null, check to ensure the
 	 * version is the expected one.
 	 */
-	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
-		File bundlesInfo = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+	public boolean isInBundlesInfo(String bundleId, String version, File bundlesInfo) throws IOException {
 		if (!bundlesInfo.exists())
 			return false;
 		String line;
