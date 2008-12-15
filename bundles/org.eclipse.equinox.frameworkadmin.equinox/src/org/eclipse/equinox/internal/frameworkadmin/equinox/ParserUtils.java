@@ -13,7 +13,8 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -120,48 +121,34 @@ public class ParserUtils {
 			if (args.get(i) == null)
 				continue;
 			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
-				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-')
+				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(0) != '-')
 					return (String) args.get(i + 1);
 			}
 		}
 		return null;
 	}
 
-	public static String[] getMultiValuedArgument(String arg, List args) {
-		if (arg == null || args == null)
-			return null;
-		ArrayList values = null;
-		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == null)
-				continue;
-			if (arg.equalsIgnoreCase((String) args.get(i))) {
-				values = new ArrayList();
-				continue;
-			}
-			if (values != null && ((String) args.get(i)).charAt(1) == '-') {
-				break;
-			}
-			if (values != null)
-				values.add(((String) args.get(i)).trim());
-		}
-		if (values != null)
-			return (String[]) values.toArray(new String[values.size()]);
-		return null;
-	}
-
 	public static boolean setValueForArgument(String arg, String value, List args) {
 		if (arg == null || args == null)
 			return false;
+
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
 				continue;
 			String currentArg = ((String) args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
-				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-') {
-					args.set(i + 1, value);
+				if (i + 1 < args.size()) {
+					String nextArg = (String) args.get(i + 1);
+					if (nextArg == null || nextArg.charAt(0) != '-') {
+						args.set(i + 1, value);
+					} else {
+						args.add(i + 1, value);
+					}
 					return true;
 				}
-				break;
+				// else just append the value on the end
+				args.add(value);
+				return true;
 			}
 		}
 		args.add(arg);
@@ -178,7 +165,7 @@ public class ParserUtils {
 			String currentArg = ((String) args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
 				args.set(i, null);
-				while (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(1) != '-') {
+				while (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(0) != '-') {
 					args.set(i + 1, null);
 					i++;
 				}
