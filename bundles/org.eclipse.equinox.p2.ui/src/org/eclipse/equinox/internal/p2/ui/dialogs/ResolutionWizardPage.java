@@ -50,8 +50,8 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	ProvElementContentProvider contentProvider;
 	protected Display display;
 
-	protected ResolutionWizardPage(Policy policy, String id, IUElementListRoot input, String profileID, ProvisioningPlan initialPlan) {
-		super(id);
+	protected ResolutionWizardPage(Policy policy, IUElementListRoot input, String profileID, ProvisioningPlan initialPlan) {
+		super("ResolutionPage"); //$NON-NLS-1$
 		this.policy = policy;
 		currentPlan = initialPlan;
 		if (input == null)

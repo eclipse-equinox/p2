@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public class UninstallWizardPage extends ResolutionWizardPage {
 
 	public UninstallWizardPage(Policy policy, IUElementListRoot root, String profileId, ProvisioningPlan initialPlan) {
-		super(policy, "UninstallWizard", root, profileId, initialPlan); //$NON-NLS-1$
+		super(policy, root, profileId, initialPlan);
 		setTitle(ProvUIMessages.UninstallWizardPage_Title);
 		setDescription(ProvUIMessages.UninstallWizardPage_Description);
 	}

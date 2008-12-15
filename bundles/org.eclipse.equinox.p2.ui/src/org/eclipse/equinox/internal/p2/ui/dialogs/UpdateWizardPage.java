@@ -46,7 +46,7 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 	}
 
 	public UpdateWizardPage(Policy policy, IUElementListRoot root, String profileId, ProvisioningPlan initialPlan) {
-		super(policy, "UpdateWizardPage", root, profileId, initialPlan); //$NON-NLS-1$
+		super(policy, root, profileId, initialPlan);
 		setTitle(ProvUIMessages.UpdateWizardPage_Title);
 		setDescription(ProvUIMessages.UpdateWizardPage_Description);
 	}

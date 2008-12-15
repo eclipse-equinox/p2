@@ -33,8 +33,8 @@ import org.eclipse.swt.widgets.Label;
  */
 public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 
-	protected SizeComputingWizardPage(Policy policy, String id, IUElementListRoot root, String profileID, ProvisioningPlan initialPlan) {
-		super(policy, id, root, profileID, initialPlan);
+	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, ProvisioningPlan initialPlan) {
+		super(policy, root, profileID, initialPlan);
 	}
 
 	protected Label sizeInfo;
@@ -112,7 +112,8 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 
 	public void recomputePlan(IUElementListRoot root) {
 		super.recomputePlan(root);
-		computeSizing(getCurrentPlan(), getProfileId());
+		if (getCurrentPlan() != null)
+			computeSizing(getCurrentPlan(), getProfileId());
 	}
 
 	protected IQueryable getQueryable(ProvisioningPlan plan) {

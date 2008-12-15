@@ -35,6 +35,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected ISelectableIUsPage mainPage;
 	protected ResolutionWizardPage resolutionPage;
 	private ProvisioningPlan plan;
+	boolean waitingForOtherJobs = false;
 
 	public ProvisioningOperationWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan) {
 		super();
@@ -120,7 +121,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	private boolean shouldRecomputePlan() {
-		return ProvisioningOperationRunner.hasScheduledOperationsFor(profileId) || mainPageSelectionsHaveChanged();
+		boolean previouslyWaiting = waitingForOtherJobs;
+		waitingForOtherJobs = ProvisioningOperationRunner.hasScheduledOperationsFor(profileId);
+		return waitingForOtherJobs || previouslyWaiting || mainPageSelectionsHaveChanged();
 	}
 
 	private boolean mainPageSelectionsHaveChanged() {

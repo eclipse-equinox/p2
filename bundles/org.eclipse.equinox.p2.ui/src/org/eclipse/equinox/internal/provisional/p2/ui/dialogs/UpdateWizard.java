@@ -34,7 +34,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		SelectableIUsPage page = new SelectableIUsPage(policy, profileId, input, selections, profileId);
+		SelectableIUsPage page = new SelectableIUsPage(policy, input, selections, profileId);
 		page.setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		page.setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 		return page;

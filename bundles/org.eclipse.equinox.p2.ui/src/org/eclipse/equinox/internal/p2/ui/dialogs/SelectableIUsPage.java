@@ -46,8 +46,8 @@ public class SelectableIUsPage extends WizardPage implements ISelectableIUsPage 
 	protected Policy policy;
 	String profileId;
 
-	public SelectableIUsPage(Policy policy, String id, IUElementListRoot root, Object[] initialSelections, String profileId) {
-		super(id);
+	public SelectableIUsPage(Policy policy, IUElementListRoot root, Object[] initialSelections, String profileId) {
+		super("IUSelectionPage"); //$NON-NLS-1$
 		this.root = root;
 		this.policy = policy;
 		this.initialSelections = initialSelections;

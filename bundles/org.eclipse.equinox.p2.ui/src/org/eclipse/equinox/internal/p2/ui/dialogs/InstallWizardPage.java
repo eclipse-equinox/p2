@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public class InstallWizardPage extends SizeComputingWizardPage {
 
 	public InstallWizardPage(Policy policy, String profileId, IUElementListRoot root, ProvisioningPlan initialPlan) {
-		super(policy, "InstallWizardPage", root, profileId, initialPlan); //$NON-NLS-1$
+		super(policy, root, profileId, initialPlan);
 		setTitle(ProvUIMessages.InstallWizardPage_Title);
 		setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}

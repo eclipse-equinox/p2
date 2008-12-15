@@ -45,7 +45,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		ISelectableIUsPage page = new SelectableIUsPage(policy, profileId, input, selections, profileId);
+		ISelectableIUsPage page = new SelectableIUsPage(policy, input, selections, profileId);
 		page.setTitle(ProvUIMessages.UninstallIUOperationLabel);
 		page.setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 		return page;

@@ -352,7 +352,7 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
 		availableIUGroup.updateTreeColumns();
 		if (initialSelections != null)
-			availableIUGroup.setInitialSelections(initialSelections);
+			availableIUGroup.setChecked(initialSelections);
 
 		Control focusControl = null;
 		focusControl = availableIUGroup.getDefaultFocusControl();
