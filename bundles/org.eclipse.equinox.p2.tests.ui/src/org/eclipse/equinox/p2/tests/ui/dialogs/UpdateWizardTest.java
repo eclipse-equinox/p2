@@ -10,33 +10,63 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Tests for the install wizard
  */
 public class UpdateWizardTest extends AbstractProvisioningUITest {
 
+	private static final String SELECTION_PAGE = "IUSelectionPage";
+
 	/**
 	 * Tests the wizard
 	 */
 	public void testWizard() {
-		// this test is fairly useless until we seed it with real data and some mock profile, but
-		// at least we open the wizard up.
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), IProfileRegistry.SELF, new IUElementListRoot(), new Object[0], null);
+		IUElementListRoot root = new IUElementListRoot();
+		AvailableUpdateElement element = new AvailableUpdateElement(root, upgrade, top1, TESTPROFILE, true);
+		root.setChildren(new Object[] {element});
+
+		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, null);
 		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
 		try {
-			assertFalse(wizard.canFinish());
+			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			assertTrue(page1.isPageComplete());
+			assertTrue(page1.canFlipToNextPage());
+			ResolutionWizardPage page2 = (ResolutionWizardPage) wizard.getNextPage(page1);
+			dialog.showPage(page2);
+			assertTrue(page2.isPageComplete());
 
+			// if another operation is scheduled for this profile, we should not be allowed to proceed
+			// Note this test is timing dependent, as it relies on a 1 second operation not
+			// completing before the assertion.
+			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), null, StatusManager.LOG);
+			assertTrue("Investigate timing problem in test", page1.isPageComplete());
+			// causes recalculation of plan and status
+			wizard.getNextPage(page1);
+			assertFalse(page2.isPageComplete());
+			job.cancel();
+			// relies on immediate cancel response from job
+
+			wizard.getNextPage(page1);
+			assertTrue(page1.isPageComplete());
+			assertTrue("Investigate timing problem in test", page2.isPageComplete());
+			// no licenses
+			assertTrue(wizard.canFinish());
 		} finally {
 			dialog.getShell().close();
 		}
