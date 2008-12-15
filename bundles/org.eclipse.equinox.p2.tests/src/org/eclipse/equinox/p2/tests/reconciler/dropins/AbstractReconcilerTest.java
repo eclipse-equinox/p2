@@ -74,8 +74,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the given command.
 	 */
 	protected static void run(String message, String[] commandArray) {
+		BufferedReader reader = null;
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
+			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			try {
+				while (reader.readLine() != null) {
+					// do nothing
+				}
+			} finally {
+				reader.close();
+			}
 			process.waitFor();
 		} catch (IOException e) {
 			fail(message, e);

@@ -61,7 +61,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 			}
 		} else {
-			String[] command = new String[] {"chmod", "-R", readOnly ? "+r" : "-r", target.getAbsolutePath()};
+			String[] command = new String[] {"chmod", "-R", readOnly ? "-w" : "+w", target.getAbsolutePath()};
 			run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 		}
 	}
@@ -94,9 +94,12 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		assertTrue("0.4", userConfigIni.exists());
 
 		Properties props = new Properties();
-		Reader fileReader = new FileReader(userConfigIni);
-		props.load(fileReader);
-		fileReader.close();
+		InputStream fileReader = new BufferedInputStream(new FileInputStream(userConfigIni));
+		try {
+			props.load(fileReader);
+		} finally {
+			fileReader.close();
+		}
 		assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
 		assertTrue("0.6", props.size() == 1);
 
