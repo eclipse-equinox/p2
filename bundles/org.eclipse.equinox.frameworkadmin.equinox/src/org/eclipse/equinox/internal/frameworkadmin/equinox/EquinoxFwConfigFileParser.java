@@ -328,7 +328,12 @@ public class EquinoxFwConfigFileParser {
 				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, dataArea);
 				return;
 			}
-			URI relative = URIUtil.makeRelative(new URI(dataArea), configArea);
+			URI dataAreaURI = new URI(dataArea);
+			URI relative = URIUtil.makeRelative(dataAreaURI, configArea);
+			if (dataAreaURI.equals(relative)) {
+				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, FileUtils.toFileURL(dataAreaURI));
+				return;
+			}
 			String result = URIUtil.toUnencodedString(relative);
 			//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
 			if (result.startsWith("../..")) //$NON-NLS-1$
