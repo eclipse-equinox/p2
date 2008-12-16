@@ -107,13 +107,11 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected ProfileModificationOperation getLongTestOperation() {
 		return new ProfileModificationOperation("Test Operation", TESTPROFILE, null) {
 			protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) {
-				long time = System.currentTimeMillis() + 1000;
-				while (System.currentTimeMillis() < time) {
+				while (true) {
 					// spin unless cancelled
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
 				}
-				return Status.OK_STATUS;
 			}
 		};
 	}

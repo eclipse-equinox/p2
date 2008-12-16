@@ -89,10 +89,8 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			assertNotNull(page2.getCurrentPlan());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			// Note this test is timing dependent, as it relies on a 1 second operation not
-			// completing before the assertion.
 			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), null, StatusManager.LOG);
-			assertTrue("Investigate timing problem in test", page1.isPageComplete());
+			assertTrue(page1.isPageComplete());
 
 			// causes recalculation of plan and status
 			dialog.showPage(page1);
@@ -102,12 +100,10 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			job.cancel();
 			// relies on immediate response from job
 			wizard.getNextPage(page1);
-			assertTrue(page1.isPageComplete());
+			assertTrue("Investigate job cancellation problem in test", page1.isPageComplete());
 			assertTrue(page2.isPageComplete());
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
-			group.refresh();
-
 			group.getCheckedLeafIUs();
 			group.getDefaultFocusControl();
 			group.getSelectedIUElements();

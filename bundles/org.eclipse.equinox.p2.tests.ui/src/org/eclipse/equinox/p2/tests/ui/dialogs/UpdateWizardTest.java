@@ -52,10 +52,8 @@ public class UpdateWizardTest extends AbstractProvisioningUITest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			// Note this test is timing dependent, as it relies on a 1 second operation not
-			// completing before the assertion.
 			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), null, StatusManager.LOG);
-			assertTrue("Investigate timing problem in test", page1.isPageComplete());
+			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
 			assertFalse(page2.isPageComplete());
@@ -63,8 +61,8 @@ public class UpdateWizardTest extends AbstractProvisioningUITest {
 			// relies on immediate cancel response from job
 
 			wizard.getNextPage(page1);
-			assertTrue(page1.isPageComplete());
-			assertTrue("Investigate timing problem in test", page2.isPageComplete());
+			assertTrue("Investigate cancellation problem in test", page1.isPageComplete());
+			assertTrue(page2.isPageComplete());
 			// no licenses
 			assertTrue(wizard.canFinish());
 		} finally {
