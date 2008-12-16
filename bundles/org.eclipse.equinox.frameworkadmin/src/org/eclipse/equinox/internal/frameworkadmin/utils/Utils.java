@@ -14,14 +14,15 @@ import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.jar.*;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class Utils {
@@ -82,15 +83,15 @@ public class Utils {
 			if (manifestStream == null)
 				return convertPluginManifest(bundleLocation, true);
 
-			// It is not a manifest, but a plugin or a fragment
 			try {
-				Manifest m = new Manifest(manifestStream);
-				Dictionary manifest = manifestToProperties(m.getMainAttributes());
+				Map manifest = ManifestElement.parseBundleManifest(manifestStream, null);
 				// add this check to handle the case were we read a non-OSGi manifest
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
 					return convertPluginManifest(bundleLocation, true);
-				return manifest;
+				return manifestToProperties(manifest);
 			} catch (IOException ioe) {
+				return null;
+			} catch (BundleException e) {
 				return null;
 			}
 		} finally {
@@ -214,50 +215,33 @@ public class Utils {
 		if (location == null)
 			return null;
 		// if we have a file-based URL that doesn't end in ".jar" then...
-		if (FILE_SCHEME.equals(location.getScheme()) && !location.getPath().endsWith(".jar"))
-			return basicLoadManifest(new File(location));
+		if (FILE_SCHEME.equals(location.getScheme()))
+			return basicLoadManifest(URIUtil.toFile(location));
 
 		try {
-			JarFile jar = null;
-			File file = null;
-			if (FILE_SCHEME.equals(location.getScheme())) {
-				file = new File(location);
-				jar = new JarFile(file);
-			} else {
-				URL url = new URL("jar:" + location.toString() + "!/");
-				JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-				jar = jarConnection.getJarFile();
-				// todo should set this var if possible
-				// file = ;
-			}
+			URL url = new URL("jar:" + location.toString() + "!/");
+			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+			ZipFile jar = jarConnection.getJarFile();
+
 			try {
-				Manifest manifest = jar.getManifest();
-				// we might have an old-style plug-in so look for an old plug-in manifest
-				if (manifest == null) {
-					if (file == null)
-						return null;
-					// make sure we have something to convert
-					JarEntry entry = jar.getJarEntry(PLUGIN_MANIFEST);
-					if (entry == null)
-						entry = jar.getJarEntry(FRAGMENT_MANIFEST);
-					if (entry == null)
-						return null;
-					return convertPluginManifest(file, true);
-				}
-				Attributes attributes = manifest.getMainAttributes();
+				ZipEntry entry = jar.getEntry(JarFile.MANIFEST_NAME);
+				if (entry == null)
+					return null;
+
+				Map manifest = ManifestElement.parseBundleManifest(jar.getInputStream(entry), null);
 				// if we have a JAR'd bundle that has a non-OSGi manifest file (like
 				// the ones produced by Ant, then try and convert the plugin.xml
-				if (attributes.getValue(Constants.BUNDLE_SYMBOLICNAME) == null) {
-					if (file == null)
-						return null;
-					return convertPluginManifest(file, true);
+				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null) {
+					String jarName = jar.getName();
+					File file = jarName != null ? new File(jarName) : null;
+					if (file != null && file.exists()) {
+						return convertPluginManifest(file, true);
+					}
+					return null;
 				}
-				Dictionary result = new Hashtable();
-				for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
-					String key = iter.next().toString();
-					result.put(key, attributes.getValue(key));
-				}
-				return result;
+				return manifestToProperties(manifest);
+			} catch (BundleException e) {
+				return null;
 			} finally {
 				jar.close();
 			}
@@ -357,12 +341,12 @@ public class Utils {
 		return new URL(fromSt + "/" + path);
 	}
 
-	private static Properties manifestToProperties(Attributes d) {
+	private static Properties manifestToProperties(Map d) {
 		Iterator iter = d.keySet().iterator();
 		Properties result = new Properties();
 		while (iter.hasNext()) {
-			Attributes.Name key = (Attributes.Name) iter.next();
-			result.put(key.toString(), d.get(key));
+			String key = (String) iter.next();
+			result.put(key, d.get(key));
 		}
 		return result;
 	}
