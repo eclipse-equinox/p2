@@ -26,8 +26,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		TestSuite suite = new ReconcilerTestSuite();
 		suite.setName(SharedInstallTests.class.getName());
 		suite.addTest(new SharedInstallTests("testBasicStartup"));
-		suite.addTest(new SharedInstallTests("testReadOnlyDropinsStartup"));
-		suite.addTest(new SharedInstallTests("testUserDropinsStartup"));
+		// disabled until we sort out mac - see https://bugs.eclipse.org/bugs/show_bug.cgi?id=258935
+		//		suite.addTest(new SharedInstallTests("testReadOnlyDropinsStartup"));
+		//		suite.addTest(new SharedInstallTests("testUserDropinsStartup"));
 		return suite;
 	}
 
@@ -84,26 +85,27 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	public void testBasicStartup() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
-
-		File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
-		File userConfigIni = new File(userBase, "configuration/config.ini");
-		assertFalse("0.1", userBundlesInfo.exists());
-		assertFalse("0.2", userConfigIni.exists());
-		reconcileReadOnly("0.21");
-		assertFalse("0.3", userBundlesInfo.exists());
-		assertTrue("0.4", userConfigIni.exists());
-
-		Properties props = new Properties();
-		InputStream fileReader = new BufferedInputStream(new FileInputStream(userConfigIni));
 		try {
-			props.load(fileReader);
-		} finally {
-			fileReader.close();
-		}
-		assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
-		assertTrue("0.6", props.size() == 1);
+			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+			File userConfigIni = new File(userBase, "configuration/config.ini");
+			assertFalse("0.1", userBundlesInfo.exists());
+			assertFalse("0.2", userConfigIni.exists());
+			reconcileReadOnly("0.21");
+			assertFalse("0.3", userBundlesInfo.exists());
+			assertTrue("0.4", userConfigIni.exists());
 
-		cleanupReadOnlyInstall();
+			Properties props = new Properties();
+			InputStream is = new BufferedInputStream(new FileInputStream(userConfigIni));
+			try {
+				props.load(is);
+			} finally {
+				is.close();
+			}
+			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
+			assertTrue("0.6", props.size() == 1);
+		} finally {
+			cleanupReadOnlyInstall();
+		}
 	}
 
 	public void testReadOnlyDropinsStartup() throws IOException {
@@ -111,62 +113,67 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("0.2", "dropins", jar);
-
 		setupReadOnlyInstall();
-		File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
-		File userConfigIni = new File(userBase, "configuration/config.ini");
-		assertFalse("0.1", userBundlesInfo.exists());
-		assertFalse("0.2", userConfigIni.exists());
+		try {
+			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+			File userConfigIni = new File(userBase, "configuration/config.ini");
+			assertFalse("0.1", userBundlesInfo.exists());
+			assertFalse("0.2", userConfigIni.exists());
 
-		reconcileReadOnly("0.21");
+			reconcileReadOnly("0.21");
 
-		assertTrue("0.3", userBundlesInfo.exists());
-		assertTrue("0.4", userConfigIni.exists());
+			assertTrue("0.3", userBundlesInfo.exists());
+			assertTrue("0.4", userConfigIni.exists());
 
-		assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
 
-		// remove the bundle from the dropins and reconcile
-		setReadOnly(readOnlyBase, false);
-		assertTrue("0.7", readOnlyBase.canWrite());
-		remove("1.0", "dropins", "myBundle_1.0.0.jar");
-		setReadOnly(readOnlyBase, true);
-		assertFalse("0.7", readOnlyBase.canWrite());
+			// remove the bundle from the dropins and reconcile
+			setReadOnly(readOnlyBase, false);
+			assertTrue("0.7", readOnlyBase.canWrite());
+			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+			setReadOnly(readOnlyBase, true);
+			assertFalse("0.7", readOnlyBase.canWrite());
 
-		reconcileReadOnly("0.21");
-		assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
-
-		cleanupReadOnlyInstall();
+			reconcileReadOnly("0.21");
+			assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
+		} finally {
+			cleanupReadOnlyInstall();
+			// try to remove it in case an exception was thrown
+			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+		}
 	}
 
 	public void testUserDropinsStartup() throws IOException {
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		setupReadOnlyInstall();
-
 		File dropins = new File(userBase, "dropins");
-		dropins.mkdir();
+		setupReadOnlyInstall();
+		try {
+			dropins.mkdir();
 
-		copy("copying to dropins", jar, new File(dropins, jar.getName()));
+			copy("copying to dropins", jar, new File(dropins, jar.getName()));
 
-		File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
-		File userConfigIni = new File(userBase, "configuration/config.ini");
-		assertFalse("0.1", userBundlesInfo.exists());
-		assertFalse("0.2", userConfigIni.exists());
+			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+			File userConfigIni = new File(userBase, "configuration/config.ini");
+			assertFalse("0.1", userBundlesInfo.exists());
+			assertFalse("0.2", userConfigIni.exists());
 
-		reconcileReadOnly("0.21");
+			reconcileReadOnly("0.21");
 
-		assertTrue("0.3", userBundlesInfo.exists());
-		assertTrue("0.4", userConfigIni.exists());
+			assertTrue("0.3", userBundlesInfo.exists());
+			assertTrue("0.4", userConfigIni.exists());
 
-		assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
 
-		// remove the bundle from the dropins and reconcile
-		delete(dropins);
+			// remove the bundle from the dropins and reconcile
+			delete(dropins);
 
-		reconcileReadOnly("0.21");
-		assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
-
-		cleanupReadOnlyInstall();
+			reconcileReadOnly("0.21");
+			assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
+		} finally {
+			delete(dropins);
+			cleanupReadOnlyInstall();
+		}
 	}
 }
