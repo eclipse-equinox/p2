@@ -222,7 +222,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 		if (isDir(bd, info))
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		iu.addTouchpointData(processTouchpointAdvice(touchpointData, info));
+		processTouchpointAdvice(iu, touchpointData, info);
 
 		processPropertiesAdvice(iu, bd.getLocation(), info);
 		return MetadataFactory.createInstallableUnit(iu);
@@ -280,16 +280,19 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Merges all touchpoint advice into the current set of touchpoint data.
+	 * Adds all applicable touchpoint advice to the given installable unit.
+	 * @param iu The installable unit to add touchpoint advice to
+	 * @param currentInstructions The set of touchpoint instructions assembled for this IU so far
+	 * @param info The publisher info
 	 */
-	private static TouchpointData processTouchpointAdvice(Map currentInstructions, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, ITouchpointAdvice.class);
+	private static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
 		TouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
 			result = entry.getTouchpointData(result);
 		}
-		return result;
+		iu.addTouchpointData(result);
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {

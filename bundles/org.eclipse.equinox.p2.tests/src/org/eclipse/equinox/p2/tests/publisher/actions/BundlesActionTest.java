@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
 import java.util.zip.ZipInputStream;
-import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -62,7 +61,7 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST2_PROVX_NAMESPACE = JAVA_PACKAGE;
 	private static final String TEST1_PROVZ_NAMESPACE = JAVA_PACKAGE;
 
-	private final Version TEST1_BUNDLE_VERSION = new Version("0.1.0");//$NON-NLS-1$
+	private final Version BUNDLE1_VERSION = new Version("0.1.0");//$NON-NLS-1$
 	private final Version BUNDLE2_VERSION = new Version("1.0.0.qualifier");//$NON-NLS-1$
 	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
 	private final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
@@ -75,11 +74,12 @@ public class BundlesActionTest extends ActionTest {
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 
-	private Capture<ITouchpointAdvice> tpAdvice;
+	private MultiCapture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
 
 	@Override
 	public void setupPublisherInfo() {
-		tpAdvice = new Capture<ITouchpointAdvice>();
+		tpAdvice1 = new MultiCapture<ITouchpointAdvice>();
+		tpAdvice2 = new MultiCapture<ITouchpointAdvice>();
 		super.setupPublisherInfo();
 	}
 
@@ -121,7 +121,7 @@ public class BundlesActionTest extends ActionTest {
 		IInstallableUnit bundle1IU = (IInstallableUnit) ius.get(0);
 
 		assertNotNull("1.0", bundle1IU);
-		assertEquals("1.1", bundle1IU.getVersion(), TEST1_BUNDLE_VERSION);
+		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
 		RequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
@@ -130,8 +130,8 @@ public class BundlesActionTest extends ActionTest {
 
 		// check provided capabilities
 		ProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
-		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, TEST1_BUNDLE_VERSION);
-		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, TEST1_BUNDLE_VERSION);
+		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
+		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertEquals("2.1", 4, providedCapabilities.length);
@@ -179,6 +179,20 @@ public class BundlesActionTest extends ActionTest {
 		Map prop = bundle2IU.getProperties();
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
+
+		TouchpointData[] data = bundle2IU.getTouchpointData();
+		boolean found = false;
+		for (int i = 0; i < data.length; i++) {
+			TouchpointInstruction configure = data[i].getInstruction("configure");
+			if (configure == null)
+				continue;
+			String body = configure.getBody();
+			if (body != null && body.indexOf("download.eclipse.org/releases/ganymede") > 0) {
+				found = true;
+			}
+		}
+		assertFalse("3.0", found);
+
 	}
 
 	public void cleanup() {
@@ -208,14 +222,16 @@ public class BundlesActionTest extends ActionTest {
 		adviceCollection.add(bundleAdvice);
 		expect(publisherInfo.getAdvice(null, false, null, null, IBundleAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, TEST1_PROVBUNDLE_NAME, new Version("0.1.0"), IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, new Version("1.0.0.qualifier"), IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, true, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, null, null, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
 
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
-		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION), capture(tpAdvice1)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION), capture(tpAdvice2)));
 		EasyMock.expectLastCall().anyTimes();
-		expect(publisherInfo.getAdvice(null, false, null, null, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ITouchpointAdvice.class)).andReturn(tpAdvice1).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ITouchpointAdvice.class)).andReturn(tpAdvice2).anyTimes();
 	}
 }

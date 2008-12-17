@@ -1,11 +1,18 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.osgi.framework.Version;
@@ -22,8 +29,11 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	public static final IPath BUNDLE_ADVICE_FILE = new Path("META-INF/p2.inf"); //$NON-NLS-1$
 
 	private static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
-	private IPath basePath;
+	private final IPath basePath;
 	private final IPath adviceFilePath;
+
+	private final String id;
+	private final Version version;
 
 	/**
 	 * Creates advice for an advice file at the given location. If <tt>basePath</tt>
@@ -32,10 +42,19 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	 * <tt>adviceFilePath</tt> is used to 
 	 * @param id The symbolic id of the installable unit this advice applies to
 	 * @param version The version of the installable unit this advice applies to
-	 * @param basePath
-	 * @param adviceFilePath
+	 * @param basePath The root location of the the advice file. This is either the location of
+	 * the jar containing the advice, or a directory containing the advice file
+	 * @param adviceFilePath The location of the advice file within the base path. This is
+	 * either the path of a jar entry, or the path of the advice file within the directory
+	 * specified by the base path.
 	 */
 	public AdviceFileAdvice(String id, Version version, IPath basePath, IPath adviceFilePath) {
+		Assert.isNotNull(id);
+		Assert.isNotNull(version);
+		Assert.isNotNull(basePath);
+		Assert.isNotNull(adviceFilePath);
+		this.id = id;
+		this.version = version;
 		this.basePath = basePath;
 		this.adviceFilePath = adviceFilePath;
 	}
@@ -94,7 +113,9 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		}
 	}
 
-	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
+	public boolean isApplicable(String configSpec, boolean includeDefault, String candidateId, Version candidateVersion) {
+		if (!id.equals(candidateId) || !version.equals(candidateVersion))
+			return false;
 		// only process this advice if there is an advice file present
 		File location = basePath.toFile();
 		if (!location.isDirectory())
@@ -117,7 +138,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 					Object previous = touchpointData.get(phase);
 					instruction = previous instanceof TouchpointInstruction ? ((TouchpointInstruction) previous).getBody() : (String) previous;
 					if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
-						instruction += ";"; //$NON-NLS-1$
+						instruction += ';';
 				}
 				instruction += ((String) bundleAdvice.get(key)).trim();
 				touchpointData.put(phase, instruction);
