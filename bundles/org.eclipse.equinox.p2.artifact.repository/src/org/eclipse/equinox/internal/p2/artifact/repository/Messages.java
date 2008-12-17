@@ -46,6 +46,8 @@ public class Messages extends NLS {
 	public static String exception_needSourceDestination;
 	public static String exception_malformedRepoURI;
 	public static String exception_unsupportedAddToComposite;
+
+	public static String exception_unsupportedGetOutputStream;
 	public static String exception_unsupportedRemoveFromComposite;
 
 	public static String Mirroring_NO_MATCHING_DESCRIPTOR;

@@ -126,38 +126,47 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	/**
-	 * Composite repositories should be unable to directly modify their sub repositories
+	 * Composite repositories should be unable to directly modify their child repositories
 	 */
 	public synchronized void addDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
-	 * Composite repositories should be unable to directly modify their sub repositories
+	 * Composite repositories should be unable to directly modify their child repositories
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
-	 * Composite repositories should be unable to directly modify their sub repositories
+	 * Composite repositories should be unable to directly modify their child repositories
 	 */
 	public void removeDescriptor(IArtifactKey key) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
-	 * Composite repositories should be unable to directly modify their sub repositories
+	 * Composite repositories should be unable to directly modify their child repositories
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
-	 * Composite repositories should be unable to directly modify their sub repositories
+	 * Composite repositories should be unable to directly modify their child repositories
 	 */
 	public synchronized void removeAll() {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
+	}
+
+	/**
+	 * Composite repositories should be unable to directly modify their child repositories,
+	 * Composite repositories should not have their own content.
+	 * Therefore, they should not be allowed to have OutputStreams
+	 */
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+		throw new UnsupportedOperationException(Messages.exception_unsupportedGetOutputStream);
 	}
 
 	public boolean contains(IArtifactKey key) {
