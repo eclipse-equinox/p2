@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.ant;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
@@ -196,5 +198,17 @@ public class GeneratorTask extends Task {
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setVersionAdvice(advice);
+	}
+
+	public void setSite(String site) {
+		if (site == null || site.startsWith("${")) //$NON-NLS-1$
+			return;
+		if (provider == null)
+			provider = new EclipseInstallGeneratorInfoProvider();
+		try {
+			provider.setSiteLocation(new URL(site));
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("The specified location (" + site + ") is not a valid URL."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 }
