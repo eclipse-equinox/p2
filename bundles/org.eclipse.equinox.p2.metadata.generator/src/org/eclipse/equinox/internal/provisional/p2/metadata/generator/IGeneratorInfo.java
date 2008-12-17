@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.File;
-import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -56,6 +56,8 @@ public interface IGeneratorInfo {
 	 */
 	public ConfigData getConfigData();
 
+	public File getConfigurationLocation();
+
 	public ArrayList getDefaultIUs(Set ius);
 
 	public File getExecutableLocation();
@@ -63,6 +65,8 @@ public interface IGeneratorInfo {
 	public File getFeaturesLocation();
 
 	public String getFlavor();
+
+	public boolean getIsUpdateCompatible();
 
 	public File getJRELocation();
 
@@ -73,6 +77,8 @@ public interface IGeneratorInfo {
 	public String getLauncherConfig();
 
 	public LauncherData getLauncherData();
+
+	public String[][] getMappingRules();
 
 	public IMetadataRepository getMetadataRepository();
 
@@ -89,7 +95,7 @@ public interface IGeneratorInfo {
 	 * generating for an update site.
 	 * @return The location of site.xml, or <code>null</code>
 	 */
-	public URI getSiteLocation();
+	public URL getSiteLocation();
 
 	public boolean publishArtifactRepository();
 
@@ -102,6 +108,8 @@ public interface IGeneratorInfo {
 	public void setArtifactRepository(IArtifactRepository value);
 
 	public void setFlavor(String value);
+
+	public void setIsUpdateCompatible(boolean isCompatible);
 
 	public void setMetadataRepository(IMetadataRepository value);
 

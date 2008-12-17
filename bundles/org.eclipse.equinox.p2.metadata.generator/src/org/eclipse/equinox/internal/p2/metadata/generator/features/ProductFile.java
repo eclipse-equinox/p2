@@ -60,6 +60,7 @@ public class ProductFile extends DefaultHandler {
 	private static final String LAUNCHER_ARGS = "launcherArgs"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
+	private static final String SPLASH = "splash"; //$NON-NLS-1$
 	private static final String P_USE_ICO = "useIco"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
@@ -87,6 +88,9 @@ public class ProductFile extends DefaultHandler {
 	private String currentOS = null;
 	private boolean useIco = false;
 	private final ArrayList result = new ArrayList(6);
+	private String launcherName = null;
+	private String icons[] = null;
+	private String configPath = null;
 	private final Map platformSpecificConfigPaths = new HashMap();
 	private String configPlatform = null;
 	private String platformConfigPath = null;
@@ -95,7 +99,9 @@ public class ProductFile extends DefaultHandler {
 	private List plugins = null;
 	private List fragments = null;
 	private List features = null;
+	private String splashLocation = null;
 	private String productName = null;
+	private String application = null;
 	private String version = null;
 
 	private Properties launcherArgs = new Properties();
@@ -130,6 +136,10 @@ public class ProductFile extends DefaultHandler {
 		//		}
 	}
 
+	public String getLauncherName() {
+		return launcherName;
+	}
+
 	public List getPlugins() {
 		return getPlugins(true);
 	}
@@ -150,18 +160,63 @@ public class ProductFile extends DefaultHandler {
 		return both;
 	}
 
+	public List getFragments() {
+		if (fragments == null)
+			return Collections.EMPTY_LIST;
+		return fragments;
+	}
+
 	public List getFeatures() {
 		if (features == null)
 			return Collections.EMPTY_LIST;
 		return features;
 	}
 
+	public boolean containsPlugin(String plugin) {
+		return (plugins != null && plugins.contains(plugin)) || (fragments != null && fragments.contains(plugin));
+	}
+
+	/**
+	 * Parses the specified url and constructs a feature
+	 */
+	public String[] getIcons() {
+		if (icons != null)
+			return icons;
+		String[] temp = new String[result.size()];
+		int i = 0;
+		for (Iterator iter = result.iterator(); iter.hasNext();) {
+			String element = (String) iter.next();
+			if (element != null)
+				temp[i++] = element;
+		}
+		icons = new String[i];
+		System.arraycopy(temp, 0, icons, 0, i);
+		return icons;
+	}
+
+	public String getConfigIniPath() {
+		return configPath;
+	}
+
+	public String getConfigIniPath(String os) {
+		String specific = (String) platformSpecificConfigPaths.get(os);
+		return specific == null ? configPath : specific;
+	}
+
 	public String getId() {
 		return id;
 	}
 
+	public String getSplashLocation() {
+		return splashLocation;
+	}
+
 	public String getProductName() {
 		return productName;
+	}
+
+	public String getApplication() {
+		return application;
 	}
 
 	public boolean useFeatures() {
@@ -240,6 +295,8 @@ public class ProductFile extends DefaultHandler {
 					state = STATE_FEATURES;
 				} else if (LAUNCHER_ARGS.equals(localName)) {
 					state = STATE_LAUNCHER_ARGS;
+				} else if (SPLASH.equals(localName)) {
+					splashLocation = attributes.getValue("location"); //$NON-NLS-1$
 				}
 				break;
 
@@ -415,6 +472,7 @@ public class ProductFile extends DefaultHandler {
 	private void processProduct(Attributes attributes) {
 		id = attributes.getValue("id"); //$NON-NLS-1$
 		productName = attributes.getValue("name"); //$NON-NLS-1$
+		application = attributes.getValue("application"); //$NON-NLS-1$
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
 			useFeatures = Boolean.valueOf(use).booleanValue();
@@ -432,7 +490,7 @@ public class ProductFile extends DefaultHandler {
 			if (path != null)
 				platformSpecificConfigPaths.put(os, path);
 		} else if (path != null) {
-			//			configPath = path;
+			configPath = path;
 		}
 	}
 
@@ -447,7 +505,7 @@ public class ProductFile extends DefaultHandler {
 	}
 
 	private void processLauncher(Attributes attributes) {
-		//
+		launcherName = attributes.getValue("name"); //$NON-NLS-1$
 	}
 
 	private boolean osMatch(String os) {

@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import java.io.ByteArrayInputStream;
+import org.eclipse.equinox.internal.p2.core.helpers.Headers;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class GeneratorBundleInfo extends BundleInfo {
 	//	public static final int NO_LEVEL = -1;
@@ -139,4 +144,18 @@ public class GeneratorBundleInfo extends BundleInfo {
 		buffer.append(')');
 		return buffer.toString();
 	}
+
+	public void initFromManifest(String manifest) {
+		try {
+			super.setManifest(manifest);
+			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
+			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+			super.setSymbolicName(element[0].getValue());
+			super.setVersion((String) headers.get(Constants.BUNDLE_VERSION));
+		} catch (BundleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

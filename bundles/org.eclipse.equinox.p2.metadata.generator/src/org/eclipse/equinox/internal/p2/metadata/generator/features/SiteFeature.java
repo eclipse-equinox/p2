@@ -14,8 +14,7 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A reference to a feature in an update site.xml file.
@@ -24,15 +23,23 @@ import java.util.List;
  */
 public class SiteFeature {
 
+	private String arch;
 	// performance
 	private URL base;
 	private List /* of String*/categoryNames;
 	private String featureId;
 	private String featureVersion;
+	private String label;
+	private String nl;
 
+	private String os;
+	private String patch;
 	private final boolean resolved = false;
+	private SiteModel site;
+	private String type;
 	private URL url;
 	private String urlString;
+	private String ws;
 
 	/*
 	 * Compares two URL for equality
@@ -152,6 +159,79 @@ public class SiteFeature {
 	}
 
 	/**
+	 * Retrieve the displayable label for the feature reference. If the model
+	 * object has been resolved, the label is localized.
+	 *
+	 * @return displayable label, or <code>null</code>.
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * Retrieve the non-localized displayable label for the feature reference.
+	 *
+	 * @return non-localized displayable label, or <code>null</code>.
+	 */
+	public String getLabelNonLocalized() {
+		return label;
+	}
+
+	/**
+	 * Get optional locale specification as a comma-separated string.
+	 *
+	 * @return the locale specification string, or <code>null</code>.
+	 */
+	public String getNL() {
+		return nl;
+	}
+
+	/**
+	 * Get optional operating system specification as a comma-separated string.
+	 *
+	 * @return the operating system specification string, or <code>null</code>.
+	 */
+	public String getOS() {
+		return os;
+	}
+
+	/**
+	 * Get optional system architecture specification as a comma-separated string.
+	 *
+	 * @return the system architecture specification string, or <code>null</code>.
+	 */
+	public String getOSArch() {
+		return arch;
+	}
+
+	/**
+	 * Returns the patch mode.
+	 */
+	public String getPatch() {
+		return patch;
+	}
+
+	/**
+	 * Returns the site model for the reference.
+	 * 
+	 * @return site model
+	 * @since 2.0
+	 */
+	public SiteModel getSiteModel() {
+		return site;
+	}
+
+	/**
+	 * Returns the referenced feature type.
+	 * 
+	 * @return feature type, or <code>null</code> representing the default
+	 * feature type for the site
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
 	 * Returns the resolved URL for the feature reference.
 	 * 
 	 * @return url string
@@ -159,6 +239,62 @@ public class SiteFeature {
 	public URL getURL() {
 		delayedResolve();
 		return url;
+	}
+
+	/**
+	 * Returns the unresolved URL string for the reference.
+	 *
+	 * @return url string
+	 */
+	public String getURLString() {
+		return urlString;
+	}
+
+	/**
+	 * Get optional windowing system specification as a comma-separated string.
+	 *
+	 * @return the windowing system specification string, or <code>null</code>.
+	 */
+	public String getWS() {
+		return ws;
+	}
+
+	/**
+	 * Resolve the model object.
+	 * Any URL strings in the model are resolved relative to the 
+	 * base URL argument. Any translatable strings in the model that are
+	 * specified as translation keys are localized using the supplied 
+	 * resource bundle.
+	 * 
+	 * @param resolveBase URL
+	 * @param bundleURL resource bundle URL
+	 * @exception MalformedURLException
+	 */
+	public void resolve(URL resolveBase, URL bundleURL) throws MalformedURLException {
+		this.base = resolveBase;
+	}
+
+	/**
+	 * Sets the system architecture specification.
+	 * Throws a runtime exception if this object is marked read-only.
+	 *
+	 * @param arch system architecture specification as a comma-separated list
+	 */
+	public void setArch(String arch) {
+		this.arch = arch;
+	}
+
+	/**
+	 * Sets the names of categories this feature belongs to.
+	 * Throws a runtime exception if this object is marked read-only.
+	 * 
+	 * @param categoryNames an array of category names
+	 */
+	public void setCategoryNames(String[] categoryNames) {
+		if (categoryNames == null)
+			this.categoryNames = null;
+		else
+			this.categoryNames = new ArrayList(Arrays.asList(categoryNames));
 	}
 
 	/**
@@ -182,6 +318,61 @@ public class SiteFeature {
 	}
 
 	/**
+	 * Sets the label.
+	 * @param label The label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * Sets the locale specification.
+	 * Throws a runtime exception if this object is marked read-only.
+	 *
+	 * @param nl locale specification as a comma-separated list
+	 */
+	public void setNL(String nl) {
+		this.nl = nl;
+	}
+
+	/**
+	 * Sets the operating system specification.
+	 * Throws a runtime exception if this object is marked read-only.
+	 *
+	 * @param os operating system specification as a comma-separated list
+	 */
+	public void setOS(String os) {
+		this.os = os;
+	}
+
+	/**
+	 * Sets the patch mode.
+	 */
+	public void setPatch(String patch) {
+		this.patch = patch;
+	}
+
+	/**
+	 * Sets the site for the referenced.
+	 * Throws a runtime exception if this object is marked read-only.
+	 * 
+	 * @param site site for the reference
+	 */
+	public void setSiteModel(SiteModel site) {
+		this.site = site;
+	}
+
+	/**
+	 * Sets the referenced feature type.
+	 * Throws a runtime exception if this object is marked read-only.
+	 * 
+	 * @param type referenced feature type
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	/**
 	 * Sets the unresolved URL for the feature reference.
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
@@ -190,6 +381,16 @@ public class SiteFeature {
 	public void setURLString(String urlString) {
 		this.urlString = urlString;
 		this.url = null;
+	}
+
+	/**
+	 * Sets the windowing system specification.
+	 * Throws a runtime exception if this object is marked read-only.
+	 *
+	 * @param ws windowing system specification as a comma-separated list
+	 */
+	public void setWS(String ws) {
+		this.ws = ws;
 	}
 
 	/**

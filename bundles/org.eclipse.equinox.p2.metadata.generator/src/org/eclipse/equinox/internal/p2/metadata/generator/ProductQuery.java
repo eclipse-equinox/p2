@@ -41,7 +41,7 @@ public class ProductQuery extends Query {
 				IInstallableUnit existing = (IInstallableUnit) elements.get(iu.getId());
 				if (existing.getVersion().compareTo(iu.getVersion()) >= 0)
 					return true;
-				getCollection().remove(existing);
+				getList().remove(existing);
 			}
 			elements.put(iu.getId(), iu);
 			return super.accept(object);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.features;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -19,10 +22,40 @@ import java.util.Map;
  */
 public class SiteCategory {
 
+	private static Comparator comp;
 	private String description;
 	private String label;
 	private String name;
 	private Map localizations;
+
+	/**
+	 * Returns a comparator for category models.
+	 * 
+	 * @return comparator
+	 * @since 2.0
+	 */
+	public static Comparator getComparator() {
+		if (comp == null) {
+			comp = new Comparator() {
+				/*
+				 * @see Comparator#compare(Object,Object)
+				 * Returns 0 if versions are equal.
+				 * Returns -1 if object1 is after than object2.
+				 * Returns +1 if object1 is before than object2.
+				 */
+				public int compare(Object o1, Object o2) {
+
+					SiteCategory cat1 = (SiteCategory) o1;
+					SiteCategory cat2 = (SiteCategory) o2;
+
+					if (cat1.equals(cat2))
+						return 0;
+					return cat1.getName().compareTo(cat2.getName());
+				}
+			};
+		}
+		return comp;
+	}
 
 	/**
 	 * Creates an uninitialized model object.
@@ -97,6 +130,26 @@ public class SiteCategory {
 	 */
 	public int hashCode() {
 		return getName().hashCode();
+	}
+
+	/**
+	 * Resolve the model object.
+	 * Any URL strings in the model are resolved relative to the 
+	 * base URL argument. Any translatable strings in the model that are
+	 * specified as translation keys are localized using the supplied 
+	 * resource bundle.
+	 * 
+	 * @param base URL
+	 * @param bundleURL resource bundle URL
+	 * @exception MalformedURLException
+	 * @since 2.0
+	 */
+	public void resolve(URL base, URL bundleURL) throws MalformedURLException {
+		// resolve local elements
+		//		localizedLabel = resolveNLString(bundleURL, label);
+
+		// delegate to references
+		//		resolveReference(getDescriptionModel(), base, bundleURL);
 	}
 
 	/**

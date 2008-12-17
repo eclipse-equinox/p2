@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.ant;
 
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IncrementalGenerator;
@@ -57,11 +57,7 @@ public class GeneratorTask extends Task {
 	public void setArtifactRepository(String location) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
-		try {
-			generator.setArtifactLocation(URIUtil.fromString(location));
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Specified artifact repository location (" + location + ") is not a valid URI. ");
-		}
+		generator.setArtifactLocation(location);
 	}
 
 	public void setArtifactRepositoryName(String name) {
@@ -139,11 +135,7 @@ public class GeneratorTask extends Task {
 	public void setMetadataRepository(String location) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
-		try {
-			generator.setMetadataLocation(URIUtil.fromString(location));
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Specified metadata repository location (" + location + ") is not a valid URI. ");
-		}
+		generator.setMetadataLocation(location);
 	}
 
 	public void setMetadataRepositoryName(String name) {
@@ -206,5 +198,17 @@ public class GeneratorTask extends Task {
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setVersionAdvice(advice);
+	}
+
+	public void setSite(String site) {
+		if (site == null || site.startsWith("${")) //$NON-NLS-1$
+			return;
+		if (provider == null)
+			provider = new EclipseInstallGeneratorInfoProvider();
+		try {
+			provider.setSiteLocation(new URL(site));
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("The specified location (" + site + ") is not a valid URL."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 }

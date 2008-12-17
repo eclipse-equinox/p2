@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
@@ -29,11 +30,6 @@ import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
-/**
- * @deprecated The function in this class has been refactored into more focused locations
- * such as IPublisherAction and IPublishingAdvice classes.  See the individual method deprecations
- * for more information on where the code has moved.
- */
 public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -49,6 +45,13 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
 	private static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl"; //$NON-NLS-1$
+
+	/*
+	 * 	TODO: Temporary for determining whether eclipse installs
+	 * 		  in a profile should support backward compatibility
+	 * 		  with update manager.
+	 */
+	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
 
 	private String os;
 
@@ -85,16 +88,18 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private String flavor;
 	private ServiceTracker frameworkAdminTracker;
 	private Manipulator manipulator;
+	private String[][] mappingRules;
 	private IMetadataRepository metadataRepository;
 	private boolean publishArtifactRepo = false;
 	private boolean publishArtifacts = false;
+	private boolean updateCompatibility = Boolean.valueOf(System.getProperty(UPDATE_COMPATIBILITY, "false")).booleanValue(); //$NON-NLS-1$
 	private String rootId;
 	private String rootVersion;
 	private String productFile = null;
 	private String launcherConfig;
 	private String versionAdvice;
 
-	private URI siteLocation;
+	private URL siteLocation;
 
 	private boolean reuseExistingPack200Files = false;
 
@@ -110,9 +115,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return append;
 	}
 
-	/** 
-	 * @deprecated moved to DefaultCUsAction
-	 */
 	protected GeneratorBundleInfo createDefaultConfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultConfigure"); //$NON-NLS-1$
@@ -123,9 +125,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	/** 
-	 * @deprecated moved to DefaultCUsAction
-	 */
 	protected GeneratorBundleInfo createDefaultUnconfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultUnconfigure"); //$NON-NLS-1$
@@ -138,7 +137,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	/**
 	 * Obtains the framework manipulator instance. Throws an exception
 	 * if it could not be created.
-	 * @deprecated see DataLoader
 	 */
 	private void createFrameworkManipulator() {
 		FrameworkAdmin admin = getFrameworkAdmin();
@@ -149,9 +147,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			throw new RuntimeException("Framework manipulator not found"); //$NON-NLS-1$
 	}
 
-	/** 
-	 * @deprecated moved to EquinoxLauncherData
-	 */
 	public static GeneratorBundleInfo createLauncher() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("org.eclipse.equinox.launcher"); //$NON-NLS-1$
@@ -162,9 +157,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	/** 
-	 * @deprecated moved to EquinoxLauncherCUAction
-	 */
 	private Collection createLauncherBundleInfo(Set ius) {
 		Collection result = new HashSet();
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher."); //$NON-NLS-1$
@@ -182,9 +174,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	/**
-	 * @deprecated moved to EclipseInstallAction (perhaps it will be somewhere more general...)
-	 */
 	private GeneratorBundleInfo createSimpleConfiguratorBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
@@ -194,9 +183,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	/**
-	 * @deprecated moved to EclipseInstallAction (perhaps it will be somewhere more general...)
-	 */
 	private GeneratorBundleInfo createDropinsReconcilerBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS);
@@ -207,9 +193,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private void expandBundleLocations() {
 		if (bundleLocations == null) {
 			bundleLocations = new File[] {};
@@ -245,9 +228,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return manipulator == null ? null : manipulator.getConfigData();
 	}
 
-	/**
-	 * @deprecated moved to DataLoader
-	 */
 	public ConfigData loadConfigData(File location) {
 		if (manipulator == null)
 			return null;
@@ -258,12 +238,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
 		}
 
 		ConfigData data = manipulator.getConfigData();
-		String value = data.getProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
 		if (value != null) {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
@@ -276,7 +254,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			}
 
 			try {
-				data.setProperty(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
+				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
 			} catch (MalformedURLException e) {
 				//ignore
 			}
@@ -285,19 +263,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return data;
 	}
 
-	/**
-	 * @deprecated moved to DataLoader
-	 */
 	public static BundleInfo[] readConfiguration(URL url) throws IOException {
 		List bundles = new ArrayList();
 		try {
-			// System.out.println("readConfiguration(URL url):url()=" + url);
-			// URL configFileUrl = getConfigFileUrl();
-			// URL configFileUrl = Utils.getUrl("file",null,
-			// inputFile.getAbsolutePath());
 			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
-			// BufferedReader r = new BufferedReader(new FileReader(inputFile));
-
 			String line;
 			try {
 				URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
@@ -347,15 +316,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 					tok.nextToken(); // ,
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 
-					BundleInfo bInfo;
-					try {
-						bInfo = new BundleInfo(symbolicName, version, new URI(urlSt), sl, markedAsStarted);
-
-						bundles.add(bInfo);
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-						throw new IllegalStateException("Error coverting url based string to uri: " + e.getMessage());
-					}
+					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+					bundles.add(bInfo);
 				}
 			} finally {
 				try {
@@ -370,9 +332,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
-	/**
-	 * @deprecated logic moved to EclipseInstallAction (and related actions)
-	 */
+	public File getConfigurationLocation() {
+		return configLocation;
+	}
+
 	public ArrayList getDefaultIUs(Set ius) {
 		if (defaultIUs != null)
 			return defaultIUs;
@@ -390,9 +353,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	// TODO: This is kind of ugly. It's purpose is to allow us to craft CUs that we know about and need for our build
 	// We should try to replace this with something more generic prior to release
-	/**
-	 * @deprecated this has been replaced with RootIUAdvice and related things
-	 */
 	public Collection getOtherIUs() {
 		if (otherIUs != null)
 			return otherIUs;
@@ -414,9 +374,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return flavor == null ? "tooling" : flavor; //$NON-NLS-1$
 	}
 
-	/**
-	 * @deprecated moved to DataLoader
-	 */
 	private FrameworkAdmin getFrameworkAdmin() {
 		if (frameworkAdminTracker == null) {
 			try {
@@ -441,6 +398,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			admin = (FrameworkAdmin) frameworkAdminTracker.getService();
 		}
 		return admin;
+	}
+
+	public boolean getIsUpdateCompatible() {
+		return updateCompatibility;
 	}
 
 	private Collection getIUs(Set ius, String prefix) {
@@ -468,6 +429,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return manipulator == null ? null : manipulator.getLauncherData();
 	}
 
+	public String[][] getMappingRules() {
+		return mappingRules;
+	}
+
 	public IMetadataRepository getMetadataRepository() {
 		return metadataRepository;
 	}
@@ -486,7 +451,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return productFile;
 	}
 
-	public URI getSiteLocation() {
+	public URL getSiteLocation() {
 		return siteLocation;
 	}
 
@@ -575,11 +540,16 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		flavor = value;
 	}
 
+	public void setIsUpdateCompatible(boolean isCompatible) {
+		this.updateCompatibility = isCompatible;
+	}
+
 	public void setLauncherConfig(String value) {
 		launcherConfig = value;
 	}
 
 	public void setMappingRules(String[][] value) {
+		mappingRules = value;
 	}
 
 	public void setMetadataRepository(IMetadataRepository value) {
@@ -613,7 +583,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	/**
 	 * Sets the location of site.xml if applicable.
 	 */
-	public void setSiteLocation(URI location) {
+	public void setSiteLocation(URL location) {
 		this.siteLocation = location;
 	}
 

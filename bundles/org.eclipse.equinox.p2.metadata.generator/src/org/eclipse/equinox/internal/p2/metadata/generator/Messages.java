@@ -14,11 +14,14 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.generator.messages";//$NON-NLS-1$
 
 	public static String exception_errorConverting;
+	public static String exception_outputStream;
 	public static String exception_errorParsingUpdateSite;
 	public static String exception_stateAddition;
 	public static String exception_sourceDirectoryInvalid;
+	public static String exception_artifactRepoLocationURL;
 	public static String exception_artifactRepoNotWritable;
 	public static String exception_artifactRepoNotSpecified;
+	public static String exception_metadataRepoLocationURL;
 	public static String exception_metadataRepoNotWritable;
 	public static String exception_metadataRepoNotSpecified;
 	public static String exception_baseLocationNotSpecified;
