@@ -207,4 +207,17 @@ public class GeneratorTask extends Task {
 			provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setVersionAdvice(advice);
 	}
+
+	public void setSite(String site) {
+		if (site == null || site.startsWith("${")) //$NON-NLS-1$
+			return;
+		if (provider == null)
+			provider = new EclipseInstallGeneratorInfoProvider();
+		try {
+			provider.setSiteLocation(URIUtil.fromString(site));
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("The specified location (" + site + ") is not a valid URI."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+	}
 }
