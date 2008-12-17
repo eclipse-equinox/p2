@@ -13,7 +13,8 @@ package org.eclipse.equinox.internal.p2.artifact.mirror;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
@@ -63,7 +64,8 @@ public class MirrorApplication implements IApplication {
 		mirroring.setBaseline(baseline);
 
 		IStatus result = mirroring.run(failOnError, verbose);
-		if (verbose && !result.isOK()) {
+		if (!result.isOK()) {
+			//only noteworthy statuses should be resulted from mirroring.run
 			System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
 			FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
 			if (log != null)

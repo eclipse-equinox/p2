@@ -69,7 +69,8 @@ public class Mirroring {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IStatus result = mirror(descriptors[j], verbose);
-				if (!result.isOK())
+				//Only log INFO and WARNING if we want verbose logging. Always log ERRORs
+				if (!result.isOK() && (verbose || result.getSeverity() == IStatus.ERROR))
 					multiStatus.add(result);
 				//stop mirroring as soon as we have an error
 				if (failOnError && multiStatus.getSeverity() == IStatus.ERROR)
