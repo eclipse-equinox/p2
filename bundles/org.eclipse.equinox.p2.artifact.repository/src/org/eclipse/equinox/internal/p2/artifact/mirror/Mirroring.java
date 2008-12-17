@@ -107,7 +107,7 @@ public class Mirroring {
 							try {
 								output = destination.getOutputStream(baselineDescriptor);
 								//download artifact from baseline
-								status.add(baseline.getRawArtifact(baselineDescriptor, output, new NullProgressMonitor()));
+								status.add(downloadArtifact(baseline, baselineDescriptor, output));
 								return status;
 							} catch (ProvisionException e) {
 								if (e.getStatus().getCode() == ProvisionException.ARTIFACT_EXISTS)
@@ -119,7 +119,8 @@ public class Mirroring {
 					}
 
 				output = destination.getOutputStream(newDescriptor);
-				return source.getRawArtifact(descriptor, output, new NullProgressMonitor());
+				return downloadArtifact(source, descriptor, output);
+
 			} finally {
 				if (output != null) {
 					try {
@@ -160,5 +161,15 @@ public class Mirroring {
 		if (destDescriptor == null)
 			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, e);
 		return getComparator().compare(source, descriptor, destination, destDescriptor);
+	}
+
+	private IStatus downloadArtifact(IArtifactRepository repo, IArtifactDescriptor descriptor, OutputStream output) {
+		IStatus status = Status.OK_STATUS;
+		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
+		// TODO this needs to be redone with a much better mirror management scheme.
+		do {
+			status = repo.getRawArtifact(descriptor, output, new NullProgressMonitor());
+		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
+		return status;
 	}
 }
