@@ -98,10 +98,6 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			assertTrue(page1.isPageComplete());
 			assertFalse(page2.isPageComplete());
 			job.cancel();
-			// relies on immediate response from job
-			wizard.getNextPage(page1);
-			assertTrue("Investigate job cancellation problem in test", page1.isPageComplete());
-			assertTrue(page2.isPageComplete());
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();

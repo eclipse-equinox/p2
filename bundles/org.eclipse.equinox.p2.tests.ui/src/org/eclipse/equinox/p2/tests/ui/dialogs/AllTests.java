@@ -23,8 +23,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(InstalledSoftwarePageTest.class);
 		suite.addTestSuite(UpdateWizardTest.class);
 		suite.addTestSuite(UninstallWizardTest.class);
-		suite.addTestSuite(ManageSitesTest.class);
-
 		return suite;
 	}
 }
