@@ -95,7 +95,7 @@ public class ArtifactKey implements IArtifactKey {
 	}
 
 	public String toString() {
-		return id + '/' + classifier + '/' + getVersion();
+		return classifier + SEPARATOR + id + SEPARATOR + getVersion();
 	}
 
 	public boolean equals(Object obj) {
