@@ -13,11 +13,11 @@ package org.eclipse.equinox.p2.tests.mirror;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -1247,6 +1247,68 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertLogContainsLine(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
 			fail("error verifying output", e);
+		}
+	}
+
+	//for Bug 259111
+	public void testDownloadRetry() {
+		//repository that is known to force a retry
+		class TestRetryArtifactRepository extends SimpleArtifactRepository {
+			public boolean firstAttempt = true;
+			IArtifactRepository source;
+
+			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map properties, IArtifactRepositoryManager manager) {
+				super(repositoryName, location, properties);
+
+				//initialize
+				try {
+					source = manager.loadRepository(srcLocation, null);
+				} catch (ProvisionException e) {
+					fail("Unable to load source for wrapping", e);
+				}
+				manager.removeRepository(srcLocation);
+			}
+
+			public synchronized IArtifactKey[] getArtifactKeys() {
+				return source.getArtifactKeys();
+			}
+
+			public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+				return source.getArtifactDescriptors(key);
+			}
+
+			public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+				if (firstAttempt) {
+					firstAttempt = false;
+					return new Status(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, "Forcing Retry", new ProvisionException("Forcing retry"));
+				}
+
+				return source.getRawArtifact(descriptor, destination, monitor);
+			}
+		}
+
+		//set up test repository
+		File retryRepoLoaction = new File(getTempFolder(), "259111 Repo");
+		IArtifactRepository retryRepo = new TestRetryArtifactRepository("Test Repo", retryRepoLoaction.toURI(), sourceRepoLocation.toURI(), null, getArtifactRepositoryManager());
+		((ArtifactRepositoryManager) getArtifactRepositoryManager()).addRepository(retryRepo);
+
+		try {
+			String[] args = new String[] {"-source", URIUtil.toUnencodedString(retryRepo.getLocation()), "-destination", destRepoLocation.toURL().toExternalForm()};
+			//run the mirror application
+			runMirrorApplication("Forcing Retry", args);
+		} catch (MalformedURLException e) {
+			fail("Error creating arguments", e);
+		} catch (Exception e) {
+			fail("Error while running Mirror Application and forcing retry", e);
+		}
+
+		//ensure error was resulted
+		assertFalse(((TestRetryArtifactRepository) retryRepo).firstAttempt);
+		try {
+			//verify destination's content
+			assertContentEquals("Verifying content", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		} catch (ProvisionException e) {
+			fail("Failure while verifying destination", e);
 		}
 	}
 }
