@@ -23,6 +23,7 @@ public class Messages extends NLS {
 	public static String error_saving_source_bundles_list;
 	public static String error_parsing_configuration;
 	public static String generator_not_available;
+	public static String artifact_write_unsupported;
 	public static String artifact_file_not_found;
 	public static String artifact_retrieval_unsupported;
 	public static String bundle_pool_not_writeable;

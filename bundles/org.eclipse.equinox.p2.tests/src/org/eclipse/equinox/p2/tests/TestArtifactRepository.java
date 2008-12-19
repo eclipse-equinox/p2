@@ -172,4 +172,8 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	public boolean isModifiable() {
 		return true;
 	}
+
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+		throw new UnsupportedOperationException("Method is not implemented by this repository");
+	}
 }

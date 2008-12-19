@@ -14,13 +14,10 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
-import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
@@ -40,11 +37,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 
 	public abstract IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor);
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-		if (!isModifiable())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.repoReadOnly, getLocation())));
-		return null;
-	}
+	public abstract OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
 
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		assertModifiable();
