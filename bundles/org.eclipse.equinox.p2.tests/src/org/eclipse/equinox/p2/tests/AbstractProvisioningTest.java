@@ -1143,12 +1143,35 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
+	/*
+	 * Search for partial matches in the log file. Assert that all of the specified strings
+	 * are found on a single line in the log file.
+	 */
+	public static void assertLogContainsLine(File log, String[] parts) throws IOException {
+		assertNotNull(log);
+		assertTrue(log.exists());
+		assertTrue(log.length() > 0);
+		assertNotNull(parts);
+		BufferedReader reader = new BufferedReader(new FileReader(log));
+		try {
+			while (reader.ready()) {
+				String line = reader.readLine();
+				boolean found = true;
+				for (int i = 0; i < parts.length; i++) {
+					found = found && line.contains(parts[i]);
+				}
+				if (found)
+					return;
+			}
+		} finally {
+			reader.close();
+		}
+		assertTrue(false);
+	}
+
 	/**
 	 * Assert that the given log file contains the given message
 	 * The message is expected to be contained on a single line
-	 * @param log
-	 * @param msg
-	 * @throws Exception
 	 */
 	public static void assertLogContainsLine(File log, String msg) throws Exception {
 		assertLogContainsLines(log, new String[] {msg});
@@ -1157,9 +1180,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Assert that the given log file contains the given lines
 	 * Lines are expected to appear in order
-	 * @param log
-	 * @param lines
-	 * @throws Exception
 	 */
 	public static void assertLogContainsLines(File log, String[] lines) throws Exception {
 		assertNotNull(log);
@@ -1168,16 +1188,51 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 		int idx = 0;
 		BufferedReader reader = new BufferedReader(new FileReader(log));
-		while (reader.ready()) {
-			String line = reader.readLine();
-			if (line.indexOf(lines[idx]) >= 0) {
-				if (++idx >= lines.length) {
-					reader.close();
-					return;
+		try {
+			while (reader.ready()) {
+				String line = reader.readLine();
+				if (line.indexOf(lines[idx]) >= 0) {
+					if (++idx >= lines.length) {
+						return;
+					}
 				}
 			}
+		} finally {
+			reader.close();
 		}
-		reader.close();
 		assertTrue(false);
+	}
+
+	/**
+	 * Assert that the given log file doesn't contain the given message
+	 * The message is expected to be contained on a single line
+	 */
+	public static void assertLogDoesNotContainLine(File log, String msg) throws Exception {
+		assertLogDoesNotContainLines(log, new String[] {msg});
+	}
+
+	/**
+	 * Assert that the given log file does not contain the given lines
+	 * Lines are expected to appear in order
+	 */
+	public static void assertLogDoesNotContainLines(File log, String[] lines) throws Exception {
+		assertNotNull(log);
+		assertTrue(log.exists());
+		assertTrue(log.length() > 0);
+
+		int idx = 0;
+		BufferedReader reader = new BufferedReader(new FileReader(log));
+		try {
+			while (reader.ready()) {
+				String line = reader.readLine();
+				if (line.indexOf(lines[idx]) >= 0) {
+					if (++idx >= lines.length) {
+						assertTrue(false);
+					}
+				}
+			}
+		} finally {
+			reader.close();
+		}
 	}
 }

@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -27,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -293,6 +295,22 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		runMirrorApplication(message + ".0", sourceRepoLocation, destRepoLocation, false);
 
 		return artifactMirrorEmpty(message + ".1", append); //create the empty repository, perform the mirror, pass the result back
+	}
+
+	/**
+	 * Runs mirror app on source with missing artifact with "-ignoreErrors"
+	 */
+	private void mirrorWithError(boolean verbose) {
+		File errorSourceLocation = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
+		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
+		try {
+			//Set ignoreErrors flag. Set verbose flag if verbose == true
+			String[] args = new String[] {"-source", errorSourceLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-ignoreErrors", verbose ? "-verbose" : ""};
+			//run the mirror application
+			runMirrorApplication("Running with errored source", args);
+		} catch (Exception e) {
+			fail("Running mirror application with errored source failed", e);
+		}
 	}
 
 	/**
@@ -1091,16 +1109,22 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 	//for Bug 250527
 	public void testIgnoreErrorsArguement() {
-		File errorSourceLocation = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
-		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
+		//Error prints to stderr, redirect that to a file
+		PrintStream oldErr = System.err;
+		PrintStream newErr = null;
 		try {
-			//Set ignoreErrors flag.
-			String[] args = new String[] {"-source", errorSourceLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-ignoreErrors"};
-			//run the mirror application
-			runMirrorApplication("Running with errored source", args);
-		} catch (Exception e) {
-			fail("Running mirror application with errored source failed", e);
+			destRepoLocation.mkdir();
+			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting outputs", e);
 		}
+		System.setErr(newErr);
+
+		//run test without verbose
+		mirrorWithError(false);
+
+		System.setErr(oldErr);
+		newErr.close();
 
 		try {
 			assertEquals("Verifying correct number of Keys", 1, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
@@ -1309,6 +1333,130 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContentEquals("Verifying content", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("Failure while verifying destination", e);
+		}
+	}
+
+	//for Bug 259112
+	public void testErrorLoggingNoVerbose() {
+		//initialize log file
+		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+		assertNotNull("Assert log file is not null", log);
+		assertTrue("Clearing log file", log.getFile().delete());
+
+		//Comparator prints to stderr, redirect that to a file
+		PrintStream oldErr = System.err;
+		PrintStream newErr = null;
+		try {
+			destRepoLocation.mkdir();
+			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting outputs", e);
+		}
+		System.setErr(newErr);
+
+		//run test without verbose resulting in error
+		mirrorWithError(false);
+
+		System.setErr(oldErr);
+		newErr.close();
+
+		//verify log
+		try {
+			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
+			assertLogContainsLine(log.getFile(), parts);
+		} catch (Exception e) {
+			fail("error verifying output", e);
+		}
+
+		//run without verbose
+		artifactMirrorToFullDuplicate("Generating INFO entries", true);
+
+		IArtifactRepository sourceRepository = null;
+		try {
+			sourceRepository = getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Error loading source repository for verification", e);
+		}
+
+		try {
+			//Mirroring full duplicate, so any key will do.
+			IArtifactDescriptor[] descriptors = sourceRepository.getArtifactDescriptors(sourceRepository.getArtifactKeys()[0]);
+			//Mirroring full duplicate, so any descriptor will do.
+			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptors[0], destRepoLocation.toURI());
+			assertLogDoesNotContainLine(log.getFile(), message);
+		} catch (Exception e) {
+			fail("Error verifying log", e);
+		}
+	}
+
+	//for Bug 259112
+	public void testErrorLoggingWithVerbose() {
+		//initialize log file
+		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+		assertNotNull("Assert log file is not null", log);
+		assertTrue("Clearing log file", log.getFile().delete());
+
+		//Comparator prints to stdout, redirect that to a file
+		PrintStream oldOut = System.out;
+		PrintStream newOut = null;
+		PrintStream oldErr = System.err;
+		PrintStream newErr = null;
+		try {
+			destRepoLocation.mkdir();
+			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
+			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting output", e);
+		}
+		System.setOut(newOut);
+		System.setErr(newErr);
+
+		//run test with verbose, results in error
+		mirrorWithError(true);
+
+		//verify log
+		try {
+			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
+			assertLogContainsLine(log.getFile(), parts);
+		} catch (Exception e) {
+			fail("error verifying output", e);
+		}
+
+		//run with verbose
+		//populate destination with duplicate artifacts. We assume this works
+		runMirrorApplication("Initializing Destiantion", sourceRepoLocation, destRepoLocation, false); //value of append should not matter
+
+		try {
+			//set the arguments with verbose
+			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose"};
+			//run the mirror application
+			runMirrorApplication("Generating INO elements", args);
+		} catch (MalformedURLException e) {
+			fail("Error creating URLs", e);
+		} catch (Exception e) {
+			fail("Error running mirror application to generate INFO items", e);
+		}
+
+		System.setOut(oldOut);
+		newOut.close();
+		System.setErr(oldErr);
+		newErr.close();
+
+		IArtifactRepository sourceRepository = null;
+		try {
+			sourceRepository = getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Error loading source repository for verification", e);
+		}
+
+		try {
+			//Mirroring full duplicate, so any key will do.
+			IArtifactDescriptor[] descriptors = sourceRepository.getArtifactDescriptors(sourceRepository.getArtifactKeys()[0]);
+			//Mirroring full duplicate, so any descriptor will do.
+			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptors[0], destRepoLocation.toURI());
+			assertLogContainsLine(log.getFile(), message);
+		} catch (Exception e) {
+			fail("Error verifying log", e);
 		}
 	}
 }
