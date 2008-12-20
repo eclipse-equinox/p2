@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.metadata;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Test <code>ArtifactkeyDeSerializer</code>

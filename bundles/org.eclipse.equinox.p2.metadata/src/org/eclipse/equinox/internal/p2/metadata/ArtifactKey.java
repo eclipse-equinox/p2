@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /** 
  * The concrete type for representing IArtifactKey's.

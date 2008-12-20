@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];

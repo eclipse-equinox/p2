@@ -27,7 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModifica
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Abstract class to set up the colocated UI test repo

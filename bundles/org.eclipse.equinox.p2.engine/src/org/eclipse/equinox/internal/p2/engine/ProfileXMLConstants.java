@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import org.eclipse.equinox.internal.p2.persistence.XMLConstants;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  *	Constants defining the structure of the XML for a Profile

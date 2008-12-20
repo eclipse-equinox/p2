@@ -24,8 +24,8 @@ import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxLauncherCUAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class EquinoxLauncherCUActionTest extends ActionTest {

@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.resolution;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.RecommendationDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.ServiceReference;
@@ -186,7 +187,7 @@ public class ResolutionHelper {
 	}
 
 	public boolean isResolved(IInstallableUnit iu) {
-		return state.getBundle(iu.getId(), iu.getVersion()).isResolved();
+		return state.getBundle(iu.getId(), Version.toOSGiVersion(iu.getVersion())).isResolved();
 	}
 
 	public ArrayList getAllResolved() {

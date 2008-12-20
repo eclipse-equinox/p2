@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.persistence;
 
 import java.io.*;
 import java.util.*;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class XMLWriter implements XMLConstants {
 

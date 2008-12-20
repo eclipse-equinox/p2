@@ -20,15 +20,15 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
 
 /**
  * This class was originally the MetadataGeneratorHelper from the Generator.
@@ -211,7 +211,7 @@ public class PublisherHelper {
 		ArrayList iusCreated = new ArrayList(1);
 		IPublisherInfo info = new PublisherInfo();
 		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
-		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), bd.getVersion(), shape));
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
 		IInstallableUnit iu = BundlesAction.createBundleIU(bd, key, info);
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
