@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.osgi.framework.ServiceReference;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * MarkSetProvider implementation for the Eclipse touchpoint.

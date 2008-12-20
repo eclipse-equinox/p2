@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata

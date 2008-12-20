@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -36,6 +35,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Version;
 
 public class Generator {
 	/**

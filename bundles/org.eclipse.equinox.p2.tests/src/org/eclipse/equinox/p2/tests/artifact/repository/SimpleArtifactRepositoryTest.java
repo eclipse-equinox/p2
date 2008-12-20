@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	//artifact repository to remove on tear down

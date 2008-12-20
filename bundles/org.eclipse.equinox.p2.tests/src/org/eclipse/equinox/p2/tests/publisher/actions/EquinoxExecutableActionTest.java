@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {

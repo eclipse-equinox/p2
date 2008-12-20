@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import java.util.Map;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 public interface IInstallableUnit extends Comparable {
 

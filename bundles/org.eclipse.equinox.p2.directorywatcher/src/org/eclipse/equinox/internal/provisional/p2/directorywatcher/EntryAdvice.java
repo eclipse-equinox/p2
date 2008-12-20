@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * Entry advice captures the name, location, modified time, shape etc of something

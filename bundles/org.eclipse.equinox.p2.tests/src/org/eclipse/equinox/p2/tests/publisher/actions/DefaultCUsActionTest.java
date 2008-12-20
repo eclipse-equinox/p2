@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
 import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class DefaultCUsActionTest extends ActionTest {

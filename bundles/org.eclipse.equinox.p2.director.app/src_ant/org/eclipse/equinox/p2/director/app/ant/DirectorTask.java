@@ -18,7 +18,7 @@ import java.util.List;
 import org.apache.tools.ant.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.director.app.Application;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * An Ant task to call the p2 Director application.

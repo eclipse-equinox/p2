@@ -18,8 +18,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testInstallUninstall() {

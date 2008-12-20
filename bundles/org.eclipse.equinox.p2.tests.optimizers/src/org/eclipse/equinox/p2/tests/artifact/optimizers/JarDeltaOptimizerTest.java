@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * Test the <code>JarDelta</code> processing step.

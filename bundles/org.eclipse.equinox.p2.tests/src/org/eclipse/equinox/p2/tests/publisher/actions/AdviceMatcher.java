@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * A matcher that matches advice applicable to a given id and version.

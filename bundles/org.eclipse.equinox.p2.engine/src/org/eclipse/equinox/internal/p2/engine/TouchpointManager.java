@@ -16,9 +16,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
 public class TouchpointManager implements IRegistryChangeListener {

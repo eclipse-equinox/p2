@@ -15,8 +15,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.InvalidSyntaxException;
@@ -90,7 +88,7 @@ public class Transformer {
 	}
 
 	public void visitCapability(ProvidedCapability capability) {
-		iuCapabilities.add(factory.createGenericDescription(capability.getName(), capability.getNamespace(), Version.toOSGiVersion(capability.getVersion()), null));
+		iuCapabilities.add(factory.createGenericDescription(capability.getName(), capability.getNamespace(), capability.getVersion(), null));
 	}
 
 	public void visitInstallableUnit(IInstallableUnit toTransform) {
@@ -111,7 +109,7 @@ public class Transformer {
 		}
 
 		//Add a capability representing the IU itself
-		iuCapabilities.add(factory.createGenericDescription(toTransform.getId(), getNamespace(), Version.toOSGiVersion(toTransform.getVersion()), null));
+		iuCapabilities.add(factory.createGenericDescription(toTransform.getId(), getNamespace(), toTransform.getVersion(), null));
 
 		GenericSpecification[] genericSpecifications = new GenericSpecification[iuDependencies.size()];
 		iuDependencies.keySet().toArray(genericSpecifications);
@@ -121,7 +119,7 @@ public class Transformer {
 
 		//Finally create the bundle description
 		//TODO Need to create the filter for the IU itself
-		result = factory.createBundleDescription(iuInternalId++, toTransform.getId(), Version.toOSGiVersion(toTransform.getVersion()), (String) null, (BundleSpecification[]) null, (HostSpecification) null, (ImportPackageSpecification[]) null, (ExportPackageDescription[]) null, toTransform.isSingleton(), true, true, toTransform.getFilter(), (String[]) null, genericSpecifications, genericDescriptions);
+		result = factory.createBundleDescription(iuInternalId++, toTransform.getId(), toTransform.getVersion(), (String) null, (BundleSpecification[]) null, (HostSpecification) null, (ImportPackageSpecification[]) null, (ExportPackageDescription[]) null, toTransform.isSingleton(), true, true, toTransform.getFilter(), (String[]) null, genericSpecifications, genericDescriptions);
 		result.setUserObject(new StateMetadataMap(toTransform, iuDependencies));
 	}
 

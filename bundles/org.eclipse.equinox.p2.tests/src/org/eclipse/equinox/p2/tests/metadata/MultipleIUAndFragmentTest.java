@@ -14,7 +14,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 

@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class RootFilesActionTest extends ActionTest {

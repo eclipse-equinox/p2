@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.osgi.service.resolver.VersionRange;
 
 public interface IUpdateDescriptor {
 	public final int NORMAL = 0;

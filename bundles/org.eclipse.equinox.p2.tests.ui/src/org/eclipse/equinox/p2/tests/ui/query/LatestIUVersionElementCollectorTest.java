@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.query.AvailableIUCollector;
 import org.eclipse.equinox.internal.p2.ui.query.LatestIUVersionElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.MockQueryable;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 
 /**
  * Tests for {@link LatestIUVersionElementCollector}. This has all the tests of the superclass,

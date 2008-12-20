@@ -30,7 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 

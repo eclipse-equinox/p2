@@ -30,15 +30,12 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 /**
  * @deprecated this class has been renamed to PublisherHelper and the vast majority
@@ -254,10 +251,10 @@ public class MetadataGeneratorHelper {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
-		iu.setVersion(Version.fromOSGiVersion(bd.getVersion()));
+		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(bd.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(new Version(0, 0, 0), true, bd.getVersion(), false), IUpdateDescriptor.NORMAL, null));
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -268,9 +265,9 @@ public class MetadataGeneratorHelper {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), VersionRange.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -281,7 +278,7 @@ public class MetadataGeneratorHelper {
 			if (importPackageName.indexOf('*') != -1)
 				continue;
 
-			VersionRange versionRange = VersionRange.fromOSGiVersionRange(importSpec.getVersionRange());
+			VersionRange versionRange = importSpec.getVersionRange() == VersionRange.emptyRange ? null : importSpec.getVersionRange();
 
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
@@ -290,14 +287,14 @@ public class MetadataGeneratorHelper {
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
-		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
-		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), bd.getVersion()));
 
 		// Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
 		for (int i = 0; i < exports.length; i++) {
 			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), Version.fromOSGiVersion(exports[i].getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
 		}
 		// Here we add a bundle capability to identify bundles
 		if (isBinaryBundle)
@@ -306,7 +303,7 @@ public class MetadataGeneratorHelper {
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
 
 		if (isFragment)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), Version.fromOSGiVersion(bd.getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), bd.getVersion()));
 
 		if (manifestLocalizations != null) {
 			for (Iterator iter = manifestLocalizations.keySet().iterator(); iter.hasNext();) {
@@ -404,10 +401,10 @@ public class MetadataGeneratorHelper {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
 		String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 		fragment.setId(fragmentId);
-		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
+		fragment.setVersion(bd.getVersion()); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), hostSpec.getVersionRange(), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);

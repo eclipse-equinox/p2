@@ -21,9 +21,9 @@ import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.osgi.framework.Version;
 import org.xml.sax.*;
 
 public class IUPatchPersistenceTest extends AbstractProvisioningTest {
