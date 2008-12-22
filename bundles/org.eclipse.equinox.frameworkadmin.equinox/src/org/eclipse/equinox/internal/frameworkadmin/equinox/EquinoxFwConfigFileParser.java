@@ -138,6 +138,8 @@ public class EquinoxFwConfigFileParser {
 
 			URI location = fwJar != null ? URIUtil.makeRelative(bundles[j].getLocation(), fwJar.getParentFile().toURI()) : bundles[j].getLocation();
 			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], location));
+			if (j < bundles.length - 1) //If it is not the last entry add a comma to separate the entries
+				osgiBundlesList.append(',');
 		}
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
 	}
