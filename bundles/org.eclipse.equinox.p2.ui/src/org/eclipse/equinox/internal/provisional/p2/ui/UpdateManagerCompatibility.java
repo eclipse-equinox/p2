@@ -16,11 +16,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.xml.parsers.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -96,9 +94,9 @@ public class UpdateManagerCompatibility {
 	}
 
 	private static void createSite(Node child, Vector bookmarks) {
-		URI url = null;
+		URI uri = null;
 		try {
-			url = new URI(getAttribute(child, "url")); //$NON-NLS-1$
+			uri = URIUtil.fromString((getAttribute(child, "url"))); //$NON-NLS-1$
 		} catch (URISyntaxException e) {
 			logFail(e);
 			return;
@@ -106,7 +104,7 @@ public class UpdateManagerCompatibility {
 
 		String sel = getAttribute(child, "selected"); //$NON-NLS-1$
 		boolean selected = (sel != null && sel.equals("true")); //$NON-NLS-1$
-		bookmarks.add(new MetadataRepositoryElement(null, url, selected));
+		bookmarks.add(new MetadataRepositoryElement(null, uri, selected));
 	}
 
 	private static void createFolder(Node child, Vector bookmarks) {
@@ -183,10 +181,10 @@ public class UpdateManagerCompatibility {
 
 	/**
 	 * Prompt the user for a file and import the sites specified in that
-	 * file.
+	 * file.  Return the collection of repo elements in the import.
 	 * @param shell the shell used to parent any dialogs used.
 	 */
-	public static void importSites(Shell shell) {
+	public static MetadataRepositoryElement[] importSites(Shell shell) {
 		FileDialog dialog = new FileDialog(shell);
 		dialog.setText(ProvUIMessages.UpdateManagerCompatibility_ImportSitesTitle);
 		dialog.setFilterExtensions(new String[] {"*.xml", "*"}); //$NON-NLS-1$ //$NON-NLS-2$
@@ -202,10 +200,9 @@ public class UpdateManagerCompatibility {
 			if (sites == null || sites.length == 0) {
 				MessageDialog.openInformation(shell, ProvUIMessages.UpdateManagerCompatibility_InvalidSitesTitle, ProvUIMessages.UpdateManagerCompatibility_InvalidSiteFileMessage);
 				bookmarksFile = dialog.open();
-			} else {
-				ElementUtils.updateRepositoryUsingElements(getSites(bookmarks), shell);
 			}
 		}
+		return sites == null ? new MetadataRepositoryElement[0] : sites;
 	}
 
 	/**

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -46,7 +47,7 @@ public class UserValidationDialog extends MessageDialog {
 		fieldContainer.setLayoutData(layoutData);
 
 		Label label = new Label(fieldContainer, SWT.NONE);
-		label.setText(ProvUIMessages.RepositoryPropertyPage_UsernameField);
+		label.setText(ProvUIMessages.UserValidationDialog_UsernameLabel);
 		username = new Text(fieldContainer, SWT.BORDER);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
@@ -54,7 +55,7 @@ public class UserValidationDialog extends MessageDialog {
 		username.setLayoutData(layoutData);
 
 		label = new Label(fieldContainer, SWT.NONE);
-		label.setText(ProvUIMessages.RepositoryPropertyPage_PasswordField);
+		label.setText(ProvUIMessages.UserValidationDialog_PasswordLabel);
 		password = new Text(fieldContainer, SWT.PASSWORD | SWT.BORDER);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
@@ -68,7 +69,7 @@ public class UserValidationDialog extends MessageDialog {
 		layoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		checkboxContainer.setLayoutData(layoutData);
 		saveButton = new Button(checkboxContainer, SWT.CHECK);
-		saveButton.setText(ProvUIMessages.RepositoryPropertyPage_SavePasswordField);
+		saveButton.setText(ProvUIMessages.UserValidationDialog_SavePasswordButton);
 
 		username.setFocus();
 

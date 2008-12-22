@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.*;
-import java.util.List;
 import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.commands.operations.*;
@@ -27,7 +26,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -65,26 +65,6 @@ public class ProvUI {
 	// This value relies on the command markup in org.eclipse.ui 
 	private static final String INSTALLATION_DIALOG = "org.eclipse.ui.help.installationDialog"; //$NON-NLS-1$
 
-	public static Shell getShell(IAdaptable uiInfo) {
-		Shell shell;
-		if (uiInfo != null) {
-			shell = (Shell) uiInfo.getAdapter(Shell.class);
-			if (shell != null) {
-				return shell;
-			}
-		}
-		// Get the default shell
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (window != null) {
-			return window.getShell();
-		}
-		Display display = Display.getCurrent();
-		if (display == null) {
-			display = Display.getDefault();
-		}
-		return display.getActiveShell();
-	}
-
 	public static IStatus handleException(Throwable t, String message, int style) {
 		if (message == null && t != null) {
 			message = t.getMessage();
@@ -118,6 +98,10 @@ public class ProvUI {
 		reposNotFound.clear();
 	}
 
+	public static void clearRepositoryNotFound(URI location) {
+		reposNotFound.remove(location);
+	}
+
 	public static void reportStatus(IStatus status, int style) {
 		// workaround for
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211933
@@ -146,15 +130,6 @@ public class ProvUI {
 
 	public static void setIUColumnConfig(IUColumnConfig[] columnConfig) {
 		iuColumnConfig = columnConfig;
-	}
-
-	public static IUndoContext getProvisioningUndoContext() {
-		if (provisioningUndoContext == null) {
-			provisioningUndoContext = new ObjectUndoContext(new Object(), "Provisioning Undo Context"); //$NON-NLS-1$
-			IOperationHistory opHistory = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory();
-			opHistory.addOperationApprover(getOperationApprover());
-		}
-		return provisioningUndoContext;
 	}
 
 	public static Object getAdapter(Object object, Class adapterType) {
@@ -300,32 +275,6 @@ public class ProvUI {
 
 		};
 
-	}
-
-	/**
-	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
-	 * suitable for passing for passing to any
-	 * {@link org.eclipse.core.commands.operations.IUndoableOperation} or
-	 * {@link org.eclipse.core.commands.operations.IOperationHistory} method
-	 * that requires an {@link org.eclipse.core.runtime.IAdaptable}
-	 * <code>uiInfo</code> parameter.
-	 * 
-	 * @param shell
-	 *            the shell that should be returned by the IAdaptable when asked
-	 *            to adapt a shell. If this parameter is <code>null</code>,
-	 *            the returned shell will also be <code>null</code>.
-	 * 
-	 * @return an IAdaptable that will return the specified shell.
-	 */
-	public static IAdaptable getUIInfoAdapter(final Shell shell) {
-		return new IAdaptable() {
-			public Object getAdapter(Class clazz) {
-				if (clazz == Shell.class) {
-					return shell;
-				}
-				return null;
-			}
-		};
 	}
 
 	public static void addProvisioningListener(StructuredViewerProvisioningListener listener) {

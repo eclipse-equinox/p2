@@ -85,7 +85,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
 	 */
 	protected void refreshUnderlyingModel() {
-		ProvisioningOperationRunner.schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell(), StatusManager.SHOW | StatusManager.LOG);
+		ProvisioningOperationRunner.schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 }

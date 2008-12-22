@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -31,11 +31,16 @@ public abstract class RepositoryManipulator {
 	public abstract boolean manipulateRepositories(Shell shell);
 
 	/**
-	 * Return a String that could be used to label this manager. For example, if
-	 * the manager is a dialog that lets you manipulate repositories, the label
-	 * could be used in the button that launches the dialog.
+	 * Return a short String that could be used to label this manager in a button.
+	 * This string should include any necessary ellipsis or mnemonics.
 	 */
-	public abstract String getManipulatorLabel();
+	public abstract String getManipulatorButtonLabel();
+
+	/**
+	 * Return a long String that could be used to label this manager in a link.
+	 * This string does not need mnemonics.
+	 */
+	public abstract String getManipulatorLinkLabel();
 
 	/**
 	 * Return an array of URLs containing the repositories already known.
@@ -46,7 +51,7 @@ public abstract class RepositoryManipulator {
 	 * Return an operation that could be used to add the specified URL as
 	 * a repository.
 	 */
-	public abstract ProvisioningOperation getAddOperation(URI repoLocation);
+	public abstract RepositoryOperation getAddOperation(URI repoLocation);
 
 	/**
 	 * Return a String describing a possible add operation.  This is used 
@@ -58,7 +63,7 @@ public abstract class RepositoryManipulator {
 	 * Return an operation that could be used to remove the specified URL as
 	 * a repositories.
 	 */
-	public abstract ProvisioningOperation getRemoveOperation(URI[] repoLocations);
+	public abstract RepositoryOperation getRemoveOperation(URI[] repoLocations);
 
 	/**
 	 * Return a String describing a possible remove operation.  This is used 

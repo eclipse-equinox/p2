@@ -21,48 +21,16 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public class AddArtifactRepositoryOperation extends RepositoryOperation {
 
-	boolean added = false;
-
 	public AddArtifactRepositoryOperation(String label, URI location) {
 		super(label, new URI[] {location});
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addArtifactRepository(locations[i]);
+			ProvisioningUtil.addArtifactRepository(locations[i], notify);
 			mon.worked(1);
 		}
-		added = true;
 		return okStatus();
-	}
-
-	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
-		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.removeArtifactRepository(locations[i]);
-			mon.worked(1);
-		}
-		// assume the best if no exception is thrown;
-		added = false;
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return super.canExecute() && !added;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return super.canUndo() && added;
 	}
 }

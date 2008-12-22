@@ -36,19 +36,7 @@
                   type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
              </adapt>
           </enabledWhen>
-      </page>
- 
-      <page
-            name="%Repository.name"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryPropertyPage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.RepositoryPropertyPage">
-            <enabledWhen>
-            <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement">
-             </adapt>
-          </enabledWhen>
-      </page>
-      
+      </page>    
       </extension>
        <extension
          point="org.eclipse.ui.preferencePages">
@@ -56,6 +44,14 @@
             name="%provisioningPrefPage"
             class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ProvisioningPreferencePage"
             id="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage">
+            <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
+      </page>
+      
+       <page
+            name="%sitesPrefPage"
+            category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
+            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationPage"
+            id="org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
  

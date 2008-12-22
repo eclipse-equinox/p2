@@ -29,7 +29,7 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 	}
 
 	public void run() {
-		ProvisioningOperationRunner.schedule(getOperation(), getShell(), StatusManager.SHOW | StatusManager.LOG);
+		ProvisioningOperationRunner.schedule(getOperation(), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 	protected abstract ProvisioningOperation getOperation();

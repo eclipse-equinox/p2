@@ -17,19 +17,20 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
-import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -40,7 +41,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An AvailableIUGroup is a reusable UI component that displays the
@@ -51,41 +51,19 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AvailableIUGroup extends StructuredIUGroup {
 
 	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
-	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 200;
+	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 350;
 
-	ChangeViewAction viewByRepo, viewFlat, viewCategory;
 	QueryableMetadataRepositoryManager queryableManager;
 
-	private class ChangeViewAction extends Action {
-		int viewType;
-
-		ChangeViewAction(String text, int viewType) {
-			super(text, IAction.AS_RADIO_BUTTON);
-			this.viewType = viewType;
-			setChecked(this.viewType == queryContext.getViewType());
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.eclipse.jface.action.IAction#run()
-		 */
-		public void run() {
-			if (this.viewType != queryContext.getViewType()) {
-				queryContext.setViewType(viewType);
-				updateAvailableViewState();
-			}
-		}
-	}
-
 	IUViewQueryContext queryContext;
+	URI repositoryFilter;
 	// We restrict the type of the filter used because PatternFilter does
 	// unnecessary accesses of children that cause problems with the deferred
 	// tree.
 	AvailableIUPatternFilter filter;
 	private boolean useBold = false;
 	private IUDetailsLabelProvider labelProvider;
-	private Display display;
+	Display display;
 	DelayedFilterCheckboxTree filteredTree;
 	Job lastRequestedLoadJob;
 
@@ -130,18 +108,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
-		filteredTree = new DelayedFilterCheckboxTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, new IViewMenuProvider() {
-
-			public void fillViewMenu(IMenuManager viewMenu) {
-				viewByRepo = new ChangeViewAction(ProvUIMessages.AvailableIUGroup_ViewBySite, IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
-				viewMenu.add(viewByRepo);
-				viewCategory = new ChangeViewAction(ProvUIMessages.AvailableIUGroup_ViewByCategory, IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-				viewMenu.add(viewCategory);
-				viewFlat = new ChangeViewAction(ProvUIMessages.AvailableIUGroup_ViewByName, IUViewQueryContext.AVAILABLE_VIEW_FLAT);
-				viewMenu.add(viewFlat);
-			}
-
-		}, parent.getDisplay());
+		filteredTree = new DelayedFilterCheckboxTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter);
 		final TreeViewer availableIUViewer = filteredTree.getViewer();
 
 		// If the user expanded or collapsed anything while we were loading a repo
@@ -232,6 +199,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	Object getNewInput() {
+		if (repositoryFilter != null) {
+			return new MetadataRepositoryElement(null, repositoryFilter, true);
+		}
 		return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 	}
 
@@ -301,16 +271,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		if (viewer == null)
 			return null;
 		return ((TreeViewer) viewer).getTree();
-	}
-
-	/**
-	 * Refresh the available view completely.
-	 */
-	public void refresh() {
-		ProvisioningOperation op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, queryContext.getMetadataRepositoryFlags());
-		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
-		if (viewer != null && !viewer.getControl().isDisposed())
-			viewer.setInput(getNewInput());
 	}
 
 	/*
@@ -433,5 +393,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		}
 		// Relying on knowledge that DelayedFilterCheckbox doesn't care which element is in the listener
 		checkViewer.fireCheckStateChanged(element, true);
+	}
+
+	public void setRepositoryFilter(URI repoLocation) {
+		repositoryFilter = repoLocation;
+		updateAvailableViewState();
+		filteredTree.clearCheckStateCache();
 	}
 }

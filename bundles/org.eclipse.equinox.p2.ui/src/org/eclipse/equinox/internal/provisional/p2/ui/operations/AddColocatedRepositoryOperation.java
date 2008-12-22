@@ -21,9 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  * @since 3.4
  */
 public class AddColocatedRepositoryOperation extends RepositoryOperation {
-
-	boolean added = false;
-
 	public AddColocatedRepositoryOperation(String label, URI url) {
 		super(label, new URI[] {url});
 	}
@@ -32,46 +29,15 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 		super(label, urls);
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
 
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addMetadataRepository(locations[i]);
+			ProvisioningUtil.addMetadataRepository(locations[i], notify);
 			mon.worked(1);
-			ProvisioningUtil.addArtifactRepository(locations[i]);
-			mon.worked(1);
-		}
-		added = true;
-		return okStatus();
-	}
-
-	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
-		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(locations[i]);
-			mon.worked(1);
-			ProvisioningUtil.removeArtifactRepository(locations[i]);
+			ProvisioningUtil.addArtifactRepository(locations[i], notify);
 			mon.worked(1);
 		}
-		added = false;
 		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return super.canExecute() && !added;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return super.canUndo() && added;
 	}
 }

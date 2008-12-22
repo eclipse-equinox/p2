@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-
-import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
-import org.eclipse.equinox.internal.p2.ui.model.RollbackRepositoryElement;
-
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
+import org.eclipse.equinox.internal.p2.ui.model.RollbackRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -228,7 +226,7 @@ public class RevertProfileWizardPage extends WizardPage {
 			if (plan[0] != null) {
 				if (plan[0].getStatus().isOK()) {
 					ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
-					ProvisioningOperationRunner.run(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
+					ProvisioningOperationRunner.run(op, StatusManager.SHOW | StatusManager.LOG);
 					return true;
 				}
 				// If user cancelled, do not report an error

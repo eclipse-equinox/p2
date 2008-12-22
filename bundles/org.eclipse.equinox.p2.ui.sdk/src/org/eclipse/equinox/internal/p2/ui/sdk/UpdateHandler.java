@@ -64,6 +64,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 			}
 		}, profileId, false);
+		action.setRepositoryManager(manager);
 		action.run();
 	}
 }

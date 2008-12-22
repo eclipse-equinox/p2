@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -54,7 +55,7 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 		}
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
 		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, getProfile(), monitor);
 	}
 

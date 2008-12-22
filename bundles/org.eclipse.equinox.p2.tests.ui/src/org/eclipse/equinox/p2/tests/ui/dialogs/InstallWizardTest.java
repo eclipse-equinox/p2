@@ -89,7 +89,7 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			assertNotNull(page2.getCurrentPlan());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), null, StatusManager.LOG);
+			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 
 			// causes recalculation of plan and status

@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.io.IOException;
 import java.util.HashSet;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -22,10 +20,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -49,24 +47,17 @@ public class ProvisioningOperationRunner {
 	static ListenerList jobListeners = new ListenerList();
 
 	/**
-	 * Run the provisioning operation synchronously, adding it to the undo history if it
-	 * supports undo.  Should only be used for operations that run quickly.
+	 * Run the provisioning operation synchronously
 	 * @param op The operation to execute
-	 * @param shell provided by the caller in order to supply UI information for prompting the
-	 *            user if necessary. May be <code>null</code>.
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
-	public static void run(ProvisioningOperation op, Shell shell, int errorStyle) {
+	public static void run(ProvisioningOperation op, int errorStyle) {
 		try {
-			if (op instanceof IUndoableOperation) {
-				PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, null, ProvUI.getUIInfoAdapter(shell));
-			} else {
-				op.execute(null, ProvUI.getUIInfoAdapter(shell));
-			}
+			op.execute(new NullProgressMonitor());
 		} catch (OperationCanceledException e) {
 			// nothing to do
-		} catch (ExecutionException e) {
-			ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, null, errorStyle);
 		}
 
 	}
@@ -76,11 +67,9 @@ public class ProvisioningOperationRunner {
 	 * undo history if it supports undo.
 	 * 
 	 * @param op The operation to execute
-	 * @param shell provided by the caller in order to supply UI information for prompting the
-	 *            user if necessary. May be <code>null</code>.
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
-	public static Job schedule(final ProvisioningOperation op, final Shell shell, final int errorStyle) {
+	public static Job schedule(final ProvisioningOperation op, final int errorStyle) {
 		Job job;
 		final boolean noPrompt = (errorStyle & (StatusManager.BLOCK | StatusManager.SHOW)) == 0;
 
@@ -89,12 +78,7 @@ public class ProvisioningOperationRunner {
 				protected IStatus run(IProgressMonitor monitor) {
 					final Job thisJob = this;
 					try {
-						IStatus status;
-						if (op instanceof IUndoableOperation) {
-							status = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, ProvUI.getUIInfoAdapter(shell));
-						} else {
-							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
-						}
+						IStatus status = op.execute(monitor);
 						if (status != Status.OK_STATUS && noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
@@ -102,15 +86,15 @@ public class ProvisioningOperationRunner {
 						return status;
 					} catch (OperationCanceledException e) {
 						return Status.CANCEL_STATUS;
-					} catch (final ExecutionException e) {
+					} catch (final ProvisionException e) {
 						if (noPrompt) {
 							thisJob.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							thisJob.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
-						String message = e.getCause().getLocalizedMessage();
+						String message = e.getLocalizedMessage();
 						if (message == null)
 							message = NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel());
-						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, e.getCause());
+						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, e);
 					}
 				}
 			};
@@ -119,12 +103,7 @@ public class ProvisioningOperationRunner {
 			job = new WorkbenchJob(op.getLabel()) {
 				public IStatus runInUIThread(IProgressMonitor monitor) {
 					try {
-						IStatus status;
-						if (op instanceof IUndoableOperation) {
-							status = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, ProvUI.getUIInfoAdapter(shell));
-						} else {
-							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
-						}
+						IStatus status = op.execute(monitor);
 						if (status != Status.OK_STATUS && noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
@@ -132,12 +111,12 @@ public class ProvisioningOperationRunner {
 						return status;
 					} catch (OperationCanceledException e) {
 						return Status.CANCEL_STATUS;
-					} catch (ExecutionException e) {
+					} catch (ProvisionException e) {
 						if (noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
-						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), e.getCause());
+						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), e);
 					}
 				}
 			};

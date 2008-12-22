@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
  */
 public class PreferenceConstants {
 	public static final String PREF_PAGE_PROVISIONING = "org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_SITES = "org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage"; //$NON-NLS-1$
 	public static final String PREF_SHOW_LATEST_VERSION = "showLatestVersion"; //$NON-NLS-1$
 	public static final String PREF_OPEN_WIZARD_ON_ERROR_PLAN = "allowNonOKPlan"; //$NON-NLS-1$
 }

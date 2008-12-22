@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -26,7 +27,7 @@ public class RemoveProfilesOperation extends ProvisioningOperation {
 		this.profileIds = profileIds;
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
 		for (int i = 0; i < profileIds.length; i++) {
 			ProvisioningUtil.removeProfile(profileIds[i], monitor);
 		}

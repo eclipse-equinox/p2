@@ -152,7 +152,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		if (alreadyReportedNotFound)
+		if (alreadyReportedNotFound || ProvUI.hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
 		try {
 			String description = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_DESCRIPTION);

@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RootElement;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
@@ -30,7 +29,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 public class MetadataRepositories extends RootElement {
 
 	private boolean includeDisabled = false;
-	private int repoFlags = IRepositoryManager.REPOSITORIES_ALL;
 
 	public MetadataRepositories(Policy policy) {
 		this(policy.getQueryContext(), policy, null);
@@ -65,26 +63,6 @@ public class MetadataRepositories extends RootElement {
 	 */
 	public void setIncludeDisabledRepositories(boolean includeDisabled) {
 		this.includeDisabled = includeDisabled;
-	}
-
-	/**
-	 * Get the flags that should be used to get the repositories when no repositories
-	 * are specified.
-	 * 
-	 * @return the integer repository manager flags
-	 */
-	public int getRepoFlags() {
-		return repoFlags;
-	}
-
-	/**
-	 * Set the flags that should be used to get the repositories when no repositories
-	 * are specified.
-	 * 
-	 * @param flags the integer repository manager flags
-	 */
-	public void setRepoFlags(int flags) {
-		this.repoFlags = flags;
 	}
 
 	/*

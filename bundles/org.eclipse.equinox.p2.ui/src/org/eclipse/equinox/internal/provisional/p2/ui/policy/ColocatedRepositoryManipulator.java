@@ -8,18 +8,24 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui;
+package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import java.net.URI;
+import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationPage;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
  * Provides a repository manipulator that interprets URLs as colocated
- * artifact and metadata repositories.
+ * artifact and metadata repositories.  If a preference id has been
+ * set, the manipulator will open a pref page to manipulate sites.  If it has
+ * not been set, then a dialog will be opened.
  * 
  * @since 3.5
  */
@@ -27,16 +33,18 @@ import org.eclipse.swt.widgets.Shell;
 public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 
 	Policy policy;
+	String prefPageId = null;
 
-	public ColocatedRepositoryManipulator(Policy policy) {
+	public ColocatedRepositoryManipulator(Policy policy, String prefPageId) {
 		this.policy = policy;
+		this.prefPageId = prefPageId;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorLabel()
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorButtonLabel()
 	 */
-	public String getManipulatorLabel() {
+	public String getManipulatorButtonLabel() {
 		return ProvUIMessages.ColocatedRepositoryManipulator_ManageSites;
 
 	}
@@ -46,15 +54,42 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#manipulateRepositories(org.eclipse.swt.widgets.Shell)
 	 */
 	public boolean manipulateRepositories(Shell shell) {
-		new RepositoryManipulationDialog(shell, policy).open();
+		if (prefPageId != null) {
+			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(shell, prefPageId, null, null);
+			dialog.open();
+		} else {
+			TitleAreaDialog dialog = new TitleAreaDialog(shell) {
+				RepositoryManipulationPage page;
+
+				protected Control createDialogArea(Composite parent) {
+					page = new RepositoryManipulationPage();
+					page.setPolicy(policy);
+					page.createControl(parent);
+					this.setTitle(ProvUIMessages.RepositoryManipulationPage_Title);
+					this.setMessage(ProvUIMessages.RepositoryManipulationPage_Description);
+					return page.getControl();
+				}
+
+				protected void okPressed() {
+					if (page.performOk())
+						super.okPressed();
+				}
+
+				protected void cancelPressed() {
+					if (page.performCancel())
+						super.cancelPressed();
+				}
+			};
+			dialog.open();
+		}
 		return true;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getAddOperation(java.net.URL)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getAddOperation(java.net.URI)
 	 */
-	public ProvisioningOperation getAddOperation(URI repoLocation) {
+	public RepositoryOperation getAddOperation(URI repoLocation) {
 		return new AddColocatedRepositoryOperation(getAddOperationLabel(), repoLocation);
 	}
 
@@ -80,9 +115,9 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getRemoveOperation(java.net.URL[])
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getRemoveOperation(java.net.URI[])
 	 */
-	public ProvisioningOperation getRemoveOperation(URI[] reposToRemove) {
+	public RepositoryOperation getRemoveOperation(URI[] reposToRemove) {
 		return new RemoveColocatedRepositoryOperation(getRemoveOperationLabel(), reposToRemove);
 	}
 
@@ -102,6 +137,14 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
 		validator.setKnownRepositoriesFlag(policy.getQueryContext().getMetadataRepositoryFlags());
 		return validator;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorLinkLabel()
+	 */
+	public String getManipulatorLinkLabel() {
+		return ProvUIMessages.ColocatedRepositoryManipulator_GotoPrefs;
+
 	}
 
 }

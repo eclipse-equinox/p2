@@ -14,9 +14,8 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.util.EventObject;
 
 /**
- * Event used to signify that a batch change is about
- * to begin.  We should ignore listeners until it is
- * done.
+ * Internal UI event used to signify that a batch change in which
+ * we were ignoring listeners is done.
  * 
  * @since 3.4
  */

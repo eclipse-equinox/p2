@@ -187,6 +187,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				}
 			}
 		});
+		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES));
 		policy.setPlanValidator(new PlanValidator() {
 			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
 				if (plan == null)

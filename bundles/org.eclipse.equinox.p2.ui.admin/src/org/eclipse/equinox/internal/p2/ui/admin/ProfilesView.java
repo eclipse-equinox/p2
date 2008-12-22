@@ -63,7 +63,7 @@ public class ProfilesView extends ProvView {
 					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
 			}
 			RemoveProfilesOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (String[]) profilesOnly.toArray(new String[profilesOnly.size()]));
-			ProvisioningOperationRunner.run(op, ProfilesView.this.getShell(), StatusManager.SHOW | StatusManager.LOG);
+			ProvisioningOperationRunner.run(op, StatusManager.SHOW | StatusManager.LOG);
 		}
 	}
 

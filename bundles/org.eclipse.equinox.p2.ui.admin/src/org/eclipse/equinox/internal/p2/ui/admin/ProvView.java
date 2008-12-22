@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
@@ -25,7 +24,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.operations.UndoRedoActionGroup;
 import org.eclipse.ui.part.ViewPart;
 
 /**
@@ -36,7 +34,6 @@ import org.eclipse.ui.part.ViewPart;
  */
 abstract class ProvView extends ViewPart {
 	TreeViewer viewer;
-	private UndoRedoActionGroup undoRedoGroup;
 	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
@@ -110,7 +107,6 @@ abstract class ProvView extends ViewPart {
 		manager.add(refreshAction);
 
 		fillLocalToolBar(bars.getToolBarManager());
-		undoRedoGroup.fillActionBars(bars);
 	}
 
 	protected abstract void fillLocalPullDown(IMenuManager manager);
@@ -122,7 +118,6 @@ abstract class ProvView extends ViewPart {
 	protected abstract IAction getDoubleClickAction();
 
 	protected void makeActions() {
-		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
 		refreshAction = new RefreshAction(viewer, viewer.getControl()) {
 			protected void refresh() {
 				refreshAll(true);
@@ -144,9 +139,6 @@ abstract class ProvView extends ViewPart {
 	 * @see org.eclipse.ui.part.WorkbenchPart#dispose()
 	 */
 	public void dispose() {
-		if (undoRedoGroup != null) {
-			undoRedoGroup.dispose();
-		}
 		removeListeners();
 		super.dispose();
 	}

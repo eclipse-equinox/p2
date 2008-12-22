@@ -49,7 +49,7 @@ public class UninstallWizardTest extends AbstractProvisioningUITest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), null, StatusManager.LOG);
+			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);

@@ -46,7 +46,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), getShell(), StatusManager.SHOW | StatusManager.LOG);
+			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), StatusManager.SHOW | StatusManager.LOG);
 		}
 	}
 

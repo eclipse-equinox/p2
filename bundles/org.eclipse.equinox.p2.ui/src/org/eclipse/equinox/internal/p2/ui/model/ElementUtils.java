@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -46,8 +46,8 @@ public class ElementUtils {
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, true);
 							else if (!containsURI(currentlyEnabled, location)) {
 								// It is not known as enabled or disabled.  Add it.
-								ProvisioningUtil.addMetadataRepository(location);
-								ProvisioningUtil.addArtifactRepository(location);
+								ProvisioningUtil.addMetadataRepository(location, false);
+								ProvisioningUtil.addArtifactRepository(location, false);
 							}
 						} else {
 							if (containsURI(currentlyEnabled, location))
@@ -55,10 +55,27 @@ public class ElementUtils {
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
 							else if (!containsURI(currentlyDisabled, location)) {
 								// It is not known as enabled or disabled.  Add it and then disable it.
-								ProvisioningUtil.addMetadataRepository(location);
-								ProvisioningUtil.addArtifactRepository(location);
+								ProvisioningUtil.addMetadataRepository(location, false);
+								ProvisioningUtil.addArtifactRepository(location, false);
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
 							}
+						}
+					}
+					// Are there any elements that need to be deleted?  Go over the original state
+					// and remove any elements that weren't in the elements we were given
+					Set nowKnown = new HashSet();
+					for (int i = 0; i < elements.length; i++)
+						nowKnown.add(elements[i].getLocation().toString());
+					for (int i = 0; i < currentlyEnabled.length; i++) {
+						if (!nowKnown.contains(currentlyEnabled[i].toString())) {
+							ProvisioningUtil.removeMetadataRepository(currentlyEnabled[i]);
+							ProvisioningUtil.removeArtifactRepository(currentlyEnabled[i]);
+						}
+					}
+					for (int i = 0; i < currentlyEnabled.length; i++) {
+						if (!nowKnown.contains(currentlyDisabled[i].toString())) {
+							ProvisioningUtil.removeMetadataRepository(currentlyDisabled[i]);
+							ProvisioningUtil.removeArtifactRepository(currentlyDisabled[i]);
 						}
 					}
 				} catch (ProvisionException e) {

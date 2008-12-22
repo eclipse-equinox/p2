@@ -37,14 +37,16 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ProvisioningUtil {
 
-	public static void addMetadataRepository(URI location) throws ProvisionException {
+	public static void addMetadataRepository(URI location, boolean notify) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		manager.addRepository(location);
-		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
-		if (bus != null) {
-			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED));
+		if (notify) {
+			IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+			if (bus != null) {
+				bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED));
+			}
 		}
 	}
 
@@ -103,15 +105,17 @@ public class ProvisioningUtil {
 		}
 	}
 
-	public static void addArtifactRepository(URI location) throws ProvisionException {
+	public static void addArtifactRepository(URI location, boolean notify) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.addRepository(location);
-		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
-		if (bus != null) {
-			bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED));
+		if (notify) {
+			IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
+			if (bus != null) {
+				bus.publishEvent(new UIRepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED));
+			}
 		}
 	}
 

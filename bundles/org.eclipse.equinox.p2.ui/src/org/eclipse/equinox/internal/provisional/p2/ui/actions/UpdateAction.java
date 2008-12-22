@@ -33,11 +33,16 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	IUElementListRoot root; // root that will be used to seed the wizard
 	HashMap latestReplacements;
 	boolean resolveIsVisible = true;
+	QueryableMetadataRepositoryManager manager;
 
 	public UpdateAction(Policy policy, ISelectionProvider selectionProvider, String profileId, boolean resolveIsVisible) {
 		super(ProvUI.UPDATE_COMMAND_LABEL, policy, selectionProvider, profileId);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 		this.resolveIsVisible = resolveIsVisible;
+	}
+
+	public void setRepositoryManager(QueryableMetadataRepositoryManager manager) {
+		this.manager = manager;
 	}
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
@@ -46,7 +51,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		Assert.isNotNull(root);
 		Assert.isNotNull(plan);
 
-		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), plan);
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), plan, manager);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);

@@ -21,47 +21,16 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public class RemoveMetadataRepositoryOperation extends RepositoryOperation {
 
-	private boolean removed = false;
-
 	public RemoveMetadataRepositoryOperation(String label, URI[] repoLocations) {
 		super(label, repoLocations);
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			ProvisioningUtil.removeMetadataRepository(locations[i]);
 			mon.worked(1);
 		}
-		removed = true;
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return !removed && super.canExecute();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return removed && super.canUndo();
-	}
-
-	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
-		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addMetadataRepository(locations[i]);
-			mon.worked(1);
-		}
-		removed = false;
 		return okStatus();
 	}
 }

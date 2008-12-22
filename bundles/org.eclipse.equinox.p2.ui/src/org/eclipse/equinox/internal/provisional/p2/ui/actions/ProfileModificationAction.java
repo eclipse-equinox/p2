@@ -107,7 +107,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		// callers to decide to close the launching window.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
 		result = Window.OK;
-		Job job = ProvisioningOperationRunner.schedule(operation, getShell(), StatusManager.SHOW);
+		Job job = ProvisioningOperationRunner.schedule(operation, StatusManager.SHOW);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				// Do we have a plan??

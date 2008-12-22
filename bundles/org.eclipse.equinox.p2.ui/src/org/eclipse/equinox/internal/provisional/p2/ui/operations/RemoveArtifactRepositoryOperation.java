@@ -21,48 +21,16 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 
-	private boolean removed = false;
-
 	public RemoveArtifactRepositoryOperation(String label, URI[] repoLocations) {
 		super(label, repoLocations);
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			ProvisioningUtil.removeArtifactRepository(locations[i]);
 			mon.worked(1);
 		}
-		removed = true;
 		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return super.canExecute() && !removed;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return super.canUndo() && removed;
-	}
-
-	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
-		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addArtifactRepository(locations[i]);
-			mon.worked(1);
-		}
-		removed = false;
-		return okStatus();
-
 	}
 }

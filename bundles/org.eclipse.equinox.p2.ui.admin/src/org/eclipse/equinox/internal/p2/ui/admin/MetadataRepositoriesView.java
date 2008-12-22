@@ -59,7 +59,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 			ProvisioningPlan plan = getProvisioningPlan(ius);
 			if (ProvAdminUIActivator.getDefault().getPolicy().getPlanValidator().continueWorkingWithPlan(plan, getShell())) {
 				ProvisioningOperation op = new ProfileModificationOperation(ProvAdminUIMessages.MetadataRepositoriesView_RevertLabel, targetProfileId, plan);
-				ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
+				ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 			}
 		}
 
@@ -182,7 +182,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
 	 */
 	protected void refreshUnderlyingModel() {
-		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell(), StatusManager.SHOW | StatusManager.LOG);
+		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 	protected List getVisualProperties() {

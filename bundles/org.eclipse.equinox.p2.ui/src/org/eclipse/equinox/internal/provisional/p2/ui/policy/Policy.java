@@ -222,7 +222,7 @@ public class Policy {
 	}
 
 	private RepositoryManipulator getDefaultRepositoryManipulator() {
-		return new ColocatedRepositoryManipulator(this);
+		return new ColocatedRepositoryManipulator(this, null);
 	}
 
 	/*

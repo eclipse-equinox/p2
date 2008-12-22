@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.ui.operations;
 
 import java.util.HashMap;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -37,20 +36,20 @@ public class AddProfileOperationTest extends AbstractProvisioningUITest {
 		AddProfileOperation op = new AddProfileOperation("label", profileId, properties);
 
 		try {
-			IStatus result = op.execute(getMonitor(), null);
+			IStatus result = op.execute(getMonitor());
 			assertTrue("1.2", result.isOK());
-		} catch (ExecutionException e) {
+		} catch (ProvisionException e) {
 			fail("0.99", e);
 		}
 
-		IProfile profile = null;
+		IProfile p = null;
 		try {
-			profile = ProvisioningUtil.getProfile(profileId);
+			p = ProvisioningUtil.getProfile(profileId);
 		} catch (ProvisionException e) {
 			fail("2.99", e);
 			return;
 		}
-		assertNotNull("3.0", profile);
-		assertEquals("3.1", TEST_PROP_VALUE, profile.getProperty(TEST_PROP_KEY));
+		assertNotNull("3.0", p);
+		assertEquals("3.1", TEST_PROP_VALUE, p.getProperty(TEST_PROP_KEY));
 	}
 }

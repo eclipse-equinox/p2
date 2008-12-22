@@ -87,7 +87,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					request.removeInstallableUnits(iusWithUpdates);
 					request.addInstallableUnits(replacements);
 					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getProvisioningPlan(request, new ProvisioningContext(), null);
-					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null, StatusManager.LOG);
+					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), StatusManager.LOG);
 					job.addJobChangeListener(new JobChangeAdapter() {
 						public void done(IJobChangeEvent jobEvent) {
 							alreadyDownloaded = true;

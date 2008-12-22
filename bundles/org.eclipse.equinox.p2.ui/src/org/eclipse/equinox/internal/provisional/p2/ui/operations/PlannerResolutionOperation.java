@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.PlanStatusHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -49,7 +46,7 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 		return plan;
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
 		plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 		if (plan == null)
 			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlannerResolutionOperation_UnexpectedError, null);

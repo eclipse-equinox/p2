@@ -10,15 +10,9 @@ import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.dialogs.PopupDialog;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -27,8 +21,8 @@ import org.eclipse.ui.progress.WorkbenchJob;
 /**
  * FilteredTree extension that creates a ContainerCheckedTreeViewer, manages the
  * check state across filtering (working around bugs in ContainerCheckedTreeViewer),
- * provides a hook for menu creation, and preloads all metadata repositories
- * before allowing filtering, in order to coordinate background fetch and filtering.
+ * and preloads all metadata repositories before allowing filtering, in order to 
+ * coordinate background fetch and filtering.
  * 
  * @since 3.4
  *
@@ -39,11 +33,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	private static final long FILTER_DELAY = 400;
 
 	ToolBar toolBar;
-	MenuManager menuManager;
-	ToolItem viewMenuButton;
 	Display display;
 	PatternFilter patternFilter;
-	IViewMenuProvider viewMenuProvider;
 	DeferredQueryContentProvider contentProvider;
 	String savedFilterText;
 	Job loadJob;
@@ -53,26 +44,11 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	ArrayList checkState = new ArrayList();
 	ContainerCheckedTreeViewer checkboxViewer;
 
-	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display) {
-		super(parent);
-		this.display = display;
-		this.viewMenuProvider = viewMenuProvider;
+	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter) {
+		super(parent, true);
+		this.display = parent.getDisplay();
 		this.patternFilter = filter;
 		init(treeStyle, filter);
-	}
-
-	/*
-	 * Overridden to see if filter controls were created.
-	 * If they were not created, we need to create the view menu
-	 * independently.  
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.FilteredTree#createControl(org.eclipse.swt.widgets.Composite, int)
-	 */
-	protected void createControl(Composite composite, int treeStyle) {
-		super.createControl(composite, treeStyle);
-		if (!showFilterControls && viewMenuProvider != null) {
-			createViewMenu(composite);
-		}
 	}
 
 	protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
@@ -104,52 +80,12 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 
 	protected Composite createFilterControls(Composite filterParent) {
 		super.createFilterControls(filterParent);
-		Object layout = filterParent.getLayout();
-		if (layout instanceof GridLayout) {
-			((GridLayout) layout).numColumns++;
-		}
-		if (viewMenuProvider != null)
-			createViewMenu(filterParent);
 		filterParent.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				cancelLoadJob();
 			}
 		});
 		return filterParent;
-	}
-
-	private void createViewMenu(Composite filterParent) {
-		toolBar = new ToolBar(filterParent, SWT.FLAT);
-		viewMenuButton = new ToolItem(toolBar, SWT.PUSH, 0);
-
-		viewMenuButton.setImage(JFaceResources.getImage(PopupDialog.POPUP_IMG_MENU));
-		viewMenuButton.setToolTipText(ProvUIMessages.AvailableIUGroup_ViewByToolTipText);
-		viewMenuButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				showViewMenu();
-			}
-		});
-
-		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=177183
-		toolBar.addMouseListener(new MouseAdapter() {
-			public void mouseDown(MouseEvent e) {
-				showViewMenu();
-			}
-		});
-
-	}
-
-	void showViewMenu() {
-		if (menuManager == null) {
-			menuManager = new MenuManager();
-			viewMenuProvider.fillViewMenu(menuManager);
-		}
-		Menu menu = menuManager.createContextMenu(getShell());
-		Rectangle bounds = toolBar.getBounds();
-		Point topLeft = new Point(bounds.x, bounds.y + bounds.height);
-		topLeft = toolBar.getParent().toDisplay(topLeft);
-		menu.setLocation(topLeft.x, topLeft.y);
-		menu.setVisible(true);
 	}
 
 	public void contentProviderSet(final DeferredQueryContentProvider deferredProvider) {
@@ -177,6 +113,10 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				});
 			}
 		});
+	}
+
+	public void clearCheckStateCache() {
+		checkState = null;
 	}
 
 	/*
@@ -256,8 +196,10 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 					q = (QueryableMetadataRepositoryManager) viewerInput;
 				else if (viewerInput instanceof QueriedElement && ((QueriedElement) viewerInput).getQueryable() instanceof QueryableMetadataRepositoryManager)
 					q = (QueryableMetadataRepositoryManager) ((QueriedElement) viewerInput).getQueryable();
-				if (q != null)
+				if (q != null) {
 					q.loadAll(monitor);
+					q.reportAccumulatedStatus();
+				}
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				return Status.OK_STATUS;

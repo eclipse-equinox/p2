@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * Abstract class representing provisioning operations.  ProvisioningOperations
@@ -34,12 +31,10 @@ public abstract class ProvisioningOperation {
 	/**
 	 * 
 	 */
-	public IStatus execute(IProgressMonitor monitor, final IAdaptable uiInfo) throws ExecutionException {
+	public IStatus execute(IProgressMonitor monitor) throws ProvisionException {
 		IStatus status;
 		try {
-			status = doExecute(monitor, uiInfo);
-		} catch (final ProvisionException e) {
-			throw new ExecutionException(NLS.bind(ProvUIMessages.ProvisioningOperation_ExecuteErrorTitle, label, e));
+			status = doExecute(monitor);
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
 		}
@@ -51,17 +46,13 @@ public abstract class ProvisioningOperation {
 	 * 
 	 * @param monitor
 	 *            the progress monitor to use for the operation
-	 * @param uiInfo
-	 *            the IAdaptable (or <code>null</code>) provided by the
-	 *            caller in order to supply UI information for prompting the
-	 *            user if necessary. When this parameter is not
-	 *            <code>null</code>, it contains an adapter for the
-	 *            org.eclipse.swt.widgets.Shell.class
+	 * @param shell
+	 *            the shell to use for reporting errors
 	 * @throws ProvisionException
 	 *             propagates any ProvisionException thrown
 	 * 
 	 */
-	protected abstract IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException;
+	protected abstract IStatus doExecute(IProgressMonitor monitor) throws ProvisionException;
 
 	protected IStatus okStatus() {
 		return Status.OK_STATUS;

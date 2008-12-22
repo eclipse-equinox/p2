@@ -9,8 +9,8 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -56,7 +56,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 				IStatus status = manipulator.getRepositoryLocationValidator(control.getShell()).validateRepositoryLocation(location[0], false, monitor);
 				if (status.isOK()) {
 					ProvisioningOperation addOperation = manipulator.getAddOperation(location[0]);
-					ProvisioningOperationRunner.schedule(addOperation, control.getShell(), StatusManager.SHOW | StatusManager.LOG);
+					ProvisioningOperationRunner.schedule(addOperation, StatusManager.SHOW | StatusManager.LOG);
 					event.detail = DND.DROP_LINK;
 				} else if (status.getCode() == RepositoryLocationValidator.ALTERNATE_ACTION_TAKEN) {
 					event.detail = DND.DROP_COPY;

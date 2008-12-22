@@ -40,20 +40,10 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
 		}
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		// Clear the not found cache so that repos not found are reported again.
 		ProvUI.clearRepositoriesNotFound();
 		ProvisioningUtil.refreshMetadataRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
-
-	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		// Should never happen
-		return Status.CANCEL_STATUS;
-	}
-
-	public boolean canUndo() {
-		return false;
-	}
-
 }

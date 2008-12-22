@@ -74,7 +74,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		comp.setLayoutData(data);
 
 		Label urlLabel = new Label(comp, SWT.NONE);
-		urlLabel.setText(ProvUIMessages.RepositoryPropertyPage_URLFieldLabel);
+		urlLabel.setText(ProvUIMessages.AddRepositoryDialog_LocationLabel);
 		url = new Text(comp, SWT.BORDER);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
@@ -87,7 +87,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				validateRepositoryURL(false);
 			}
 		});
-		url.setText("http://"); //$NON-NLS-1$
+		url.setText(getInitialLocationText());
 		url.setSelection(0, url.getText().length());
 
 		// add vertical buttons for setting archive or local repos
@@ -172,7 +172,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
-			ProvisioningOperationRunner.schedule(getOperation(getUserLocation()), getShell(), StatusManager.SHOW | StatusManager.LOG);
+			ProvisioningOperationRunner.schedule(getOperation(getUserLocation()), StatusManager.SHOW | StatusManager.LOG);
 		}
 		return status;
 	}
@@ -223,5 +223,9 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	private void setOkEnablement(boolean enable) {
 		if (okButton != null && !okButton.isDisposed())
 			okButton.setEnabled(enable);
+	}
+
+	protected String getInitialLocationText() {
+		return "http://"; //$NON-NLS-1$
 	}
 }

@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -29,7 +30,7 @@ public class AddProfileOperation extends ProvisioningOperation {
 		this.profileProperties = profileProperties;
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
 		ProvisioningUtil.addProfile(profileId, profileProperties, monitor);
 		return okStatus();
 	}

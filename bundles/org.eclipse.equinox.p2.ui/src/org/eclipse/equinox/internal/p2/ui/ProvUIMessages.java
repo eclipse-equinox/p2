@@ -39,6 +39,7 @@ public class ProvUIMessages extends NLS {
 	public static String ApplyProfileChangesDialog_ApplyChanges;
 	public static String CategoryElementCollector_Uncategorized;
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
+	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
 	public static String InstalledSoftwarePage_RevertLabel;
@@ -113,27 +114,33 @@ public class ProvUIMessages extends NLS {
 
 	// Property pages
 	public static String IUPropertyPage_NoIUSelected;
-	public static String RepositoryPropertyPage_DescriptionFieldLabel;
-	public static String RepositoryPropertyPage_NameFieldLabel;
-	public static String RepositoryPropertyPage_URLFieldLabel;
 
-	public static String RepositoryPropertyPage_NoRepoSelected;
-
+	public static String RepositoryDetailsLabelProvider_Disabled;
+	public static String RepositoryDetailsLabelProvider_Enabled;
 	// Dialog groups
 	public static String RepositoryGroup_LocalRepoBrowseButton;
 	public static String RepositoryGroup_ArchivedRepoBrowseButton;
 	public static String RepositoryGroup_RepositoryFile;
 	public static String RepositoryGroup_SelectRepositoryDirectory;
 	public static String RepositoryGroup_URLRequired;
-	public static String RepositoryManipulationDialog_Add;
-	public static String RepositoryManipulationDialog_Description;
-	public static String RepositoryManipulationDialog_Export;
-	public static String RepositoryManipulationDialog_Import;
-	public static String RepositoryManipulationDialog_LocationColumnTitle;
-	public static String RepositoryManipulationDialog_NameColumnTitle;
-	public static String RepositoryManipulationDialog_Properties;
-	public static String RepositoryManipulationDialog_Remove;
-	public static String RepositoryManipulationDialog_Title;
+	public static String RepositoryManipulationPage_Add;
+	public static String RepositoryManipulationPage_ContactingSiteMessage;
+	public static String RepositoryManipulationPage_DefaultFilterString;
+	public static String RepositoryManipulationPage_Description;
+	public static String RepositoryManipulationPage_DisableButton;
+	public static String RepositoryManipulationPage_EnableButton;
+	public static String RepositoryManipulationPage_EnabledColumnTitle;
+	public static String RepositoryManipulationPage_Export;
+	public static String RepositoryManipulationPage_Import;
+	public static String RepositoryManipulationPage_LocationColumnTitle;
+	public static String RepositoryManipulationPage_NameColumnTitle;
+	public static String RepositoryManipulationPage_RefreshConnection;
+	public static String RepositoryManipulationPage_RefreshOperationLabel;
+	public static String RepositoryManipulationPage_Remove;
+	public static String RepositoryManipulationPage_RemoveConfirmMessage;
+	public static String RepositoryManipulationPage_RemoveConfirmSingleMessage;
+	public static String RepositoryManipulationPage_RemoveConfirmTitle;
+	public static String RepositoryManipulationPage_Title;
 	public static String RepositoryManipulatorDropTarget_DragAndDropJobLabel;
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
 
@@ -143,22 +150,19 @@ public class ProvUIMessages extends NLS {
 	// Dialogs
 	public static String AddRepositoryDialog_DuplicateURL;
 	public static String AddRepositoryDialog_InvalidURL;
+	public static String AddRepositoryDialog_LocationLabel;
 	public static String AddRepositoryDialog_Title;
 	public static String AvailableIUElement_ProfileNotFound;
 	public static String AvailableIUGroup_LoadingRepository;
-	public static String AvailableIUGroup_RefreshOperationLabel;
-	public static String AvailableIUGroup_ViewByCategory;
-	public static String AvailableIUGroup_ViewByName;
-	public static String AvailableIUGroup_ViewBySite;
-	public static String AvailableIUGroup_ViewByToolTipText;
-	public static String AvailableIUsPage_AddSite;
+	public static String AvailableIUsPage_AddButton;
+	public static String AvailableIUsPage_AllSites;
 	public static String AvailableIUsPage_Description;
-	public static String AvailableIUsPage_IncludeInstalledItems;
-	public static String AvailableIUsPage_InstallInfo;
-	public static String AvailableIUsPage_InstallInfoTooltip;
-	public static String AvailableIUsPage_ManageSites;
-	public static String AvailableIUsPage_ManageSitesTooltip;
-	public static String AvailableIUsPage_RefreshTooltip;
+	public static String AvailableIUsPage_GotoInstallInfo;
+	public static String AvailableIUsPage_GotoProperties;
+	public static String AvailableIUsPage_GroupByCategory;
+	public static String AvailableIUsPage_HideInstalledItems;
+	public static String AvailableIUsPage_RepoFilterInstructions;
+	public static String AvailableIUsPage_RepoFilterLabel;
 	public static String AvailableIUsPage_ShowLatestVersions;
 	public static String AvailableIUsPage_Title;
 	public static String DefaultQueryProvider_ErrorRetrievingProfile;
@@ -204,9 +208,6 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizeComputingWizardPage_SizeJobTitle;
 	public static String SizingPhaseSet_PhaseSetName;
-	public static String RepositoryPropertyPage_UsernameField;
-	public static String RepositoryPropertyPage_PasswordField;
-	public static String RepositoryPropertyPage_SavePasswordField;
 	public static String RevertDialog_ConfigContentsLabel;
 	public static String RevertDialog_ConfigsLabel;
 	public static String RevertDialog_ConfirmRestartMessage;
@@ -237,5 +238,8 @@ public class ProvUIMessages extends NLS {
 	public static String Updates_Label;
 	public static String UpdateWizardPage_Description;
 	public static String UpdateWizardPage_Title;
+	public static String UserValidationDialog_PasswordLabel;
+	public static String UserValidationDialog_SavePasswordButton;
+	public static String UserValidationDialog_UsernameLabel;
 
 }

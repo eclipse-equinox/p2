@@ -11,11 +11,11 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
@@ -148,7 +148,7 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	public boolean performFinish() {
 		if (currentStatus != null && currentStatus.getSeverity() != IStatus.ERROR) {
 			ProfileModificationOperation op = createProfileModificationOperation(currentPlan);
-			ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
+			ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 			return true;
 		}
 		return false;
@@ -207,9 +207,9 @@ public abstract class ResolutionWizardPage extends WizardPage {
 						if (request != null) {
 							PlannerResolutionOperation op = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, getProfileId(), request, status, false);
 							try {
-								op.execute(monitor, ProvUI.getUIInfoAdapter(getShell()));
-							} catch (ExecutionException e) {
-								currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+								op.execute(monitor);
+							} catch (ProvisionException e) {
+								currentStatus = ProvUI.handleException(e, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
 							}
 							currentPlan = op.getProvisioningPlan();
 							if (currentPlan != null) {
