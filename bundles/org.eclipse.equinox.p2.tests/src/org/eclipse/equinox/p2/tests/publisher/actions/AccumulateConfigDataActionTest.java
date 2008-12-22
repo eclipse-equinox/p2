@@ -3,14 +3,15 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -20,7 +21,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -62,11 +62,11 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		assertTrue(programArgs[0].equalsIgnoreCase("-startup")); //$NON-NLS-1$
 
 		Path path1 = new Path(TestActivator.getTestDataFolder().getPath() + FOO);
-		assertTrue(path1.toFile().toURI().equals(URIUtil.fromString(programArgs[1])));
+		assertTrue(path1.toFile().toURI().equals(new URI(programArgs[1])));
 		assertTrue(programArgs[2].equalsIgnoreCase("--launcher.library"));//$NON-NLS-1$
 
 		Path path2 = new Path(TestActivator.getTestDataFolder().getPath() + BAR);
-		assertTrue(path2.toFile().toURI().equals(URIUtil.fromString(programArgs[3])));
+		assertTrue(path2.toFile().toURI().equals(new URI(programArgs[3])));
 
 		String[] vmArgs = captured.getVMArguments();
 		assertTrue(vmArgs.length == 0);
