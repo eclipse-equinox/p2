@@ -117,6 +117,9 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 
 	/**
 	 * Load all of the repositories referenced by this queryable.  This is an expensive operation.
+	 * The status of any not found repositories is accumulated and must be reported manually
+	 * using reportAccumulatedStatus()
+	 * 
 	 * @param monitor the progress monitor that should be used
 	 */
 	public void loadAll(IProgressMonitor monitor) {
@@ -147,8 +150,6 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
 			}
 		}
-		reportAccumulatedStatus();
-
 	}
 
 	/**
@@ -189,7 +190,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		}
 	}
 
-	private void reportAccumulatedStatus() {
+	public void reportAccumulatedStatus() {
 		// If we've discovered not found repos we didn't know about, report them
 		if (accumulatedNotFound != null) {
 			// If there is only missing repo to report, use the specific message rather than the generic.

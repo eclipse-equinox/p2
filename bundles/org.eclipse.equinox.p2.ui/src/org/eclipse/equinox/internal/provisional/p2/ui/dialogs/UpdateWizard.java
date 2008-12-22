@@ -19,18 +19,22 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.swt.widgets.Composite;
 
 /**
  * @since 3.4
  */
 public class UpdateWizard extends WizardWithLicenses {
 	IInstallableUnit[] iusToReplace;
+	QueryableMetadataRepositoryManager manager;
 
-	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan) {
+	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan, QueryableMetadataRepositoryManager manager) {
 		super(policy, profileId, root, initialSelections, initialPlan);
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
+		this.manager = manager;
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
@@ -56,5 +60,11 @@ public class UpdateWizard extends WizardWithLicenses {
 		}
 		elementRoot.setChildren(list.toArray());
 		return elementRoot;
+	}
+
+	public void createPageControls(Composite pageContainer) {
+		super.createPageControls(pageContainer);
+		if (manager != null)
+			manager.reportAccumulatedStatus();
 	}
 }

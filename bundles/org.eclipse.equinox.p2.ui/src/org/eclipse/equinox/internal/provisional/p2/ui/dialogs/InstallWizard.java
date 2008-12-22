@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.swt.widgets.Composite;
 
 /**
  * @since 3.4
@@ -60,5 +61,11 @@ public class InstallWizard extends WizardWithLicenses {
 		}
 		elementRoot.setChildren(list.toArray());
 		return elementRoot;
+	}
+
+	public void createPageControls(Composite pageContainer) {
+		super.createPageControls(pageContainer);
+		if (manager != null)
+			manager.reportAccumulatedStatus();
 	}
 }
