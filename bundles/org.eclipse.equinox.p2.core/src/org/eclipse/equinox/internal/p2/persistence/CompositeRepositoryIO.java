@@ -23,10 +23,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.*;
 
 /**

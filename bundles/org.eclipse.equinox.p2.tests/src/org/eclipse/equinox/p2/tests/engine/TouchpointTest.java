@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.engine.PhaseTest.TestPhaseSet;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Simple test of the engine API.

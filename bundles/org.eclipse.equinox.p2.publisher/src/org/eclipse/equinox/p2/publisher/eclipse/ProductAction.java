@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class ProductAction extends EclipseInstallAction {
 

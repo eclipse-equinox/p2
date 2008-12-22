@@ -28,7 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 

@@ -10,7 +10,7 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class BundleShapeAdvice extends AbstractAdvice implements IBundleShapeAdvice {
 

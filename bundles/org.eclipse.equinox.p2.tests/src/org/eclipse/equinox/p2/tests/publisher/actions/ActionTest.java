@@ -20,8 +20,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {

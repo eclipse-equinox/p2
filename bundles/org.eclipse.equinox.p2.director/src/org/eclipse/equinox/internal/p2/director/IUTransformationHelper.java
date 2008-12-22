@@ -10,8 +10,8 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class IUTransformationHelper {
 	static public RequiredCapability[] toRequirements(Iterator ius, boolean optional) {

@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -34,8 +34,6 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -216,7 +214,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	public IInstallableUnit createBundleIU(BundleDescription bd, boolean isFolder, IArtifactKey key) {
 		PublisherInfo info = new PublisherInfo();
 		String shape = isFolder ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
-		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), bd.getVersion(), shape));
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
 		return BundlesAction.createBundleIU(bd, key, info);
 	}
 

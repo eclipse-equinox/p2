@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.

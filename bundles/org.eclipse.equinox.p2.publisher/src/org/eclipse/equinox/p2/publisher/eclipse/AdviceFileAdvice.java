@@ -15,7 +15,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Publishing advice from a p2 advice file. An advice file (p2.inf) can be embedded

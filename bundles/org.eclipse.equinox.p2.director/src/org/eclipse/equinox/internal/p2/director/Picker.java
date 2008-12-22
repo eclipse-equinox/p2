@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.osgi.service.resolver.VersionRange;
 
 //The pickers goal is to find an installable unit that satisfies a search criteria 
 //TODO we may need additional variations of these method where version can be null, or where the search returns all the match, not just the first one

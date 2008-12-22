@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 

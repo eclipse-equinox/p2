@@ -15,8 +15,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * A factory class for instantiating various p2 metadata objects.

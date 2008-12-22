@@ -25,8 +25,8 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Action which processes a site.xml and generates categories.  The categorization process

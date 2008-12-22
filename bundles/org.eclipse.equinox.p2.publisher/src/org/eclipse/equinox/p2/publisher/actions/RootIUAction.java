@@ -21,9 +21,9 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Create a top level IU that lists all the current roots as well as any explicitly identified

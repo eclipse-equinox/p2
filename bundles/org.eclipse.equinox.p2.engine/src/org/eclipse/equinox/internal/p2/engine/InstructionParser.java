@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class InstructionParser {

@@ -19,9 +19,9 @@ import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 

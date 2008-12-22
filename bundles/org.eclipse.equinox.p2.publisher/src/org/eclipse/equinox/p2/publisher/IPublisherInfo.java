@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.publisher;
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public interface IPublisherInfo {
 
