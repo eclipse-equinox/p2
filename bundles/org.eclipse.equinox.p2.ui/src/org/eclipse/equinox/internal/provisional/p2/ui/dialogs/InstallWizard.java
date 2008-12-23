@@ -66,6 +66,11 @@ public class InstallWizard extends WizardWithLicenses {
 	public void createPageControls(Composite pageContainer) {
 		super.createPageControls(pageContainer);
 		if (manager != null)
-			manager.reportAccumulatedStatus();
+			// async exec since we are in the middle of opening
+			pageContainer.getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					manager.reportAccumulatedStatus();
+				}
+			});
 	}
 }
