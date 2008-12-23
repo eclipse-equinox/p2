@@ -3,12 +3,14 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 	IBM Corporation - initial API and implementation
  * 	Genuitec - bug fixes
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
+
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 
 import java.net.URI;
 import java.util.*;
@@ -58,7 +60,50 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(status, operands);
+		return new ProvisioningPlan(status, operands, computeActualChangeRequest(toState, changeRequest));
+	}
+
+	private Map[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
+		IInstallableUnit[] added = changeRequest.getAddedInstallableUnits();
+		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
+		Map requestStatus = new HashMap(added.length + removed.length);
+		for (int i = 0; i < added.length; i++) {
+			requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+		}
+		for (int i = 0; i < removed.length; i++) {
+			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+		}
+		return new Map[] {requestStatus, null};
+	}
+
+	private Map[] computeActualChangeRequest(Collection toState, ProfileChangeRequest changeRequest) {
+		IInstallableUnit[] added = changeRequest.getAddedInstallableUnits();
+		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
+		Map requestStatus = new HashMap(added.length + removed.length);
+		for (int i = 0; i < added.length; i++) {
+			if (toState.contains(added[i]))
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.OK));
+			else
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+		}
+
+		for (int i = 0; i < removed.length; i++) {
+			if (!toState.contains(removed[i]))
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.OK));
+			else
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+		}
+
+		//Compute the side effect changes (e.g. things installed optionally going away)
+		Collection includedIUs = new HashSet(changeRequest.getProfile().query(new IUProfilePropertyQuery(changeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection());
+		Map sideEffectStatus = new HashMap(includedIUs.size());
+		includedIUs.removeAll(toState);
+		for (Iterator iterator = includedIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit removal = (IInstallableUnit) iterator.next();
+			if (!requestStatus.containsKey(removal))
+				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO));
+		}
+		return new Map[] {requestStatus, sideEffectStatus};
 	}
 
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {
@@ -78,7 +123,7 @@ public class SimplePlanner implements IPlanner {
 			String key = (String) iter.next();
 			operands.add(new PropertyOperand(key, existingProperties.get(key), propertyChanges.get(key)));
 		}
-		// Now deal with iu property changes/additions.  
+		// Now deal with iu property changes/additions.
 		// TODO we aren't yet checking that the IU will exist in the final profile, will the engine do this?
 		Map allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
 		iter = allIUPropertyChanges.keySet().iterator();
@@ -93,7 +138,7 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		// Now deal with iu property removals.
-		// TODO we could optimize by not generating property removals for IU's that aren't there or won't be there.  
+		// TODO we could optimize by not generating property removals for IU's that aren't there or won't be there.
 		Map allIUPropertyDeletions = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove();
 		iter = allIUPropertyDeletions.keySet().iterator();
 		while (iter.hasNext()) {
@@ -260,7 +305,7 @@ public class SimplePlanner implements IPlanner {
 				IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
 				if (!oldResolverStatus.isOK())
 					s = oldResolverStatus;
-				return new ProvisioningPlan(s);
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)

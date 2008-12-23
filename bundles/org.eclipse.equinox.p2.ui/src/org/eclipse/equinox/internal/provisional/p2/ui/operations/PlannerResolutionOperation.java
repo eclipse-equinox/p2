@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 
 /**
  * Class representing a provisioning profile plan
- * 
+ *
  * @since 3.4
  */
 public class PlannerResolutionOperation extends ProvisioningOperation {
@@ -54,11 +54,11 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 		// Ideally this all would have been detected in the planner itself.
 		if (additionalStatus.getChildren().length > 0) {
 			additionalStatus.merge(plan.getStatus());
-			plan = new ProvisioningPlan(additionalStatus, plan.getOperands());
+			plan = new ProvisioningPlan(additionalStatus, plan.getOperands(), null);
 		}
 		// Now run the result through the sanity checker.  Again, this would ideally be caught
 		// in the planner, but for now we have to build a new plan to include the UI status checking.
-		plan = new ProvisioningPlan(PlanStatusHelper.computeStatus(plan, iusInvolved), plan.getOperands());
+		plan = new ProvisioningPlan(PlanStatusHelper.computeStatus(plan, iusInvolved), plan.getOperands(), null);
 
 		// We are reporting on our ability to get a plan, not on the status of the plan itself.
 		// Callers will interpret and report the status as needed.

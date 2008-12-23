@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -22,21 +21,27 @@ import org.eclipse.equinox.internal.provisional.p2.query.*;
 public class ProvisioningPlan {
 	IStatus status;
 	Operand[] operands;
+	Map actualChangeRequest;
+	Map sideEffectChanges;
 
 	public ProvisioningPlan(IStatus status) {
-		this(status, new Operand[0]);
+		this(status, new Operand[0], null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest) {
 		this.status = status;
 		this.operands = operands;
+		if (actualChangeRequest != null) {
+			this.actualChangeRequest = actualChangeRequest[0];
+			this.sideEffectChanges = actualChangeRequest[1];
+		}
 	}
 
 	public IStatus getStatus() {
 		return status;
 	}
 
-	/** 
+	/**
 	 * The operands to pass to the engine.
 	 * @return the operands to be executed. This may be an empty array if the
 	 * plan has errors or if there is nothing to do.
@@ -51,6 +56,18 @@ public class ProvisioningPlan {
 
 	public IQueryable getAdditions() {
 		return new QueryablePlan(true);
+	}
+
+	public RequestStatus getRequestStatus(IInstallableUnit iu) {
+		if (actualChangeRequest == null)
+			return null;
+		return (RequestStatus) actualChangeRequest.get(iu);
+	}
+
+	public Map getSideEffectChanges() {
+		if (sideEffectChanges == null)
+			return Collections.EMPTY_MAP;
+		return sideEffectChanges;
 	}
 
 	private class QueryablePlan implements IQueryable {
