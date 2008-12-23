@@ -187,7 +187,11 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				}
 			}
 		});
-		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES));
+		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES) {
+			public String getManipulatorLinkLabel() {
+				return ProvSDKMessages.ProvSDKUIActivator_SitePrefLink;
+			}
+		});
 		policy.setPlanValidator(new PlanValidator() {
 			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
 				if (plan == null)
