@@ -235,19 +235,26 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		labelProvider = new RepositoryDetailsLabelProvider();
 		repositoryViewer.setLabelProvider(labelProvider);
 
+		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				validateButtons();
+				setDetails();
+			}
+		});
+
 		// Input last
 		repositoryViewer.setInput(getInput());
 
 		DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
-		target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), repositoryViewer.getControl()));
+		target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), table));
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
 		data.grabExcessVerticalSpace = true;
 		data.widthHint = convertHorizontalDLUsToPixels(WIDTH_IN_DLUS);
 		data.heightHint = convertVerticalDLUsToPixels(HEIGHT_IN_DLUS);
-		repositoryViewer.getControl().setLayoutData(data);
+		table.setLayoutData(data);
 
 		// Vertical buttons
 		Composite verticalButtonBar = createVerticalButtonBar(composite);
@@ -264,12 +271,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		details.setLayoutData(data);
 
-		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				validateButtons();
-				setDetails();
-			}
-		});
 		ProvUI.addProvisioningListener(listener);
 		composite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {

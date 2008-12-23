@@ -274,6 +274,16 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 						addRepository(false);
 				}
 			});
+
+			// We don't ever want this to be interpreted as a default
+			// button event
+			repoCombo.addTraverseListener(new TraverseListener() {
+				public void keyTraversed(TraverseEvent e) {
+					if (e.detail == SWT.TRAVERSE_RETURN) {
+						e.doit = false;
+					}
+				}
+			});
 			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 			// breathing room for info dec
 			gd.horizontalIndent = DEC_MARGIN_WIDTH * 2;
