@@ -20,8 +20,12 @@ public interface IRequirementChange {
 	/**
 	 * Returns whether this requirement change is equal to the given object.
 	 * 
-	 * See <code>{@link org.eclipse.equinox.internal.provisional.p2.metadata.RequirementChange#equals(Object)}</code>
-	 * for an example implementation.  SPIs must maintain the same semantics.
+	 * This method returns <i>true</i> if:
+	 * <ul>
+	 *  <li> Both this object and the given object are of type IRequiredCapability
+	 *  <li> The result of <b>applyOn()</b> on both objects are equal
+	 *  <li> The result of <b>newValue()</b> on both objects are equal
+	 * </ul> 
 	 */
 	public boolean equals(Object other);
 }
