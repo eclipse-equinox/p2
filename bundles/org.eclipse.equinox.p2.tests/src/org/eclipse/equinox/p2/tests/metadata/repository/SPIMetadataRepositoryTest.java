@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -716,90 +717,90 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * @throws ProvisionException
 	 */
 	public void testSPIEquals() throws ProvisionException, URISyntaxException {
-		//		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		//		Map properties = new HashMap();
-		//		properties.put(IRepository.PROP_COMPRESSED, "true");
-		//
-		//		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		//		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
-		//		InstallableUnitPatchDescription iuPatchDescription = new InstallableUnitPatchDescription();
-		//		iuDescription.setId("foo");
-		//		iuDescription.setVersion(new Version(1, 1, 1));
-		//
-		//		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
-		//		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", false, false, false);
-		//
-		//		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
-		//		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});
-		//
-		//		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
-		//		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", new Version(1, 1, 1));
-		//
-		//		ITouchpointData spiTouchpointData = new SPITouchpointData();
-		//		ITouchpointInstruction spiTouchpointInstruction = new SPITouchpointInstruction("the body", "the import attribute");
-		//		((SPITouchpointData) spiTouchpointData).addInstruction("foo", spiTouchpointInstruction);
-		//		iuDescription.addTouchpointData(spiTouchpointData);
-		//
-		//		SPILicense spiLicense = new SPILicense("body", new URI("http://example.com"));
-		//		iuDescription.setLicense(spiLicense);
-		//
-		//		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", new Version(3, 3, 3));
-		//		iuDescription.setTouchpointType(spiTouchpointType);
-		//
-		//		Collection requiredCapabilityList = new ArrayList();
-		//		requiredCapabilityList.add(spiRequiredCapability);
-		//		iuDescription.addRequiredCapabilities(requiredCapabilityList);
-		//
-		//		Collection providedCapabilityList = new ArrayList();
-		//		providedCapabilityList.add(spiProvidedCapability);
-		//		iuDescription.addProvidedCapabilities(providedCapabilityList);
-		//
-		//		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)});
-		//
-		//		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		//		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
-		//
-		//		Collection collection = collector.toCollection();
-		//		assertEquals(2, collection.size());
-		//		Iterator iterator = collection.iterator();
-		//
-		//		IInstallableUnit unit = (IInstallableUnit) iterator.next();
-		//		IInstallableUnitPatch patchUnit = (IInstallableUnitPatch) iterator.next();
-		//		while (iterator.hasNext()) {
-		//			Object o = iterator.next();
-		//			if (o instanceof IInstallableUnitPatch) {
-		//				patchUnit = (IInstallableUnitPatch) o;
-		//			} else if (o instanceof IInstallableUnit) {
-		//				unit = (IInstallableUnit) o;
-		//			}
-		//		}
-		//		assertFalse(unit == null);
-		//		assertFalse(patchUnit == null);
-		//
-		//		assertEquals(unit.getRequiredCapabilities().length, 1);
-		//		assertEquals(unit.getProvidedCapabilities().length, 1);
-		//		assertEquals(unit.getTouchpointData().length, 1);
-		//		assertEquals(unit.getRequiredCapabilities()[0], spiRequiredCapability);
-		//		assertEquals(unit.getProvidedCapabilities()[0], spiProvidedCapability);
-		//		assertEquals(unit.getTouchpointData()[0], spiTouchpointData);
-		//		assertEquals(unit.getTouchpointType(), spiTouchpointType);
-		//		assertEquals(unit.getLicense(), spiLicense);
-		//		assertEquals(spiRequiredCapability, unit.getRequiredCapabilities()[0]);
-		//		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities()[0]);
-		//		assertEquals(spiTouchpointData, unit.getTouchpointData()[0]);
-		//		assertEquals(spiTouchpointType, unit.getTouchpointType());
-		//		assertEquals(spiLicense, unit.getLicense());
-		//
-		//		assertEquals(patchUnit.getRequirementsChange().length, 1);
-		//		assertEquals(patchUnit.getRequirementsChange()[0], spiRequirementChange);
-		//		assertEquals(spiRequirementChange, patchUnit.getRequirementsChange()[0]);
-		//
-		//		// Check to make sure the actual objects are not equal.  This is because the repo has 
-		//		// been refreshed, and re-parsed, thus using the default implementations.
-		//		assertFalse(spiTouchpointData == unit.getTouchpointData()[0]);
-		//		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities()[0]);
-		//		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities()[0]);
-		//		assertFalse(spiTouchpointType == unit.getTouchpointType());
-		//		assertFalse(spiLicense == unit.getLicense());
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		Map properties = new HashMap();
+		properties.put(IRepository.PROP_COMPRESSED, "true");
+
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		InstallableUnitPatchDescription iuPatchDescription = new InstallableUnitPatchDescription();
+		iuDescription.setId("foo");
+		iuDescription.setVersion(new Version(1, 1, 1));
+
+		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", false, false, false);
+
+		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
+		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});
+
+		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", new Version(1, 1, 1));
+
+		ITouchpointData spiTouchpointData = new SPITouchpointData();
+		ITouchpointInstruction spiTouchpointInstruction = new SPITouchpointInstruction("the body", "the import attribute");
+		((SPITouchpointData) spiTouchpointData).addInstruction("foo", spiTouchpointInstruction);
+		iuDescription.addTouchpointData(spiTouchpointData);
+
+		SPILicense spiLicense = new SPILicense("body", new URI("http://example.com"));
+		iuDescription.setLicense(spiLicense);
+
+		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", new Version(3, 3, 3));
+		iuDescription.setTouchpointType(spiTouchpointType);
+
+		Collection requiredCapabilityList = new ArrayList();
+		requiredCapabilityList.add(spiRequiredCapability);
+		iuDescription.addRequiredCapabilities(requiredCapabilityList);
+
+		Collection providedCapabilityList = new ArrayList();
+		providedCapabilityList.add(spiProvidedCapability);
+		iuDescription.addProvidedCapabilities(providedCapabilityList);
+
+		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)});
+
+		repo = manager.refreshRepository(repoLocation.toURI(), null);
+		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+
+		Collection collection = collector.toCollection();
+		assertEquals(2, collection.size());
+		Iterator iterator = collection.iterator();
+
+		IInstallableUnit unit = null;
+		IInstallableUnitPatch patchUnit = null;
+		while (iterator.hasNext()) {
+			Object o = iterator.next();
+			if (o instanceof IInstallableUnitPatch) {
+				patchUnit = (IInstallableUnitPatch) o;
+			} else if (o instanceof IInstallableUnit) {
+				unit = (IInstallableUnit) o;
+			}
+		}
+		assertFalse(unit == null);
+		assertFalse(patchUnit == null);
+
+		assertEquals(unit.getRequiredCapabilities().length, 1);
+		assertEquals(unit.getProvidedCapabilities().length, 1);
+		assertEquals(unit.getTouchpointData().length, 1);
+		assertEquals(unit.getRequiredCapabilities()[0], spiRequiredCapability);
+		assertEquals(unit.getProvidedCapabilities()[0], spiProvidedCapability);
+		assertEquals(unit.getTouchpointData()[0], spiTouchpointData);
+		assertEquals(unit.getTouchpointType(), spiTouchpointType);
+		assertEquals(unit.getLicense(), spiLicense);
+		assertEquals(spiRequiredCapability, unit.getRequiredCapabilities()[0]);
+		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities()[0]);
+		assertEquals(spiTouchpointData, unit.getTouchpointData()[0]);
+		assertEquals(spiTouchpointType, unit.getTouchpointType());
+		assertEquals(spiLicense, unit.getLicense());
+
+		assertEquals(patchUnit.getRequirementsChange().length, 1);
+		assertEquals(patchUnit.getRequirementsChange()[0], spiRequirementChange);
+		assertEquals(spiRequirementChange, patchUnit.getRequirementsChange()[0]);
+
+		// Check to make sure the actual objects are not equal.  This is because the repo has 
+		// been refreshed, and re-parsed, thus using the default implementations.
+		assertFalse(spiTouchpointData == unit.getTouchpointData()[0]);
+		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities()[0]);
+		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities()[0]);
+		assertFalse(spiTouchpointType == unit.getTouchpointType());
+		assertFalse(spiLicense == unit.getLicense());
 	}
 }
