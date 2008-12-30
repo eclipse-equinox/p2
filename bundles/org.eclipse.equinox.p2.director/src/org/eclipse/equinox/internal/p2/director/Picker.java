@@ -36,8 +36,8 @@ public class Picker {
 		this.filters = new ArrayList(2);
 	}
 
-	public Collection[] findInstallableUnit(String id, VersionRange range, RequiredCapability searchedCapability) {
-		IInstallableUnit[][] tmp = findInstallableUnit(id, range, new RequiredCapability[] {searchedCapability}, false);
+	public Collection[] findInstallableUnit(String id, VersionRange range, IRequiredCapability searchedCapability) {
+		IInstallableUnit[][] tmp = findInstallableUnit(id, range, new IRequiredCapability[] {searchedCapability}, false);
 		return new Collection[] {Arrays.asList(tmp[0]), Arrays.asList(tmp[1])};
 	}
 
@@ -62,14 +62,14 @@ public class Picker {
 		secondChoiceSet = (IInstallableUnit[]) secondChoice.toArray(new IInstallableUnit[secondChoice.size()]);
 	}
 
-	public IInstallableUnit[][] findInstallableUnit(String id, VersionRange range, RequiredCapability[] searchedCapability, boolean fragmentsOnly) {
+	public IInstallableUnit[][] findInstallableUnit(String id, VersionRange range, IRequiredCapability[] searchedCapability, boolean fragmentsOnly) {
 		return new IInstallableUnit[][] {findInstallableUnit(preferredSet, id, range, searchedCapability, fragmentsOnly), findInstallableUnit(secondChoiceSet, id, range, searchedCapability, fragmentsOnly)};
 	}
 
 	//TODO what should be the return value when all the parameters are null. Is it even a valid call?
 	//TODO A lot of improvement could be done on this algorithm, for example
 	// - remove from the set of searchedCapability the one that are found
-	private IInstallableUnit[] findInstallableUnit(IInstallableUnit[] pool, String id, VersionRange range, RequiredCapability[] searchedCapability, boolean fragmentsOnly) {
+	private IInstallableUnit[] findInstallableUnit(IInstallableUnit[] pool, String id, VersionRange range, IRequiredCapability[] searchedCapability, boolean fragmentsOnly) {
 		if (pool == null || pool.length == 0)
 			return new IInstallableUnit[0];
 		Set candidates = new HashSet();
@@ -90,7 +90,7 @@ public class Picker {
 				IInstallableUnit candidate = pool[i];
 				for (int k = 0; k < searchedCapability.length; k++) {
 					boolean valid = false;
-					ProvidedCapability[] capabilities = candidate.getProvidedCapabilities();
+					IProvidedCapability[] capabilities = candidate.getProvidedCapabilities();
 					if (capabilities.length == 0)
 						valid = false;
 					for (int j = 0; j < capabilities.length; j++) {
@@ -110,10 +110,10 @@ public class Picker {
 		return pool;
 	}
 
-	private RequiredCapability[] rewrite(RequiredCapability[] requiredCapabilities) {
+	private IRequiredCapability[] rewrite(IRequiredCapability[] requiredCapabilities) {
 		if (recommendations == null)
 			return requiredCapabilities;
-		RequiredCapability[] result = new RequiredCapability[requiredCapabilities.length];
+		IRequiredCapability[] result = new IRequiredCapability[requiredCapabilities.length];
 		for (int i = 0; i < requiredCapabilities.length; i++) {
 			result[i] = getRecommendation(requiredCapabilities[i]);
 			if (result[i] == null)
@@ -122,7 +122,7 @@ public class Picker {
 		return result;
 	}
 
-	private RequiredCapability getRecommendation(RequiredCapability match) {
+	private IRequiredCapability getRecommendation(IRequiredCapability match) {
 		Recommendation foundRecommendation = recommendations.findRecommendation(match);
 		return foundRecommendation != null ? foundRecommendation.newValue() : match;
 	}

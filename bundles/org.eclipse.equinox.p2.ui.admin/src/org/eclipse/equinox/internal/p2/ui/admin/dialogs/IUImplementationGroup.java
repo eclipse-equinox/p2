@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.jface.dialogs.Dialog;
@@ -26,7 +27,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * An IUImplementationGroup is a reusable UI component that displays and edits the 
@@ -149,24 +149,24 @@ public class IUImplementationGroup extends IUGroup {
 		if (value != null) {
 			namespace.setText(value);
 		}
-		TouchpointType type = iu.getTouchpointType();
+		ITouchpointType type = iu.getTouchpointType();
 		if (type != null) {
 			touchpointType.setText(type.getId());
 		}
-		TouchpointData[] data = iu.getTouchpointData();
+		ITouchpointData[] data = iu.getTouchpointData();
 		String[] items = new String[data.length];
 		for (int i = 0; i < data.length; i++) {
 			items[i] = data[i].toString();
 		}
 		touchpointData.setItems(items);
 
-		RequiredCapability[] req = iu.getRequiredCapabilities();
+		IRequiredCapability[] req = iu.getRequiredCapabilities();
 		items = new String[req.length];
 		for (int i = 0; i < req.length; i++) {
 			items[i] = req[i].toString();
 		}
 		requiredCapabilities.setItems(items);
-		ProvidedCapability[] prov = iu.getProvidedCapabilities();
+		IProvidedCapability[] prov = iu.getProvidedCapabilities();
 		items = new String[prov.length];
 		for (int i = 0; i < prov.length; i++) {
 			items[i] = prov[i].toString();

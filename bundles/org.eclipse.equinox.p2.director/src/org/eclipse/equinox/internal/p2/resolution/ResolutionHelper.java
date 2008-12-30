@@ -92,7 +92,7 @@ public class ResolutionHelper {
 	private ArrayList createUnsatisfiedCapabilities(VersionConstraint[] unsatisfied, BundleDescription description) {
 		ArrayList results = new ArrayList();
 		for (int i = 0; i < unsatisfied.length; i++) {
-			RequiredCapability originalDependency = (RequiredCapability) ((StateMetadataMap) description.getUserObject()).getGenericSpecifications().get(unsatisfied[i]);
+			IRequiredCapability originalDependency = (IRequiredCapability) ((StateMetadataMap) description.getUserObject()).getGenericSpecifications().get(unsatisfied[i]);
 			results.add(new UnsatisfiedCapability(originalDependency, ((StateMetadataMap) description.getUserObject()).getUnit()));
 		}
 		return results;
@@ -133,7 +133,7 @@ public class ResolutionHelper {
 				IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
 
 				// Check to make sure the host meets the requirements of the fragment
-				RequiredCapability reqsFromFragment[] = potentialFragment.getHost();
+				IRequiredCapability reqsFromFragment[] = potentialFragment.getHost();
 				boolean match = true;
 				boolean requirementMatched = false;
 				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {

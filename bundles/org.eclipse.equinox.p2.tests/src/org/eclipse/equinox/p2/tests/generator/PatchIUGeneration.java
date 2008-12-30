@@ -9,12 +9,12 @@
 package org.eclipse.equinox.p2.tests.generator;
 
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 public class PatchIUGeneration extends AbstractProvisioningTest {
 

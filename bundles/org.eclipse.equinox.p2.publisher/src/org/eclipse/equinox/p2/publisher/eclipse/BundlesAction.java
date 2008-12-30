@@ -61,15 +61,15 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing and OSGi bundle resource
-	 * @see RequiredCapability#getName()
-	 * @see ProvidedCapability#getName()
+	 * @see IRequiredCapability#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a source bundle
-	 * @see RequiredCapability#getName()
+	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
@@ -77,8 +77,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
-	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
-	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
+	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
+	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
@@ -109,13 +109,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setVersion(hostVersion);
 
 		//Indicate the IU to which this CU apply
-		cu.setHost(new RequiredCapability[] { //
+		cu.setHost(new IRequiredCapability[] { //
 				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), // 
 						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, hostVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, hostVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -166,7 +166,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
-		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
+		iu.setRequiredCapabilities((IRequiredCapability[]) reqsDeps.toArray(new IRequiredCapability[reqsDeps.size()]));
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
@@ -199,7 +199,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(bd.getSymbolicName(), locale));
 			}
 		}
-		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 		processCapabilityAdvice(iu, bd, info);
 
 		// Set certain properties from the manifest header attributes as IU properties.
@@ -263,18 +263,18 @@ public class BundlesAction extends AbstractPublisherAction {
 		Collection advice = info.getAdvice(null, false, null, null, ICapabilityAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
-			RequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
-			ProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
+			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
+			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				RequiredCapability[] current = iu.getRequiredCapabilities();
-				RequiredCapability[] result = new RequiredCapability[requiredAdvice.length + current.length];
+				IRequiredCapability[] current = iu.getRequiredCapabilities();
+				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
 				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
 				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
 				iu.setRequiredCapabilities(result);
 			}
 			if (providedAdvice != null) {
-				ProvidedCapability[] current = iu.getProvidedCapabilities();
-				ProvidedCapability[] result = new ProvidedCapability[providedAdvice.length + current.length];
+				IProvidedCapability[] current = iu.getProvidedCapabilities();
+				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];
 				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
 				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
 				iu.setCapabilities(result);
@@ -290,7 +290,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	 */
 	private static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info) {
 		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
-		TouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
+		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
 			result = entry.getTouchpointData(result);
@@ -320,7 +320,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequiredCapability[] hostReqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
@@ -339,7 +339,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 			providedCapabilities.add(PublisherHelper.makeTranslationCapability(hostId, locale));
 		}
-		fragment.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+		fragment.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
@@ -385,10 +385,10 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		// Create a required capability on bundles
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 

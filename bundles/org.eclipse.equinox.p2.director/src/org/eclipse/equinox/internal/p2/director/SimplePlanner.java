@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -334,7 +332,7 @@ public class SimplePlanner implements IPlanner {
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
 		iud.setVersion(new Version(0, 0, 0, time));
-		iud.setRequiredCapabilities((RequiredCapability[]) allRequirements.toArray(new RequiredCapability[allRequirements.size()]));
+		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
 		return MetadataFactory.createInstallableUnit(iud);
 	}
 
@@ -378,7 +376,7 @@ public class SimplePlanner implements IPlanner {
 		Map iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
 		for (int i = 0; i < added.length; i++) {
 			Map propertiesForIU = (Map) iuPropertiesToAdd.get(added[i]);
-			RequiredCapability profileRequirement = null;
+			IRequiredCapability profileRequirement = null;
 			if (propertiesForIU != null) {
 				profileRequirement = createRequirement(added[i], (String) propertiesForIU.get(INCLUSION_RULES));
 			}
@@ -393,7 +391,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			Map propertiesForIU = (Map) iuPropertiesToAdd.get(iu);
-			RequiredCapability profileRequirement = null;
+			IRequiredCapability profileRequirement = null;
 			//Test if the value has changed
 			if (propertiesForIU != null) {
 				profileRequirement = createRequirement(iu, (String) propertiesForIU.get(INCLUSION_RULES));
@@ -406,7 +404,7 @@ public class SimplePlanner implements IPlanner {
 		return new IInstallableUnit[] {createIURepresentingTheProfile(gatheredRequirements)};
 	}
 
-	private RequiredCapability createRequirement(IInstallableUnit iu, String rule) {
+	private IRequiredCapability createRequirement(IInstallableUnit iu, String rule) {
 		if (rule == null)
 			return null;
 		if (rule.equals(PlannerHelper.createStrictInclusionRule(iu))) {
@@ -418,11 +416,11 @@ public class SimplePlanner implements IPlanner {
 		return null;
 	}
 
-	private RequiredCapability createOptionalRequirement(IInstallableUnit iu) {
+	private IRequiredCapability createOptionalRequirement(IInstallableUnit iu) {
 		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, true, false, true);
 	}
 
-	private RequiredCapability createStrictRequirement(IInstallableUnit iu) {
+	private IRequiredCapability createStrictRequirement(IInstallableUnit iu) {
 		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 

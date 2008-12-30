@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Tests for {@link org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction}.
@@ -116,7 +116,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
-		TouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
+		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version));
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

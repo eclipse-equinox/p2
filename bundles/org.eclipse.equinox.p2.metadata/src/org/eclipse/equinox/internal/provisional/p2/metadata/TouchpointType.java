@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing Development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -16,13 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
  * and a version.
  */
-public class TouchpointType {
-	/**
-	 * A touchpoint type indicating that the "null" touchpoint should be used.
-	 * The null touchpoint does not participate in any install phase.
-	 */
-	public static final TouchpointType NONE = new TouchpointType("null", Version.emptyVersion); //$NON-NLS-1$
-
+public class TouchpointType implements ITouchpointType {
 	private String id;//never null
 	private Version version;//never null
 
@@ -36,10 +31,10 @@ public class TouchpointType {
 			return true;
 		if (super.equals(obj))
 			return true;
-		if (getClass() != obj.getClass())
+		if (obj == null || !(obj instanceof ITouchpointType))
 			return false;
-		TouchpointType other = (TouchpointType) obj;
-		return id.equals(other.id) && version.equals(other.version);
+		ITouchpointType other = (ITouchpointType) obj;
+		return id.equals(other.getId()) && version.equals(other.getVersion());
 	}
 
 	public String getId() {

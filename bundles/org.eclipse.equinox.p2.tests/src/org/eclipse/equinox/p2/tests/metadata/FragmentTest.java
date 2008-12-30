@@ -86,7 +86,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testDefaultIUCapability() {
 		IInstallableUnit iu = createEclipseIU("ui.test1");
-		ProvidedCapability[] cap = iu.getProvidedCapabilities();
+		IProvidedCapability[] cap = iu.getProvidedCapabilities();
 		for (int i = 0; i < cap.length; i++) {
 			if (cap[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 				assertEquals(cap[i].getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
@@ -114,7 +114,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createIUWithTouchpointData() {
-		TouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
+		ITouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
 		return createEclipseIU("ui.test1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 

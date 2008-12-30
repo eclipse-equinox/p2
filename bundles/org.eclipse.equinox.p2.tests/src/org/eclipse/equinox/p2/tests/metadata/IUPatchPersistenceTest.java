@@ -18,12 +18,12 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.*;
 
 public class IUPatchPersistenceTest extends AbstractProvisioningTest {
@@ -64,9 +64,9 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	public static IInstallableUnit createPersistenceTestIU() {
 		Map propertyMap = createProperties(properties);
-		ProvidedCapability[] additionalProvides = createProvided(provides);
-		RequiredCapability[] requirements = createRequired(requires);
-		TouchpointData tpData = createTouchpointData(instructions);
+		IProvidedCapability[] additionalProvides = createProvided(provides);
+		IRequiredCapability[] requirements = createRequired(requires);
+		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
 		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update);
@@ -86,8 +86,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return props;
 	}
 
-	private static ProvidedCapability[] createProvided(String[][] provideTuples) {
-		ProvidedCapability[] provided = new ProvidedCapability[provideTuples.length];
+	private static IProvidedCapability[] createProvided(String[][] provideTuples) {
+		IProvidedCapability[] provided = new IProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
 			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
@@ -96,8 +96,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return provided;
 	}
 
-	private static RequiredCapability[] createRequired(String[][] requireTuples) {
-		RequiredCapability[] required = new RequiredCapability[requireTuples.length];
+	private static IRequiredCapability[] createRequired(String[][] requireTuples) {
+		IRequiredCapability[] required = new IRequiredCapability[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
 			required[i] = MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
@@ -105,7 +105,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return required;
 	}
 
-	private static TouchpointData createTouchpointData(String[][] instructionData) {
+	private static ITouchpointData createTouchpointData(String[][] instructionData) {
 		Map map = new LinkedHashMap(instructionData.length);
 		for (int i = 0; i < instructionData.length; i++) {
 			String[] nextInstruction = instructionData[i];
@@ -281,17 +281,17 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnitPatch createPatchIU() {
 		Map propertyMap = createProperties(properties);
-		ProvidedCapability[] additionalProvides = createProvided(provides);
-		RequiredCapability[] requirements = createRequired(requires);
-		TouchpointData tpData = createTouchpointData(instructions);
+		IProvidedCapability[] additionalProvides = createProvided(provides);
+		IRequiredCapability[] requirements = createRequired(requires);
+		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		RequirementChange change1 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		RequirementChange change2 = new RequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		RequirementChange change3 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		RequiredCapability[][] scope = new RequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
-		RequiredCapability lifeCycle = MetadataFactory.createRequiredCapability("zoo", "x", null, null, false, false, false);
-		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new RequirementChange[] {change1, change2, change3}, scope, lifeCycle);
+		IRequirementChange change1 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change2 = new RequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change3 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
+		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
+		IRequiredCapability lifeCycle = MetadataFactory.createRequiredCapability("zoo", "x", null, null, false, false, false);
+		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, lifeCycle);
 		return iu;
 	}
 
@@ -340,7 +340,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	private static String[][] addSelfCapability(IInstallableUnit iu, String[][] provideTuples) {
 		String[][] augmentedProvides = new String[provideTuples.length + 1][3];
-		ProvidedCapability self = getSelfCapability(iu);
+		IProvidedCapability self = getSelfCapability(iu);
 		augmentedProvides[0] = new String[] {self.getNamespace(), self.getName(), self.getVersion().toString()};
 		for (int i = 0; i < provideTuples.length; i++) {
 			augmentedProvides[i + 1] = provideTuples[i];
@@ -349,10 +349,10 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProvides(IInstallableUnit iu) {
-		ProvidedCapability[] provydes = iu.getProvidedCapabilities();
+		IProvidedCapability[] provydes = iu.getProvidedCapabilities();
 		String[][] tuples = new String[provydes.length][3];
 		for (int i = 0; i < provydes.length; i++) {
-			ProvidedCapability next = provydes[i];
+			IProvidedCapability next = provydes[i];
 			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getVersion().toString()};
 		}
 		return tuples;

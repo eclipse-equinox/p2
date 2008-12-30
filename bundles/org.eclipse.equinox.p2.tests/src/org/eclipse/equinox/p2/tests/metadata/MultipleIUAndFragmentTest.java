@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 
@@ -61,7 +61,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 	}
 
 	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {
-		RequiredCapability[] requires = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, dependencyOn, VersionRange.emptyRange, null, false, true)};
+		IRequiredCapability[] requires = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, dependencyOn, VersionRange.emptyRange, null, false, true)};
 		return createEclipseIU(iuName, DEFAULT_VERSION, requires, NO_TP_DATA);
 	}
 }

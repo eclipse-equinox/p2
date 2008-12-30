@@ -19,9 +19,9 @@ import org.eclipse.equinox.internal.provisional.p2.query.*;
 public class QueryableArray implements IQueryable {
 	static class IUCapability {
 		final IInstallableUnit iu;
-		final ProvidedCapability capability;
+		final IProvidedCapability capability;
 
-		public IUCapability(IInstallableUnit iu, ProvidedCapability capability) {
+		public IUCapability(IInstallableUnit iu, IProvidedCapability capability) {
 			this.iu = iu;
 			this.capability = capability;
 		}
@@ -43,7 +43,7 @@ public class QueryableArray implements IQueryable {
 	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
-		RequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
+		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
 		Collection resultIUs = null;
 		for (int i = 0; i < requiredCapabilities.length; i++) {
 			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
@@ -61,7 +61,7 @@ public class QueryableArray implements IQueryable {
 		return collector;
 	}
 
-	private Collection findMatchingIUs(RequiredCapability requiredCapability) {
+	private Collection findMatchingIUs(IRequiredCapability requiredCapability) {
 		List iuCapabilities = (List) namedCapabilityIndex.get(requiredCapability.getName());
 		if (iuCapabilities == null)
 			return null;
@@ -83,7 +83,7 @@ public class QueryableArray implements IQueryable {
 		for (Iterator iterator = dataSet.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 
-			ProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
+			IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
 			for (int i = 0; i < providedCapabilities.length; i++) {
 				String name = providedCapabilities[i].getName();
 				List iuCapabilities = (List) namedCapabilityIndex.get(name);

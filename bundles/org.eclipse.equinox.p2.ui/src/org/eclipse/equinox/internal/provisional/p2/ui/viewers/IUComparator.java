@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;

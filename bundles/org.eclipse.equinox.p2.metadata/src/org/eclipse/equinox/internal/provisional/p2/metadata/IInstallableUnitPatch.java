@@ -25,13 +25,13 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * a scope of [[r1, r2, r3], [r4, r5]] will match any unit whose provided capabilities
 	 * satisfy the expression ((r1 ^ r2 ^ r3) | (r4 ^ r5)).
 	 */
-	RequiredCapability[][] getApplicabilityScope();
+	IRequiredCapability[][] getApplicabilityScope();
 
 	/**
 	 * Returns the requirement changes imposed by the patch.
 	 * @return The patch requirement changes.
 	 */
-	RequirementChange[] getRequirementsChange();
+	IRequirementChange[] getRequirementsChange();
 
 	/**
 	 * Returns the required capability that defines the lifecycle of this patch. The
@@ -39,5 +39,5 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * is satisfied by some IU in the profile. If a future provisioning operation causes
 	 * the requirement to no longer be satisfied, the patch will be uninstalled.
 	 */
-	RequiredCapability getLifeCycle();
+	IRequiredCapability getLifeCycle();
 }

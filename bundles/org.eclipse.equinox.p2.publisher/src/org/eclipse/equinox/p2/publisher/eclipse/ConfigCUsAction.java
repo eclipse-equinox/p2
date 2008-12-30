@@ -217,11 +217,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		cu.setVersion(version);
 		cu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		ProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
+		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
 		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
 		String abstractId = getAbstractCUCapabilityId(id, type, flavor, configSpec);
-		ProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(namespace, abstractId, version);
-		cu.setCapabilities(new ProvidedCapability[] {selfCapability, abstractCapability});
+		IProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(namespace, abstractId, version);
+		cu.setCapabilities(new IProvidedCapability[] {selfCapability, abstractCapability});
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		return MetadataFactory.createInstallableUnit(cu);

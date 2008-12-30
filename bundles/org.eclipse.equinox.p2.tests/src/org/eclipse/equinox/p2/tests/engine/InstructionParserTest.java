@@ -1,25 +1,25 @@
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.p2.engine.InstructionParser;
-
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.internal.p2.engine.InstructionParser;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class InstructionParserTest extends AbstractProvisioningTest {
 
-	public static final TouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("InstructionParserTestTouchpoint", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final ITouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("InstructionParserTestTouchpoint", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static class InstructionParserTestTouchpoint extends Touchpoint {
 
-		public TouchpointType getTouchpointType() {
+		public ITouchpointType getTouchpointType() {
 			return TOUCHPOINT_TYPE;
 		}
 

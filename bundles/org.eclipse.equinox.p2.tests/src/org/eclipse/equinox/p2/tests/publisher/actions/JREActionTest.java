@@ -18,14 +18,14 @@ import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class JREActionTest extends ActionTest {
@@ -82,7 +82,7 @@ public class JREActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(new Version("1.0.0"))); //$NON-NLS-1$
 
 		// check provided capabilities
-		ProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
+		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
 		assertTrue(fooProvidedCapabilities.length == numProvidedCapabilities);
 
 		ArrayList barIUs = new ArrayList(publisherResult.getIUs("config.a.jre", IPublisherResult.ROOT)); //$NON-NLS-1$
@@ -90,14 +90,14 @@ public class JREActionTest extends ActionTest {
 		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
 
 		Map instructions = bar.getTouchpointData()[0].getInstructions();
-		assertTrue(((TouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(((TouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
+		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		RequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
+		IRequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "a.jre", new VersionRange(JREVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
 		assertTrue(requiredCapability.length == 1);
 
-		ProvidedCapability[] providedCapability = bar.getProvidedCapabilities();
+		IProvidedCapability[] providedCapability = bar.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config.a.jre", JREVersion); //$NON-NLS-1$ 
 		assertTrue(providedCapability.length == 1);
 

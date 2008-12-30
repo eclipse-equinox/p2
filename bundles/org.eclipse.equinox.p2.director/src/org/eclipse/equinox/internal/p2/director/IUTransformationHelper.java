@@ -14,17 +14,17 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class IUTransformationHelper {
-	static public RequiredCapability[] toRequirements(Iterator ius, boolean optional) {
+	static public IRequiredCapability[] toRequirements(Iterator ius, boolean optional) {
 		ArrayList result = new ArrayList();
 		while (ius.hasNext()) {
 			IInstallableUnit current = (IInstallableUnit) ius.next();
 			result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false));
 		}
-		return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
+		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
 	}
 
-	static public RequiredCapability[] toRequirements(IInstallableUnit[] ius, boolean optional) {
-		RequiredCapability[] result = new RequiredCapability[ius.length];
+	static public IRequiredCapability[] toRequirements(IInstallableUnit[] ius, boolean optional) {
+		IRequiredCapability[] result = new IRequiredCapability[ius.length];
 		for (int i = 0; i < result.length; i++) {
 			IInstallableUnit current = ius[i];
 			result[i] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false);

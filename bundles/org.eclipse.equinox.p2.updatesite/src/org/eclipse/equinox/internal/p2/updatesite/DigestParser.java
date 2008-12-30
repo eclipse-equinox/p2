@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,7 @@ import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.*;

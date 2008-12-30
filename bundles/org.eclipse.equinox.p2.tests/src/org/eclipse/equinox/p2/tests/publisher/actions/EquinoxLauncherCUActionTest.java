@@ -16,16 +16,16 @@ import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxLauncherCUAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class EquinoxLauncherCUActionTest extends ActionTest {
@@ -71,7 +71,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(new Version("1.0.0"), true, new Version("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(iu.getRequiredCapabilities().length == 2);
 
-				ProvidedCapability[] cap = iu.getProvidedCapabilities();
+				IProvidedCapability[] cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
 				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
 				assertTrue(cap.length == 2);

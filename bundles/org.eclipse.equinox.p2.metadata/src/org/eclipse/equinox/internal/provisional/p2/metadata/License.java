@@ -7,6 +7,7 @@
  * Contributors: 
  * 		Genuitec, LLC - initial API and implementation
  * 		IBM Corporation - optional URL field instead of required name
+ *      EclipseSource - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -21,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
  * which may be the full text or an annotation.  An optional URL field can be specified
  * which links to full text.  Licenses can be easily compared using their digests.
  */
-public class License {
+public class License implements ILicense {
 	/**
 	 * The <code>body</code> contains the descriptive text for the license. This may
 	 * be a summary for a full license specified in a URL.
@@ -90,8 +91,8 @@ public class License {
 			return true;
 		if (obj == null)
 			return false;
-		if (obj instanceof License) {
-			License other = (License) obj;
+		if (obj instanceof ILicense) {
+			ILicense other = (ILicense) obj;
 			if (other.getDigest().equals(getDigest()))
 				return true;
 		}

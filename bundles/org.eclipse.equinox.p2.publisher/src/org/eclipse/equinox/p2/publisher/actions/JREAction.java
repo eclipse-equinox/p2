@@ -10,23 +10,21 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class JREAction extends AbstractPublisherAction {
 
@@ -52,9 +50,9 @@ public class JREAction extends AbstractPublisherAction {
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, PublisherHelper.versionMax, true), null, false, false)});
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, PublisherHelper.versionMax, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(configId, version)});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, version)});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 
@@ -88,7 +86,7 @@ public class JREAction extends AbstractPublisherAction {
 		return PublisherHelper.createArtifactDescriptor(key, jreLocation);
 	}
 
-	private static ProvidedCapability[] generateJRECapability(String installableUnitId, Version installableUnitVersion, InputStream profileStream) {
+	private static IProvidedCapability[] generateJRECapability(String installableUnitId, Version installableUnitVersion, InputStream profileStream) {
 		if (profileStream == null) {
 			//use the 1.6 profile stored in the generator bundle
 			try {
@@ -101,7 +99,7 @@ public class JREAction extends AbstractPublisherAction {
 		try {
 			p.load(profileStream);
 			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages")); //$NON-NLS-1$ //$NON-NLS-2$
-			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length + 1];
+			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(installableUnitId, installableUnitVersion);
 			for (int i = 1; i <= jrePackages.length; i++) {
 				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null);
@@ -122,7 +120,7 @@ public class JREAction extends AbstractPublisherAction {
 				}
 			}
 		}
-		return new ProvidedCapability[0];
+		return new IProvidedCapability[0];
 	}
 
 	private static void generateJREIUData(InstallableUnitDescription iu, String installableUnitId, Version installableUnitVersion, File jreLocation) {

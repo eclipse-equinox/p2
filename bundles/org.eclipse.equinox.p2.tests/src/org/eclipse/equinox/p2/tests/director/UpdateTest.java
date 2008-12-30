@@ -10,14 +10,14 @@ package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class UpdateTest extends AbstractProvisioningTest {
 	IInstallableUnit f1;
@@ -36,7 +36,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		f1_1 = createIU(f1Id, new Version(1, 1, 0), true);
 		f1_4 = createIU(f1Id, new Version(1, 4, 0), true);
 
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.3.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.3.0)"), null);
 		String faId = getName() + ".fa";
 		fa = createIU(faId, requires, false);
 

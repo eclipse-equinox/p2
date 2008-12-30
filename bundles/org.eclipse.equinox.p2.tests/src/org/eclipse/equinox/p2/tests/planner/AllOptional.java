@@ -9,12 +9,12 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class AllOptional extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
@@ -27,11 +27,11 @@ public class AllOptional extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		RequiredCapability[] reqA = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true)};
+		IRequiredCapability[] reqA = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true)};
 		a1 = createIU("A", new Version("1.0.0"), reqA);
 		b1 = createIU("B", new Version("1.0.0"), true);
 
-		RequiredCapability[] reqC = new RequiredCapability[2];
+		IRequiredCapability[] reqC = new IRequiredCapability[2];
 		reqC[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
 		reqC[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "E", VersionRange.emptyRange, null, true, false, true);
 		c1 = createIU("C", new Version("1.0.0"), reqC);

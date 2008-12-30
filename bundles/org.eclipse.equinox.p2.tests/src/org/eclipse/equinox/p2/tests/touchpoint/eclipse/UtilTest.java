@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointData;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -64,7 +64,7 @@ public class UtilTest extends AbstractProvisioningTest {
 	}
 
 	public void testMissingManifest() {
-		TouchpointData emptyData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
-		assertNull(Util.getManifest(new TouchpointData[] {emptyData}));
+		ITouchpointData emptyData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
+		assertNull(Util.getManifest(new ITouchpointData[] {emptyData}));
 	}
 }

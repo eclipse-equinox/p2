@@ -13,12 +13,12 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Simple test of the engine API.
@@ -82,8 +82,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 			if (parsedActions != null)
 				return parsedActions;
 
-			TouchpointType type = unit.getTouchpointType();
-			if (type == null || type == TouchpointType.NONE)
+			ITouchpointType type = unit.getTouchpointType();
+			if (type == null || type == ITouchpointType.NONE)
 				return null;
 
 			ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
@@ -251,8 +251,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		Map instructions = new HashMap();
 		instructions.put("test1", MetadataFactory.createTouchpointInstruction("test1.test()", null));
 		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test2.test()", null));
-		TouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
-		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new ProvidedCapability[0], NO_PROPERTIES, TouchpointType.NONE, touchpointData, false);
+		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
+		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new IProvidedCapability[0], NO_PROPERTIES, ITouchpointType.NONE, touchpointData, false);
 		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		if (!status.isOK()) {
 			fail(status.toString());

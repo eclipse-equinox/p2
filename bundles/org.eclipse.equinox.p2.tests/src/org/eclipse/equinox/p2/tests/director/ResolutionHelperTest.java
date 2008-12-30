@@ -13,10 +13,10 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Tests for {@link ResolutionHelper}.
@@ -44,11 +44,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(5, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null);
 		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
@@ -60,7 +60,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 
 		assertEquals("1.0", 1, unsatisfied.length);
 		assertEquals("1.1", "match", unsatisfied[0].getUnsatisfiedUnit().getId());
-		RequiredCapability capability = unsatisfied[0].getRequiredCapability();
+		IRequiredCapability capability = unsatisfied[0].getRequiredCapability();
 		assertEquals("1.4", "test.capability", capability.getNamespace());
 		assertEquals("1.5", "test", capability.getName());
 	}
@@ -73,11 +73,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(2, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("(2.0,3.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("(2.0,3.0)"), null);
 		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
@@ -89,7 +89,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 
 		assertEquals("1.0", 1, unsatisfied.length);
 		assertEquals("1.1", "match", unsatisfied[0].getUnsatisfiedUnit().getId());
-		RequiredCapability capability = unsatisfied[0].getRequiredCapability();
+		IRequiredCapability capability = unsatisfied[0].getRequiredCapability();
 		assertEquals("1.4", "test.capability", capability.getNamespace());
 		assertEquals("1.5", "test", capability.getName());
 	}
@@ -98,10 +98,10 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, createFilter(FILTER_KEY, "win32"), provides);
 
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", ANY_VERSION, null);
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", ANY_VERSION, null);
 		IInstallableUnit toInstall = createIU("toInstall", version, requires);
 
 		//setup context so that platform filter will satisfy dependency
@@ -120,7 +120,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		unsatisfied = rh.install(installSet, available);
 		assertEquals("1.1", 1, unsatisfied.length);
 		assertEquals("1.2", "toInstall", unsatisfied[0].getUnsatisfiedUnit().getId());
-		RequiredCapability capability = unsatisfied[0].getRequiredCapability();
+		IRequiredCapability capability = unsatisfied[0].getRequiredCapability();
 		assertEquals("1.3", "test.capability", capability.getNamespace());
 		assertEquals("1.4", "test", capability.getName());
 
@@ -144,11 +144,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "matchValue"));
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "matchValue"));
 		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		Dictionary environment = new Hashtable();
@@ -172,11 +172,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "noMatchValue"));
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "noMatchValue"));
 		IInstallableUnit toInstall = createIU("noMatch", version, requires);
 
 		Dictionary environment = new Hashtable();
@@ -192,10 +192,10 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 	}
 
 	public void testSimpleDependency() {
-		RequiredCapability[] requires = new RequiredCapability[] {MetadataFactory.createRequiredCapability("java.runtime", "JRE", null, null, false, false)};
+		IRequiredCapability[] requires = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("java.runtime", "JRE", null, null, false, false)};
 		IInstallableUnit osgi = createIU("org.eclipse.osgi", new Version(3, 2, 0, null), requires, NO_PROPERTIES, false);
 
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))};
 		IInstallableUnit jre = createIU("com.ibm.jre", new Version(1, 4, 2, "sr2"), provides);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
@@ -215,11 +215,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "matchValue"));
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "matchValue"));
 		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		Dictionary environment = new Hashtable();
@@ -233,7 +233,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 
 		assertEquals("1.0", 1, unsatisfied.length);
 		assertEquals("1.1", "match", unsatisfied[0].getUnsatisfiedUnit().getId());
-		RequiredCapability capability = unsatisfied[0].getRequiredCapability();
+		IRequiredCapability capability = unsatisfied[0].getRequiredCapability();
 		assertEquals("1.4", "test.capability", capability.getNamespace());
 		assertEquals("1.5", "does.not.exist", capability.getName());
 	}
@@ -248,11 +248,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment
-		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "noMatchValue"));
+		IRequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "noMatchValue"));
 		IInstallableUnit toInstall = createIU("noMatch", version, requires);
 
 		Dictionary environment = new Hashtable();

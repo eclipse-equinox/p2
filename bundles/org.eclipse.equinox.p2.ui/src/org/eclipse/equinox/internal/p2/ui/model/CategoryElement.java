@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
@@ -26,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
 	private ArrayList ius = new ArrayList(1);
-	private RequiredCapability[] requirements;
+	private IRequiredCapability[] requirements;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -85,9 +85,9 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		ius.add(iu);
 	}
 
-	public RequiredCapability[] getRequirements() {
+	public IRequiredCapability[] getRequirements() {
 		if (ius == null || ius.isEmpty())
-			return new RequiredCapability[0];
+			return new IRequiredCapability[0];
 		if (requirements == null) {
 			if (ius.size() == 1)
 				requirements = getIU().getRequiredCapabilities();
@@ -98,7 +98,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 					IInstallableUnit iu = (IInstallableUnit) iter.next();
 					capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
 				}
-				requirements = (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
+				requirements = (IRequiredCapability[]) capabilities.toArray(new IRequiredCapability[capabilities.size()]);
 			}
 		}
 		return requirements;

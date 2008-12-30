@@ -9,12 +9,12 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 public class RequirementBasedFilter extends IUFilter {
-	private RequiredCapability[] reqs;
+	private IRequiredCapability[] reqs;
 
-	public RequirementBasedFilter(RequiredCapability[] toFilterOn) {
+	public RequirementBasedFilter(IRequiredCapability[] toFilterOn) {
 		reqs = toFilterOn;
 	}
 

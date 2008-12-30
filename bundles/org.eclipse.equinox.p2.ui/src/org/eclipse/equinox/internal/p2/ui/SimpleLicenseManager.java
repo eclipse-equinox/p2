@@ -11,16 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
@@ -37,21 +35,21 @@ public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
 
 	public boolean accept(IInstallableUnit iu) {
-		License license = IUPropertyUtils.getLicense(iu);
+		ILicense license = IUPropertyUtils.getLicense(iu);
 		if (license != null)
 			accepted.add(license.getDigest());
 		return true;
 	}
 
 	public boolean reject(IInstallableUnit iu) {
-		License license = IUPropertyUtils.getLicense(iu);
+		ILicense license = IUPropertyUtils.getLicense(iu);
 		if (license != null)
 			accepted.remove(license.getDigest());
 		return true;
 	}
 
 	public boolean isAccepted(IInstallableUnit iu) {
-		License license = IUPropertyUtils.getLicense(iu);
+		ILicense license = IUPropertyUtils.getLicense(iu);
 		if (license == null)
 			return true;
 		return accepted.contains(license.getDigest());

@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -215,7 +215,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private String getLicenseBody(IInstallableUnit iu) {
-		License license = IUPropertyUtils.getLicense(iu);
+		ILicense license = IUPropertyUtils.getLicense(iu);
 		if (license != null && license.getBody() != null)
 			return license.getBody();
 		// shouldn't happen because we already reduced the list to those
@@ -254,12 +254,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
 			String name = labelProvider.getText(iu);
-			License license = IUPropertyUtils.getLicense(iu);
+			ILicense license = IUPropertyUtils.getLicense(iu);
 			// It has a license, is it already accepted?
 			if (license != null) {
 				if (!policy.getLicenseManager().isAccepted(iu)) {
 					// Have we already found a license with this IU name?
-					License potentialDuplicate = (License) licensesByIUName.get(name);
+					ILicense potentialDuplicate = (ILicense) licensesByIUName.get(name);
 					// If we have no duplicate or the duplicate license doesn't match, add it
 					if (potentialDuplicate == null || !potentialDuplicate.equals(license))
 						unaccepted.add(iu);

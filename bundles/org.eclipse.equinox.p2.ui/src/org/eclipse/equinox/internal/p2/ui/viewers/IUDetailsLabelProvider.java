@@ -11,20 +11,16 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;

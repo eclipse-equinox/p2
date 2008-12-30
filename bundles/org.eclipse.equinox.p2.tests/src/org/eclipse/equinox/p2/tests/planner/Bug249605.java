@@ -11,12 +11,12 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.util.HashMap;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class Bug249605 extends AbstractProvisioningTest {
 	IInstallableUnit a1;
@@ -29,19 +29,19 @@ public class Bug249605 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
+		a1 = createIU("A", new Version("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
 		b1 = createIU("B", new Version(1, 1, 0), true);
 		b2 = createIU("B", new Version(1, 2, 0), true);
 		b3 = createIU("B", new Version(1, 3, 0), true);
 
-		RequirementChange change = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.2.0)"), null, false, false, true));
-		p1 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
+		IRequirementChange change = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.2.0)"), null, false, false, true));
+		p1 = createIUPatch("P", new Version("1.0.0"), true, new IRequirementChange[] {change}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
-		RequirementChange change2 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.2.0, 1.3.0)"), null, false, false, true));
-		p2 = createIUPatch("P", new Version("1.2.0"), null, new RequiredCapability[0], new ProvidedCapability[0], new HashMap(), null, null, true, MetadataFactory.createUpdateDescriptor("P", new VersionRange("[1.0.0, 1.2.0)"), 0, null), new RequirementChange[] {change2}, new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
+		IRequirementChange change2 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.2.0, 1.3.0)"), null, false, false, true));
+		p2 = createIUPatch("P", new Version("1.2.0"), null, new IRequiredCapability[0], new IProvidedCapability[0], new HashMap(), null, null, true, MetadataFactory.createUpdateDescriptor("P", new VersionRange("[1.0.0, 1.2.0)"), 0, null), new IRequirementChange[] {change2}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
-		RequirementChange change3 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.3.0, 1.4.0)"), null, false, false, true));
-		p3 = createIUPatch("P", new Version("1.3.0"), null, new RequiredCapability[0], new ProvidedCapability[0], new HashMap(), null, null, true, MetadataFactory.createUpdateDescriptor("P", new VersionRange("[1.0.0, 1.3.0)"), 0, null), new RequirementChange[] {change3}, new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
+		IRequirementChange change3 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.3.0, 1.4.0)"), null, false, false, true));
+		p3 = createIUPatch("P", new Version("1.3.0"), null, new IRequiredCapability[0], new IProvidedCapability[0], new HashMap(), null, null, true, MetadataFactory.createUpdateDescriptor("P", new VersionRange("[1.0.0, 1.3.0)"), 0, null), new IRequirementChange[] {change3}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, p1, p2, p3});
 

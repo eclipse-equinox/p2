@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 
 /**
@@ -18,8 +19,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.License;
  */
 public class LicenseTest extends TestCase {
 	public void testNormalize() {
-		License licenseOne = new License(null, "a   b");
-		License licenseTwo = new License(null, "a\t\n\r  \t\n\r  b");
+		ILicense licenseOne = new License(null, "a   b");
+		ILicense licenseTwo = new License(null, "a\t\n\r  \t\n\r  b");
 		assertEquals("1.0", licenseOne.getDigest(), licenseTwo.getDigest());
 
 		licenseOne = new License(null, "   a b  c  ");

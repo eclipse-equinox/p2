@@ -17,7 +17,7 @@ import java.net.URI;
  * required body text which may be the full text or a summary.  An optional location field can be specified
  * which links to full text.  
  */
-public class Copyright {
+public class Copyright implements ICopyright {
 	/**
 	 * The <code>body</code> contains the descriptive text for the copyright. This may
 	 * be a summary for a copyright specified in a URL.

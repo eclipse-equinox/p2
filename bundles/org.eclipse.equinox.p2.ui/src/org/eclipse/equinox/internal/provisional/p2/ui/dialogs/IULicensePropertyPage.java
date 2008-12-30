@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -32,7 +32,7 @@ public class IULicensePropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the license in the default locale
-		final License license = IUPropertyUtils.getLicense(iu);
+		final ILicense license = IUPropertyUtils.getLicense(iu);
 		if (license != null && license.getBody().length() > 0) {
 			Composite composite = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();

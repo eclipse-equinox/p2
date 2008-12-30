@@ -41,18 +41,18 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
-	private static final ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	private static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
 
-	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
-	public static final TouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0));
+	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0));
 
 	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
-	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
-	protected static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
+	protected static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
+	protected static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 
-	protected static final TouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap());
+	protected static final ITouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap());
 
 	//flag used to disable currently failing (invalid) tests. This should always be set to true
 	protected boolean DISABLED = true;
@@ -207,7 +207,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 *  that is hosted by any bundle. The default self and fragment provided capabilities
 	 *  are added to the IU.
 	 */
-	public static IInstallableUnitFragment createBundleFragment(String name, Version version, TouchpointData tpData) {
+	public static IInstallableUnitFragment createBundleFragment(String name, Version version, ITouchpointData tpData) {
 		return createIUFragment(null, name, version, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, tpData);
 	}
 
@@ -242,7 +242,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create an Eclipse InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createEclipseIU(String name, Version version, RequiredCapability[] requires, TouchpointData touchpointData) {
+	public static IInstallableUnit createEclipseIU(String name, Version version, IRequiredCapability[] requires, ITouchpointData touchpointData) {
 		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, touchpointData, false);
 	}
 
@@ -269,32 +269,32 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, ProvidedCapability[] additionalProvides) {
-		return createIU(name, DEFAULT_VERSION, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, IProvidedCapability[] additionalProvides) {
+		return createIU(name, DEFAULT_VERSION, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, RequiredCapability[] requires) {
-		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, IRequiredCapability[] requires) {
+		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, RequiredCapability[] requires, boolean singleton) {
-		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
+	public static IInstallableUnit createIU(String name, IRequiredCapability[] requires, boolean singleton) {
+		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, String filter, ProvidedCapability[] additionalProvides) {
-		return createIU(name, DEFAULT_VERSION, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, DEFAULT_VERSION, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
@@ -302,7 +302,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, Version version) {
-		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
@@ -310,59 +310,59 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, Version version, boolean singleton) {
-		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, ProvidedCapability[] additionalProvides) {
-		return createIU(name, version, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, Version version, IProvidedCapability[] additionalProvides) {
+		return createIU(name, version, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, RequiredCapability[] required) {
-		return createIU(name, version, null, required, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, Version version, IRequiredCapability[] required) {
+		return createIU(name, version, null, required, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, RequiredCapability[] required, Map properties, boolean singleton) {
-		return createIU(name, version, null, required, NO_PROVIDES, properties, TouchpointType.NONE, NO_TP_DATA, singleton);
+	public static IInstallableUnit createIU(String name, Version version, IRequiredCapability[] required, Map properties, boolean singleton) {
+		return createIU(name, version, null, required, NO_PROVIDES, properties, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, String filter, ProvidedCapability[] additionalProvides) {
-		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, Version version, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, boolean singleton, RequirementChange[] changes, RequiredCapability[][] scope, RequiredCapability lifeCycle) {
-		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle);
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, boolean singleton, IRequirementChange[] changes, IRequiredCapability[][] scope, IRequiredCapability lifeCycle) {
+		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton, IUpdateDescriptor update, RequirementChange[] reqChanges, RequiredCapability[][] scope, RequiredCapability lifeCycle) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
 		iu.setFilter(filter);
-		ProvidedCapability[] provides = new ProvidedCapability[additionalProvides.length + 1];
+		IProvidedCapability[] provides = new IProvidedCapability[additionalProvides.length + 1];
 		provides[0] = getSelfCapability(name, version);
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
@@ -385,12 +385,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton, IUpdateDescriptor update) {
+	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
 		iu.setFilter(filter);
-		ProvidedCapability[] provides = new ProvidedCapability[additionalProvides.length + 1];
+		IProvidedCapability[] provides = new IProvidedCapability[additionalProvides.length + 1];
 		provides[0] = getSelfCapability(name, version);
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
@@ -415,14 +415,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version) {
-		return createIUFragment(host, name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
+		return createIUFragment(host, name, version, NO_REQUIRES, ITouchpointType.NONE, NO_TP_DATA);
 	}
 
 	/**
 	 * 	Create a basic InstallableUnitFragment with the given attributes. 
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
-	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, RequiredCapability[] required, TouchpointType tpType, TouchpointData tpData) {
+	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, IRequiredCapability[] required, ITouchpointType tpType, ITouchpointData tpData) {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
@@ -433,14 +433,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fragment.addTouchpointData(tpData);
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
-			fragment.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
+			fragment.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
-		fragment.setCapabilities(new ProvidedCapability[] {getSelfCapability(name, version)});
+		fragment.setCapabilities(new IProvidedCapability[] {getSelfCapability(name, version)});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
 
 	public static void changeVersion(InstallableUnitDescription desc, Version newVersion) {
-		ProvidedCapability[] capabilities = desc.getProvidedCapabilities();
+		IProvidedCapability[] capabilities = desc.getProvidedCapabilities();
 		for (int i = 0; i < capabilities.length; i++) {
 			if (desc.getVersion().equals(capabilities[i].getVersion()))
 				capabilities[i] = MetadataFactory.createProvidedCapability(capabilities[i].getNamespace(), capabilities[i].getName(), newVersion);
@@ -451,8 +451,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 		desc.setArtifacts(prototype.getArtifacts());
-		ProvidedCapability originalCapabilities[] = prototype.getProvidedCapabilities();
-		ProvidedCapability newCapabilities[] = new ProvidedCapability[originalCapabilities.length];
+		IProvidedCapability originalCapabilities[] = prototype.getProvidedCapabilities();
+		IProvidedCapability newCapabilities[] = new IProvidedCapability[originalCapabilities.length];
 		for (int i = 0; i < originalCapabilities.length; i++) {
 			newCapabilities[i] = MetadataFactory.createProvidedCapability(originalCapabilities[i].getNamespace(), originalCapabilities[i].getName(), originalCapabilities[i].getVersion());
 		}
@@ -461,8 +461,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setFilter(prototype.getFilter());
 		desc.setId(prototype.getId());
 		desc.setLicense(prototype.getLicense());
-		RequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
-		RequiredCapability[] newRequirements = new RequiredCapability[originalRequirements.length];
+		IRequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
+		IRequiredCapability[] newRequirements = new IRequiredCapability[originalRequirements.length];
 		for (int i = 0; i < newRequirements.length; i++) {
 			newRequirements[i] = MetadataFactory.createRequiredCapability(originalRequirements[i].getNamespace(), originalRequirements[i].getName(), originalRequirements[i].getRange(), originalRequirements[i].getFilter(), originalRequirements[i].isOptional(), originalRequirements[i].isMultiple(), originalRequirements[i].isGreedy());
 		}
@@ -487,15 +487,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
-	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, filter);
 	}
 
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
-	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
-		return new RequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
+		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
 	public static boolean delete(File file) {
@@ -554,14 +554,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * 	Get the 'self' capability for the given installable unit.
 	 */
-	protected static ProvidedCapability getSelfCapability(IInstallableUnit iu) {
+	protected static IProvidedCapability getSelfCapability(IInstallableUnit iu) {
 		return getSelfCapability(iu.getId(), iu.getVersion());
 	}
 
 	/**
 	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
-	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
+	private static IProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, installableUnitId, installableUnitVersion);
 	}
 
@@ -1037,7 +1037,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/*
 	 * Compare 2 copyright objects and fail if they are not considered equal.
 	 */
-	protected static void assertEquals(String message, Copyright cpyrt1, Copyright cpyrt2) {
+	protected static void assertEquals(String message, ICopyright cpyrt1, ICopyright cpyrt2) {
 		if (cpyrt1 == cpyrt2)
 			return;
 		if (cpyrt1 == null || cpyrt2 == null) {

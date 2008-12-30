@@ -13,11 +13,11 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class ProductAction extends EclipseInstallAction {
 

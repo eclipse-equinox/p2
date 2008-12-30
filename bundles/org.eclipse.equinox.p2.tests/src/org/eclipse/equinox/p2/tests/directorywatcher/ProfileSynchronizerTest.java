@@ -14,9 +14,9 @@ import java.io.File;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * @since 1.0

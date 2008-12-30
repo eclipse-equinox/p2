@@ -37,9 +37,9 @@ public class NewDependencyExpander {
 		 * The environment against which capability filters are evaluated for this match.
 		 */
 		Dictionary env;
-		RequiredCapability req;
+		IRequiredCapability req;
 
-		public Match(RequiredCapability range, Dictionary environment) {
+		public Match(IRequiredCapability range, Dictionary environment) {
 			this.req = range;
 			this.env = environment;
 			candidates = new HashSet(2);
@@ -63,7 +63,7 @@ public class NewDependencyExpander {
 		String name;
 		String namespace;
 
-		MatchKey(RequiredCapability capability) {
+		MatchKey(IRequiredCapability capability) {
 			this.namespace = capability.getNamespace();
 			this.name = capability.getName();
 		}
@@ -126,14 +126,14 @@ public class NewDependencyExpander {
 			return true;
 		}
 
-		public RequiredCapability[] getRequiredCapabilities() {
+		public IRequiredCapability[] getRequiredCapabilities() {
 			ArrayList result = new ArrayList();
-			ProvidedCapability[] caps = wrapped.getProvidedCapabilities();
+			IProvidedCapability[] caps = wrapped.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
 				result.add(MetadataFactory.createRequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
 			}
 			result.addAll(Arrays.asList(wrapped.getRequiredCapabilities()));
-			return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
+			return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
 		}
 
 		public int hashCode() {
@@ -155,15 +155,15 @@ public class NewDependencyExpander {
 			return wrapped.getProperties();
 		}
 
-		public ProvidedCapability[] getProvidedCapabilities() {
+		public IProvidedCapability[] getProvidedCapabilities() {
 			return wrapped.getProvidedCapabilities();
 		}
 
-		public TouchpointData[] getTouchpointData() {
+		public ITouchpointData[] getTouchpointData() {
 			return wrapped.getTouchpointData();
 		}
 
-		public TouchpointType getTouchpointType() {
+		public ITouchpointType getTouchpointType() {
 			return wrapped.getTouchpointType();
 		}
 
@@ -195,15 +195,15 @@ public class NewDependencyExpander {
 			return wrapped.getUpdateDescriptor();
 		}
 
-		public License getLicense() {
+		public ILicense getLicense() {
 			return wrapped.getLicense();
 		}
 
-		public Copyright getCopyright() {
+		public ICopyright getCopyright() {
 			return wrapped.getCopyright();
 		}
 
-		public boolean satisfies(RequiredCapability candidate) {
+		public boolean satisfies(IRequiredCapability candidate) {
 			return wrapped.satisfies(candidate);
 		}
 	}
@@ -254,10 +254,10 @@ public class NewDependencyExpander {
 	/**
 	 * Creates a problem status for the given unsatisfied dependency.
 	 */
-	private void addUnsatisfied(RequiredCapability req, Collection toAdd, MultiStatus problems) {
+	private void addUnsatisfied(IRequiredCapability req, Collection toAdd, MultiStatus problems) {
 		for (Iterator it = toAdd.iterator(); it.hasNext();) {
 			IInstallableUnit unit = (IInstallableUnit) it.next();
-			RequiredCapability[] required = unit.getRequiredCapabilities();
+			IRequiredCapability[] required = unit.getRequiredCapabilities();
 			for (int i = 0; i < required.length; i++) {
 				if (required[i].equals(req)) {
 					UnsatisfiedCapability unsatisfied = new UnsatisfiedCapability(req, unit);
@@ -327,7 +327,7 @@ public class NewDependencyExpander {
 		String flavor = (String) selectionContext.get(IProfile.PROP_ENVIRONMENTS);
 		if (flavor == null)
 			return new HashSet();
-		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
+		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
 		IInstallableUnit[] ius;
 		if (picked[0].length > 0)
 			ius = picked[0];
@@ -346,7 +346,7 @@ public class NewDependencyExpander {
 		Set picked = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit current = (IInstallableUnit) iterator.next();
-			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
+			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
 			IInstallableUnit[] matches = candidates[0].length > 0 ? candidates[0] : candidates[1];
 			if (matches.length > 0) { //TODO Here we need to check the filter of the found iu
 				if (matches.length == 1) {
@@ -354,10 +354,10 @@ public class NewDependencyExpander {
 					continue;
 				}
 				//verify that each IU requires the current iu
-				ProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), current.getVersion());
+				IProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), current.getVersion());
 				Map toAdd = new HashMap();
 				for (int i = 0; i < matches.length; i++) {
-					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();
+					IRequiredCapability[] reqs = matches[i].getRequiredCapabilities();
 					boolean isReallyAFragment = false;
 					for (int j = 0; j < reqs.length; j++) {
 						isReallyAFragment = capForCurrent.satisfies(reqs[j]);
@@ -477,9 +477,9 @@ public class NewDependencyExpander {
 		//map of MatchKey->Match
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit currentUnit = (IInstallableUnit) iterator.next();
-			RequiredCapability[] toAdd = currentUnit.getRequiredCapabilities();
+			IRequiredCapability[] toAdd = currentUnit.getRequiredCapabilities();
 			outer: for (int i = 0; i < toAdd.length; i++) {
-				RequiredCapability current = toAdd[i];
+				IRequiredCapability current = toAdd[i];
 				if (isApplicable(current) && !isMeta(current) && !current.isOptional()) {
 					MatchKey key = new MatchKey(current);
 					List match = (List) must.get(key);
@@ -584,7 +584,7 @@ public class NewDependencyExpander {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(RequiredCapability req) {
+	private boolean isApplicable(IRequiredCapability req) {
 		String filter = req.getFilter();
 		if (filter == null)
 			return true;
@@ -600,7 +600,7 @@ public class NewDependencyExpander {
 	 * about inter-component dependencies, we end up having dependencies that cause
 	 * the whole world to be selected. We are here filtering them out.
 	 */
-	private boolean isMeta(RequiredCapability requiredCapability) {
+	private boolean isMeta(IRequiredCapability requiredCapability) {
 		String namespace = requiredCapability.getNamespace();
 		//TODO Should not reference OSGi touchpoint concepts here
 		return namespace.equals("org.eclipse.equinox.p2.eclipse.type") || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR); //$NON-NLS-1$
@@ -614,7 +614,7 @@ public class NewDependencyExpander {
 		return null;
 	}
 
-	private Dictionary mergeEnvironments(Dictionary context, RequiredCapability newCapability) {
+	private Dictionary mergeEnvironments(Dictionary context, IRequiredCapability newCapability) {
 		String[] newSelectors = newCapability.getSelectors();
 		if (newSelectors == null || newSelectors.length == 0)
 			return context;
@@ -635,7 +635,7 @@ public class NewDependencyExpander {
 		return false;
 	}
 
-	private boolean requirementEnabled(RequiredCapability req) {
+	private boolean requirementEnabled(IRequiredCapability req) {
 		if (req.isOptional())
 			return false;
 		return isApplicable(req);

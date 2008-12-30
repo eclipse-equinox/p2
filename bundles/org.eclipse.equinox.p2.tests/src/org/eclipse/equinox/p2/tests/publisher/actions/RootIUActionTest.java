@@ -16,15 +16,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class RootIUActionTest extends ActionTest {
@@ -270,7 +270,7 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		RequiredCapability[] required = iu.getRequiredCapabilities();
+		IRequiredCapability[] required = iu.getRequiredCapabilities();
 		if ((testSpec & EMPTY) > 0)
 			assertEquals(required.length, 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
@@ -296,7 +296,7 @@ public class RootIUActionTest extends ActionTest {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
 	}
 
-	private boolean contains(RequiredCapability[] required, String iu) {
+	private boolean contains(IRequiredCapability[] required, String iu) {
 		for (int i = 0; i < required.length; i++)
 			if (required[i].getName().equalsIgnoreCase(iu))
 				return true;

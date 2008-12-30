@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
@@ -19,14 +19,14 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
  * capabilities that match one or more required capabilities.
  */
 public class CapabilityQuery extends Query {
-	private RequiredCapability[] required;
+	private IRequiredCapability[] required;
 
 	/**
 	 * Creates a new query on the given required capability.
 	 * @param required The required capability
 	 */
-	public CapabilityQuery(RequiredCapability required) {
-		this.required = new RequiredCapability[] {required};
+	public CapabilityQuery(IRequiredCapability required) {
+		this.required = new IRequiredCapability[] {required};
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class CapabilityQuery extends Query {
 	 * for this query to be satisfied.
 	 * @param required The required capabilities
 	 */
-	public CapabilityQuery(RequiredCapability[] required) {
+	public CapabilityQuery(IRequiredCapability[] required) {
 		this.required = required;
 	}
 
@@ -43,7 +43,7 @@ public class CapabilityQuery extends Query {
 	 * Returns the required capability that this query is matching against.
 	 * @return the required capability that this query is matching against.
 	 */
-	public RequiredCapability[] getRequiredCapabilities() {
+	public IRequiredCapability[] getRequiredCapabilities() {
 		return required;
 	}
 

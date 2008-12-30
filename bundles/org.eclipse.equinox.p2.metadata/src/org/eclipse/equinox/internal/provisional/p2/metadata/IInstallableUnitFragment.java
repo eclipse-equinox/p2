@@ -9,5 +9,5 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 public interface IInstallableUnitFragment extends IInstallableUnit {
-	public RequiredCapability[] getHost();
+	public IRequiredCapability[] getHost();
 }

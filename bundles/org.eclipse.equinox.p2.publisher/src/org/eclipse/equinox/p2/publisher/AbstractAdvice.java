@@ -11,8 +11,8 @@ package org.eclipse.equinox.p2.publisher;
 
 
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 public class AbstractAdvice implements IPublisherAdvice {
 

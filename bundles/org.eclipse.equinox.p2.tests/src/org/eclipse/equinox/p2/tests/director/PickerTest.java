@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.equinox.internal.p2.director.Picker;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Testing of the {@link Picker} class.
@@ -36,7 +36,7 @@ public class PickerTest extends AbstractProvisioningTest {
 		Version version = new Version(5, 0, 0);
 
 		//create some sample IUs to be available for the picker
-		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		unitVersion5 = createIU("required", version, provides);
 
 		IInstallableUnit[] units = new IInstallableUnit[] {unitVersion5};
@@ -51,7 +51,7 @@ public class PickerTest extends AbstractProvisioningTest {
 	public void testRequiredBelowVersionRange() {
 
 		//an IU whose required capability falls outside available range
-		RequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null);
+		IRequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null);
 
 		IInstallableUnit[][] result = picker.findInstallableUnit(null, null, required, false);
 		assertEquals("1.0", 0, result[0].length + result[1].length);
@@ -64,7 +64,7 @@ public class PickerTest extends AbstractProvisioningTest {
 	public void testRequiredWithinVersionRange() {
 
 		//in middle of range
-		RequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,6.0)"), null);
+		IRequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,6.0)"), null);
 		IInstallableUnit[] result = picker.findInstallableUnit(null, null, required, false)[1];
 		assertEquals("1.0", 1, result.length);
 		assertEquals("1.1", unitVersion5, result[0]);
@@ -89,7 +89,7 @@ public class PickerTest extends AbstractProvisioningTest {
 	public void testRequiredAboveVersionRange() {
 
 		//an IU whose required capability falls outside available range
-		RequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[5.1,6.0)"), null);
+		IRequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[5.1,6.0)"), null);
 
 		IInstallableUnit[][] result = picker.findInstallableUnit(null, null, required, false);
 		assertEquals("1.0", 0, result[0].length + result[1].length);

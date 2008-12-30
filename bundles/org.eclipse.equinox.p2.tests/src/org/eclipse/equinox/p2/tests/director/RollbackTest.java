@@ -14,7 +14,7 @@ import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -27,8 +27,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class RollbackTest extends AbstractProvisioningTest {
 
@@ -46,7 +44,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		b1 = createIU("B", DEFAULT_VERSION, true);
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
-		RequiredCapability[] req = new RequiredCapability[1];
+		IRequiredCapability[] req = new IRequiredCapability[1];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
 		d1 = createIU("D", new Version("1.0.0"), req);
 

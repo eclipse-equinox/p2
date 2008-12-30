@@ -11,26 +11,26 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
 
-	private RequiredCapability[] hostRequirements;
+	private IRequiredCapability[] hostRequirements;
 
 	public InstallableUnitFragment() {
 		super();
 	}
 
-	public void setHost(RequiredCapability[] hostRequirements) {
+	public void setHost(IRequiredCapability[] hostRequirements) {
 		if (hostRequirements == null)
 			return;
 		this.hostRequirements = hostRequirements;
 		addRequiredCapability(hostRequirements);
 	}
 
-	private void addRequiredCapability(RequiredCapability[] toAdd) {
-		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + toAdd.length];
+	private void addRequiredCapability(IRequiredCapability[] toAdd) {
+		IRequiredCapability[] current = super.getRequiredCapabilities();
+		IRequiredCapability[] result = new IRequiredCapability[current.length + toAdd.length];
 		System.arraycopy(current, 0, result, 0, current.length);
 		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
 		setRequiredCapabilities(result);
@@ -40,7 +40,7 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		return true;
 	}
 
-	public RequiredCapability[] getHost() {
+	public IRequiredCapability[] getHost() {
 		return hostRequirements;
 	}
 }

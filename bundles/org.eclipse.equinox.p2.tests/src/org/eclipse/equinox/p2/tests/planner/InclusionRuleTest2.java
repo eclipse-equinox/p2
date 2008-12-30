@@ -10,14 +10,14 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class InclusionRuleTest2 extends AbstractProvisioningTest {
 	IInstallableUnit a1;
@@ -30,7 +30,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
-		createIU("A", new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, true, MetadataFactory.createUpdateDescriptor("A", VersionRange.emptyRange, 0, "foo bar"));
+		createIU("A", new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, MetadataFactory.createUpdateDescriptor("A", VersionRange.emptyRange, 0, "foo bar"));
 		a2 = createIU("A", new Version("2.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});

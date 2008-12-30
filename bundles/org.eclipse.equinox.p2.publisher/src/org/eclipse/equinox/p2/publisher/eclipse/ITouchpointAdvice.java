@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointData;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 /**
@@ -25,6 +25,6 @@ public interface ITouchpointAdvice extends IPublisherAdvice {
 	 * @param existingData The current set of touchpoint data.
 	 * @return the merged touchpoint data
 	 */
-	public TouchpointData getTouchpointData(TouchpointData existingData);
+	public ITouchpointData getTouchpointData(ITouchpointData existingData);
 
 }

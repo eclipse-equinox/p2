@@ -9,14 +9,14 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class OracleTest2 extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
@@ -29,7 +29,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
 		a1 = createIU("A", requires, true);
 
 		c1 = createIU("C", DEFAULT_VERSION, true);

@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 /**
  * Interface for elements that represent IU's.
@@ -49,7 +49,7 @@ public interface IIUElement {
 
 	public void computeSize(IProgressMonitor monitor);
 
-	public RequiredCapability[] getRequirements();
+	public IRequiredCapability[] getRequirements();
 
 	public Object getParent(Object obj);
 

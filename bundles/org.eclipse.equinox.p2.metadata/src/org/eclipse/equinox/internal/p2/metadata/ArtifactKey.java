@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /** 
  * The concrete type for representing IArtifactKey's.

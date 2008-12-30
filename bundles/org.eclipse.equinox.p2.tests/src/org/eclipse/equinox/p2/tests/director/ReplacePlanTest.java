@@ -11,13 +11,13 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Tests {@link IPlanner#getProvisioningPlan(ProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
@@ -48,7 +48,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		frag1_4 = createIUFragment(f1, "frag1", f1_4.getVersion());
 
 		//IUs that require base IU
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
 		fa = createIU("fa", requires, false);
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
 		fap = createIU("fa", new Version(1, 1, 0), requires, NO_PROPERTIES, false);

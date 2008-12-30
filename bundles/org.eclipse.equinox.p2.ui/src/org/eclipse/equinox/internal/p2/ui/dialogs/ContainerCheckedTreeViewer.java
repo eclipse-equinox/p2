@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
-
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.*;
 

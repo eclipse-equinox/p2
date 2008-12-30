@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -16,7 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 /**
  * Describes a capability as exposed or required by an installable unit
  */
-public class ProvidedCapability {
+public class ProvidedCapability implements IProvidedCapability {
 	private final String name;
 	private final String namespace;
 	private final Version version;
@@ -30,11 +31,16 @@ public class ProvidedCapability {
 	}
 
 	public boolean equals(Object other) {
-		if (other instanceof ProvidedCapability) {
-			ProvidedCapability otherCapability = (ProvidedCapability) other;
-			return otherCapability.namespace.equals(namespace) && otherCapability.name.equals(name) && otherCapability.version.equals(version);
-		}
-		return false;
+		if (other == null)
+			return false;
+		if (!(other instanceof IProvidedCapability))
+			return false;
+		IProvidedCapability otherCapability = (IProvidedCapability) other;
+		if (!(namespace.equals(otherCapability.getNamespace())))
+			return false;
+		if (!(name.equals(otherCapability.getName())))
+			return false;
+		return true;
 	}
 
 	public String getName() {
@@ -58,7 +64,7 @@ public class ProvidedCapability {
 	 * @return <code>true</code> if this capability satisfies the given required
 	 * capability, and <code>false</code> otherwise.
 	 */
-	public boolean satisfies(RequiredCapability candidate) {
+	public boolean satisfies(IRequiredCapability candidate) {
 		if (getName() == null || !getName().equals(candidate.getName()))
 			return false;
 		if (getNamespace() == null || !getNamespace().equals(candidate.getNamespace()))

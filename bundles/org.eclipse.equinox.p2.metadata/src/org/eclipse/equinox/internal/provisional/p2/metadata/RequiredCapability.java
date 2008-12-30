@@ -4,7 +4,9 @@
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -24,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
-public class RequiredCapability {
+public class RequiredCapability implements IRequiredCapability {
 	private static final String[] NO_SELECTORS = new String[0];
 
 	private String filter;
@@ -60,23 +62,23 @@ public class RequiredCapability {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof IRequiredCapability))
 			return false;
-		final RequiredCapability other = (RequiredCapability) obj;
+		final IRequiredCapability other = (IRequiredCapability) obj;
 		if (filter == null) {
-			if (other.filter != null)
+			if (other.getFilter() != null)
 				return false;
-		} else if (!filter.equals(other.filter))
+		} else if (!filter.equals(other.getFilter()))
 			return false;
-		if (multiple != other.multiple)
+		if (multiple != other.isMultiple())
 			return false;
-		if (!name.equals(other.name))
+		if (!name.equals(other.getName()))
 			return false;
-		if (!namespace.equals(other.namespace))
+		if (!namespace.equals(other.getNamespace()))
 			return false;
-		if (optional != other.optional)
+		if (optional != other.isOptional())
 			return false;
-		if (!range.equals(other.range))
+		if (!range.equals(other.getRange()))
 			return false;
 		return true;
 	}

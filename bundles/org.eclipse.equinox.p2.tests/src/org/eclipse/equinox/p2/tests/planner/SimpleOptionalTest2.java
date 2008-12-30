@@ -9,12 +9,12 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class SimpleOptionalTest2 extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
@@ -49,13 +49,13 @@ public class SimpleOptionalTest2 extends AbstractProvisioningTest {
 		z1 = createIU("Z", new Version("1.0.0"), true);
 
 		//B's dependency is missing
-		RequiredCapability[] reqA = new RequiredCapability[3];
+		IRequiredCapability[] reqA = new IRequiredCapability[3];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
 		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", new Version("1.0.0"), reqA);
 
-		RequiredCapability[] req = new RequiredCapability[3];
+		IRequiredCapability[] req = new IRequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true);
 		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, false, false, true);
 		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Z", VersionRange.emptyRange, null, true, false, true);

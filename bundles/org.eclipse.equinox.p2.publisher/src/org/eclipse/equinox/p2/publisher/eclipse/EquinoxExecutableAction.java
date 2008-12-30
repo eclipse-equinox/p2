@@ -17,14 +17,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private static String TYPE = "executable";
@@ -66,7 +66,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iud.setId(id);
 		iud.setVersion(version);
 		iud.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
-		iud.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+		iud.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
 
 		String filter = createFilterSpec(configSpec);
 		if (filter.length() > 0)
@@ -94,9 +94,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String namespace = ConfigCUsAction.getAbstractCUCapabilityNamespace(idBase, TYPE, flavor, configSpec);
 		String capabilityId = ConfigCUsAction.getAbstractCUCapabilityId(idBase, TYPE, flavor, configSpec);
-		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version);
-		ProvidedCapability selfCapability = createSelfCapability(id, version);
-		iu.setCapabilities(new ProvidedCapability[] {selfCapability, executableCapability});
+		IProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version);
+		IProvidedCapability selfCapability = createSelfCapability(id, version);
+		iu.setCapabilities(new IProvidedCapability[] {selfCapability, executableCapability});
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
@@ -114,7 +114,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
-		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		iu.setRequiredCapabilities(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 	}
 
@@ -130,10 +130,10 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		cu.setVersion(version);
 		cu.setFilter(createFilterSpec(configSpec));
 		String executableId = getExecutableId();
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String[] config = parseConfigSpec(configSpec);
 		String os = config[1];

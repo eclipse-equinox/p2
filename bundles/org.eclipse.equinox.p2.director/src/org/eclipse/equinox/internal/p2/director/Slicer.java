@@ -86,7 +86,7 @@ public class Slicer {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(RequiredCapability req) {
+	private boolean isApplicable(IRequiredCapability req) {
 		String filter = req.getFilter();
 		if (filter == null)
 			return true;
@@ -116,7 +116,7 @@ public class Slicer {
 			return;
 		}
 
-		RequiredCapability[] reqs = getRequiredCapabilities(iu);
+		IRequiredCapability[] reqs = getRequiredCapabilities(iu);
 		if (reqs.length == 0) {
 			return;
 		}
@@ -132,15 +132,15 @@ public class Slicer {
 		}
 	}
 
-	private RequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
+	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
 		if (!(iu instanceof IInstallableUnitPatch)) {
 			return iu.getRequiredCapabilities();
 		}
-		RequiredCapability[] aggregatedCapabilities;
+		IRequiredCapability[] aggregatedCapabilities;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
-		RequirementChange[] changes = patchIU.getRequirementsChange();
+		IRequirementChange[] changes = patchIU.getRequirementsChange();
 		int initialRequirementCount = iu.getRequiredCapabilities().length;
-		aggregatedCapabilities = new RequiredCapability[initialRequirementCount + changes.length];
+		aggregatedCapabilities = new IRequiredCapability[initialRequirementCount + changes.length];
 		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, initialRequirementCount);
 		for (int i = 0; i < changes.length; i++) {
 			aggregatedCapabilities[initialRequirementCount++] = changes[i].newValue();
@@ -148,7 +148,7 @@ public class Slicer {
 		return aggregatedCapabilities;
 	}
 
-	private void expandRequirement(IInstallableUnit iu, RequiredCapability req) {
+	private void expandRequirement(IInstallableUnit iu, IRequiredCapability req) {
 		Collector matches = possibilites.query(new CapabilityQuery(req), new Collector(), null);
 		int validMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {

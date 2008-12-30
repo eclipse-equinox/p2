@@ -10,27 +10,27 @@ package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 
 public class Recommendation {
-	private RequiredCapability applyOn;
-	private RequiredCapability newValue;
+	private IRequiredCapability applyOn;
+	private IRequiredCapability newValue;
 
-	public Recommendation(RequiredCapability applyOn2, RequiredCapability newValue2) {
+	public Recommendation(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
 		this.applyOn = applyOn2;
 		this.newValue = newValue2;
 	}
 
-	public RequiredCapability applyOn() {
+	public IRequiredCapability applyOn() {
 		return applyOn;
 	}
 
-	public RequiredCapability newValue() {
+	public IRequiredCapability newValue() {
 		return newValue;
 	}
 
-	public boolean matches(RequiredCapability toMatch) {
+	public boolean matches(IRequiredCapability toMatch) {
 		if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
 			return false;
 		if (!toMatch.getName().equals(applyOn.getName()))

@@ -14,12 +14,12 @@ import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class FragmentMethodTest extends TestCase {
 	private static final String PROP_FRAG = "propFrag";
@@ -27,10 +27,10 @@ public class FragmentMethodTest extends TestCase {
 	private static final String TEST_REQUIRED = "testRequired";
 	IInstallableUnit iu1;
 	IInstallableUnit iu3;
-	RequiredCapability[] iu1Deps;
-	RequiredCapability[] iu3Deps;
-	ProvidedCapability[] iu1Caps;
-	ProvidedCapability[] iu3Caps;
+	IRequiredCapability[] iu1Deps;
+	IRequiredCapability[] iu3Deps;
+	IProvidedCapability[] iu1Caps;
+	IProvidedCapability[] iu3Caps;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -64,10 +64,10 @@ public class FragmentMethodTest extends TestCase {
 	}
 
 	public void testCapabilities() {
-		ProvidedCapability[] iuCapabilities = iu1Caps;
-		ProvidedCapability[] initialFragmentCapabilities = iu3Caps;
+		IProvidedCapability[] iuCapabilities = iu1Caps;
+		IProvidedCapability[] initialFragmentCapabilities = iu3Caps;
 
-		ProvidedCapability[] mergedCapabilities = iu1.getProvidedCapabilities();
+		IProvidedCapability[] mergedCapabilities = iu1.getProvidedCapabilities();
 		for (int i = 0; i < iuCapabilities.length; i++) {
 			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities[i]);
 		}
@@ -143,9 +143,9 @@ public class FragmentMethodTest extends TestCase {
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
+		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setHost(reqs);
-		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
@@ -156,7 +156,7 @@ public class FragmentMethodTest extends TestCase {
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_IU, "valueIU");
-		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnit(iu);
 	}

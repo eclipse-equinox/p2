@@ -14,16 +14,16 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class InstallableUnit implements IInstallableUnit {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
-	private static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
-	private static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
+	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
+	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
-	private static final TouchpointData[] NO_TOUCHPOINT_DATA = new TouchpointData[0];
+	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
 	private String filter;
@@ -32,26 +32,26 @@ public class InstallableUnit implements IInstallableUnit {
 
 	private OrderedProperties properties;
 	private OrderedProperties localizedProperties;
-	ProvidedCapability[] providedCapabilities = NO_PROVIDES;
-	private RequiredCapability[] requires = NO_REQUIRES;
+	IProvidedCapability[] providedCapabilities = NO_PROVIDES;
+	private IRequiredCapability[] requires = NO_REQUIRES;
 
 	private boolean singleton;
 
 	private ArrayList touchpointData = null;
 
-	private TouchpointType touchpointType;
+	private ITouchpointType touchpointType;
 
 	private Version version;
 
 	private IUpdateDescriptor updateInfo;
-	private License license;
-	private Copyright copyright;
+	private ILicense license;
+	private ICopyright copyright;
 
 	public InstallableUnit() {
 		super();
 	}
 
-	public void addTouchpointData(TouchpointData newData) {
+	public void addTouchpointData(ITouchpointData newData) {
 		ensureTouchpointDataCapacity(1);
 		touchpointData.add(newData);
 	}
@@ -135,22 +135,22 @@ public class InstallableUnit implements IInstallableUnit {
 		return properties().getProperty(key);
 	}
 
-	public ProvidedCapability[] getProvidedCapabilities() {
+	public IProvidedCapability[] getProvidedCapabilities() {
 		return providedCapabilities;
 	}
 
-	public RequiredCapability[] getRequiredCapabilities() {
+	public IRequiredCapability[] getRequiredCapabilities() {
 		return requires;
 
 	}
 
-	public TouchpointData[] getTouchpointData() {
+	public ITouchpointData[] getTouchpointData() {
 		return (touchpointData == null ? NO_TOUCHPOINT_DATA //
-				: (TouchpointData[]) touchpointData.toArray(new TouchpointData[touchpointData.size()]));
+				: (ITouchpointData[]) touchpointData.toArray(new ITouchpointData[touchpointData.size()]));
 	}
 
-	public TouchpointType getTouchpointType() {
-		return touchpointType != null ? touchpointType : TouchpointType.NONE;
+	public ITouchpointType getTouchpointType() {
+		return touchpointType != null ? touchpointType : ITouchpointType.NONE;
 	}
 
 	public Version getVersion() {
@@ -188,7 +188,7 @@ public class InstallableUnit implements IInstallableUnit {
 			artifacts = value;
 	}
 
-	public void setCapabilities(ProvidedCapability[] newCapabilities) {
+	public void setCapabilities(IProvidedCapability[] newCapabilities) {
 		if (newCapabilities == null || newCapabilities.length == 0)
 			providedCapabilities = NO_PROVIDES;
 		else
@@ -220,12 +220,12 @@ public class InstallableUnit implements IInstallableUnit {
 		return (String) properties.setProperty(key, value);
 	}
 
-	public void setRequiredCapabilities(RequiredCapability[] capabilities) {
+	public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
 		if (capabilities.length == 0) {
 			this.requires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.requires = (RequiredCapability[]) capabilities.clone();
+			this.requires = (IRequiredCapability[]) capabilities.clone();
 		}
 	}
 
@@ -233,8 +233,8 @@ public class InstallableUnit implements IInstallableUnit {
 		this.singleton = singleton;
 	}
 
-	public void setTouchpointType(TouchpointType type) {
-		this.touchpointType = (type != TouchpointType.NONE ? type : null);
+	public void setTouchpointType(ITouchpointType type) {
+		this.touchpointType = (type != ITouchpointType.NONE ? type : null);
 	}
 
 	public void setVersion(Version newVersion) {
@@ -257,24 +257,24 @@ public class InstallableUnit implements IInstallableUnit {
 		this.updateInfo = updateInfo;
 	}
 
-	public void setLicense(License license) {
+	public void setLicense(ILicense license) {
 		this.license = license;
 	}
 
-	public License getLicense() {
+	public ILicense getLicense() {
 		return license;
 	}
 
-	public void setCopyright(Copyright copyright) {
+	public void setCopyright(ICopyright copyright) {
 		this.copyright = copyright;
 	}
 
-	public Copyright getCopyright() {
+	public ICopyright getCopyright() {
 		return copyright;
 	}
 
-	public boolean satisfies(RequiredCapability candidate) {
-		ProvidedCapability[] provides = getProvidedCapabilities();
+	public boolean satisfies(IRequiredCapability candidate) {
+		IProvidedCapability[] provides = getProvidedCapabilities();
 		for (int i = 0; i < provides.length; i++)
 			if (provides[i].satisfies(candidate))
 				return true;

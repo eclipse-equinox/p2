@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import java.net.MalformedURLException;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Copyright;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ICopyright;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
@@ -33,7 +33,7 @@ public class IUCopyrightPropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the copyright in the current locale
-		final Copyright copyright = IUPropertyUtils.getCopyright(iu);
+		final ICopyright copyright = IUPropertyUtils.getCopyright(iu);
 		if (copyright != null && copyright.getBody().length() > 0) {
 			Composite composite = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();

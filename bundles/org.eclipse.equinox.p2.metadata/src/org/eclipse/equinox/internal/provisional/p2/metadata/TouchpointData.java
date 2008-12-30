@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -22,7 +23,7 @@ import java.util.Map.Entry;
  * @noextend This class is not intended to be subclassed by clients.
  * @see MetadataFactory#createTouchpointData(Map)
  */
-public class TouchpointData {
+public class TouchpointData implements ITouchpointData {
 
 	/**
 	 * Map of (String->TouchpointInstruction). The set
@@ -40,13 +41,13 @@ public class TouchpointData {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof ITouchpointData))
 			return false;
-		final TouchpointData other = (TouchpointData) obj;
+		final ITouchpointData other = (ITouchpointData) obj;
 		if (instructions == null) {
-			if (other.instructions != null)
+			if (other.getInstructions() != null)
 				return false;
-		} else if (!instructions.equals(other.instructions))
+		} else if (!instructions.equals(other.getInstructions()))
 			return false;
 		return true;
 	}
@@ -61,13 +62,13 @@ public class TouchpointData {
 	/**
 	 * Returns the touchpoint instruction corresponding to the given key.
 	 */
-	public TouchpointInstruction getInstruction(String instructionKey) {
-		return (TouchpointInstruction) instructions.get(instructionKey);
+	public ITouchpointInstruction getInstruction(String instructionKey) {
+		return (ITouchpointInstruction) instructions.get(instructionKey);
 	}
 
 	/**
 	 * Returns an unmodifiable map of the touchpoint instructions. The map
-	 * keys are strings, and the values are instances of {@link TouchpointInstruction}.
+	 * keys are strings, and the values are instances of {@link ITouchpointInstruction}.
 	 *
 	 * @return the touchpoint instructions
 	 */

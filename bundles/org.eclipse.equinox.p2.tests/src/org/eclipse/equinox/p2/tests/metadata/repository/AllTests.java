@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(LocalMetadataRepositoryTest.class);
+		suite.addTestSuite(SPIMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
 		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
 		return suite;

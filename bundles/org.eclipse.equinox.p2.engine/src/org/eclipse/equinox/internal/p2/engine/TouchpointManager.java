@@ -14,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.osgi.util.NLS;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
 public class TouchpointManager implements IRegistryChangeListener {
@@ -93,7 +93,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * Return the touchpoint which is registered for the given type,
 	 * or <code>null</code> if none are registered.
 	 */
-	public synchronized Touchpoint getTouchpoint(TouchpointType type) {
+	public synchronized Touchpoint getTouchpoint(ITouchpointType type) {
 		if (type == null)
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
 		return getTouchpoint(type.getId(), type.getVersion().toString());

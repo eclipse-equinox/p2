@@ -15,8 +15,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -32,28 +32,28 @@ public class MetadataFactory {
 		public void addProvidedCapabilities(Collection additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			ProvidedCapability[] current = unit().getProvidedCapabilities();
-			ProvidedCapability[] result = new ProvidedCapability[additional.size() + current.length];
+			IProvidedCapability[] current = unit().getProvidedCapabilities();
+			IProvidedCapability[] result = new IProvidedCapability[additional.size() + current.length];
 			System.arraycopy(current, 0, result, 0, current.length);
 			int j = current.length;
 			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (ProvidedCapability) i.next();
+				result[j++] = (IProvidedCapability) i.next();
 			unit().setCapabilities(result);
 		}
 
 		public void addRequiredCapabilities(Collection additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			RequiredCapability[] current = unit().getRequiredCapabilities();
-			RequiredCapability[] result = new RequiredCapability[additional.size() + current.length];
+			IRequiredCapability[] current = unit().getRequiredCapabilities();
+			IRequiredCapability[] result = new IRequiredCapability[additional.size() + current.length];
 			System.arraycopy(current, 0, result, 0, current.length);
 			int j = current.length;
 			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (RequiredCapability) i.next();
+				result[j++] = (IRequiredCapability) i.next();
 			unit().setRequiredCapabilities(result);
 		}
 
-		public void addTouchpointData(TouchpointData data) {
+		public void addTouchpointData(ITouchpointData data) {
 			Assert.isNotNull(data);
 			unit().addTouchpointData(data);
 		}
@@ -62,11 +62,11 @@ public class MetadataFactory {
 			return unit().getId();
 		}
 
-		public ProvidedCapability[] getProvidedCapabilities() {
+		public IProvidedCapability[] getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
 
-		public RequiredCapability[] getRequiredCapabilities() {
+		public IRequiredCapability[] getRequiredCapabilities() {
 			return unit().getRequiredCapabilities();
 		}
 
@@ -76,7 +76,7 @@ public class MetadataFactory {
 		 * 
 		 * @return The current touchpoint data on this description
 		 */
-		public TouchpointData[] getTouchpointData() {
+		public ITouchpointData[] getTouchpointData() {
 			return unit().getTouchpointData();
 
 		}
@@ -89,11 +89,11 @@ public class MetadataFactory {
 			unit().setArtifacts(value);
 		}
 
-		public void setCapabilities(ProvidedCapability[] exportedCapabilities) {
+		public void setCapabilities(IProvidedCapability[] exportedCapabilities) {
 			unit().setCapabilities(exportedCapabilities);
 		}
 
-		public void setCopyright(Copyright copyright) {
+		public void setCopyright(ICopyright copyright) {
 			unit().setCopyright(copyright);
 		}
 
@@ -105,7 +105,7 @@ public class MetadataFactory {
 			unit().setId(id);
 		}
 
-		public void setLicense(License license) {
+		public void setLicense(ILicense license) {
 			unit().setLicense(license);
 		}
 
@@ -113,7 +113,7 @@ public class MetadataFactory {
 			unit().setProperty(key, value);
 		}
 
-		public void setRequiredCapabilities(RequiredCapability[] capabilities) {
+		public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
 			unit().setRequiredCapabilities(capabilities);
 		}
 
@@ -121,7 +121,7 @@ public class MetadataFactory {
 			unit().setSingleton(singleton);
 		}
 
-		public void setTouchpointType(TouchpointType type) {
+		public void setTouchpointType(ITouchpointType type) {
 			unit().setTouchpointType(type);
 		}
 
@@ -149,7 +149,7 @@ public class MetadataFactory {
 	}
 
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
-		public void setHost(RequiredCapability[] hostRequirements) {
+		public void setHost(IRequiredCapability[] hostRequirements) {
 			((InstallableUnitFragment) unit()).setHost(hostRequirements);
 		}
 
@@ -162,24 +162,24 @@ public class MetadataFactory {
 
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
-		public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+		public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
 			if (applyTo == null)
 				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
-		public void setLifeCycle(RequiredCapability lifeCycle) {
+		public void setLifeCycle(IRequiredCapability lifeCycle) {
 			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
 		}
 
-		public void setRequirementChanges(RequirementChange[] changes) {
+		public void setRequirementChanges(IRequirementChange[] changes) {
 			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
 		}
 
 		InstallableUnit unit() {
 			if (unit == null) {
 				unit = new InstallableUnitPatch();
-				((InstallableUnitPatch) unit()).setApplicabilityScope(new RequiredCapability[0][0]);
+				((InstallableUnitPatch) unit()).setApplicabilityScope(new IRequiredCapability[0][0]);
 			}
 			return unit;
 		}
@@ -188,9 +188,9 @@ public class MetadataFactory {
 	/**
 	 * Singleton touchpoint data for a touchpoint with no instructions.
 	 */
-	private static final TouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
+	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
 
-	private static TouchpointType[] typeCache = new TouchpointType[5];
+	private static ITouchpointType[] typeCache = new ITouchpointType[5];
 
 	private static int typeCacheOffset;
 
@@ -234,18 +234,18 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Returns a {@link ProvidedCapability} with the given values.
+	 * Returns a {@link IProvidedCapability} with the given values.
 	 * 
 	 * @param namespace The capability namespace
 	 * @param name The capability name
 	 * @param version The capability version
 	 */
-	public static ProvidedCapability createProvidedCapability(String namespace, String name, Version version) {
+	public static IProvidedCapability createProvidedCapability(String namespace, String name, Version version) {
 		return new ProvidedCapability(namespace, name, version);
 	}
 
 	/**
-	 * Returns a {@link RequiredCapability} with the given values.
+	 * Returns a {@link IRequiredCapability} with the given values.
 	 * 
 	 * @param namespace The capability namespace
 	 * @param name The required capability name
@@ -257,11 +257,11 @@ public class MetadataFactory {
 	 * and <code>false</code> otherwise.
 	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
 	 */
-	public static RequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
 	}
 
-	public static RequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
 	}
 
@@ -284,12 +284,12 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Returns an instance of {@link TouchpointData} with the given instructions.
+	 * Returns an instance of {@link ITouchpointData} with the given instructions.
 	 * 
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
 	 */
-	public static TouchpointData createTouchpointData(Map instructions) {
+	public static ITouchpointData createTouchpointData(Map instructions) {
 		Assert.isNotNull(instructions);
 		//copy the map to protect against subsequent change by caller
 		if (instructions.isEmpty())
@@ -307,7 +307,7 @@ public class MetadataFactory {
 		return new TouchpointData(result);
 	}
 
-	public static TouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
+	public static ITouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
 		return new TouchpointInstruction(body, importAttribute);
 	}
 
@@ -318,15 +318,15 @@ public class MetadataFactory {
 	 * @param version The touchpoint version
 	 * @return A touchpoint type instance with the given id and version
 	 */
-	public static TouchpointType createTouchpointType(String id, Version version) {
+	public static ITouchpointType createTouchpointType(String id, Version version) {
 		Assert.isNotNull(id);
 		Assert.isNotNull(version);
 
-		if (id.equals(TouchpointType.NONE.getId()) && version.equals(TouchpointType.NONE.getVersion()))
-			return TouchpointType.NONE;
+		if (id.equals(ITouchpointType.NONE.getId()) && version.equals(ITouchpointType.NONE.getVersion()))
+			return ITouchpointType.NONE;
 
 		synchronized (typeCache) {
-			TouchpointType result = getCachedTouchpointType(id, version);
+			ITouchpointType result = getCachedTouchpointType(id, version);
 			if (result != null)
 				return result;
 			result = new TouchpointType(id, version);
@@ -339,7 +339,7 @@ public class MetadataFactory {
 		return new UpdateDescriptor(id, range, severity, description);
 	}
 
-	private static TouchpointType getCachedTouchpointType(String id, Version version) {
+	private static ITouchpointType getCachedTouchpointType(String id, Version version) {
 		for (int i = 0; i < typeCache.length; i++) {
 			if (typeCache[i] != null && typeCache[i].getId().equals(id) && typeCache[i].getVersion().equals(version))
 				return typeCache[i];
@@ -347,7 +347,7 @@ public class MetadataFactory {
 		return null;
 	}
 
-	private static void putCachedTouchpointType(TouchpointType result) {
+	private static void putCachedTouchpointType(ITouchpointType result) {
 		//simple rotating buffer
 		typeCache[typeCacheOffset] = result;
 		typeCacheOffset = (typeCacheOffset + 1) % typeCache.length;

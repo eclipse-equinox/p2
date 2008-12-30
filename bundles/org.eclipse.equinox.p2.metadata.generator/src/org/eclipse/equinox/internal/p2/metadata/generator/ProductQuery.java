@@ -13,13 +13,13 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class ProductQuery extends Query {
 	private static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$

@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
@@ -44,8 +44,8 @@ public class Collect extends InstallableUnitPhase {
 		if (parsedActions != null)
 			return parsedActions;
 
-		TouchpointType type = unit.getTouchpointType();
-		if (type == null || type == TouchpointType.NONE)
+		ITouchpointType type = unit.getTouchpointType();
+		if (type == null || type == ITouchpointType.NONE)
 			return null;
 
 		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);

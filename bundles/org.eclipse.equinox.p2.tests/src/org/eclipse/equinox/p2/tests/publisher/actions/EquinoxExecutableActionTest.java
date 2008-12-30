@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {
@@ -92,10 +92,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + configSpec)) {//$NON-NLS-1$ 
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
-				ProvidedCapability[] providedCapability = fragment.getProvidedCapabilities();
+				IProvidedCapability[] providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.length == 1);
-				RequiredCapability[] requiredCapability = fragment.getRequiredCapabilities();
+				IRequiredCapability[] requiredCapability = fragment.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.length == 1);
 				assertTrue(fragment.getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -112,10 +112,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + ".eclipse"))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
-				ProvidedCapability[] providedCapability = possibleEclipse.getProvidedCapabilities();
+				IProvidedCapability[] providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.length == 1);
-				RequiredCapability[] req = possibleEclipse.getRequiredCapabilities();
+				IRequiredCapability[] req = possibleEclipse.getRequiredCapabilities();
 				assertTrue(req.length == 0);
 				return;//pass
 			}
@@ -138,12 +138,12 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
 				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$
 				assertTrue(eKey.getVersion().equals(version));
-				ProvidedCapability[] providedCapabilities = possibleExec.getProvidedCapabilities();
+				IProvidedCapability[] providedCapabilities = possibleExec.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.length == 2);
 
-				RequiredCapability[] requiredCapability = possibleExec.getRequiredCapabilities();
+				IRequiredCapability[] requiredCapability = possibleExec.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(requiredCapability.length == 1);
 				return;//pass

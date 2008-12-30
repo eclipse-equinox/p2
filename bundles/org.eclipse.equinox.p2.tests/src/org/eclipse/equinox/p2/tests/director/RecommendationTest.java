@@ -10,35 +10,34 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.core.runtime.IStatus;
-
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class RecommendationTest extends AbstractProvisioningTest {
 	//test name dependency over
 	//test
 	//check that the picker is returning something in the range
 	public void testRecommendation() {
-		RequiredCapability applyOn, newValue;
+		IRequiredCapability applyOn, newValue;
 		applyOn = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.1, 2.0)"), null, false, false);
 		Recommendation r1 = new Recommendation(applyOn, newValue);
 
-		RequiredCapability goodMatch = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
+		IRequiredCapability goodMatch = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		assertEquals(true, r1.matches(goodMatch));
 
-		RequiredCapability badNamespace = MetadataFactory.createRequiredCapability("badNamespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
+		IRequiredCapability badNamespace = MetadataFactory.createRequiredCapability("badNamespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		assertEquals(false, r1.matches(badNamespace));
 
-		RequiredCapability badName = MetadataFactory.createRequiredCapability("namespace", "badName", new VersionRange("[1.0, 2.0)"), null, false, false);
+		IRequiredCapability badName = MetadataFactory.createRequiredCapability("namespace", "badName", new VersionRange("[1.0, 2.0)"), null, false, false);
 		assertEquals(false, r1.matches(badName));
 	}
 
@@ -48,12 +47,12 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createIU("iu2", new Version(4, 0, 0));
 
 		//The recommendations to be used
-		RequiredCapability applyOn, newValue;
+		IRequiredCapability applyOn, newValue;
 		applyOn = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[1.1, 2.0)"), null, false, false);
 		Recommendation r1 = new Recommendation(applyOn, newValue);
 
-		RequiredCapability applyOn2, newValue2;
+		IRequiredCapability applyOn2, newValue2;
 		applyOn2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu2", new VersionRange("[4.2, 5.0)"), null, false, false);
 		newValue2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu2", new VersionRange("[4.0, 5.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);
@@ -62,15 +61,15 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		recommendations.add(r2);
 
 		Picker p = new Picker(new IInstallableUnit[] {iu1, iu2}, null);
-		IInstallableUnit[][] matches = p.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", null, null, false, false)}, false);
+		IInstallableUnit[][] matches = p.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", null, null, false, false)}, false);
 		assertEquals(matches[1][0], iu1);
 
 		Picker p1 = new Picker(new IInstallableUnit[] {iu1, iu2}, new RecommendationDescriptor(recommendations));
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false)}, false);
 		assertEquals(matches[0].length, 0);
 		assertEquals(matches[1].length, 0);
 
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[0].length, 0);
 		assertEquals(matches[1].length, 0);
 	}
@@ -80,7 +79,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		IInstallableUnit iu1 = createIU("iu1", new Version(4, 0, 0));
 
 		//Here we add recommendation that widen the range of the bundle we are looking for
-		RequiredCapability applyOn2, newValue2;
+		IRequiredCapability applyOn2, newValue2;
 		applyOn2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false);
 		newValue2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);
@@ -89,18 +88,18 @@ public class RecommendationTest extends AbstractProvisioningTest {
 
 		//Check without the recommendations
 		Picker p2 = new Picker(new IInstallableUnit[] {iu1}, null);
-		IInstallableUnit[][] matches = p2.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false)}, false);
+		IInstallableUnit[][] matches = p2.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 
 		//Check the widening works
 		Picker p1 = new Picker(new IInstallableUnit[] {iu1}, new RecommendationDescriptor(recommendations));
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 
 	}
 
 	public void testRecommendationDescriptorMerge() {
-		RequiredCapability applyOn1, newValue1;
+		IRequiredCapability applyOn1, newValue1;
 		applyOn1 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue1 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.1, 2.0)"), null, false, false);
 		Recommendation r1 = new Recommendation(applyOn1, newValue1);
@@ -108,7 +107,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		list1.add(r1);
 		RecommendationDescriptor desc1 = new RecommendationDescriptor(list1);
 
-		RequiredCapability applyOn2, newValue2;
+		IRequiredCapability applyOn2, newValue2;
 		applyOn2 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue2 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.3, 2.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);
@@ -122,7 +121,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 	}
 
 	public void testRecommendationDescriptorMergeConflict() {
-		RequiredCapability applyOn1, newValue1;
+		IRequiredCapability applyOn1, newValue1;
 		applyOn1 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue1 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.1, 2.0)"), null, false, false);
 		Recommendation r1 = new Recommendation(applyOn1, newValue1);
@@ -130,7 +129,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		list1.add(r1);
 		RecommendationDescriptor desc1 = new RecommendationDescriptor(list1);
 
-		RequiredCapability applyOn2, newValue2;
+		IRequiredCapability applyOn2, newValue2;
 		applyOn2 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[1.0, 2.0)"), null, false, false);
 		newValue2 = MetadataFactory.createRequiredCapability("namespace", "name", new VersionRange("[2.1, 3.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);

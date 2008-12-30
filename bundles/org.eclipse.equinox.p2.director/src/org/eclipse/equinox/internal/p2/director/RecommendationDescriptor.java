@@ -11,8 +11,8 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 
 public class RecommendationDescriptor {
 	public static final String TOUCHPOINT_DATA_KEY = "recommendations";
@@ -28,7 +28,7 @@ public class RecommendationDescriptor {
 		return recommendations;
 	}
 
-	public Recommendation findRecommendation(RequiredCapability toMatch) {
+	public Recommendation findRecommendation(IRequiredCapability toMatch) {
 		for (Iterator iterator = recommendations.iterator(); iterator.hasNext();) {
 			Recommendation name = (Recommendation) iterator.next();
 			if (name.matches(toMatch))

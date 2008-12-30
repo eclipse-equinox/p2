@@ -17,11 +17,11 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
@@ -55,14 +55,14 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
-	protected void verifyProvidedCapability(ProvidedCapability[] prov, String namespace, String name, Version version) {
+	protected void verifyProvidedCapability(IProvidedCapability[] prov, String namespace, String name, Version version) {
 		for (int i = 0; i < prov.length; i++)
 			if (prov[i].getName().equalsIgnoreCase(name) && prov[i].getNamespace().equalsIgnoreCase(namespace) && prov[i].getVersion().equals(version))
 				return; // pass
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(RequiredCapability[] required, String namespace, String name, VersionRange range) {
+	protected void verifyRequiredCapability(IRequiredCapability[] required, String namespace, String name, VersionRange range) {
 		for (int i = 0; i < required.length; i++)
 			if (required[i].getName().equalsIgnoreCase(name) && required[i].getNamespace().equalsIgnoreCase(namespace) && required[i].getRange().equals(range))
 				return;
@@ -104,18 +104,18 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return map;
 	}
 
-	protected void contains(ProvidedCapability[] capabilities, String namespace, String name, Version version) {
+	protected void contains(IProvidedCapability[] capabilities, String namespace, String name, Version version) {
 		for (int i = 0; i < capabilities.length; i++) {
-			ProvidedCapability capability = capabilities[i];
+			IProvidedCapability capability = capabilities[i];
 			if (capability.getNamespace().equals(namespace) && capability.getName().equals(name) && capability.getVersion().equals(version))
 				return;
 		}
 		fail();
 	}
 
-	protected void contains(RequiredCapability[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	protected void contains(IRequiredCapability[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		for (int i = 0; i < capabilities.length; i++) {
-			RequiredCapability capability = capabilities[i];
+			IRequiredCapability capability = capabilities[i];
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;

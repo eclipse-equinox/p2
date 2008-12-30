@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.query;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
@@ -95,7 +95,7 @@ public class UncategorizedElementCollector extends QueriedElementCollector {
 		Iterator iter = categories.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit categoryIU = (IInstallableUnit) iter.next();
-			RequiredCapability[] requirements = categoryIU.getRequiredCapabilities();
+			IRequiredCapability[] requirements = categoryIU.getRequiredCapabilities();
 			for (int i = 0; i < requirements.length; i++) {
 				if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 					IInstallableUnit[] arrayAllOthers = (IInstallableUnit[]) allOthers.toArray(new IInstallableUnit[allOthers.size()]);

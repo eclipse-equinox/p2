@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointInstruction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.osgi.util.NLS;
 
 public class InstructionParser {
@@ -39,7 +39,7 @@ public class InstructionParser {
 		this.actionManager = actionManager;
 	}
 
-	public ProvisioningAction[] parseActions(TouchpointInstruction instruction, TouchpointType touchpointType) {
+	public ProvisioningAction[] parseActions(ITouchpointInstruction instruction, ITouchpointType touchpointType) {
 		List actions = new ArrayList();
 		Map importMap = parseImportAttribute(instruction.getImportAttribute());
 		StringTokenizer tokenizer = new StringTokenizer(instruction.getBody(), ";"); //$NON-NLS-1$
@@ -73,7 +73,7 @@ public class InstructionParser {
 		return result;
 	}
 
-	private ProvisioningAction parseAction(String statement, Map qualifier, TouchpointType touchpointType) {
+	private ProvisioningAction parseAction(String statement, Map qualifier, ITouchpointType touchpointType) {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
 		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
@@ -99,7 +99,7 @@ public class InstructionParser {
 		return new ParameterizedProvisioningAction(action, parameters);
 	}
 
-	private ProvisioningAction lookupAction(String actionId, Map importMap, TouchpointType touchpointType) {
+	private ProvisioningAction lookupAction(String actionId, Map importMap, ITouchpointType touchpointType) {
 		VersionRange versionRange = null;
 		ActionEntry actionEntry = (ActionEntry) importMap.get(actionId);
 		if (actionEntry != null) {

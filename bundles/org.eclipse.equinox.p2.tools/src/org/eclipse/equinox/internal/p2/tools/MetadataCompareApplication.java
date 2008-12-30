@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -175,7 +175,7 @@ public class MetadataCompareApplication implements IApplication {
 		return result;
 	}
 
-	private boolean compareRequires(RequiredCapability[] a, RequiredCapability[] b) {
+	private boolean compareRequires(IRequiredCapability[] a, IRequiredCapability[] b) {
 		if (a == null)
 			return b == null;
 		if (a.length != b.length)
@@ -188,9 +188,9 @@ public class MetadataCompareApplication implements IApplication {
 		return true;
 	}
 
-	private RequiredCapability findCapability(RequiredCapability target, RequiredCapability[] b) {
+	private IRequiredCapability findCapability(IRequiredCapability target, IRequiredCapability[] b) {
 		for (int i = 0; i < b.length; i++) {
-			RequiredCapability capability = b[i];
+			IRequiredCapability capability = b[i];
 			if (target.equals(capability))
 				return capability;
 		}

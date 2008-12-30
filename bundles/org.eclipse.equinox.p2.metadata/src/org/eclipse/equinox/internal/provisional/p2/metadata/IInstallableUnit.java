@@ -7,6 +7,7 @@
  * Contributors: 
  * 		IBM Corporation - initial API and implementation
  * 		Genuitec, LLC - added license support
+ * 		EclipseSource - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -192,13 +193,13 @@ public interface IInstallableUnit extends Comparable {
 
 	public String getProperty(String key);
 
-	public ProvidedCapability[] getProvidedCapabilities();
+	public IProvidedCapability[] getProvidedCapabilities();
 
-	public RequiredCapability[] getRequiredCapabilities();
+	public IRequiredCapability[] getRequiredCapabilities();
 
-	public TouchpointData[] getTouchpointData();
+	public ITouchpointData[] getTouchpointData();
 
-	public TouchpointType getTouchpointType();
+	public ITouchpointType getTouchpointType();
 
 	public Version getVersion();
 
@@ -224,7 +225,7 @@ public interface IInstallableUnit extends Comparable {
 	 * @return <code>true</code> if this unit satisfies the given required
 	 * capability, and <code>false</code> otherwise.
 	 */
-	public boolean satisfies(RequiredCapability candidate);
+	public boolean satisfies(IRequiredCapability candidate);
 
 	/**
 	 * Returns the unresolved equivalent of this installable unit. If this unit is
@@ -248,11 +249,23 @@ public interface IInstallableUnit extends Comparable {
 	 * Returns the license that applies to this installable unit.
 	 * @return the license that applies to this installable unit or <code>null</code>
 	 */
-	public License getLicense();
+	public ILicense getLicense();
 
 	/**
 	 * Returns the copyright that applies to this installable unit.
 	 * @return the copyright that applies to this installable unit or <code>null</code>
 	 */
-	public Copyright getCopyright();
+	public ICopyright getCopyright();
+
+	/**
+	 * Returns whether this InstallableUnit is equal to the given object.
+	 * 
+	 * This method returns <i>true</i> if:
+	 * <ul>
+	 *  <li> Both this object and the given object are of type IInstallableUnit
+	 *  <li> The result of <b>getId()</b> on both objects are equal
+	 *  <li> The result of <b>getVersion()</b> on both objects are equal
+	 * </ul> 
+	 */
+	public boolean equals(Object obj);
 }

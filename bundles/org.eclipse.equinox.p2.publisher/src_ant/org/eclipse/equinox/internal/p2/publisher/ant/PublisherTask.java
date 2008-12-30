@@ -18,9 +18,9 @@ import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * An Ant task to call the p2 publisher application.

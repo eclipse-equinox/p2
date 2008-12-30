@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.osgi.util.NLS;
 
 public class ActionManager implements IRegistryChangeListener {
@@ -37,15 +37,15 @@ public class ActionManager implements IRegistryChangeListener {
 		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
 	}
 
-	public Touchpoint getTouchpointPoint(TouchpointType type) {
-		if (type == null || type == TouchpointType.NONE)
+	public Touchpoint getTouchpointPoint(ITouchpointType type) {
+		if (type == null || type == ITouchpointType.NONE)
 			return null;
 		return touchpointManager.getTouchpoint(type);
 	}
 
-	public ProvisioningAction getTouchpointQualifiedAction(String actionId, TouchpointType type) {
+	public ProvisioningAction getTouchpointQualifiedAction(String actionId, ITouchpointType type) {
 		if (actionId.indexOf('.') == -1) {
-			if (type == null || type == TouchpointType.NONE)
+			if (type == null || type == ITouchpointType.NONE)
 				return null;
 
 			Touchpoint touchpoint = touchpointManager.getTouchpoint(type);

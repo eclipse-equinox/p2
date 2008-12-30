@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -32,8 +32,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * @since 1.0
@@ -424,7 +422,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		Collector result = metadataRepo.query(query, new Collector(), null);
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		RequiredCapability[] required = featureIU.getRequiredCapabilities();
+		IRequiredCapability[] required = featureIU.getRequiredCapabilities();
 		for (int i = 0; i < required.length; i++) {
 			if (required[i].getName().equals("org.eclipse.ui.ide")) {
 				assertEquals("2.0", VersionRange.emptyRange, required[i].getRange());
@@ -471,11 +469,11 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		Collector result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), new Collector(), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
-		TouchpointData[] data = unit.getTouchpointData();
+		ITouchpointData[] data = unit.getTouchpointData();
 		assertEquals("1.1", 1, data.length);
 		Map instructions = data[0].getInstructions();
 		assertEquals("1.2", 1, instructions.size());
-		assertEquals("1.3", "true", ((TouchpointInstruction) instructions.get("zipped")).getBody());
+		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}
 
 	public void testMetadtaRepoCount() {

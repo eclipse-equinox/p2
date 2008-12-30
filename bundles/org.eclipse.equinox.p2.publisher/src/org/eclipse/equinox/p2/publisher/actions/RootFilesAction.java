@@ -15,13 +15,13 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 // TODO need to merge this functionality with the FeaturesAction work on root files
 public class RootFilesAction extends AbstractPublisherAction {
@@ -89,8 +89,8 @@ public class RootFilesAction extends AbstractPublisherAction {
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); 
-		iu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(iuId, version), launcherCapability});
+		IProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); 
+		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(iuId, version), launcherCapability});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		// Create the CU that installs/configures the executable
@@ -99,11 +99,11 @@ public class RootFilesAction extends AbstractPublisherAction {
 		cu.setId(configUnitId);
 		cu.setVersion(version);
 		cu.setFilter(filter);
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, new VersionRange(version, true, version, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
 
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();

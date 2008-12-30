@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
@@ -19,12 +19,12 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
  * meet any one of the given capabilities.  
  */
 public class AnyRequiredCapabilityQuery extends Query {
-	private RequiredCapability[] requirements;
+	private IRequiredCapability[] requirements;
 
 	/**
 	 * Creates a new query for the capabilities of the given IU.
 	 */
-	public AnyRequiredCapabilityQuery(RequiredCapability[] requirements) {
+	public AnyRequiredCapabilityQuery(IRequiredCapability[] requirements) {
 		this.requirements = requirements;
 	}
 

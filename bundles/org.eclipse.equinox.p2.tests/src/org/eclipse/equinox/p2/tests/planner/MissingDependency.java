@@ -9,12 +9,12 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class MissingDependency extends AbstractProvisioningTest {
 	IInstallableUnit a1;
@@ -27,7 +27,7 @@ public class MissingDependency extends AbstractProvisioningTest {
 		a1 = createIU("A", new Version("1.0.0"), true);
 
 		//Missing non optional dependency
-		RequiredCapability[] req = new RequiredCapability[1];
+		IRequiredCapability[] req = new IRequiredCapability[1];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
 		b1 = createIU("B", new Version("1.0.0"), req);
 

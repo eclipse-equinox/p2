@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testInstallUninstall() {
@@ -232,12 +232,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468b() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 		IUpdateDescriptor update2 = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update2);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update2);
 
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU(id, new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU(id, new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -264,12 +264,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468d() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -297,13 +297,13 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468c() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 
 		IUpdateDescriptor update3 = MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(2, 0, 0), true, new Version(3, 0, 0), false), IUpdateDescriptor.HIGH, "desc");
 		//		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -333,9 +333,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));

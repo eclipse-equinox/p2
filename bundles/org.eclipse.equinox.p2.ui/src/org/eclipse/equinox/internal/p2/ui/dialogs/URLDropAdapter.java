@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
-
 import org.eclipse.swt.dnd.*;
 
 /**

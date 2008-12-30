@@ -40,7 +40,7 @@ public class ApplicablePatchQuery extends Query {
 		if (!(candidate instanceof IInstallableUnitPatch))
 			return false;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;
-		RequiredCapability[][] scopeDescription = patchIU.getApplicabilityScope();
+		IRequiredCapability[][] scopeDescription = patchIU.getApplicabilityScope();
 		if (scopeDescription.length == 0)
 			return true;
 

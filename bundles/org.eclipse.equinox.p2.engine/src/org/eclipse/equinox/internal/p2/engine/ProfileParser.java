@@ -13,9 +13,9 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.Attributes;
 
 /**

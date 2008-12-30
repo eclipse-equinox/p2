@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -48,7 +49,7 @@ import java.util.Map;
  * @noextend This class is not intended to be subclassed by clients.
  * @see MetadataFactory#createTouchpointInstruction(String, String)
  */
-public class TouchpointInstruction {
+public class TouchpointInstruction implements ITouchpointInstruction {
 
 	private final String body;
 	private final String importAttribute;
@@ -112,18 +113,18 @@ public class TouchpointInstruction {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof ITouchpointInstruction))
 			return false;
-		TouchpointInstruction other = (TouchpointInstruction) obj;
+		ITouchpointInstruction other = (ITouchpointInstruction) obj;
 		if (body == null) {
-			if (other.body != null)
+			if (other.getBody() != null)
 				return false;
-		} else if (!body.equals(other.body))
+		} else if (!body.equals(other.getBody()))
 			return false;
 		if (importAttribute == null) {
-			if (other.importAttribute != null)
+			if (other.getImportAttribute() != null)
 				return false;
-		} else if (!importAttribute.equals(other.importAttribute))
+		} else if (!importAttribute.equals(other.getImportAttribute()))
 			return false;
 		return true;
 	}

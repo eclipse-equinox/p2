@@ -35,12 +35,12 @@ public class IUPropertyUtils {
 	private static Map LocaleCollectorCache = new HashMap(2);
 
 	// Get the license in the default locale.
-	public static License getLicense(IInstallableUnit iu) {
+	public static ILicense getLicense(IInstallableUnit iu) {
 		return getLicense(iu, getCurrentLocale());
 	}
 
 	// Get the copyright in the default locale.
-	public static Copyright getCopyright(IInstallableUnit iu) {
+	public static ICopyright getCopyright(IInstallableUnit iu) {
 		return getCopyright(iu, getCurrentLocale());
 	}
 
@@ -49,8 +49,8 @@ public class IUPropertyUtils {
 		return getIUProperty(iu, propertyKey, getCurrentLocale());
 	}
 
-	public static License getLicense(IInstallableUnit iu, Locale locale) {
-		License license = iu.getLicense();
+	public static ILicense getLicense(IInstallableUnit iu, Locale locale) {
+		ILicense license = iu.getLicense();
 		String body = (license != null ? license.getBody() : null);
 		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
 			return license;
@@ -59,8 +59,8 @@ public class IUPropertyUtils {
 		return new License(license.getLocation(), body);
 	}
 
-	public static Copyright getCopyright(IInstallableUnit iu, Locale locale) {
-		Copyright copyright = iu.getCopyright();
+	public static ICopyright getCopyright(IInstallableUnit iu, Locale locale) {
+		ICopyright copyright = iu.getCopyright();
 		String body = (copyright != null ? copyright.getBody() : null);
 		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
 			return copyright;
@@ -101,9 +101,9 @@ public class IUPropertyUtils {
 				boolean haveHost = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					RequiredCapability[] hosts = fragment.getHost();
+					IRequiredCapability[] hosts = fragment.getHost();
 					for (int i = 0; i < hosts.length; i++) {
-						RequiredCapability nextHost = hosts[i];
+						IRequiredCapability nextHost = hosts[i];
 						if (IInstallableUnit.NAMESPACE_IU_ID.equals(nextHost.getNamespace()) && //
 								theUnit.getId().equals(nextHost.getName()) && //
 								nextHost.getRange() != null && //
@@ -174,9 +174,9 @@ public class IUPropertyUtils {
 				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					ProvidedCapability[] provides = fragment.getProvidedCapabilities();
+					IProvidedCapability[] provides = fragment.getProvidedCapabilities();
 					for (int j = 0; j < provides.length && !haveLocale; j++) {
-						ProvidedCapability nextProvide = provides[j];
+						IProvidedCapability nextProvide = provides[j];
 						if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
 							String providedLocale = nextProvide.getName();
 							if (providedLocale != null) {

@@ -8,8 +8,8 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisioningTest {
 	IArtifactRepository repo = null;

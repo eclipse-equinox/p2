@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 
 public class Sizing extends InstallableUnitPhase {
 	private static final String PHASE_ID = "sizing"; //$NON-NLS-1$
@@ -51,8 +51,8 @@ public class Sizing extends InstallableUnitPhase {
 		if (parsedActions != null)
 			return parsedActions;
 
-		TouchpointType type = unit.getTouchpointType();
-		if (type == null || type == TouchpointType.NONE)
+		ITouchpointType type = unit.getTouchpointType();
+		if (type == null || type == ITouchpointType.NONE)
 			return null;
 
 		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(COLLECT_PHASE_ID, type);

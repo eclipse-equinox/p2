@@ -19,14 +19,14 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"unchecked", "restriction"})
 public class ConfigCUsActionTest extends ActionTest {
@@ -57,13 +57,13 @@ public class ConfigCUsActionTest extends ActionTest {
 		assertTrue(iu.getId().equalsIgnoreCase(flavor + id + ".configuration")); //$NON-NLS-1$
 
 		//verify ProvidedCapabilities
-		ProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
+		IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, "org.eclipse.equinox.p2.iu", iu.getId(), version); //$NON-NLS-1$
 		//		verifyProvidedCapability(providedCapabilities, flavor + id, id + ".config", version); //$NON-NLS-1$
 		assertTrue(providedCapabilities.length == 1);
 
 		//verify RequiredCapabilities
-		RequiredCapability[] requiredCapability = iu.getRequiredCapabilities();
+		IRequiredCapability[] requiredCapability = iu.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		assertTrue(requiredCapability.length == 2);
@@ -83,7 +83,7 @@ public class ConfigCUsActionTest extends ActionTest {
 				assertTrue(iu.getVersion().equals(version));
 				assertTrue(iu.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
 				assertFalse(iu.isSingleton());
-				ProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
+				IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + "." + cuType + "." + configSpec, version); //$NON-NLS-1$//$NON-NLS-2$
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.length == 2);

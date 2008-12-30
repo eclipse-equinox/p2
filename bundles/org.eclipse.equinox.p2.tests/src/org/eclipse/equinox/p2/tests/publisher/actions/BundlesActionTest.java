@@ -19,6 +19,8 @@ import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -28,8 +30,6 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"restriction", "unchecked"})
 public class BundlesActionTest extends ActionTest {
@@ -124,22 +124,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		RequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
+		IRequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
 		assertEquals("2.0", 1, requiredCapability.length);
 
 		// check provided capabilities
-		ProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
+		IProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertEquals("2.1", 4, providedCapabilities.length);
 
-		TouchpointData[] data = bundle1IU.getTouchpointData();
+		ITouchpointData[] data = bundle1IU.getTouchpointData();
 		boolean found = false;
 		for (int i = 0; i < data.length; i++) {
-			TouchpointInstruction configure = data[i].getInstruction("configure");
+			ITouchpointInstruction configure = data[i].getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -159,14 +159,14 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		RequiredCapability[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
+		IRequiredCapability[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);
 		assertTrue(requiredCapabilities.length == 3 /*number of tested elements*/);
 
 		// check provided capabilities
-		ProvidedCapability[] providedCapabilities = bundle2IU.getProvidedCapabilities();
+		IProvidedCapability[] providedCapabilities = bundle2IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROVBUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);
@@ -180,10 +180,10 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
-		TouchpointData[] data = bundle2IU.getTouchpointData();
+		ITouchpointData[] data = bundle2IU.getTouchpointData();
 		boolean found = false;
 		for (int i = 0; i < data.length; i++) {
-			TouchpointInstruction configure = data[i].getInstruction("configure");
+			ITouchpointInstruction configure = data[i].getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();

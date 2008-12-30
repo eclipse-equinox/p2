@@ -79,7 +79,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(INSTALLABLE_UNIT_ELEMENT);
 	}
 
-	protected void writeLifeCycle(RequiredCapability capability) {
+	protected void writeLifeCycle(IRequiredCapability capability) {
 		if (capability == null)
 			return;
 		start(LIFECYCLE);
@@ -87,7 +87,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(LIFECYCLE);
 	}
 
-	protected void writeHostRequiredCapabilities(RequiredCapability[] capabilities) {
+	protected void writeHostRequiredCapabilities(IRequiredCapability[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(HOST_REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -98,7 +98,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeProvidedCapabilities(ProvidedCapability[] capabilities) {
+	protected void writeProvidedCapabilities(IProvidedCapability[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(PROVIDED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -113,7 +113,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeRequiredCapabilities(RequiredCapability[] capabilities) {
+	protected void writeRequiredCapabilities(IRequiredCapability[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -136,7 +136,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(UPDATE_DESCRIPTOR_ELEMENT);
 	}
 
-	protected void writeApplicabilityScope(RequiredCapability[][] capabilities) {
+	protected void writeApplicabilityScope(IRequiredCapability[][] capabilities) {
 		start(APPLICABILITY_SCOPE);
 		for (int i = 0; i < capabilities.length; i++) {
 			start(APPLY_ON);
@@ -146,7 +146,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(APPLICABILITY_SCOPE);
 	}
 
-	protected void writeRequirementsChange(RequirementChange[] changes) {
+	protected void writeRequirementsChange(IRequirementChange[] changes) {
 		start(REQUIREMENT_CHANGES);
 		for (int i = 0; i < changes.length; i++) {
 			writeRequirementChange(changes[i]);
@@ -154,7 +154,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(REQUIREMENT_CHANGES);
 	}
 
-	protected void writeRequirementChange(RequirementChange change) {
+	protected void writeRequirementChange(IRequirementChange change) {
 		start(REQUIREMENT_CHANGE);
 		if (change.applyOn() != null) {
 			start(REQUIREMENT_FROM);
@@ -169,7 +169,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(REQUIREMENT_CHANGE);
 	}
 
-	protected void writeRequiredCapability(RequiredCapability capability) {
+	protected void writeRequiredCapability(IRequiredCapability capability) {
 		start(REQUIRED_CAPABILITY_ELEMENT);
 		attribute(NAMESPACE_ATTRIBUTE, capability.getNamespace());
 		attribute(NAME_ATTRIBUTE, capability.getName());
@@ -207,19 +207,19 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeTouchpointType(TouchpointType touchpointType) {
+	protected void writeTouchpointType(ITouchpointType touchpointType) {
 		start(TOUCHPOINT_TYPE_ELEMENT);
 		attribute(ID_ATTRIBUTE, touchpointType.getId());
 		attribute(VERSION_ATTRIBUTE, touchpointType.getVersion());
 		end(TOUCHPOINT_TYPE_ELEMENT);
 	}
 
-	protected void writeTouchpointData(TouchpointData[] touchpointData) {
+	protected void writeTouchpointData(ITouchpointData[] touchpointData) {
 		if (touchpointData != null && touchpointData.length > 0) {
 			start(TOUCHPOINT_DATA_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, touchpointData.length);
 			for (int i = 0; i < touchpointData.length; i++) {
-				TouchpointData nextData = touchpointData[i];
+				ITouchpointData nextData = touchpointData[i];
 				Map instructions = nextData.getInstructions();
 				if (instructions.size() > 0) {
 					start(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
@@ -228,7 +228,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 						Map.Entry entry = (Map.Entry) iter.next();
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
-						TouchpointInstruction instruction = (TouchpointInstruction) entry.getValue();
+						ITouchpointInstruction instruction = (ITouchpointInstruction) entry.getValue();
 						if (instruction.getImportAttribute() != null)
 							attribute(TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE, instruction.getImportAttribute());
 						cdata(instruction.getBody(), true);
@@ -249,7 +249,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	private void writeLicenses(License license) {
+	private void writeLicenses(ILicense license) {
 		if (license != null) {
 			// In the future there may be more than one license, so we write this 
 			// as a collection of one.
@@ -265,7 +265,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	private void writeCopyright(Copyright copyright) {
+	private void writeCopyright(ICopyright copyright) {
 		if (copyright != null) {
 			start(COPYRIGHT_ELEMENT);
 			try {

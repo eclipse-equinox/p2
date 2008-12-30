@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.query.CategoryElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
@@ -83,7 +83,7 @@ public class CategoryElementCollectorTest extends AbstractQueryTest {
 		assertEquals("1.6", 1, collector.size());
 
 		//adding a nested category shouldn't affected size
-		RequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1", null);
+		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1", null);
 		IInstallableUnit nested = createIU("Nested", required);
 		collector.accept(nested);
 		assertEquals("1.7", 1, collector.size());

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools;
 
-import org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker;
-
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;

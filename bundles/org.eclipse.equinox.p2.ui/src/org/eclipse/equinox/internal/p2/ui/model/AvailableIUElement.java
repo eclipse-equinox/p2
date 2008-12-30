@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -127,7 +127,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
-	public RequiredCapability[] getRequirements() {
+	public IRequiredCapability[] getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
 

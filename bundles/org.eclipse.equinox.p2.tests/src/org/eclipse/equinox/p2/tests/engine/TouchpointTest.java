@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -20,7 +21,6 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.engine.PhaseTest.TestPhaseSet;
 import org.osgi.framework.ServiceReference;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Simple test of the engine API.

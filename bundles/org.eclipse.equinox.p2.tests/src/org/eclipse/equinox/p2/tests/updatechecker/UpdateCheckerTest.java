@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.updatechecker;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -23,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Tests for API of {@link IUpdateChecker}.
@@ -45,7 +45,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 		String id = "toInstall." + getName();
 		toInstallIU = createIU(id, new Version(1, 0, 0));
 		IUpdateDescriptor updateDescriptor = createUpdateDescriptor(id, new Version(2, 0, 0));
-		update = createIU(id, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, true, updateDescriptor);
+		update = createIU(id, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, updateDescriptor);
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU, update};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};

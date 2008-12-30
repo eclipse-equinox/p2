@@ -175,7 +175,7 @@ public class Projector {
 		if (patches == null)
 			return patchesWeight;
 		for (int i = 0; i < ius.length; i++) {
-			RequiredCapability[] reqs = ius[i].getRequiredCapabilities();
+			IRequiredCapability[] reqs = ius[i].getRequiredCapabilities();
 			for (int j = 0; j < reqs.length; j++) {
 				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
 				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
@@ -200,7 +200,7 @@ public class Projector {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(RequiredCapability req) {
+	private boolean isApplicable(IRequiredCapability req) {
 		String filter = req.getFilter();
 		if (filter == null)
 			return true;
@@ -327,7 +327,7 @@ public class Projector {
 		expandLifeCycle(iu);
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
-			RequiredCapability[] reqs = iu.getRequiredCapabilities();
+			IRequiredCapability[] reqs = iu.getRequiredCapabilities();
 			if (reqs.length == 0) {
 				return;
 			}
@@ -345,7 +345,7 @@ public class Projector {
 			Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
 			for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
 				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
-				RequiredCapability[][] reqs = mergeRequirements(iu, patch);
+				IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
 				if (reqs.length == 0)
 					return;
 
@@ -387,9 +387,9 @@ public class Projector {
 					expression.append(" 1 " + getVariable(patch)); //$NON-NLS-1$
 				}
 				if (allPatches.size() != 0)
-					genericExpandRequirement(expression.toString(), iu, (RequiredCapability) entry.getKey(), " >= 0", " 1 " + getVariable(iu) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					genericExpandRequirement(expression.toString(), iu, (IRequiredCapability) entry.getKey(), " >= 0", " 1 " + getVariable(iu) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				else
-					expandRequirement(null, iu, (RequiredCapability) entry.getKey());
+					expandRequirement(null, iu, (IRequiredCapability) entry.getKey());
 			}
 		}
 	}
@@ -403,7 +403,7 @@ public class Projector {
 		expandNormalRequirement(null, iu, patch.getLifeCycle());
 	}
 
-	private void genericExpandRequirement(String var, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
+	private void genericExpandRequirement(String var, IInstallableUnit iu, IRequiredCapability req, String value, String negationExpression) {
 		if (req.isOptional())
 			genericOptionalRequirementExpansion(var, iu, req, value);
 		else
@@ -411,11 +411,11 @@ public class Projector {
 	}
 
 	//Return a new array of requirements representing the application of the patch
-	private RequiredCapability[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
+	private IRequiredCapability[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
 		if (patch == null)
 			return null;
-		RequirementChange[] changes = patch.getRequirementsChange();
-		RequiredCapability[] originalRequirements = new RequiredCapability[iu.getRequiredCapabilities().length];
+		IRequirementChange[] changes = patch.getRequirementsChange();
+		IRequiredCapability[] originalRequirements = new IRequiredCapability[iu.getRequiredCapabilities().length];
 		System.arraycopy(iu.getRequiredCapabilities(), 0, originalRequirements, 0, originalRequirements.length);
 		List rrr = new ArrayList();
 		boolean found = false;
@@ -424,23 +424,23 @@ public class Projector {
 				if (originalRequirements[j] != null && changes[i].matches(originalRequirements[j])) {
 					found = true;
 					if (changes[i].newValue() != null)
-						rrr.add(new RequiredCapability[] {originalRequirements[j], changes[i].newValue()});
+						rrr.add(new IRequiredCapability[] {originalRequirements[j], changes[i].newValue()});
 					else
 						// case where a requirement is removed
-						rrr.add(new RequiredCapability[] {originalRequirements[j], null});
+						rrr.add(new IRequiredCapability[] {originalRequirements[j], null});
 					originalRequirements[j] = null;
 				}
 				//				break;
 			}
 			if (!found && changes[i].applyOn() == null && changes[i].newValue() != null) //Case where a new requirement is added
-				rrr.add(new RequiredCapability[] {null, changes[i].newValue()});
+				rrr.add(new IRequiredCapability[] {null, changes[i].newValue()});
 		}
 		//Add all the unmodified requirements to the result
 		for (int i = 0; i < originalRequirements.length; i++) {
 			if (originalRequirements[i] != null)
-				rrr.add(new RequiredCapability[] {originalRequirements[i], originalRequirements[i]});
+				rrr.add(new IRequiredCapability[] {originalRequirements[i], originalRequirements[i]});
 		}
-		return (RequiredCapability[][]) rrr.toArray(new RequiredCapability[rrr.size()][]);
+		return (IRequiredCapability[][]) rrr.toArray(new IRequiredCapability[rrr.size()][]);
 	}
 
 	private void addOptionalityExpression() {
@@ -454,7 +454,7 @@ public class Projector {
 	private int countOptionalIUs = 0;
 	private QueryableArray patches;
 
-	private void expandOptionalRequirement(String iuVar, IInstallableUnit iu, RequiredCapability req) {
+	private void expandOptionalRequirement(String iuVar, IInstallableUnit iu, IRequiredCapability req) {
 		if (iuVar == null)
 			iuVar = getVariable(iu);
 		String abstractVar = getAbstractVariable();
@@ -495,7 +495,7 @@ public class Projector {
 		}
 	}
 
-	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, RequiredCapability req, String value) {
+	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, IRequiredCapability req, String value) {
 		String abstractVar = getAbstractVariable();
 		String expression = iuVar;
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
@@ -534,7 +534,7 @@ public class Projector {
 		}
 	}
 
-	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
+	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, IRequiredCapability req, String value, String negationExpression) {
 		String expression = varIu;
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
@@ -568,7 +568,7 @@ public class Projector {
 		}
 	}
 
-	private void expandNormalRequirement(String varIu, IInstallableUnit iu, RequiredCapability req) {
+	private void expandNormalRequirement(String varIu, IInstallableUnit iu, IRequiredCapability req) {
 		//Generate the regular requirement
 		if (varIu == null)
 			varIu = getVariable(iu);
@@ -616,7 +616,7 @@ public class Projector {
 		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
 	}
 
-	private void expandRequirement(String var, IInstallableUnit iu, RequiredCapability req) {
+	private void expandRequirement(String var, IInstallableUnit iu, IRequiredCapability req) {
 		if (req.isOptional())
 			expandOptionalRequirement(var, iu, req);
 		else

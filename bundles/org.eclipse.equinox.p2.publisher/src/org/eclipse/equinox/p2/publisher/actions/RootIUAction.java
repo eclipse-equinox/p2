@@ -14,6 +14,8 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -21,9 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Create a top level IU that lists all the current roots as well as any explicitly identified
@@ -66,7 +66,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection allAdvice = info.getAdvice(null, true, id, version, ITouchpointAdvice.class);
 		if (allAdvice == null || allAdvice.isEmpty())
 			return;
-		TouchpointData touchpointData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
+		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
 		for (Iterator it = allAdvice.iterator(); it.hasNext();)
 			touchpointData = ((ITouchpointAdvice) it.next()).getTouchpointData(touchpointData);
 		descriptor.addTouchpointData(touchpointData);
@@ -155,13 +155,13 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection requiredCapabilities = createIURequirements(children);
 		if (requires != null)
 			requiredCapabilities.addAll(requires);
-		root.setRequiredCapabilities((RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]));
+		root.setRequiredCapabilities((IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		root.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
 		// TODO why is the type OSGI?
 		root.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		return root;

@@ -33,7 +33,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		return new TestSuite(RepositoryListenerTest.class);
 	}
 
-	public static boolean isZipped(TouchpointData[] data) {
+	public static boolean isZipped(ITouchpointData[] data) {
 		if (data == null || data.length == 0)
 			return false;
 		for (int i = 0; i < data.length; i++) {

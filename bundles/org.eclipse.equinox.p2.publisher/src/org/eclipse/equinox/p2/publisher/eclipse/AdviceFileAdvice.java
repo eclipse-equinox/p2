@@ -13,9 +13,9 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Publishing advice from a p2 advice file. An advice file (p2.inf) can be embedded
@@ -126,7 +126,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	/*(non-Javadoc)
 	 * @see org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice#getTouchpointData()
 	 */
-	public TouchpointData getTouchpointData(TouchpointData existing) {
+	public ITouchpointData getTouchpointData(ITouchpointData existing) {
 		Map touchpointData = new HashMap(existing.getInstructions());
 		Map bundleAdvice = getInstructions();
 		for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
@@ -136,7 +136,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 				String instruction = ""; //$NON-NLS-1$
 				if (touchpointData.containsKey(phase)) {
 					Object previous = touchpointData.get(phase);
-					instruction = previous instanceof TouchpointInstruction ? ((TouchpointInstruction) previous).getBody() : (String) previous;
+					instruction = previous instanceof ITouchpointInstruction ? ((ITouchpointInstruction) previous).getBody() : (String) previous;
 					if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
 						instruction += ';';
 				}

@@ -59,7 +59,7 @@ public class Transformer {
 		return result;
 	}
 
-	private boolean isEnabled(RequiredCapability capability) {
+	private boolean isEnabled(IRequiredCapability capability) {
 		// If there is no context then be optimistic
 		if (context == null)
 			return true;
@@ -89,7 +89,7 @@ public class Transformer {
 		return buf.toString();
 	}
 
-	public void visitCapability(ProvidedCapability capability) {
+	public void visitCapability(IProvidedCapability capability) {
 		iuCapabilities.add(factory.createGenericDescription(capability.getName(), capability.getNamespace(), Version.toOSGiVersion(capability.getVersion()), null));
 	}
 
@@ -97,14 +97,14 @@ public class Transformer {
 		kind = IU_KIND;
 
 		//Start with the dependencies
-		RequiredCapability[] requires = toTransform.getRequiredCapabilities();
+		IRequiredCapability[] requires = toTransform.getRequiredCapabilities();
 		iuDependencies = new HashMap(requires.length);
 		for (int i = 0; i < requires.length; i++) {
 			visitRequiredCapability(requires[i]);
 		}
 
 		//Do the capabilities
-		ProvidedCapability[] capabilities = toTransform.getProvidedCapabilities();
+		IProvidedCapability[] capabilities = toTransform.getProvidedCapabilities();
 		iuCapabilities = new ArrayList(requires.length + 1);
 		for (int i = 0; i < capabilities.length; i++) {
 			visitCapability(capabilities[i]);
@@ -125,7 +125,7 @@ public class Transformer {
 		result.setUserObject(new StateMetadataMap(toTransform, iuDependencies));
 	}
 
-	public void visitRequiredCapability(RequiredCapability capability) {
+	public void visitRequiredCapability(IRequiredCapability capability) {
 		try {
 			if (isEnabled(capability)) {
 				capability = rewrite(capability);
@@ -136,7 +136,7 @@ public class Transformer {
 		}
 	}
 
-	private RequiredCapability rewrite(RequiredCapability match) {
+	private IRequiredCapability rewrite(IRequiredCapability match) {
 		if (recommendations == null)
 			return match;
 		Recommendation foundRecommendation = recommendations.findRecommendation(match);

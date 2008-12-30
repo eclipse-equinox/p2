@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts
@@ -50,8 +50,8 @@ public class CheckTrust extends InstallableUnitPhase {
 		if (parsedActions != null)
 			return parsedActions;
 
-		TouchpointType type = unit.getTouchpointType();
-		if (type == null || type == TouchpointType.NONE)
+		ITouchpointType type = unit.getTouchpointType();
+		if (type == null || type == ITouchpointType.NONE)
 			return null;
 
 		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);

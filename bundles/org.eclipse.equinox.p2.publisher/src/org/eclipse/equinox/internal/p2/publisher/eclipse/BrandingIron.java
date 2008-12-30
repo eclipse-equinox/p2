@@ -10,10 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.p2.swt.tools.IconExe;
-
 import java.io.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.p2.swt.tools.IconExe;
 
 /**
  *

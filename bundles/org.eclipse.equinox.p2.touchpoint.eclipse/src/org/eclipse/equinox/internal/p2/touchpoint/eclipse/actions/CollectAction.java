@@ -42,7 +42,7 @@ public class CollectAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public static boolean isZipped(TouchpointData[] data) {
+	public static boolean isZipped(ITouchpointData[] data) {
 		if (data == null || data.length == 0)
 			return false;
 		for (int i = 0; i < data.length; i++) {

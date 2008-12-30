@@ -38,30 +38,30 @@ import org.osgi.framework.Constants;
 public class PublisherHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
-	 * @see RequiredCapability#getNamespace()
-	 * @see ProvidedCapability#getNamespace()
+	 * @see IRequiredCapability#getNamespace()
+	 * @see IProvidedCapability#getNamespace()
 	 */
 	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a feature
-	 * @see RequiredCapability#getName()
+	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a source bundle
-	 * @see RequiredCapability#getName()
+	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
 	/**
 	 * A capability namespace representing the localization (translation)
 	 * of strings from a specified IU in a specified locale
-	 * @see RequiredCapability#getNamespace()
-	 * @see ProvidedCapability#getNamespace()
+	 * @see IRequiredCapability#getNamespace()
+	 * @see IProvidedCapability#getNamespace()
 	 * TODO: this should be in API, probably in IInstallableUnit
 	 */
 	public static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
@@ -85,10 +85,10 @@ public class PublisherHelper {
 
 	public static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-	public static final TouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0)); //$NON-NLS-1$
-	public static final TouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0)); //$NON-NLS-1$
 
-	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
+	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk) {
 		//TODO this size calculation is bogus
@@ -142,7 +142,7 @@ public class PublisherHelper {
 		}
 	}
 
-	public static ProvidedCapability makeTranslationCapability(String hostId, Locale locale) {
+	public static IProvidedCapability makeTranslationCapability(String hostId, Locale locale) {
 		return MetadataFactory.createProvidedCapability(NAMESPACE_IU_LOCALIZATION, locale.toString(), new Version(1, 0, 0));
 	}
 
@@ -159,10 +159,10 @@ public class PublisherHelper {
 
 		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		// Create a required capability on features
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
+		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
@@ -183,10 +183,10 @@ public class PublisherHelper {
 
 		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		// Create a required capability on source providers
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
+		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -222,7 +222,7 @@ public class PublisherHelper {
 		return new ArtifactKey(BINARY_ARTIFACT_CLASSIFIER, id, version);
 	}
 
-	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
+	public static IProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return MetadataFactory.createProvidedCapability(IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 

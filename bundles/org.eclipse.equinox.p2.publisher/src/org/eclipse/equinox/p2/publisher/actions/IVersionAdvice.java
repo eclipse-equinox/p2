@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 public interface IVersionAdvice extends IPublisherAdvice {
 

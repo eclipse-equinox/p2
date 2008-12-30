@@ -8,29 +8,29 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
-public class RequirementChange {
-	private RequiredCapability applyOn;
-	private RequiredCapability newValue;
+public class RequirementChange implements IRequirementChange {
+	private IRequiredCapability applyOn;
+	private IRequiredCapability newValue;
 
-	public RequirementChange(RequiredCapability applyOn2, RequiredCapability newValue2) {
+	public RequirementChange(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
 		if (applyOn2 == null && newValue2 == null)
 			throw new IllegalArgumentException();
 		this.applyOn = applyOn2;
 		this.newValue = newValue2;
 	}
 
-	public RequiredCapability applyOn() {
+	public IRequiredCapability applyOn() {
 		return applyOn;
 	}
 
-	public RequiredCapability newValue() {
+	public IRequiredCapability newValue() {
 		return newValue;
 	}
 
-	public boolean matches(RequiredCapability toMatch) {
+	public boolean matches(IRequiredCapability toMatch) {
 		if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
 			return false;
 		if (!toMatch.getName().equals(applyOn.getName()))
@@ -93,18 +93,18 @@ public class RequirementChange {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof IRequirementChange))
 			return false;
-		final RequirementChange other = (RequirementChange) obj;
+		final IRequirementChange other = (IRequirementChange) obj;
 		if (applyOn == null) {
-			if (other.applyOn != null)
+			if (other.applyOn() != null)
 				return false;
-		} else if (!applyOn.equals(other.applyOn))
+		} else if (!applyOn.equals(other.applyOn()))
 			return false;
 		if (newValue == null) {
-			if (other.newValue != null)
+			if (other.newValue() != null)
 				return false;
-		} else if (!newValue.equals(other.newValue))
+		} else if (!newValue.equals(other.newValue()))
 			return false;
 		return true;
 	}

@@ -41,9 +41,9 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 
-		Copyright copyright = org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils.getCopyright(unit);
+		ICopyright copyright = org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils.getCopyright(unit);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
-		License license = IUPropertyUtils.getLicense(unit);
+		ILicense license = IUPropertyUtils.getLicense(unit);
 		assertEquals("1.2", "Test License", license.getBody());
 		//		assertEquals("1.3", "license.html", license.getURL().toExternalForm());
 		String name = IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME);

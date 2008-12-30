@@ -11,42 +11,42 @@ package org.eclipse.equinox.internal.p2.metadata;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class InstallableUnitPatch extends InstallableUnit implements IInstallableUnitPatch {
-	private RequirementChange[] changes;
-	private RequiredCapability lifeCycle;
-	private RequiredCapability[][] scope;
+	private IRequirementChange[] changes;
+	private IRequiredCapability lifeCycle;
+	private IRequiredCapability[][] scope;
 
-	private void addRequiredCapability(RequiredCapability[] toAdd) {
-		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + toAdd.length];
+	private void addRequiredCapability(IRequiredCapability[] toAdd) {
+		IRequiredCapability[] current = super.getRequiredCapabilities();
+		IRequiredCapability[] result = new IRequiredCapability[current.length + toAdd.length];
 		System.arraycopy(current, 0, result, 0, current.length);
 		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
 		setRequiredCapabilities(result);
 	}
 
-	public RequiredCapability[][] getApplicabilityScope() {
+	public IRequiredCapability[][] getApplicabilityScope() {
 		return scope;
 	}
 
-	public RequiredCapability getLifeCycle() {
+	public IRequiredCapability getLifeCycle() {
 		return lifeCycle;
 	}
 
-	public RequirementChange[] getRequirementsChange() {
+	public IRequirementChange[] getRequirementsChange() {
 		return changes;
 	}
 
-	public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+	public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
 		scope = applyTo;
 	}
 
-	public void setLifeCycle(RequiredCapability lifeCycle) {
+	public void setLifeCycle(IRequiredCapability lifeCycle) {
 		if (lifeCycle == null)
 			return;
 		this.lifeCycle = lifeCycle;
-		addRequiredCapability(new RequiredCapability[] {lifeCycle});
+		addRequiredCapability(new IRequiredCapability[] {lifeCycle});
 	}
 
-	public void setRequirementsChange(RequirementChange[] changes) {
+	public void setRequirementsChange(IRequirementChange[] changes) {
 		this.changes = changes;
 	}
 }

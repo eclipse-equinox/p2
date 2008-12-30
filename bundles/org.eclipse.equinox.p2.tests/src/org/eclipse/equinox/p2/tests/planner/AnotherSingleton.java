@@ -9,13 +9,13 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class AnotherSingleton extends AbstractProvisioningTest {
 	IInstallableUnit a1;
@@ -33,11 +33,11 @@ public class AnotherSingleton extends AbstractProvisioningTest {
 
 		a2 = createIU("A", new Version("2.0.0"), true);
 
-		RequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		x = createIU("X", new Version(2, 0, 0), new RequiredCapability[] {c1});
+		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
+		x = createIU("X", new Version(2, 0, 0), new IRequiredCapability[] {c1});
 
-		RequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
-		y = createIU("Y", new Version(2, 0, 0), new RequiredCapability[] {c2});
+		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
+		y = createIU("Y", new Version(2, 0, 0), new IRequiredCapability[] {c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, x, y});
 

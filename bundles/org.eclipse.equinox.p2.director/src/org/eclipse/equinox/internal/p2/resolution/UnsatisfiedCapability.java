@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.resolution;
 
 import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -21,14 +21,14 @@ import org.eclipse.osgi.util.NLS;
  */
 public class UnsatisfiedCapability {
 	private IInstallableUnit owner;
-	private RequiredCapability require;
+	private IRequiredCapability require;
 
 	/**
 	 * Creates a new unresolved dependency
 	 * @param required The dependency that was not satisfied.
 	 * @param owner The installable unit whose dependency was not satisfied.
 	 */
-	public UnsatisfiedCapability(RequiredCapability required, IInstallableUnit owner) {
+	public UnsatisfiedCapability(IRequiredCapability required, IInstallableUnit owner) {
 		this.require = required;
 		this.owner = owner;
 	}
@@ -40,7 +40,7 @@ public class UnsatisfiedCapability {
 	/**
 	 * Returns the specific dependency that was not satisfied.
 	 */
-	public RequiredCapability getRequiredCapability() {
+	public IRequiredCapability getRequiredCapability() {
 		return require;
 	}
 

@@ -19,20 +19,18 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
 	public static void addSelfCapability(InstallableUnitDescription root) {
-		root.setCapabilities(new ProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
+		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
 	}
 
 	/**
@@ -129,7 +127,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return FileUtils.createRootPathComputer(root);
 	}
 
-	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
+	public static IProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
@@ -171,18 +169,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
-			RequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
-			ProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
+			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
+			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				RequiredCapability[] current = iu.getRequiredCapabilities();
-				RequiredCapability[] result = new RequiredCapability[requiredAdvice.length + current.length];
+				IRequiredCapability[] current = iu.getRequiredCapabilities();
+				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
 				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
 				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
 				iu.setRequiredCapabilities(result);
 			}
 			if (providedAdvice != null) {
-				ProvidedCapability[] current = iu.getProvidedCapabilities();
-				ProvidedCapability[] result = new ProvidedCapability[providedAdvice.length + current.length];
+				IProvidedCapability[] current = iu.getProvidedCapabilities();
+				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];
 				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
 				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
 				iu.setCapabilities(result);

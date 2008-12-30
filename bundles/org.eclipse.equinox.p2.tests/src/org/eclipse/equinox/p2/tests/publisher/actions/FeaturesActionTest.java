@@ -21,6 +21,8 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -28,8 +30,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 @SuppressWarnings( {"unchecked", "restriction"})
 public class FeaturesActionTest extends ActionTest {
@@ -88,14 +88,14 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(fooVersion));
 
 		//zipped=true
-		TouchpointData[] tpData = foo.getTouchpointData();
-		String fooValue = ((TouchpointInstruction) tpData[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		ITouchpointData[] tpData = foo.getTouchpointData();
+		String fooValue = ((ITouchpointInstruction) tpData[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
-		RequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
+		IRequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
 		assertTrue(fooRequiredCapabilities.length == 0);
 
-		ProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
+		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
 		contains(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
 		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
@@ -107,7 +107,7 @@ public class FeaturesActionTest extends ActionTest {
 		IInstallableUnit fooGroup = (IInstallableUnit) fooIUs.get(0);
 		tpData = fooGroup.getTouchpointData();
 		assertEquals(1, tpData.length);
-		TouchpointInstruction instruction = tpData[0].getInstruction("install");
+		ITouchpointInstruction instruction = tpData[0].getInstruction("install");
 		assertNotNull(instruction);
 		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
 
@@ -126,18 +126,18 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.isSingleton());
 
 		//check zipped=true in touchpointData
-		String barValue = ((TouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String barValue = ((ITouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		//check touchpointType
 		assertTrue(bar.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
 		assertTrue(bar.getTouchpointType().getVersion().equals(fooVersion));
 		//String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy)
-		RequiredCapability[] barRequiredCapabilities = bar.getRequiredCapabilities();
+		IRequiredCapability[] barRequiredCapabilities = bar.getRequiredCapabilities();
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$ 
 		assertTrue(barRequiredCapabilities.length == 1);
 
-		ProvidedCapability[] barProvidedCapabilities = bar.getProvidedCapabilities();
+		IProvidedCapability[] barProvidedCapabilities = bar.getProvidedCapabilities();
 		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$

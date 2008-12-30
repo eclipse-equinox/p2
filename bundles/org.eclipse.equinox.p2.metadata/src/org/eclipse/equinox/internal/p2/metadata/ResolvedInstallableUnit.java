@@ -12,8 +12,8 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];
@@ -62,38 +62,38 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getProperties();
 	}
 
-	public ProvidedCapability[] getProvidedCapabilities() {
+	public IProvidedCapability[] getProvidedCapabilities() {
 		ArrayList result = new ArrayList();
 		result.addAll(Arrays.asList(original.getProvidedCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getProvidedCapabilities()));
 		}
-		return (ProvidedCapability[]) result.toArray(new ProvidedCapability[result.size()]);
+		return (IProvidedCapability[]) result.toArray(new IProvidedCapability[result.size()]);
 	}
 
-	public RequiredCapability[] getRequiredCapabilities() {
+	public IRequiredCapability[] getRequiredCapabilities() {
 		ArrayList result = new ArrayList();
 		result.addAll(Arrays.asList(original.getRequiredCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
 		}
-		return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
+		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
 
 	}
 
-	public TouchpointData[] getTouchpointData() {
+	public ITouchpointData[] getTouchpointData() {
 		ArrayList result = new ArrayList();
 		result.addAll(Arrays.asList(original.getTouchpointData()));
 		for (int i = 0; i < fragments.length; i++) {
-			TouchpointData[] data = fragments[i].getTouchpointData();
+			ITouchpointData[] data = fragments[i].getTouchpointData();
 			for (int j = 0; j < data.length; j++) {
 				result.add(data[j]);
 			}
 		}
-		return (TouchpointData[]) result.toArray(new TouchpointData[result.size()]);
+		return (ITouchpointData[]) result.toArray(new ITouchpointData[result.size()]);
 	}
 
-	public TouchpointType getTouchpointType() {
+	public ITouchpointType getTouchpointType() {
 		return original.getTouchpointType();
 	}
 
@@ -154,16 +154,16 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getUpdateDescriptor();
 	}
 
-	public License getLicense() {
+	public ILicense getLicense() {
 		return original.getLicense();
 	}
 
-	public Copyright getCopyright() {
+	public ICopyright getCopyright() {
 		return original.getCopyright();
 	}
 
-	public boolean satisfies(RequiredCapability candidate) {
-		ProvidedCapability[] provides = getProvidedCapabilities();
+	public boolean satisfies(IRequiredCapability candidate) {
+		IProvidedCapability[] provides = getProvidedCapabilities();
 		for (int i = 0; i < provides.length; i++)
 			if (provides[i].satisfies(candidate))
 				return true;

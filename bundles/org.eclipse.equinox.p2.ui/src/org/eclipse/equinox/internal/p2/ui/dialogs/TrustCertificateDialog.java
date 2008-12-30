@@ -1,9 +1,8 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
-
 import java.security.cert.X509Certificate;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;

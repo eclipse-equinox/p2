@@ -71,8 +71,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			ProcessingStepDescriptor descriptor = (ProcessingStepDescriptor) obj;
 			return descriptor.getProcessorId();
 		}
-		if (obj instanceof RequiredCapability) {
-			return ((RequiredCapability) obj).getName();
+		if (obj instanceof IRequiredCapability) {
+			return ((IRequiredCapability) obj).getName();
 		}
 		return obj.toString();
 	}
@@ -96,7 +96,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof IArtifactKey) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 		}
-		if (obj instanceof RequiredCapability) {
+		if (obj instanceof IRequiredCapability) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
 		return null;
@@ -136,8 +136,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					IArtifactKey key = (IArtifactKey) element;
 					return key.getVersion().toString();
 				}
-				if (element instanceof RequiredCapability) {
-					return ((RequiredCapability) element).getRange().getMaximum().toString();
+				if (element instanceof IRequiredCapability) {
+					return ((IRequiredCapability) element).getRange().getMaximum().toString();
 				}
 
 		}

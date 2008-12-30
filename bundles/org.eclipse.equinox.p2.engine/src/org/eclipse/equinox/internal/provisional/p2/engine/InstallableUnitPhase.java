@@ -74,7 +74,7 @@ public abstract class InstallableUnitPhase extends Phase {
 	}
 
 	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
-		TouchpointInstruction[] instructions = getInstructions(unit, key);
+		ITouchpointInstruction[] instructions = getInstructions(unit, key);
 		if (instructions == null || instructions.length == 0)
 			return null;
 
@@ -86,19 +86,19 @@ public abstract class InstallableUnitPhase extends Phase {
 		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
 	}
 
-	private final static TouchpointInstruction[] getInstructions(IInstallableUnit unit, String key) {
-		TouchpointData[] data = unit.getTouchpointData();
+	private final static ITouchpointInstruction[] getInstructions(IInstallableUnit unit, String key) {
+		ITouchpointData[] data = unit.getTouchpointData();
 		if (data == null)
 			return null;
 
 		ArrayList matches = new ArrayList(data.length);
 		for (int i = 0; i < data.length; i++) {
-			TouchpointInstruction instructions = data[i].getInstruction(key);
+			ITouchpointInstruction instructions = data[i].getInstruction(key);
 			if (instructions != null)
 				matches.add(instructions);
 		}
 
-		TouchpointInstruction[] result = (TouchpointInstruction[]) matches.toArray(new TouchpointInstruction[matches.size()]);
+		ITouchpointInstruction[] result = (ITouchpointInstruction[]) matches.toArray(new ITouchpointInstruction[matches.size()]);
 		return result;
 	}
 }

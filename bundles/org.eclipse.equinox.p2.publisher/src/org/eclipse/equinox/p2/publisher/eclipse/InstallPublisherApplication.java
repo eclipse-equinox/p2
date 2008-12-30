@@ -11,8 +11,8 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.p2.publisher.*;
 
 public class InstallPublisherApplication extends AbstractPublisherApplication {
 

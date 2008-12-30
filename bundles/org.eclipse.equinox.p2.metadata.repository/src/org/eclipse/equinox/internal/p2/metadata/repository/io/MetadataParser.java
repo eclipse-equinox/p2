@@ -16,12 +16,12 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 
@@ -240,7 +240,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			if (isValidXML()) {
 				if (requirementChangesHandler != null) {
 					currentUnit = new MetadataFactory.InstallableUnitPatchDescription();
-					((InstallableUnitPatchDescription) currentUnit).setRequirementChanges((RequirementChange[]) requirementChangesHandler.getRequirementChanges().toArray(new RequirementChange[requirementChangesHandler.getRequirementChanges().size()]));
+					((InstallableUnitPatchDescription) currentUnit).setRequirementChanges((IRequirementChange[]) requirementChangesHandler.getRequirementChanges().toArray(new IRequirementChange[requirementChangesHandler.getRequirementChanges().size()]));
 					if (applicabilityScopeHandler != null)
 						((InstallableUnitPatchDescription) currentUnit).setApplicabilityScope(applicabilityScopeHandler.getScope());
 					if (lifeCycleHandler != null)
@@ -278,18 +278,18 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				//End of backward compatibility
 
 				if (licensesHandler != null) {
-					License license = licensesHandler.getLicense();
+					ILicense license = licensesHandler.getLicense();
 					currentUnit.setLicense(license);
 				}
 
 				if (copyrightHandler != null) {
-					Copyright copyright = copyrightHandler.getCopyright();
+					ICopyright copyright = copyrightHandler.getCopyright();
 					currentUnit.setCopyright(copyright);
 				}
 
-				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
+				IProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new IProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
-				RequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new RequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
+				IRequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
 				currentUnit.setRequiredCapabilities(requiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
@@ -301,7 +301,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				} else {
 					// TODO: create an error
 				}
-				TouchpointData[] touchpointData = (touchpointDataHandler == null ? new TouchpointData[0] : touchpointDataHandler.getTouchpointData());
+				ITouchpointData[] touchpointData = (touchpointDataHandler == null ? new ITouchpointData[0] : touchpointDataHandler.getTouchpointData());
 				for (int i = 0; i < touchpointData.length; i++)
 					currentUnit.addTouchpointData(touchpointData[i]);
 				if (updateDescriptorHandler != null)
@@ -328,8 +328,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
-		public RequiredCapability[][] getScope() {
-			return (RequiredCapability[][]) scopes.toArray(new RequiredCapability[scopes.size()][]);
+		public IRequiredCapability[][] getScope() {
+			return (IRequiredCapability[][]) scopes.toArray(new IRequiredCapability[scopes.size()][]);
 		}
 	}
 
@@ -405,7 +405,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		protected void finished() {
-			requirementChanges.add(new RequirementChange(from.size() == 0 ? null : (RequiredCapability) from.get(0), to.size() == 0 ? null : (RequiredCapability) to.get(0)));
+			requirementChanges.add(new RequirementChange(from.size() == 0 ? null : (IRequiredCapability) from.get(0), to.size() == 0 ? null : (IRequiredCapability) to.get(0)));
 		}
 	}
 
@@ -435,10 +435,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			lifeCycleRequirement = new ArrayList(1);
 		}
 
-		public RequiredCapability getLifeCycleRequirement() {
+		public IRequiredCapability getLifeCycleRequirement() {
 			if (lifeCycleRequirement.size() == 0)
 				return null;
-			return (RequiredCapability) lifeCycleRequirement.get(0);
+			return (IRequiredCapability) lifeCycleRequirement.get(0);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -459,8 +459,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			providedCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public ProvidedCapability[] getProvidedCapabilities() {
-			return (ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]);
+		public IProvidedCapability[] getProvidedCapabilities() {
+			return (IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -496,8 +496,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public RequiredCapability[] getHostRequiredCapabilities() {
-			return (RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]);
+		public IRequiredCapability[] getHostRequiredCapabilities() {
+			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -518,8 +518,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public RequiredCapability[] getRequiredCapabilities() {
-			return (RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]);
+		public IRequiredCapability[] getRequiredCapabilities() {
+			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -535,7 +535,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
 		private final String[] optional = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
 
-		private RequiredCapability currentCapability = null;
+		private IRequiredCapability currentCapability = null;
 
 		private TextHandler filterHandler = null;
 		private CapabilitySelectorsHandler selectorsHandler = null;
@@ -641,7 +641,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
-		TouchpointType touchpointType = null;
+		ITouchpointType touchpointType = null;
 
 		public TouchpointTypeHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, TOUCHPOINT_TYPE_ELEMENT);
@@ -650,7 +650,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			touchpointType = MetadataFactory.createTouchpointType(values[0], version);
 		}
 
-		public TouchpointType getTouchpointType() {
+		public ITouchpointType getTouchpointType() {
 			return touchpointType;
 		}
 
@@ -661,7 +661,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class TouchpointDataHandler extends AbstractHandler {
 
-		TouchpointData touchpointData = null;
+		ITouchpointData touchpointData = null;
 
 		List data = null;
 
@@ -671,8 +671,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			data = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public TouchpointData[] getTouchpointData() {
-			TouchpointData[] result = new TouchpointData[data.size()];
+		public ITouchpointData[] getTouchpointData() {
+			ITouchpointData[] result = new ITouchpointData[data.size()];
 			for (int i = 0; i < result.length; i++)
 				result[i] = ((TouchpointInstructionsHandler) data.get(i)).getTouchpointData();
 			return result;
@@ -697,7 +697,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			instructions = (size != null ? new LinkedHashMap(new Integer(size).intValue()) : new LinkedHashMap(4));
 		}
 
-		public TouchpointData getTouchpointData() {
+		public ITouchpointData getTouchpointData() {
 			return MetadataFactory.createTouchpointData(instructions);
 		}
 
@@ -770,10 +770,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			licenses = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(2));
 		}
 
-		public License getLicense() {
+		public ILicense getLicense() {
 			if (licenses.size() == 0)
 				return null;
-			return (License) licenses.get(0);
+			return (ILicense) licenses.get(0);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -814,7 +814,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	protected class CopyrightHandler extends TextHandler {
 
 		URI location = null;
-		private Copyright copyright;
+		private ICopyright copyright;
 
 		public CopyrightHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, COPYRIGHT_ELEMENT);
@@ -827,7 +827,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
-		public Copyright getCopyright() {
+		public ICopyright getCopyright() {
 			return copyright;
 		}
 	}

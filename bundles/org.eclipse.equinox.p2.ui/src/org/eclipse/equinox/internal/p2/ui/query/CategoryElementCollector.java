@@ -13,12 +13,12 @@ package org.eclipse.equinox.internal.p2.ui.query;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * A collector that converts IU's to category elements as it accepts them.
@@ -48,7 +48,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		if (!(match instanceof IInstallableUnit))
 			return true;
 		IInstallableUnit iu = (IInstallableUnit) match;
-		RequiredCapability[] requirements = iu.getRequiredCapabilities();
+		IRequiredCapability[] requirements = iu.getRequiredCapabilities();
 		for (int i = 0; i < requirements.length; i++) {
 			if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 				referredIUs.add(requirements[i].getName());
