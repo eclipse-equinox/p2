@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(Bug196525.class);
+		suite.addTestSuite(Bug258370.class);
 		suite.addTestSuite(CleanupTest.class);
 		suite.addTestSuite(LauncherConfigLocationTest.class);
 		suite.addTestSuite(ManipulatorTests.class);
