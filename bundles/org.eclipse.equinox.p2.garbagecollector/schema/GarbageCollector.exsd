@@ -45,7 +45,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.garbagecollector.IMarkSetProvider"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider:"/>
                </appinfo>
             </annotation>
          </attribute>
