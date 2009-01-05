@@ -27,7 +27,7 @@ public class DownloadManager {
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
 	/**
-	 * This Comparator sorts the repositories such that ´local´ repositories are first 
+	 * This Comparator sorts the repositories such that ´local´ repositories are first
 	 */
 	private static final Comparator LOCAL_FIRST_COMPARATOR = new Comparator() {
 
@@ -51,7 +51,7 @@ public class DownloadManager {
 	}
 
 	/*
-	 * Add the given artifact to the download queue. When it 
+	 * Add the given artifact to the download queue. When it
 	 * is downloaded, put it in the specified location.
 	 */
 	public void add(IArtifactRequest toAdd) {
@@ -91,7 +91,7 @@ public class DownloadManager {
 			else
 				repositories = provContext.getArtifactRepositories();
 			if (repositories.length == 0)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository);
+				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception());
 			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 			fetch(repoMgr, repositories, subMonitor);
 			return overallStatus(monitor);

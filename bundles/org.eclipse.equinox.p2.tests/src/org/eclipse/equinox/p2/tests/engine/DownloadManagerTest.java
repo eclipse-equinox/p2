@@ -105,6 +105,18 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	}
 
+	public void testContext() {
+		ProvisioningContext context = new ProvisioningContext();
+		context.setArtifactRepositories(new URI[0]);
+		DownloadManager manager = new DownloadManager(context);
+
+		IArtifactRequest request = createArtifactRequest();
+		manager.add(request);
+		IStatus result = manager.start(null);
+		assertFalse("1.0", result.isOK());
+		assertNotNull(result.getException());
+	}
+
 	public void testAddArtifactRequestArray() {
 		ProvisioningContext context = new ProvisioningContext();
 		DownloadManager manager = new DownloadManager(context);
