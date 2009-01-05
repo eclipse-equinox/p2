@@ -3,7 +3,7 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
@@ -24,7 +24,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -98,6 +99,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		installPlatform(profile2, installFolder);
 
+		installBogusIU(profile2, installFolder);
+
 		installPlatformSource(profile2, installFolder);
 
 		attemptToUninstallRCP(profile2, installFolder);
@@ -162,6 +165,22 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		assertProfileContainsAll("Platform source feature", profile2, new IInstallableUnit[] {toInstall});
 		assertTrue(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
+	}
+
+	private void installBogusIU(IProfile profile, File installFolder) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId("org.eclipse.equinox.p2.tests.bogusIU.end2end");
+		iud.setVersion(new Version("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", new Version("1.0.0"))});
+		Map data = new HashMap();
+		data.put("install", "org.eclipse.equinox.p2.osgi.removeJvmArg(programArg:-XX:+UnlockDiagnosticVMOptions);");
+		iud.addTouchpointData(MetadataFactory.createTouchpointData(data));
+		IInstallableUnit bogusIU = MetadataFactory.createInstallableUnit(iud);
+		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version("1.0.0")));
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {bogusIU});
+		IStatus s = director.provision(request, null, new NullProgressMonitor());
+		assertNotOK(s);
 	}
 
 	private void installPlatform(IProfile profile2, File installFolder) {
