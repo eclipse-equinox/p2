@@ -109,20 +109,9 @@ public class DefaultQueryProvider extends QueryProvider {
 						return new ElementQueryDescriptor(queryable, topLevelQuery, collector);
 					}
 					// Installed content not a concern for collecting categories
-					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(queryable, element, true));
+					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(queryable, element));
 				}
 
-				// Showing children of categories that we've already collected
-				// Must do this one before CategoryElement since it's a subclass
-				if (element instanceof UncategorizedCategoryElement) {
-					// Will have to look at all categories and groups and from there, figure out what's left
-					Query firstPassQuery = new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false);
-					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(queryable, element, false, context.getShowAvailableChildren()) : new AvailableIUCollector(queryable, element, false, context.getShowAvailableChildren());
-					if (targetProfile != null)
-						availableIUCollector.markInstalledIUs(targetProfile, hideInstalled);
-					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(queryable, element, availableIUCollector));
-
-				}
 				// If it's a category or some other IUElement to drill down in, we get the requirements and show all requirements
 				// that are also visible in the available list.  
 				if (element instanceof CategoryElement || (element instanceof IIUElement && ((IIUElement) element).shouldShowChildren())) {
@@ -136,7 +125,12 @@ public class DefaultQueryProvider extends QueryProvider {
 						availableIUCollector = new AvailableIUCollector(queryable, element, true, drillDown);
 					if (targetProfile != null)
 						availableIUCollector.markInstalledIUs(targetProfile, hideInstalled);
-					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {topLevelQuery, categoryQuery}, false), meetsAnyRequirementQuery}, true), availableIUCollector);
+					// if it's a category, the metadata was specifically set up so that the requirements are the IU's that should
+					// be visible in the category.
+					if (element instanceof CategoryElement)
+						return new ElementQueryDescriptor(queryable, meetsAnyRequirementQuery, availableIUCollector);
+					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
+					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true), availableIUCollector);
 				}
 				return null;
 			case QueryProvider.AVAILABLE_UPDATES :
