@@ -49,6 +49,7 @@ public interface IProvidedCapability {
 	 *  <li> Both this object and the given object are of type IProvidedCapability
 	 *  <li> The result of <b>getName()</b> on both objects are equal
 	 *  <li> The result of <b>getNamespace()</b> on both objects are equal
+	 *  <li> The result of <b>getVersion()</b> on both objects are equal
 	 * </ul> 
 	 */
 	public boolean equals(Object other);

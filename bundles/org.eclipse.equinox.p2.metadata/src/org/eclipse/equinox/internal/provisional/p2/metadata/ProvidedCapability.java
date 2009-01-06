@@ -40,7 +40,7 @@ public class ProvidedCapability implements IProvidedCapability {
 			return false;
 		if (!(name.equals(otherCapability.getName())))
 			return false;
-		return true;
+		return version.equals(otherCapability.getVersion());
 	}
 
 	public String getName() {
