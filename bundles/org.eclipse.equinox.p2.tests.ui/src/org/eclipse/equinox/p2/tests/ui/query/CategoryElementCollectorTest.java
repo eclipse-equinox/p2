@@ -21,13 +21,13 @@ import org.eclipse.equinox.p2.tests.MockQueryable;
  * Tests for {@link CategoryElementCollector}.
  */
 public class CategoryElementCollectorTest extends AbstractQueryTest {
-	private CategoryElementCollector createCollector(boolean showCategorized) {
+	private CategoryElementCollector createCollector() {
 		IInstallableUnit category = createIU("default category");
-		return new CategoryElementCollector(new MockQueryable(category), null, showCategorized);
+		return new CategoryElementCollector(new MockQueryable(category), null);
 	}
 
 	public void testCollectObject() {
-		CategoryElementCollector collector = createCollector(false);
+		CategoryElementCollector collector = createCollector();
 		collector.accept("AnObjectThatIsNotAnIU");
 		assertTrue("1.0", collector.isEmpty());
 	}
@@ -36,12 +36,7 @@ public class CategoryElementCollectorTest extends AbstractQueryTest {
 	 * Tests for the {@link Collector#isEmpty()} method.
 	 */
 	public void testIsEmpty() {
-		//if we have an uncategorized category, the collector is not initially empty
-		CategoryElementCollector collector = createCollector(true);
-		assertTrue("1.0", !collector.isEmpty());
-
-		//now create a collector with no uncategorized category
-		collector = createCollector(false);
+		CategoryElementCollector collector = createCollector();
 		assertTrue("1.1", collector.isEmpty());
 
 		IInstallableUnit category1 = createIU("category1");
@@ -50,25 +45,10 @@ public class CategoryElementCollectorTest extends AbstractQueryTest {
 	}
 
 	/**
-	 * Regression test for bug 256029 - multiple uncategorized categories created
-	 */
-	public void testBug256029() {
-		//if we have an uncategorized category, the collector is not initially empty
-		CategoryElementCollector collector = createCollector(true);
-		assertTrue("1.0", !collector.isEmpty());
-		assertEquals("1.1", collector.size(), 1);
-	}
-
-	/**
 	 * Tests for the {@link Collector#size()} method.
 	 */
 	public void testSize() {
-		//if we have an uncategorized category, the collector is not initially empty
-		CategoryElementCollector collector = createCollector(true);
-		assertEquals("1.0", 1, collector.size());
-
-		//now create a collector with no uncategorized category
-		collector = createCollector(false);
+		CategoryElementCollector collector = createCollector();
 		assertEquals("1.1", 0, collector.size());
 
 		IInstallableUnit category1 = createIU("category1");

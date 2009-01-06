@@ -11,14 +11,11 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 
 /**
  * A collector that converts IU's to category elements as it accepts them.
@@ -28,13 +25,11 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
  */
 public class CategoryElementCollector extends QueriedElementCollector {
 
-	private boolean groupUncategorized;
+	// Used to track nested categories
 	private Set referredIUs = new HashSet();
-	private boolean dummyCategoryCreated = false;
 
-	public CategoryElementCollector(IQueryable queryable, Object parent, boolean showUncategorized) {
+	public CategoryElementCollector(IQueryable queryable, Object parent) {
 		super(queryable, parent);
-		this.groupUncategorized = showUncategorized;
 	}
 
 	/**
@@ -67,8 +62,6 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	}
 
 	private void cleanList() {
-		if (groupUncategorized && !dummyCategoryCreated)
-			createDummyCategory();
 		removeNestedCategories();
 	}
 
@@ -115,27 +108,6 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	public boolean isEmpty() {
 		cleanList();
 		return super.isEmpty();
-	}
-
-	private void createDummyCategory() {
-		InstallableUnitDescription unit = new InstallableUnitDescription();
-		unit.setId(ProvUIMessages.CategoryElementCollector_Uncategorized);
-		unit.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
-		unit.setVersion(new Version(0, 0, 0, "generated")); //$NON-NLS-1$
-		unit.setProperty(IInstallableUnit.PROP_NAME, ProvUIMessages.CategoryElementCollector_Uncategorized);
-
-		IInstallableUnit iu = MetadataFactory.createInstallableUnit(unit);
-		CategoryElement element = new UncategorizedCategoryElement(parent, iu);
-		element.setQueryable(queryable);
-		// This is costly, but the only way to know if we need this category is to perform the query in advance.
-		// Note that this will end up querying the contents of all categories to determine which IU's were not
-		// referred to.
-		ElementQueryDescriptor queryDescriptor = element.getQueryProvider().getQueryDescriptor(element);
-		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
-		if (!collector.isEmpty()) {
-			getCollection().add(element);
-			dummyCategoryCreated = true;
-		}
 	}
 
 	private void removeNestedCategories() {
