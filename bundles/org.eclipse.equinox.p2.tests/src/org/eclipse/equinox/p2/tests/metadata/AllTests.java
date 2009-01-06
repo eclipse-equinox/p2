@@ -26,6 +26,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(IUPersistenceTest.class);
 		suite.addTestSuite(LicenseTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);
+		suite.addTestSuite(ProvidedCapabilityTest.class);
 		return suite;
 	}
 
