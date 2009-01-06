@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.osgi.util.NLS;
 
@@ -22,7 +22,7 @@ public class ArtifactComparatorFactory {
 	private static final String ATTR_CLASS = "class"; //$NON-NLS-1$
 
 	public static IArtifactComparator getArtifactComparator(String comparatorID) {
-		IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(comparatorPoint);
+		IConfigurationElement[] extensions = RegistryFactory.getRegistry().getConfigurationElementsFor(comparatorPoint);
 
 		IConfigurationElement element = null;
 		if (comparatorID == null && extensions.length > 0) {
