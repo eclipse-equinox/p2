@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -35,18 +35,28 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElement extends RemoteQueriedElement implements IRepositoryElement {
+public class MetadataRepositoryElement extends RootElement implements IRepositoryElement {
 
 	URI location;
 	boolean isEnabled;
 	boolean alreadyReportedNotFound = false;
 
 	public MetadataRepositoryElement(Object parent, URI location) {
-		this(parent, location, true);
+		this(parent, null, null, location, true);
 	}
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
-		super(parent);
+		this(parent, null, null, location, isEnabled);
+	}
+
+	public MetadataRepositoryElement(IUViewQueryContext queryContext, Policy policy, URI location, boolean isEnabled) {
+		super(null, queryContext, policy);
+		this.location = location;
+		this.isEnabled = isEnabled;
+	}
+
+	private MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, Policy policy, URI location, boolean isEnabled) {
+		super(parent, queryContext, policy);
 		this.location = location;
 		this.isEnabled = isEnabled;
 	}

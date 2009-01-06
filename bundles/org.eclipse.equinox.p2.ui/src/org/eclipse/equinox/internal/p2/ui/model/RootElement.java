@@ -26,11 +26,18 @@ public abstract class RootElement extends RemoteQueriedElement {
 	private Policy policy;
 
 	public RootElement(Policy policy) {
-		this(policy.getQueryContext(), policy);
+		this(null, policy.getQueryContext(), policy);
 	}
 
 	public RootElement(IUViewQueryContext queryContext, Policy policy) {
-		super(null);
+		this(null, queryContext, policy);
+	}
+
+	/*
+	 * Special method for subclasses that can sometimes be a root, and sometimes not.
+	 */
+	protected RootElement(Object parent, IUViewQueryContext queryContext, Policy policy) {
+		super(parent);
 		this.queryContext = queryContext;
 		this.policy = policy;
 	}

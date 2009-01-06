@@ -200,7 +200,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	Object getNewInput() {
 		if (repositoryFilter != null) {
-			return new MetadataRepositoryElement(null, repositoryFilter, true);
+			return new MetadataRepositoryElement(queryContext, getPolicy(), repositoryFilter, true);
 		}
 		return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 	}

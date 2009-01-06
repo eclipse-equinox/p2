@@ -196,6 +196,16 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		toolTipProperty = propertyName;
 	}
 
+	public String getClipboardText(Object element) {
+		StringBuffer result = new StringBuffer();
+		for (int i = 0; i < columnConfig.length; i++) {
+			if (i != 0)
+				result.append(" "); //$NON-NLS-1$
+			result.append(getColumnText(element, columnConfig[i].columnField));
+		}
+		return result.toString();
+	}
+
 	public void setUseBoldFontForFilteredItems(boolean useBoldFont) {
 		this.useBoldFont = useBoldFont;
 	}
