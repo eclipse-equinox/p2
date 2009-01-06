@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository class='org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository' version='1.0.0'?>
+<repository name='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/testRepos/updateSite/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.compressed' value='false'/>
+    <property name='p2.timestamp' value='1231201567218'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='19'>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.fieldassist' version='1.1.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='39221'/>
+        <property name='download.size' value='39221'/>
+        <property name='download.md5' value='8e97c8bb9e3a2b431162d9c67afef078'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Better Undo_Example' version='1.0.2'>
+      <properties size='3'>
+        <property name='artifact.size' value='753'/>
+        <property name='download.size' value='753'/>
+        <property name='download.md5' value='3a52d0a41473246dacd498b2762194e3'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='test.feature' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='847'/>
+        <property name='download.size' value='847'/>
+        <property name='download.md5' value='09b08be1cd9e34f5ea5d7451065df2cb'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Multi_Page_Editor_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='718'/>
+        <property name='download.size' value='718'/>
+        <property name='download.md5' value='ac5df2a37deef9f304e18fe69953c366'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Field_Assist_Example' version='1.0.1'>
+      <properties size='3'>
+        <property name='artifact.size' value='746'/>
+        <property name='download.size' value='746'/>
+        <property name='download.md5' value='09e83b86fbb767cd5b4f1b126b4cd8f5'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.undo' version='3.2.100.200810301029'>
+      <properties size='4'>
+        <property name='artifact.size' value='44677'/>
+        <property name='download.size' value='44677'/>
+        <property name='download.md5' value='280fc157f94029b90dad42163cf3686a'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.undo' version='3.2.100.200901051626'>
+      <properties size='4'>
+        <property name='artifact.size' value='44683'/>
+        <property name='download.size' value='44683'/>
+        <property name='download.md5' value='42aae45e3f7ade4c6fcff6bc3c2ec765'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Jobs_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='688'/>
+        <property name='download.size' value='688'/>
+        <property name='download.md5' value='2d55ce55ac3478dd8bb928642e325579'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Undo_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='710'/>
+        <property name='download.size' value='710'/>
+        <property name='download.md5' value='ce00a7a12c58e1cf1b62787e48ed6800'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='test.bundle' version='1.0.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='1058'/>
+        <property name='download.size' value='1058'/>
+        <property name='download.md5' value='7bc376309632cd0ce3ab6306057453fc'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Field_Assist_Example' version='2.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='745'/>
+        <property name='download.size' value='745'/>
+        <property name='download.md5' value='038379d58a3d259f4bf7714c24674b4c'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Readme_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='702'/>
+        <property name='download.size' value='702'/>
+        <property name='download.md5' value='b9d0539ef51e21a1686b9f39917cfe3e'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.job' version='3.0.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='43554'/>
+        <property name='download.size' value='43554'/>
+        <property name='download.md5' value='f022d23017c4afbbaacda5fb02328683'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.rcp.browser' version='3.3.0.200810301035'>
+      <properties size='4'>
+        <property name='artifact.size' value='140110'/>
+        <property name='download.size' value='140110'/>
+        <property name='download.md5' value='7ab5522cc2682c58e9331d1c57a9249b'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='RCP_Browser_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='781'/>
+        <property name='download.size' value='781'/>
+        <property name='download.md5' value='056d8b1dd18ca43f2429637b4ebb141f'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='test.fragment' version='1.0.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='386'/>
+        <property name='download.size' value='386'/>
+        <property name='download.md5' value='071049d1f00b42c663c1bab433dc5baf'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='Field_Assist_Example' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='706'/>
+        <property name='download.size' value='706'/>
+        <property name='download.md5' value='d93b5ce0841d81c4c088f9c0dcef7bc3'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.readmetool' version='3.3.0.200810301029'>
+      <properties size='4'>
+        <property name='artifact.size' value='70229'/>
+        <property name='download.size' value='70229'/>
+        <property name='download.md5' value='784a02413c9336ccc9f9ebd739bf36f4'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.ui.examples.multipageeditor' version='3.2.100.200810301029'>
+      <properties size='4'>
+        <property name='artifact.size' value='10760'/>
+        <property name='download.size' value='10760'/>
+        <property name='download.md5' value='5c20a82db1ed79eb570dc0f2d162f97b'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
