@@ -177,6 +177,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	public IProfile getProfile(String id, long timestamp) {
+		if (SELF.equals(id))
+			id = self;
+
 		IProfile profile = getProfile(id);
 		if (profile != null && profile.getTimestamp() == timestamp)
 			return profile;
@@ -199,6 +202,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	public long[] listProfileTimestamps(String id) {
+		if (SELF.equals(id))
+			id = self;
+
 		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
 		if (!profileDirectory.isDirectory())
 			return new long[0];
