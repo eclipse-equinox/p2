@@ -25,7 +25,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -161,23 +160,6 @@ public class InstalledSoftwarePage extends InstallationPage {
 
 				// Properties action
 				action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
-				additions.addContributionItem(new ActionContributionItem(action), null);
-
-				// Revert action
-				// This might go away if the revert view becomes just another installation page
-				action = new Action() {
-					public void run() {
-						RevertWizard wizard = new RevertWizard(profileId);
-						WizardDialog dialog = new WizardDialog(getShell(), wizard);
-						dialog.create();
-						dialog.getShell().setSize(600, 500);
-						PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.REVERT_CONFIGURATION_WIZARD);
-
-						dialog.open();
-					}
-				};
-				action.setText(ProvUIMessages.InstalledSoftwarePage_RevertLabel);
-				action.setToolTipText(ProvUIMessages.InstalledSoftwarePage_RevertTooltip);
 				additions.addContributionItem(new ActionContributionItem(action), null);
 			}
 		};
