@@ -63,8 +63,7 @@ public class ProvisioningOperationRunner {
 	}
 
 	/**
-	 * Schedule a job to execute the supplied ProvisioningOperation, and add it to the
-	 * undo history if it supports undo.
+	 * Schedule a job to execute the supplied ProvisioningOperation.
 	 * 
 	 * @param op The operation to execute
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
