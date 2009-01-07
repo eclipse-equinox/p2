@@ -11,28 +11,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.PluginTransfer;
@@ -45,65 +39,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class MetadataRepositoriesView extends RepositoriesView {
 
-	private class RevertAction extends Action {
-
-		RevertAction() {
-			setText(ProvUI.REVERT_COMMAND_LABEL);
-			setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
-			setImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
-		}
-
-		public void run() {
-			IInstallableUnit[] ius = getSelectedIUs();
-			String targetProfileId = ProvAdminUIActivator.getDefault().getPolicy().getProfileChooser().getProfileId(getShell());
-			ProvisioningPlan plan = getProvisioningPlan(ius);
-			if (ProvAdminUIActivator.getDefault().getPolicy().getPlanValidator().continueWorkingWithPlan(plan, getShell())) {
-				ProvisioningOperation op = new ProfileModificationOperation(ProvAdminUIMessages.MetadataRepositoriesView_RevertLabel, targetProfileId, plan);
-				ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
-			}
-		}
-
-		protected IInstallableUnit[] getSelectedIUs() {
-			ISelection selection = viewer.getSelection();
-			if (!(selection instanceof IStructuredSelection))
-				return new IInstallableUnit[0];
-			List elements = ((IStructuredSelection) selection).toList();
-			List iusList = new ArrayList(elements.size());
-
-			for (int i = 0; i < elements.size(); i++) {
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
-				if (iu != null && !ProvisioningUtil.isCategory(iu))
-					iusList.add(iu);
-			}
-			return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
-		}
-
-		private ProvisioningPlan getProvisioningPlan(final IInstallableUnit[] ius) {
-			final ProvisioningPlan[] plan = new ProvisioningPlan[1];
-			IRunnableWithProgress runnable = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					try {
-						if (ius.length == 1)
-							plan[0] = ProvisioningUtil.getRevertPlan(ius[0], monitor);
-					} catch (ProvisionException e) {
-						ProvUI.handleException(e, ProvAdminUIMessages.MetadataRepositoriesView_UnexpectedRevertError, StatusManager.BLOCK | StatusManager.LOG);
-					}
-				}
-			};
-			try {
-				new ProgressMonitorDialog(getShell()).run(true, true, runnable);
-			} catch (InterruptedException e) {
-				// don't report thread interruption
-			} catch (InvocationTargetException e) {
-				ProvUI.handleException(e.getCause(), ProvAdminUIMessages.MetadataRepositoriesView_UnexpectedRevertError, StatusManager.BLOCK | StatusManager.LOG);
-			}
-			return plan[0];
-		}
-
-	}
-
 	private InstallAction installAction;
-	private RevertAction revertAction;
 
 	/**
 	 * The constructor.
@@ -144,14 +80,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	protected void makeActions() {
 		super.makeActions();
 		installAction = new InstallAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null);
-		revertAction = new RevertAction();
 	}
 
 	protected void fillContextMenu(IMenuManager manager) {
 		if (installAction.isEnabled()) {
 			manager.add(new Separator());
 			manager.add(installAction);
-			manager.add(revertAction);
 		}
 		super.fillContextMenu(manager);
 	}

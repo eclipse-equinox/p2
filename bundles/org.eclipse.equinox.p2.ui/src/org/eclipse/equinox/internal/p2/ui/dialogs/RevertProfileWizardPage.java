@@ -11,17 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.ProfileSnapshots;
 import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
-import org.eclipse.equinox.internal.p2.ui.model.RollbackRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
@@ -32,7 +30,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -91,15 +88,18 @@ public class RevertProfileWizardPage extends WizardPage {
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
 			// We override the ViewerComparator so that we don't get the labels of the elements
-			// for comparison, but rather get the version numbers and compare them.
+			// for comparison, but rather get the timestamps and compare them.
 			// Reverse sorting is used so that newest is first.
 			public int compare(Viewer viewer, Object o1, Object o2) {
-				IInstallableUnit iu1 = (IInstallableUnit) ProvUI.getAdapter(o1, IInstallableUnit.class);
-				IInstallableUnit iu2 = (IInstallableUnit) ProvUI.getAdapter(o2, IInstallableUnit.class);
-				if (iu1 == null || iu2 == null)
-					// this is naive (doesn't consult the label provider), but shouldn't happen
-					return o2.toString().compareTo(o1.toString());
-				return iu2.getVersion().compareTo(iu1.getVersion());
+				if (o1 instanceof RollbackProfileElement && o2 instanceof RollbackProfileElement) {
+					long timestamp1 = ((RollbackProfileElement) o1).getTimestamp();
+					long timestamp2 = ((RollbackProfileElement) o2).getTimestamp();
+					if (timestamp1 > timestamp2)
+						return -1;
+					return 1;
+				}
+				// this is naive (doesn't consult the label provider), but shouldn't happen
+				return o2.toString().compareTo(o1.toString());
 			}
 		});
 		configsViewer.setInput(getInput());
@@ -140,34 +140,17 @@ public class RevertProfileWizardPage extends WizardPage {
 	}
 
 	private Object getInput() {
-		try {
-			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepositoryURL(), profileId);
-			return element;
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvUIMessages.RevertProfileWizardPage_ErrorRetrievingHistory, StatusManager.BLOCK | StatusManager.LOG);
-			return null;
-		}
+		ProfileSnapshots element = new ProfileSnapshots(profileId);
+		return element;
 	}
 
 	void handleSelectionChanged(IStructuredSelection selection) {
 		if (!selection.isEmpty()) {
 			final Object selected = selection.getFirstElement();
 			if (selected instanceof RollbackProfileElement) {
-				final IProfile[] snapshot = new IProfile[1];
-				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-					public void run() {
-						try {
-							snapshot[0] = ((RollbackProfileElement) selected).getProfileSnapshot(null);
-						} catch (ProvisionException e) {
-							ProvUI.handleException(e, ProvUIMessages.RollbackProfileElement_InvalidSnapshot, StatusManager.LOG | StatusManager.SHOW);
-						}
-					}
-				});
-				if (snapshot[0] != null) {
-					configContentsViewer.setInput(selected);
-					setPageComplete(true);
-					return;
-				}
+				configContentsViewer.setInput(selected);
+				setPageComplete(true);
+				return;
 			}
 		}
 		configContentsViewer.setInput(null);
@@ -185,10 +168,14 @@ public class RevertProfileWizardPage extends WizardPage {
 		}
 	}
 
-	private IInstallableUnit getSelectedIU() {
+	private IProfile getSelectedSnapshot() {
 		Object selected = ((IStructuredSelection) configsViewer.getSelection()).getFirstElement();
 		if (selected != null && selected instanceof RollbackProfileElement)
-			return ((RollbackProfileElement) selected).getIU();
+			try {
+				return ((RollbackProfileElement) selected).getProfileSnapshot(new NullProgressMonitor());
+			} catch (ProvisionException e) {
+				ProvUI.handleException(e, null, StatusManager.LOG);
+			}
 		return null;
 	}
 
@@ -206,16 +193,27 @@ public class RevertProfileWizardPage extends WizardPage {
 	}
 
 	private boolean revert() {
-		final IInstallableUnit iu = getSelectedIU();
-		if (iu == null)
+		final IProfile snapshot = getSelectedSnapshot();
+		if (snapshot == null)
 			return false;
-		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
+		final boolean[] reverted = new boolean[1];
+		reverted[0] = false;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					plan[0] = ProvisioningUtil.getRevertPlan(iu, monitor);
+					IProfile currentProfile = ProvisioningUtil.getProfile(profileId);
+					ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(currentProfile, snapshot, monitor);
+					if (plan != null) {
+						if (plan.getStatus().isOK()) {
+							ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan);
+							ProvisioningOperationRunner.run(op, StatusManager.SHOW | StatusManager.LOG);
+							reverted[0] = true;
+						} else if (plan.getStatus().getSeverity() != IStatus.CANCEL) {
+							ProvUI.reportStatus(plan.getStatus(), StatusManager.LOG);
+							setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+						}
+					}
 				} catch (ProvisionException e) {
-					plan[0] = null;
 					ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
 					setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
 				}
@@ -223,24 +221,12 @@ public class RevertProfileWizardPage extends WizardPage {
 		};
 		try {
 			getContainer().run(true, true, runnable);
-			if (plan[0] != null) {
-				if (plan[0].getStatus().isOK()) {
-					ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
-					ProvisioningOperationRunner.run(op, StatusManager.SHOW | StatusManager.LOG);
-					return true;
-				}
-				// If user cancelled, do not report an error
-				if (plan[0].getStatus().getSeverity() == IStatus.CANCEL)
-					return false;
-				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);
-				setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
-			}
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
 			ProvUI.handleException(e.getCause(), ProvUIMessages.RevertDialog_RevertError, StatusManager.LOG);
 			setMessage(ProvUIMessages.RevertDialog_RevertError, IMessageProvider.ERROR);
 		}
-		return false;
+		return reverted[0];
 	}
 }

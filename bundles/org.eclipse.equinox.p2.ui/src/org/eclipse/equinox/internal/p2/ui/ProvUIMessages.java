@@ -69,6 +69,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProfileModificationWizardPage_NothingSelected;
 	public static String ProfileModificationWizardPage_ResolutionOperationLabel;
 	public static String ProfileModificationWizardPage_UnexpectedError;
+	public static String ProfileSnapshots_Label;
 	// utility error messages
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_LoadRepositoryFailure;

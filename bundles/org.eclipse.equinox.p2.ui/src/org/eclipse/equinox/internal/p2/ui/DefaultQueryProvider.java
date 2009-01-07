@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.IUProfilePropertyQue
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
@@ -67,6 +66,7 @@ public class DefaultQueryProvider extends QueryProvider {
 						return true;
 					}
 				});
+
 			case QueryProvider.AVAILABLE_IUS :
 				// Things get more complicated if the user wants to filter out installed items. 
 				// This involves setting up a secondary query for installed content that the various
@@ -83,14 +83,6 @@ public class DefaultQueryProvider extends QueryProvider {
 					} catch (ProvisionException e) {
 						// just bail out, we won't try to query the installed
 					}
-				}
-
-				// Showing children of a rollback element
-				if (element instanceof RollbackRepositoryElement) {
-					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
-					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.toString(true));
-					availableIUCollector = new RollbackIUCollector(queryable, element.getParent(element));
-					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), availableIUCollector);
 				}
 
 				Query topLevelQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
@@ -133,6 +125,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true), availableIUCollector);
 				}
 				return null;
+
 			case QueryProvider.AVAILABLE_UPDATES :
 				IProfile profile;
 				IInstallableUnit[] toUpdate = null;
@@ -160,6 +153,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				else
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
+
 			case QueryProvider.INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
@@ -170,13 +164,8 @@ public class DefaultQueryProvider extends QueryProvider {
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=229352
-				// Rollback profiles are specialized/temporary instances so we must use a query that uses the profile instance, not the id.
-				if (element instanceof RollbackProfileElement)
-					return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
-
-				// Just a normal query of the installed IU's, query the profile and look for the visible ones
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new InstalledIUCollector(profile, element));
+
 			case QueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {
@@ -186,6 +175,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					return new ElementQueryDescriptor(element.getQueryable(), null, new MetadataRepositoryElementCollector(element.getQueryable(), element));
 				}
 				return null;
+
 			case QueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {
@@ -193,6 +183,7 @@ public class DefaultQueryProvider extends QueryProvider {
 						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
 				}, new ProfileElementCollector(null, element));
+
 			default :
 				return null;
 		}

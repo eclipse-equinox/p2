@@ -85,14 +85,6 @@ public class ProvisioningUtil {
 		return manager.validateRepositoryLocation(location, monitor);
 	}
 
-	public static URI getRollbackRepositoryURL() throws ProvisionException {
-		IDirector director = getDirector();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager == null)
-			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		return director.getRollbackRepositoryLocation();
-	}
-
 	public static void removeMetadataRepository(URI location) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
@@ -174,12 +166,29 @@ public class ProvisioningUtil {
 		return profileRegistry.getProfiles();
 	}
 
+	public static long[] getProfileTimestamps(String id) throws ProvisionException {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
+		if (profileRegistry == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
+		}
+		return profileRegistry.listProfileTimestamps(id);
+
+	}
+
 	public static IProfile getProfile(String id) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
 		}
 		return profileRegistry.getProfile(id);
+	}
+
+	public static IProfile getProfile(String id, long timestamp) throws ProvisionException {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
+		if (profileRegistry == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
+		}
+		return profileRegistry.getProfile(id, timestamp);
 	}
 
 	public static URI[] getMetadataRepositories(int flags) throws ProvisionException {
@@ -232,11 +241,12 @@ public class ProvisioningUtil {
 	}
 
 	/*
-	 * Get a plan for becoming
+	 * Get a plan for reverting to a specified profile snapshot
 	 */
-	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profileIU);
-		return getPlanner().getRevertPlan(profileIU, new ProvisioningContext(), monitor);
+	public static ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) throws ProvisionException {
+		Assert.isNotNull(currentProfile);
+		Assert.isNotNull(snapshot);
+		return getPlanner().getRevertPlan(currentProfile, snapshot, new ProvisioningContext(), monitor);
 	}
 
 	/*
