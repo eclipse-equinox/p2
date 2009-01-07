@@ -52,6 +52,19 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
+	public IStatus revert(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
+		try {
+			ProvisioningPlan plan = planner.getRevertPlan(currentProfile, revertProfile, context, sub.newChild(PlanWork));
+			if (!plan.getStatus().isOK())
+				return plan.getStatus();
+
+			return engine.perform(currentProfile, new DefaultPhaseSet(), plan.getOperands(), context, sub.newChild(EngineWork));
+		} finally {
+			sub.done();
+		}
+	}
+
 	public IStatus revert(IInstallableUnit target, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {

@@ -184,6 +184,17 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
+	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
+		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
+		try {
+			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile, revertProfile);
+			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
+		} finally {
+			sub.done();
+		}
+	}
+
 	public static IInstallableUnit[] findPlannerMarkedIUs(final IProfile profile) {
 		Query markerQuery = new Query() {
 			public boolean isMatch(Object candidate) {

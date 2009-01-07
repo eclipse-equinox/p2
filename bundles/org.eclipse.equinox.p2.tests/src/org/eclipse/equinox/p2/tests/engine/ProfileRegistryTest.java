@@ -202,4 +202,31 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNotNull(profiles);
 		assertEquals(1, profiles.length);
 	}
+
+	public void testTimestampedProfiles() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
+		long oldtimestamp = profile.getTimestamp();
+		assertTrue(profile.getProperties().containsKey("test"));
+		long[] timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(1, timestamps.length);
+
+		assertTrue(profile.getProperties().containsKey("test"));
+		profile.removeProperty("test");
+		assertNull(profile.getProperty("test"));
+		saveProfile(registry, profile);
+		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(2, timestamps.length);
+
+		Profile oldProfile = (Profile) registry.getProfile(PROFILE_NAME, oldtimestamp);
+		assertTrue(oldProfile.getProperties().containsKey("test"));
+		assertFalse(profile.getTimestamp() == oldProfile.getTimestamp());
+
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME, oldtimestamp));
+		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(0, timestamps.length);
+	}
 }

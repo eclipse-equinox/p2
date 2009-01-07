@@ -55,4 +55,6 @@ public interface IDirector {
 	 * previous profile states is stored.
 	 */
 	public URI getRollbackRepositoryLocation();
+
+	public IStatus revert(IProfile profile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor);
 }

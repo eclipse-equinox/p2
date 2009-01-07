@@ -30,6 +30,25 @@ public interface IProfileRegistry {
 	IProfile getProfile(String id);
 
 	/**
+	 * Return the profile in the registry that has the given id and timestamp. If it does not exist, 
+	 * then return <code>null</code>.
+	 * 
+	 * @param id the profile identifier
+	 * @param timestamp the profile's timestamp
+
+	 * @return the profile or <code>null</code>
+	 */
+	IProfile getProfile(String id, long timestamp);
+
+	/**
+	 * Return an array of timestamps in ascending order for the profile in question. If there are none, then
+	 * return an empty array.
+	 * 
+	 * @return the array of timestamps
+	 */
+	long[] listProfileTimestamps(String id);
+
+	/**
 	 * Return an array of profiles known to this registry. If there are none, then
 	 * return an empty array.
 	 * 

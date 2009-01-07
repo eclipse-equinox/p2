@@ -18,8 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -86,7 +85,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testRollbackProfileProperties() throws ProvisionException {
+	public void testOLDRollbackProfileProperties() throws ProvisionException {
 		assertEmptyRollbackRepo();
 
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -127,7 +126,41 @@ public class RollbackTest extends AbstractProvisioningTest {
 		assertEquals("13.0", null, profile.getProperty("test3"));
 	}
 
-	public void testRollbackIUs() throws ProvisionException {
+	public void testRollbackProfileProperties() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+
+		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
+		request1.setProfileProperty("test1", "test");
+		request1.setProfileProperty("test2", "test");
+		IStatus status = director.provision(request1, null, new NullProgressMonitor());
+		assertEquals("1.0", IStatus.OK, status.getCode());
+		assertEquals("2.0", "test", profile.getProperty("test1"));
+		assertEquals("3.0", "test", profile.getProperty("test2"));
+
+		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+
+		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
+		request2.removeProfileProperty("test1");
+		request2.setProfileProperty("test2", "bad");
+		request2.setProfileProperty("test3", "test");
+		status = director.provision(request2, null, new NullProgressMonitor());
+		assertEquals("5.0", IStatus.OK, status.getCode());
+		assertEquals("6.0", null, profile.getProperty("test1"));
+		assertEquals("7.0", "bad", profile.getProperty("test2"));
+		assertEquals("8.0", "test", profile.getProperty("test3"));
+
+		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
+
+		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals("10.0", IStatus.OK, status.getCode());
+		assertEquals("11.0", "test", profile.getProperty("test1"));
+		assertEquals("12.0", "test", profile.getProperty("test2"));
+		assertEquals("13.0", null, profile.getProperty("test3"));
+	}
+
+	public void testOLDRollbackIUs() throws ProvisionException {
 		assertEmptyRollbackRepo();
 
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -173,9 +206,46 @@ public class RollbackTest extends AbstractProvisioningTest {
 		assertFalse("13.0", profileIUs.contains(c1));
 	}
 
-	public void testRollbackIUProfileProperties() throws ProvisionException {
-		assertEmptyRollbackRepo();
+	public void testRollbackIUs() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 
+		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
+		request1.addInstallableUnits(new IInstallableUnit[] {a1});
+		request1.addInstallableUnits(new IInstallableUnit[] {b1});
+		IStatus status = director.provision(request1, null, new NullProgressMonitor());
+		assertEquals("1.0", IStatus.OK, status.getCode());
+
+		List profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		assertTrue("2.0", profileIUs.contains(a1));
+		assertTrue("3.0", profileIUs.contains(b1));
+
+		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+
+		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
+		request2.removeInstallableUnits(new IInstallableUnit[] {a1});
+		request2.addInstallableUnits(new IInstallableUnit[] {c1});
+		status = director.provision(request2, null, new NullProgressMonitor());
+		assertEquals("5.0", IStatus.OK, status.getCode());
+
+		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		assertFalse("6.0", profileIUs.contains(a1));
+		assertTrue("7.0", profileIUs.contains(b1));
+		assertTrue("8.0", profileIUs.contains(c1));
+
+		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
+
+		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals("10.0", IStatus.OK, status.getCode());
+
+		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		assertTrue("11.0", profileIUs.contains(a1));
+		assertTrue("12.0", profileIUs.contains(b1));
+		assertFalse("13.0", profileIUs.contains(c1));
+	}
+
+	public void testOLDRollbackIUProfileProperties() throws ProvisionException {
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
 		request1.addInstallableUnits(new IInstallableUnit[] {a1});
 		request1.setInstallableUnitProfileProperty(a1, "test1", "test");
@@ -215,7 +285,42 @@ public class RollbackTest extends AbstractProvisioningTest {
 		assertEquals("13.0", null, profile.getInstallableUnitProperty(a1, "test3"));
 	}
 
-	public void testRollbackDependentIUProfileProperties() throws ProvisionException {
+	public void testRollbackIUProfileProperties() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+
+		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
+		request1.addInstallableUnits(new IInstallableUnit[] {a1});
+		request1.setInstallableUnitProfileProperty(a1, "test1", "test");
+		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
+		IStatus status = director.provision(request1, null, new NullProgressMonitor());
+		assertEquals("1.0", IStatus.OK, status.getCode());
+		assertEquals("2.0", "test", profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("3.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+
+		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+
+		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
+		request2.removeInstallableUnitProfileProperty(a1, "test1");
+		request2.setInstallableUnitProfileProperty(a1, "test2", "bad");
+		request2.setInstallableUnitProfileProperty(a1, "test3", "test");
+		status = director.provision(request2, null, new NullProgressMonitor());
+		assertEquals("5.0", IStatus.OK, status.getCode());
+		assertEquals("6.0", null, profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("7.0", "bad", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("8.0", "test", profile.getInstallableUnitProperty(a1, "test3"));
+
+		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
+
+		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals("10.0", IStatus.OK, status.getCode());
+		assertEquals("11.0", "test", profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("12.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("13.0", null, profile.getInstallableUnitProperty(a1, "test3"));
+	}
+
+	public void testOLDRollbackDependentIUProfileProperties() throws ProvisionException {
 		assertEmptyRollbackRepo();
 
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -257,4 +362,41 @@ public class RollbackTest extends AbstractProvisioningTest {
 		assertEquals("12.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
 		assertEquals("13.0", null, profile.getInstallableUnitProperty(b1, "test3"));
 	}
+
+	public void testRollbackDependentIUProfileProperties() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+
+		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
+		request1.addInstallableUnits(new IInstallableUnit[] {d1});
+		request1.setInstallableUnitProfileProperty(d1, "test1", "test");
+		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
+		IStatus status = director.provision(request1, null, new NullProgressMonitor());
+		assertEquals("1.0", IStatus.OK, status.getCode());
+		assertEquals("2.0", "test", profile.getInstallableUnitProperty(d1, "test1"));
+		assertEquals("3.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+
+		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+
+		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
+		request2.removeInstallableUnits(new IInstallableUnit[] {d1});
+		request2.addInstallableUnits(new IInstallableUnit[] {b1});
+		request2.setInstallableUnitProfileProperty(b1, "test3", "test");
+
+		status = director.provision(request2, null, new NullProgressMonitor());
+		assertEquals("5.0", IStatus.OK, status.getCode());
+		assertEquals("6.0", null, profile.getInstallableUnitProperty(d1, "test1"));
+		assertEquals("7.0", null, profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("8.0", "test", profile.getInstallableUnitProperty(b1, "test3"));
+
+		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
+		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
+
+		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals("10.0", IStatus.OK, status.getCode());
+		assertEquals("11.0", "test", profile.getInstallableUnitProperty(d1, "test1"));
+		assertEquals("12.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("13.0", null, profile.getInstallableUnitProperty(b1, "test3"));
+	}
+
 }

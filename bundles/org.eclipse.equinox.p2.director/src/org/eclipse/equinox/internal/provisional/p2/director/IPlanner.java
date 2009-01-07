@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.director;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
@@ -27,5 +28,7 @@ public interface IPlanner {
 	public ProvisioningPlan getRevertPlan(IInstallableUnit profileSnapshot, ProvisioningContext context, IProgressMonitor monitor);
 
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor);
+
+	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor);
 
 }

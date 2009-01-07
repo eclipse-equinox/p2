@@ -176,6 +176,53 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return profile.snapshot();
 	}
 
+	public IProfile getProfile(String id, long timestamp) {
+		IProfile profile = getProfile(id);
+		if (profile != null && profile.getTimestamp() == timestamp)
+			return profile;
+
+		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		if (!profileDirectory.isDirectory())
+			return null;
+
+		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
+		if (!profileFile.exists())
+			return null;
+
+		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
+		try {
+			parser.parse(profileFile);
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
+		}
+		return (IProfile) parser.getProfileMap().get(id);
+	}
+
+	public long[] listProfileTimestamps(String id) {
+		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		if (!profileDirectory.isDirectory())
+			return new long[0];
+
+		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
+			}
+		});
+
+		long[] timestamps = new long[profileFiles.length];
+		for (int i = 0; i < profileFiles.length; i++) {
+			String filename = profileFiles[i].getName();
+			int extensionIndex = filename.lastIndexOf(PROFILE_EXT);
+			try {
+				timestamps[i] = Long.parseLong(filename.substring(0, extensionIndex));
+			} catch (NumberFormatException e) {
+				throw new IllegalStateException("Incompatible profile file name. Expected format is {timestamp}" + PROFILE_EXT + " but was " + filename + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+		}
+		Arrays.sort(timestamps);
+		return timestamps;
+	}
+
 	private Profile internalGetProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
@@ -425,6 +472,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		long previousTimestamp = profile.getTimestamp();
 		long currentTimestamp = System.currentTimeMillis();
+		if (currentTimestamp <= previousTimestamp)
+			currentTimestamp = previousTimestamp + 1;
 		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
 
 		profile.setTimestamp(currentTimestamp);
