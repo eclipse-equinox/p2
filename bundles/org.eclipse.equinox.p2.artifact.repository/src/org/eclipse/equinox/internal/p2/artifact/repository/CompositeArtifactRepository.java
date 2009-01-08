@@ -89,8 +89,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public synchronized void initializeAfterLoad(URI location) {
-		this.location = location;
+	public synchronized void initializeAfterLoad(URI repoLocation) {
+		this.location = repoLocation;
 	}
 
 	public void addChild(URI childURI) {
@@ -323,12 +323,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return (IArtifactRequest[]) applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
-	public void save() {
+	private void save() {
 		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		save(compress);
 	}
 
-	public void save(boolean compress) {
+	private void save(boolean compress) {
 		assertModifiable();
 		OutputStream os = null;
 		try {
