@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -322,6 +322,13 @@ class ConfigApplier {
 		for (Iterator iter = removedBundles.iterator(); iter.hasNext();) {
 			try {
 				Bundle bundle = ((Bundle) iter.next());
+				if (bundle.getLocation().startsWith("initial@")) {
+					if (Activator.DEBUG)
+						System.out.println("Simple configurator thinks a bundle installed by the boot strap should be uninstalled:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$
+					// Avoid uninstalling bundles that the boot strap code thinks should be installed (bug 232191)
+					iter.remove();
+					continue;
+				}
 				bundle.uninstall();
 				if (Activator.DEBUG)
 					System.out.println("uninstalled Bundle:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$
