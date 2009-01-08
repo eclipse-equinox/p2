@@ -120,6 +120,8 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
 			text.setText(getEscapedString(value));
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			text.setLayoutData(gd);
 		}
 	}
 
