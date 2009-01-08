@@ -190,17 +190,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testBogusRegistry() {
-		//		new SimpleProfileRegistry()
-		File registryFolder = null;
-		try {
-			registryFolder = new File(FileLocator.resolve(TestActivator.getContext().getBundle().getEntry("testData/engineTest/bogusRegistryContent/")).getPath());
-		} catch (IOException e) {
-			fail("Test not properly setup");
-		}
-		SimpleProfileRegistry bogusRegistry = new SimpleProfileRegistry(registryFolder, null, false);
-		IProfile[] profiles = bogusRegistry.getProfiles();
-		assertNotNull(profiles);
-		assertEquals(1, profiles.length);
+		createAndValidateProfileRegistry("testData/engineTest/bogusRegistryContent/", "SDKProfile");
 	}
 
 	public void testTimestampedProfiles() throws ProvisionException {
@@ -228,5 +218,199 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME, oldtimestamp));
 		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
 		assertEquals(0, timestamps.length);
+	}
+
+	public void testProfileLockingNested() {
+		final String SIMPLE_PROFILE = "Simple";
+		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
+		assertNotNull(simpleProfile);
+
+		// Try lock, unlock and then unlock again which should fail
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.unlockProfile(simpleProfile);
+		try {
+			simpleRgy.unlockProfile(simpleProfile);
+			fail("Should not allow unlock() without calling lock() first");
+		} catch (IllegalStateException e) {
+			// Expected
+		}
+
+		// Try lock, lock, unlock, unlock should pass
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.unlockProfile(simpleProfile);
+		simpleRgy.unlockProfile(simpleProfile);
+
+		// Try nested locks with checks for lock file
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.unlockProfile(simpleProfile);
+		// Create a lock file to confirm locking
+		MockFileLock mockLock = new MockFileLock("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		assertTrue("Lock file does not exist", mockLock.getLockFile().exists());
+		assertFalse("Lock file was not locked", mockLock.getLockFile().delete());
+		simpleRgy.unlockProfile(simpleProfile);
+		simpleRgy.lockProfile(simpleProfile);
+		simpleRgy.unlockProfile(simpleProfile);
+		if (mockLock.getLockFile().exists()) {
+			assertTrue("Lock file could not removed", mockLock.getLockFile().delete());
+		}
+	}
+
+	public void testProfileLockingMultiProcess() {
+		final String SIMPLE_PROFILE = "Simple";
+		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
+		assertNotNull(simpleProfile);
+
+		// Make a dummy change to the profile
+		Properties props = new Properties();
+		props.put("test", "locking");
+		simpleProfile.addProperties(props);
+
+		// Create a lock file to simulate cross-process locking
+		MockFileLock mockLock = new MockFileLock("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		mockLock.createExternalProcessUsedForLocking();
+
+		// Now save profile - this should fail
+		try {
+			saveProfile(simpleRgy, simpleProfile);
+			fail("This should have failed because profile is already locked!");
+		} catch (IllegalStateException e) {
+			// Expected!
+		}
+
+		// Get rid of the lock
+		mockLock.shutdownExternalProcessUsedForLocking();
+		mockLock = null;
+
+		// Try again, it should succeed
+		saveProfile(simpleRgy, simpleProfile);
+
+		// Remove the newly created profile file
+		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
+		cleanupProfileArea("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+	}
+
+	private void cleanupProfileArea(String registryRoot, String profileId) {
+		File registryFolder = null;
+		try {
+			registryFolder = getResourceAsBundleRelFile(registryRoot);
+		} catch (IOException e) {
+			fail("Test not properly setup");
+		}
+		File profileDir = new File(registryFolder, profileId + ".profile");
+		assertTrue(profileDir.exists());
+		final String existingProfileFile = "1221176498721.profile";
+		File[] profileFiles = profileDir.listFiles();
+		for (int i = 0; i < profileFiles.length; i++) {
+			if (!existingProfileFile.equals(profileFiles[i].getName())) {
+				assertTrue(delete(profileFiles[i]));
+			}
+		}
+	}
+
+	private SimpleProfileRegistry createAndValidateProfileRegistry(String path, String id) {
+		File registryFolder = null;
+		try {
+			registryFolder = getResourceAsBundleRelFile(path);
+		} catch (IOException e) {
+			fail("Test not properly setup");
+		}
+		SimpleProfileRegistry simpleRegistry = new SimpleProfileRegistry(registryFolder, null, false);
+		IProfile[] profiles = simpleRegistry.getProfiles();
+		assertNotNull(profiles);
+		assertEquals(1, profiles.length);
+		assertEquals(id, profiles[0].getProfileId());
+		return simpleRegistry;
+	}
+
+	static File getResourceAsBundleRelFile(final String bundleRelPathStr) throws IOException {
+		return new File(FileLocator.resolve(TestActivator.getContext().getBundle().getEntry(bundleRelPathStr)).getPath());
+	}
+
+	private static class MockFileLock {
+		File lockFile;
+
+		MockFileLock(String path, String name) {
+			final String lOCK_FILENAME = ".lock";
+			File lockDir = null;
+			try {
+				File profileDir = getResourceAsBundleRelFile(path);
+				lockDir = new File(profileDir, name + ".profile");
+				lockDir.mkdir();
+			} catch (IOException e) {
+				fail(e.getMessage());
+			}
+			lockFile = new File(lockDir, lOCK_FILENAME);
+		}
+
+		File getLockFile() {
+			return lockFile;
+		}
+
+		/**
+		 * This assumes that
+		 * 	(1) "java" is present in the System path
+		 * 	(2) "SimpleFileLockerApp.jar" is present in /org.eclipse.equinox.p2.tests/testData/engineTest
+		 * 
+		 * @see {@link SimpleFileLockerApp}.
+		 */
+		void createExternalProcessUsedForLocking() {
+			File appJar = null;
+			try {
+				appJar = getResourceAsBundleRelFile("testData/engineTest/SimpleFileLockerApp.jar");
+			} catch (IOException e1) {
+				fail(e1.getMessage());
+			}
+			String lockFileDir = lockFile.getParentFile().getAbsolutePath();
+			String[] cmdArray = {"java", "-cp", appJar.getAbsolutePath(), "org/eclipse/equinox/p2/tests/engine/SimpleFileLockerApp", lockFileDir, "10"};
+			try {
+				Runtime.getRuntime().exec(cmdArray);
+				watForInitialization();
+			} catch (IOException e) {
+				fail(e.getMessage());
+			}
+		}
+
+		void watForInitialization() {
+			waitFor(/*startup=>*/true);
+		}
+
+		void waitForCompletion() {
+			waitFor(/*startup=>*/false);
+		}
+
+		private final int MAX_RETRIES = 10; // A guard against looping indefinitely!
+
+		private void waitFor(boolean startup) {
+			int attempts = 0;
+			boolean shouldWait = true;
+			do {
+				sleep(1000);
+				shouldWait = startup ? !lockFile.exists() : lockFile.exists();
+			} while (attempts++ < MAX_RETRIES && shouldWait);
+			String errMsg = "SimpleFileLockerApp hasn't yet " + (startup ? "started up!" : "completed!");
+			assertTrue(errMsg, attempts < MAX_RETRIES);
+		}
+
+		private void sleep(int millisecs) {
+			try {
+				Thread.sleep(millisecs);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}
+
+		void shutdownExternalProcessUsedForLocking() {
+			File done = new File(lockFile.getParentFile(), ".done");
+			try {
+				done.createNewFile();
+				waitForCompletion();
+			} catch (IOException e) {
+				fail(e.getMessage());
+			}
+		}
 	}
 }

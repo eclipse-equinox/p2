@@ -42,6 +42,10 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			// default
 		}
 
+		protected ProfileHandler(String profileId) {
+			this.profileId = profileId;
+		}
+
 		protected void handleRootAttributes(Attributes attributes) {
 			profileId = parseRequiredAttributes(attributes, required)[0];
 			parentId = parseOptionalAttribute(attributes, PARENT_ID_ATTRIBUTE);

@@ -46,6 +46,11 @@ class Messages extends NLS {
 	public static String SimpleProfileRegistry_Parser_Error_Parsing_Registry;
 	public static String SimpleProfileRegistry_Parser_Has_Incompatible_Version;
 
+	public static String SimpleProfileRegistry_Profile_in_use;
+	public static String SimpleProfileRegistry_Profile_not_locked;
+	public static String SimpleProfileRegistry_Profile_not_locked_due_to_exception;
+	public static String SimpleProfileRegistry_Bad_profile_location;
+
 	public static String thread_not_owner;
 
 	public static String TouchpointManager_Attribute_Not_Specified;
