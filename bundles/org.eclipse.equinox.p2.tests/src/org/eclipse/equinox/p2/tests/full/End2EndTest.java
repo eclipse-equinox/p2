@@ -16,7 +16,6 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.app.LatestIUVersionCollector;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -27,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -133,16 +131,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void rollbackPlatformSource(IProfile profile2, File installFolder) {
-		IMetadataRepository rollbackRepo = null;
-		try {
-			rollbackRepo = metadataRepoManager.loadRepository(director.getRollbackRepositoryLocation(), new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			fail("Can't find rollback repository");
-		}
-		Collector collector = rollbackRepo.query(new InstallableUnitQuery(profile2.getProfileId()), new LatestIUVersionCollector(), new NullProgressMonitor());
-		assertEquals(1, collector.size());
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
+		assertEquals(3, timestamps.length);
 
-		IStatus s = director.revert((IInstallableUnit) collector.iterator().next(), profile2, new ProvisioningContext(), new NullProgressMonitor());
+		IProfile revertProfile = profileRegistry.getProfile(profile2.getProfileId(), timestamps[1]);
+
+		IStatus s = director.revert(profile2, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue(s.isOK());
 
 		validateInstallContentFor34(installFolder);

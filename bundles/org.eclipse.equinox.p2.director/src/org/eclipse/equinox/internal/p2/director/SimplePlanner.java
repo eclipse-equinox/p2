@@ -27,7 +27,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
-import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_OPERANDS;
@@ -35,13 +34,6 @@ public class SimplePlanner implements IPlanner {
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
-
-	private IProfile getProfile(String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
-		if (profileRegistry == null)
-			return null;
-		return profileRegistry.getProfile(profileId);
-	}
 
 	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, ProfileChangeRequest changeRequest) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
@@ -155,33 +147,6 @@ public class SimplePlanner implements IPlanner {
 
 	private InstallableUnitOperand[] generateOperations(Collection fromState, Collection toState) {
 		return new OperationGenerator().generateOperation(fromState, toState);
-	}
-
-	public ProvisioningPlan getRevertPlan(IInstallableUnit profileSnapshot, ProvisioningContext context, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
-		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
-		try {
-			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Revert_Problems, null);
-
-			if (!Boolean.valueOf(profileSnapshot.getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue()) {
-				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
-				return new ProvisioningPlan(result);
-			}
-			IProfile profile = getProfile(profileSnapshot.getId());
-			if (profile == null) {
-				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
-				return new ProvisioningPlan(result);
-			}
-			IProfile revertProfile = FormerState.IUToProfile(profileSnapshot, profile, context, sub.newChild(ExpandWork / 2));
-
-			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(profile, revertProfile);
-			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
-
-		} catch (CoreException e) {
-			return new ProvisioningPlan(e.getStatus());
-		} finally {
-			sub.done();
-		}
 	}
 
 	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {

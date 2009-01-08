@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
  * Directors are responsible for determining what should be done to a given 
@@ -40,21 +38,13 @@ public interface IDirector {
 	public IStatus provision(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	/**
-	 * Reverts the profile to a previous state described in the give InstallableUnit.
+	 * Reverts the profile to a previous state described in the target revertProfile.
 	 * 
-	 * @param previous The installable unit that describes the previous state of the profile
 	 * @param profile The profile to revert
+	 * @param revertProfile The profile snapshot state to revert to
 	 * @param context The provisioning context used for finding resources
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus revert(IInstallableUnit previous, IProfile profile, ProvisioningContext context, IProgressMonitor monitor);
-
-	/**
-	 * Returns the location of the director's rollback repository, where information about
-	 * previous profile states is stored.
-	 */
-	public URI getRollbackRepositoryLocation();
-
 	public IStatus revert(IProfile profile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor);
 }
