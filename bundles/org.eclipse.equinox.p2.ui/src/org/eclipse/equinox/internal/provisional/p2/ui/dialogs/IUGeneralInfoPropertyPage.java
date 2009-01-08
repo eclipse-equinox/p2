@@ -120,6 +120,9 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
 			text.setText(getEscapedString(value));
+			// Needed to get the right color on the Mac.
+			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=258112
+			text.setBackground(text.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			text.setLayoutData(gd);
 		}
