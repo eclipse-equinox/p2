@@ -182,8 +182,8 @@ public class RevertProfilePage extends InstallationPage {
 				}
 			}
 		};
-		revertAction.setText(ProvUIMessages.InstalledSoftwarePage_RevertLabel);
-		revertAction.setToolTipText(ProvUIMessages.InstalledSoftwarePage_RevertTooltip);
+		revertAction.setText(ProvUIMessages.RevertProfilePage_RevertLabel);
+		revertAction.setToolTipText(ProvUIMessages.RevertProfilePage_RevertTooltip);
 	}
 
 	private Object getInput() {

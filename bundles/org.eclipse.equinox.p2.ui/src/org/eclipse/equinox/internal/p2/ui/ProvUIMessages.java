@@ -42,8 +42,8 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
-	public static String InstalledSoftwarePage_RevertLabel;
-	public static String InstalledSoftwarePage_RevertTooltip;
+	public static String RevertProfilePage_RevertLabel;
+	public static String RevertProfilePage_RevertTooltip;
 	public static String IUCopyrightPropertyPage_NoCopyright;
 	public static String IUCopyrightPropertyPage_ViewLinkLabel;
 	public static String IUDetailsLabelProvider_KB;
