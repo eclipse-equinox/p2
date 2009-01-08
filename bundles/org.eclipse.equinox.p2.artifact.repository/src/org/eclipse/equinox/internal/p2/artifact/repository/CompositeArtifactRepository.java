@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
-	public CompositeArtifactRepository(String repositoryName, URI location, Map properties) {
+	public CompositeArtifactRepository(URI location, String repositoryName, Map properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
 		save();
