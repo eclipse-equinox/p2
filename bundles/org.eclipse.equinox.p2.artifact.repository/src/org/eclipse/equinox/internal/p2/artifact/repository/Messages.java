@@ -20,6 +20,7 @@ public class Messages extends NLS {
 	public static String downloading;
 	public static String error_closing_stream;
 	public static String io_failedRead;
+	public static String ecf_configuration_error;
 	public static String io_incompatibleVersion;
 	public static String SignatureVerification_failedRead;
 	public static String SignatureVerification_invalidContent;

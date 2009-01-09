@@ -3,7 +3,7 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
@@ -23,6 +23,8 @@ public class Messages extends NLS {
 	}
 
 	public static String io_failedRead;
+	public static String ecf_configuration_error;
+
 	public static String io_IncompatibleVersion;
 	public static String io_parseError;
 

@@ -26,6 +26,7 @@ public class Messages extends NLS {
 	public static String Error_Generation;
 
 	public static String io_failedRead;
+	public static String ecf_configuration_error;
 	public static String repo_loading;
 
 	public static String repoMan_internalError;

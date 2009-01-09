@@ -115,7 +115,7 @@ public class ECFMetadataTransport {
 	public IStatus performDownload(String toDownload, OutputStream target, IConnectContext context, IProgressMonitor monitor) throws ProtocolException {
 		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
 		if (factory == null)
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload));
+			return new Status(IStatus.ERROR, Activator.ID, Messages.ecf_configuration_error);
 		return transfer(factory.newInstance(), toDownload, target, context, monitor);
 	}
 
@@ -171,12 +171,12 @@ public class ECFMetadataTransport {
 	/**
 	 * Returns the connection context for the given URL. This may prompt the
 	 * user for user name and password as required.
-	 * 
+	 *
 	 * @param xmlLocation - the file location requiring login details
 	 * @param prompt - use <code>true</code> to prompt the user instead of
 	 * looking at the secure preference store for login, use <code>false</code>
 	 * to only try the secure preference store
-	 * @throws UserCancelledException when the user cancels the login prompt 
+	 * @throws UserCancelledException when the user cancels the login prompt
 	 * @throws ProvisionException if the password cannot be read or saved
 	 * @return The connection context
 	 */
