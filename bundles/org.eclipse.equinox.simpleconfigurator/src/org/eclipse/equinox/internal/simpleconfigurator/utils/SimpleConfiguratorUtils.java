@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -14,6 +14,7 @@ import java.util.*;
 
 public class SimpleConfiguratorUtils {
 
+	private static final String UNC_PREFIX = "//";
 	private static final String VERSION_PREFIX = "#version=";
 	private static final String VERSION_1 = "1";
 	private static final String FILE_SCHEME = "file";
@@ -101,6 +102,15 @@ public class SimpleConfiguratorUtils {
 			String scheme = colon < 0 ? null : location.substring(0, colon);
 			if (scheme == null || scheme.equals(FILE_SCHEME))
 				location = location.replace(File.separatorChar, '/');
+			//if the file is a UNC path, insert extra leading // if needed to make a valid URI (see bug 207103)
+			if (scheme == null) {
+				if (location.startsWith(UNC_PREFIX) && !location.startsWith(UNC_PREFIX, 2))
+					location = UNC_PREFIX + location;
+			} else {
+				//insert UNC prefix after the scheme
+				if (location.startsWith(UNC_PREFIX, colon + 1) && !location.startsWith(UNC_PREFIX, colon + 3))
+					location = location.substring(0, colon + 3) + location.substring(colon + 1);
+			}
 		}
 
 		try {

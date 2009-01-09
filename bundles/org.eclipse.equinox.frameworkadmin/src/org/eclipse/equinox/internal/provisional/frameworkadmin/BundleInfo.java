@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,11 @@
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
 import java.net.URI;
+import org.eclipse.core.runtime.URIUtil;
 
 /**
- * This object represents information of a bundle.
+ * This object represents information of a bundle. This class is a copy of the BundleInfo
+ * class in org.eclipse.equinox.simpleconfigurator
  *
  */
 public class BundleInfo {
@@ -208,9 +210,8 @@ public class BundleInfo {
 			return true;
 
 		//compare absolute location URIs
-		URI absoluteLocation = baseLocation == null ? location : baseLocation.resolve(location);
-		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : other.baseLocation.resolve(other.location);
-
-		return absoluteLocation.equals(otherAbsoluteLocation);
+		URI absoluteLocation = baseLocation == null ? location : URIUtil.append(baseLocation, location.toString());
+		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : URIUtil.append(other.baseLocation, other.location.toString());
+		return URIUtil.sameURI(absoluteLocation, otherAbsoluteLocation);
 	}
 }
