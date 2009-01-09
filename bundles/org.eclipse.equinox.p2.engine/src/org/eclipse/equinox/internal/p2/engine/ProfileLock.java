@@ -48,6 +48,9 @@ final class ProfileLock {
 	}
 
 	protected synchronized void checkLocked() {
+		if (lockHolder == null)
+			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+
 		Thread current = Thread.currentThread();
 		if (lockHolder != current)
 			throw new IllegalStateException(Messages.thread_not_owner);
@@ -75,9 +78,12 @@ final class ProfileLock {
 	}
 
 	protected void unlock() {
+		if (lockHolder == null)
+			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+
 		Thread current = Thread.currentThread();
 		if (lockHolder != current)
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+			throw new IllegalStateException(Messages.thread_not_owner);
 
 		lockedCount--;
 		if (lockedCount == 0) {
