@@ -15,8 +15,7 @@ import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -220,7 +219,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertEquals(0, timestamps.length);
 	}
 
-	public void testProfileLockingNested() {
+	public void testProfileLockingNested() throws IOException {
 		final String SIMPLE_PROFILE = "Simple";
 		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
 		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
@@ -247,15 +246,30 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		simpleRgy.lockProfile(simpleProfile);
 		simpleRgy.unlockProfile(simpleProfile);
 		// Create a lock file to confirm locking
-		MockFileLock mockLock = new MockFileLock("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
-		assertTrue("Lock file does not exist", mockLock.getLockFile().exists());
-		assertFalse("Lock file was not locked", mockLock.getLockFile().delete());
+
+		File lockDirectory = new File(getResourceAsBundleRelFile("testData/engineTest/SimpleRegistry/"), SIMPLE_PROFILE + ".profile");
+		File lockFile = new File(lockDirectory, ".lock");
+		assertTrue("Lock file does not exist", lockFile.exists());
+
+		ProfileLock profileLock = new ProfileLock(lockDirectory);
+		boolean locked = profileLock.lock();
+		try {
+			assertFalse("Lock file was not locked", locked);
+		} finally {
+			if (locked)
+				profileLock.unlock();
+		}
 		simpleRgy.unlockProfile(simpleProfile);
 		simpleRgy.lockProfile(simpleProfile);
 		simpleRgy.unlockProfile(simpleProfile);
-		if (mockLock.getLockFile().exists()) {
-			assertTrue("Lock file could not removed", mockLock.getLockFile().delete());
+		locked = profileLock.lock();
+		try {
+			assertTrue("Lock file could not be locked", locked);
+		} finally {
+			if (locked)
+				profileLock.unlock();
 		}
+		assertTrue("Lock file could not removed", lockFile.delete());
 	}
 
 	public void testProfileLockingMultiProcess() {

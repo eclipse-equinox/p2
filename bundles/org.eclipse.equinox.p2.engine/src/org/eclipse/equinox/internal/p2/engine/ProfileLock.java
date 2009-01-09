@@ -20,14 +20,14 @@ import org.eclipse.osgi.util.NLS;
  * The purpose of this class is to enable cross process locking.
  * See 257654 for more details.
  */
-final class ProfileLock {
+public class ProfileLock {
 	private static final String LOCK_FILENAME = ".lock"; //$NON-NLS-1$
 
 	private final Location location;
 	private Thread lockHolder;
 	private int lockedCount;
 
-	protected ProfileLock(File profileDirectory) {
+	public ProfileLock(File profileDirectory) {
 		location = createLockLocation(profileDirectory);
 	}
 
@@ -47,7 +47,7 @@ final class ProfileLock {
 		}
 	}
 
-	protected synchronized void checkLocked() {
+	public synchronized void checkLocked() {
 		if (lockHolder == null)
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
 
@@ -62,7 +62,7 @@ final class ProfileLock {
 		}
 	}
 
-	protected boolean lock() {
+	public synchronized boolean lock() {
 		Thread current = Thread.currentThread();
 		try {
 			if (lockHolder == null && location.lock())
@@ -77,7 +77,7 @@ final class ProfileLock {
 		return true;
 	}
 
-	protected void unlock() {
+	public synchronized void unlock() {
 		if (lockHolder == null)
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
 
