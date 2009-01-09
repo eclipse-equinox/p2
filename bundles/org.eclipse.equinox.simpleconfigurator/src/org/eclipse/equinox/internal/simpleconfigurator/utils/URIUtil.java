@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
- * program and the accompanying materials are made available under the terms of
- * the Eclipse Public License v1.0 which accompanies this distribution, and is
- * available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2008, 2009 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -11,9 +11,57 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
 import java.io.File;
 import java.net.*;
 
+/**
+ * This class copies various methods from the URIUtil class in
+ * org.eclipse.equinox.common. Unless otherwise noted the implementations here
+ * should mirror those in the common implementation.
+ */
 public class URIUtil {
 
 	private static final String SCHEME_FILE = "file"; //$NON-NLS-1$
+	private static final String UNC_PREFIX = "//"; //$NON-NLS-1$
+
+	/**
+	 * Appends the given extension to the path of the give base URI and returns
+	 * the corresponding new path.
+	 * @param base The base URI to append to
+	 * @param extension The path extension to be added
+	 * @return The appended URI
+	 */
+	public static URI append(URI base, String extension) {
+		try {
+			String path = base.getPath();
+			if (path == null)
+				return appendOpaque(base, extension);
+			//if the base is already a directory then resolve will just do the right thing
+			if (path.endsWith("/")) {//$NON-NLS-1$
+				URI result = base.resolve(extension);
+				//Fix UNC paths that are incorrectly normalized by URI#resolve (see Java bug 4723726)
+				String resultPath = result.getPath();
+				if (path.startsWith(UNC_PREFIX) && (resultPath == null || !resultPath.startsWith(UNC_PREFIX)))
+					result = new URI(result.getScheme(), "///" + result.getSchemeSpecificPart(), result.getFragment()); //$NON-NLS-1$
+				return result;
+			}
+			path = path + "/" + extension; //$NON-NLS-1$
+			return new URI(base.getScheme(), base.getUserInfo(), base.getHost(), base.getPort(), path, base.getQuery(), base.getFragment());
+		} catch (URISyntaxException e) {
+			//shouldn't happen because we started from a valid URI
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Special case of appending to an opaque URI. Since opaque URIs
+	 * have no path segment the best we can do is append to the scheme-specific part
+	 */
+	private static URI appendOpaque(URI base, String extension) throws URISyntaxException {
+		String ssp = base.getSchemeSpecificPart();
+		if (ssp.endsWith("/")) //$NON-NLS-1$
+			ssp += extension;
+		else
+			ssp = ssp + "/" + extension; //$NON-NLS-1$
+		return new URI(base.getScheme(), ssp, base.getFragment());
+	}
 
 	/**
 	 * Returns a URI corresponding to the given unencoded string.
@@ -83,6 +131,25 @@ public class URIUtil {
 	}
 
 	/**
+	 * Returns a string representation of the given URI that doesn't have illegal
+	 * characters encoded. This string is suitable for later passing to {@link #fromString(String)}.
+	 * @param uri The URI to convert to string format
+	 * @return An unencoded string representation of the URI
+	 */
+	public static String toUnencodedString(URI uri) {
+		StringBuffer result = new StringBuffer();
+		String scheme = uri.getScheme();
+		if (scheme != null)
+			result.append(scheme).append(':');
+		//there is always a ssp
+		result.append(uri.getSchemeSpecificPart());
+		String fragment = uri.getFragment();
+		if (fragment != null)
+			result.append('#').append(fragment);
+		return result.toString();
+	}
+
+	/**
 	 * Returns the URL as a URI. This method will handle broken URLs that are
 	 * not properly encoded (for example they contain unencoded space characters).
 	 */
@@ -93,6 +160,10 @@ public class URIUtil {
 			//ensure there is a leading slash to handle common malformed URLs such as file:c:/tmp
 			if (pathString.indexOf('/') != 0)
 				pathString = '/' + pathString;
+			else if (pathString.startsWith(UNC_PREFIX) && !pathString.startsWith(UNC_PREFIX, 2)) {
+				//URL encodes UNC path with two slashes, but URI uses four (see bug 207103)
+				pathString = UNC_PREFIX + pathString;
+			}
 			return new URI(SCHEME_FILE, pathString, null);
 		}
 		try {
