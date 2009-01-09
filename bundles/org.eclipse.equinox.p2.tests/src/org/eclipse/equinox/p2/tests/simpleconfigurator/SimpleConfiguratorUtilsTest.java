@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,39 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
+
+	public void testParseBundleInfoUNC() throws MalformedURLException, URISyntaxException {
+
+		File baseFile = new File("//SERVER/some/path/");
+		URI baseURI = new URI("file:////SERVER/some/path/");
+
+		String canonicalForm = "javax.servlet,2.4.0.v200806031604,plugins/javax.servlet_2.4.0.v200806031604.jar,4,false";
+		BundleInfo canonicalInfo = SimpleConfiguratorUtils.parseBundleInfoLine(canonicalForm, baseURI);
+		File canonicalFile = new File(baseFile, "plugins/javax.servlet_2.4.0.v200806031604.jar");
+		final String canonicalFileURLString = canonicalFile.toURL().toExternalForm();
+
+		String line[] = new String[6];
+		line[0] = "javax.servlet,2.4.0.v200806031604,file:plugins/javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[1] = "javax.servlet,2.4.0.v200806031604,plugins\\javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[2] = "javax.servlet,2.4.0.v200806031604,file:plugins\\javax.servlet_2.4.0.v200806031604.jar,4,false";
+		line[3] = "javax.servlet,2.4.0.v200806031604,file:" + canonicalFile.toString() + ",4,false";
+		line[4] = "javax.servlet,2.4.0.v200806031604," + canonicalFileURLString + ",4,false";
+		line[5] = "javax.servlet,2.4.0.v200806031604," + canonicalFile.toURI().toString() + ",4,false";
+
+		String relativeBundleLocation = "reference:file:plugins/javax.servlet_2.4.0.v200806031604.jar";
+		String absoluteBundleLocation = "reference:" + canonicalFileURLString;
+
+		for (int i = 0; i < line.length; i++) {
+			if (line[i].indexOf('\\') != -1 && !WINDOWS)
+				continue;
+			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
+			assertEquals("[" + i + "]", canonicalInfo, info);
+			if (info.getLocation().isAbsolute())
+				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			else
+				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+		}
+	}
 
 	public void testParseBundleInfo() throws MalformedURLException {
 
