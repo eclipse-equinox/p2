@@ -21,14 +21,15 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		suite.addTestSuite(ArtifactRepositoryManagerTest.class);
+		suite.addTestSuite(ArtifactRepositoryWithReferenceDescriptors.class);
 		suite.addTestSuite(Bug252308.class);
+		suite.addTestSuite(CompositeArtifactRepositoryTest.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
-		// DISABLING TEST UNTIL WE UPDATE REPOSITORY FILES
-		//suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(MD5Tests.class);
 		suite.addTestSuite(MirrorSelectorTest.class);
 		suite.addTestSuite(SimpleArtifactRepositoryTest.class);
-		suite.addTestSuite(CompositeArtifactRepositoryTest.class);
+		suite.addTestSuite(TransferTest.class);
 		return suite;
 	}
 
