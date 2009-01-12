@@ -72,7 +72,7 @@ public class ElementUtils {
 							ProvisioningUtil.removeArtifactRepository(currentlyEnabled[i]);
 						}
 					}
-					for (int i = 0; i < currentlyEnabled.length; i++) {
+					for (int i = 0; i < currentlyDisabled.length; i++) {
 						if (!nowKnown.contains(currentlyDisabled[i].toString())) {
 							ProvisioningUtil.removeMetadataRepository(currentlyDisabled[i]);
 							ProvisioningUtil.removeArtifactRepository(currentlyDisabled[i]);
