@@ -69,7 +69,7 @@ public class Uninstall extends InstallableUnitPhase {
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {
-		return (op.first() != null);
+		return (op.first() != null && !op.first().equals(op.second()));
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {

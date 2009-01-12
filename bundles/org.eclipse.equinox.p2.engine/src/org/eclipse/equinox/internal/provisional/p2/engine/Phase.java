@@ -211,7 +211,7 @@ public abstract class Phase {
 		mergeStatus(status, completeOperand(profile, operand, operandParameters, new NullProgressMonitor()));
 	}
 
-	protected boolean isApplicable(Operand operand) {
+	public boolean isApplicable(Operand operand) {
 		return true;
 	}
 

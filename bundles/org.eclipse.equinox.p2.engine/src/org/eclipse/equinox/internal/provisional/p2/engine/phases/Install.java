@@ -72,7 +72,7 @@ public class Install extends InstallableUnitPhase {
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {
-		return (op.second() != null);
+		return (op.second() != null && !op.second().equals(op.first()));
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {

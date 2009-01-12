@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -232,10 +233,20 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), createOSGiIU())};
-		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+
+		IInstallableUnit iu33 = createOSGiIU("3.3");
+		IInstallableUnit iu34 = createOSGiIU("3.4");
+
+		InstallableUnitOperand[] installOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, iu33)};
+		IStatus result = engine.perform(profile, phaseSet, installOperands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = getInstallableUnits(profile);
+		Iterator ius = profile.query(new InstallableUnitQuery(iu33.getId(), iu33.getVersion()), new Collector(), null).iterator();
+		assertTrue(ius.hasNext());
+
+		InstallableUnitOperand[] updateOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(iu33, iu34)};
+		result = engine.perform(profile, phaseSet, updateOperands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		ius = profile.query(new InstallableUnitQuery(iu34.getId(), iu34.getVersion()), new Collector(), null).iterator();
 		assertTrue(ius.hasNext());
 	}
 
@@ -303,9 +314,13 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createOSGiIU() {
+		return createOSGiIU("3.3.1.R33x_v20070828");
+	}
+
+	private IInstallableUnit createOSGiIU(String version) {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi");
-		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setVersion(new Version(version));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"

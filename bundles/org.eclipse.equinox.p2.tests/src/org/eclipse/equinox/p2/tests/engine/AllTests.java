@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(DownloadManagerTest.class);
 		suite.addTestSuite(InstructionParserTest.class);
 		suite.addTestSuite(EngineTest.class);
+		suite.addTestSuite(PhaseApplicabilityTest.class);
 		suite.addTestSuite(PhaseSetTest.class);
 		suite.addTestSuite(PhaseTest.class);
 		suite.addTestSuite(ParameterizedProvisioningActionTest.class);

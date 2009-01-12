@@ -61,7 +61,7 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	protected abstract ProvisioningAction[] getActions(InstallableUnitOperand operand);
 
-	final protected boolean isApplicable(Operand operand) {
+	final public boolean isApplicable(Operand operand) {
 		if (!(operand instanceof InstallableUnitOperand))
 			return false;
 
