@@ -25,7 +25,7 @@ public class Activator implements BundleActivator {
 
 	private void registerConfiguratorManipulator() {
 		Dictionary props = new Hashtable();
-		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
+		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
 		props.put(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
 		SimpleConfiguratorManipulatorImpl manipulator = new SimpleConfiguratorManipulatorImpl();
 		String[] clazzes = new String[] {ConfiguratorManipulator.class.getName(), SimpleConfiguratorManipulator.class.getName()};

@@ -40,7 +40,7 @@ public class SimpleConfiguratorUtils {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines
-				if (line.length() == 0) //$NON-NLS-1$
+				if (line.length() == 0) 
 					continue;
 
 				if (line.startsWith("#")) {//$NON-NLS-1$
@@ -73,7 +73,7 @@ public class SimpleConfiguratorUtils {
 
 	public static BundleInfo parseBundleInfoLine(String line, URI base) {
 		// symbolicName,version,location,startLevel,markedAsStarted
-		StringTokenizer tok = new StringTokenizer(line, COMMA); //$NON-NLS-1$
+		StringTokenizer tok = new StringTokenizer(line, COMMA); 
 		int numberOfTokens = tok.countTokens();
 		if (numberOfTokens < 5)
 			throw new IllegalArgumentException("Line does not contain at least 5 tokens: " + line);
@@ -178,8 +178,8 @@ public class SimpleConfiguratorUtils {
 			bundleLocation = location.toString();
 		}
 
-		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) //$NON-NLS-1$
-			bundleLocation = REFERENCE_PREFIX + bundleLocation; //$NON-NLS-1$
+		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) 
+			bundleLocation = REFERENCE_PREFIX + bundleLocation; 
 		return bundleLocation;
 	}
 }

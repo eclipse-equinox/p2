@@ -128,7 +128,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	private static boolean isTargetConfiguratorBundle(URI location) {
 		final String symbolic = Utils.getPathFromClause(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME));
-		return (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
+		return (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
 	}
 
 	private void algorithm(int initialSl, SortedMap bslToList, BundleInfo configuratorBInfo, List setToInitialConfig, List setToSimpleConfig, LocationInfo info) {
@@ -325,7 +325,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		// convert to SimpleConfigurator BundleInfo Type
 		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[configuration.length];
 		for (int i = 0; i < configuration.length; i++) {
-			BundleInfo bundleInfo = (BundleInfo) configuration[i];
+			BundleInfo bundleInfo = configuration[i];
 			String symbolicName = bundleInfo.getSymbolicName();
 			String bundleVersion = bundleInfo.getVersion();
 			URI location = base != null ? URIUtil.makeRelative(bundleInfo.getLocation(), base.toURI()) : bundleInfo.getLocation();

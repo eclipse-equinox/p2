@@ -8,6 +8,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
+import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+
 import java.io.*;
 import java.net.URI;
 import java.util.Arrays;
@@ -51,7 +53,7 @@ public class SimpleConfiguratorManipulatorUtils {
 		IOException caughtException = null;
 		boolean oldStyle = false;
 		for (int i = 0; i < simpleInfos.length; i++) {
-			if (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
+			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
 				Version version = new Version(simpleInfos[i].getVersion());
 				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
 					oldStyle = true;
