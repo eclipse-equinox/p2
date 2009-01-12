@@ -38,8 +38,57 @@ public class OperationGenerator {
 		ArrayList operations = new ArrayList();
 		generateUpdates(from, to, operations);
 		generateInstallUninstall(from, to, operations);
+		generateConfigurationChanges(to_, intersection, operations);
 		InstallableUnitOperand[] ops = (InstallableUnitOperand[]) operations.toArray(new InstallableUnitOperand[operations.size()]);
 		return ops;
+	}
+
+	//This generates operations that are causing the IUs to be reconfigured.
+	private void generateConfigurationChanges(Collection to_, Collection intersection, ArrayList operations) {
+		if (intersection.size() == 0)
+			return;
+		//We retain from each set the things that are the same.
+		//Note that despite the fact that they are the same, a different CU can be attached.
+		//The objects contained in the intersection are the one that were originally in the from collection.
+		TreeSet to = new TreeSet(to_);
+		for (Iterator iterator = intersection.iterator(); iterator.hasNext();) {
+			IInstallableUnit fromIU = (IInstallableUnit) iterator.next();
+			IInstallableUnit toIU = (IInstallableUnit) to.tailSet(fromIU).first();
+			generateConfigurationOperation(fromIU, toIU, operations);
+		}
+
+	}
+
+	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU, ArrayList operations) {
+		IInstallableUnitFragment[] fromFragments = fromIU.getFragments();
+		IInstallableUnitFragment[] toFragments = toIU.getFragments();
+		if (fromFragments == toFragments)
+			return;
+		//Check to see if the two arrays are equals independently of the order of the fragments
+		boolean different = false;
+		if (fromFragments != null && toFragments != null) {
+			if (fromFragments.length != toFragments.length)
+				different = true;
+			else {
+				for (int i = 0; i < fromFragments.length; i++) {
+					boolean found = false;
+					for (int j = 0; j < toFragments.length; j++) {
+						if (fromFragments[i].equals(toFragments[j]))
+							found = true;
+					}
+					if (!found) {
+						different = true;
+						break;
+					}
+				}
+			}
+		} else {
+			//One of the two array is null
+			different = true;
+		}
+		if (!different)
+			return;
+		operations.add(new InstallableUnitOperand(fromIU, toIU));
 	}
 
 	private void generateInstallUninstall(List from, List to, ArrayList operations) {
@@ -105,7 +154,7 @@ public class OperationGenerator {
 			if (fromIdIndexList == null)
 				continue;
 
-			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
+			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of
 			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
 			Iterator updates = updateQuery.perform(fromIdIndexList.iterator(), new Collector()).iterator();
 

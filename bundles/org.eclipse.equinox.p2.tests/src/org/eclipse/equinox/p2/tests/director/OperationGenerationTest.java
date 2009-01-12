@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.director;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
+import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -350,5 +351,169 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		assertEquals("1.0", 1, operands.length);
 		assertEquals("1.1", one, operands[0].first());
 		assertNull("1.2", operands[0].second());
+	}
+
+	public void testConfigurationChange1() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anotherIU = createIU("misc", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anotherIU2 = createIU("misc2", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1});
+		from.add(fromResolved);
+		from.add(MetadataFactory.createResolvedInstallableUnit(anotherIU, new IInstallableUnitFragment[0]));
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
+		to.add(toResolved);
+		to.add(MetadataFactory.createResolvedInstallableUnit(anotherIU2, new IInstallableUnitFragment[0]));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 3, operands.length);
+		assertContainsConfigurationChange("2.0", operands);
+		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
+	}
+
+	private void assertContainsInstallableUnitOperand(String message, InstallableUnitOperand[] operands, InstallableUnitOperand operand) {
+		for (int i = 0; i < operands.length; i++) {
+			if (operands[i].first() != null && operands[i].first().equals(operand.first()) && operands[i].second() != null && operands[i].second().equals(operand.second()))
+				return;
+		}
+		fail(message);
+	}
+
+	public void testConfigurationChange2() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
+		from.add(fromResolved);
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
+		to.add(toResolved);
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 1, operands.length);
+		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
+	}
+
+	public void testConfigurationChange3() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
+		from.add(fromResolved);
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
+		to.add(toResolved);
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 1, operands.length);
+		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
+	}
+
+	public void testConfigurationChange4() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
+		from.add(fromResolved);
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
+		to.add(toResolved);
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 0, operands.length);
+	}
+
+	public void testConfigurationChange5() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu2});
+		from.add(fromResolved);
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2, cu1});
+		to.add(toResolved);
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 0, operands.length);
+	}
+
+	public void testConfigurationChange6() {
+		String id = "myBundle";
+		String cuId = "cu";
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
+		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
+		IInstallableUnitFragment cu3 = createIUFragment(anIU, cuId, new Version("3.0.0"));
+
+		Collection from = new ArrayList();
+		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu2});
+		from.add(fromResolved);
+
+		Collection to = new ArrayList();
+		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu3});
+		to.add(toResolved);
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+
+		assertEquals("1.0", 1, operands.length);
+		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
+	}
+
+	public void assertContains(String message, Object[] searched, Object expected) {
+		for (int i = 0; i < searched.length; i++) {
+			if (searched[i].equals(expected))
+				return;
+		}
+		fail(message + "Can't find " + expected);
+	}
+
+	public void assertContainsConfigurationChange(String message, InstallableUnitOperand[] ops) {
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i].first() != null && ops[i].first().equals(ops[i].second())) {
+				return;
+			}
+		}
+		fail(message + " No configuration change operand found");
 	}
 }
