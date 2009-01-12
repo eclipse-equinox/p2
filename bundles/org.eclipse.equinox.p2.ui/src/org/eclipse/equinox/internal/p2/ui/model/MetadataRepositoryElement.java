@@ -31,7 +31,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Element wrapper class for a metadata repository that gets its
- * contents in a deferred manner.
+ * contents in a deferred manner.  A metadata repository can be the root
+ * (input) of a viewer, when the view is filtered by repo, or a child of
+ * an input, when the view is showing many repos.  
  * 
  * @since 3.4
  */
@@ -40,10 +42,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	URI location;
 	boolean isEnabled;
 	boolean alreadyReportedNotFound = false;
-
-	public MetadataRepositoryElement(Object parent, URI location) {
-		this(parent, null, null, location, true);
-	}
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
 		this(parent, null, null, location, isEnabled);
@@ -211,5 +209,14 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return false;
 		queryable = repo;
 		return true;
+	}
+
+	public Policy getPolicy() {
+		Object parent = getParent(this);
+		if (parent == null)
+			return super.getPolicy();
+		if (parent instanceof QueriedElement)
+			return ((QueriedElement) parent).getPolicy();
+		return Policy.getDefault();
 	}
 }

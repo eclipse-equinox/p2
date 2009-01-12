@@ -18,6 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 public abstract class ColocatedRepositoryActionTest extends ActionTest {
 
 	protected Object[] getValidRepoSelection() {
-		return new MetadataRepositoryElement[] {new MetadataRepositoryElement(null, testRepoLocation)};
+		return new MetadataRepositoryElement[] {new MetadataRepositoryElement(null, testRepoLocation, true)};
 	}
 }
