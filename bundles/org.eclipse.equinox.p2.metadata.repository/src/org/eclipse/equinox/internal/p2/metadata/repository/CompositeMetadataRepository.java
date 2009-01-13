@@ -75,24 +75,32 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		Iterator repositoryIterator = childrenURIs.iterator();
-		while (repositoryIterator.hasNext()) {
-			try {
-				//Try to load the repositories one by one
-				URI currentURI = (URI) repositoryIterator.next();
-				boolean currentLoaded = getManager().contains(currentURI);
-				IMetadataRepository currentRepo = getManager().loadRepository(currentURI, null);
-				if (!currentLoaded) {
-					//set enabled to false so repositories do not polled twice
-					getManager().setEnabled(currentURI, false);
-					//set repository to system to hide from users
-					getManager().setRepositoryProperty(currentURI, IRepository.PROP_SYSTEM, String.valueOf(true));
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, childrenURIs.size() * 100);
+		try {
+			while (repositoryIterator.hasNext()) {
+				try {
+					//Try to load the repositories one by one
+					URI currentURI = (URI) repositoryIterator.next();
+					SubMonitor loopMonitor = sub.newChild(100);
+					boolean currentLoaded = getManager().contains(currentURI);
+					IMetadataRepository currentRepo = getManager().loadRepository(currentURI, null);
+					if (!currentLoaded) {
+						//set enabled to false so repositories do not polled twice
+						getManager().setEnabled(currentURI, false);
+						//set repository to system to hide from users
+						getManager().setRepositoryProperty(currentURI, IRepository.PROP_SYSTEM, String.valueOf(true));
+					}
+					loopMonitor.worked(50); // work 50% for the load
+					//get the query results. Collector should take care of duplicates
+					currentRepo.query(query, collector, loopMonitor.newChild(50));
+				} catch (ProvisionException e) {
+					//repository failed to load. fall through
+					LogHelper.log(e);
 				}
-				//get the query results. Collector should take care of duplicates
-				currentRepo.query(query, collector, monitor);
-			} catch (ProvisionException e) {
-				//repository failed to load. fall through
-				LogHelper.log(e);
 			}
+		} finally {
+			if (monitor != null)
+				monitor.done();
 		}
 		return collector;
 	}
