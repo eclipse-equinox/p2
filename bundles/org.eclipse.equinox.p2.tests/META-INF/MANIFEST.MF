@@ -52,7 +52,8 @@ Bundle-ClassPath: .
 Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.common,
- org.junit
+ org.junit,
+ org.eclipse.core.runtime;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
