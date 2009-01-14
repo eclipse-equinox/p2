@@ -17,19 +17,18 @@
    <license url="%licenseURL">
       %license
    </license>
-   
-    <requires>
-      <import plugin="org.eclipse.ecf" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.filetransfer" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.identity" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer" version="2.0.0" match="compatible"/>
+
+   <requires>
+      <import plugin="org.eclipse.ecf" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.filetransfer" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.identity" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer" version="3.0.0" match="compatible"/>
       <import plugin="org.eclipse.ecf.provider.filetransfer.ssl" version="1.0.0" match="compatible"/>
       <import plugin="org.eclipse.ecf.ssl" version="1.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient" version ="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" version ="1.0.0" match="compatible"/>
-    </requires>
-   
-    
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" version="1.0.0" match="compatible"/>
+   </requires>
+
    <plugin
          id="org.eclipse.equinox.p2.director"
          download-size="0"
@@ -77,8 +76,8 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>      
- 
+         unpack="false"/>
+
    <plugin
          id="org.eclipse.equinox.p2.exemplarysetup"
          download-size="0"
@@ -120,7 +119,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
- 
+
    <plugin
          id="org.eclipse.equinox.simpleconfigurator.manipulator"
          download-size="0"
@@ -240,7 +239,7 @@
          version="0.0.0"
          unpack="false"/>
 
-    <plugin
+   <plugin
          id="org.apache.commons.codec"
          download-size="0"
          install-size="0"
