@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,8 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.*;
@@ -27,19 +23,10 @@ import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
  * 
  * @since 1.0
  */
-public class PublisherTask extends Task {
-
-	protected PublisherInfo provider = null;
+public class PublisherTask extends AbstractPublishTask {
 
 	protected String source;
-	protected URI metadataLocation;
-	protected String metadataRepoName;
-	protected URI artifactLocation;
-	protected String artifactRepoName;
-	protected boolean compress = false;
 	protected boolean inplace = false;
-	protected boolean append = false;
-	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
 	protected String mode;
 	private String flavor;
@@ -103,43 +90,12 @@ public class PublisherTask extends Task {
 		initializeRepositories(info);
 	}
 
-	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
-		info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
-		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
-	}
-
-	private PublisherInfo getInfo() {
-		if (provider == null)
-			provider = new PublisherInfo();
-		return provider;
-	}
-
-	public void setAppend(String value) {
-		append = Boolean.valueOf(value).booleanValue();
-	}
-
-	public void setArtifactRepository(String location) {
-		try {
-			artifactLocation = URIUtil.fromString(location);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Artifact repository location (" + location + ") must be a URL."); //$NON-NLS-1$//$NON-NLS-2$
-		}
-	}
-
-	public void setArtifactRepositoryName(String value) {
-		artifactRepoName = value;
-	}
-
 	public void setBase(String value) {
 		source = value;
 	}
 
 	public void setBundles(String value) {
 		//TODO Remove - currently exists for compatibility with generator task
-	}
-
-	public void setCompress(String value) {
-		compress = Boolean.valueOf(value).booleanValue();
 	}
 
 	public void setConfig(String value) {
@@ -182,18 +138,6 @@ public class PublisherTask extends Task {
 	 */
 	public void setLauncherConfig(String value) {
 		//TODO Remove - currently exists for compatibility with generator task
-	}
-
-	public void setMetadataRepository(String location) {
-		try {
-			metadataLocation = URIUtil.fromString(location);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Metadata repository location (" + location + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-	}
-
-	public void setMetadataRepositoryName(String value) {
-		metadataRepoName = value;
 	}
 
 	public void setNoDefaultIUs(String value) {

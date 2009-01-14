@@ -32,10 +32,15 @@
 
 	<extension point="org.eclipse.ant.core.antTasks">
 		<antTask
-			library="ant_tasks/generator-ant.jar"
+			library="ant_tasks/publisher-ant.jar"
 			name="p2.publisher"
 			class="org.eclipse.equinox.internal.p2.publisher.ant.PublisherTask">
 		</antTask>
+    <antTask
+          class="org.eclipse.equinox.internal.p2.publisher.ant.PublishIUsTask"
+          library="ant_tasks/publisher-ant.jar"
+          name="p2.publish.ius">
+    </antTask>
 	</extension>
 
 	<extension point="org.eclipse.ant.core.extraClasspathEntries">
