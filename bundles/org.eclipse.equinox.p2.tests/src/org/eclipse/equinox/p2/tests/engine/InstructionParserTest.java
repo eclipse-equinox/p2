@@ -67,7 +67,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testBadActionFullyQualified() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
+			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
+			actions[0].execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -89,7 +90,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testBadActionFromImport() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
+			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
+			actions[0].execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -147,7 +149,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testGoodActionBadAction() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
+			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
+			actions[1].execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -157,7 +160,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testNoActionFound() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
+			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
+			actions[0].execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}

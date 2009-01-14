@@ -55,7 +55,8 @@ public class Sizing extends InstallableUnitPhase {
 		if (type == null || type == ITouchpointType.NONE)
 			return null;
 
-		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(COLLECT_PHASE_ID, type);
+		String actionId = getActionManager().getTouchpointQualifiedActionId(COLLECT_PHASE_ID, type);
+		ProvisioningAction action = getActionManager().getAction(actionId, null);
 		if (action == null) {
 			return null;
 		}

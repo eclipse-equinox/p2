@@ -79,7 +79,7 @@ public abstract class InstallableUnitPhase extends Phase {
 			return null;
 
 		List actions = new ArrayList();
-		InstructionParser instructionParser = new InstructionParser(actionManager);
+		InstructionParser instructionParser = new InstructionParser(getActionManager());
 		for (int i = 0; i < instructions.length; i++) {
 			actions.addAll(Arrays.asList(instructionParser.parseActions(instructions[i], unit.getTouchpointType())));
 		}

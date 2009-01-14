@@ -86,7 +86,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 			if (type == null || type == ITouchpointType.NONE)
 				return null;
 
-			ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
+			String actionId = getActionManager().getTouchpointQualifiedActionId(phaseId, type);
+			ProvisioningAction action = getActionManager().getAction(actionId, null);
 			if (action == null) {
 				throw new IllegalArgumentException("action not found: " + phaseId);
 			}

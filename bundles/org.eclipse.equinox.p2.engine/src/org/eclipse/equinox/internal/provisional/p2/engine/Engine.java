@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007-2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,22 +27,7 @@ public class Engine implements IEngine {
 	}
 
 	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-
-		// TODO -- Messages
-		if (iprofile == null)
-			throw new IllegalArgumentException(Messages.null_profile);
-
-		if (phaseSet == null)
-			throw new IllegalArgumentException(Messages.null_phaseset);
-
-		if (operands == null)
-			throw new IllegalArgumentException(Messages.null_operands);
-
-		if (context == null)
-			context = new ProvisioningContext();
-
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
+		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 
@@ -52,9 +37,9 @@ public class Engine implements IEngine {
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
-			EngineSession session = new EngineSession(profile, context, actionManager);
+			EngineSession session = new EngineSession(profile, context);
 
-			MultiStatus result = phaseSet.perform(session, profile, operands, context, monitor);
+			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				IStatus status = session.rollback();
@@ -75,5 +60,26 @@ public class Engine implements IEngine {
 			profileRegistry.unlockProfile(profile);
 			profile.setChanged(false);
 		}
+	}
+
+	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
+	}
+
+	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		if (iprofile == null)
+			throw new IllegalArgumentException(Messages.null_profile);
+
+		if (phaseSet == null)
+			throw new IllegalArgumentException(Messages.null_phaseset);
+
+		if (operands == null)
+			throw new IllegalArgumentException(Messages.null_operands);
+
+		if (context == null)
+			context = new ProvisioningContext();
+
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 	}
 }

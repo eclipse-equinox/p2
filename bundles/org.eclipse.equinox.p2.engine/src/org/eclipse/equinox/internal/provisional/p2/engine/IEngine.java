@@ -18,4 +18,5 @@ public interface IEngine {
 
 	public IStatus perform(IProfile profile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor);
 
+	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor);
 }

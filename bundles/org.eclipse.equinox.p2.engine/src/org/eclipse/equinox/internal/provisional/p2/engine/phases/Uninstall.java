@@ -79,7 +79,7 @@ public class Uninstall extends InstallableUnitPhase {
 		ProvisioningAction afterAction = new AfterUninstallEventAction();
 
 		IInstallableUnit unit = currentOperand.first();
-		Touchpoint touchpoint = actionManager.getTouchpointPoint(unit.getTouchpointType());
+		Touchpoint touchpoint = getActionManager().getTouchpointPoint(unit.getTouchpointType());
 		if (touchpoint != null) {
 			beforeAction.setTouchpoint(touchpoint);
 			afterAction.setTouchpoint(touchpoint);

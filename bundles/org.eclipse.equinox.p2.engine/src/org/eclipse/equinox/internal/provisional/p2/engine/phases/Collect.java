@@ -48,7 +48,8 @@ public class Collect extends InstallableUnitPhase {
 		if (type == null || type == ITouchpointType.NONE)
 			return null;
 
-		ProvisioningAction action = actionManager.getTouchpointQualifiedAction(phaseId, type);
+		String actionId = getActionManager().getTouchpointQualifiedActionId(phaseId, type);
+		ProvisioningAction action = getActionManager().getAction(actionId, null);
 		if (action == null) {
 			return null;
 		}

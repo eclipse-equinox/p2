@@ -43,7 +43,7 @@ public class ActionManager implements IRegistryChangeListener {
 		return touchpointManager.getTouchpoint(type);
 	}
 
-	public ProvisioningAction getTouchpointQualifiedAction(String actionId, ITouchpointType type) {
+	public String getTouchpointQualifiedActionId(String actionId, ITouchpointType type) {
 		if (actionId.indexOf('.') == -1) {
 			if (type == null || type == ITouchpointType.NONE)
 				return null;
@@ -53,7 +53,7 @@ public class ActionManager implements IRegistryChangeListener {
 				throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, type.toString(), actionId));
 			actionId = touchpoint.qualifyAction(actionId);
 		}
-		return getAction(actionId, null);
+		return actionId;
 	}
 
 	public ProvisioningAction getAction(String actionId, VersionRange versionRange) {

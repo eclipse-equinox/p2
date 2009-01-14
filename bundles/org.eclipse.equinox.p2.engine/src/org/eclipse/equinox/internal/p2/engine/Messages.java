@@ -17,9 +17,6 @@ class Messages extends NLS {
 
 	public static String ActionManager_Exception_Creating_Action_Extension;
 	public static String ActionManager_Required_Touchpoint_Not_Found;
-
-	public static String action_not_found;
-
 	public static String download_artifact;
 	public static String download_no_repository;
 

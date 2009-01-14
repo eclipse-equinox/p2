@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.engine.MissingAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
@@ -80,6 +81,8 @@ public class InstructionParser {
 			throw new IllegalArgumentException(NLS.bind(Messages.action_syntax_error, statement));
 		String actionName = statement.substring(0, openBracket).trim();
 		ProvisioningAction action = lookupAction(actionName, qualifier, touchpointType);
+		if (action instanceof MissingAction)
+			return action;
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
@@ -107,9 +110,10 @@ public class InstructionParser {
 			versionRange = actionEntry.versionRange;
 		}
 
-		ProvisioningAction action = (actionId.indexOf('.') != -1) ? actionManager.getAction(actionId, versionRange) : actionManager.getTouchpointQualifiedAction(actionId, touchpointType);
+		actionId = actionManager.getTouchpointQualifiedActionId(actionId, touchpointType);
+		ProvisioningAction action = actionManager.getAction(actionId, versionRange);
 		if (action == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
+			action = new MissingAction(actionId, versionRange);
 
 		return action;
 	}

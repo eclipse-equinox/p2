@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class PhaseSet {
 	private final Phase[] phases;
@@ -23,28 +27,94 @@ public abstract class PhaseSet {
 		this.phases = phases;
 	}
 
-	public final MultiStatus perform(EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+	public final MultiStatus perform(ActionManager actionManager, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		int[] weights = getProgressWeights(operands);
 		int totalWork = getTotalWork(weights);
 		SubMonitor pm = SubMonitor.convert(monitor, totalWork);
 		try {
 			for (int i = 0; i < phases.length; i++) {
 				if (pm.isCanceled()) {
-					result.add(Status.CANCEL_STATUS);
-					return result;
+					status.add(Status.CANCEL_STATUS);
+					return status;
 				}
 				Phase phase = phases[i];
-				MultiStatus performResult = phase.perform(session, profile, operands, context, pm.newChild(weights[i]));
-				if (!performResult.isOK())
-					result.add(performResult);
-				if (result.matches(IStatus.ERROR | IStatus.CANCEL))
+				phase.actionManager = actionManager;
+				try {
+					phase.perform(status, session, profile, operands, context, pm.newChild(weights[i]));
+				} catch (OperationCanceledException e) {
+					// propagate operation cancellation
+					status.add(new Status(IStatus.CANCEL, EngineActivator.ID, e.getMessage(), e));
+				} catch (RuntimeException e) {
+					// "perform" calls user code and might throw an unchecked exception
+					// we catch the error here to gather information on where the problem occurred.
+					status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
+				} catch (LinkageError e) {
+					// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+					status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
+				} finally {
+					phase.actionManager = null;
+				}
+				if (status.matches(IStatus.CANCEL)) {
+					MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, Messages.Engine_Operation_Canceled_By_User, null);
+					result.merge(status);
 					return result;
+				} else if (status.matches(IStatus.ERROR)) {
+					MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, phase.getProblemMessage(), null);
+					result.add(new Status(IStatus.ERROR, EngineActivator.ID, session.getContextString(), null));
+					result.merge(status);
+					return result;
+				}
 			}
 		} finally {
 			pm.done();
 		}
-		return result;
+		return status;
+	}
+
+	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		Set missingActions = new HashSet();
+		for (int i = 0; i < phases.length; i++) {
+			Phase phase = phases[i];
+			phase.actionManager = actionManager;
+			try {
+				for (int j = 0; j < operands.length; j++) {
+					Operand operand = operands[j];
+					try {
+						if (!phase.isApplicable(operand))
+							continue;
+
+						ProvisioningAction[] actions = phase.getActions(operand);
+						if (actions == null)
+							continue;
+						for (int k = 0; k < actions.length; k++) {
+							ProvisioningAction action = actions[k];
+							if (action instanceof MissingAction)
+								missingActions.add(action);
+						}
+					} catch (RuntimeException e) {
+						// "perform" calls user code and might throw an unchecked exception
+						// we catch the error here to gather information on where the problem occurred.
+						return new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage() + " " + getContextString(profile, phase, operand), e); //$NON-NLS-1$
+					} catch (LinkageError e) {
+						// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+						return new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage() + " " + getContextString(profile, phase, operand), e); //$NON-NLS-1$
+					}
+				}
+			} finally {
+				phase.actionManager = null;
+			}
+		}
+		if (!missingActions.isEmpty()) {
+			MissingAction[] missingActionsArray = (MissingAction[]) missingActions.toArray(new MissingAction[missingActions.size()]);
+			MissingActionsException exception = new MissingActionsException(missingActionsArray);
+			return (new Status(IStatus.ERROR, EngineActivator.ID, exception.getMessage(), exception));
+		}
+		return Status.OK_STATUS;
+	}
+
+	private String getContextString(IProfile profile, Phase phase, Operand operand) {
+		return NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), phase.getClass().getName(), operand.toString(), ""}); //$NON-NLS-1$
 	}
 
 	private int getTotalWork(int[] weights) {

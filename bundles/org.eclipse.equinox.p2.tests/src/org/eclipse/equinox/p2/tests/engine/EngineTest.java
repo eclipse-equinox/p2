@@ -40,8 +40,12 @@ public class EngineTest extends AbstractProvisioningTest {
 			super("NPE", 1);
 		}
 
-		protected ProvisioningAction[] getActions(Operand operand) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			throw new NullPointerException();
+		}
+
+		protected ProvisioningAction[] getActions(Operand operand) {
+			return null;
 		}
 	}
 
@@ -208,6 +212,24 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertTrue(sizingPhase.getDlSize() == 0);
 	}
 
+	public void testValidateInstallOSGiFramework() {
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+
+		IProfile profile = createProfile("testPerformInstallOSGiFramework", null, properties);
+		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+			PhaseSet phaseSet = new DefaultPhaseSet();
+			IInstallableUnit doomed = (IInstallableUnit) it.next();
+			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		}
+		PhaseSet phaseSet = new DefaultPhaseSet();
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
+		IStatus result = engine.validate(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+	}
+
 	public void testPerformInstallOSGiFramework() {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
@@ -274,6 +296,44 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(ius.hasNext());
 
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createBadIU())};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertFalse(result.isOK());
+
+		ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+	}
+
+	public void testValidateMissingAction() {
+
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformRollback", null, properties);
+		PhaseSet phaseSet = new DefaultPhaseSet();
+
+		Iterator ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createMissingActionIU())};
+		IStatus result = engine.validate(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertFalse(result.isOK());
+
+		Throwable t = result.getException();
+		assertTrue(t instanceof MissingActionsException);
+		MissingActionsException e = (MissingActionsException) t;
+		assertEquals("org.eclipse.equinox.p2.touchpoint.eclipse.thisactionismissing", e.getMissingActions()[0].getActionId());
+	}
+
+	public void testPerformMissingAction() {
+
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformMissingAction", null, properties);
+		PhaseSet phaseSet = new DefaultPhaseSet();
+
+		Iterator ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createMissingActionIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
@@ -371,6 +431,32 @@ public class EngineTest extends AbstractProvisioningTest {
 		return MetadataFactory.createResolvedInstallableUnit(iu, cus);
 	}
 
+	private IInstallableUnit createMissingActionIU() {
+		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
+		description.setId("org.eclipse.osgi.bad");
+		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
+		Map touchpointData = new HashMap();
+		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
+				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
+				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"
+				+ " undleresource;x-internal:=true,org.eclipse.osgi.framework.internal.pr\r\n" + " otocol.reference;x-internal:=true,org.eclipse.osgi.framework.internal\r\n" + " .reliablefile;x-internal:=true,org.eclipse.osgi.framework.launcher;x-\r\n" + " internal:=true,org.eclipse.osgi.framework.util;x-internal:=true,org.e\r\n" + " clipse.osgi.internal.baseadaptor;x-internal:=true,org.eclipse.osgi.in\r\n" + " ternal.module;x-internal:=true,org.eclipse.osgi.internal.profile;x-in\r\n" + " ternal:=true,org.eclipse.osgi.internal.resolver;x-internal:=true,org.\r\n" + " eclipse.osgi.internal.verifier;x-internal:=true,org.eclipse.osgi.inte\r\n" + " rnal.provisional.verifier;x-friends:=\"org.eclipse.update.core,org.ecl\r\n" + " ipse.ui.workbench\"\r\n" + "Bundle-Version: 3.3.0.v20060925\r\n"
+				+ "Eclipse-SystemBundle: true\r\n" + "Bundle-Copyright: %copyright\r\n" + "Bundle-Name: %systemBundle\r\n" + "Bundle-Description: %systemBundle\r\n" + "Bundle-DocUrl: http://www.eclipse.org\r\n" + "Bundle-ManifestVersion: 2\r\n" + "Export-Service: org.osgi.service.packageadmin.PackageAdmin,org.osgi.se\r\n" + " rvice.permissionadmin.PermissionAdmin,org.osgi.service.startlevel.Sta\r\n" + " rtLevel,org.eclipse.osgi.service.debug.DebugOptions\r\n" + "Bundle-Vendor: %eclipse.org\r\n" + "Main-Class: org.eclipse.core.runtime.adaptor.EclipseStarter\r\n" + "Bundle-SymbolicName: org.eclipse.osgi; singleton:=true\r\n" + "Bundle-Localization: systembundle\r\n" + "Eclipse-ExtensibleAPI: true\r\n" + "\r\n" + "";
+		touchpointData.put("manifest", manifest);
+		touchpointData.put("install", "thisactionismissing()");
+
+		IInstallableUnitFragment[] cus = new IInstallableUnitFragment[1];
+		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
+		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
+
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//iu.setArtifacts(new IArtifactKey[] {key});
+
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
+		return MetadataFactory.createResolvedInstallableUnit(iu, cus);
+	}
+
 	public void testIncompatibleProfile() {
 
 		IProfile profile = new IProfile() {
@@ -439,5 +525,4 @@ public class EngineTest extends AbstractProvisioningTest {
 		}
 		fail();
 	}
-
 }

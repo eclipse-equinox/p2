@@ -82,7 +82,7 @@ public class Install extends InstallableUnitPhase {
 		ProvisioningAction afterAction = new AfterInstallEventAction();
 
 		IInstallableUnit unit = currentOperand.second();
-		Touchpoint touchpoint = actionManager.getTouchpointPoint(unit.getTouchpointType());
+		Touchpoint touchpoint = getActionManager().getTouchpointPoint(unit.getTouchpointType());
 		if (touchpoint != null) {
 			beforeAction.setTouchpoint(touchpoint);
 			afterAction.setTouchpoint(touchpoint);

@@ -31,7 +31,7 @@ public abstract class Phase {
 	private Map phaseParameters = new HashMap();
 	private Map touchpointToTouchpointPhaseParameters = new HashMap();
 	private Map touchpointToTouchpointOperandParameters = new HashMap();
-	protected ActionManager actionManager;
+	ActionManager actionManager; // injected from phaseset
 
 	protected Phase(String phaseId, int weight) {
 		if (phaseId == null || phaseId.length() == 0)
@@ -42,43 +42,15 @@ public abstract class Phase {
 		this.phaseId = phaseId;
 	}
 
+	final protected ActionManager getActionManager() {
+		return actionManager;
+	}
+
 	public String toString() {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
-	public final MultiStatus perform(EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		actionManager = session.getActionManager();
-		try {
-			perform(status, session, profile, operands, context, monitor);
-		} catch (OperationCanceledException e) {
-			// propagate operation cancellation
-			status.add(new Status(IStatus.CANCEL, EngineActivator.ID, e.getMessage(), e));
-		} catch (RuntimeException e) {
-			// "perform" calls user code and might throw an unchecked exception
-			// we catch the error here to gather information on where the problem occurred.
-			status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
-		} catch (LinkageError e) {
-			// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
-			status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
-		} finally {
-			actionManager = null;
-		}
-
-		if (status.matches(IStatus.CANCEL)) {
-			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, Messages.Engine_Operation_Canceled_By_User, null);
-			result.merge(status);
-			return result;
-		} else if (status.matches(IStatus.ERROR)) {
-			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, getProblemMessage(), null);
-			result.add(new Status(IStatus.ERROR, EngineActivator.ID, session.getContextString(), null));
-			result.merge(status);
-			return result;
-		}
-		return status;
-	}
-
-	void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	public final void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
 		prePerform(status, profile, context, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))

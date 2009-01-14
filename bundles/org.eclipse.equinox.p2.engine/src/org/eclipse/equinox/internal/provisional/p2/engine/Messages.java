@@ -45,6 +45,8 @@ public class Messages extends NLS {
 	public static String not_current_operand;
 	public static String null_action;
 	public static String session_context;
+	public static String action_not_found;
+	public static String actions_not_found;
 
 	static {
 		// initialize resource bundle
