@@ -13,14 +13,14 @@ import java.net.URISyntaxException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.publisher.Publisher;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.*;
 
 public abstract class AbstractPublishTask extends Task {
 
 	protected boolean compress = false;
 	protected boolean reusePackedFiles = false;
-	protected boolean append = false;
+	protected boolean append = true;
+	protected boolean publish = true;
 	protected URI metadataLocation;
 	protected String metadataRepoName;
 	protected URI artifactLocation;
@@ -35,6 +35,9 @@ public abstract class AbstractPublishTask extends Task {
 	protected PublisherInfo getInfo() {
 		if (provider == null)
 			provider = new PublisherInfo();
+
+		if (publish)
+			provider.setArtifactOptions(provider.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
 		return provider;
 	}
 
@@ -48,6 +51,10 @@ public abstract class AbstractPublishTask extends Task {
 
 	public void setAppend(String value) {
 		append = Boolean.valueOf(value).booleanValue();
+	}
+
+	public void setPublish(String value) {
+		publish = Boolean.valueOf(value).booleanValue();
 	}
 
 	public void setArtifactRepository(String location) {
@@ -78,5 +85,4 @@ public abstract class AbstractPublishTask extends Task {
 		setArtifactRepository(location);
 		setMetadataRepository(location);
 	}
-
 }

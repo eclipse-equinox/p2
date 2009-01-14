@@ -37,9 +37,9 @@
 			class="org.eclipse.equinox.internal.p2.publisher.ant.PublisherTask">
 		</antTask>
     <antTask
-          class="org.eclipse.equinox.internal.p2.publisher.ant.PublishIUsTask"
+          class="org.eclipse.equinox.internal.p2.publisher.ant.FeaturesAndBundlesPublisherTask"
           library="ant_tasks/publisher-ant.jar"
-          name="p2.publish.ius">
+          name="p2.publish.featuresAndBundles">
     </antTask>
 	</extension>
 

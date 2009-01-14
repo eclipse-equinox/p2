@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 
-public class PublishIUsTask extends AbstractPublishTask {
+public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 	private ArrayList features = new ArrayList();
 	private ArrayList bundles = new ArrayList();
 
@@ -51,7 +51,7 @@ public class PublishIUsTask extends AbstractPublishTask {
 			DirectoryScanner scanner = set.getDirectoryScanner(getProject());
 			String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
 			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < elements[i].length; i++) {
+				for (int j = 0; j < elements[i].length; j++) {
 					results.add(new File(set.getDir(), elements[i][j]));
 				}
 			}
