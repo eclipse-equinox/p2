@@ -266,6 +266,16 @@ public class MetadataFactory {
 	}
 
 	/**
+	 * Returns a new requirement change.
+	 * @param applyOn The source of the requirement change - the kind of requirement to apply the change to
+	 * @param newValue The result of the requirement change - the requirement to replace the source requirement with
+	 * @return a requirement change
+	 */
+	public static IRequirementChange createRequirementChange(IRequiredCapability applyOn, IRequiredCapability newValue) {
+		return new RequirementChange(applyOn, newValue);
+	}
+
+	/**
 	 * Returns an {@link IInstallableUnit} that represents the given
 	 * unit bound to the given fragments.
 	 * 
