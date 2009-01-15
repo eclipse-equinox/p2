@@ -133,9 +133,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (SELF.equals(id))
 			id = self;
 
-		IProfile profile = getProfile(id);
-		if (profile != null && profile.getTimestamp() == timestamp)
-			return profile;
+		if (profiles != null) {
+			IProfile profile = getProfile(id);
+			if (profile != null && profile.getTimestamp() == timestamp)
+				return profile;
+		}
 
 		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
 		if (!profileDirectory.isDirectory())

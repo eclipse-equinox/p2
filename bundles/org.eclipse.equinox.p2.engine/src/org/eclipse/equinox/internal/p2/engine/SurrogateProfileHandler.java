@@ -143,11 +143,20 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		return profileRegistry;
 	}
 
+	// this method must not try to lock the profile registry
+	private IProfile getSharedProfile(String id) {
+		SimpleProfileRegistry registry = getProfileRegistry();
+		long[] timestamps = registry.listProfileTimestamps(id);
+		if (timestamps.length == 0)
+			return null;
+		return registry.getProfile(id, timestamps[timestamps.length - 1]);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#createProfile(java.lang.String)
 	 */
 	public IProfile createProfile(String id) {
-		final IProfile sharedProfile = getProfileRegistry().getProfile(id);
+		final IProfile sharedProfile = getSharedProfile(id);
 		if (sharedProfile == null)
 			return null;
 
@@ -170,7 +179,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector queryProfile(IProfile profile, Query query, Collector collector, IProgressMonitor monitor) {
-		IProfile sharedProfile = getProfileRegistry().getProfile(profile.getProfileId());
+		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
 		if (sharedProfile != null)
 			sharedProfile.query(query, collector, monitor);
 
@@ -178,7 +187,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	public boolean updateProfile(IProfile userProfile) {
-		final IProfile sharedProfile = getProfileRegistry().getProfile(userProfile.getProfileId());
+		final IProfile sharedProfile = getSharedProfile(userProfile.getProfileId());
 		if (sharedProfile == null)
 			throw new IllegalStateException(NLS.bind(Messages.shared_profile_not_found, userProfile.getProfileId()));
 
