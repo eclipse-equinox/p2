@@ -8,8 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Activator;
@@ -53,9 +52,34 @@ public class LinkAction extends ProvisioningAction {
 	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Process process = r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			readOffStream(process.getErrorStream());
+			readOffStream(process.getInputStream());
+			try {
+				process.waitFor();
+			} catch (InterruptedException e) {
+				// mark thread interrupted and continue
+				Thread.currentThread().interrupt();
+			}
 		} catch (IOException e) {
 			// ignore
+		}
+	}
+
+	private void readOffStream(InputStream inputStream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		try {
+			while (reader.readLine() != null) {
+				// do nothing
+			}
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 }

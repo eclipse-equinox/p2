@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
@@ -45,10 +45,34 @@ public class ChmodAction extends ProvisioningAction {
 	public void chmod(String targetDir, String targetFile, String perms) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			r.exec(new String[] {"chmod", perms, targetDir + IPath.SEPARATOR + targetFile}); //$NON-NLS-1$
+			Process process = r.exec(new String[] {"chmod", perms, targetDir + IPath.SEPARATOR + targetFile}); //$NON-NLS-1$
+			readOffStream(process.getErrorStream());
+			readOffStream(process.getInputStream());
+			try {
+				process.waitFor();
+			} catch (InterruptedException e) {
+				// mark thread interrupted and continue
+				Thread.currentThread().interrupt();
+			}
 		} catch (IOException e) {
-			// FIXME:  we should probably throw some sort of error here
+			// ignore
 		}
 	}
 
+	private void readOffStream(InputStream inputStream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		try {
+			while (reader.readLine() != null) {
+				// do nothing
+			}
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
 }
