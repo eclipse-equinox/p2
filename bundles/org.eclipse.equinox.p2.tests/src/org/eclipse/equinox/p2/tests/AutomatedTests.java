@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith - bug fixing and new functionality
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
@@ -35,6 +36,7 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.mirror.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.omniVersion.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.planner.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.publisher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests.suite());
