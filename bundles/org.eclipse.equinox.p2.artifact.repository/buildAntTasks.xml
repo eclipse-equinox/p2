@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.equinox.p2.metadata.generator" default="default" basedir=".">
+<project name="org.eclipse.equinox.p2.artifact.repository" default="default" basedir=".">
 
 	<target name="default" description="Jar up the binaries that were compiled by the jdt builder" >
 		<mkdir dir="${basedir}/ant_tasks" />
