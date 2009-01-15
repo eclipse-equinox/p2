@@ -1159,7 +1159,6 @@ public class VersionFormat implements Serializable {
 	 * Parse the given version string.
 	 * @param version The version string to parse.
 	 * @param start Start position in the version string
-	 * @param end End position in the version string
 	 * @return A created version.
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
@@ -1184,7 +1183,6 @@ public class VersionFormat implements Serializable {
 	 * Appends the string representation of this compiled format to
 	 * the given StringBuffer.
 	 * @param sb The buffer that will receive the string representation
-	 * @param rangeSafe if true, all range sensitive characters will be escaped with backslash.
 	 */
 	public synchronized void toString(StringBuffer sb) {
 		if (fmtString != null)
