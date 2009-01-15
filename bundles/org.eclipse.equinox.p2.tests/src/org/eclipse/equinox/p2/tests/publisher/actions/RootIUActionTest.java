@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -231,7 +232,7 @@ public class RootIUActionTest extends ActionTest {
 		Query query = null;
 		rootIUAdviceCollection = new ArrayList();
 		if ((testSpec & CONTAINS_A) > 0) {
-			query = new Query() {
+			query = new MatchQuery() {
 				public boolean isMatch(Object candidate) {
 					if (candidate instanceof IInstallableUnit)
 						if (((IInstallableUnit) candidate).getId().equals(iu_A))
@@ -242,7 +243,7 @@ public class RootIUActionTest extends ActionTest {
 			rootIUAdviceCollection.add(new RootIUResultFilterAdvice(query));
 		}
 		if ((testSpec & CONTAINS_B) > 0) {
-			query = new Query() {
+			query = new MatchQuery() {
 				public boolean isMatch(Object candidate) {
 					if (candidate instanceof IInstallableUnit)
 						if (((IInstallableUnit) candidate).getId().equals(iu_B))
@@ -253,7 +254,7 @@ public class RootIUActionTest extends ActionTest {
 			rootIUAdviceCollection.add(new RootIUResultFilterAdvice(query));
 		}
 		if ((testSpec & EMPTY) > 0) {
-			query = new Query() {
+			query = new MatchQuery() {
 				public boolean isMatch(Object candidate) {
 					return false;
 				}

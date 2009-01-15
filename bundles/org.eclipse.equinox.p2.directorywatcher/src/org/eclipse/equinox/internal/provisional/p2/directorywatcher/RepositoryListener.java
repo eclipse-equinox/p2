@@ -24,8 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
@@ -211,7 +210,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		// first remove any IUs that have changed or that are associated with removed files
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
 			// create a query that will identify all ius related to removed files or ius that have changed
-			Query removeQuery = new Query() {
+			IMatchQuery removeQuery = new MatchQuery() {
 				public boolean isMatch(Object candidate) {
 					if (!(candidate instanceof IInstallableUnit))
 						return false;

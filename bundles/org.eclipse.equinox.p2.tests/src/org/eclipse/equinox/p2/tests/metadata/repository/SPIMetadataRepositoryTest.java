@@ -27,7 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -589,7 +589,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	}
 
-	class AllAcceptingQuery extends Query {
+	class AllAcceptingQuery extends MatchQuery {
 		public boolean isMatch(Object candidate) {
 			return true;
 		}

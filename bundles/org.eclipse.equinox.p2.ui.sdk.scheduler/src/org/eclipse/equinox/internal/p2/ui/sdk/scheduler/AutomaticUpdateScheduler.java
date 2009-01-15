@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.ContextQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
@@ -55,14 +56,17 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 * this query to the automatic update checker and it will be referenced during
 	 * the life of the platform.  
 	 */
-	private class IUProfilePropertyByIdQuery extends IUPropertyQuery {
+	private class IUProfilePropertyByIdQuery extends ContextQuery {
 		private IProfile cachedProfile;
+		private String propertyName;
+		private String propertyValue;
 
 		/**
 		 * Creates a new query on the given property name and value.
 		 */
 		public IUProfilePropertyByIdQuery(String propertyName, String propertyValue) {
-			super(propertyName, propertyValue);
+			this.propertyName = propertyName;
+			this.propertyValue = propertyValue;
 		}
 
 		protected String getProperty(IInstallableUnit iu, String name) {
@@ -81,10 +85,31 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return cachedProfile;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
+		 */
+		public boolean isMatch(Object object) {
+			if (!(object instanceof IInstallableUnit))
+				return false;
+			IInstallableUnit candidate = (IInstallableUnit) object;
+			if (propertyName == null)
+				return true;
+			String value = getProperty(candidate, propertyName);
+			if (value != null
+					&& (value.equals(propertyValue) || propertyValue == null))
+				return true;
+			return false;
+		}
+		
 		public Collector perform(Iterator iterator, Collector result) {
-			Collector collector = super.perform(iterator, result);
+			while (iterator.hasNext()) {
+				Object candidate = iterator.next();
+				if (isMatch(candidate))
+					if (!result.accept(candidate))
+						break;
+			}
 			cachedProfile = null;
-			return collector;
+			return result;
 		}
 	}
 

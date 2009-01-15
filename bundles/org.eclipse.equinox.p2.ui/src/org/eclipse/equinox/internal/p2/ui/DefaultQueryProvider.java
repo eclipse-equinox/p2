@@ -37,7 +37,7 @@ public class DefaultQueryProvider extends QueryProvider {
 
 	private Policy policy;
 
-	private Query allQuery = new Query() {
+	private Query allQuery = new MatchQuery() {
 		public boolean isMatch(Object candidate) {
 			return true;
 		}
@@ -122,7 +122,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					if (element instanceof CategoryElement)
 						return new ElementQueryDescriptor(queryable, meetsAnyRequirementQuery, availableIUCollector);
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
-					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true), availableIUCollector);
+					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true), availableIUCollector);
 				}
 				return null;
 
@@ -159,7 +159,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					Query visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
-					return new ElementQueryDescriptor(queryable, new CompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new InstalledIUCollector(queryable, element));
+					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new InstalledIUCollector(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
@@ -178,7 +178,7 @@ public class DefaultQueryProvider extends QueryProvider {
 
 			case QueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
-				return new ElementQueryDescriptor(queryable, new Query() {
+				return new ElementQueryDescriptor(queryable, new MatchQuery() {
 					public boolean isMatch(Object candidate) {
 						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}

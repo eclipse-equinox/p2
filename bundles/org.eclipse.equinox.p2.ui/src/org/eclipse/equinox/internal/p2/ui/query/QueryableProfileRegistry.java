@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import java.util.Arrays;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -34,12 +36,17 @@ public class QueryableProfileRegistry implements IQueryable {
 		IProfile[] profiles = profileRegistry.getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {
-			for (int i = 0; i < profiles.length; i++) {
-				if (query.isMatch(profiles[i]))
-					if (!result.accept(profiles[i]))
-						break;
-				sub.worked(1);
-			}
+			if (query instanceof IMatchQuery) {
+				IMatchQuery isMatchQuery = (IMatchQuery) query;
+				for (int i = 0; i < profiles.length; i++) {
+					if (isMatchQuery.isMatch(profiles[i]))
+						if (!result.accept(profiles[i]))
+							break;
+					sub.worked(1);
+				}
+			} else
+				query.perform(Arrays.asList(profiles).iterator(), result);
+
 		} finally {
 			sub.done();
 		}

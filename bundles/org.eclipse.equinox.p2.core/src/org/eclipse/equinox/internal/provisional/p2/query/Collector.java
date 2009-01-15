@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.query;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,
@@ -22,7 +24,7 @@ import java.util.*;
  * This default collector just accepts all objects passed to it.  Clients may subclass
  * to perform different processing on the objects passed to it.
  */
-public class Collector {
+public class Collector implements IQueryable {
 	private Set collected = null;
 
 	/**
@@ -111,5 +113,12 @@ public class Collector {
 	 */
 	public Collection toCollection() {
 		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
+	}
+
+	/**
+	 * Performs a query on this results of this collector.  
+	 */
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(toCollection().iterator(), collector);
 	}
 }

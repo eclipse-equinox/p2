@@ -18,8 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -41,7 +40,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SimpleProfileRegistry profileRegistry;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		Query rootIUQuery = new Query() {
+		Query rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -64,7 +63,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		Query rootIUQuery = new Query() {
+		Query rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -82,7 +81,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		Query rootIUQuery = new Query() {
+		Query rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;

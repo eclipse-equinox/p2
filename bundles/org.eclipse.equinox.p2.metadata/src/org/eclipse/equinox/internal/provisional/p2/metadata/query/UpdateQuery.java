@@ -10,9 +10,9 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
-public class UpdateQuery extends Query {
+public class UpdateQuery extends MatchQuery {
 	private IInstallableUnit updateFrom;
 
 	public UpdateQuery(IInstallableUnit updateFrom) {

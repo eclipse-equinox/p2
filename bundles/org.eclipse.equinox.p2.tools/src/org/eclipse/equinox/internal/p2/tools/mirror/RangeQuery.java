@@ -11,13 +11,13 @@
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 /**
  * A convenience query that will match any {@link IInstallableUnit}
  * it encounters.
  */
-public class RangeQuery extends Query {
+public class RangeQuery extends MatchQuery {
 	private VersionRangedName[] targets;
 
 	/**

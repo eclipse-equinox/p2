@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(FileUtilsTest.class);
 		suite.addTestSuite(OrderedPropertiesTest.class);
 		suite.addTestSuite(QueryTest.class);
+		suite.addTestSuite(AggregateQueryTest.class);
 		suite.addTestSuite(URLUtilTest.class);
 		return suite;
 	}

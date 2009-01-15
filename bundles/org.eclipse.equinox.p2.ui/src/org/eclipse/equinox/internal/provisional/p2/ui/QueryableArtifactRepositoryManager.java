@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.net.URI;
+import java.util.Arrays;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -62,12 +64,17 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoLocations.length);
-		for (int i = 0; i < repoLocations.length; i++) {
-			if (query == null || query.isMatch(repoLocations[i]))
-				if (!result.accept(repoLocations[i]))
-					break;
-			monitor.worked(1);
-		}
+		if (query instanceof IMatchQuery) {
+			IMatchQuery isMatchQuery = (IMatchQuery) query;
+			for (int i = 0; i < repoLocations.length; i++) {
+				if (isMatchQuery == null || isMatchQuery.isMatch(repoLocations[i]))
+					if (!result.accept(repoLocations[i]))
+						break;
+				monitor.worked(1);
+			}
+		} else
+			query.perform(Arrays.asList(repoLocations).iterator(), result);
+
 		monitor.done();
 		return result;
 	}

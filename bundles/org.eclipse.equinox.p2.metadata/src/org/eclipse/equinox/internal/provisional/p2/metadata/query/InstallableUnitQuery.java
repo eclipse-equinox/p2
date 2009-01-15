@@ -13,12 +13,12 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 /**
  * A query that matches on the id and version of an {@link IInstallableUnit}.
  */
-public class InstallableUnitQuery extends Query {
+public class InstallableUnitQuery extends MatchQuery {
 	/**
 	 * A convenience query that will match any {@link IInstallableUnit}
 	 * it encounters.

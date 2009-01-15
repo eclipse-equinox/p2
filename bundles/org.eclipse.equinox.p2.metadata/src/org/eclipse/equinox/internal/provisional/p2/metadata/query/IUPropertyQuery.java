@@ -11,14 +11,14 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property whose value matches the provided value.  If no property name is 
  * specified, then all {@link IInstallableUnit} instances are accepted.
  */
-public class IUPropertyQuery extends Query {
+public class IUPropertyQuery extends MatchQuery {
 	private String propertyName;
 	private String propertyValue;
 

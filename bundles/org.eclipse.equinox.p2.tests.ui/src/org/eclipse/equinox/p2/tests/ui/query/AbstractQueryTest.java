@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -43,7 +44,7 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 	}
 
 	protected Query getMockQuery() {
-		return new Query() {
+		return new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return true;
 			}

@@ -7,11 +7,12 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import java.util.Collection;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import java.util.*;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -38,6 +39,72 @@ public class CollectorTest extends AbstractProvisioningTest {
 		assertEquals("1.0", true, collector.isEmpty());
 		collector.accept("value");
 		assertEquals("1.0", false, collector.isEmpty());
+	}
+
+	/**
+	 * This tests the query method on the collector.
+	 */
+	public void testCompositeCollectors() {
+		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
+		List list = Arrays.asList(s);
+		Query numeric = new MatchQuery() {
+
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
+					return true;
+				}
+				return false;
+			}
+		};
+
+		Query fourOrFiveOrABC = new MatchQuery() {
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
+					return true;
+				}
+				return false;
+			}
+		};
+		Collector collector = numeric.perform(list.iterator(), new Collector());
+		assertEquals("1.0", 7, collector.toCollection().size());
+
+		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
+		Collection collection = collector.toCollection();
+		assertEquals("2.0", 2, collection.size());
+		assertTrue("2.1", collection.contains("4"));
+		assertTrue("2.2", collection.contains("5"));
+	}
+
+	/**
+	 * This tests the query method on the collector.
+	 */
+	public void testEmptyCompositeCollectors() {
+		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
+		List list = Arrays.asList(s);
+		Query eightOrNine = new MatchQuery() {
+
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).compareTo("8") > 0 && ((String) candidate).compareTo("9") < 0) {
+					return true;
+				}
+				return false;
+			}
+		};
+
+		Query fourOrFiveOrABC = new MatchQuery() {
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
+					return true;
+				}
+				return false;
+			}
+		};
+		Collector collector = eightOrNine.perform(list.iterator(), new Collector());
+		assertEquals("1.0", 0, collector.toCollection().size());
+
+		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
+		Collection collection = collector.toCollection();
+		assertEquals("2.0", 0, collection.size());
 	}
 
 	public void testToCollection() {

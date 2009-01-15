@@ -12,14 +12,13 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.util.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 
 /**
  * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
  */
 public class QueryTest extends TestCase {
-	static class AnyStringQuery extends Query {
+	static class AnyStringQuery extends MatchQuery {
 		@Override
 		public boolean isMatch(Object candidate) {
 			return candidate instanceof String;

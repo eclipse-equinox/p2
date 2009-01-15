@@ -161,7 +161,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static IInstallableUnit[] findPlannerMarkedIUs(final IProfile profile) {
-		Query markerQuery = new Query() {
+		Query markerQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
