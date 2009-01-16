@@ -40,7 +40,8 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 		if (b.length > 0)
 			actions.add(new BundlesAction(b));
 
-		new Publisher(getInfo()).publish((IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]), new NullProgressMonitor());
+		if (actions.size() > 0)
+			new Publisher(getInfo()).publish((IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]), new NullProgressMonitor());
 	}
 
 	private File[] getLocations(List collection) {
