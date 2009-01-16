@@ -86,7 +86,7 @@ public abstract class CompoundQuery implements Query {
 	}
 
 	/**
-	 * The compound query insatiated when all queries are Match Queries.
+	 * The compound query instantiated when all queries are Match Queries.
 	 */
 	private static class MatchCompoundQuery extends CompoundQuery implements IMatchQuery {
 
@@ -126,7 +126,7 @@ public abstract class CompoundQuery implements Query {
 	}
 
 	/**
-	 * The compound query insatiated when any of the queries are not 
+	 * The compound query instantiated when any of the queries are not 
 	 * match queries.
 	 */
 	private static class ContextCompoundQuery extends CompoundQuery {
