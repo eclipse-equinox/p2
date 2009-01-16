@@ -44,7 +44,7 @@
 	</extension>
 
 	<extension point="org.eclipse.ant.core.extraClasspathEntries">
-		<extraClasspathEntry library="ant_tasks/generator-ant.jar"/>
+		<extraClasspathEntry library="ant_tasks/publisher-ant.jar"/>
 	</extension>
 
 </plugin>
