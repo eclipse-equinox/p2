@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2009 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
+ * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 public class RemoveChildTask extends Task {
 
 	URI location; // location of the composite repository
-	URI child; // address of child to remove
+	URI child; // location of child to remove
+	boolean allChildren = false; // should we remove all children?
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
@@ -45,8 +46,11 @@ public class RemoveChildTask extends Task {
 			throw new BuildException("Error occurred while loading repository.", e);
 		}
 
-		// remove the child
-		repo.removeChild(child);
+		// remove all children or just a specified child
+		if (allChildren)
+			repo.removeAllChildren();
+		else
+			repo.removeChild(child);
 	}
 
 	/*
@@ -61,5 +65,12 @@ public class RemoveChildTask extends Task {
 	 */
 	public void setChild(String value) throws URISyntaxException {
 		child = URIUtil.fromString(value);
+	}
+
+	/*
+	 * Set whether or not we want to remove all the children.
+	 */
+	public void setAllChildren(String value) {
+		allChildren = Boolean.valueOf(value).booleanValue();
 	}
 }

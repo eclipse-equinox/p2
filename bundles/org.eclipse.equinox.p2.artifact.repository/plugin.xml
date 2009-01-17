@@ -48,37 +48,31 @@
 		
 		<antTask
 			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.CompositeArtifactRepository.addChild"
+			name="p2.composite.artifact.repository.add"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.AddChildTask">
 		</antTask>
 		
 		<antTask
 			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.CompositeArtifactRepository.create"
+			name="p2.composite.artifact.repository.create"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.CreateCompositeArtifactRepositoryTask">
 		</antTask>
 
 		<antTask
 			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.artifactMirrorApplication"
+			name="p2.artifact.mirror"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.MirrorApplicationTask">
 		</antTask>
 		
 		<antTask
 			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.CompositeArtifactRepository.removeAllChildren"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.RemoveAllChildrenTask">
-		</antTask>
-		
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.CompositeArtifactRepository.removeChild"
+			name="p2.composite.artifact.repository.remove"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.RemoveChildTask">
 		</antTask>
 		
 		<antTask
 			library="ant_tasks/artifactRepository-ant.jar"
-			name="eclipse.p2.CompositeArtifactRepository.validate"
+			name="p2.composite.artifact.repository.validate"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.ValidateTask">
 		</antTask>
 

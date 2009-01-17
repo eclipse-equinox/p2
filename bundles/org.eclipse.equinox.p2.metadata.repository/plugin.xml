@@ -26,31 +26,25 @@
    <extension point="org.eclipse.ant.core.antTasks">
 		<antTask
 			library="ant_tasks/metadataRepository-ant.jar"
-			name="eclipse.p2.CompositeMetadataRepository.addChild"
+			name="p2.composite.metadata.repository.add"
 			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.AddChildTask">
 		</antTask>
 		
 		<antTask
 			library="ant_tasks/metadataRepository-ant.jar"
-			name="eclipse.p2.CompositeMetadataRepository.create"
+			name="p2.composite.metadata.repository.create"
 			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.CreateCompositeMetadataRepositoryTask">
 		</antTask>
 		
    		<antTask
 			library="ant_tasks/metadataRepository-ant.jar"
-			name="eclipse.p2.metadataMirrorApplication"
+			name="p2.metadata.mirror"
 			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.MirrorApplicationTask">
 		</antTask>
 		
 		<antTask
 			library="ant_tasks/metadataRepository-ant.jar"
-			name="eclipse.p2.CompositeMetadataRepository.removeAllChildren"
-			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.RemoveAllChildrenTask">
-		</antTask>
-
-		<antTask
-			library="ant_tasks/metadataRepository-ant.jar"
-			name="eclipse.p2.CompositeMetadataRepository.removeChild"
+			name="p2.composite.metadata.repository.remove"
 			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.RemoveChildTask">
 		</antTask>
 		

@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2009 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
+ * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,12 +22,14 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 
 /**
- * Ant task to remove a specific child repository from a composite metadata repository.
+ * Ant task to remove a specific child repository (or all the children repositories) 
+ * from a composite metadata repository.
  */
 public class RemoveChildTask extends Task {
 
 	URI location; // location of the composite repository
 	URI child; // address of the child to be removed
+	boolean allChildren; // should we remove all the children?
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
@@ -43,7 +45,13 @@ public class RemoveChildTask extends Task {
 		} catch (ProvisionException e) {
 			throw new BuildException("Error occurred while loading repository.", e);
 		}
-		repo.removeChild(child);
+
+		// remove all the children repositories if requested, otherwise
+		// just remove the specific child
+		if (allChildren)
+			repo.removeAllChildren();
+		else
+			repo.removeChild(child);
 	}
 
 	/*
@@ -58,5 +66,12 @@ public class RemoveChildTask extends Task {
 	 */
 	public void setChild(String value) throws URISyntaxException {
 		child = URIUtil.fromString(value);
+	}
+
+	/*
+	 * Set whether or not we should remove all the children.
+	 */
+	public void setAllChildren(String value) {
+		allChildren = Boolean.valueOf(value).booleanValue();
 	}
 }
