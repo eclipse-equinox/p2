@@ -18,7 +18,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -31,6 +33,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	URI location; // desired location of the composite repository
 	String name = "Composite Artifact Repository";
 	boolean compressed = true;
+	boolean failOnExists = true; // should we fail if a repo already exists?
 	Map properties = new HashMap();
 
 	/* (non-Javadoc)
@@ -44,6 +47,23 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 
 		// remove the repo first.
 		manager.removeRepository(location);
+
+		// first try and load to see if one already exists at that location.
+		// if we have an already existing repository at that location, then throw an error
+		// if the user told us to
+		try {
+			IArtifactRepository repository = manager.loadRepository(location, null);
+			if (repository instanceof CompositeArtifactRepository) {
+				if (failOnExists)
+					throw new BuildException("Composite repository already exists at location: " + location);
+				return;
+			}
+			throw new BuildException("Non-composite repository already exists at location: " + location);
+		} catch (ProvisionException e) {
+			// re-throw the exception if we got anything other than "repo not found"
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				throw new BuildException("Exception while trying to read repository at: " + location, e);
+		}
 
 		// set the properties
 		if (compressed)
@@ -86,6 +106,14 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	 */
 	public void setCompressed(boolean value) {
 		compressed = value;
+	}
+
+	/*
+	 * Set whether or not we should fail the operation if a repository
+	 * already exists at the location.
+	 */
+	public void setFailOnExists(boolean value) {
+		failOnExists = value;
 	}
 
 }
