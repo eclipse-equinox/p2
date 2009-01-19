@@ -33,7 +33,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	URI location; // desired location of the composite repository
 	String name = "Composite Artifact Repository";
 	boolean compressed = true;
-	boolean failOnExists = true; // should we fail if a repo already exists?
+	boolean failOnExists = false; // should we fail if a repo already exists?
 	Map properties = new HashMap();
 
 	/* (non-Javadoc)
