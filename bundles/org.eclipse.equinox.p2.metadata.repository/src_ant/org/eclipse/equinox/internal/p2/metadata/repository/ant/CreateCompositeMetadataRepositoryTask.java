@@ -33,7 +33,7 @@ public class CreateCompositeMetadataRepositoryTask extends Task {
 	URI location; // desired location of the composite repository
 	String name = "Composite Metadata Repository";
 	boolean compressed = true; // compress by default
-	boolean failOnExists = true; // should we fail if one already exists?
+	boolean failOnExists = false; // should we fail if one already exists?
 	Map properties = new HashMap();
 
 	/* (non-Javadoc)
