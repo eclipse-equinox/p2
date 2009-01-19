@@ -57,8 +57,9 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 				if (failOnExists)
 					throw new BuildException("Composite repository already exists at location: " + location);
 				return;
+			} else {
+				// we have a non-composite repo at this location. that is ok because we can co-exist.
 			}
-			throw new BuildException("Non-composite repository already exists at location: " + location);
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
