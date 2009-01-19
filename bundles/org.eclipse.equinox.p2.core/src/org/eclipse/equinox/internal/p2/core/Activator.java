@@ -163,7 +163,7 @@ public class Activator implements BundleActivator {
 		URL defaultLocation = new URL(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
 		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
 		Dictionary locationProperties = new Hashtable();
-		if (defaultLocation != null) {
+		if (agentDataLocation != null) {
 			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
 			agentLocationRegistration = aContext.registerService(AgentLocation.SERVICE_NAME, agentDataLocation, locationProperties);
 		}
