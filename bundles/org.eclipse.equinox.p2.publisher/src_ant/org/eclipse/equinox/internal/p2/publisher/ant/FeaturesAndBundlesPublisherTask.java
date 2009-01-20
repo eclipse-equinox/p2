@@ -47,14 +47,19 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 	private File[] getLocations(List collection) {
 		ArrayList results = new ArrayList();
 		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
-			FileSet set = (FileSet) iterator.next();
+			Object obj = iterator.next();
+			if (obj instanceof FileSet) {
+				FileSet set = (FileSet) iterator.next();
 
-			DirectoryScanner scanner = set.getDirectoryScanner(getProject());
-			String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
-			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < elements[i].length; j++) {
-					results.add(new File(set.getDir(), elements[i][j]));
+				DirectoryScanner scanner = set.getDirectoryScanner(getProject());
+				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
+				for (int i = 0; i < 2; i++) {
+					for (int j = 0; j < elements[i].length; j++) {
+						results.add(new File(set.getDir(), elements[i][j]));
+					}
 				}
+			} else if (obj instanceof File) {
+				results.add(obj);
 			}
 		}
 		return (File[]) results.toArray(new File[results.size()]);
@@ -70,5 +75,10 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 		FileSet set = new FileSet();
 		bundles.add(set);
 		return set;
+	}
+
+	public void setSource(String source) {
+		features.add(new File(source, "features")); //$NON-NLS-1$
+		bundles.add(new File(source, "plugins")); //$NON-NLS-1$
 	}
 }

@@ -53,7 +53,7 @@ public abstract class AbstractPublishTask extends Task {
 		append = Boolean.valueOf(value).booleanValue();
 	}
 
-	public void setPublish(String value) {
+	public void setPublishArtifacts(String value) {
 		publish = Boolean.valueOf(value).booleanValue();
 	}
 
@@ -84,5 +84,10 @@ public abstract class AbstractPublishTask extends Task {
 	public void setRepository(String location) {
 		setArtifactRepository(location);
 		setMetadataRepository(location);
+	}
+
+	public void setRepositoryName(String name) {
+		setArtifactRepositoryName(name);
+		setMetadataRepositoryName(name);
 	}
 }
