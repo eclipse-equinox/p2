@@ -24,10 +24,13 @@ public class ProfileLock {
 	private static final String LOCK_FILENAME = ".lock"; //$NON-NLS-1$
 
 	private final Location location;
+	private final Object lock;
 	private Thread lockHolder;
 	private int lockedCount;
+	private int waiting;
 
-	public ProfileLock(File profileDirectory) {
+	public ProfileLock(Object lock, File profileDirectory) {
+		this.lock = lock;
 		location = createLockLocation(profileDirectory);
 	}
 
@@ -47,48 +50,68 @@ public class ProfileLock {
 		}
 	}
 
-	public synchronized void checkLocked() {
-		if (lockHolder == null)
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
-
-		Thread current = Thread.currentThread();
-		if (lockHolder != current)
-			throw new IllegalStateException(Messages.thread_not_owner);
-		try {
-			if (!location.isLocked())
+	public void checkLocked() {
+		synchronized (lock) {
+			if (lockHolder == null)
 				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
-		} catch (IOException e) {
-			throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
-		}
-	}
 
-	public synchronized boolean lock() {
-		Thread current = Thread.currentThread();
-		try {
-			if (lockHolder == null && location.lock())
-				lockHolder = current;
-
+			Thread current = Thread.currentThread();
 			if (lockHolder != current)
-				return false;
-		} catch (IOException e) {
-			throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
+				throw new IllegalStateException(Messages.thread_not_owner);
 		}
-		lockedCount++;
-		return true;
 	}
 
-	public synchronized void unlock() {
-		if (lockHolder == null)
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+	public boolean lock() {
+		synchronized (lock) {
+			Thread current = Thread.currentThread();
+			if (lockHolder != current) {
+				boolean locationLocked = false;
+				while (lockHolder != null) {
+					locationLocked = true;
+					waiting++;
+					boolean interrupted = false;
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						interrupted = true;
+					} finally {
+						waiting--;
+						// if interrupted restore interrupt to thread state
+						if (interrupted)
+							current.interrupt();
+					}
+				}
+				try {
+					if (!locationLocked && !location.lock())
+						return false;
 
-		Thread current = Thread.currentThread();
-		if (lockHolder != current)
-			throw new IllegalStateException(Messages.thread_not_owner);
+					lockHolder = current;
+				} catch (IOException e) {
+					throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
+				}
+			}
+			lockedCount++;
+			return true;
+		}
+	}
 
-		lockedCount--;
-		if (lockedCount == 0) {
-			lockHolder = null;
-			location.release();
+	public void unlock() {
+		synchronized (lock) {
+			if (lockHolder == null)
+				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+
+			Thread current = Thread.currentThread();
+			if (lockHolder != current)
+				throw new IllegalStateException(Messages.thread_not_owner);
+
+			lockedCount--;
+			if (lockedCount == 0) {
+				lockHolder = null;
+				if (waiting == 0)
+					location.release();
+				else
+					lock.notify();
+			}
 		}
 	}
 }

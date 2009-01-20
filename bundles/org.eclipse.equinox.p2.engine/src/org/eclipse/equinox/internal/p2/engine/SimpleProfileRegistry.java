@@ -129,7 +129,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return profile.snapshot();
 	}
 
-	public IProfile getProfile(String id, long timestamp) {
+	public synchronized IProfile getProfile(String id, long timestamp) {
 		if (SELF.equals(id))
 			id = self;
 
@@ -156,7 +156,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return (IProfile) parser.getProfileMap().get(id);
 	}
 
-	public long[] listProfileTimestamps(String id) {
+	public synchronized long[] listProfileTimestamps(String id) {
 		if (SELF.equals(id))
 			id = self;
 
@@ -394,7 +394,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			String profileId = unescape(directoryName.substring(0, directoryName.lastIndexOf(PROFILE_EXT)));
 			ProfileLock lock = (ProfileLock) profileLocks.get(profileId);
 			if (lock == null) {
-				lock = new ProfileLock(profileDirectories[i]);
+				lock = new ProfileLock(this, profileDirectories[i]);
 				profileLocks.put(profileId, lock);
 			}
 
@@ -671,7 +671,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	private boolean internalLockProfile(IProfile profile) {
 		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
 		if (lock == null) {
-			lock = new ProfileLock(new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
+			lock = new ProfileLock(this, new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
 			profileLocks.put(profile.getProfileId(), lock);
 		}
 		if (!lock.lock())
