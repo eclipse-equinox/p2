@@ -19,11 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.ContextQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -56,17 +56,14 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 * this query to the automatic update checker and it will be referenced during
 	 * the life of the platform.  
 	 */
-	private class IUProfilePropertyByIdQuery extends ContextQuery {
+	private class IUProfilePropertyByIdQuery extends IUPropertyQuery {
 		private IProfile cachedProfile;
-		private String propertyName;
-		private String propertyValue;
 
 		/**
 		 * Creates a new query on the given property name and value.
 		 */
 		public IUProfilePropertyByIdQuery(String propertyName, String propertyValue) {
-			this.propertyName = propertyName;
-			this.propertyValue = propertyValue;
+			super(propertyName, propertyValue);
 		}
 
 		protected String getProperty(IInstallableUnit iu, String name) {
@@ -80,36 +77,14 @@ public class AutomaticUpdateScheduler implements IStartup {
 			if (cachedProfile == null) {
 				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.class.getName());
 				if (profileRegistry != null)
-					return profileRegistry.getProfile(profileId);
+					cachedProfile = profileRegistry.getProfile(profileId);
 			}
 			return cachedProfile;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
-		 */
-		public boolean isMatch(Object object) {
-			if (!(object instanceof IInstallableUnit))
-				return false;
-			IInstallableUnit candidate = (IInstallableUnit) object;
-			if (propertyName == null)
-				return true;
-			String value = getProperty(candidate, propertyName);
-			if (value != null
-					&& (value.equals(propertyValue) || propertyValue == null))
-				return true;
-			return false;
-		}
-		
-		public Collector perform(Iterator iterator, Collector result) {
-			while (iterator.hasNext()) {
-				Object candidate = iterator.next();
-				if (isMatch(candidate))
-					if (!result.accept(candidate))
-						break;
-			}
+		// overridden to release profile cache
+		protected void performComplete() {
 			cachedProfile = null;
-			return result;
 		}
 	}
 

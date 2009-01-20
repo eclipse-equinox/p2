@@ -6,6 +6,7 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM Corporation - ongoing development
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.query;
 
@@ -14,14 +15,14 @@ import java.util.Iterator;
 /**
  * This class represents the superclass of most of p2's queries.  Every element
  * in the query can be evaluated by calling isMatch on it. If {@link #isMatch(Object)} returns true, 
- * then the element WILL be included in the result set, if {@link #isMatch(Object)} returns false, then 
- * the element WILL NOT be included in the result set. <P>
- *
+ * then the element WILL be included in the query result.  If {@link #isMatch(Object)} returns false, then 
+ * the element WILL NOT be included in the query result.
+ * <p>
  * This class may be subclassed by clients. Subclasses should specify the type
  * of object they support querying on. Subclasses are also encouraged to clearly
  * specify their match algorithm, and expose the parameters involved in the match
  * computation, to allow {@link IQueryable} implementations to optimize their
- * execution of the query. <P>
+ * execution of the query. 
  */
 public abstract class MatchQuery implements IMatchQuery {
 
@@ -39,12 +40,44 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * that match the criteria of this query to the given result.
 	 */
 	public final Collector perform(Iterator iterator, Collector result) {
-		while (iterator.hasNext()) {
-			Object candidate = iterator.next();
-			if (isMatch(candidate))
-				if (!result.accept(candidate))
-					break;
+		prepareToPerform();
+		try {
+			while (iterator.hasNext()) {
+				Object candidate = iterator.next();
+				if (isMatch(candidate))
+					if (!result.accept(candidate))
+						break;
+			}
+		} finally {
+			performComplete();
 		}
 		return result;
+	}
+
+	/**
+	 * Execute any pre-processing that must be done before this query is performed against
+	 * a particular iterator.  This method may be used by subclasses to do any calculations,
+	 * caching, or other preparation for the query.
+	 * <p>
+	 * This method is internal to the framework.  Subclasses may override this method, but
+	 * should not call this method.
+	 */
+	protected void prepareToPerform() {
+		// nothing to do by default
+	}
+
+	/**
+	 * Execute any post-processing that must be done after this query has been performed against
+	 * a particular iterator.  This method may be used by subclasses to clear caches or any other
+	 * cleanup that should occur after a query.  
+	 * <p>
+	 * This method will be called even if the query does not complete successfully.
+	 * <p>
+	 * This method is internal to the framework.  Subclasses may override this method, but
+	 * should not call this method.
+	 */
+
+	protected void performComplete() {
+		// nothing to do by default
 	}
 }

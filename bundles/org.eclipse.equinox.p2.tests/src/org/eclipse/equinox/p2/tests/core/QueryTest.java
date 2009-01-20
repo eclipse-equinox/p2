@@ -25,6 +25,25 @@ public class QueryTest extends TestCase {
 		}
 	}
 
+	static class PerformHookQuery extends AnyStringQuery {
+		boolean prepared = false;
+		boolean complete = false;
+
+		protected void prepareToPerform() {
+			prepared = true;
+		}
+
+		protected void performComplete() {
+			complete = true;
+		}
+
+		public boolean isMatch(Object candidate) {
+			if (!(candidate instanceof String))
+				throw new RuntimeException("Exception intentionally thrown by test");
+			return candidate instanceof String;
+		}
+	}
+
 	/**
 	 * A collector that only accepts the first element and then short-circuits.
 	 */
@@ -62,6 +81,32 @@ public class QueryTest extends TestCase {
 		Collection result = collector.toCollection();
 		assertEquals("1.0", 1, result.size());
 		assertTrue("1.1", result.contains("green"));
+	}
+
+	public void testPerformHooks() {
+		List items = Arrays.asList("red", "green", "blue");
+		PerformHookQuery query = new PerformHookQuery();
+		Collector collector = new Collector();
+		assertFalse("1.0", query.complete);
+		assertFalse("1.1", query.prepared);
+		query.perform(items.iterator(), collector);
+		assertTrue("1.2", query.complete);
+		assertTrue("1.3", query.prepared);
+	}
+
+	public void testPerformHooksOnQueryFail() {
+		List items = Arrays.asList("red", new Object());
+		PerformHookQuery query = new PerformHookQuery();
+		Collector collector = new Collector();
+		assertFalse("1.0", query.complete);
+		assertFalse("1.1", query.prepared);
+		try {
+			query.perform(items.iterator(), collector);
+		} catch (RuntimeException e) {
+			// expected
+		}
+		assertTrue("1.2", query.complete);
+		assertTrue("1.3", query.prepared);
 	}
 
 	/**
