@@ -38,9 +38,9 @@ public class DownloadManager {
 			String protocol0 = ((URI) arg0).getScheme();
 			String protocol1 = ((URI) arg1).getScheme();
 
-			if (protocol0.equals(FILE_PROTOCOL) && !protocol1.equals(FILE_PROTOCOL))
+			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
 				return -1;
-			if (!protocol0.equals(FILE_PROTOCOL) && protocol1.equals(FILE_PROTOCOL))
+			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
 				return 1;
 			return 0;
 		}
