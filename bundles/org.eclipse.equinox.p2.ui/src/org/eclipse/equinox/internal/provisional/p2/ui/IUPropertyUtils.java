@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - bug fixing
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
@@ -113,7 +114,7 @@ public class IUPropertyUtils {
 						}
 					}
 				}
-				return (haveHost ? super.accept(object) : false);
+				return (haveHost ? super.accept(object) : true);
 			}
 		};
 
@@ -190,7 +191,7 @@ public class IUPropertyUtils {
 						}
 					}
 				}
-				return (haveLocale ? super.accept(object) : false);
+				return (haveLocale ? super.accept(object) : true);
 			}
 		};
 
