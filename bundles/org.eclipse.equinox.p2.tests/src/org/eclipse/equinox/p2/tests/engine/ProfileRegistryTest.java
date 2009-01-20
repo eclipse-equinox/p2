@@ -281,7 +281,67 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		*/
 	}
 
-	public void testProfileLockingMultiProcess() {
+	public void testProfileLockingInProcessMultiThreads() {
+		final String SIMPLE_PROFILE = "Simple";
+		final SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		final Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
+		assertNotNull(simpleProfile);
+
+		// Lock and then lock/unlock from another thread which should fail
+		simpleRgy.lockProfile(simpleProfile);
+		final Object lock = new Object();
+		Thread t1 = new Thread() {
+			public void run() {
+				try {
+					simpleRgy.unlockProfile(simpleProfile);
+					fail("This thread is not the owner and unlock should have failed!");
+				} catch (IllegalStateException e) {
+					// Expected!
+				}
+				synchronized (lock) {
+					lock.notify();
+				}
+			}
+		};
+		synchronized (lock) {
+			t1.start();
+			try {
+				lock.wait(5000);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		}
+		Thread t2 = new Thread() {
+			public void run() {
+				try {
+					simpleRgy.lockProfile(simpleProfile);
+				} catch (IllegalStateException e) {
+					fail("The profile should let the thread wait until it can be locked!");
+				} finally {
+					simpleRgy.unlockProfile(simpleProfile);
+				}
+				synchronized (lock) {
+					lock.notify();
+				}
+			}
+		};
+		synchronized (lock) {
+			t2.start();
+			yieldAndWait();
+			simpleRgy.unlockProfile(simpleProfile);
+			try {
+				lock.wait(500);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		}
+
+		// Remove the newly created profile file
+		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
+		cleanupProfileArea("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+	}
+
+	public void testProfileLockingMultiProcesses() {
 		final String SIMPLE_PROFILE = "Simple";
 		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
 		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
@@ -351,6 +411,15 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	static File getResourceAsBundleRelFile(final String bundleRelPathStr) throws IOException {
 		return new File(FileLocator.resolve(TestActivator.getContext().getBundle().getEntry(bundleRelPathStr)).getPath());
+	}
+
+	static void yieldAndWait() {
+		Thread.yield();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e1) {
+			fail(e1.getMessage());
+		}
 	}
 
 	private static class MockFileLock {
