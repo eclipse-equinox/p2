@@ -86,11 +86,6 @@
             commandId="org.eclipse.equinox.p2.ui.sdk.install"
             class="org.eclipse.equinox.internal.p2.ui.sdk.InstallNewSoftwareHandler">
       </handler>
-      <handler
-            commandId="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo"
-            class="org.eclipse.equinox.internal.p2.ui.sdk.TempLaunchAboutDialogHandler">
-      </handler>
-   
    </extension>
    <extension
          point="org.eclipse.ui.menus">
