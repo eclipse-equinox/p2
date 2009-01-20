@@ -64,7 +64,10 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoLocations.length);
-		if (query instanceof IMatchQuery) {
+		// If the query is null, all URI's are passed to the collector.
+		// If it's a match query, matching URI's are passed to the collector.
+		// Both cases require iteration over the repos.
+		if (query == null || query instanceof IMatchQuery) {
 			IMatchQuery isMatchQuery = (IMatchQuery) query;
 			for (int i = 0; i < repoLocations.length; i++) {
 				if (isMatchQuery == null || isMatchQuery.isMatch(repoLocations[i]))
@@ -73,6 +76,7 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 				monitor.worked(1);
 			}
 		} else
+			// We don't know how to interpret this query, so just perform it over all of the URI's.
 			query.perform(Arrays.asList(repoLocations).iterator(), result);
 
 		monitor.done();
