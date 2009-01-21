@@ -484,4 +484,25 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 		return numKeys;
 	}
+
+	/*
+	 * Ensure that we can create a non-local composite repository.
+	 */
+	public void testNonLocalRepo() {
+		try {
+			URI location = new URI("memory:/in/memory");
+			URI childOne = new URI("memory:/one/child");
+			URI childTwo = new URI("memory:/two/child");
+			URI childThree = new URI("memory:/three/child");
+			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			repository.addChild(childOne);
+			repository.addChild(childTwo);
+			repository.addChild(childThree);
+			assertEquals("1.0", 3, repository.getChildren().size());
+			repository.removeChild(childTwo);
+			assertEquals("1.1", 2, repository.getChildren().size());
+		} catch (URISyntaxException e) {
+			fail("99.0", e);
+		}
+	}
 }

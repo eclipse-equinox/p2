@@ -159,7 +159,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// caller should be synchronized
 	private void save() {
-		assertModifiable();
+		if (!isModifiable())
+			return;
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
 		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$

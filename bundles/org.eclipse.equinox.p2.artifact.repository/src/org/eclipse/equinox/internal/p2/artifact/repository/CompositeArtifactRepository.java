@@ -324,12 +324,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private void save() {
+		if (!isModifiable())
+			return;
 		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
-		save(compress);
-	}
-
-	private void save(boolean compress) {
-		assertModifiable();
 		OutputStream os = null;
 		try {
 			try {
