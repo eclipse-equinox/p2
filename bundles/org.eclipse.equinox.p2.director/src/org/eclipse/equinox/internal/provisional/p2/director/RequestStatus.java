@@ -15,25 +15,25 @@ public class RequestStatus {
 	public static final byte ADDED = 0;
 	public static final byte REMOVED = 1;
 
-	private byte initialRequesType;
+	private byte initialRequestType;
 	private IInstallableUnit iu;
-	private int statusCode;
+	private int severity;
 
-	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int statusCode) {
+	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int severity) {
 		this.iu = iu;
-		this.statusCode = statusCode;
-		this.initialRequesType = initialRequesType;
+		this.severity = severity;
+		this.initialRequestType = initialRequesType;
 	}
 
-	public byte getInitialRequesType() {
-		return initialRequesType;
+	public byte getInitialRequestType() {
+		return initialRequestType;
 	}
 
 	public IInstallableUnit getIu() {
 		return iu;
 	}
 
-	public int getStatusCode() {
-		return statusCode;
+	public int getSeverity() {
+		return severity;
 	}
 }

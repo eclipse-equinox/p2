@@ -47,7 +47,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req.setInstallableUnitInclusionRules(b, PlannerHelper.createStrictInclusionRule(b));
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getRequestStatus(b).getStatusCode());
+		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
@@ -63,7 +63,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		assertNull(plan2.getRequestStatus(b));
 		Map m = plan2.getSideEffectChanges();
 		m.toString();
-		assertEquals(IStatus.OK, plan2.getRequestStatus(a).getStatusCode());
+		assertEquals(IStatus.OK, plan2.getRequestStatus(a).getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
@@ -74,6 +74,6 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req3.removeInstallableUnitProfileProperty(b, "foo");
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
-		assertEquals(IStatus.ERROR, plan3.getRequestStatus(b).getStatusCode());
+		assertEquals(IStatus.ERROR, plan3.getRequestStatus(b).getSeverity());
 	}
 }

@@ -51,7 +51,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		req.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
 
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getRequestStatus(b).getStatusCode());
+		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {a, b});
@@ -69,8 +69,8 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		Map m = plan2.getSideEffectChanges();
 		assertEquals(1, m.size());
 		assertNotNull(m.get(a));
-		assertEquals(IStatus.INFO, ((RequestStatus) m.get(a)).getStatusCode());
-		assertEquals(RequestStatus.REMOVED, ((RequestStatus) m.get(a)).getInitialRequesType());
+		assertEquals(IStatus.INFO, ((RequestStatus) m.get(a)).getSeverity());
+		assertEquals(RequestStatus.REMOVED, ((RequestStatus) m.get(a)).getInitialRequestType());
 		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {b2});
 		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
@@ -81,8 +81,8 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		req3.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertNotNull(plan3.getRequestStatus(a));
-		assertEquals(IStatus.ERROR, plan3.getRequestStatus(a).getStatusCode());
-		assertEquals(RequestStatus.ADDED, plan3.getRequestStatus(a).getInitialRequesType());
+		assertEquals(IStatus.ERROR, plan3.getRequestStatus(a).getSeverity());
+		assertEquals(RequestStatus.ADDED, plan3.getRequestStatus(a).getInitialRequestType());
 
 		//Try to Install A
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
@@ -90,7 +90,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		req4.setInstallableUnitInclusionRules(a, PlannerHelper.createStrictInclusionRule(a));
 		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertNotNull(plan4.getRequestStatus(a));
-		assertEquals(IStatus.ERROR, plan4.getRequestStatus(a).getStatusCode());
-		assertEquals(RequestStatus.ADDED, plan4.getRequestStatus(a).getInitialRequesType());
+		assertEquals(IStatus.ERROR, plan4.getRequestStatus(a).getSeverity());
+		assertEquals(RequestStatus.ADDED, plan4.getRequestStatus(a).getInitialRequestType());
 	}
 }

@@ -44,6 +44,6 @@ public class Bug252638 extends AbstractProvisioningTest {
 		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getCode());
-		assertEquals(IStatus.ERROR, plan2.getRequestStatus(p1).getStatusCode());
+		assertEquals(IStatus.ERROR, plan2.getRequestStatus(p1).getSeverity());
 	}
 }
