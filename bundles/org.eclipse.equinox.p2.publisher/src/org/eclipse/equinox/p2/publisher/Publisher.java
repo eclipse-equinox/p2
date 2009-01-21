@@ -43,29 +43,31 @@ public class Publisher {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createMetadataRepository(URI location, String name, boolean append, boolean compress) throws ProvisionException {
+		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepository result = null;
+
 		try {
-			IMetadataRepository result = manager.loadRepository(location, null);
+			result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			if (result != null) {
-				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-				if (!result.isModifiable())
-					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
-				if (!append)
-					result.removeAll();
+				manager.addRepository(result.getLocation());
+				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
 				return result;
 			}
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			//repo exists, fall through to load
 		}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
-		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		manager.addRepository(result.getLocation());
-		if (result != null)
+		result = manager.loadRepository(location, null);
+		if (result != null) {
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-		return result;
+			if (!result.isModifiable())
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
+			if (!append)
+				result.removeAll();
+			return result;
+		}
+		return null;
 	}
 
 	/**
@@ -81,9 +83,25 @@ public class Publisher {
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository createArtifactRepository(URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
+		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepository result = null;
+
 		try {
-			IArtifactRepository result = manager.loadRepository(location, null);
+			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			if (result != null) {
+				manager.addRepository(result.getLocation());
+				if (reusePackedFiles)
+					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
+				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+				return result;
+			}
+		} catch (ProvisionException e) {
+			//repo exists, fall through to load
+		}
+
+		result = manager.loadRepository(location, null);
+		if (result != null) {
 			if (!result.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
@@ -92,22 +110,9 @@ public class Publisher {
 			if (!append)
 				result.removeAll();
 			return result;
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
 		}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
-		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		manager.addRepository(result.getLocation());
-		// TODO there must be something we have to do to set up the mapping rules here...
-		//		if (inplace) {
-		//		}
-		result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-		if (reusePackedFiles)
-			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		return result;
+		return null;
 	}
 
 	public Publisher(IPublisherInfo info) {
