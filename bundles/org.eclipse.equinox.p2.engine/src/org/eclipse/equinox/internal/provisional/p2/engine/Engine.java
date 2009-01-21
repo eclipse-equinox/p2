@@ -40,6 +40,9 @@ public class Engine implements IEngine {
 			EngineSession session = new EngineSession(profile, context);
 
 			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
+			if (result.matches(IStatus.OK | IStatus.WARNING))
+				result.merge(session.prepare());
+
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				IStatus status = session.rollback();

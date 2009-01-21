@@ -40,6 +40,10 @@ public abstract class Touchpoint {
 		return Status.OK_STATUS;
 	}
 
+	public IStatus prepare(IProfile profile) {
+		return Status.OK_STATUS;
+	}
+
 	public IStatus commit(IProfile profile) {
 		return Status.OK_STATUS;
 	}

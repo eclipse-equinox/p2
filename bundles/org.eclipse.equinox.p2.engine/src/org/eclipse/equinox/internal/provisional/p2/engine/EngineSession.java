@@ -45,6 +45,30 @@ public class EngineSession {
 		this.context = context;
 	}
 
+	IStatus prepare() {
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = (Touchpoint) iterator.next();
+			try {
+				status.add(touchpoint.prepare(profile));
+			} catch (RuntimeException e) {
+				// "touchpoint.prepare" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_prepare_error, touchpoint.getClass().getName()), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_prepare_error, touchpoint.getClass().getName()), e));
+			}
+		}
+
+		if (status.matches(IStatus.ERROR)) {
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, NLS.bind(Messages.session_prepare_error, profile.getProfileId()), null);
+			result.merge(status);
+			return result;
+		}
+		return status;
+	}
+
 	IStatus commit() {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
