@@ -234,6 +234,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 						cdata(instruction.getBody(), true);
 						end(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 					}
+					end(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 				}
 			}
 			end(TOUCHPOINT_DATA_ELEMENT);
