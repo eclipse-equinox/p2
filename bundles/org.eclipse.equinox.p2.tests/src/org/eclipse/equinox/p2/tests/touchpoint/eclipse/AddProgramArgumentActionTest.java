@@ -91,16 +91,24 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotNull(manipulator);
 
-		String programArg = "@artifact";
+		String programArg = "-somekey";
+		Map keyParameters = new HashMap(parameters);
+		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
+
+		programArg = "@artifact";
 		String resolvedArtifact = osgiTarget.getAbsolutePath();
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 		parameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		AddProgramArgumentAction action = new AddProgramArgumentAction();
-		action.execute(parameters);
+		AddProgramArgumentAction artifactAction = new AddProgramArgumentAction();
+		AddProgramArgumentAction keyAction = new AddProgramArgumentAction();
+
+		keyAction.execute(keyParameters);
+		artifactAction.execute(parameters);
 		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
-		action.undo(parameters);
+		artifactAction.undo(parameters);
+		keyAction.undo(keyParameters);
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
 

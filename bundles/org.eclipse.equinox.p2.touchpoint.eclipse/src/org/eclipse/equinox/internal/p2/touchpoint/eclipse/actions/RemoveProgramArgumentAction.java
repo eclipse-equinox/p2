@@ -38,8 +38,8 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 				return e.getStatus();
 			}
 		}
-
-		manipulator.getLauncherData().removeProgramArg(programArg);
+		if (programArg.startsWith("-")) //$NON-NLS-1$
+			manipulator.getLauncherData().removeProgramArg(programArg);
 		return Status.OK_STATUS;
 	}
 

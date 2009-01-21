@@ -47,15 +47,8 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 		if (programArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
 
-		if (programArg.equals(ActionConstants.PARM_ARTIFACT)) {
-			try {
-				programArg = resolveArtifactParam(parameters);
-			} catch (CoreException e) {
-				return e.getStatus();
-			}
-		}
-
-		manipulator.getLauncherData().removeProgramArg(programArg);
+		if (programArg.startsWith("-")) //$NON-NLS-1$
+			manipulator.getLauncherData().removeProgramArg(programArg);
 		return Status.OK_STATUS;
 	}
 

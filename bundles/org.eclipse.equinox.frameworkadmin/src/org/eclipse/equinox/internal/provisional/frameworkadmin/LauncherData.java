@@ -137,7 +137,25 @@ public class LauncherData {
 	}
 
 	public void removeProgramArg(String arg) {
-		programArgs.remove(arg);
+		// We want to handle program args as key/value pairs subsequently 
+		// a key MUST start with a "-", all other args are ignored. For 
+		// backwards compatibility we remove all program args until the 
+		// next program arg key 
+		// (see bug 253862)
+		if (!arg.startsWith("-"))
+			return;
+
+		int index = programArgs.indexOf(arg);
+		if (index == -1)
+			return;
+
+		programArgs.remove(index);
+		while (index < programArgs.size()) {
+			String next = (String) programArgs.get(index);
+			if (next.charAt(0) == '-')
+				return;
+			programArgs.remove(index);
+		}
 	}
 
 	public void setFwConfigLocation(File fwConfigLocation) {
