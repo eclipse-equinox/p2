@@ -16,15 +16,15 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 public class InstallWizardPage extends SizeComputingWizardPage {
 
-	public InstallWizardPage(Policy policy, String profileId, IUElementListRoot root, ProvisioningPlan initialPlan) {
-		super(policy, root, profileId, initialPlan);
+	public InstallWizardPage(Policy policy, String profileId, IUElementListRoot root, PlannerResolutionOperation initialResolution) {
+		super(policy, root, profileId, initialResolution);
 		setTitle(ProvUIMessages.InstallWizardPage_Title);
 		setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}

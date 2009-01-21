@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.osgi.util.NLS;
@@ -33,8 +34,8 @@ import org.eclipse.swt.widgets.Label;
  */
 public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 
-	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, ProvisioningPlan initialPlan) {
-		super(policy, root, profileID, initialPlan);
+	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, PlannerResolutionOperation initialResolution) {
+		super(policy, root, profileID, initialResolution);
 	}
 
 	protected Label sizeInfo;

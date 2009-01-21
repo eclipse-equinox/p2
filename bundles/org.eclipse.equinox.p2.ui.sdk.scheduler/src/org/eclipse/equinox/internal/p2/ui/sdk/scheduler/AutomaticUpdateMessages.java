@@ -69,6 +69,7 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String AutomaticUpdater_ClickToReviewUpdates;
 	public static String AutomaticUpdater_ClickToReviewUpdatesWithProblems;
 	public static String AutomaticUpdater_ErrorCheckingUpdates;
+	public static String AutomaticUpdater_ResolutionOperationLabel;
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
 	public static String AutomaticUpdatesPreferencePage_findOnStart;
 	public static String AutomaticUpdatesPreferencePage_findOnSchedule;

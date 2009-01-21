@@ -13,16 +13,16 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.PlanStatusHelper;
+import org.eclipse.equinox.internal.p2.ui.PlanAnalyzer;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -45,13 +45,13 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		this.manager = manager;
 	}
 
-	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		// Caches should have been created while formulating the plan
 		Assert.isNotNull(latestReplacements);
 		Assert.isNotNull(root);
-		Assert.isNotNull(plan);
+		Assert.isNotNull(resolution);
 
-		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), plan, manager);
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), resolution, manager);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
@@ -91,7 +91,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 			sub.worked(1);
 		}
 		if (toBeUpdated.size() <= 0) {
-			status.add(PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null));
+			status.add(PlanAnalyzer.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null));
 			sub.done();
 			return null;
 		}
@@ -124,7 +124,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 
 	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {
 		if (ius.length == 0)
-			return PlanStatusHelper.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null);
+			return PlanAnalyzer.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null);
 		return super.getNoProfileOrSelectionStatus(id, ius);
 	}
 }

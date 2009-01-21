@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.PlanValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -45,12 +46,12 @@ final class AutomaticUpdateAction extends UpdateAction {
 		suppressWizard = suppress;
 	}
 
-	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		if (suppressWizard) {
-			automaticUpdater.setUpdateAffordanceState(plan != null && plan.getStatus().isOK());
+			automaticUpdater.setUpdateAffordanceState(resolution != null && resolution.getResolutionResult().getSummaryStatus().isOK());
 			return Window.OK;
 		}
-		return super.performAction(ius, targetProfileId, plan);
+		return super.performAction(ius, targetProfileId, resolution);
 	}
 
 	protected PlanValidator getPlanValidator() {

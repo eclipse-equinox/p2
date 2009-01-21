@@ -117,7 +117,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 							public void run() {
 								if (validatePlan(plan))
-									performAction(ius, getProfileId(true), plan);
+									performAction(ius, getProfileId(true), operation);
 								userChosenProfileId = null;
 							}
 						});
@@ -166,7 +166,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 */
 	protected abstract ProfileChangeRequest getProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor);
 
-	protected abstract int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
+	protected abstract int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution);
 
 	protected abstract String getTaskName();
 
@@ -295,7 +295,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected MultiStatus getProfileChangeAlteredStatus() {
-		return PlanStatusHelper.getProfileChangeAlteredStatus();
+		return PlanAnalyzer.getProfileChangeAlteredStatus();
 	}
 
 	protected boolean isResolveUserVisible() {

@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -34,15 +34,15 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	private Object[] planSelections;
 	protected ISelectableIUsPage mainPage;
 	protected ResolutionWizardPage resolutionPage;
-	private ProvisioningPlan plan;
+	private PlannerResolutionOperation resolutionOperation;
 	boolean waitingForOtherJobs = false;
 
-	public ProvisioningOperationWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan) {
+	public ProvisioningOperationWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution) {
 		super();
 		this.policy = policy;
 		this.profileId = profileId;
 		this.root = root;
-		this.plan = initialPlan;
+		this.resolutionOperation = initialResolution;
 		if (initialSelections == null)
 			planSelections = new Object[0];
 		else
@@ -58,8 +58,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void addPages() {
 		mainPage = createMainPage(root, planSelections);
 		addPage(mainPage);
-		if (plan != null && planSelections != null) {
-			resolutionPage = createResolutionPage(makeResolutionElementRoot(planSelections), plan);
+		if (resolutionOperation != null && planSelections != null) {
+			resolutionPage = createResolutionPage(makeResolutionElementRoot(planSelections), resolutionOperation);
 			addPage(resolutionPage);
 		}
 	}
@@ -78,7 +78,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	protected abstract ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections);
 
-	protected abstract ResolutionWizardPage createResolutionPage(IUElementListRoot input, ProvisioningPlan initialPlan);
+	protected abstract ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution);
 
 	public boolean performFinish() {
 		return resolutionPage.performFinish();
@@ -103,15 +103,15 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			if (resolutionPage != null) {
 				if (shouldRecomputePlan()) {
 					// any initial plan that was passed in is no longer valid, no need to hang on to it
-					plan = null;
+					resolutionOperation = null;
 					planSelections = mainPage.getCheckedIUElements();
 					resolutionPage.recomputePlan(makeResolutionElementRoot(planSelections));
 					planChanged();
 				}
 			} else {
-				if (plan != null && shouldRecomputePlan())
-					plan = null;
-				resolutionPage = createResolutionPage(makeResolutionElementRoot(mainPage.getCheckedIUElements()), plan);
+				if (resolutionOperation != null && shouldRecomputePlan())
+					resolutionOperation = null;
+				resolutionPage = createResolutionPage(makeResolutionElementRoot(mainPage.getCheckedIUElements()), resolutionOperation);
 				planChanged();
 				addPage(resolutionPage);
 			}

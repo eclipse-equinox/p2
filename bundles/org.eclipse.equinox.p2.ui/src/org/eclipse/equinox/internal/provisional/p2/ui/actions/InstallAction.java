@@ -15,7 +15,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -23,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -50,7 +52,10 @@ public class InstallAction extends ProfileModificationAction {
 
 			// Check to see if it is already installed.  This may alter the request.
 			Collector alreadyInstalled = profile.query(new InstallableUnitQuery(ius[i].getId()), new Collector(), null);
-			if (alreadyInstalled.size() > 0) {
+			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
+			// be singletons are not, so we don't check this (yet)
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878
+			if (alreadyInstalled.size() > 0) { //  && ius[i].isSingleton()
 				IInstallableUnit installedIU = (IInstallableUnit) alreadyInstalled.iterator().next();
 				int compareTo = ius[i].getVersion().compareTo(installedIU.getVersion());
 				// If the iu is a newer version of something already installed, consider this an
@@ -62,22 +67,25 @@ public class InstallAction extends ProfileModificationAction {
 					if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
 						request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					// Add a status informing the user that the update has been inferred
-					status.merge(PlanStatusHelper.getStatus(IStatusCodes.IMPLIED_UPDATE, ius[i]));
+					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, ius[i]));
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
-					status.merge(PlanStatusHelper.getStatus(IStatusCodes.IGNORED_IMPLIED_DOWNGRADE, ius[i]));
+					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, ius[i]));
 				} else {
 					if (Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
 						// It is already a root, nothing to do. We tell the user it was already installed
-						status.merge(PlanStatusHelper.getStatus(IStatusCodes.IGNORED_ALREADY_INSTALLED, ius[i]));
-					else
-						// It was already installed but not as a root.  Nothing to tell the user, it will just seem like a fast install.
-						request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, ius[i]));
+					else {
+						// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
+						// it as a root. 
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, ius[i]));
+						request.setInstallableUnitProfileProperty(ius[i], Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty(), Boolean.toString(true));
+					}
 				}
 			} else {
 				// Install it and mark as a root
 				request.addInstallableUnits(new IInstallableUnit[] {ius[i]});
-				request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				request.setInstallableUnitProfileProperty(ius[i], Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty(), Boolean.toString(true));
 			}
 			sub.worked(1);
 		}
@@ -123,8 +131,8 @@ public class InstallAction extends ProfileModificationAction {
 		return ProvUIMessages.InstallIUProgress;
 	}
 
-	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
-		InstallWizard wizard = new InstallWizard(getPolicy(), targetProfileId, ius, plan, new QueryableMetadataRepositoryManager(getPolicy(), false));
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
+		InstallWizard wizard = new InstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy(), false));
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);

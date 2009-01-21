@@ -15,10 +15,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 /**
@@ -38,8 +38,8 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return elementRoot;
 	}
 
-	public UninstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, ProvisioningPlan initialPlan) {
-		super(policy, profileId, makeElementRoot(ius, profileId), ius, initialPlan);
+	public UninstallWizard(Policy policy, String profileId, IInstallableUnit[] ius, PlannerResolutionOperation initialResolution) {
+		super(policy, profileId, makeElementRoot(ius, profileId), ius, initialResolution);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 	}
@@ -51,8 +51,8 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return page;
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, ProvisioningPlan plan) {
-		return new UninstallWizardPage(policy, input, profileId, plan);
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
+		return new UninstallWizardPage(policy, input, profileId, initialResolution);
 	}
 
 	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {

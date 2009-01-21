@@ -38,11 +38,10 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ResolutionWizardPage extends WizardPage {
-	private static final String NESTING_INDENT = "  "; //$NON-NLS-1$
-	static final IStatus NULL_PLAN_STATUS = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
 	protected IUElementListRoot input;
-	ProvisioningPlan currentPlan;
-	IStatus currentStatus;
+	PlannerResolutionOperation resolvedOperation;
+	ResolutionResult resolutionResult;
+	boolean couldNotResolve;
 	private String profileId;
 	protected Policy policy;
 	TreeViewer treeViewer;
@@ -50,10 +49,10 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	ProvElementContentProvider contentProvider;
 	protected Display display;
 
-	protected ResolutionWizardPage(Policy policy, IUElementListRoot input, String profileID, ProvisioningPlan initialPlan) {
+	protected ResolutionWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation initialResolution) {
 		super("ResolutionPage"); //$NON-NLS-1$
 		this.policy = policy;
-		currentPlan = initialPlan;
+		this.resolvedOperation = initialResolution;
 		if (input == null)
 			this.input = new IUElementListRoot();
 		else
@@ -109,12 +108,12 @@ public abstract class ResolutionWizardPage extends WizardPage {
 		treeViewer.setContentProvider(contentProvider);
 		treeViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), getShell()));
 
-		if (currentPlan == null)
+		if (resolvedOperation == null)
 			// this will also set the input on the viewer
 			recomputePlan(input);
 		else {
 			treeViewer.setInput(input);
-			currentStatus = PlanStatusHelper.computeStatus(currentPlan, ElementUtils.elementsToIUs(input.getChildren(input)));
+			resolutionResult = resolvedOperation.getResolutionResult();
 		}
 
 		// Optional area to show the size
@@ -146,8 +145,8 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	}
 
 	public boolean performFinish() {
-		if (currentStatus != null && currentStatus.getSeverity() != IStatus.ERROR) {
-			ProfileModificationOperation op = createProfileModificationOperation(currentPlan);
+		if (resolutionResult != null && resolutionResult.getSummaryStatus().getSeverity() != IStatus.ERROR) {
+			ProfileModificationOperation op = createProfileModificationOperation(resolvedOperation.getProvisioningPlan());
 			ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 			return true;
 		}
@@ -159,7 +158,9 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	}
 
 	public ProvisioningPlan getCurrentPlan() {
-		return currentPlan;
+		if (resolvedOperation == null)
+			return null;
+		return resolvedOperation.getProvisioningPlan();
 	}
 
 	protected Object[] getSelectedElements() {
@@ -193,32 +194,35 @@ public abstract class ResolutionWizardPage extends WizardPage {
 		this.input = root;
 		final Object[] elements = root.getChildren(root);
 		final IInstallableUnit[] ius = ElementUtils.elementsToIUs(elements);
+		couldNotResolve = false;
 		try {
 			if (elements.length == 0) {
-				currentPlan = null;
-				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.EXPECTED_NOTHING_TO_DO, ProvUIMessages.ProfileModificationWizardPage_NothingSelected, null);
+				couldNotResolve();
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
-						currentPlan = null;
-						currentStatus = NULL_PLAN_STATUS;
-						MultiStatus status = PlanStatusHelper.getProfileChangeAlteredStatus();
+						resolvedOperation = null;
+						resolutionResult = null;
+						MultiStatus status = PlanAnalyzer.getProfileChangeAlteredStatus();
 						ProfileChangeRequest request = computeProfileChangeRequest(elements, status, monitor);
 						if (request != null) {
-							PlannerResolutionOperation op = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, getProfileId(), request, status, false);
+							resolvedOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, getProfileId(), request, status, false);
 							try {
-								op.execute(monitor);
+								resolvedOperation.execute(monitor);
 							} catch (ProvisionException e) {
-								currentStatus = ProvUI.handleException(e, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+								ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+								couldNotResolve();
 							}
-							currentPlan = op.getProvisioningPlan();
-							if (currentPlan != null) {
-								for (int i = 0; i < elements.length; i++) {
-									if (elements[i] instanceof QueriedElement) {
-										((QueriedElement) elements[i]).setQueryable(getQueryable(currentPlan));
+							if (resolvedOperation.getProvisioningPlan() != null) {
+								resolutionResult = resolvedOperation.getResolutionResult();
+								// set up the iu parents to be the plan so that drilldown query can work
+								if (resolvedOperation.getProvisioningPlan() != null)
+									for (int i = 0; i < elements.length; i++) {
+										if (elements[i] instanceof QueriedElement) {
+											((QueriedElement) elements[i]).setQueryable(getQueryable(resolvedOperation.getProvisioningPlan()));
+										}
 									}
-								}
-								currentStatus = currentPlan.getStatus();
+
 							}
 						}
 					}
@@ -226,11 +230,17 @@ public abstract class ResolutionWizardPage extends WizardPage {
 		} catch (InterruptedException e) {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
-			currentPlan = null;
-			currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+			ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
+			couldNotResolve();
 		}
 		treeViewer.setInput(input);
 		updateStatus();
+	}
+
+	private void couldNotResolve() {
+		resolvedOperation = null;
+		resolutionResult = null;
+		couldNotResolve = true;
 	}
 
 	private ProfileModificationOperation createProfileModificationOperation(ProvisioningPlan plan) {
@@ -248,10 +258,16 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	protected abstract String getOperationLabel();
 
 	void updateStatus() {
+		IStatus currentStatus;
 		if (detailsArea == null || detailsArea.isDisposed())
 			return;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
+		if (couldNotResolve) {
+			currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
+		} else {
+			currentStatus = resolvedOperation.getResolutionResult().getSummaryStatus();
+		}
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();
@@ -271,68 +287,55 @@ public abstract class ResolutionWizardPage extends WizardPage {
 			// Check to see if another operation is in progress
 			if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
 				messageType = IMessageProvider.ERROR;
-				currentStatus = PlanStatusHelper.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
+				currentStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
 				pageComplete = false;
 			}
 		}
 		setPageComplete(pageComplete);
-		setMessage(getMessageText(), messageType);
+		setMessage(getMessageText(currentStatus), messageType);
 		detailsArea.setText(getDetailText());
 	}
 
 	String getDetailText() {
-		String detail = ""; //$NON-NLS-1$
-		if (currentStatus == null || currentStatus.isOK()) {
-			IInstallableUnit iu = getSelectedIU();
+		String detail = null;
+		IInstallableUnit iu = getSelectedIU();
+
+		// We tried to resolve and it failed.  The specific error was already reported, so description
+		// text can be used for the selected IU.
+		if (couldNotResolve) {
 			if (iu != null)
 				detail = getIUDescription(iu);
-		} else {
-			// current status is not OK.  See if there are embedded exceptions or status to report
-			StringBuffer buffer = new StringBuffer();
-			appendDetailText(currentStatus, buffer, -1, false);
-			detail = buffer.toString();
+			return detail;
 		}
+
+		// An IU is selected and we have resolved.  Look for information about the specific IU.
+		if (iu != null) {
+			detail = resolutionResult.getDetailedReport(new IInstallableUnit[] {iu});
+			if (detail != null)
+				return detail;
+			// No specific error about this IU.  Show the overall error if it is in error.
+			if (resolutionResult.getSummaryStatus().getSeverity() == IStatus.ERROR)
+				return resolutionResult.getSummaryReport();
+
+			// The overall status is not an error, so we may as well just return info about this iu rather than everything.
+			return getIUDescription(iu);
+		}
+
+		//No IU is selected, give the overall report
+		detail = resolutionResult.getSummaryReport();
+		if (detail == null)
+			detail = ""; //$NON-NLS-1$
 		return detail;
 	}
 
-	void appendDetailText(IStatus status, StringBuffer buffer, int indent, boolean includeTopLevel) {
-		for (int i = 0; i < indent; i++)
-			buffer.append(NESTING_INDENT);
-		if (includeTopLevel && status.getMessage() != null)
-			buffer.append(status.getMessage());
-		Throwable t = status.getException();
-		if (t != null) {
-			// A provision (or core) exception occurred.  Get its status message or if none, its top level message.
-			if (t instanceof CoreException) {
-				IStatus exceptionStatus = ((CoreException) t).getStatus();
-				if (exceptionStatus != null && exceptionStatus.getMessage() != null)
-					buffer.append(exceptionStatus.getMessage());
-				else {
-					String details = t.getLocalizedMessage();
-					if (details != null)
-						buffer.append(details);
-				}
-			} else {
-				String details = t.getLocalizedMessage();
-				if (details != null)
-					buffer.append(details);
-			}
-		} else {
-			// This is the most important case.  No exception occurred, we have a non-OK status after trying
-			// to get a provisioning plan.  It's important not to lose the multi status information.  The top level status
-			// message has already been reported 
-			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++) {
-				appendDetailText(children[i], buffer, indent + 1, true);
-				buffer.append('\n');
-			}
-		}
-	}
-
-	String getMessageText() {
+	String getMessageText(IStatus currentStatus) {
 		if (currentStatus == null || currentStatus.isOK())
 			return getDescription();
-		return currentStatus.getMessage();
+		if (currentStatus.getSeverity() == IStatus.CANCEL)
+			return ProvUIMessages.ResolutionWizardPage_Canceled;
+		if (currentStatus.getSeverity() == IStatus.ERROR)
+			return ProvUIMessages.ResolutionWizardPage_ErrorStatus;
+		return ProvUIMessages.ResolutionWizardPage_WarningInfoStatus;
 	}
 
 	protected String getIUDescription(IInstallableUnit iu) {
@@ -344,7 +347,7 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	}
 
 	protected TreeViewer createTreeViewer(Composite parent) {
-		return new TreeViewer(parent, SWT.BORDER | SWT.FULL_SELECTION);
+		return new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 	}
 
 	protected abstract IQueryable getQueryable(ProvisioningPlan plan);

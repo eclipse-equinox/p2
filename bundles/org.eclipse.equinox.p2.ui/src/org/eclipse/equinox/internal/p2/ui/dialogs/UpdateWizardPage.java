@@ -18,9 +18,9 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 public class UpdateWizardPage extends SizeComputingWizardPage {
@@ -45,8 +45,8 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 		return (IInstallableUnit[]) replacements.toArray(new IInstallableUnit[replacements.size()]);
 	}
 
-	public UpdateWizardPage(Policy policy, IUElementListRoot root, String profileId, ProvisioningPlan initialPlan) {
-		super(policy, root, profileId, initialPlan);
+	public UpdateWizardPage(Policy policy, IUElementListRoot root, String profileId, PlannerResolutionOperation initialResolution) {
+		super(policy, root, profileId, initialResolution);
 		setTitle(ProvUIMessages.UpdateWizardPage_Title);
 		setDescription(ProvUIMessages.UpdateWizardPage_Description);
 	}

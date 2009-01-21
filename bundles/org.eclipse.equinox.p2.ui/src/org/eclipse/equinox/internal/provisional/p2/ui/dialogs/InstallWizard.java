@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.swt.widgets.Composite;
 
@@ -28,8 +28,8 @@ public class InstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
 
-	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, ProvisioningPlan initialPlan, QueryableMetadataRepositoryManager manager) {
-		super(policy, profileId, null, initialSelections, initialPlan);
+	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
+		super(policy, profileId, null, initialSelections, initialResolution);
 		this.manager = manager;
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
@@ -39,8 +39,8 @@ public class InstallWizard extends WizardWithLicenses {
 		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy, false));
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, ProvisioningPlan initialPlan) {
-		return new InstallWizardPage(policy, profileId, input, initialPlan);
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
+		return new InstallWizardPage(policy, profileId, input, initialResolution);
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {

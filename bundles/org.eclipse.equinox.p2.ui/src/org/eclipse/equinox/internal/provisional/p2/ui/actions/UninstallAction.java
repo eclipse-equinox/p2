@@ -14,11 +14,11 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -35,8 +35,8 @@ public class UninstallAction extends ExistingIUInProfileAction {
 		return ProvUIMessages.UninstallIUProgress;
 	}
 
-	protected int performAction(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
-		UninstallWizard wizard = new UninstallWizard(getPolicy(), targetProfileId, ius, plan);
+	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
+		UninstallWizard wizard = new UninstallWizard(getPolicy(), targetProfileId, ius, resolution);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
@@ -50,6 +50,13 @@ public class UninstallAction extends ExistingIUInProfileAction {
 		try {
 			request = ProfileChangeRequest.createByProfileId(targetProfileId);
 			request.removeInstallableUnits(ius);
+			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
+			// We ask to remove the the profile root property in addition to removing the IU.  In theory this
+			// should be redundant, but there are cases where the planner decides not to uninstall something because
+			// it is needed by others.  We still want to remove the root in this case.
+			String key = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
+			for (int i = 0; i < ius.length; i++)
+				request.removeInstallableUnitProfileProperty(ius[i], key);
 		} finally {
 			sub.done();
 		}

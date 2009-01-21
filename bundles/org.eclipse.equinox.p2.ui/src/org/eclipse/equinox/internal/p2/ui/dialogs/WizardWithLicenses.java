@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
 
@@ -25,8 +26,8 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	AcceptLicensesWizardPage licensePage;
 
-	public WizardWithLicenses(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan) {
-		super(policy, profileId, root, initialSelections, initialPlan);
+	public WizardWithLicenses(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution) {
+		super(policy, profileId, root, initialSelections, initialResolution);
 	}
 
 	protected AcceptLicensesWizardPage createLicensesPage(IInstallableUnit[] ius, ProvisioningPlan plan) {

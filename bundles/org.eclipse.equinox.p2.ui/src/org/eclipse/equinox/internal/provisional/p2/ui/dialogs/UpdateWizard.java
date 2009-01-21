@@ -16,10 +16,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.swt.widgets.Composite;
 
@@ -30,8 +30,8 @@ public class UpdateWizard extends WizardWithLicenses {
 	IInstallableUnit[] iusToReplace;
 	QueryableMetadataRepositoryManager manager;
 
-	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, ProvisioningPlan initialPlan, QueryableMetadataRepositoryManager manager) {
-		super(policy, profileId, root, initialSelections, initialPlan);
+	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
+		super(policy, profileId, root, initialSelections, initialResolution);
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
 		this.manager = manager;
@@ -44,8 +44,8 @@ public class UpdateWizard extends WizardWithLicenses {
 		return page;
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot root, ProvisioningPlan plan) {
-		return new UpdateWizardPage(policy, root, profileId, plan);
+	protected ResolutionWizardPage createResolutionPage(IUElementListRoot root, PlannerResolutionOperation initialResolution) {
+		return new UpdateWizardPage(policy, root, profileId, initialResolution);
 	}
 
 	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
