@@ -23,6 +23,14 @@ public class CompositeQuery implements Query {
 		this.queries = queries;
 	}
 
+	/**
+	 * Set the queries of this composite.  This is needed to allow subclasses of 
+	 * CompsiteQuery to set the queries in a constructor
+	 */
+	protected final void setQueries(Query[] queries) {
+		this.queries = queries;
+	}
+
 	public Collector perform(Iterator iterator, Collector result) {
 		Collector collector;
 		Iterator iter = iterator;
@@ -37,5 +45,4 @@ public class CompositeQuery implements Query {
 			gatherResults = result.accept(iter.next());
 		return result;
 	}
-
 }

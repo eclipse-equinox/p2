@@ -8,7 +8,7 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
- package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.internal.provisional.p2.core;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -84,6 +84,8 @@ public class Messages extends NLS {
 	public static String pad_defined_more_then_once;
 
 	public static String pad_not_allowed_in_osgi_0;
+
+	public static String performing_subquery;
 
 	public static String premature_end_of_format;
 

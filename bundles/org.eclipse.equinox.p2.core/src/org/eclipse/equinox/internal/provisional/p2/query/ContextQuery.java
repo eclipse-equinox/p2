@@ -16,6 +16,11 @@ import java.util.Iterator;
  * input to evaluate the results.  Queries must consider the group of elements before
  * processing the results. <P>
  * 
+ * ContextQueries must also be transitive. That is, if run on a subset of the 
+ * input, the order in which they are executed must not matter. If there is the 
+ * need for a non-transitive query, please see:
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=261403
+ * <p>
  * Users of this query must call {@link #perform(Iterator, Collector)} to compute 
  * the results. <P>
  * This class may be subclassed by clients. Subclasses should specify the type
@@ -23,7 +28,7 @@ import java.util.Iterator;
  * specify their match algorithm, and expose the parameters involved in the match
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. <P>
- *
+ * 
  */
 public abstract class ContextQuery implements Query {
 

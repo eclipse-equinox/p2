@@ -220,7 +220,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testIntersection2() {
-		Query ABC = new Query() {
+		Query ABC = new ContextQuery() {
 			public Collector perform(Iterator iterator, Collector result) {
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
@@ -231,7 +231,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new Query() {
+		Query BCDE = new ContextQuery() {
 			public Collector perform(Iterator iterator, Collector result) {
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
@@ -277,7 +277,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testUnion2() {
-		Query ABC = new Query() {
+		Query ABC = new ContextQuery() {
 			public Collector perform(Iterator iterator, Collector result) {
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
@@ -288,7 +288,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new Query() {
+		Query BCDE = new ContextQuery() {
 			public Collector perform(Iterator iterator, Collector result) {
 				while (iterator.hasNext()) {
 					Object o = iterator.next();

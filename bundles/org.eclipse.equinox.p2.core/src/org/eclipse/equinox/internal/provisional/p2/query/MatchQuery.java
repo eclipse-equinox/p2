@@ -76,7 +76,6 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * This method is internal to the framework.  Subclasses may override this method, but
 	 * should not call this method.
 	 */
-
 	protected void performComplete() {
 		// nothing to do by default
 	}

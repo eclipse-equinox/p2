@@ -75,6 +75,35 @@ public class CollectorTest extends AbstractProvisioningTest {
 		assertTrue("2.2", collection.contains("5"));
 	}
 
+	public void testSameCollector() {
+		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
+		List list = Arrays.asList(s);
+		Query numeric = new MatchQuery() {
+
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
+					return true;
+				}
+				return false;
+			}
+		};
+
+		Query fourOrFiveOrABC = new MatchQuery() {
+			public boolean isMatch(Object candidate) {
+				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
+					return true;
+				}
+				return false;
+			}
+		};
+		Collector collector = numeric.perform(list.iterator(), new Collector());
+		assertEquals("1.0", 7, collector.toCollection().size());
+
+		collector = collector.query(fourOrFiveOrABC, collector, null);
+		Collection collection = collector.toCollection();
+		assertEquals("2.0", 7, collection.size());
+	}
+
 	/**
 	 * This tests the query method on the collector.
 	 */

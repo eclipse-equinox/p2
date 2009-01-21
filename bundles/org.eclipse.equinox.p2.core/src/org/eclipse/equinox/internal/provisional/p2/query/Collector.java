@@ -14,6 +14,8 @@ package org.eclipse.equinox.internal.provisional.p2.query;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.Messages;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,
@@ -119,6 +121,16 @@ public class Collector implements IQueryable {
 	 * Performs a query on this results of this collector.  
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return query.perform(toCollection().iterator(), collector);
+		Iterator iter = collector == this ? toCollection().iterator() : iterator();
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		try {
+			monitor.beginTask(Messages.performing_subquery, 1);
+			collector = query.perform(iter, collector);
+			monitor.worked(1);
+		} finally {
+			monitor.done();
+		}
+		return collector;
 	}
 }

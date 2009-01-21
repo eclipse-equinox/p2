@@ -181,6 +181,5 @@ public abstract class CompoundQuery implements Query {
 				gatherResults = result.accept(resultIterator.next());
 			return result;
 		}
-
 	}
 }
