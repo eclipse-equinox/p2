@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
+ *     IBM - Ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.tests.omniVersion;
@@ -89,6 +90,20 @@ public class OSGiRangeTest extends VersionTesting {
 		assertEquals("[1.0.0.abcdef,2.0.0.abcdef)", v.toString());
 		v = new VersionRange("(1.0.0.abcdef,2.0.0.abcdef)");
 		assertEquals("(1.0.0.abcdef,2.0.0.abcdef)", v.toString());
+	}
+
+	/**
+	 * Tests that null values passed to the {@link VersionRange} constructor
+	 * are interpreted as OSGi ranges.
+	 */
+	public void testNullConstructor() {
+		VersionRange range = new VersionRange(null);
+		assertEquals("1.0", range.getMinimum(), new Version(0, 0, 0));
+		assertEquals("1.1", range.getMaximum(), new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+		range = new VersionRange(null, true, null, true);
+		assertEquals("2.0", range.getMinimum(), new Version(0, 0, 0));
+		assertEquals("2.1", range.getMaximum(), new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
 	}
 
 	public void testSerialize() {
