@@ -49,7 +49,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
 			Object obj = iterator.next();
 			if (obj instanceof FileSet) {
-				FileSet set = (FileSet) iterator.next();
+				FileSet set = (FileSet) obj;
 
 				DirectoryScanner scanner = set.getDirectoryScanner(getProject());
 				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
