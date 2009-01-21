@@ -22,6 +22,12 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
  * A factory class for instantiating various p2 metadata objects.
  */
 public class MetadataFactory {
+	/**
+	 * A description containing information about an installable unit. Once created,
+	 * installable units are immutable. This description class allows a client to build
+	 * up the state for an installable unit incrementally, and then finally product
+	 * the resulting immutable unit.
+	 */
 	public static class InstallableUnitDescription {
 		protected InstallableUnit unit;
 
@@ -148,7 +154,16 @@ public class MetadataFactory {
 		}
 	}
 
+	/**
+	 * Description of an installable unit patch. The description will automatically have
+	 * the {@link IInstallableUnit#PROP_TYPE_FRAGMENT} set to <code>true</code>.
+	 */
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
+		public InstallableUnitFragmentDescription() {
+			super();
+			setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		}
+
 		public void setHost(IRequiredCapability[] hostRequirements) {
 			((InstallableUnitFragment) unit()).setHost(hostRequirements);
 		}
@@ -160,7 +175,16 @@ public class MetadataFactory {
 		}
 	}
 
+	/**
+	 * Description of an installable unit patch. The description will automatically have
+	 * the {@link IInstallableUnit#PROP_TYPE_PATCH} set to <code>true</code>.
+	 */
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
+
+		public InstallableUnitPatchDescription() {
+			super();
+			setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+		}
 
 		public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
 			if (applyTo == null)
