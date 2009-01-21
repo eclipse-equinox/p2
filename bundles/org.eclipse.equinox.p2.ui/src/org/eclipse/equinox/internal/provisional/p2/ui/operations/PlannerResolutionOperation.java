@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.ResolutionResult;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -17,7 +19,12 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Class representing a provisioning profile plan
@@ -31,6 +38,7 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 	boolean isUser = true;
 	ProvisioningPlan plan;
 	MultiStatus additionalStatus;
+	ResolutionResult report;
 	IInstallableUnit[] iusInvolved;
 
 	public PlannerResolutionOperation(String label, IInstallableUnit[] iusInvolved, String profileId, ProfileChangeRequest request, MultiStatus additionalStatus, boolean isUser) {
@@ -39,6 +47,7 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 		this.profileId = profileId;
 		this.isUser = isUser;
 		this.iusInvolved = iusInvolved;
+		Assert.isNotNull(additionalStatus);
 		this.additionalStatus = additionalStatus;
 	}
 
@@ -46,23 +55,43 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 		return plan;
 	}
 
+	public ProfileChangeRequest getProfileChangeRequest() {
+		return request;
+	}
+
 	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
+		// Why bother getting a plan if install handler support is required?  In the future we might 
+		// consider checking per IU, and offering a quick fix, but for now just bail
+		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(request)) {
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.PlanStatusHelper_UpdateManagerPromptTitle, null, ProvUIMessages.PlanStatusHelper_PromptForUpdateManagerUI, MessageDialog.WARNING, new String[] {ProvUIMessages.PlanStatusHelper_Launch, IDialogConstants.CANCEL_LABEL}, 0);
+					if (dialog.open() == 0)
+						BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+							public void run() {
+								UpdateManagerCompatibility.openInstaller();
+							}
+						});
+				}
+
+			});
+			return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.PlanStatusHelper_RequiresUpdateManager);
+		}
+
 		plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 		if (plan == null)
 			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlannerResolutionOperation_UnexpectedError, null);
-		// If we recorded additional status along the way, build a plan that merges in this status.
-		// Ideally this all would have been detected in the planner itself.
-		if (additionalStatus.getChildren().length > 0) {
-			additionalStatus.merge(plan.getStatus());
-			plan = new ProvisioningPlan(additionalStatus, plan.getOperands(), null);
-		}
-		// Now run the result through the sanity checker.  Again, this would ideally be caught
-		// in the planner, but for now we have to build a new plan to include the UI status checking.
-		plan = new ProvisioningPlan(PlanStatusHelper.computeStatus(plan, iusInvolved), plan.getOperands(), null);
-
 		// We are reporting on our ability to get a plan, not on the status of the plan itself.
 		// Callers will interpret and report the status as needed.
 		return Status.OK_STATUS;
+	}
+
+	public ResolutionResult getResolutionResult() {
+		if (report == null) {
+			report = PlanAnalyzer.computeResolutionResult(request, plan, additionalStatus);
+		}
+		return report;
 	}
 
 	public boolean runInBackground() {

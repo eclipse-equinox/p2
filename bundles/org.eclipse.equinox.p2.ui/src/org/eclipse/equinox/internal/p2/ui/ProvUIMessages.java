@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -144,6 +144,10 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulationPage_Title;
 	public static String RepositoryManipulatorDropTarget_DragAndDropJobLabel;
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
+	public static String ResolutionReport_SummaryStatus;
+	public static String ResolutionWizardPage_Canceled;
+	public static String ResolutionWizardPage_ErrorStatus;
+	public static String ResolutionWizardPage_WarningInfoStatus;
 
 	public static String AddColocatedRepositoryAction_Label;
 	public static String AddColocatedRepositoryAction_Tooltip;
@@ -175,6 +179,12 @@ public class ProvUIMessages extends NLS {
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;
+	public static String PlanAnalyzer_IgnoringInstall;
+	public static String PlanAnalyzer_IgnoringUninstall;
+	public static String PlanAnalyzer_PartialInstall;
+	public static String PlanAnalyzer_PartialUninstall;
+	public static String PlanAnalyzer_SideEffectInstall;
+	public static String PlanAnalyzer_SideEffectUninstall;
 	public static String PlannerResolutionOperation_UnexpectedError;
 	public static String PlanStatusHelper_IgnoringImpliedDowngrade;
 	public static String PlanStatusHelper_ImpliedUpdate;

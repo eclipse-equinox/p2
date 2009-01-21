@@ -24,11 +24,23 @@ public interface IStatusCodes {
 	//in ProvisionException or we'll see strange results.
 
 	public static final int NOTHING_TO_UPDATE = 10000;
+
+	// Status codes associated with profile change request or plans being altered from the original intent
 	public static final int PROFILE_CHANGE_ALTERED = 10001;
-	public static final int IMPLIED_UPDATE = 10002;
-	public static final int IGNORED_IMPLIED_DOWNGRADE = 10003;
-	public static final int IGNORED_ALREADY_INSTALLED = 10004;
-	public static final int UNEXPECTED_NOTHING_TO_DO = 10005;
-	public static final int EXPECTED_NOTHING_TO_DO = 10006;
-	public static final int OPERATION_ALREADY_IN_PROGRESS = 10007;
+	public static final int IU_REQUEST_ALTERED = 10002;
+	public static final int ALTERED_IMPLIED_UPDATE = 10003;
+	public static final int ALTERED_IGNORED_IMPLIED_DOWNGRADE = 10004;
+	public static final int ALTERED_IGNORED_ALREADY_INSTALLED = 10005;
+	public static final int ALTERED_PARTIAL_INSTALL = 10006;
+	public static final int ALTERED_PARTIAL_UNINSTALL = 10007;
+	public static final int ALTERED_SIDE_EFFECT_UPDATE = 10008;
+	public static final int ALTERED_SIDE_EFFECT_REMOVE = 10009;
+	public static final int ALTERED_SIDE_EFFECT_INSTALL = 10010;
+	public static final int ALTERED_IGNORED_INSTALL_REQUEST = 10011;
+	public static final int ALTERED_IGNORED_UNINSTALL_REQUEST = 10012;
+
+	// Status codes associated with inability to perform an operation
+	public static final int UNEXPECTED_NOTHING_TO_DO = 10050;
+	public static final int EXPECTED_NOTHING_TO_DO = 10051;
+	public static final int OPERATION_ALREADY_IN_PROGRESS = 10052;
 }
