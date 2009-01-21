@@ -46,11 +46,12 @@ public class Publisher {
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		IMetadataRepository result = null;
+		boolean existing = manager.contains(location);
 
 		try {
 			result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			if (result != null) {
-				manager.addRepository(result.getLocation());
+				manager.removeRepository(result.getLocation());
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
 				return result;
 			}
@@ -60,6 +61,8 @@ public class Publisher {
 
 		result = manager.loadRepository(location, null);
 		if (result != null) {
+			if (!existing)
+				manager.removeRepository(location);
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 			if (!result.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
@@ -86,11 +89,12 @@ public class Publisher {
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
 		IArtifactRepository result = null;
+		boolean existing = manager.contains(location);
 
 		try {
 			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			if (result != null) {
-				manager.addRepository(result.getLocation());
+				manager.removeRepository(result.getLocation());
 				if (reusePackedFiles)
 					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
@@ -102,6 +106,8 @@ public class Publisher {
 
 		result = manager.loadRepository(location, null);
 		if (result != null) {
+			if (!existing)
+				manager.removeRepository(location);
 			if (!result.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
