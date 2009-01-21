@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -28,8 +29,9 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -390,7 +392,7 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, query, new LatestIUVersionCollector());
+					roots = collectRootIUs(metadataRepositoryLocations, new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
 					if (roots.size() <= 0)
 						roots = profile.query(query, roots, new NullProgressMonitor());
 					if (roots.size() <= 0) {
@@ -450,17 +452,30 @@ public class Application implements IApplication {
 		}
 	}
 
-	private Collector collectRootIUs(URI[] locations, InstallableUnitQuery query, Collector collector) {
+	class LocationQueryable implements IQueryable {
+		private URI location;
+
+		public LocationQueryable(URI location) {
+			this.location = location;
+		}
+
+		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
+		}
+	}
+
+	private Collector collectRootIUs(URI[] locations, Query query, Collector collector) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)
 			return ProvisioningHelper.getInstallableUnits(null, query, collector, nullMonitor);
 
 		Collector result = collector != null ? collector : new Collector();
+		IQueryable[] locationQueryables = new IQueryable[locations.length];
 		for (int i = 0; i < locations.length; i++) {
-			result = ProvisioningHelper.getInstallableUnits(locations[i], query, result, nullMonitor);
+			locationQueryables[i] = new LocationQueryable(locations[i]);
 		}
-		return result;
+		return new CompoundQueryable(locationQueryables).query(query, result, nullMonitor);
 	}
 
 	private synchronized void setPackageAdmin(PackageAdmin service) {

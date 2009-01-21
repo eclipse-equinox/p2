@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,19 +7,19 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.URI;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
@@ -107,17 +107,24 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
+		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
 			try {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
-				loadRepository(locations[i], sub.newChild(9)).query(query, collector, sub.newChild(1));
+				queryables.add(loadRepository(locations[i], sub.newChild(9)));
 			} catch (ProvisionException e) {
 				//ignore this repository for this query
 			}
 		}
-		sub.done();
+		try {
+			IQueryable[] queryablesArray = (IQueryable[]) queryables.toArray(new IQueryable[queryables.size()]);
+			CompoundQueryable compoundQueryable = new CompoundQueryable(queryablesArray);
+			compoundQueryable.query(query, collector, sub.newChild(locations.length * 1));
+		} finally {
+			sub.done();
+		}
 		return collector;
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
@@ -25,10 +26,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.core.CompoundQueryableTest.CompoundQueryTestProgressMonitor;
 
 /**
  * Test API of the local metadata repository implementation.
@@ -402,6 +406,60 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		String repo2System = getMetadataRepositoryManager().getRepositoryProperty(repo2Location.toURI(), IRepository.PROP_SYSTEM);
 		//if repo2System is null we want to fail
 		assertTrue("Ensuring not previously loaded repo is system", repo2System != null ? repo2System.equals(Boolean.toString(true)) : false);
+	}
+
+	public void testGetLatestIU() {
+		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
+		URI location1;
+		URI location2;
+		try {
+			location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+			location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		CompositeMetadataRepository compositeRepo = createRepo(false);
+		compositeRepo.addChild(location1);
+		compositeRepo.addChild(location2);
+		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), new Collector(), monitor);
+		Collection collection = collector.toCollection();
+		assertEquals("1.0", 1, collection.size());
+		assertEquals("1.1", new Version(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertTrue("1.2", monitor.isDone());
+		assertTrue("1.3", monitor.isWorkDone());
+	}
+
+	public void testGetLatestIULessThan3() {
+		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
+		URI location1;
+		URI location2;
+		try {
+			location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+			location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		CompositeMetadataRepository compositeRepo = createRepo(false);
+		compositeRepo.addChild(location1);
+		compositeRepo.addChild(location2);
+		CompositeQuery cQuery = new CompositeQuery(new Query[] {new MatchQuery() {
+			public boolean isMatch(Object candidate) {
+				if (candidate instanceof IInstallableUnit) {
+					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
+					if (iInstallableUnit.getVersion().compareTo(new Version(3, 0, 0)) < 0)
+						return true;
+				}
+				return false;
+			}
+		}, new LatestIUVersionQuery()});
+		Collector collector = compositeRepo.query(cQuery, new Collector(), monitor);
+		Collection collection = collector.toCollection();
+		assertEquals("1.0", 1, collection.size());
+		assertEquals("1.1", new Version(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertTrue("1.2", monitor.isDone());
+		assertTrue("1.3", monitor.isWorkDone());
 	}
 
 	private void persistenceTest(boolean compressed) {

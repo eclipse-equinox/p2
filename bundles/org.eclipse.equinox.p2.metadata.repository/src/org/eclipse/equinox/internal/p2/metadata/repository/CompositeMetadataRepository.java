@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -26,8 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 
 public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository {
@@ -75,13 +75,14 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		Iterator repositoryIterator = childrenURIs.iterator();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, childrenURIs.size() * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, 20 * childrenURIs.size());
 		try {
+			List repositories = new ArrayList(childrenURIs.size());
+			SubMonitor loopMonitor = sub.newChild(10 * childrenURIs.size());
 			while (repositoryIterator.hasNext()) {
 				try {
 					//Try to load the repositories one by one
 					URI currentURI = (URI) repositoryIterator.next();
-					SubMonitor loopMonitor = sub.newChild(100);
 					boolean currentLoaded = getManager().contains(currentURI);
 					IMetadataRepository currentRepo = getManager().loadRepository(currentURI, null);
 					if (!currentLoaded) {
@@ -90,14 +91,20 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 						//set repository to system to hide from users
 						getManager().setRepositoryProperty(currentURI, IRepository.PROP_SYSTEM, String.valueOf(true));
 					}
-					loopMonitor.worked(50); // work 50% for the load
-					//get the query results. Collector should take care of duplicates
-					currentRepo.query(query, collector, loopMonitor.newChild(50));
+					loopMonitor.worked(10);
+					repositories.add(currentRepo);
 				} catch (ProvisionException e) {
 					//repository failed to load. fall through
 					LogHelper.log(e);
 				}
 			}
+			loopMonitor.done();
+
+			// Query all the all the repositories this composite repo contains
+			SubMonitor queryMonitor = sub.newChild(10 * childrenURIs.size());
+			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) repositories.toArray(new IQueryable[repositories.size()]));
+			collector = queryable.query(query, collector, queryMonitor);
+			queryMonitor.done();
 		} finally {
 			if (monitor != null)
 				monitor.done();

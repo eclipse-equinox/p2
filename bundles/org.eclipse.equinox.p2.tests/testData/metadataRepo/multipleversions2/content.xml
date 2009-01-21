@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository class='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'?>
+<repository name='Good Test Repository' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1' description='Good test repository description'>
+  <properties size='3'>
+    <property name='p2.system' value='true'/>
+    <property name='p2.timestamp' value='1221680367875'/>
+    <property name='site.checksum' value='2404093275'/>
+  </properties>
+  <units size='3'>
+    <unit id='test.bundle' version='3.0.0' singleton='false'>
+      <update id='test.bundle' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.partial.iu' value='true'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='test.bundle' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='test.bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='test.bundle' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    
+    <unit id='test.bundle' version='2.2.0' singleton='false'>
+      <update id='test.bundle' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.partial.iu' value='true'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='test.bundle' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='test.bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='test.bundle' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    
+    <unit id='test.bundle' version='2.0.0' singleton='false'>
+      <update id='test.bundle' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.partial.iu' value='true'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='test.bundle' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='test.bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='test.bundle' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

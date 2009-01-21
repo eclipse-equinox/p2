@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.*;
  */
 public class CompoundQueryableTest extends TestCase {
 
-	class CompoundQueryTestProgressMonitor extends TestProgressMonitor {
+	public static class CompoundQueryTestProgressMonitor extends TestProgressMonitor {
 
 		private boolean isDone;
 		private int assignedWork = 0;
