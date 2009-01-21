@@ -11,6 +11,9 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 /**
  * An installable unit patch is an installable unit that alters the required capabilities of another
  * installable unit. 
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface IInstallableUnitPatch extends IInstallableUnit {
 	/**

@@ -13,6 +13,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 /**
  * Describes a capability as exposed or required by an installable unit
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface IProvidedCapability {
 

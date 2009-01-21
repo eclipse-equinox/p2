@@ -10,6 +10,10 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
+/**
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
+ */
 public interface IUpdateDescriptor {
 	public final int NORMAL = 0;
 	public final int HIGH = 1;

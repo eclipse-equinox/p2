@@ -23,6 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
  * by the provisioning framework.
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface IRequiredCapability {
 

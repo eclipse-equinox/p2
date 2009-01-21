@@ -18,6 +18,9 @@ import java.util.Map;
  * supporting data needed to perform the phase.
  *
  * @see MetadataFactory#createTouchpointData(Map)
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ITouchpointData {
 

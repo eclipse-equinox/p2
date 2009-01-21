@@ -15,6 +15,9 @@ import java.net.URI;
  * The <code>ICopyright</code> interface represents a software copyright.  A copyright has 
  * required body text which may be the full text or a summary.  An optional location field can be specified
  * which links to full text.  
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ICopyright {
 

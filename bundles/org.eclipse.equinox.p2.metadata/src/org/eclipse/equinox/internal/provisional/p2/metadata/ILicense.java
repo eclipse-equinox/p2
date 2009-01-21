@@ -16,6 +16,9 @@ import java.net.URI;
  * The <code>ILicense</code> interface represents a software license.  A license has required body text
  * which may be the full text or an annotation.  An optional URL field can be specified
  * which links to full text.  Licenses can be easily compared using their digests.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ILicense {
 

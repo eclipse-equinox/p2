@@ -14,6 +14,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
  * and a version.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ITouchpointType {
 

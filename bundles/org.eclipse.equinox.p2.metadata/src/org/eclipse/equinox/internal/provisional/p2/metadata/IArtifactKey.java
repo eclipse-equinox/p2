@@ -18,8 +18,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
  * <p>
  * Artifact keys represent both a unique opaque identifier as well as structured 
  * and standardized pieces of information.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  */
-
 public interface IArtifactKey {
 
 	/**
