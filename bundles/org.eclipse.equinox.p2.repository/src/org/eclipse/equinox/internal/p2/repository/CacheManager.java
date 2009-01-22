@@ -62,13 +62,13 @@ public class CacheManager {
 	public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException, ProvisionException {
 		knownPrefixes.add(prefix);
 		File cacheFile = getCache(repositoryLocation, prefix);
-		URI jarLocation = URLMetadataRepository.getActualLocation(repositoryLocation, JAR_EXTENSION);
-		URI xmlLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
+		URI jarLocation = URIUtil.append(repositoryLocation, prefix + JAR_EXTENSION);
+		URI xmlLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
 		int hashCode = computeHash(repositoryLocation);
-		if (cacheFile == null || isCacheStale(repositoryLocation, cacheFile)) {
+		if (cacheFile == null || isCacheStale(repositoryLocation, prefix, cacheFile)) {
 			long lastModifiedRemote = getTransport().getLastModified(jarLocation);
 			URI remoteFile;
 			if (lastModifiedRemote != 0) {
@@ -146,19 +146,21 @@ public class CacheManager {
 	/**
 	 * Checks if the repository's local cache file is out of date.
 	 * @param repositoryLocation The remote location of the file
+	 * @param prefix The prefix to use when creating the cache file
 	 * @param cacheFile The current local cache of the remote location
 	 * @return <code>true</code> if the cache file is out of date, <code>false</code>
 	 * if the cache file is in sync with the repository. The cache file is
 	 * considered stale if there is no local cache file.
 	 */
-	private boolean isCacheStale(URI repositoryLocation, File cacheFile) {
+	private boolean isCacheStale(URI repositoryLocation, String prefix, File cacheFile) {
 		long lastModified = cacheFile.lastModified();
 		String name = cacheFile.getName();
 		URI metadataLocation = null;
+
 		if (name.endsWith(XML_EXTENSION)) {
-			metadataLocation = URLMetadataRepository.getActualLocation(repositoryLocation, XML_EXTENSION);
+			metadataLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
 		} else if (name.endsWith(JAR_EXTENSION)) {
-			metadataLocation = URLMetadataRepository.getActualLocation(repositoryLocation, JAR_EXTENSION);
+			metadataLocation = URIUtil.append(repositoryLocation, prefix + JAR_EXTENSION);
 		}
 		long lastModifiedRemote = 0;
 		try {
