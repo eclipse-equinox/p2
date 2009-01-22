@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
@@ -36,13 +37,20 @@ public class EngineSession {
 
 	private IProfile profile;
 
+	private File profileDataDirectory;
+
 	private ProvisioningContext context;
 
 	private Set touchpoints = new HashSet();
 
-	public EngineSession(IProfile profile, ProvisioningContext context) {
+	public EngineSession(IProfile profile, File profileDataDirectory, ProvisioningContext context) {
 		this.profile = profile;
+		this.profileDataDirectory = profileDataDirectory;
 		this.context = context;
+	}
+
+	public File getProfileDataDirectory() {
+		return profileDataDirectory;
 	}
 
 	IStatus prepare() {
@@ -156,7 +164,7 @@ public class EngineSession {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (phase != currentPhase)
-			phase.prePerform(result, profile, context, new NullProgressMonitor());
+			phase.prePerform(result, this, profile, context, new NullProgressMonitor());
 
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 			ActionsRecord record = (ActionsRecord) it.previous();

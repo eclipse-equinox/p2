@@ -21,6 +21,7 @@ public abstract class Phase {
 	protected static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	protected static final String PARM_PHASE_ID = "phaseId"; //$NON-NLS-1$
 	protected static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
+	protected static final String PARM_PROFILE_DATA_DIRECTORY = "profileDataDirectory"; //$NON-NLS-1$
 	protected static final String PARM_CONTEXT = "context"; //$NON-NLS-1$
 
 	protected final String phaseId;
@@ -52,7 +53,7 @@ public abstract class Phase {
 
 	public final void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
-		prePerform(status, profile, context, subMonitor.newChild(prePerformWork));
+		prePerform(status, session, profile, context, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 		session.recordPhaseStart(this);
@@ -65,17 +66,18 @@ public abstract class Phase {
 		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(postPerformWork);
 		postPerform(status, profile, context, subMonitor.newChild(postPerformWork));
+		phaseParameters.clear();
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		subMonitor.done();
 	}
 
-	void prePerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
+	void prePerform(MultiStatus status, EngineSession session, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		phaseParameters.put(PARM_PROFILE, profile);
+		phaseParameters.put(PARM_PROFILE_DATA_DIRECTORY, session.getProfileDataDirectory());
 		phaseParameters.put(PARM_CONTEXT, context);
 		phaseParameters.put(PARM_PHASE_ID, phaseId);
-
 		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 	}
 
@@ -158,7 +160,6 @@ public abstract class Phase {
 
 	void postPerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		mergeStatus(status, completePhase(monitor, profile, phaseParameters));
-		phaseParameters.clear();
 	}
 
 	void undo(MultiStatus status, EngineSession session, IProfile profile, Operand operand, ProvisioningAction[] actions, ProvisioningContext context) {

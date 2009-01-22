@@ -38,6 +38,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
+	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
@@ -731,5 +732,16 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return (Profile) candidate;
 
 		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	}
+
+	public File getProfileDataDirectory(Profile profile) {
+		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
+		lock.checkLocked();
+
+		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
+		File profileDataArea = new File(profileDirectory, DATA_EXT);
+		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
+			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + profile.getProfileId()); //$NON-NLS-1$ //$NON-NLS-2$
+		return profileDataArea;
 	}
 }

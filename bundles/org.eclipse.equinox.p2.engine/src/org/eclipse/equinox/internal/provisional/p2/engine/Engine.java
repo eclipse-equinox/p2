@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import java.io.File;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -37,7 +38,9 @@ public class Engine implements IEngine {
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
-			EngineSession session = new EngineSession(profile, context);
+			File profileDataDirectory = profileRegistry.getProfileDataDirectory(profile);
+
+			EngineSession session = new EngineSession(profile, profileDataDirectory, context);
 
 			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
 			if (result.matches(IStatus.OK | IStatus.WARNING))

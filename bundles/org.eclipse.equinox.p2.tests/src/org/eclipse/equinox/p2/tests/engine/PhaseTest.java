@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
@@ -215,6 +217,41 @@ public class PhaseTest extends AbstractProvisioningTest {
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		assertTrue(phase.initializeOperand);
 		assertTrue(phase.completeOperand);
+	}
+
+	public void testGetProfileDataArea() {
+		TestPhase phase = new TestPhase() {
+			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+				File profileDataArea = (File) parameters.get("profileDataDirectory");
+				assertTrue(profileDataArea.isDirectory());
+				File test = new File(profileDataArea, "test");
+				assertFalse(test.exists());
+				try {
+					test.createNewFile();
+				} catch (IOException e) {
+					fail(e.getMessage());
+				}
+				assertTrue(test.exists());
+				return super.initializePhase(monitor, profile, parameters);
+			}
+
+			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+				File profileDataArea = (File) parameters.get("profileDataDirectory");
+				assertTrue(profileDataArea.isDirectory());
+				File test = new File(profileDataArea, "test");
+				assertTrue(test.exists());
+				test.delete();
+				assertFalse(test.exists());
+				return super.completePhase(monitor, profile, parameters);
+			}
+		};
+		PhaseSet phaseSet = new TestPhaseSet(phase);
+		IProfile profile = createProfile("PhaseTest");
+		IInstallableUnit unit = createIU("testGetProfileDataArea");
+
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		assertTrue(phase.initializePhase);
+		assertTrue(phase.completePhase);
 	}
 
 	public static class TestAction extends ProvisioningAction {
