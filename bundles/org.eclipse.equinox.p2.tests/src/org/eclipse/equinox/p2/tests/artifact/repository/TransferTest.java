@@ -54,7 +54,6 @@ public class TransferTest extends AbstractProvisioningTest {
 					Bundle bundle = Platform.getBundle(ecfPlugins[i]);
 					buffer.append(bundle.getSymbolicName()).append('-').append(bundle.getVersion()).append('\n');
 				}
-				Platform.getBundle("org.eclipse.ecf.provider.filetransfer.httpclient");
 				assertTrue("4.0 - length found: " + f.length() + " using ECF bundles: " + buffer.toString(), f.length() < 50000);
 				assertTrue("5.0", httpSize == -1 ? true : (httpSize == f.length()));
 			}
