@@ -11,19 +11,16 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.util.Calendar;
-import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
 
