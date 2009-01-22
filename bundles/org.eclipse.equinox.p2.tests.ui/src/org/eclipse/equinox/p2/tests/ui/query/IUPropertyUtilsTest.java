@@ -13,19 +13,9 @@ package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Locale;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -65,9 +55,12 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		assertEquals("1.6", "Test Provider Name", provider);
 	}
 
+	/*
+	 TEMPORARILY DISABLED see https://bugs.eclipse.org/bugs/show_bug.cgi?id=261931
+	 
 	public void testLocalizedLicense() throws URISyntaxException {
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
-		Profile profile = (Profile) profileRegistry.getProfile(IProfileRegistry.SELF);
+		Profile profile = (Profile) createProfile("TestLicenseProfile");
 		profileRegistry.lockProfile(profile);
 		String germanLicense = "German License";
 		String canadianFRLicense = "Canadian French License";
@@ -130,6 +123,8 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		license = IUPropertyUtils.getLicense(iu, Locale.CANADA_FRENCH);
 		assertEquals("1.1", canadianFRLicense, license.getBody());
 	}
+	
+	*/
 
 	public void testBasicIU() {
 		IInstallableUnit unit = createIU("f1");
