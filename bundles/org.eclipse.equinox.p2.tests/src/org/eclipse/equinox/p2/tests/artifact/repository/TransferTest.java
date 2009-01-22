@@ -11,9 +11,11 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
+import java.net.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ECFTransport;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 public class TransferTest extends AbstractProvisioningTest {
@@ -32,10 +34,29 @@ public class TransferTest extends AbstractProvisioningTest {
 		}
 		IStatus s = ECFTransport.getInstance().download("http://download.eclipse.org/eclipse/updates/3.5-I-builds/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz", fos, new NullProgressMonitor());
 		assertOK("2.0", s);
+		int httpSize = -1;
+		URL u;
+		try {
+			u = new URL("http://download.eclipse.org/eclipse/updates/3.5-I-builds/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
+			HttpURLConnection c = (HttpURLConnection) u.openConnection();
+			httpSize = c.getContentLength();
+		} catch (MalformedURLException e1) {
+			httpSize = -1;
+		} catch (IOException e) {
+			httpSize = -1;
+		}
 		try {
 			fos.close();
 			if (f != null) {
-				assertTrue("4.0", f.length() < 50000);
+				String[] ecfPlugins = new String[] {"org.eclipse.ecf", "org.eclipse.ecf.ssl", "org.eclipse.ecf.identity", "org.eclipse.ecf.filetransfer", "org.eclipse.ecf.provider.filetransfer", "org.eclipse.ecf.provider.filetransfer.ssl", "org.eclipse.ecf.provider.filetransfer.httpclient", "org.eclipse.ecf.provider.filetransfer.httpclient"};
+				StringBuffer buffer = new StringBuffer();
+				for (int i = 0; i < ecfPlugins.length; i++) {
+					Bundle bundle = Platform.getBundle(ecfPlugins[i]);
+					buffer.append(bundle.getSymbolicName()).append('-').append(bundle.getVersion()).append('\n');
+				}
+				Platform.getBundle("org.eclipse.ecf.provider.filetransfer.httpclient");
+				assertTrue("4.0 - length found: " + f.length() + " using ECF bundles: " + buffer.toString(), f.length() < 50000);
+				assertTrue("5.0", httpSize == -1 ? true : (httpSize == f.length()));
 			}
 		} catch (IOException e) {
 			fail("5.0", e);
