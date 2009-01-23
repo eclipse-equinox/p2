@@ -26,8 +26,6 @@ import org.eclipse.ui.progress.IElementCollector;
  */
 public abstract class RemoteQueriedElement extends QueriedElement implements IDeferredWorkbenchAdapter {
 
-	boolean alreadyCollected = false;
-
 	protected RemoteQueriedElement() {
 		super(null);
 	}
@@ -39,10 +37,8 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
 		try {
 			Object[] children = fetchChildren(o, monitor);
-
-			if (!monitor.isCanceled() && !alreadyCollected) {
+			if (!monitor.isCanceled()) {
 				collector.add(children, monitor);
-				alreadyCollected = true;
 			}
 		} catch (OperationCanceledException e) {
 			// Nothing to do
