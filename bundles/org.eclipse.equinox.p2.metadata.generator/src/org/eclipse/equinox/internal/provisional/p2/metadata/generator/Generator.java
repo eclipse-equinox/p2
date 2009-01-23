@@ -1180,8 +1180,17 @@ public class Generator {
 		//find the SiteFeature corresponding to the given feature
 		for (Iterator it = featuresToCategories.keySet().iterator(); it.hasNext();) {
 			SiteFeature siteFeature = (SiteFeature) it.next();
-			if (siteFeature.getFeatureIdentifier().equals(feature.getId()) && siteFeature.getFeatureVersion().equals(feature.getVersion()))
+			String siteVersion = siteFeature.getFeatureVersion();
+			if (!siteFeature.getFeatureIdentifier().equals(feature.getId()))
+				continue;
+			if (siteVersion.endsWith("qualifier")) { //$NON-NLS-1$
+				String withoutQualifier = siteVersion.substring(0, siteVersion.lastIndexOf("qualifier")); //$NON-NLS-1$
+				String featureVersion = feature.getVersion();
+				if (featureVersion.length() >= withoutQualifier.length() && featureVersion.substring(0, withoutQualifier.length()).equals(withoutQualifier))
+					return (Set) featuresToCategories.get(siteFeature);
+			} else if (siteFeature.getFeatureVersion().equals(feature.getVersion())) {
 				return (Set) featuresToCategories.get(siteFeature);
+			}
 		}
 		return null;
 	}
