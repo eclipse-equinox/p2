@@ -514,9 +514,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		for (int i = 0; i < length; ++i) {
 			char ch = text.charAt(i);
 			if (ch == '%') {
-				int colon = text.indexOf(';');
+				int colon = text.indexOf(';', i);
 				if (colon == -1)
-					throw new IllegalStateException("error unescaping the sequence at character (" + i + ") for " + text + ". Expected %{int};.");
+					throw new IllegalStateException("error unescaping the sequence at character (" + i + ") for " + text + ". Expected %{int};."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				ch = (char) Integer.parseInt(text.substring(i + 1, colon));
 				i = colon;
 			}
