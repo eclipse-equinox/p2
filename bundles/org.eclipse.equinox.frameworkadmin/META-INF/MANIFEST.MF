@@ -21,7 +21,8 @@ Export-Package: org.eclipse.equinox.internal.frameworkadmin.utils;
    org.eclipse.equinox.p2.publisher,
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.simpleconfigurator.manipulator,
-   org.eclipse.pde.core"
+   org.eclipse.pde.core,
+   org.eclipse.pde.ui"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
