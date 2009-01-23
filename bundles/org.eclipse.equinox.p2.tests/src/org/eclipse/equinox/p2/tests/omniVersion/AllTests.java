@@ -36,6 +36,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(RawRangeWithOriginalTest.class);
 		suite.addTestSuite(RawVersionTest.class);
 		suite.addTestSuite(RawWithOriginalTest.class);
+		suite.addTestSuite(IntersectionTest.class);
 
 		return suite;
 	}

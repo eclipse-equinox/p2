@@ -148,8 +148,8 @@ public class IntersectionTest extends TestCase {
 
 		b = new VersionRange("raw:(2.0.0,3.0.0]");
 		r = a.intersect(b);
-		assertEquals("#2.1", Version.parseVersion("raw:1.0.0"), r.getMinimum());
-		assertEquals("#2.2", Version.parseVersion("raw:2.0.0"), r.getMaximum());
+		assertEquals("#2.1", Version.parseVersion("raw:2.0.0"), r.getMinimum());
+		assertEquals("#2.2", Version.parseVersion("raw:3.0.0"), r.getMaximum());
 		assertTrue("#2.3", r.getIncludeMaximum());
 		assertTrue("#2.4", !r.getIncludeMinimum());
 		r = b.intersect(a);
