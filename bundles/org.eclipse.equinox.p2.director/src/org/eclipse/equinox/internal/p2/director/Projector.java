@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.io.*;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -24,8 +24,8 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
-import org.sat4j.pb.reader.OPBEclipseReader2007;
-import org.sat4j.reader.ParseFormatException;
+import org.sat4j.pb.tools.DependencyHelper;
+import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.*;
 
 /**
@@ -36,37 +36,80 @@ import org.sat4j.specs.*;
 public class Projector {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private IQueryable picker;
+	private QueryableArray patches;
 
-	private Map variables; //key IU, value corresponding variable in the problem
-	private Map noopVariables; //key IU, value corresponding no optionality variable in the problem, 
+	private Map variables; //key IU, value IUVariable
+	private Map noopVariables; //key IU, value AbstractVariable 
 	private List abstractVariables;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
 	private Dictionary selectionContext;
 
-	private int varCount = 1;
-
-	private ArrayList constraints;
-	private ArrayList dependencies;
-	private ArrayList tautologies;
-	private StringBuffer objective;
-	private StringBuffer explanation = new StringBuffer("explain: "); //$NON-NLS-1$
+	private DependencyHelper dependencyHelper;
 	private Collection solution;
 
-	private File problemFile;
 	private MultiStatus result;
 
-	private int commentsCount = 0;
+	abstract class PropositionalVariable {
+
+	}
+
+	class AbstractVariable extends PropositionalVariable {
+		@Override
+		public String toString() {
+			return "AbstractVariable: " + hashCode();
+		}
+	}
+
+	class IUVariable extends PropositionalVariable {
+
+		private final IInstallableUnit iu;
+
+		public IUVariable(IInstallableUnit iu) {
+			this.iu = iu;
+		}
+
+		public boolean equals(Object obj) {
+			if (obj == null)
+				return false;
+			if (obj == this)
+				return true;
+			if (obj instanceof IUVariable) {
+				IUVariable other = (IUVariable) obj;
+				return other.iu.getId().equals(iu.getId()) && other.iu.getVersion().equals(iu.getVersion());
+			}
+			return false;
+		}
+
+		public int hashCode() {
+			return iu.getId().hashCode() * 19 + iu.getVersion().hashCode() * 5779;
+		}
+
+		public String toString() {
+			return iu.getId() + '_' + iu.getVersion();
+		}
+
+		public IInstallableUnit getInstallableUnit() {
+			return iu;
+		}
+
+	}
+
+	private IUVariable newIUVariable(IInstallableUnit iu) {
+		IUVariable var = (IUVariable) variables.get(iu);
+		if (var == null) {
+			var = new IUVariable(iu);
+			variables.put(iu, var);
+		}
+		return var;
+	}
 
 	public Projector(IQueryable q, Dictionary context) {
 		picker = q;
 		variables = new HashMap();
 		noopVariables = new HashMap();
 		slice = new TwoTierMap();
-		constraints = new ArrayList();
-		tautologies = new ArrayList();
-		dependencies = new ArrayList();
 		selectionContext = context;
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
@@ -79,6 +122,9 @@ public class Projector {
 				start = System.currentTimeMillis();
 				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
 			}
+			IPBSolver solver = SolverFactory.newEclipseP2();
+			solver.setTimeoutOnConflicts(1000);
+			dependencyHelper = new DependencyHelper(solver, 100000);
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 			if (DEBUG) {
@@ -98,37 +144,31 @@ public class Projector {
 			}
 			createConstraintsForSingleton();
 			for (int i = 0; i < ius.length; i++) {
-				createMustHaves(ius[i]);
+				IInstallableUnit iu = ius[i];
+				createMustHave(iu);
 			}
 			createOptimizationFunction(ius);
-			persist();
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
+		} catch (ContradictionException e) {
+			// TODO: jkca is this the right answer here?
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
 		}
-	}
-
-	// translates a -> -b into pseudo boolean
-	private String impliesNo(String a, String b) {
-		return "-1 " + a + " -1 " + b + ">= -1 ;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
-
-	private String implies(String a, String b) {
-		return "-1 " + a + " +1 " + b + ">= -1 ;"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	//Create an optimization function favoring the highest version of each IU  
 	private void createOptimizationFunction(IInstallableUnit[] ius) {
-		final String MIN_STR = "min:"; //$NON-NLS-1$
 
-		objective = new StringBuffer(MIN_STR);
+		List weightedObjects = new ArrayList();
+
 		Set s = slice.entrySet();
-		final int POWER = 2;
+		final BigInteger POWER = BigInteger.valueOf(2);
 
-		long maxWeight = POWER;
+		BigInteger maxWeight = POWER;
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			HashMap conflictingEntries = (HashMap) entry.getValue();
@@ -137,67 +177,91 @@ public class Projector {
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			long weight = POWER;
+			BigInteger weight = BigInteger.ONE;
 			int count = toSort.size();
-			for (int i = 1; i < count; i++) {
-				objective.append(' ').append(weight).append(' ').append(getVariable((IInstallableUnit) toSort.get(i)));
-				weight *= POWER;
+			for (int i = 0; i < count; i++) {
+				weightedObjects.add(WeightedObject.newWO(newIUVariable(((IInstallableUnit) toSort.get(i))), weight));
+				weight = weight.multiply(POWER);
 			}
-			if (weight > maxWeight)
+			if (weight.compareTo(maxWeight) > 0)
 				maxWeight = weight;
 		}
 
-		maxWeight *= POWER;
+		maxWeight = maxWeight.multiply(POWER);
 
+		// Weight the no-op variables beneath the abstract variables
 		for (Iterator iterator = noopVariables.values().iterator(); iterator.hasNext();) {
-			objective.append(' ').append(maxWeight).append(' ').append(iterator.next().toString());
+			weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
 		}
 
-		maxWeight *= POWER;
+		maxWeight = maxWeight.multiply(POWER);
 
-		//Add the abstract variables
+		// Add the abstract variables
+		BigInteger abstractWeight = maxWeight.negate();
 		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
-			objective.append(" -").append(maxWeight).append(" ").append((String) iterator.next()); //$NON-NLS-1$ //$NON-NLS-2$
+			weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
 		}
 
-		maxWeight *= POWER;
-		objective.append(' ').append(getPatchesWeight(ius, maxWeight));
+		maxWeight = maxWeight.multiply(POWER);
 
-		if (MIN_STR.equals(objective.toString().trim())) {
-			objective = new StringBuffer();
-		} else {
-			objective.append(" ;"); //$NON-NLS-1$
-		}
-	}
-
-	protected StringBuffer getPatchesWeight(IInstallableUnit ius[], long weight) {
-		StringBuffer patchesWeight = new StringBuffer();
-		if (patches == null)
-			return patchesWeight;
-		for (int i = 0; i < ius.length; i++) {
-			IRequiredCapability[] reqs = ius[i].getRequiredCapabilities();
-			for (int j = 0; j < reqs.length; j++) {
-				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-					IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
-					patchesWeight.append('-').append(weight).append(' ').append(getVariable(match)).append(' ');
+		BigInteger patchWeight = maxWeight.negate();
+		if (patches != null) {
+			for (int i = 0; i < ius.length; i++) {
+				IRequiredCapability[] reqs = ius[i].getRequiredCapabilities();
+				for (int j = 0; j < reqs.length; j++) {
+					Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+					for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+						IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
+						weightedObjects.add(WeightedObject.newWO(newIUVariable(match), patchWeight));
+					}
 				}
 			}
 		}
-		return patchesWeight;
+
+		if (!weightedObjects.isEmpty()) {
+			createObjectiveFunction(weightedObjects);
+		}
 	}
 
-	private void createMustHaves(IInstallableUnit iu) {
-		tautologies.add(" +1 " + getVariable(iu) + " = 1;"); //$NON-NLS-1$ //$NON-NLS-2$
+	private void createObjectiveFunction(List weightedObjects) {
+		if (DEBUG) {
+			StringBuffer b = new StringBuffer();
+			for (Iterator i = weightedObjects.iterator(); i.hasNext();) {
+				WeightedObject object = (WeightedObject) i.next();
+				if (b.length() > 0)
+					b.append(", "); //$NON-NLS-1$
+				b.append(object.getWeight());
+				b.append(' ');
+				b.append(object.thing);
+			}
+			Tracing.debug("objective function: " + b);
+		}
+		dependencyHelper.setObjectiveFunction((WeightedObject[]) weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
 	}
 
-	private void createNegation(IInstallableUnit iu) {
-		createNegation(getVariable(iu));
+	private void createMustHave(IInstallableUnit iu) throws ContradictionException {
+		IUVariable variable = newIUVariable(iu);
+		if (DEBUG) {
+			Tracing.debug(variable + "=1"); //$NON-NLS-1$
+		}
+		dependencyHelper.setTrue(variable, variable.toString());
 	}
 
-	private void createNegation(String var) {
-		tautologies.add(" +1" + var + " = 0;"); //$NON-NLS-1$//$NON-NLS-2$
+	private void createNegation(IInstallableUnit iu) throws ContradictionException {
+		IUVariable variable = newIUVariable(iu);
+		if (DEBUG) {
+			Tracing.debug(variable + "=0"); //$NON-NLS-1$
+		}
+		dependencyHelper.setFalse(variable, '~' + variable.toString());
 	}
+
+	//	private void createExistence(IInstallableUnit iu) throws ContradictionException {
+	//		IUVariable variable = newIUVariable(iu);
+	//		if (DEBUG) {
+	//			Tracing.debug(variable + "=1"); //$NON-NLS-1$
+	//		}
+	//		dependencyHelper.setTrue(variable, variable.toString());
+	//	}
 
 	// Check whether the requirement is applicable
 	private boolean isApplicable(IRequiredCapability req) {
@@ -211,97 +275,6 @@ public class Projector {
 		}
 	}
 
-	//Write the problem generated into a temporary file
-	private void persist() {
-		try {
-			problemFile = File.createTempFile("p2Encoding", ".opb"); //$NON-NLS-1$//$NON-NLS-2$
-			BufferedWriter w = new BufferedWriter(new FileWriter(problemFile));
-			int clauseCount = tautologies.size() + dependencies.size() + constraints.size() - commentsCount;
-
-			w.write("* #variable= " + varCount + " #constraint= " + clauseCount + "  "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			w.newLine();
-			w.write("*"); //$NON-NLS-1$
-			w.newLine();
-			displayMappingInComments(w);
-			if (clauseCount == 0) {
-				w.close();
-				return;
-			}
-			w.write(objective.toString());
-			w.newLine();
-			w.newLine();
-			w.write(explanation + " ;"); //$NON-NLS-1$
-			w.newLine();
-			w.newLine();
-
-			for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-				w.write((String) iterator.next());
-				w.newLine();
-			}
-			for (Iterator iterator = constraints.iterator(); iterator.hasNext();) {
-				w.write((String) iterator.next());
-				w.newLine();
-			}
-			for (Iterator iterator = tautologies.iterator(); iterator.hasNext();) {
-				w.write((String) iterator.next());
-				w.newLine();
-			}
-			w.close();
-		} catch (IOException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Error_saving_opbfile, problemFile), e));
-		}
-	}
-
-	private void displayMappingInComments(BufferedWriter w) throws IOException {
-		if (!DEBUG)
-			return;
-		List vars = new ArrayList(variables.keySet());
-		Collections.sort(vars);
-		w.write("* IUs variables"); //$NON-NLS-1$
-		w.newLine();
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-		Iterator iterator = vars.iterator();
-		while (iterator.hasNext()) {
-			w.write("* "); //$NON-NLS-1$
-			Object key = iterator.next();
-			w.write(key.toString());
-			w.write("=>"); //$NON-NLS-1$
-			w.write(variables.get(key).toString());
-			w.newLine();
-		}
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-		w.write("* Abstract variables"); //$NON-NLS-1$
-		w.newLine();
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-		iterator = abstractVariables.iterator();
-		w.write("* "); //$NON-NLS-1$
-		while (iterator.hasNext()) {
-			w.write(iterator.next().toString());
-			w.write(' ');
-		}
-		w.newLine();
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-		w.write("* NoOp variables"); //$NON-NLS-1$
-		w.newLine();
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-		iterator = noopVariables.keySet().iterator();
-		while (iterator.hasNext()) {
-			w.write("* "); //$NON-NLS-1$
-			Object key = iterator.next();
-			w.write(key.toString());
-			w.write("=>"); //$NON-NLS-1$
-			w.write(noopVariables.get(key).toString());
-			w.newLine();
-		}
-		w.write("* "); //$NON-NLS-1$
-		w.newLine();
-	}
-
 	private boolean isApplicable(IInstallableUnit iu) {
 		String enablementFilter = iu.getFilter();
 		if (enablementFilter == null)
@@ -313,11 +286,10 @@ public class Projector {
 		}
 	}
 
-	public void processIU(IInstallableUnit iu) {
+	public void processIU(IInstallableUnit iu) throws ContradictionException {
 		iu = iu.unresolved();
 
 		slice.put(iu.getId(), iu.getVersion(), iu);
-		explanation.append(" ").append(getVariable(iu)); //$NON-NLS-1$
 		if (!isApplicable(iu)) {
 			createNegation(iu);
 			return;
@@ -325,19 +297,35 @@ public class Projector {
 
 		Collector patches = getApplicablePatches(iu);
 		expandLifeCycle(iu);
+		PropositionalVariable iuVar = newIUVariable(iu);
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
 			IRequiredCapability[] reqs = iu.getRequiredCapabilities();
 			if (reqs.length == 0) {
 				return;
 			}
+			List optionalAbstractRequirements = new ArrayList();
 			for (int i = 0; i < reqs.length; i++) {
-				if (!isApplicable(reqs[i]))
+				IRequiredCapability req = reqs[i];
+				if (!isApplicable(req))
 					continue;
-
-				expandRequirement(null, iu, reqs[i]);
+				List optionalRequirements = new ArrayList();
+				List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+				if (!req.isOptional()) {
+					if (expandedRequirement.isEmpty()) {
+						missingRequirement(iu, req);
+					} else {
+						createImplication(iuVar, expandedRequirement, iuVar + "->" + req);
+					}
+				} else {
+					if (!optionalRequirements.isEmpty()) {
+						PropositionalVariable abs = getAbstractVariable();
+						createImplication(abs, optionalRequirements, "abs -> " + optionalRequirements);
+						optionalAbstractRequirements.add(abs);
+					}
+				}
 			}
-			addOptionalityExpression();
+			createOptionalityExpression(iu, optionalAbstractRequirements);
 		} else {
 			//Patches are applicable to the IU
 
@@ -349,6 +337,12 @@ public class Projector {
 				if (reqs.length == 0)
 					return;
 
+				// Optional requirements are encoded via:
+				// ABS -> (match1(req) or match2(req) or ... or matchN(req))
+				// noop(IU)-> ~ABS
+				// IU -> (noop(IU) or ABS)
+				// Therefore we only need one optional requirement statement per IU
+				List optionalAbstractRequirements = new ArrayList();
 				for (int i = 0; i < reqs.length; i++) {
 					//The requirement is unchanged
 					if (reqs[i][0] == reqs[i][1]) {
@@ -364,50 +358,136 @@ public class Projector {
 						continue;
 					}
 
+					PropositionalVariable patchVar = newIUVariable(patch);
 					//Generate dependency when the patch is applied
-					//P1 -> A -> D (equiv P1 & A -> D equiv -1 P1 -1 A + 1 B >= -1)
+					//P1 -> (A -> D) equiv. (P1 & A) -> D
 					if (isApplicable(reqs[i][1])) {
-						genericExpandRequirement(" -1 " + getVariable(patch) + " -1 " + getVariable(iu), iu, reqs[i][1], " >= -1", " 1 " + getVariable(patch) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						IRequiredCapability req = reqs[i][1];
+						List optionalRequirements = new ArrayList();
+						List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+						if (!req.isOptional()) {
+							if (expandedRequirement.isEmpty()) {
+								missingRequirement(patch, req);
+							} else {
+								createImplication(new PropositionalVariable[] {patchVar, iuVar}, expandedRequirement, "abstract->" + expandedRequirement);
+							}
+						} else {
+							if (!optionalRequirements.isEmpty()) {
+								PropositionalVariable abs = getAbstractVariable();
+								createImplication(new PropositionalVariable[] {patchVar, abs}, optionalRequirements, "abs -> " + optionalRequirements);
+								optionalAbstractRequirements.add(abs);
+							}
+						}
 					}
 					//Generate dependency when the patch is not applied
-					//-P1 -> A -> B ( equiv. -P1 & A -> B equiv 1 P1 - 1 A + 1 B >= 0)
-					if (isApplicable(reqs[i][0]))
-						genericExpandRequirement(" 1 " + getVariable(patch) + " -1 " + getVariable(iu), iu, reqs[i][0], " >= 0", implies(getVariable(iu), getVariable(patch))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
+					if (isApplicable(reqs[i][0])) {
+						IRequiredCapability req = reqs[i][0];
+						List optionalRequirements = new ArrayList();
+						List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+						if (!req.isOptional()) {
+							if (expandedRequirement.isEmpty()) {
+								missingRequirement(patch, req);
+							} else {
+								expandedRequirement.add(patchVar);
+								createImplication(iuVar, expandedRequirement, "B->" + expandedRequirement);
+							}
+						} else {
+							if (!optionalRequirements.isEmpty()) {
+								PropositionalVariable abs = getAbstractVariable();
+								optionalAbstractRequirements.add(patchVar);
+								createImplication(abs, optionalRequirements, "abs -> " + optionalAbstractRequirements);
+								optionalAbstractRequirements.add(abs);
+							}
+						}
+					}
 				}
-				addOptionalityExpression();
+				createOptionalityExpression(iu, optionalAbstractRequirements);
 			}
+			List optionalAbstractRequirements = new ArrayList();
 			for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
 				Entry entry = (Entry) iterator.next();
-				StringBuffer expression = new StringBuffer();
 				List patchesApplied = (List) entry.getValue();
 				List allPatches = new ArrayList(patches.toCollection());
 				allPatches.removeAll(patchesApplied);
+				List requiredPatches = new ArrayList();
 				for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
 					IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
-					expression.append(" 1 " + getVariable(patch)); //$NON-NLS-1$
+					requiredPatches.add(newIUVariable(patch));
 				}
-				if (allPatches.size() != 0)
-					genericExpandRequirement(expression.toString(), iu, (IRequiredCapability) entry.getKey(), " >= 0", " 1 " + getVariable(iu) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				else
-					expandRequirement(null, iu, (IRequiredCapability) entry.getKey());
+				IRequiredCapability req = (IRequiredCapability) entry.getKey();
+				List optionalRequirements = new ArrayList();
+				List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+				if (!req.isOptional()) {
+					if (expandedRequirement.isEmpty()) {
+						missingRequirement(iu, req);
+					} else {
+						if (!requiredPatches.isEmpty())
+							expandedRequirement.addAll(requiredPatches);
+						createImplication(iuVar, expandedRequirement, iuVar + "->" + req);
+					}
+				} else {
+					if (!optionalRequirements.isEmpty()) {
+						if (!requiredPatches.isEmpty())
+							optionalRequirements.addAll(requiredPatches);
+						PropositionalVariable abs = getAbstractVariable();
+						createImplication(abs, optionalRequirements, "abs -> " + optionalRequirements);
+						optionalAbstractRequirements.add(abs);
+					}
+				}
+			}
+			createOptionalityExpression(iu, optionalAbstractRequirements);
+		}
+	}
+
+	private void expandLifeCycle(IInstallableUnit iu) throws ContradictionException {
+		if (!(iu instanceof IInstallableUnitPatch))
+			return;
+		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
+		IRequiredCapability req = patch.getLifeCycle();
+		if (req == null)
+			return;
+		List optionalRequirements = new ArrayList();
+		List expandedRequirement = expandRequirement(patch, req, optionalRequirements);
+		if (!req.isOptional()) {
+			if (expandedRequirement.isEmpty()) {
+				missingRequirement(iu, req);
+			} else {
+				PropositionalVariable varIu = newIUVariable(iu);
+				createImplication(varIu, expandedRequirement, varIu + "->" + req);
 			}
 		}
 	}
 
-	private void expandLifeCycle(IInstallableUnit iu) {
-		if (!(iu instanceof IInstallableUnitPatch))
-			return;
-		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
-		if (patch.getLifeCycle() == null)
-			return;
-		expandNormalRequirement(null, iu, patch.getLifeCycle());
+	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
+		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+		createNegation(iu);
 	}
 
-	private void genericExpandRequirement(String var, IInstallableUnit iu, IRequiredCapability req, String value, String negationExpression) {
+	/**
+	 * 
+	 * @param iu
+	 * @param req 
+	 * @param expandedOptionalRequirement a collector list to gather optional requirements. It will be updated 
+	 *        if req.isOptional()
+	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
+	 */
+	private List expandRequirement(IInstallableUnit iu, IRequiredCapability req, List expandedOptionalRequirement) {
+		List target;
 		if (req.isOptional())
-			genericOptionalRequirementExpansion(var, iu, req, value);
+			target = expandedOptionalRequirement;
 		else
-			genericRequirementExpansion(var, iu, req, value, negationExpression);
+			target = new ArrayList();
+		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
+		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = (IInstallableUnit) iterator.next();
+			if (isApplicable(match)) {
+				target.add(newIUVariable(match));
+			}
+		}
+		if (req.isOptional())
+			return Collections.EMPTY_LIST;
+		return target;
 	}
 
 	//Return a new array of requirements representing the application of the patch
@@ -443,169 +523,60 @@ public class Projector {
 		return (IRequiredCapability[][]) rrr.toArray(new IRequiredCapability[rrr.size()][]);
 	}
 
-	private void addOptionalityExpression() {
-		if (optionalityExpression != null && countOptionalIUs > 0)
-			dependencies.add(optionalityExpression + " >= 0;"); //$NON-NLS-1$
-		optionalityExpression = null;
-		countOptionalIUs = 0;
-	}
-
-	private String optionalityExpression = null;
-	private int countOptionalIUs = 0;
-	private QueryableArray patches;
-
-	private void expandOptionalRequirement(String iuVar, IInstallableUnit iu, IRequiredCapability req) {
-		if (iuVar == null)
-			iuVar = getVariable(iu);
-		String abstractVar = getAbstractVariable();
-		String expression = " -1 " + abstractVar; //$NON-NLS-1$
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		if (optionalityExpression == null)
-			optionalityExpression = " -1 " + iuVar + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
-		StringBuffer comment = new StringBuffer();
-		if (DEBUG) {
-			comment.append("* "); //$NON-NLS-1$
-			comment.append(iu.toString());
-			comment.append(" requires optionaly either "); //$NON-NLS-1$
-		}
-		int countMatches = 0;
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
-			if (isApplicable(match)) {
-				countMatches++;
-				expression += " 1 " + getVariable(match); //$NON-NLS-1$
-				if (DEBUG) {
-					comment.append(match.toString());
-					comment.append(' ');
-				}
-			}
-		}
-		countOptionalIUs += countMatches;
-		if (countMatches > 0) {
-			if (DEBUG) {
-				dependencies.add(comment.toString());
-				commentsCount++;
-			}
-			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
-			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
-			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
-		} else {
-			if (DEBUG)
-				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+	/**
+	 * Optional requirements are encoded via:
+	 * ABS -> (match1(req) or match2(req) or ... or matchN(req))
+	 * noop(IU)-> ~ABS
+	 * IU -> (noop(IU) or ABS)
+	 * @param iu
+	 * @param optionalRequirements
+	 * @throws ContradictionException 
+	 */
+	private void createOptionalityExpression(IInstallableUnit iu, List optionalRequirements) throws ContradictionException {
+		if (optionalRequirements.isEmpty())
+			return;
+		IUVariable iuVar = newIUVariable(iu);
+		PropositionalVariable noop = getNoOperationVariable(iu);
+		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
+			PropositionalVariable abs = (PropositionalVariable) i.next();
+			createAtMostOne(new PropositionalVariable[] {abs, noop});
+			createImplication(iuVar, new Object[] {abs, noop}, iu + "->noop V abs");
 		}
 	}
 
-	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, IRequiredCapability req, String value) {
-		String abstractVar = getAbstractVariable();
-		String expression = iuVar;
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		if (optionalityExpression == null)
-			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
-		StringBuffer comment = new StringBuffer();
+	private void createImplication(PropositionalVariable left, List right, String name) throws ContradictionException {
 		if (DEBUG) {
-			comment.append("* "); //$NON-NLS-1$
-			comment.append(iu.toString());
-			comment.append(" requires optionaly either "); //$NON-NLS-1$
+			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		int countMatches = 0;
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
-			if (isApplicable(match)) {
-				countMatches++;
-				expression += " 1 " + getVariable(match); //$NON-NLS-1$
-				if (DEBUG) {
-					comment.append(match.toString());
-					comment.append(' ');
-				}
-			}
-		}
-		countOptionalIUs += countMatches;
-		if (countMatches > 0) {
-			if (DEBUG) {
-				dependencies.add(comment.toString());
-				commentsCount++;
-			}
-			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
-			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
-		} else {
-			if (DEBUG)
-				Tracing.debug("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
-		}
+		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
 
-	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, IRequiredCapability req, String value, String negationExpression) {
-		String expression = varIu;
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		StringBuffer comment = new StringBuffer();
+	private void createImplication(PropositionalVariable[] left, List right, String name) throws ContradictionException {
 		if (DEBUG) {
-			comment.append("* "); //$NON-NLS-1$
-			comment.append(iu.toString());
-			comment.append(" requires either "); //$NON-NLS-1$
+			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		int countMatches = 0;
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
-			if (isApplicable(match)) {
-				countMatches++;
-				expression += " +1 " + getVariable(match); //$NON-NLS-1$
-				if (DEBUG) {
-					comment.append(match.toString());
-					comment.append(' ');
-				}
-			}
-		}
-
-		if (countMatches > 0) {
-			if (DEBUG) {
-				dependencies.add(comment.toString());
-				commentsCount++;
-			}
-			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
-			dependencies.add(negationExpression);
-		}
+		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
 
-	private void expandNormalRequirement(String varIu, IInstallableUnit iu, IRequiredCapability req) {
-		//Generate the regular requirement
-		if (varIu == null)
-			varIu = getVariable(iu);
-		StringBuffer expression = new StringBuffer("-1 "); //$NON-NLS-1$
-		expression.append(varIu);
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		StringBuffer comment = new StringBuffer();
-		if (DEBUG) {
-			comment.append("* "); //$NON-NLS-1$
-			comment.append(iu.toString());
-			comment.append(" requires either "); //$NON-NLS-1$
-		}
-		int countMatches = 0;
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
-			if (isApplicable(match)) {
-				countMatches++;
-				expression.append(" +1 "); //$NON-NLS-1$
-				expression.append(getVariable(match));
-				if (DEBUG) {
-					comment.append(match.toString());
-					comment.append(' ');
-				}
-			}
-		}
+	//	private void createImplication(PropositionalVariable[] left, PropositionalVariable right, String name) throws ContradictionException {
+	//		if (DEBUG) {
+	//			Tracing.debug(name + ": " + Arrays.toString(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
+	//		}
+	//		dependencyHelper.implication(left).implies(right).named(name);
+	//	}
 
-		if (countMatches > 0) {
-			if (DEBUG) {
-				dependencies.add(comment.toString());
-				commentsCount++;
-			}
-			expression.append(" >= 0;"); //$NON-NLS-1$
-			dependencies.add(expression.toString());
-		} else {
-			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
-			createNegation(varIu);
+	//	private void createImplication(Object[] left, List right, String name) throws ContradictionException {
+	//		if (DEBUG) {
+	//			Tracing.debug(name + ": " + Arrays.toString(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
+	//		}
+	//		dependencyHelper.implication(left).implies(right.toArray()).named(name);
+	//	}
+
+	private void createImplication(PropositionalVariable left, Object[] right, String name) throws ContradictionException {
+		if (DEBUG) {
+			Tracing.debug(name + ": " + left + "->" + Arrays.toString(right)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		dependencyHelper.implication(left).implies(right).named(name);
 	}
 
 	//Return IUPatches that are applicable for the given iu
@@ -616,16 +587,9 @@ public class Projector {
 		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
 	}
 
-	private void expandRequirement(String var, IInstallableUnit iu, IRequiredCapability req) {
-		if (req.isOptional())
-			expandOptionalRequirement(var, iu, req);
-		else
-			expandNormalRequirement(var, iu, req);
-	}
-
 	//Create constraints to deal with singleton
 	//When there is a mix of singleton and non singleton, several constraints are generated 
-	private void createConstraintsForSingleton() {
+	private void createConstraintsForSingleton() throws ContradictionException {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -634,49 +598,46 @@ public class Projector {
 				continue;
 
 			Collection conflictingVersions = conflictingEntries.values();
-			String singletonRule = ""; //$NON-NLS-1$
-			ArrayList nonSingleton = new ArrayList();
-			int countSingleton = 0;
+			List singletons = new ArrayList();
+			List nonSingletons = new ArrayList();
 			for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
-				IInstallableUnit conflictElt = (IInstallableUnit) conflictIterator.next();
-				if (conflictElt.isSingleton()) {
-					singletonRule += " -1 " + getVariable(conflictElt); //$NON-NLS-1$
-					countSingleton++;
+				IInstallableUnit iu = (IInstallableUnit) conflictIterator.next();
+				if (iu.isSingleton()) {
+					singletons.add(newIUVariable(iu));
 				} else {
-					nonSingleton.add(conflictElt);
+					nonSingletons.add(newIUVariable(iu));
 				}
 			}
-			if (countSingleton == 0)
+			if (singletons.isEmpty())
 				continue;
 
-			for (Iterator iterator2 = nonSingleton.iterator(); iterator2.hasNext();) {
-				constraints.add(singletonRule + " -1 " + getVariable((IInstallableUnit) iterator2.next()) + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$
+			PropositionalVariable[] singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size() + 1]);
+			for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
+				singletonArray[singletonArray.length - 1] = (PropositionalVariable) iterator2.next();
+				createAtMostOne(singletonArray);
 			}
-			singletonRule += " >= -1;"; //$NON-NLS-1$
-			constraints.add(singletonRule);
+			singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size()]);
+			createAtMostOne(singletonArray);
 		}
 	}
 
-	//Return the corresponding variable 
-	private String getVariable(IInstallableUnit iu) {
-		String v = (String) variables.get(iu);
-		if (v == null) {
-			v = new String("x" + varCount++); //$NON-NLS-1$
-			variables.put(iu, v);
+	private void createAtMostOne(PropositionalVariable[] variables) throws ContradictionException {
+		if (DEBUG) {
+			Tracing.debug("At most 1 of " + Arrays.toString(variables)); //$NON-NLS-1$
 		}
-		return v;
+		dependencyHelper.atMost(1, variables).named("At most 1 of " + variables);
 	}
 
-	private String getAbstractVariable() {
-		String newVar = new String("x" + varCount++); //$NON-NLS-1$
-		abstractVariables.add(newVar);
-		return newVar;
+	private PropositionalVariable getAbstractVariable() {
+		AbstractVariable abstractVariable = new AbstractVariable();
+		abstractVariables.add(abstractVariable);
+		return abstractVariable;
 	}
 
-	private String getNoOperationVariable(IInstallableUnit iu) {
-		String v = (String) noopVariables.get(iu);
+	private PropositionalVariable getNoOperationVariable(IInstallableUnit iu) {
+		PropositionalVariable v = (PropositionalVariable) noopVariables.get(iu);
 		if (v == null) {
-			v = new String("x" + varCount++); //$NON-NLS-1$
+			v = new AbstractVariable();
 			noopVariables.put(iu, v);
 		}
 		return v;
@@ -685,68 +646,60 @@ public class Projector {
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
-		IPBSolver solver = SolverFactory.newEclipseP2();
-		solver.setTimeoutOnConflicts(1000);
-		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
 		// CNF filename is given on the command line 
 		long start = System.currentTimeMillis();
 		if (DEBUG)
 			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
-		FileReader fr = null;
-		boolean delete = true;
 		try {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			fr = new FileReader(problemFile);
-			IProblem problem = reader.parseInstance(fr);
-			if (problem.isSatisfiable()) {
-				//				problem.model();
+			if (dependencyHelper.hasASolution()) {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
-					Tracing.debug(reader.decode(problem.model()));
 				}
-				backToIU(problem);
+				backToIU();
 				long stop = System.currentTimeMillis();
 				if (DEBUG)
 					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
 			} else {
-				if (DEBUG)
+				long stop = System.currentTimeMillis();
+				if (DEBUG) {
 					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
-				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfiable_problem, problemFile)));
+					Tracing.debug("Solver solution NOT found: " + (stop - start)); //$NON-NLS-1$
+				}
+				if (DEBUG) {
+					start = System.currentTimeMillis();
+					Tracing.debug("Determining cause of failure: " + start);
+				}
+				Set why = dependencyHelper.why();
+				if (DEBUG) {
+					stop = System.currentTimeMillis();
+					Tracing.debug("Explanation found: " + (stop - start));
+					Tracing.debug("Explanation:");
+					for (Iterator i = why.iterator(); i.hasNext();) {
+						Tracing.debug(i.next().toString());
+					}
+				}
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
 			}
-		} catch (FileNotFoundException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Missing_opb_file, problemFile)));
-		} catch (ParseFormatException e) {
-			delete = false;
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Format_error, problemFile)));
-		} catch (ContradictionException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Trivial_exception, problemFile)));
 		} catch (TimeoutException e) {
-			delete = false;
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Timeout));
 		} catch (Exception e) {
-			delete = false;
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unexpected_problem, e));
-		} finally {
-			try {
-				if (fr != null)
-					fr.close();
-			} catch (IOException e) {
-				//ignore
-			}
-			if (delete)
-				problemFile.delete();
 		}
+		if (DEBUG)
+			System.out.println();
 		return result;
 	}
 
-	private void backToIU(IProblem problem) {
+	private void backToIU() {
 		solution = new ArrayList();
-		for (Iterator allIUs = variables.entrySet().iterator(); allIUs.hasNext();) {
-			Entry entry = (Entry) allIUs.next();
-			int match = Integer.parseInt(((String) entry.getValue()).substring(1));
-			if (problem.model(match)) {
-				solution.add(((IInstallableUnit) entry.getKey()).unresolved());
+		IVec sat4jSolution = dependencyHelper.getSolution();
+		for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
+			Object var = i.next();
+			if (var instanceof IUVariable) {
+				IUVariable iuVar = (IUVariable) var;
+				solution.add(iuVar.getInstallableUnit());
 			}
 		}
 	}
@@ -754,7 +707,8 @@ public class Projector {
 	private void printSolution(Collection state) {
 		ArrayList l = new ArrayList(state);
 		Collections.sort(l);
-		Tracing.debug("Numbers of IUs selected:" + l.size()); //$NON-NLS-1$
+		Tracing.debug("Solution:"); //$NON-NLS-1$
+		Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
 			Tracing.debug(iterator.next().toString());
 		}

@@ -46,6 +46,7 @@ public class SimplePlanner implements IPlanner {
 		if (status == null)
 			status = Status.OK_STATUS;
 		if (DEBUG) {
+			Tracing.debug("Operands:"); //$NON-NLS-1$
 			for (int i = 0; i < operands.length; i++) {
 				Tracing.debug(operands[i].toString());
 			}
