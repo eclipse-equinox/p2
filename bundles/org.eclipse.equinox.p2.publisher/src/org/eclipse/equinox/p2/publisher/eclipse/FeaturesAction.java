@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008-2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -54,9 +54,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
@@ -263,9 +263,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -324,9 +324,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -426,8 +426,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
 			IInstallableUnit featureIU = generateFeatureJarIU(feature, childIUs, info);
 			if (featureIU != null) {
-			publishFeatureArtifacts(feature, featureIU, info);
-			result.addIU(featureIU, IPublisherResult.ROOT);
+				publishFeatureArtifacts(feature, featureIU, info);
+				result.addIU(featureIU, IPublisherResult.ROOT);
 			}
 			generateSiteReferences(feature, result, info);
 

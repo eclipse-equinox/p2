@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008-2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     EclipseSource - bug fixing
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
@@ -57,7 +57,7 @@ public class IUPropertyUtils {
 			return license;
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
-		return new License(license.getLocation(), body);
+		return MetadataFactory.createLicense(license.getLocation(), body);
 	}
 
 	public static ICopyright getCopyright(IInstallableUnit iu, Locale locale) {
@@ -67,7 +67,7 @@ public class IUPropertyUtils {
 			return copyright;
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
-		return new Copyright(copyright.getLocation(), body);
+		return MetadataFactory.createCopyright(copyright.getLocation(), body);
 	}
 
 	public static String getIUProperty(IInstallableUnit iu, String propertyKey, Locale locale) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -655,9 +655,9 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		if (feature.getApplication() != null)
 			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
 		if (feature.getPlugin() != null)
@@ -753,9 +753,9 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -823,9 +823,9 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(new License(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
-			iu.setCopyright(new Copyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();

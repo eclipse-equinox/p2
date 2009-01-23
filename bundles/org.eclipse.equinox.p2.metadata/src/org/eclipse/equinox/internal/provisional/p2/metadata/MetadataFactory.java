@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC
+ *		EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
@@ -297,6 +299,29 @@ public class MetadataFactory {
 	 */
 	public static IRequirementChange createRequirementChange(IRequiredCapability applyOn, IRequiredCapability newValue) {
 		return new RequirementChange(applyOn, newValue);
+	}
+
+	/**
+	 * Returns a new {@link ICopyright}.
+	 * @param location the location of a document containing the copyright notice, or <code>null</code>
+	 * @param body the copyright body, cannot be <code>null</code>
+	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
+	 */
+	public static ICopyright createCopyright(URI location, String body) {
+		return new Copyright(location, body);
+	}
+
+	/**
+	 * Return a new {@link ILicense}
+	 * The body should contain either the full text of the license or an summary for a license
+	 * fully specified in the given location.
+	 * 
+	 * @param location the location of a document containing the full license, or <code>null</code>
+	 * @param body the license body, cannot be <code>null</code>
+	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
+	 */
+	public static ILicense createLicense(URI location, String body) {
+		return new License(location, body);
 	}
 
 	/**

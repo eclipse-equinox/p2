@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
+ *		EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
@@ -803,7 +804,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML()) {
-				licenses.add(new License(location, getText()));
+				licenses.add(MetadataFactory.createLicense(location, getText()));
 			}
 		}
 	}
@@ -823,7 +824,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML()) {
-				copyright = new Copyright(location, getText());
+				copyright = MetadataFactory.createCopyright(location, getText());
 			}
 		}
 
