@@ -3,7 +3,7 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  * 	Daniel Le Berre - Fix in the encoding and the optimization function
  * Alban Browaeys - Optimized string concatenation in bug 251357
@@ -39,7 +39,7 @@ public class Projector {
 	private QueryableArray patches;
 
 	private Map variables; //key IU, value IUVariable
-	private Map noopVariables; //key IU, value AbstractVariable 
+	private Map noopVariables; //key IU, value AbstractVariable
 	private List abstractVariables;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
@@ -160,7 +160,7 @@ public class Projector {
 		}
 	}
 
-	//Create an optimization function favoring the highest version of each IU  
+	//Create an optimization function favoring the highest version of each IU
 	private void createOptimizationFunction(IInstallableUnit[] ius) {
 
 		List weightedObjects = new ArrayList();
@@ -310,7 +310,7 @@ public class Projector {
 				if (!isApplicable(req))
 					continue;
 				List optionalRequirements = new ArrayList();
-				List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+				List expandedRequirement = getMatches(req, optionalRequirements);
 				if (!req.isOptional()) {
 					if (expandedRequirement.isEmpty()) {
 						missingRequirement(iu, req);
@@ -364,7 +364,7 @@ public class Projector {
 					if (isApplicable(reqs[i][1])) {
 						IRequiredCapability req = reqs[i][1];
 						List optionalRequirements = new ArrayList();
-						List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+						List expandedRequirement = getMatches(req, optionalRequirements);
 						if (!req.isOptional()) {
 							if (expandedRequirement.isEmpty()) {
 								missingRequirement(patch, req);
@@ -384,7 +384,7 @@ public class Projector {
 					if (isApplicable(reqs[i][0])) {
 						IRequiredCapability req = reqs[i][0];
 						List optionalRequirements = new ArrayList();
-						List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+						List expandedRequirement = getMatches(req, optionalRequirements);
 						if (!req.isOptional()) {
 							if (expandedRequirement.isEmpty()) {
 								missingRequirement(patch, req);
@@ -417,7 +417,7 @@ public class Projector {
 				}
 				IRequiredCapability req = (IRequiredCapability) entry.getKey();
 				List optionalRequirements = new ArrayList();
-				List expandedRequirement = expandRequirement(iu, req, optionalRequirements);
+				List expandedRequirement = getMatches(req, optionalRequirements);
 				if (!req.isOptional()) {
 					if (expandedRequirement.isEmpty()) {
 						missingRequirement(iu, req);
@@ -448,7 +448,7 @@ public class Projector {
 		if (req == null)
 			return;
 		List optionalRequirements = new ArrayList();
-		List expandedRequirement = expandRequirement(patch, req, optionalRequirements);
+		List expandedRequirement = getMatches(req, optionalRequirements);
 		if (!req.isOptional()) {
 			if (expandedRequirement.isEmpty()) {
 				missingRequirement(iu, req);
@@ -465,14 +465,14 @@ public class Projector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param iu
-	 * @param req 
-	 * @param expandedOptionalRequirement a collector list to gather optional requirements. It will be updated 
+	 * @param req
+	 * @param expandedOptionalRequirement a collector list to gather optional requirements. It will be updated
 	 *        if req.isOptional()
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
-	private List expandRequirement(IInstallableUnit iu, IRequiredCapability req, List expandedOptionalRequirement) {
+	private List getMatches(IRequiredCapability req, List expandedOptionalRequirement) {
 		List target;
 		if (req.isOptional())
 			target = expandedOptionalRequirement;
@@ -530,7 +530,7 @@ public class Projector {
 	 * IU -> (noop(IU) or ABS)
 	 * @param iu
 	 * @param optionalRequirements
-	 * @throws ContradictionException 
+	 * @throws ContradictionException
 	 */
 	private void createOptionalityExpression(IInstallableUnit iu, List optionalRequirements) throws ContradictionException {
 		if (optionalRequirements.isEmpty())
@@ -588,7 +588,7 @@ public class Projector {
 	}
 
 	//Create constraints to deal with singleton
-	//When there is a mix of singleton and non singleton, several constraints are generated 
+	//When there is a mix of singleton and non singleton, several constraints are generated
 	private void createConstraintsForSingleton() throws ContradictionException {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
@@ -646,7 +646,7 @@ public class Projector {
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
-		// CNF filename is given on the command line 
+		// CNF filename is given on the command line
 		long start = System.currentTimeMillis();
 		if (DEBUG)
 			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
