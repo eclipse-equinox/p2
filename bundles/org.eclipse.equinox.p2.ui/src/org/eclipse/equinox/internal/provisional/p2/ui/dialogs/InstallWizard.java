@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 public class InstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
+	AvailableIUsPage mainPage;
 
 	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
 		super(policy, profileId, null, initialSelections, initialResolution);
@@ -44,10 +45,10 @@ public class InstallWizard extends WizardWithLicenses {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		AvailableIUsPage page = new AvailableIUsPage(policy, profileId, manager);
+		mainPage = new AvailableIUsPage(policy, profileId, manager);
 		if (selections != null && selections.length > 0)
-			page.setInitialSelections(selections);
-		return page;
+			mainPage.setInitialSelections(selections);
+		return mainPage;
 
 	}
 
@@ -72,5 +73,10 @@ public class InstallWizard extends WizardWithLicenses {
 					manager.reportAccumulatedStatus();
 				}
 			});
+	}
+
+	public boolean performFinish() {
+		mainPage.performFinish();
+		return super.performFinish();
 	}
 }
