@@ -53,19 +53,7 @@ public class QueryableUpdates implements IQueryable {
 				for (int j = 0; j < updates.length; j++)
 					allUpdates.add(updates[j]);
 			}
-			if (query instanceof IMatchQuery) {
-				IMatchQuery isMatchQuery = (IMatchQuery) query;
-				for (int i = 0; i < allUpdates.size(); i++) {
-					if (monitor.isCanceled())
-						return result;
-					if (isMatchQuery.isMatch(allUpdates.get(i)))
-						if (!result.accept(allUpdates.get(i)))
-							break;
-					monitor.worked(totalWork / 2 / allUpdates.size());
-				}
-			} else
-				query.perform(allUpdates.iterator(), result);
-
+			query.perform(allUpdates.iterator(), result);
 		} catch (OperationCanceledException e) {
 			// Nothing more to do, return result
 		} finally {

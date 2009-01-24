@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.*;
  * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
  */
 public class QueryTest extends TestCase {
+
 	static class AnyStringQuery extends MatchQuery {
 		@Override
 		public boolean isMatch(Object candidate) {
@@ -26,18 +27,35 @@ public class QueryTest extends TestCase {
 	}
 
 	static class PerformHookQuery extends AnyStringQuery {
-		boolean prepared = false;
-		boolean complete = false;
+		private boolean prepared = false;
+		private boolean complete = false;
 
-		protected void prepareToPerform() {
+		public boolean areHooksExecutedProperly() {
+			// Either they have both been called, or neither has been called
+			return (prepared & complete) || (!prepared & !complete);
+		}
+
+		public boolean isComplete() {
+			return this.complete;
+		}
+
+		public boolean isPrepared() {
+			return this.prepared;
+		}
+
+		public void prePerform() {
 			prepared = true;
 		}
 
-		protected void performComplete() {
+		public void postPerform() {
+			if (!(prepared)) // Note:  is match might not be called if it can be determined it's not needed
+				fail("prePerform not called");
 			complete = true;
 		}
 
 		public boolean isMatch(Object candidate) {
+			if (!prepared)
+				fail("prePerform not called");
 			if (!(candidate instanceof String))
 				throw new RuntimeException("Exception intentionally thrown by test");
 			return candidate instanceof String;
@@ -87,26 +105,133 @@ public class QueryTest extends TestCase {
 		List items = Arrays.asList("red", "green", "blue");
 		PerformHookQuery query = new PerformHookQuery();
 		Collector collector = new Collector();
-		assertFalse("1.0", query.complete);
-		assertFalse("1.1", query.prepared);
+		assertFalse("1.0", query.isComplete());
+		assertFalse("1.1", query.isPrepared());
 		query.perform(items.iterator(), collector);
-		assertTrue("1.2", query.complete);
-		assertTrue("1.3", query.prepared);
+		assertTrue("1.2", query.isComplete());
+		assertTrue("1.3", query.isPrepared());
+		assertTrue("1.4", query.areHooksExecutedProperly());
 	}
 
 	public void testPerformHooksOnQueryFail() {
 		List items = Arrays.asList("red", new Object());
 		PerformHookQuery query = new PerformHookQuery();
 		Collector collector = new Collector();
-		assertFalse("1.0", query.complete);
-		assertFalse("1.1", query.prepared);
+		assertFalse("1.0", query.isComplete());
+		assertFalse("1.1", query.isPrepared());
 		try {
 			query.perform(items.iterator(), collector);
 		} catch (RuntimeException e) {
 			// expected
 		}
-		assertTrue("1.2", query.complete);
-		assertTrue("1.3", query.prepared);
+		assertTrue("1.2", query.isComplete());
+		assertTrue("1.3", query.isPrepared());
+		assertTrue("1.4", query.areHooksExecutedProperly());
+	}
+
+	public void testPreAndPostCompoundANDQuery() {
+		List items = Arrays.asList("red", "green", "blue");
+		Collector collector = new Collector();
+		PerformHookQuery query1 = new PerformHookQuery();
+		PerformHookQuery query2 = new PerformHookQuery();
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, true);
+		assertFalse("1.0", query1.isComplete());
+		assertFalse("1.1", query1.isPrepared());
+		assertFalse("1.2", query2.isComplete());
+		assertFalse("1.3", query2.isPrepared());
+		cQuery.perform(items.iterator(), collector);
+		assertTrue("1.4", query1.isComplete());
+		assertTrue("1.5", query1.isPrepared());
+		assertTrue("1.6", query2.isComplete());
+		assertTrue("1.7", query2.isPrepared());
+		assertTrue("1.8", query1.areHooksExecutedProperly());
+		assertTrue("1.9", query2.areHooksExecutedProperly());
+	}
+
+	public void testPreAndPostCompoundOrQuery() {
+		List items = Arrays.asList("red", "green", "blue");
+		Collector collector = new Collector();
+		PerformHookQuery query1 = new PerformHookQuery();
+		PerformHookQuery query2 = new PerformHookQuery();
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, false);
+		assertFalse("1.0", query1.isComplete());
+		assertFalse("1.1", query1.isPrepared());
+		assertFalse("1.2", query2.isComplete());
+		assertFalse("1.3", query2.isPrepared());
+		cQuery.perform(items.iterator(), collector);
+		assertTrue("1.4", query1.isComplete());
+		assertTrue("1.5", query1.isPrepared());
+		assertTrue("1.6", query2.isComplete());
+		assertTrue("1.7", query2.isPrepared());
+		assertTrue("1.8", query1.areHooksExecutedProperly());
+		assertTrue("1.9", query2.areHooksExecutedProperly());
+	}
+
+	public void testPreAndPostCompositeQuery() {
+		List items = Arrays.asList("red", "green", "blue");
+		Collector collector = new Collector();
+		PerformHookQuery query1 = new PerformHookQuery();
+		PerformHookQuery query2 = new PerformHookQuery();
+		CompositeQuery cQuery = new CompositeQuery(new Query[] {query1, query2});
+		assertFalse("1.0", query1.isComplete());
+		assertFalse("1.1", query1.isPrepared());
+		assertFalse("1.2", query2.isComplete());
+		assertFalse("1.3", query2.isPrepared());
+		cQuery.perform(items.iterator(), collector);
+		assertTrue("1.4", query1.isComplete());
+		assertTrue("1.5", query1.isPrepared());
+		assertTrue("1.6", query2.isComplete());
+		assertTrue("1.7", query2.isPrepared());
+		assertTrue("1.8", query1.areHooksExecutedProperly());
+		assertTrue("1.9", query2.areHooksExecutedProperly());
+	}
+
+	public void testPreAndPostCompoundQueryFail() {
+		List items = Arrays.asList("red", new Object());
+		Collector collector = new Collector();
+		PerformHookQuery query1 = new PerformHookQuery();
+		PerformHookQuery query2 = new PerformHookQuery();
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, true);
+		assertFalse("1.0", query1.isComplete());
+		assertFalse("1.1", query1.isPrepared());
+		assertFalse("1.2", query2.isComplete());
+		assertFalse("1.3", query2.isPrepared());
+		try {
+			cQuery.perform(items.iterator(), collector);
+			fail("This query is expected to fail");
+		} catch (RuntimeException e) {
+			// expected
+		}
+		assertTrue("1.4", query1.isComplete());
+		assertTrue("1.5", query1.isPrepared());
+		assertTrue("1.6", query2.isComplete());
+		assertTrue("1.7", query2.isPrepared());
+		assertTrue("1.8", query1.areHooksExecutedProperly());
+		assertTrue("1.9", query2.areHooksExecutedProperly());
+	}
+
+	public void testPreAndPostCompositeQueryFail() {
+		List items = Arrays.asList("red", new Object());
+		Collector collector = new Collector();
+		PerformHookQuery query1 = new PerformHookQuery();
+		PerformHookQuery query2 = new PerformHookQuery();
+		CompositeQuery cQuery = new CompositeQuery(new Query[] {query1, query2});
+		assertFalse("1.0", query1.isComplete());
+		assertFalse("1.1", query1.isPrepared());
+		assertFalse("1.2", query2.isComplete());
+		assertFalse("1.3", query2.isPrepared());
+		try {
+			cQuery.perform(items.iterator(), collector);
+			fail("This query is expected to fail");
+		} catch (RuntimeException e) {
+			// expected
+		}
+		assertTrue("1.4", query1.isComplete());
+		assertTrue("1.5", query1.isPrepared());
+		assertFalse("1.6", query2.isComplete()); // This should fail, the second query was never executed
+		assertFalse("1.7", query2.isPrepared()); // This should fail, the second query was never executed
+		assertTrue("1.8", query1.areHooksExecutedProperly());
+		assertTrue("1.9", query2.areHooksExecutedProperly());
 	}
 
 	/**

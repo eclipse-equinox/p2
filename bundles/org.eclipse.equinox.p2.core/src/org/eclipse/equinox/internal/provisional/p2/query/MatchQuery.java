@@ -32,6 +32,9 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * @param candidate The object to perform the query against
 	 * @return <code>true</code> if the unit satisfies the parameters
 	 * of this query, and <code>false</code> otherwise
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 * Clients should call {@link #perform(Iterator, Collector)}
 	 */
 	public abstract boolean isMatch(Object candidate);
 
@@ -40,7 +43,7 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * that match the criteria of this query to the given result.
 	 */
 	public final Collector perform(Iterator iterator, Collector result) {
-		prepareToPerform();
+		prePerform();
 		try {
 			while (iterator.hasNext()) {
 				Object candidate = iterator.next();
@@ -49,7 +52,7 @@ public abstract class MatchQuery implements IMatchQuery {
 						break;
 			}
 		} finally {
-			performComplete();
+			postPerform();
 		}
 		return result;
 	}
@@ -61,8 +64,10 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * <p>
 	 * This method is internal to the framework.  Subclasses may override this method, but
 	 * should not call this method.
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	protected void prepareToPerform() {
+	public void prePerform() {
 		// nothing to do by default
 	}
 
@@ -75,8 +80,10 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * <p>
 	 * This method is internal to the framework.  Subclasses may override this method, but
 	 * should not call this method.
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	protected void performComplete() {
+	public void postPerform() {
 		// nothing to do by default
 	}
 }

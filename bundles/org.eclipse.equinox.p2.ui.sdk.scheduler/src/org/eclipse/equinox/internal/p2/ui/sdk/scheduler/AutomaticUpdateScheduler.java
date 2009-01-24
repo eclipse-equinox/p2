@@ -80,7 +80,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		}
 
 		// overridden to release profile cache
-		protected void performComplete() {
+		public void postPerform() {
 			cachedProfile = null;
 		}
 	}

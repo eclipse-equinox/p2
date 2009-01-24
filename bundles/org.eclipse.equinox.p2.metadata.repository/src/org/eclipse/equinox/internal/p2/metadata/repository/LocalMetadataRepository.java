@@ -25,7 +25,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 
@@ -153,19 +154,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		boolean changed = false;
-		if (query instanceof IMatchQuery) {
-			IMatchQuery matchQuery = (IMatchQuery) query;
-			for (Iterator it = units.iterator(); it.hasNext();)
-				if (matchQuery.isMatch(it.next())) {
-					it.remove();
-					changed = true;
-				}
-		} else {
-			Collector results = query.perform(units.iterator(), new Collector());
-			if (results.size() > 0) {
-				changed = true;
-				units.removeAll(results.toCollection());
-			}
+		Collector results = query.perform(units.iterator(), new Collector());
+		if (results.size() > 0) {
+			changed = true;
+			units.removeAll(results.toCollection());
 		}
 		if (changed)
 			save();

@@ -115,13 +115,30 @@ public abstract class CompoundQuery implements Query {
 		 * that match the criteria of this query to the given result.
 		 */
 		public final Collector perform(Iterator iterator, Collector result) {
-			while (iterator.hasNext()) {
-				Object candidate = iterator.next();
-				if (isMatch(candidate))
-					if (!result.accept(candidate))
-						break;
+			prePerform();
+			try {
+				while (iterator.hasNext()) {
+					Object candidate = iterator.next();
+					if (isMatch(candidate))
+						if (!result.accept(candidate))
+							break;
+				}
+			} finally {
+				postPerform();
 			}
 			return result;
+		}
+
+		public void prePerform() {
+			for (int i = 0; i < queries.length; i++) {
+				((IMatchQuery) queries[i]).prePerform();
+			}
+		}
+
+		public void postPerform() {
+			for (int i = 0; i < queries.length; i++) {
+				((IMatchQuery) queries[i]).postPerform();
+			}
 		}
 	}
 

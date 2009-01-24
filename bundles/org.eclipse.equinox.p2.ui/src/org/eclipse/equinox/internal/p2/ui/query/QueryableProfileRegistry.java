@@ -36,17 +36,7 @@ public class QueryableProfileRegistry implements IQueryable {
 		IProfile[] profiles = profileRegistry.getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {
-			if (query instanceof IMatchQuery) {
-				IMatchQuery isMatchQuery = (IMatchQuery) query;
-				for (int i = 0; i < profiles.length; i++) {
-					if (isMatchQuery.isMatch(profiles[i]))
-						if (!result.accept(profiles[i]))
-							break;
-					sub.worked(1);
-				}
-			} else
-				query.perform(Arrays.asList(profiles).iterator(), result);
-
+			query.perform(Arrays.asList(profiles).iterator(), result);
 		} finally {
 			sub.done();
 		}

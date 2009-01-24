@@ -24,8 +24,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEve
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -116,6 +118,35 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.setProperty(TEST_KEY, null);
 		properties = repo.getProperties();
 		assertTrue("1.4", !properties.containsKey(TEST_KEY));
+	}
+
+	public void testAddRemoveIUs() throws ProvisionException {
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IInstallableUnit iu = createIU("foo");
+		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+		Collector result = repo.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		assertTrue("1.0", result.size() == 1);
+		repo.removeAll();
+		result = repo.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		assertTrue("1.1", result.isEmpty());
+	}
+
+	public void testRemoveByQuery() throws ProvisionException {
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IInstallableUnit iu = createIU("foo");
+		IInstallableUnit iu2 = createIU("bar");
+		repo.addInstallableUnits(new IInstallableUnit[] {iu, iu2});
+		Collector result = repo.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		assertTrue("1.0", result.size() == 2);
+		repo.removeInstallableUnits(new InstallableUnitQuery("foo"), getMonitor());
+		result = repo.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		assertTrue("1.1", result.size() == 1);
+		repo.removeInstallableUnits(new InstallableUnitQuery("bar"), getMonitor());
+		result = repo.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		assertTrue("1.2", result.isEmpty());
+
 	}
 
 	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
