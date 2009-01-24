@@ -34,17 +34,23 @@ public class DefaultMetadataURLValidator extends RepositoryLocationValidator {
 		repoFlag = flag;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
-	 */
-	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
-		IStatus duplicateStatus = Status.OK_STATUS;
+	protected URI[] getKnownLocations() {
 		URI[] knownRepositories;
 		try {
 			knownRepositories = ProvisioningUtil.getMetadataRepositories(repoFlag);
 		} catch (ProvisionException e) {
 			knownRepositories = new URI[0];
 		}
+		return knownRepositories;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
+	 */
+	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
+		IStatus duplicateStatus = Status.OK_STATUS;
+
+		URI[] knownRepositories = getKnownLocations();
 		for (int i = 0; i < knownRepositories.length; i++) {
 			if (knownRepositories[i].equals(location)) {
 				duplicateStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
