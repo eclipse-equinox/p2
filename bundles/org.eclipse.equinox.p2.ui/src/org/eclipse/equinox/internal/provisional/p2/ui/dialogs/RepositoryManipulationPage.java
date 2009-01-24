@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryManipulatorDropTarget;
@@ -100,6 +101,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	MetadataRepositoryElementComparator comparator;
 	RepositoryDetailsLabelProvider labelProvider;
 	RepositoryManipulator manipulator;
+	RepositoryManipulator localCacheRepoManipulator;
 	CachedMetadataRepositories input;
 	Text pattern, details;
 	PatternFilter filter;
@@ -247,7 +249,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
-		target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), table));
+		target.addDropListener(new RepositoryManipulatorDropTarget(getRepositoryManipulator(), table));
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
@@ -462,40 +464,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	void addRepository() {
 		AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy.getQueryContext().getMetadataRepositoryFlags()) {
 			protected ProvisioningOperation getOperation(URI repositoryLocation) {
-				return new RepositoryOperation("Cached add repo operation", new URI[] {repositoryLocation}) { //$NON-NLS-1$
-					protected IStatus doBatchedExecute(IProgressMonitor monitor) {
-						for (int i = 0; i < locations.length; i++) {
-							Hashtable elements = getInput().cachedElements;
-							elements.put(locations[i].toString(), new MetadataRepositoryElement(getInput(), locations[i], true));
+				return RepositoryManipulationPage.this.getRepoAddOperation(repositoryLocation);
+			}
 
-						}
-						changed = true;
-						asyncRefresh();
-						return Status.OK_STATUS;
-					}
-				};
+			protected RepositoryLocationValidator getRepositoryLocationValidator() {
+				return RepositoryManipulationPage.this.getRepositoryLocationValidator();
 			}
 
 		};
 		dialog.setTitle(manipulator.getAddOperationLabel());
 		dialog.open();
-	}
-
-	void removeRepositories() {
-		MetadataRepositoryElement[] selections = getSelectedElements();
-		if (selections.length > 0) {
-			String message = ProvUIMessages.RepositoryManipulationPage_RemoveConfirmMessage;
-			if (selections.length == 1)
-				message = NLS.bind(ProvUIMessages.RepositoryManipulationPage_RemoveConfirmSingleMessage, selections[0].getLocation().toString());
-			if (MessageDialog.openQuestion(getShell(), ProvUIMessages.RepositoryManipulationPage_RemoveConfirmTitle, message)) {
-
-				changed = true;
-				for (int i = 0; i < selections.length; i++) {
-					getInput().cachedElements.remove(selections[i].getLocation().toString());
-				}
-				asyncRefresh();
-			}
-		}
 	}
 
 	void refreshRepository() {
@@ -648,4 +626,109 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			setPolicy(Policy.getDefault());
 	}
 
+	void removeRepositories() {
+		MetadataRepositoryElement[] selections = getSelectedElements();
+		if (selections.length > 0) {
+			String message = ProvUIMessages.RepositoryManipulationPage_RemoveConfirmMessage;
+			if (selections.length == 1)
+				message = NLS.bind(ProvUIMessages.RepositoryManipulationPage_RemoveConfirmSingleMessage, selections[0].getLocation().toString());
+			if (MessageDialog.openQuestion(getShell(), ProvUIMessages.RepositoryManipulationPage_RemoveConfirmTitle, message)) {
+
+				changed = true;
+				for (int i = 0; i < selections.length; i++) {
+					getInput().cachedElements.remove(selections[i].getLocation().toString());
+				}
+				asyncRefresh();
+			}
+		}
+	}
+
+	// return a repo manipulator that only operates on the local cache
+	RepositoryManipulator getRepositoryManipulator() {
+		if (localCacheRepoManipulator == null)
+			localCacheRepoManipulator = new RepositoryManipulator() {
+
+				public RepositoryOperation getAddOperation(URI repoLocation) {
+					return RepositoryManipulationPage.this.getRepoAddOperation(repoLocation);
+				}
+
+				public String getAddOperationLabel() {
+					return ProvUIMessages.RepositoryManipulationPage_Add;
+				}
+
+				public URI[] getKnownRepositories() {
+					return RepositoryManipulationPage.this.getKnownRepositories();
+				}
+
+				public String getManipulatorButtonLabel() {
+					return ""; //$NON-NLS-1$
+				}
+
+				public String getManipulatorLinkLabel() {
+					return ""; //$NON-NLS-1$
+				}
+
+				public RepositoryOperation getRemoveOperation(URI[] repoLocations) {
+					return new RepositoryOperation("Cached remove repo operation", repoLocations) { //$NON-NLS-1$
+						protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+							removeRepositories();
+							return Status.OK_STATUS;
+						}
+					};
+				}
+
+				public String getRemoveOperationLabel() {
+					return ProvUIMessages.RepositoryManipulationPage_Remove;
+				}
+
+				public RepositoryLocationValidator getRepositoryLocationValidator(Shell shell) {
+					return RepositoryManipulationPage.this.getRepositoryLocationValidator();
+				}
+
+				public boolean manipulateRepositories(Shell shell) {
+					// we are the manipulator
+					return true;
+				}
+
+			};
+		return localCacheRepoManipulator;
+	}
+
+	URI[] getKnownRepositories() {
+		MetadataRepositoryElement[] elements = getElements();
+		URI[] locations = new URI[elements.length];
+		for (int i = 0; i < elements.length; i++)
+			locations[i] = elements[i].getLocation();
+		return locations;
+	}
+
+	RepositoryLocationValidator getRepositoryLocationValidator() {
+		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator() {
+			protected URI[] getKnownLocations() {
+				return getKnownRepositories();
+			}
+		};
+		return validator;
+
+	}
+
+	RepositoryOperation getRepoAddOperation(URI location) {
+		return new RepositoryOperation("Cached add repo operation", new URI[] {location}) { //$NON-NLS-1$
+			protected IStatus doExecute(IProgressMonitor monitor) {
+				for (int i = 0; i < locations.length; i++) {
+					Hashtable elements = getInput().cachedElements;
+					elements.put(locations[i].toString(), new MetadataRepositoryElement(getInput(), locations[i], true));
+
+				}
+				changed = true;
+				asyncRefresh();
+				return Status.OK_STATUS;
+			}
+
+			protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+	}
 }

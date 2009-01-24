@@ -710,7 +710,7 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 						else
 							display.asyncExec(new Runnable() {
 								public void run() {
-									availableIUGroup.getStructuredViewer().refresh();
+									availableIUGroup.updateAvailableViewState();
 								}
 							});
 				} else if (batchCount > 0) {
