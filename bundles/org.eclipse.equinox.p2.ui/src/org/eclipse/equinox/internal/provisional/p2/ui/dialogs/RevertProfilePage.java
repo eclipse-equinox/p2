@@ -250,6 +250,11 @@ public class RevertProfilePage extends InstallationPage {
 		} catch (InterruptedException e) {
 			// nothing to report
 		}
+		// the dialog does not throw OperationCanceledException so we have to
+		// check the monitor
+		if (dialog.getProgressMonitor().isCanceled())
+			return false;
+
 		boolean reverted = false;
 		if (plan[0] != null) {
 			if (plan[0].getStatus().isOK()) {

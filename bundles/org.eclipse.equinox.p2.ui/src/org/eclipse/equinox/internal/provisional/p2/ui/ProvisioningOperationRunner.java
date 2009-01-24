@@ -199,7 +199,7 @@ public class ProvisioningOperationRunner {
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				scheduledJobs.remove(event.getJob());
-				if (restartRequested) {
+				if (event.getResult().getSeverity() != IStatus.CANCEL && restartRequested) {
 					requestRestart(restartRequired);
 				}
 			}
