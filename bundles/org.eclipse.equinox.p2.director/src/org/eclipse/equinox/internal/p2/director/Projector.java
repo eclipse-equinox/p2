@@ -286,6 +286,33 @@ public class Projector {
 		}
 	}
 
+	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, PropositionalVariable iuVar) throws ContradictionException {
+		if (reqs.length == 0) {
+			return;
+		}
+		List optionalAbstractRequirements = new ArrayList();
+		for (int i = 0; i < reqs.length; i++) {
+			IRequiredCapability req = reqs[i];
+			if (!isApplicable(req))
+				continue;
+			List matches = getApplicableMatches(req);
+			if (!req.isOptional()) {
+				if (matches.isEmpty()) {
+					missingRequirement(iu, req);
+				} else {
+					createImplication(iuVar, matches, iuVar + "->" + req);
+				}
+			} else {
+				if (!matches.isEmpty()) {
+					PropositionalVariable abs = getAbstractVariable();
+					createImplication(abs, matches, "abs -> " + matches);
+					optionalAbstractRequirements.add(abs);
+				}
+			}
+		}
+		createOptionalityExpression(iu, optionalAbstractRequirements);
+	}
+
 	public void processIU(IInstallableUnit iu) throws ContradictionException {
 		iu = iu.unresolved();
 
@@ -300,31 +327,7 @@ public class Projector {
 		PropositionalVariable iuVar = newIUVariable(iu);
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
-			IRequiredCapability[] reqs = iu.getRequiredCapabilities();
-			if (reqs.length == 0) {
-				return;
-			}
-			List optionalAbstractRequirements = new ArrayList();
-			for (int i = 0; i < reqs.length; i++) {
-				IRequiredCapability req = reqs[i];
-				if (!isApplicable(req))
-					continue;
-				List matches = getApplicableMatches(req);
-				if (!req.isOptional()) {
-					if (matches.isEmpty()) {
-						missingRequirement(iu, req);
-					} else {
-						createImplication(iuVar, matches, iuVar + "->" + req);
-					}
-				} else {
-					if (!matches.isEmpty()) {
-						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, matches, "abs -> " + matches);
-						optionalAbstractRequirements.add(abs);
-					}
-				}
-			}
-			createOptionalityExpression(iu, optionalAbstractRequirements);
+			expandRequirements(iu.getRequiredCapabilities(), iu, iuVar);
 		} else {
 			//Patches are applicable to the IU
 
@@ -443,15 +446,8 @@ public class Projector {
 		IRequiredCapability req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		List expandedRequirement = getApplicableMatches(req);
-		if (!req.isOptional()) {
-			if (expandedRequirement.isEmpty()) {
-				missingRequirement(iu, req);
-			} else {
-				PropositionalVariable varIu = newIUVariable(iu);
-				createImplication(varIu, expandedRequirement, varIu + "->" + req);
-			}
-		}
+		//TODO This call results in a slight semantic around optionality
+		expandRequirements(new IRequiredCapability[] {req}, iu, newIUVariable(iu));
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
