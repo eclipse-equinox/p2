@@ -309,18 +309,17 @@ public class Projector {
 				IRequiredCapability req = reqs[i];
 				if (!isApplicable(req))
 					continue;
-				List optionalRequirements = new ArrayList();
-				List expandedRequirement = getMatches(req, optionalRequirements);
+				List matches = getApplicableMatches(req);
 				if (!req.isOptional()) {
-					if (expandedRequirement.isEmpty()) {
+					if (matches.isEmpty()) {
 						missingRequirement(iu, req);
 					} else {
-						createImplication(iuVar, expandedRequirement, iuVar + "->" + req);
+						createImplication(iuVar, matches, iuVar + "->" + req);
 					}
 				} else {
-					if (!optionalRequirements.isEmpty()) {
+					if (!matches.isEmpty()) {
 						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, optionalRequirements, "abs -> " + optionalRequirements);
+						createImplication(abs, matches, "abs -> " + matches);
 						optionalAbstractRequirements.add(abs);
 					}
 				}
@@ -363,18 +362,17 @@ public class Projector {
 					//P1 -> (A -> D) equiv. (P1 & A) -> D
 					if (isApplicable(reqs[i][1])) {
 						IRequiredCapability req = reqs[i][1];
-						List optionalRequirements = new ArrayList();
-						List expandedRequirement = getMatches(req, optionalRequirements);
+						List matches = getApplicableMatches(req);
 						if (!req.isOptional()) {
-							if (expandedRequirement.isEmpty()) {
+							if (matches.isEmpty()) {
 								missingRequirement(patch, req);
 							} else {
-								createImplication(new PropositionalVariable[] {patchVar, iuVar}, expandedRequirement, "abstract->" + expandedRequirement);
+								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, "abstract->" + matches);
 							}
 						} else {
-							if (!optionalRequirements.isEmpty()) {
+							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
-								createImplication(new PropositionalVariable[] {patchVar, abs}, optionalRequirements, "abs -> " + optionalRequirements);
+								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, "abs -> " + matches);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -383,20 +381,19 @@ public class Projector {
 					//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
 					if (isApplicable(reqs[i][0])) {
 						IRequiredCapability req = reqs[i][0];
-						List optionalRequirements = new ArrayList();
-						List expandedRequirement = getMatches(req, optionalRequirements);
+						List matches = getApplicableMatches(req);
 						if (!req.isOptional()) {
-							if (expandedRequirement.isEmpty()) {
+							if (matches.isEmpty()) {
 								missingRequirement(patch, req);
 							} else {
-								expandedRequirement.add(patchVar);
-								createImplication(iuVar, expandedRequirement, "B->" + expandedRequirement);
+								matches.add(patchVar);
+								createImplication(iuVar, matches, "B->" + matches);
 							}
 						} else {
-							if (!optionalRequirements.isEmpty()) {
+							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
 								optionalAbstractRequirements.add(patchVar);
-								createImplication(abs, optionalRequirements, "abs -> " + optionalAbstractRequirements);
+								createImplication(abs, matches, "abs -> " + optionalAbstractRequirements);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -416,22 +413,21 @@ public class Projector {
 					requiredPatches.add(newIUVariable(patch));
 				}
 				IRequiredCapability req = (IRequiredCapability) entry.getKey();
-				List optionalRequirements = new ArrayList();
-				List expandedRequirement = getMatches(req, optionalRequirements);
+				List matches = getApplicableMatches(req);
 				if (!req.isOptional()) {
-					if (expandedRequirement.isEmpty()) {
+					if (matches.isEmpty()) {
 						missingRequirement(iu, req);
 					} else {
 						if (!requiredPatches.isEmpty())
-							expandedRequirement.addAll(requiredPatches);
-						createImplication(iuVar, expandedRequirement, iuVar + "->" + req);
+							matches.addAll(requiredPatches);
+						createImplication(iuVar, matches, iuVar + "->" + req);
 					}
 				} else {
-					if (!optionalRequirements.isEmpty()) {
+					if (!matches.isEmpty()) {
 						if (!requiredPatches.isEmpty())
-							optionalRequirements.addAll(requiredPatches);
+							matches.addAll(requiredPatches);
 						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, optionalRequirements, "abs -> " + optionalRequirements);
+						createImplication(abs, matches, "abs -> " + matches);
 						optionalAbstractRequirements.add(abs);
 					}
 				}
@@ -447,8 +443,7 @@ public class Projector {
 		IRequiredCapability req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		List optionalRequirements = new ArrayList();
-		List expandedRequirement = getMatches(req, optionalRequirements);
+		List expandedRequirement = getApplicableMatches(req);
 		if (!req.isOptional()) {
 			if (expandedRequirement.isEmpty()) {
 				missingRequirement(iu, req);
@@ -472,12 +467,8 @@ public class Projector {
 	 *        if req.isOptional()
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
-	private List getMatches(IRequiredCapability req, List expandedOptionalRequirement) {
-		List target;
-		if (req.isOptional())
-			target = expandedOptionalRequirement;
-		else
-			target = new ArrayList();
+	private List getApplicableMatches(IRequiredCapability req) {
+		List target = new ArrayList();
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
@@ -485,8 +476,6 @@ public class Projector {
 				target.add(newIUVariable(match));
 			}
 		}
-		if (req.isOptional())
-			return Collections.EMPTY_LIST;
 		return target;
 	}
 
@@ -621,11 +610,11 @@ public class Projector {
 		}
 	}
 
-	private void createAtMostOne(PropositionalVariable[] variables) throws ContradictionException {
+	private void createAtMostOne(PropositionalVariable[] vars) throws ContradictionException {
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(variables)); //$NON-NLS-1$
+			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, variables).named("At most 1 of " + variables);
+		dependencyHelper.atMost(1, vars).named("At most 1 of " + vars); //$NON-NLS-1$
 	}
 
 	private PropositionalVariable getAbstractVariable() {
