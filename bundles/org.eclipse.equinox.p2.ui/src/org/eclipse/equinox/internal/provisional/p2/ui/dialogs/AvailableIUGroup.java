@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -256,7 +255,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 */
 	public IInstallableUnit[] getCheckedLeafIUs() {
 		Object[] selections = filteredTree.getCheckboxTreeViewer().getCheckedElements();
-		List leaves = new ArrayList(selections.length);
+		if (selections.length == 0)
+			return new IInstallableUnit[0];
+		// Use a set to eliminate any duplicate selections
+		HashSet leaves = new HashSet(selections.length);
 		for (int i = 0; i < selections.length; i++) {
 			if (!getCheckboxTreeViewer().getGrayed(selections[i])) {
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selections[i], IInstallableUnit.class);
