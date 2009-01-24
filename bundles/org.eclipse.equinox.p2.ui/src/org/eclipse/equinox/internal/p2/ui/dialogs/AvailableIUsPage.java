@@ -78,6 +78,7 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 	ControlDecoration repoDec;
 	Image info, warning, error;
 	int batchCount = 0;
+	URI[] comboRepos;
 
 	public AvailableIUsPage(Policy policy, String profileId, QueryableMetadataRepositoryManager manager) {
 		super("AvailableSoftwarePage"); //$NON-NLS-1$
@@ -619,11 +620,11 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 	void fillRepoCombo(final String selection) {
 		if (repoCombo == null || policy.getRepositoryManipulator() == null)
 			return;
-		URI[] repos = policy.getRepositoryManipulator().getKnownRepositories();
-		final String[] items = new String[repos.length + 1];
+		comboRepos = policy.getRepositoryManipulator().getKnownRepositories();
+		final String[] items = new String[comboRepos.length + 1];
 		items[INDEX_ALL] = ALL;
-		for (int i = 0; i < repos.length; i++)
-			items[i + 1] = repos[i].toString();
+		for (int i = 0; i < comboRepos.length; i++)
+			items[i + 1] = comboRepos[i].toString();
 		display.asyncExec(new Runnable() {
 			public void run() {
 				String repoToSelect = selection == null ? repoCombo.getItem(repoCombo.getSelectionIndex()) : selection;
@@ -658,17 +659,13 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 
 	void repoComboSelectionChanged() {
 		int selection = repoCombo.getSelectionIndex();
+		if (comboRepos == null || selection > comboRepos.length)
+			selection = INDEX_ALL;
+
 		if (selection == INDEX_ALL) {
 			availableIUGroup.setRepositoryFilter(null);
 		} else if (selection > 0) {
-			URI location;
-			try {
-				location = URIUtil.fromString(repoCombo.getItem(selection));
-				availableIUGroup.setRepositoryFilter(location);
-			} catch (URISyntaxException e) {
-				// should not happen since URI strings have been prevalidated, but if so...
-				repoCombo.select(INDEX_ALL);
-			}
+			availableIUGroup.setRepositoryFilter(comboRepos[selection - 1]);
 		}
 	}
 
