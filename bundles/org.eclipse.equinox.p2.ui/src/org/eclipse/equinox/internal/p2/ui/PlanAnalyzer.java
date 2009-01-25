@@ -69,6 +69,14 @@ public class PlanAnalyzer {
 			return report;
 		}
 
+		if (nothingToDo(originalRequest)) {
+			report.addSummaryStatus(getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null));
+			IStatus[] details = originalStatus.getChildren();
+			for (int i = 0; i < details.length; i++)
+				report.addSummaryStatus(details[i]);
+			return report;
+		}
+
 		// If there was already some status supplied before resolution, this should get included
 		// with the report.  For example, this might contain information about the profile request
 		// being altered before resolution began.
@@ -138,5 +146,9 @@ public class PlanAnalyzer {
 		if (name != null)
 			return name;
 		return iu.getId();
+	}
+
+	private static boolean nothingToDo(ProfileChangeRequest request) {
+		return request.getAddedInstallableUnits().length == 0 && request.getRemovedInstallableUnits().length == 0 && request.getInstallableUnitProfilePropertiesToAdd().size() == 0 && request.getInstallableUnitProfilePropertiesToRemove().size() == 0;
 	}
 }
