@@ -86,6 +86,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SDKPatchingTest1.class);
 		suite.addTestSuite(SDKPatchingTest2.class);
 		suite.addTestSuite(SeveralOptionalDependencies.class);
+		suite.addTestSuite(SeveralOptionalDependencies2.class);
+		suite.addTestSuite(SeveralOptionalDependencies3.class);
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);
