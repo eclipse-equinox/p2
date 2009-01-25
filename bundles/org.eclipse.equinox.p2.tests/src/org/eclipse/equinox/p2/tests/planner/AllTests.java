@@ -85,6 +85,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProvisioningPlanQueryTest.class);
 		suite.addTestSuite(SDKPatchingTest1.class);
 		suite.addTestSuite(SDKPatchingTest2.class);
+		suite.addTestSuite(SeveralOptionalDependencies.class);
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);
