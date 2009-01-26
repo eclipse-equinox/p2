@@ -53,7 +53,8 @@ public class EngineSession {
 		return profileDataDirectory;
 	}
 
-	IStatus prepare() {
+	IStatus prepare(IProgressMonitor monitor) {
+		monitor.subTask(Messages.preparing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
 			Touchpoint touchpoint = (Touchpoint) iterator.next();
@@ -77,7 +78,8 @@ public class EngineSession {
 		return status;
 	}
 
-	IStatus commit() {
+	IStatus commit(IProgressMonitor monitor) {
+		monitor.subTask(Messages.committing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
@@ -102,7 +104,8 @@ public class EngineSession {
 		return status;
 	}
 
-	IStatus rollback() {
+	IStatus rollback(IProgressMonitor monitor) {
+		monitor.subTask(Messages.rollingback);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (currentPhase != null) {
@@ -141,9 +144,9 @@ public class EngineSession {
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
 			try {
 				Touchpoint touchpoint = (Touchpoint) iterator.next();
-				status.add(touchpoint.commit(profile));
+				status.add(touchpoint.rollback(profile));
 			} catch (RuntimeException e) {
-				// "touchpoint.commit" calls user code and might throw an unchecked exception
+				// "touchpoint.rollback" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, Touchpoint.class.getName()), e));
 			} catch (LinkageError e) {

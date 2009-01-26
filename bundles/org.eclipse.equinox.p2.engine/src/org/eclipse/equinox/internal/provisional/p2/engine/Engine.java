@@ -30,6 +30,12 @@ public class Engine implements IEngine {
 	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
+		if (context == null)
+			context = new ProvisioningContext();
+
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 
 		Profile profile = profileRegistry.validate(iprofile);
@@ -44,18 +50,18 @@ public class Engine implements IEngine {
 
 			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
 			if (result.matches(IStatus.OK | IStatus.WARNING))
-				result.merge(session.prepare());
+				result.merge(session.prepare(monitor));
 
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
-				IStatus status = session.rollback();
+				IStatus status = session.rollback(monitor);
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 			} else {
 				if (profile.isChanged())
 					profileRegistry.updateProfile(profile);
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
-				IStatus status = session.commit();
+				IStatus status = session.commit(monitor);
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 			}
@@ -69,6 +75,14 @@ public class Engine implements IEngine {
 	}
 
 	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		checkArguments(iprofile, phaseSet, operands, context, monitor);
+
+		if (context == null)
+			context = new ProvisioningContext();
+
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
 	}
 
@@ -81,11 +95,5 @@ public class Engine implements IEngine {
 
 		if (operands == null)
 			throw new IllegalArgumentException(Messages.null_operands);
-
-		if (context == null)
-			context = new ProvisioningContext();
-
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
 	}
 }

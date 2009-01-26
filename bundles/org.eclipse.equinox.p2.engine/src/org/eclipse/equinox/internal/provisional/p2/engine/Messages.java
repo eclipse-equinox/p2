@@ -49,6 +49,9 @@ public class Messages extends NLS {
 	public static String session_context;
 	public static String action_not_found;
 	public static String actions_not_found;
+	public static String preparing;
+	public static String committing;
+	public static String rollingback;
 
 	static {
 		// initialize resource bundle
