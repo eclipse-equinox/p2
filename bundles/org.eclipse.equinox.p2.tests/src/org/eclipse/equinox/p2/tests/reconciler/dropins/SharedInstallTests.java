@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 
 public class SharedInstallTests extends AbstractReconcilerTest {
@@ -26,9 +27,8 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		TestSuite suite = new ReconcilerTestSuite();
 		suite.setName(SharedInstallTests.class.getName());
 		suite.addTest(new SharedInstallTests("testBasicStartup"));
-		// disabled until we sort out mac - see https://bugs.eclipse.org/bugs/show_bug.cgi?id=258935
-		//		suite.addTest(new SharedInstallTests("testReadOnlyDropinsStartup"));
-		//		suite.addTest(new SharedInstallTests("testUserDropinsStartup"));
+		suite.addTest(new SharedInstallTests("testReadOnlyDropinsStartup"));
+		suite.addTest(new SharedInstallTests("testUserDropinsStartup"));
 		return suite;
 	}
 
@@ -109,6 +109,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	}
 
 	public void testReadOnlyDropinsStartup() throws IOException {
+		if (Platform.getOS().equals(Platform.OS_MACOSX))
+			return;
+
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
@@ -144,6 +147,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	}
 
 	public void testUserDropinsStartup() throws IOException {
+		if (Platform.getOS().equals(Platform.OS_MACOSX))
+			return;
+
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
