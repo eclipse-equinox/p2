@@ -17,7 +17,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class analyzes a profile change request and the resultant provisioning plan,
@@ -67,6 +72,24 @@ public class PlanAnalyzer {
 		if (plan.getStatus().getSeverity() == IStatus.CANCEL) {
 			report.addSummaryStatus(plan.getStatus());
 			return report;
+		}
+
+		// If the plan requires install handler support, we want to open the old update UI and
+		// cancel this operation
+		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.PlanStatusHelper_UpdateManagerPromptTitle, null, ProvUIMessages.PlanStatusHelper_PromptForUpdateManagerUI, MessageDialog.WARNING, new String[] {ProvUIMessages.PlanStatusHelper_Launch, IDialogConstants.CANCEL_LABEL}, 0);
+					if (dialog.open() == 0)
+						BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+							public void run() {
+								UpdateManagerCompatibility.openInstaller();
+							}
+						});
+				}
+			});
+			report.addSummaryStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.PlanStatusHelper_RequiresUpdateManager));
 		}
 
 		if (nothingToDo(originalRequest)) {

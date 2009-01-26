@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.ResolutionResult;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -19,12 +17,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
+import org.eclipse.equinox.internal.provisional.p2.ui.ResolutionResult;
 
 /**
  * Class representing a provisioning profile plan
@@ -60,25 +54,6 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
-		// Why bother getting a plan if install handler support is required?  In the future we might 
-		// consider checking per IU, and offering a quick fix, but for now just bail
-		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(request)) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
-					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.PlanStatusHelper_UpdateManagerPromptTitle, null, ProvUIMessages.PlanStatusHelper_PromptForUpdateManagerUI, MessageDialog.WARNING, new String[] {ProvUIMessages.PlanStatusHelper_Launch, IDialogConstants.CANCEL_LABEL}, 0);
-					if (dialog.open() == 0)
-						BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
-							public void run() {
-								UpdateManagerCompatibility.openInstaller();
-							}
-						});
-				}
-
-			});
-			return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.PlanStatusHelper_RequiresUpdateManager);
-		}
-
 		plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 		if (plan == null)
 			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlannerResolutionOperation_UnexpectedError, null);

@@ -13,13 +13,16 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Vector;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -163,19 +166,17 @@ public class UpdateManagerCompatibility {
 		}
 	}
 
-	public static boolean requiresInstallHandlerSupport(ProfileChangeRequest request) {
-		Set iusInvolved = new HashSet();
-		iusInvolved.addAll(Arrays.asList(request.getAddedInstallableUnits()));
-		iusInvolved.addAll(Arrays.asList(request.getRemovedInstallableUnits()));
-		Iterator iter = iusInvolved.iterator();
-		while (iter.hasNext())
-			if (requiresInstallHandlerSupport((IInstallableUnit) iter.next()))
-				return true;
+	public static boolean requiresInstallHandlerSupport(ProvisioningPlan plan) {
+		Operand[] operands = plan.getOperands();
+		for (int i = 0; i < operands.length; i++) {
+			if (operands[i] instanceof InstallableUnitOperand) {
+				IInstallableUnit iu = ((InstallableUnitOperand) operands[i]).second();
+				if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
+					return true;
+			}
+		}
 		return false;
-	}
 
-	public static boolean requiresInstallHandlerSupport(IInstallableUnit iu) {
-		return iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null;
 	}
 
 	/**
