@@ -88,6 +88,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SeveralOptionalDependencies.class);
 		suite.addTestSuite(SeveralOptionalDependencies2.class);
 		suite.addTestSuite(SeveralOptionalDependencies3.class);
+		suite.addTestSuite(SeveralOptionalDependencies4.class);
+		suite.addTestSuite(SeveralOptionalDependencies5.class);
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);
