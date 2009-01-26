@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Repository Tools Plug-in
+Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.repository.tools;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.internal.repository.tools.Activator
@@ -25,3 +25,4 @@ Import-Package: org.apache.tools.ant,
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
 Export-Package: org.eclipse.equinox.p2.internal.repository.tools;x-internal:=true,
  org.eclipse.equinox.p2.internal.repository.tools.tasks;x-internal:=true
+Bundle-Vendor: %providerName
