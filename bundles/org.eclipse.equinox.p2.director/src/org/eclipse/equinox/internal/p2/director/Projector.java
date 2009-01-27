@@ -286,9 +286,7 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, PropositionalVariable iuVar) throws ContradictionException {
-		//TODO depending on the analysis of the encoding of optional dependencies, we may simply remove this list and directly inline (more or less the call to createOptionalityExpressoin)
-		List optionalAbstractRequirements = new ArrayList();
+	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, PropositionalVariable iuVar, List optionalAbstractRequirements) throws ContradictionException {
 		if (!isApplicable(req))
 			return;
 		List matches = getApplicableMatches(req);
@@ -305,16 +303,17 @@ public class Projector {
 				optionalAbstractRequirements.add(abs);
 			}
 		}
-		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, PropositionalVariable iuVar) throws ContradictionException {
 		if (reqs.length == 0) {
 			return;
 		}
+		List optionalAbstractRequirements = new ArrayList();
 		for (int i = 0; i < reqs.length; i++) {
-			expandRequirement(reqs[i], iu, iuVar);
+			expandRequirement(reqs[i], iu, iuVar, optionalAbstractRequirements);
 		}
+		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	public void processIU(IInstallableUnit iu) throws ContradictionException {
@@ -392,7 +391,7 @@ public class Projector {
 						if (!req.isOptional()) {
 							if (matches.isEmpty()) {
 								//TODO Need to change NAME
-								dependencyHelper.implication(newIUVariable(iu)).implies(newIUVariable(patch)).named("NAME");
+								dependencyHelper.implication(iuVar).implies(patchVar).named("NAME");
 							} else {
 								matches.add(patchVar);
 								createImplication(iuVar, matches, "B->" + matches);
@@ -451,7 +450,7 @@ public class Projector {
 		IRequiredCapability req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, newIUVariable(iu));
+		expandRequirement(req, iu, newIUVariable(iu), Collections.EMPTY_LIST);
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
@@ -529,8 +528,9 @@ public class Projector {
 		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
 			PropositionalVariable abs = (PropositionalVariable) i.next();
 			createAtMostOne(new PropositionalVariable[] {abs, noop});
-			createImplication(iuVar, new Object[] {abs, noop}, iu + "->noop V abs");
 		}
+		optionalRequirements.add(noop);
+		createImplication(iuVar, optionalRequirements, iu + "-> noop " + optionalRequirements);
 	}
 
 	private void createImplication(PropositionalVariable left, List right, String name) throws ContradictionException {
@@ -561,12 +561,12 @@ public class Projector {
 	//		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	//	}
 
-	private void createImplication(PropositionalVariable left, Object[] right, String name) throws ContradictionException {
-		if (DEBUG) {
-			Tracing.debug(name + ": " + left + "->" + Arrays.toString(right)); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		dependencyHelper.implication(left).implies(right).named(name);
-	}
+	//	private void createImplication(PropositionalVariable left, PropositionalVariable[] right, String name) throws ContradictionException {
+	//		if (DEBUG) {
+	//			Tracing.debug(name + ": " + left + "->" + Arrays.toString(right)); //$NON-NLS-1$ //$NON-NLS-2$
+	//		}
+	//		dependencyHelper.implication(left).implies(right).named(name);
+	//	}
 
 	//Return IUPatches that are applicable for the given iu
 	private Collector getApplicablePatches(IInstallableUnit iu) {
