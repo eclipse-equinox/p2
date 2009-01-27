@@ -72,6 +72,13 @@ public class Repo2Runnable implements IApplication {
 		for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
 			artifactRepositoryManager.loadRepository((URI) iter.next(), progress.newChild(1));
 		}
+		// do a create here to ensure that we don't default to a #load later and grab a repo which is the wrong type
+		// e.g. extension location type because a plugins/ directory exists.
+		try {
+			artifactRepositoryManager.createRepository(new Path(destinationArtifactRepository).toFile().toURI(), "Runnable repository.", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		} catch (ProvisionException e) {
+			// ignore... perhaps one already exists and we will just load it later
+		}
 
 		// call the engine with only the "collect" phase so all we do is download
 		IProfile profile = createProfile();
