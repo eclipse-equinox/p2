@@ -35,6 +35,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
+	private static boolean DEBUG_ENCODING = true;
 	private IQueryable picker;
 	private QueryableArray patches;
 
@@ -122,7 +123,12 @@ public class Projector {
 				start = System.currentTimeMillis();
 				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
 			}
-			IPBSolver solver = SolverFactory.newEclipseP2();
+			IPBSolver solver;
+			if (DEBUG_ENCODING) {
+				solver = SolverFactory.newOPBStringSolver();
+			} else {
+				solver = SolverFactory.newEclipseP2();
+			}
 			solver.setTimeoutOnConflicts(1000);
 			dependencyHelper = new DependencyHelper(solver, 100000);
 
@@ -151,6 +157,9 @@ public class Projector {
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
+			}
+			if (DEBUG_ENCODING) {
+				System.out.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
