@@ -25,7 +25,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
@@ -263,8 +264,9 @@ public class RevertProfilePage extends InstallationPage {
 				ProvisioningOperationRunner.requestRestart(true);
 				reverted = true;
 			} else if (plan[0].getStatus().getSeverity() != IStatus.CANCEL) {
-				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);
-				setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG | StatusManager.SHOW);
+				// This message has no effect in an installation dialog
+				// setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
 			}
 		}
 		return reverted;
