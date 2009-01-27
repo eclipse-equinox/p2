@@ -26,3 +26,4 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
 Export-Package: org.eclipse.equinox.p2.internal.repository.tools;x-internal:=true,
  org.eclipse.equinox.p2.internal.repository.tools.tasks;x-internal:=true
 Bundle-Vendor: %providerName
+Bundle-Localization: plugin
