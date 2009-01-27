@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.IUProfilePropertyQue
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
@@ -142,17 +143,12 @@ public class DefaultQueryProvider extends QueryProvider {
 				}
 				if (profile == null)
 					return null;
-				Collector collector;
 				if (toUpdate == null) {
-					collector = profile.query(new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
+					Collector collector = profile.query(new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
-				if (context.getShowLatestVersionsOnly())
-					collector = new LatestIUVersionElementCollector(updateQueryable, element, true, false);
-				else
-					collector = new Collector();
-				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
+				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? new LatestIUVersionQuery() : allQuery, new Collector());
 
 			case QueryProvider.INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
