@@ -84,45 +84,58 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void readBundlesList(Manipulator manipulator, URI osgiInstallArea, String value) throws NumberFormatException {
+		BundleInfo[] bundles = parseBundleList(manipulator, value);
+		if (bundles == null)
+			return;
+
 		ConfigData configData = manipulator.getConfigData();
-		if (value != null) {
-			String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
-			for (int i = 0; i < bInfoStrings.length; i++) {
-				String entry = bInfoStrings[i].trim();
-				entry = FileUtils.removeEquinoxSpecificProtocols(entry);
-
-				int indexStartInfo = entry.indexOf('@');
-				String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
-				URI realLocation = null;
-				try {
-					if (manipulator.getLauncherData().getFwJar() != null) {
-						realLocation = URIUtil.makeAbsolute(FileUtils.fromFileURL(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
-					}
-				} catch (URISyntaxException e) {
-					Log.log(LogService.LOG_ERROR, "Can't make absolute...");
-					continue;
-				}
-				String slAndFlag = (indexStartInfo > -1) ? entry.substring(indexStartInfo + 1) : null;
-
-				boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag);
-				int startLevel = getStartLevel(slAndFlag);
-
-				if (realLocation != null) {
-					configData.addBundle(new BundleInfo(realLocation, startLevel, markedAsStarted));
-					return;
-				}
-				if (location != null && location.startsWith(FILE_PROTOCOL))
-					try {
-						configData.addBundle(new BundleInfo(FileUtils.fromFileURL(location), startLevel, markedAsStarted));
-						return;
-					} catch (URISyntaxException e) {
-						//Ignore
-					}
-
-				//Fallback case, we use the location as a string
-				configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
-			}
+		for (int i = 0; i < bundles.length; i++) {
+			configData.addBundle(bundles[i]);
 		}
+	}
+
+	private BundleInfo[] parseBundleList(Manipulator manipulator, String value) {
+		if (value == null || value.length() == 0)
+			return null;
+
+		List bundles = new ArrayList();
+		String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
+		for (int i = 0; i < bInfoStrings.length; i++) {
+			String entry = bInfoStrings[i].trim();
+			entry = FileUtils.removeEquinoxSpecificProtocols(entry);
+
+			int indexStartInfo = entry.indexOf('@');
+			String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
+			URI realLocation = null;
+			try {
+				if (manipulator.getLauncherData().getFwJar() != null) {
+					realLocation = URIUtil.makeAbsolute(FileUtils.fromFileURL(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
+				}
+			} catch (URISyntaxException e) {
+				Log.log(LogService.LOG_ERROR, "Can't make absolute...");
+				continue;
+			}
+			String slAndFlag = (indexStartInfo > -1) ? entry.substring(indexStartInfo + 1) : null;
+
+			boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag);
+			int startLevel = getStartLevel(slAndFlag);
+
+			if (realLocation != null) {
+				bundles.add(new BundleInfo(realLocation, startLevel, markedAsStarted));
+				continue;
+			}
+			if (location != null && location.startsWith(FILE_PROTOCOL))
+				try {
+					bundles.add(new BundleInfo(FileUtils.fromFileURL(location), startLevel, markedAsStarted));
+					continue;
+				} catch (URISyntaxException e) {
+					//Ignore
+				}
+
+			//Fallback case, we use the location as a string
+			bundles.add(new BundleInfo(location, null, null, startLevel, markedAsStarted));
+		}
+		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
 	private void writeBundlesList(File fwJar, Properties props, URI base, BundleInfo[] bundles) {
@@ -448,7 +461,7 @@ public class EquinoxFwConfigFileParser {
 		try {
 			out = new FileOutputStream(outputFile);
 			//			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURI(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
-			filterPropertiesFromSharedArea(configProps, launcherData);
+			filterPropertiesFromSharedArea(configProps, manipulator);
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_fwConfigSave, outputFile));
 		} finally {
@@ -462,7 +475,8 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	private void filterPropertiesFromSharedArea(Properties configProps, LauncherData launcherData) {
+	private void filterPropertiesFromSharedArea(Properties configProps, Manipulator manipulator) {
+		LauncherData launcherData = manipulator.getLauncherData();
 		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base
 		Properties sharedConfigProperties = getSharedConfiguration(configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData));
 		if (sharedConfigProperties == null)
@@ -473,9 +487,28 @@ public class EquinoxFwConfigFileParser {
 			String sharedValue = sharedConfigProperties.getProperty(key);
 			if (sharedValue == null)
 				continue;
-			if (equalsIgnoringSeparators(sharedValue, configProps.getProperty(key)))
+			String value = configProps.getProperty(key);
+			if (equalsIgnoringSeparators(sharedValue, value)) {
 				configProps.remove(key);
+				continue;
+			}
+
+			if (key.equals(EquinoxConstants.PROP_BUNDLES) && equalBundleLists(manipulator, value, sharedValue)) {
+				configProps.remove(key);
+				continue;
+			}
 		}
+	}
+
+	private boolean equalBundleLists(Manipulator manipulator, String value, String sharedValue) {
+		BundleInfo[] bundles = parseBundleList(manipulator, value);
+		BundleInfo[] sharedBundles = parseBundleList(manipulator, sharedValue);
+		if (bundles == null || sharedBundles == null || bundles.length != sharedBundles.length)
+			return false;
+
+		List compareList = new ArrayList(Arrays.asList(bundles));
+		compareList.removeAll(Arrays.asList(sharedBundles));
+		return compareList.isEmpty();
 	}
 
 	private boolean equalsIgnoringSeparators(String s1, String s2) {
