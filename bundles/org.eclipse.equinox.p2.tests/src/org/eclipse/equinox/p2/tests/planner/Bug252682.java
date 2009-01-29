@@ -20,7 +20,9 @@ public class Bug252682 extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		File reporegistry1 = getTestData("test data bug 252682", "testData/bug252682/p2/org.eclipse.equinox.p2.engine/profileRegistry");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(reporegistry1, null, false);
+		File tempFolder = getTempFolder();
+		copy("0.2", reporegistry1, tempFolder);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
 		profile = registry.getProfile("SDKProfile");
 		assertNotNull(profile);
 		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", new Version("1.0.100.v20081024")));

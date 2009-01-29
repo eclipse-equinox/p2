@@ -23,7 +23,9 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		File reporegistry1 = getTestData("test data for sdkpatching test", "testData/sdkpatchingtest/p2/org.eclipse.equinox.p2.engine/profileRegistry");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(reporegistry1, null, false);
+		File tempFolder = getTempFolder();
+		copy("0.2", reporegistry1, tempFolder);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
 		profile = registry.getProfile("SDKProfile");
 		assertNotNull(profile);
 

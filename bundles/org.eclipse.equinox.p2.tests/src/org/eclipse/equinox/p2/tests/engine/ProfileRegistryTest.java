@@ -190,7 +190,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testBogusRegistry() {
-		createAndValidateProfileRegistry("testData/engineTest/bogusRegistryContent/", "SDKProfile");
+		File testData = getTestData("0.1", "testData/engineTest/bogusRegistryContent");
+		File tempFolder = getTempFolder();
+		copy("0.2", testData, tempFolder);
+		createAndValidateProfileRegistry(tempFolder, "SDKProfile");
 	}
 
 	public void testTimestampedProfiles() throws ProvisionException {
@@ -221,8 +224,13 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testProfileLockingNested() throws IOException {
+		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
+		File tempFolder = getTempFolder();
+		copy("0.2", testData, tempFolder);
+
 		final String SIMPLE_PROFILE = "Simple";
-		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+
+		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);
 		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
 		assertNotNull(simpleProfile);
 
@@ -282,8 +290,12 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testProfileLockingInProcessMultiThreads() {
+		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
+		File tempFolder = getTempFolder();
+		copy("0.2", testData, tempFolder);
+
 		final String SIMPLE_PROFILE = "Simple";
-		final SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		final SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);
 		final Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
 		assertNotNull(simpleProfile);
 
@@ -338,12 +350,16 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		// Remove the newly created profile file
 		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
-		cleanupProfileArea("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
 	}
 
 	public void testProfileLockingMultiProcesses() {
+		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
+		File tempFolder = getTempFolder();
+		copy("0.2", testData, tempFolder);
+
 		final String SIMPLE_PROFILE = "Simple";
-		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+
+		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);
 		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
 		assertNotNull(simpleProfile);
 
@@ -353,7 +369,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		simpleProfile.addProperties(props);
 
 		// Create a lock file to simulate cross-process locking
-		MockFileLock mockLock = new MockFileLock("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
+		MockFileLock mockLock = new MockFileLock(tempFolder, SIMPLE_PROFILE);
 		mockLock.createExternalProcessUsedForLocking();
 
 		// Now save profile - this should fail
@@ -373,34 +389,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		// Remove the newly created profile file
 		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
-		cleanupProfileArea("testData/engineTest/SimpleRegistry/", SIMPLE_PROFILE);
 	}
 
-	private void cleanupProfileArea(String registryRoot, String profileId) {
-		File registryFolder = null;
-		try {
-			registryFolder = getResourceAsBundleRelFile(registryRoot);
-		} catch (IOException e) {
-			fail("Test not properly setup");
-		}
-		File profileDir = new File(registryFolder, profileId + ".profile");
-		assertTrue(profileDir.exists());
-		final String existingProfileFile = "1221176498721.profile";
-		File[] profileFiles = profileDir.listFiles();
-		for (int i = 0; i < profileFiles.length; i++) {
-			if (!existingProfileFile.equals(profileFiles[i].getName())) {
-				assertTrue(delete(profileFiles[i]));
-			}
-		}
-	}
-
-	private SimpleProfileRegistry createAndValidateProfileRegistry(String path, String id) {
-		File registryFolder = null;
-		try {
-			registryFolder = getResourceAsBundleRelFile(path);
-		} catch (IOException e) {
-			fail("Test not properly setup");
-		}
+	private SimpleProfileRegistry createAndValidateProfileRegistry(File registryFolder, String id) {
 		SimpleProfileRegistry simpleRegistry = new SimpleProfileRegistry(registryFolder, null, false);
 		IProfile[] profiles = simpleRegistry.getProfiles();
 		assertNotNull(profiles);
@@ -425,16 +416,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private static class MockFileLock {
 		File lockFile;
 
-		MockFileLock(String path, String name) {
+		MockFileLock(File registryFolder, String name) {
 			final String lOCK_FILENAME = ".lock";
 			File lockDir = null;
-			try {
-				File profileDir = getResourceAsBundleRelFile(path);
-				lockDir = new File(profileDir, name + ".profile");
-				lockDir.mkdir();
-			} catch (IOException e) {
-				fail(e.getMessage());
-			}
+			lockDir = new File(registryFolder, name + ".profile");
+			lockDir.mkdir();
 			lockFile = new File(lockDir, lOCK_FILENAME);
 		}
 
