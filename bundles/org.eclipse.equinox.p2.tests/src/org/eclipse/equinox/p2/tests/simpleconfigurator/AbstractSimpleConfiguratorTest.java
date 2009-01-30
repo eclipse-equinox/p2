@@ -70,7 +70,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 		}
 	}
 
-	protected BundleContext startFramework(File bundleInfo) {
+	protected BundleContext startFramework(File bundleInfo, File[] additionalBundle) {
 		try {
 			File simpleConfiguratorBundle = getLocation("org.eclipse.equinox.simpleconfigurator");
 			File osgiBundleLoc = getLocation("org.eclipse.osgi");
@@ -86,7 +86,13 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			frameworkProperties.put("osgi.framework", null);
 			frameworkProperties.put("osgi.install.area", installarea.toURL().toExternalForm());
 			frameworkProperties.put("osgi.configuration.area", configarea.toURL().toExternalForm());
-			frameworkProperties.put("osgi.bundles", "reference:" + simpleConfiguratorBundle.toURL().toExternalForm() + "@1:start"); // should point to simple configurator
+			StringBuffer osgiBundles = new StringBuffer();
+			for (int i = 0; additionalBundle != null && i < additionalBundle.length; i++) {
+				osgiBundles.append("reference:").append(additionalBundle[i].toURL().toExternalForm()).append(",");
+			}
+			osgiBundles.append("reference:").append(simpleConfiguratorBundle.toURL().toExternalForm()).append("@1:start");
+			frameworkProperties.put("osgi.bundles", osgiBundles.toString());
+
 			frameworkProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", bundleInfo.toURL().toExternalForm());
 			frameworkProperties.put("osgi.dev", "bin/");
 

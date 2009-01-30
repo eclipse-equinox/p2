@@ -31,7 +31,7 @@ public class BundlesTxtTest extends AbstractSimpleConfiguratorTest {
 	}
 
 	public void testBundlesTxt() throws Exception {
-		BundleContext equinoxContext = startFramework(bundleInfo);
+		BundleContext equinoxContext = startFramework(bundleInfo, null);
 		assertJarsInstalled(jars, equinoxContext.getBundles());
 		assertEquals(jars.length + 2, equinoxContext.getBundles().length);
 	}
