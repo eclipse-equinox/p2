@@ -256,7 +256,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		// It should be noted that the cross-process locking still works correctly and that the profile registry shares
 		// the same file lock to prevent these problems.
 
-		/* 		
+		/*
 				// Try nested locks with checks for lock file
 				simpleRgy.lockProfile(simpleProfile);
 				simpleRgy.lockProfile(simpleProfile);
@@ -285,7 +285,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 					if (locked)
 						profileLock.unlock();
 				}
-				assertTrue("Lock file could not removed", lockFile.delete());			
+				assertTrue("Lock file could not removed", lockFile.delete());
 		*/
 	}
 
@@ -352,44 +352,44 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
 	}
 
-	public void testProfileLockingMultiProcesses() {
-		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
-		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
-
-		final String SIMPLE_PROFILE = "Simple";
-
-		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);
-		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
-		assertNotNull(simpleProfile);
-
-		// Make a dummy change to the profile
-		Properties props = new Properties();
-		props.put("test", "locking");
-		simpleProfile.addProperties(props);
-
-		// Create a lock file to simulate cross-process locking
-		MockFileLock mockLock = new MockFileLock(tempFolder, SIMPLE_PROFILE);
-		mockLock.createExternalProcessUsedForLocking();
-
-		// Now save profile - this should fail
-		try {
-			saveProfile(simpleRgy, simpleProfile);
-			fail("This should have failed because profile is already locked!");
-		} catch (IllegalStateException e) {
-			// Expected!
-		}
-
-		// Get rid of the lock
-		mockLock.shutdownExternalProcessUsedForLocking();
-		mockLock = null;
-
-		// Try again, it should succeed
-		saveProfile(simpleRgy, simpleProfile);
-
-		// Remove the newly created profile file
-		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
-	}
+	//	public void testProfileLockingMultiProcesses() {
+	//		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
+	//		File tempFolder = getTempFolder();
+	//		copy("0.2", testData, tempFolder);
+	//
+	//		final String SIMPLE_PROFILE = "Simple";
+	//
+	//		SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);
+	//		Profile simpleProfile = (Profile) simpleRgy.getProfile(SIMPLE_PROFILE);
+	//		assertNotNull(simpleProfile);
+	//
+	//		// Make a dummy change to the profile
+	//		Properties props = new Properties();
+	//		props.put("test", "locking");
+	//		simpleProfile.addProperties(props);
+	//
+	//		// Create a lock file to simulate cross-process locking
+	//		MockFileLock mockLock = new MockFileLock(tempFolder, SIMPLE_PROFILE);
+	//		mockLock.createExternalProcessUsedForLocking();
+	//
+	//		// Now save profile - this should fail
+	//		try {
+	//			saveProfile(simpleRgy, simpleProfile);
+	//			fail("This should have failed because profile is already locked!");
+	//		} catch (IllegalStateException e) {
+	//			// Expected!
+	//		}
+	//
+	//		// Get rid of the lock
+	//		mockLock.shutdownExternalProcessUsedForLocking();
+	//		mockLock = null;
+	//
+	//		// Try again, it should succeed
+	//		saveProfile(simpleRgy, simpleProfile);
+	//
+	//		// Remove the newly created profile file
+	//		simpleRgy.removeProfile(PROFILE_NAME); // To avoid it locking the latest file
+	//	}
 
 	private SimpleProfileRegistry createAndValidateProfileRegistry(File registryFolder, String id) {
 		SimpleProfileRegistry simpleRegistry = new SimpleProfileRegistry(registryFolder, null, false);
@@ -432,7 +432,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		 * This assumes that
 		 * 	(1) "java" is present in the System path
 		 * 	(2) "SimpleFileLockerApp.jar" is present in /org.eclipse.equinox.p2.tests/testData/engineTest
-		 * 
+		 *
 		 * @see {@link SimpleFileLockerApp}.
 		 */
 		void createExternalProcessUsedForLocking() {
