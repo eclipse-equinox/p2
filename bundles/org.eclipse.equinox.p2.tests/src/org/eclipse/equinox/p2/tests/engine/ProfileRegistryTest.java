@@ -413,82 +413,82 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private static class MockFileLock {
-		File lockFile;
-
-		MockFileLock(File registryFolder, String name) {
-			final String lOCK_FILENAME = ".lock";
-			File lockDir = null;
-			lockDir = new File(registryFolder, name + ".profile");
-			lockDir.mkdir();
-			lockFile = new File(lockDir, lOCK_FILENAME);
-		}
-
-		File getLockFile() {
-			return lockFile;
-		}
-
-		/**
-		 * This assumes that
-		 * 	(1) "java" is present in the System path
-		 * 	(2) "SimpleFileLockerApp.jar" is present in /org.eclipse.equinox.p2.tests/testData/engineTest
-		 *
-		 * @see {@link SimpleFileLockerApp}.
-		 */
-		void createExternalProcessUsedForLocking() {
-			File appJar = null;
-			try {
-				appJar = getResourceAsBundleRelFile("testData/engineTest/SimpleFileLockerApp.jar");
-			} catch (IOException e1) {
-				fail(e1.getMessage());
-			}
-			String lockFileDir = lockFile.getParentFile().getAbsolutePath();
-			String[] cmdArray = {"java", "-cp", appJar.getAbsolutePath(), "org/eclipse/equinox/p2/tests/engine/SimpleFileLockerApp", lockFileDir, "10"};
-			try {
-				Runtime.getRuntime().exec(cmdArray);
-				watForInitialization();
-			} catch (IOException e) {
-				fail(e.getMessage());
-			}
-		}
-
-		void watForInitialization() {
-			waitFor(/*startup=>*/true);
-		}
-
-		void waitForCompletion() {
-			waitFor(/*startup=>*/false);
-		}
-
-		private final int MAX_RETRIES = 10; // A guard against looping indefinitely!
-
-		private void waitFor(boolean startup) {
-			int attempts = 0;
-			boolean shouldWait = true;
-			do {
-				sleep(1000);
-				shouldWait = startup ? !lockFile.exists() : lockFile.exists();
-			} while (attempts++ < MAX_RETRIES && shouldWait);
-			String errMsg = "SimpleFileLockerApp hasn't yet " + (startup ? "started up!" : "completed!");
-			assertTrue(errMsg, attempts < MAX_RETRIES);
-		}
-
-		private void sleep(int millisecs) {
-			try {
-				Thread.sleep(millisecs);
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-		}
-
-		void shutdownExternalProcessUsedForLocking() {
-			File done = new File(lockFile.getParentFile(), ".done");
-			try {
-				done.createNewFile();
-				waitForCompletion();
-			} catch (IOException e) {
-				fail(e.getMessage());
-			}
-		}
-	}
+	//	private static class MockFileLock {
+	//		File lockFile;
+	//
+	//		MockFileLock(File registryFolder, String name) {
+	//			final String lOCK_FILENAME = ".lock";
+	//			File lockDir = null;
+	//			lockDir = new File(registryFolder, name + ".profile");
+	//			lockDir.mkdir();
+	//			lockFile = new File(lockDir, lOCK_FILENAME);
+	//		}
+	//
+	//		File getLockFile() {
+	//			return lockFile;
+	//		}
+	//
+	//		/**
+	//		 * This assumes that
+	//		 * 	(1) "java" is present in the System path
+	//		 * 	(2) "SimpleFileLockerApp.jar" is present in /org.eclipse.equinox.p2.tests/testData/engineTest
+	//		 *
+	//		 * @see {@link SimpleFileLockerApp}.
+	//		 */
+	//		void createExternalProcessUsedForLocking() {
+	//			File appJar = null;
+	//			try {
+	//				appJar = getResourceAsBundleRelFile("testData/engineTest/SimpleFileLockerApp.jar");
+	//			} catch (IOException e1) {
+	//				fail(e1.getMessage());
+	//			}
+	//			String lockFileDir = lockFile.getParentFile().getAbsolutePath();
+	//			String[] cmdArray = {"java", "-cp", appJar.getAbsolutePath(), "org/eclipse/equinox/p2/tests/engine/SimpleFileLockerApp", lockFileDir, "10"};
+	//			try {
+	//				Runtime.getRuntime().exec(cmdArray);
+	//				watForInitialization();
+	//			} catch (IOException e) {
+	//				fail(e.getMessage());
+	//			}
+	//		}
+	//
+	//		void watForInitialization() {
+	//			waitFor(/*startup=>*/true);
+	//		}
+	//
+	//		void waitForCompletion() {
+	//			waitFor(/*startup=>*/false);
+	//		}
+	//
+	//		private final int MAX_RETRIES = 10; // A guard against looping indefinitely!
+	//
+	//		private void waitFor(boolean startup) {
+	//			int attempts = 0;
+	//			boolean shouldWait = true;
+	//			do {
+	//				sleep(1000);
+	//				shouldWait = startup ? !lockFile.exists() : lockFile.exists();
+	//			} while (attempts++ < MAX_RETRIES && shouldWait);
+	//			String errMsg = "SimpleFileLockerApp hasn't yet " + (startup ? "started up!" : "completed!");
+	//			assertTrue(errMsg, attempts < MAX_RETRIES);
+	//		}
+	//
+	//		private void sleep(int millisecs) {
+	//			try {
+	//				Thread.sleep(millisecs);
+	//			} catch (InterruptedException e) {
+	//				// Ignore
+	//			}
+	//		}
+	//
+	//		void shutdownExternalProcessUsedForLocking() {
+	//			File done = new File(lockFile.getParentFile(), ".done");
+	//			try {
+	//				done.createNewFile();
+	//				waitForCompletion();
+	//			} catch (IOException e) {
+	//				fail(e.getMessage());
+	//			}
+	//		}
+	//	}
 }
