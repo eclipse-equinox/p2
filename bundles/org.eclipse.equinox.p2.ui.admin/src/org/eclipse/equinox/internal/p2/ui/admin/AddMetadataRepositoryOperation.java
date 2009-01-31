@@ -8,27 +8,30 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.ui.operations;
+package org.eclipse.equinox.internal.p2.ui.admin;
+
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
- * Operation which adds an artifact repository given its URL.
+ * Operation that adds a metadata repository given its URL.
  * 
  * @since 3.4
  */
-public class AddArtifactRepositoryOperation extends RepositoryOperation {
+public class AddMetadataRepositoryOperation extends RepositoryOperation {
 
-	public AddArtifactRepositoryOperation(String label, URI location) {
+	public AddMetadataRepositoryOperation(String label, URI location) {
 		super(label, new URI[] {location});
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addArtifactRepository(locations[i], notify);
+			ProvisioningUtil.addMetadataRepository(locations[i], notify);
 			mon.worked(1);
 		}
 		return okStatus();

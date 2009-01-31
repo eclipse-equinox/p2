@@ -8,7 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.ui.operations;
+package org.eclipse.equinox.internal.p2.ui.admin;
+
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.admin.AddArtifactRepositoryOperation;
+
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;

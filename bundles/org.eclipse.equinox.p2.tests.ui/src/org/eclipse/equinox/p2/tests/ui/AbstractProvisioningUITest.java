@@ -15,16 +15,18 @@ import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.DefaultPhaseSet;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -55,6 +57,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		ProvisioningOperationRunner.suppressRestart(true);
 		profile = createProfile(TESTPROFILE);
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, new Version("1.0.0"))), true, false);
@@ -87,7 +90,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		return false;
 	}
 
-	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) {
+	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) throws ProvisionException {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
 		if (root) {
@@ -98,10 +101,11 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		if (lock) {
 			req.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, new Integer(IInstallableUnit.LOCK_UNINSTALL | IInstallableUnit.LOCK_UPDATE).toString());
 		}
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		// Use an empty provisioning context to prevent repo access
+		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), profile, getMonitor());
 	}
 
 	protected ProfileModificationOperation getLongTestOperation() {

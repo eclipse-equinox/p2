@@ -21,8 +21,12 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(InstallWizardTest.class);
 		suite.addTestSuite(InstalledSoftwarePageTest.class);
+		suite.addTestSuite(InstallationHistoryPageTest.class);
 		suite.addTestSuite(UpdateWizardTest.class);
 		suite.addTestSuite(UninstallWizardTest.class);
+		suite.addTestSuite(RepositoryManipulationPageTest.class);
+		suite.addTestSuite(IUPropertyPagesTest.class);
+		suite.addTestSuite(PreferencePagesTest.class);
 		return suite;
 	}
 }
