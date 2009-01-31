@@ -44,7 +44,13 @@ public class ProvisioningOperationRunner {
 	static HashSet scheduledJobs = new HashSet();
 	static boolean restartRequested = false;
 	static boolean restartRequired = false;
+	// used during automated testing to prevent a restart dialog from interrupting tests
+	static boolean suppressRestart = false;
 	static ListenerList jobListeners = new ListenerList();
+
+	public static void suppressRestart(boolean suppress) {
+		suppressRestart = suppress;
+	}
 
 	/**
 	 * Run the provisioning operation synchronously
@@ -130,7 +136,7 @@ public class ProvisioningOperationRunner {
 	}
 
 	public static void requestRestart(boolean force) {
-		if (hasScheduledOperations()) {
+		if (suppressRestart || hasScheduledOperations()) {
 			restartRequested = true;
 			restartRequired = restartRequired || force;
 			return;
