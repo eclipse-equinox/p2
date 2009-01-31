@@ -54,21 +54,21 @@ public class MetadataGeneratorHelper {
 	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing and OSGi bundle resource
 	 * @see IRequiredCapability#getName()
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a feature
 	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a source bundle
 	 * @see IRequiredCapability#getName()
 	 */
@@ -125,7 +125,7 @@ public class MetadataGeneratorHelper {
 	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
 	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
-	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
+	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$
 
 	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
 	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
@@ -214,7 +214,7 @@ public class MetadataGeneratorHelper {
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false, true), // 
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false, true), //
 						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
@@ -243,6 +243,16 @@ public class MetadataGeneratorHelper {
 		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
 	}
 
+	private static VersionRange computeUpdateRange(org.osgi.framework.Version base) {
+		VersionRange updateRange = null;
+		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
+			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
+		} else {
+			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+		}
+		return updateRange;
+	}
+
 	/**
 	 * @deprecated moved to BundlesAction
 	 */
@@ -257,7 +267,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(Version.fromOSGiVersion(bd.getVersion()));
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(bd.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -644,9 +654,9 @@ public class MetadataGeneratorHelper {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
@@ -743,7 +753,7 @@ public class MetadataGeneratorHelper {
 		if (transformIds)
 			id = getTransformedId(id, /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -756,7 +766,7 @@ public class MetadataGeneratorHelper {
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
 		IRequiredCapability[] required = new IRequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
@@ -767,7 +777,7 @@ public class MetadataGeneratorHelper {
 				requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
 			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
-		// the feature IU could be null if we are just generating a feature structure rather than 
+		// the feature IU could be null if we are just generating a feature structure rather than
 		// actual features.
 		if (featureIU != null)
 			required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
@@ -813,7 +823,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -826,7 +836,7 @@ public class MetadataGeneratorHelper {
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
 		ArrayList applicabilityScope = new ArrayList();

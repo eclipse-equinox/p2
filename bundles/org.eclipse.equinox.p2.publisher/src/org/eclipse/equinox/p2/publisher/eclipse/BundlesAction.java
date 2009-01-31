@@ -3,8 +3,8 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -43,10 +43,10 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 /**
- * Publish IUs for all of the bundles in a given set of locations or described by a set of 
- * bundle descriptions.  The locations can be actual locations of the bundles or folders 
+ * Publish IUs for all of the bundles in a given set of locations or described by a set of
+ * bundle descriptions.  The locations can be actual locations of the bundles or folders
  * of bundles.
- * 
+ *
  * This action consults the following types of advice:
  * </ul>
  * <li>{@link IBundleAdvice}</li>
@@ -59,7 +59,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	/**
-	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing and OSGi bundle resource
 	 * @see IRequiredCapability#getName()
 	 * @see IProvidedCapability#getName()
@@ -67,7 +67,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a source bundle
 	 * @see IRequiredCapability#getName()
 	 */
@@ -80,7 +80,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
-	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
+	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$
 
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL};
 	public static final String[] BUNDLE_LOCALIZED_PROPERTIES = {Constants.BUNDLE_NAME, Constants.BUNDLE_DESCRIPTION, Constants.BUNDLE_VENDOR, Constants.BUNDLE_CONTACTADDRESS, Constants.BUNDLE_DOCURL, Constants.BUNDLE_UPDATELOCATION};
@@ -110,7 +110,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), // 
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), //
 						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
@@ -137,7 +137,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		iu.setId(bd.getSymbolicName());
 		iu.setVersion(Version.fromOSGiVersion(bd.getVersion()));
 		iu.setFilter(bd.getPlatformFilter());
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(bd.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 
@@ -229,6 +229,16 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		processPropertiesAdvice(iu, bd.getLocation(), info);
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	static VersionRange computeUpdateRange(org.osgi.framework.Version base) {
+		VersionRange updateRange = null;
+		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
+			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
+		} else {
+			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+		}
+		return updateRange;
 	}
 
 	/**

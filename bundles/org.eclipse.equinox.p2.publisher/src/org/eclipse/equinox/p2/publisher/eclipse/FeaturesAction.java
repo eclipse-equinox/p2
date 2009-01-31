@@ -3,8 +3,8 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -34,7 +34,7 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 /**
- * Publish IUs for all of the features in the given set of locations.  The locations can 
+ * Publish IUs for all of the features in the given set of locations.  The locations can
  * be actual locations of the features or folders of features.
  */
 public class FeaturesAction extends AbstractPublisherAction {
@@ -90,7 +90,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		// if the feature has a location and it is not a JAR then setup the touchpoint data
-		// TODO its not clear when this would ever be false reasonably.  Features are always 
+		// TODO its not clear when this would ever be false reasonably.  Features are always
 		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
 		// Anyway, in the future it seems reasonable that features be installed as JARs...
 		if (feature.getLocation() == null || !feature.getLocation().endsWith(".jar")) {
@@ -253,7 +253,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -266,7 +266,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
 		IRequiredCapability[] required = new IRequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
@@ -275,7 +275,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			String requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
 			required[i] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
-		// the feature IU could be null if we are just generating a feature structure rather than 
+		// the feature IU could be null if we are just generating a feature structure rather than
 		// actual features.
 		if (featureIU != null)
 			required[entries.length] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
@@ -327,7 +327,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
 		ArrayList applicabilityScope = new ArrayList();
@@ -548,11 +548,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 				descriptor = new FileSetDescriptor(descriptorKey, configSpec);
 				result.put(descriptorKey, descriptor);
 			}
-			// if the last segment in the spec is "link" 
+			// if the last segment in the spec is "link"
 			if (spec[spec.length - 1] == "link") //$NON-NLS-1$
 				descriptor.setLinks(props.getProperty(property));
 			else {
-				// if the second last segment is "permissions" 
+				// if the second last segment is "permissions"
 				if (spec[spec.length - 2].equals("permissions")) //$NON-NLS-1$
 					descriptor.addPermissions(new String[] {spec[spec.length - 1], props.getProperty(property)});
 				else {
