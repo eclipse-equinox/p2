@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
@@ -64,6 +65,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 				protected Control createDialogArea(Composite parent) {
 					page = new RepositoryManipulationPage();
 					page.setPolicy(policy);
+					page.init(PlatformUI.getWorkbench());
 					page.createControl(parent);
 					this.setTitle(ProvUIMessages.RepositoryManipulationPage_Title);
 					this.setMessage(ProvUIMessages.RepositoryManipulationPage_Description);
