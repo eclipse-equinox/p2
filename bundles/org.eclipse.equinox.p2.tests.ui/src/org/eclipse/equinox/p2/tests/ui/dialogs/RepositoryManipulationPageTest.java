@@ -25,9 +25,6 @@ import org.eclipse.ui.PlatformUI;
 public class RepositoryManipulationPageTest extends AbstractProvisioningUITest {
 
 	class TestDialog extends TitleAreaDialog {
-		/**
-		 * @param parentShell
-		 */
 		public TestDialog() {
 			super(null);
 		}
