@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository class='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'?>
+<repository name='Test Repository for corrupted jar' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1' description='Test Repository for corrupted jar'>
+  <properties size='3'>
+    <property name='p2.system' value='true'/>
+    <property name='p2.timestamp' value='1221680367875'/>
+    <property name='site.checksum' value='2404093275'/>
+  </properties>
+  <units size='1'>
+    <unit id='testBundle' version='3.5.0.corrupted'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Uncategorized'/>
+        <property name='org.eclipse.equinox.p2.description' value='Default category for otherwise uncategorized features'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='testBundle' version='3.5.0.corrupted'/>
+      </provides>
+       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.common' version='3.5.0.corrupted'/>
+      </artifacts>
+    </unit>
+  </units>
+</repository>
