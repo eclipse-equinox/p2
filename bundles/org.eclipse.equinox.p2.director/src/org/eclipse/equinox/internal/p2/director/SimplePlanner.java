@@ -33,6 +33,7 @@ public class SimplePlanner implements IPlanner {
 
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
+	private static final String INCLUDE_PROFILE_IUS = "org.eclipse.equinox.p2.internal.profileius"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
 	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, ProfileChangeRequest changeRequest) {
@@ -154,6 +155,12 @@ public class SimplePlanner implements IPlanner {
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile, revertProfile);
+			if (context == null)
+				context = new ProvisioningContext();
+
+			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
+				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
+			context.setExtraIUs(new ArrayList(revertProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()));
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 		} finally {
 			sub.done();
@@ -258,7 +265,8 @@ public class SimplePlanner implements IPlanner {
 
 			List extraIUs = new ArrayList(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
 			extraIUs.addAll(Arrays.asList(profileChangeRequest.getRemovedInstallableUnits()));
-			extraIUs.addAll(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null || context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString()))
+				extraIUs.addAll(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
