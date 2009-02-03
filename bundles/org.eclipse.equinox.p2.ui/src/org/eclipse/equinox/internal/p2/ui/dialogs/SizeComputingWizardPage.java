@@ -36,6 +36,13 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 
 	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, PlannerResolutionOperation initialResolution) {
 		super(policy, root, profileID, initialResolution);
+		// Compute size immediately if a plan is available.  This may or may not finish before
+		// the widgetry is created.
+		if (initialResolution != null)
+			computeSizing(initialResolution.getProvisioningPlan(), profileID);
+		else
+			// Set the size to indicate there is no size yet.
+			size = IIUElement.SIZE_NOTAPPLICABLE;
 	}
 
 	protected Label sizeInfo;
