@@ -109,7 +109,7 @@ public class GeneratorTask extends Task {
 	public void setUpdateSite(String value) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
-		generator.setOperation("-update", value); //$NON-NLS-1$
+		generator.setOperation("-updateSite", value); //$NON-NLS-1$
 	}
 
 	public void setExe(String value) {
