@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
@@ -54,7 +55,9 @@ public class Repo2RunnableTask extends Task {
 		try {
 			prepareSourceRepos();
 			prepareIUs();
-			application.run(null);
+			IStatus result = application.run(null);
+			if (result.matches(IStatus.ERROR))
+				throw new ProvisionException(result);
 		} catch (ProvisionException e) {
 			throw new BuildException("Error occurred while transforming repository.", e);
 		} catch (URISyntaxException e) {

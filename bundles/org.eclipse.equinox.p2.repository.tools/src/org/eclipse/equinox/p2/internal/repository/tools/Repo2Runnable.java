@@ -53,7 +53,7 @@ public class Repo2Runnable implements IApplication {
 	/*
 	 * Perform the transformation.
 	 */
-	public void run(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor progress = SubMonitor.convert(monitor, 4);
 		// ensure all the right parameters are set
 		validate();
@@ -67,10 +67,12 @@ public class Repo2Runnable implements IApplication {
 		for (Iterator iter = processedIUs.iterator(); iter.hasNext();)
 			operands[i++] = new InstallableUnitOperand(null, (IInstallableUnit) iter.next());
 
-		// ensure the artifact repo will be consulted by loading it
+		// ensure the user-specified artifact repos will be consulted by loading them
 		IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
-		for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
-			artifactRepositoryManager.loadRepository((URI) iter.next(), progress.newChild(1));
+		if (sourceArtifactRepositories != null && !sourceArtifactRepositories.isEmpty()) {
+			for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
+				artifactRepositoryManager.loadRepository((URI) iter.next(), progress.newChild(1));
+			}
 		}
 		// do a create here to ensure that we don't default to a #load later and grab a repo which is the wrong type
 		// e.g. extension location type because a plugins/ directory exists.
@@ -82,18 +84,25 @@ public class Repo2Runnable implements IApplication {
 
 		// call the engine with only the "collect" phase so all we do is download
 		IProfile profile = createProfile();
-		ProvisioningContext context = new ProvisioningContext();
-		PhaseSet phaseSet = new PhaseSet(new Phase[] {new Collect(100)}) {};
-		Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), Engine.SERVICE_NAME);
-		if (engine == null)
-			throw new ProvisionException("Unable to acquire engine service.");
-		engine.perform(profile, phaseSet, operands, context, progress.newChild(1));
+		try {
+			ProvisioningContext context = new ProvisioningContext();
+			PhaseSet phaseSet = new PhaseSet(new Phase[] {new Collect(100)}) {};
+			Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
+			if (engine == null)
+				throw new ProvisionException("Unable to acquire engine service.");
+			IStatus result = engine.perform(profile, phaseSet, operands, context, progress.newChild(1));
+			if (result.matches(IStatus.ERROR))
+				return result;
 
-		// publish the metadata to a destination - if requested
-		publishMetadata(progress.newChild(1));
+			// publish the metadata to a destination - if requested
+			publishMetadata(progress.newChild(1));
 
-		// cleanup by removing the temporary profile
-		removeProfile(profile);
+			// return the resulting status
+			return result;
+		} finally {
+			// cleanup by removing the temporary profile
+			removeProfile(profile);
+		}
 	}
 
 	/*
@@ -160,7 +169,7 @@ public class Repo2Runnable implements IApplication {
 		properties.put(IProfile.PROP_CACHE, destinationArtifactRepository);
 		properties.put(IProfile.PROP_INSTALL_FOLDER, destinationArtifactRepository);
 		IProfileRegistry registry = Activator.getProfileRegistry();
-		return registry.addProfile(System.currentTimeMillis() + "-" + Math.random(), properties);
+		return registry.addProfile(System.currentTimeMillis() + "-" + Math.random(), properties); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -200,11 +209,11 @@ public class Repo2Runnable implements IApplication {
 
 	/*
 	 * Ensure all mandatory parameters have been set. Throw an exception if there
-	 * are any missing.
+	 * are any missing. We don't require the user to specify the artifact repository here,
+	 * we will default to the ones already registered in the manager. (callers are free
+	 * to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
-		if (sourceArtifactRepositories == null || sourceArtifactRepositories.isEmpty())
-			throw new ProvisionException("Need to set the source artifact repository location.");
 		if (sourceMetadataRepositories == null && sourceIUs == null)
 			throw new ProvisionException("Need to set the source metadata repository location or set a list of IUs to process.");
 		if (destinationArtifactRepository == null)
