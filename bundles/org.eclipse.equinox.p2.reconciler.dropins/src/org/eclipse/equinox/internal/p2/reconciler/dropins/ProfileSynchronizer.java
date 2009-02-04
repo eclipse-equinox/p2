@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -270,11 +270,6 @@ public class ProfileSynchronizer {
 
 		List toAdd = new ArrayList();
 		List toRemove = new ArrayList();
-
-		//Backward compatibility
-		Collector collect = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null); //$NON-NLS-1$
-		toRemove.addAll(collect.toCollection());
-		//End of backward compatibility
 
 		boolean foundIUsToAdd = false;
 		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());

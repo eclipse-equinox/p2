@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,7 +10,8 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
@@ -146,9 +147,6 @@ public class Activator implements BundleActivator {
 
 		checkConfigIni();
 
-		// TODO i-build to i-build backwards compatibility code to remove the
-		// old .pooled repositories. Remove this call soon.
-		removeOldRepos();
 		// create the watcher for the "drop-ins" folder
 		watchDropins();
 		// keep an eye on the platform.xml
@@ -349,33 +347,6 @@ public class Activator implements BundleActivator {
 					// ignore
 				}
 		}
-	}
-
-	/*
-	 * TODO Backwards compatibility code to remove the
-	 * old .pooled repositories from the saved list. Remove
-	 * this method soon.
-	 */
-	private void removeOldRepos() {
-		URL osgiInstallArea = getOSGiInstallArea();
-		if (osgiInstallArea == null)
-			return;
-		URI location = null;
-		try {
-			location = URIUtil.fromString(getOSGiInstallArea().toString() + ".pooled"); //$NON-NLS-1$
-		} catch (URISyntaxException e) {
-			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while removing old repositories.", e)); //$NON-NLS-1$
-			return;
-		}
-		BundleContext context = getContext();
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
-		if (artifactManager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
-		artifactManager.removeRepository(location);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
-		if (metadataManager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
-		metadataManager.removeRepository(location);
 	}
 
 	private boolean startEarly(String bundleName) throws BundleException {
