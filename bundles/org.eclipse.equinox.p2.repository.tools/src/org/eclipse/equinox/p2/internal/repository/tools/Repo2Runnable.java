@@ -46,6 +46,10 @@ public class Repo2Runnable implements IApplication {
 	private List sourceMetadataRepositories = new ArrayList(); // where is the metadata?
 	private List sourceIUs = new ArrayList(); // list of IUs to process
 
+	// lists of artifact and metadata repositories to remove after we are done
+	private List artifactReposToRemove = new ArrayList();
+	private List metadataReposToRemove = new ArrayList();
+
 	// the list of IUs that we actually transformed... could have come from the repo 
 	// or have been user-specified.
 	private Collection processedIUs = new ArrayList();
@@ -71,7 +75,10 @@ public class Repo2Runnable implements IApplication {
 		IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
 		if (sourceArtifactRepositories != null && !sourceArtifactRepositories.isEmpty()) {
 			for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
-				artifactRepositoryManager.loadRepository((URI) iter.next(), progress.newChild(1));
+				URI repoLocation = (URI) iter.next();
+				if (!artifactRepositoryManager.contains(repoLocation))
+					artifactReposToRemove.add(repoLocation);
+				artifactRepositoryManager.loadRepository(repoLocation, progress.newChild(1));
 			}
 		}
 		// do a create here to ensure that we don't default to a #load later and grab a repo which is the wrong type
@@ -100,8 +107,13 @@ public class Repo2Runnable implements IApplication {
 			// return the resulting status
 			return result;
 		} finally {
-			// cleanup by removing the temporary profile
+			// cleanup by removing the temporary profile and unloading the repos which were new
 			removeProfile(profile);
+			for (Iterator iter = artifactReposToRemove.iterator(); iter.hasNext();)
+				artifactRepositoryManager.removeRepository((URI) iter.next());
+			IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
+			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
+				metadataRepositoryManager.removeRepository((URI) iter.next());
 		}
 	}
 
@@ -132,6 +144,8 @@ public class Repo2Runnable implements IApplication {
 			return;
 		URI location = new File(destinationMetadataRepository).toURI();
 		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
+		if (!manager.contains(location))
+			metadataReposToRemove.add(location);
 		IMetadataRepository repository;
 		try {
 			repository = manager.createRepository(location, location + " - metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
@@ -147,6 +161,8 @@ public class Repo2Runnable implements IApplication {
 	private Collector getAllIUs(URI location, IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor progress = SubMonitor.convert(monitor, 2);
 		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
+		if (!manager.contains(location))
+			metadataReposToRemove.add(location);
 		IMetadataRepository repository = manager.loadRepository(location, progress.newChild(1));
 		Collector result = new Collector();
 		repository.query(InstallableUnitQuery.ANY, result, progress.newChild(1)).iterator();
