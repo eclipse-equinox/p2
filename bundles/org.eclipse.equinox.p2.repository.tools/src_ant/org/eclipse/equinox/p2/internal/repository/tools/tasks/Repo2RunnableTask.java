@@ -21,7 +21,8 @@ import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepo
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
 
 /**
@@ -48,16 +49,24 @@ public class Repo2RunnableTask extends Task {
 		this.application = new Repo2Runnable();
 	}
 
+	public Repo2RunnableTask(Repo2Runnable application) {
+		super();
+		this.application = application;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() throws BuildException {
 		try {
 			prepareSourceRepos();
-			prepareIUs();
-			IStatus result = application.run(null);
-			if (result.matches(IStatus.ERROR))
-				throw new ProvisionException(result);
+			List ius = prepareIUs();
+			if (ius != null && ius.size() > 0) {
+				application.setSourceIUs(ius);
+				IStatus result = application.run(null);
+				if (result.matches(IStatus.ERROR))
+					throw new ProvisionException(result);
+			}
 		} catch (ProvisionException e) {
 			throw new BuildException("Error occurred while transforming repository.", e);
 		} catch (URISyntaxException e) {
@@ -95,10 +104,19 @@ public class Repo2RunnableTask extends Task {
 		}
 	}
 
-	private void prepareIUs() throws URISyntaxException {
+	protected void addMetadataSourceRepository(URI repoLocation) {
+		application.addSourceMetadataRepository(repoLocation);
+	}
+
+	protected void addArtifactSourceRepository(URI repoLocation) {
+		application.addSourceArtifactRepository(repoLocation);
+	}
+
+	protected List prepareIUs() throws URISyntaxException {
 		if (iuTasks == null || iuTasks.isEmpty())
-			return;
-		CompositeMetadataRepository repository = new CompositeMetadataRepository(new URI("memory:/composite"), "parent metadata repo", null);
+			return null;
+
+		CompositeMetadataRepository repository = new CompositeMetadataRepository(new URI("memory:/composite"), "parent metadata repo", null); //$NON-NLS-1$ //$NON-NLS-2$
 		for (Iterator iter = application.getSourceMetadataRepositories().iterator(); iter.hasNext();) {
 			repository.addChild((URI) iter.next());
 		}
@@ -106,15 +124,24 @@ public class Repo2RunnableTask extends Task {
 		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 			IUTask iu = (IUTask) iter.next();
 			String id = iu.getId();
-			Version version = new Version(iu.getVersion());
+			Version version = null;
 			Collector collector = new Collector();
-			repository.query(new InstallableUnitQuery(id, version), collector, null);
+
+			if (iu.getVersion() == null || iu.getVersion().length() == 0 || iu.getVersion().startsWith("${")) {//$NON-NLS-1$
+				// Get the latest version of the iu
+				Query query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
+				repository.query(query, collector, null);
+			} else {
+				version = new Version(iu.getVersion());
+				repository.query(new InstallableUnitQuery(id, version), collector, null);
+			}
+
 			if (collector.isEmpty())
-				System.err.println("Unable to find " + id + " " + version);
+				System.err.println("Unable to find " + id + version != null ? " " + version : "");
 			else
 				result.add(collector.iterator().next());
 		}
-		application.setSourceIUs(result);
+		return result;
 	}
 
 	/*

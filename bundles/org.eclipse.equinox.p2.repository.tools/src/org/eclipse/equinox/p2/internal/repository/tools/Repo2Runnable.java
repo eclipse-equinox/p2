@@ -93,7 +93,7 @@ public class Repo2Runnable implements IApplication {
 		IProfile profile = createProfile();
 		try {
 			ProvisioningContext context = new ProvisioningContext();
-			PhaseSet phaseSet = new PhaseSet(new Phase[] {new Collect(100)}) {};
+			PhaseSet phaseSet = getPhaseSet();
 			Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException("Unable to acquire engine service.");
@@ -115,6 +115,10 @@ public class Repo2Runnable implements IApplication {
 			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
 				metadataRepositoryManager.removeRepository((URI) iter.next());
 		}
+	}
+
+	protected PhaseSet getPhaseSet() {
+		return new PhaseSet(new Phase[] {new Collect(100)}) { /* nothing to override */};
 	}
 
 	/*
