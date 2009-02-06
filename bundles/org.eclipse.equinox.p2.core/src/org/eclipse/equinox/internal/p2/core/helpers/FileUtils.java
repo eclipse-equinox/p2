@@ -258,7 +258,15 @@ public class FileUtils {
 		}
 	}
 
-	private static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
+	/**
+	 * Writes the given file or folder to the given ZipOutputStream.  The stream is not closed, we recurse into folders
+	 * @param output - the ZipOutputStream to write into
+	 * @param source - the file or folder to zip
+	 * @param exclusions - set of files or folders to exclude
+	 * @param pathComputer - computer used to create the path of the files in the result.
+	 * @throws IOException
+	 */
+	public static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
 		if (exclusions.contains(source))
 			return;
 		if (source.isDirectory()) //if the file path is a URL then isDir and isFile are both false
