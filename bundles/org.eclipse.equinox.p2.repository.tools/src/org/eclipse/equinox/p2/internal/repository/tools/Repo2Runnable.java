@@ -132,10 +132,12 @@ public class Repo2Runnable implements IApplication {
 		}
 		// get all IUs from the repos
 		if (sourceMetadataRepositories == null || sourceMetadataRepositories.isEmpty())
-			throw new ProvisionException("Need to specify either a source metadata repository or a valid list of IUs.");
+			throw new ProvisionException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
 		for (Iterator iter = sourceMetadataRepositories.iterator(); iter.hasNext();) {
 			processedIUs.addAll(getAllIUs((URI) iter.next(), monitor).toCollection());
 		}
+		if (processedIUs.isEmpty())
+			throw new ProvisionException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
 	}
 
 	/*

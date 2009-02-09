@@ -61,12 +61,12 @@ public class Repo2RunnableTask extends Task {
 		try {
 			prepareSourceRepos();
 			List ius = prepareIUs();
-			if (ius != null && ius.size() > 0) {
-				application.setSourceIUs(ius);
-				IStatus result = application.run(null);
-				if (result.matches(IStatus.ERROR))
-					throw new ProvisionException(result);
-			}
+			if (ius == null || ius.size() == 0)
+				throw new BuildException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
+			application.setSourceIUs(ius);
+			IStatus result = application.run(null);
+			if (result.matches(IStatus.ERROR))
+				throw new ProvisionException(result);
 		} catch (ProvisionException e) {
 			throw new BuildException("Error occurred while transforming repository.", e);
 		} catch (URISyntaxException e) {
