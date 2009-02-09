@@ -291,6 +291,8 @@ public class ProfileSynchronizer {
 				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, Integer.toString(IInstallableUnit.LOCK_UNINSTALL));
 				toAdd.add(iu);
 
+				// as soon as we find something locally that needs to be installed, then 
+				// everything from the parent's dropins must be installed locally as well.
 				if (!foundIUsToAdd && !availableProfileIUs.contains(iu)) {
 					foundIUsToAdd = true;
 				}
