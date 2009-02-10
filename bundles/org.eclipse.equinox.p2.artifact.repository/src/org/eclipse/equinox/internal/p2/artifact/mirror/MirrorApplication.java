@@ -114,7 +114,13 @@ public class MirrorApplication implements IApplication {
 
 		if (baselineLocation != null) {
 			baselineLoaded = getManager().contains(baselineLocation);
-			baseline = getManager().loadRepository(baselineLocation, null);
+			try {
+				baseline = getManager().loadRepository(baselineLocation, null);
+			} catch (ProvisionException e) {
+				// catch the exception and log it. we will continue without doing a baseline comparison
+				System.err.println("Error occurred while trying to load baseline repository.");
+				e.printStackTrace();
+			}
 		}
 	}
 
