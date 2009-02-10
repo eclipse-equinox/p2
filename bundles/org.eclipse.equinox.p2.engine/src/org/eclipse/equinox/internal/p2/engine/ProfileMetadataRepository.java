@@ -2,8 +2,15 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
@@ -24,6 +31,40 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 			profile = getProfile(location);
 		} catch (RuntimeException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_FAILED_READ, e.getMessage(), e));
+		}
+		publishArtifactRepos();
+	}
+
+	private void publishArtifactRepos() {
+		List artifactRepos = new ArrayList();
+		String bundlePool = profile.getProperty(IProfile.PROP_CACHE);
+		if (bundlePool != null)
+			artifactRepos.add(new File(bundlePool).toURI());
+
+		String sharedBundlePool = profile.getProperty(IProfile.PROP_SHARED_CACHE);
+		if (sharedBundlePool != null)
+			artifactRepos.add(new File(sharedBundlePool).toURI());
+
+		String dropinRepositories = profile.getProperty("org.eclipse.equinox.p2.cache.extensions"); //$NON-NLS-1$
+		if (dropinRepositories != null) {
+			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, "|"); //$NON-NLS-1$
+			while (tokenizer.hasMoreTokens()) {
+				String repoLocation = ""; //$NON-NLS-1$
+				try {
+					repoLocation = tokenizer.nextToken();
+					artifactRepos.add(new URI(repoLocation));
+				} catch (URISyntaxException e) {
+					LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "invalid repo reference with location: " + repoLocation, e)); //$NON-NLS-1$
+				}
+			}
+		}
+
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (Iterator it = artifactRepos.iterator(); it.hasNext();) {
+			URI repo = (URI) it.next();
+			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 		}
 	}
 
