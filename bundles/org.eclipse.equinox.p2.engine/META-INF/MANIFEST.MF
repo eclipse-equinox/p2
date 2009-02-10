@@ -55,4 +55,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ org.eclipse.equinox.p2.metadata.repository;bundle-version="1.0.100"

@@ -480,7 +480,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		FileUtils.deleteAll(profileDirectory);
 	}
 
-	private static String escape(String toEscape) {
+	public static String escape(String toEscape) {
 		StringBuffer buffer = new StringBuffer();
 		int length = toEscape.length();
 		for (int i = 0; i < length; ++i) {
@@ -505,7 +505,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return buffer.toString();
 	}
 
-	private static String unescape(String text) {
+	public static String unescape(String text) {
 		if (text.indexOf('%') == -1)
 			return text;
 

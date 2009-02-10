@@ -4,4 +4,15 @@
 <extension-point id="touchpoints"  name="Touchpoints" schema="schema/touchpoints.exsd"/>
 
 <extension-point id="actions" name="Actions" schema="schema/actions.exsd"/>
+ <extension
+       id="metadataRepository"
+       point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+    <factory
+          class="org.eclipse.equinox.internal.p2.engine.ProfileMetadataRepositoryFactory">
+    </factory>
+    <filter
+          suffix="profile">
+    </filter>
+ </extension>
+
 </plugin>
