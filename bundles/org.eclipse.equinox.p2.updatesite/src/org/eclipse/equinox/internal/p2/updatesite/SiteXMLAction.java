@@ -106,8 +106,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String versionString = feature.getFeatureVersion();
 		Version version = versionString != null && versionString.length() > 0 ? new Version(versionString) : Version.emptyVersion;
 		Query query = null;
+		Collector collector = null;
 		if (version.equals(Version.emptyVersion)) {
 			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
+			collector = new Collector();
 		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
 			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
 			Query qualifierQuery = new InstallableUnitQuery(id) {
@@ -122,18 +124,25 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				}
 			};
 			query = new CompositeQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
+			collector = new Collector();
 		} else {
 			query = new InstallableUnitQuery(id, version);
+			collector = new Collector() {
+				public boolean accept(Object object) {
+					super.accept(object);
+					return false; //stop searching once we've found one
+				}
+			};
 		}
 
-		Collector ius = results.query(query, new Collector(), null);
-		if (ius.size() == 0)
-			ius = publisherInfo.getMetadataRepository().query(query, ius, null);
-		if (ius.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
-			ius = publisherInfo.getContextMetadataRepository().query(query, ius, null);
+		collector = results.query(query, collector, null);
+		if (collector.size() == 0)
+			collector = publisherInfo.getMetadataRepository().query(query, collector, null);
+		if (collector.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
+			collector = publisherInfo.getContextMetadataRepository().query(query, collector, null);
 
-		if (ius.size() == 1)
-			return (IInstallableUnit) ius.iterator().next();
+		if (collector.size() == 1)
+			return (IInstallableUnit) collector.iterator().next();
 		return null;
 	}
 
