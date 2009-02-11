@@ -43,9 +43,9 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 			boolean compress = true;
 			if (PROTOCOL_FILE.equals(location.getScheme())) {
 				local = true;
-				localFile = new File(SimpleArtifactRepository.getActualLocation(location, true).getPath());
+				localFile = URIUtil.toFile(SimpleArtifactRepository.getActualLocation(location, true));
 				if (!localFile.exists()) {
-					localFile = new File(SimpleArtifactRepository.getActualLocation(location, false).getPath());
+					localFile = URIUtil.toFile(SimpleArtifactRepository.getActualLocation(location, false));
 					compress = false;
 				}
 			} else {

@@ -43,9 +43,9 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 			boolean compress = true;
 			if (PROTOCOL_FILE.equals(location.getScheme())) {
 				local = true;
-				localFile = new File(CompositeArtifactRepository.getActualLocation(location, true).getPath());
+				localFile = URIUtil.toFile(CompositeArtifactRepository.getActualLocation(location, true));
 				if (!localFile.exists()) {
-					localFile = new File(CompositeArtifactRepository.getActualLocation(location, false).getPath());
+					localFile = URIUtil.toFile(CompositeArtifactRepository.getActualLocation(location, false));
 					compress = false;
 				}
 			} else {

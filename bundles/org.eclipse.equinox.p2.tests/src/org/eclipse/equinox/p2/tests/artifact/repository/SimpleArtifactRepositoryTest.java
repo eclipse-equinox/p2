@@ -45,32 +45,32 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testGetActualLocation1() throws URISyntaxException {
+	public void testGetActualLocation1() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository");
 		assertEquals(new URI(base + "/artifacts.xml"), SimpleArtifactRepository.getActualLocation(base, false));
 	}
 
-	public void testGetActualLocation2() throws URISyntaxException {
+	public void testGetActualLocation2() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository/");
 		assertEquals(new URI(base + "artifacts.xml"), SimpleArtifactRepository.getActualLocation(base, false));
 	}
 
-	public void testGetActualLocation3() throws URISyntaxException {
+	public void testGetActualLocation3() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository/artifacts.xml");
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, false));
 	}
 
-	public void testGetActualLocationCompressed1() throws URISyntaxException {
+	public void testGetActualLocationCompressed1() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository");
 		assertEquals(new URI(base + "/artifacts.jar"), SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
-	public void testGetActualLocationCompressed2() throws URISyntaxException {
+	public void testGetActualLocationCompressed2() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository/");
 		assertEquals(new URI(base + "artifacts.jar"), SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
-	public void testGetActualLocationCompressed3() throws URISyntaxException {
+	public void testGetActualLocationCompressed3() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository/artifacts.jar");
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
 	}
@@ -139,6 +139,16 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Repository should not create JAR for artifact.xml");
 		if (!artifactFilePresent)
 			fail("Repository should create artifact.xml");
+	}
+
+	public void testLoadInvalidLocation() {
+		try {
+			getArtifactRepositoryManager().loadRepository(new URI("file:d:/foo"), getMonitor());
+		} catch (ProvisionException e) {
+			//expected
+		} catch (URISyntaxException e) {
+			fail("4.99", e);
+		}
 	}
 
 	public void test_248772() {

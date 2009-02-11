@@ -20,7 +20,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -217,11 +218,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public static URI getActualLocation(URI base, boolean compress) {
+	public static URI getActualLocation(URI base, boolean compress) throws IOException {
 		return getActualLocation(base, compress ? JAR_EXTENSION : XML_EXTENSION);
 	}
 
-	private static URI getActualLocation(URI base, String extension) {
+	private static URI getActualLocation(URI base, String extension) throws IOException {
 		final String name = CONTENT_FILENAME + extension;
 		String spec = base.toString();
 		if (spec.endsWith(name))
@@ -233,7 +234,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			return new URI(spec);
 		} catch (URISyntaxException e) {
-			return null;
+			throw new IOException(NLS.bind(Messages.io_invalidLocation, spec));
 		}
 	}
 
