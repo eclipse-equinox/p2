@@ -7,6 +7,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -15,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
@@ -84,30 +86,28 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		}
 	}
 
-	private static IProfile getProfile(URI location) {
+	private static IProfile getProfile(URI location) throws ProvisionException {
 		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
-			throw new IllegalArgumentException("Profile Repository must use 'file' protocol."); //$NON-NLS-1$
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 
 		File target = new File(location);
 		if (!target.exists())
-			throw new IllegalArgumentException("Profile not found: " + location.toString()); //$NON-NLS-1$
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 
 		long timestamp = -1;
 		int index = target.getName().lastIndexOf(DOT_PROFILE);
 		if (index == -1)
-			throw new IllegalArgumentException("Profile not found: " + location.toString()); //$NON-NLS-1$
-
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		String profileId = target.getName().substring(0, index);
 		if (target.isFile()) {
 			try {
 				timestamp = Long.parseLong(profileId);
 			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Bad timestamp format id syntax: " + profileId); //$NON-NLS-1$
+				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 			}
 			target = target.getParentFile();
-			if (target == null) {
-				throw new IllegalArgumentException("Profile not found: " + location.toString()); //$NON-NLS-1$
-			}
+			if (target == null)
+				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			index = target.getName().lastIndexOf(DOT_PROFILE);
 			profileId = target.getName().substring(0, index);
 		}
@@ -115,7 +115,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
 		File registryDirectory = target.getParentFile();
 		if (registryDirectory == null)
-			throw new IllegalArgumentException("Profile registry not found for profile: " + location.toString()); //$NON-NLS-1$
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(registryDirectory, null, false);
 		if (timestamp == -1) {
 			long[] timestamps = profileRegistry.listProfileTimestamps(profileId);
@@ -123,8 +123,19 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		}
 		IProfile profile = profileRegistry.getProfile(profileId, timestamp);
 		if (profile == null)
-			throw new IllegalArgumentException("Profile not found in registry: " + profileId); //$NON-NLS-1$
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 
 		return profile;
+	}
+
+	private static void fail(URI location, int code) throws ProvisionException {
+		switch (code) {
+			case ProvisionException.REPOSITORY_NOT_FOUND :
+				String msg = NLS.bind(Messages.io_NotFound, location);
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+			case ProvisionException.REPOSITORY_FAILED_READ :
+				msg = NLS.bind(Messages.io_FailedRead, location);
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+		}
 	}
 }

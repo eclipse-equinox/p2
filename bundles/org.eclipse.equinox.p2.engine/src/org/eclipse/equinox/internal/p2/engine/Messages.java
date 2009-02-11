@@ -59,6 +59,10 @@ class Messages extends NLS {
 	public static String shared_profile_not_found;
 	public static String action_syntax_error;
 
+	public static String io_FailedRead;
+
+	public static String io_NotFound;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
