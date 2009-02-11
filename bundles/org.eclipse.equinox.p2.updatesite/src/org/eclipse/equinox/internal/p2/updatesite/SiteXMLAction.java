@@ -20,7 +20,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
@@ -31,7 +34,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
  * relies on IUs for the various features to have already been generated.
  */
 public class SiteXMLAction extends AbstractPublisherAction {
-
+	static final private String QUALIFIER = "qualifier"; //$NON-NLS-1$
 	private UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
@@ -77,7 +80,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			SiteFeature feature = (SiteFeature) i.next();
-			IInstallableUnit iu = getFeatureIU(feature, results);
+			IInstallableUnit iu = getFeatureIU(feature, info, results);
 			if (iu == null)
 				continue;
 			Set categories = (Set) featuresToCategories.get(feature);
@@ -98,16 +101,39 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherResult results) {
+	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
-		Version version = new Version(feature.getFeatureVersion());
-		// TODO look elsewhere as well.  Perhaps in the metadata repos and some advice.
-		Collection ius = results.getIUs(id, null);
-		for (Iterator i = ius.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
-			if (iu.getVersion().equals(version))
-				return iu;
+		String versionString = feature.getFeatureVersion();
+		Version version = versionString != null && versionString.length() > 0 ? new Version(versionString) : Version.emptyVersion;
+		Query query = null;
+		if (version.equals(Version.emptyVersion)) {
+			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
+		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
+			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
+			Query qualifierQuery = new InstallableUnitQuery(id) {
+				private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
+
+				public boolean isMatch(Object object) {
+					if (super.isMatch(object)) {
+						IInstallableUnit candidate = (IInstallableUnit) object;
+						return candidate.getVersion().toString().startsWith(qualifierVersion);
+					}
+					return false;
+				}
+			};
+			query = new CompositeQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
+		} else {
+			query = new InstallableUnitQuery(id, version);
 		}
+
+		Collector ius = results.query(query, new Collector(), null);
+		if (ius.size() == 0)
+			ius = publisherInfo.getMetadataRepository().query(query, ius, null);
+		if (ius.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
+			ius = publisherInfo.getContextMetadataRepository().query(query, ius, null);
+
+		if (ius.size() == 1)
+			return (IInstallableUnit) ius.iterator().next();
 		return null;
 	}
 
