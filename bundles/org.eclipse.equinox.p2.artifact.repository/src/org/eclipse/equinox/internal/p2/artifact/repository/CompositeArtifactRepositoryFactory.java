@@ -50,7 +50,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				}
 			} else {
 				//download to local temp file
-				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION); //$NON-NLS-1$ //$NON-NLS-2$
+				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION); 
 				try {
 					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
 					IStatus status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
