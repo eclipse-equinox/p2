@@ -146,8 +146,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		public void close() throws IOException {
 			fos.close();
-			FileUtils.unzipFile(zipFile, folder);
-			zipFile.delete();
+			try {
+				FileUtils.unzipFile(zipFile, folder);
+			} finally {
+				zipFile.delete();
+			}
 		}
 
 		public void flush() throws IOException {
