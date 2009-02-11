@@ -476,7 +476,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}
 
-	public void testMetadtaRepoCount() {
+	public void testMetadataRepoCount() {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
