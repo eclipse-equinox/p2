@@ -92,4 +92,11 @@
           version="1.0.0">
     </action>
  </extension>
+ <extension
+       point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+        <filter suffix="broken.xml"/>
+    <factory
+          class="org.eclipse.equinox.p2.tests.FailingMetadataRepositoryFactory">
+    </factory>
+ </extension>
 </plugin>
