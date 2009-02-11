@@ -290,6 +290,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testRelativePath() throws URISyntaxException {
+		URI location = new URI("test");
+		try {
+			manager.loadRepository(location, getMonitor());
+		} catch (ProvisionException e) {
+			//expected
+		}
+	}
+
 	/**
 	 * Repository references were originally encoded as URL, but we now encode
 	 * as URI. This test ensures we handle both old and new references.
