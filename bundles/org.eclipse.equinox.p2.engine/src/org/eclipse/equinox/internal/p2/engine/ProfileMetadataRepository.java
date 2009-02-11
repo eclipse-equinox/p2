@@ -86,7 +86,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
 	private static IProfile getProfile(URI location) {
 		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
-			throw new IllegalArgumentException("Profile Repostory must use 'file' protocol."); //$NON-NLS-1$
+			throw new IllegalArgumentException("Profile Repository must use 'file' protocol."); //$NON-NLS-1$
 
 		File target = new File(location);
 		if (!target.exists())
@@ -94,6 +94,9 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
 		long timestamp = -1;
 		int index = target.getName().lastIndexOf(DOT_PROFILE);
+		if (index == -1)
+			throw new IllegalArgumentException("Profile not found: " + location.toString()); //$NON-NLS-1$
+
 		String profileId = target.getName().substring(0, index);
 		if (target.isFile()) {
 			try {
