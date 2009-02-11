@@ -29,6 +29,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(MD5Tests.class);
 		suite.addTestSuite(MirrorSelectorTest.class);
+		suite.addTestSuite(MirrorRequestTest.class);
 		suite.addTestSuite(SimpleArtifactRepositoryTest.class);
 		suite.addTestSuite(TransferTest.class);
 		return suite;

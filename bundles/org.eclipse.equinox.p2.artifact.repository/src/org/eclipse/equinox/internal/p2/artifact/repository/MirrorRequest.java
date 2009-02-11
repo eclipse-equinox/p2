@@ -167,18 +167,23 @@ public class MirrorRequest extends ArtifactRequest {
 		// Do the actual transfer
 		try {
 			status = getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
+			if (destination instanceof IStateful && status != null && !status.isOK()) {
+				IStatus destStatus = ((IStateful) destination).getStatus();
+				IStatus root = extractRootCause(status);
+				((IStateful) destination).setStatus(new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status, destStatus}, status.getMessage(), root.getException()));
+			}
 		} finally {
 			try {
 				destination.close();
 			} catch (IOException e) {
 				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
 					return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
-				if (status != null && status.getSeverity() == IStatus.ERROR) {
-					IStatus root = extractRootCause(status);
-					if (root != null && FileNotFoundException.class == root.getException().getClass())
-						return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
-				}
 				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+			}
+			if (status != null && status.getSeverity() == IStatus.ERROR) {
+				IStatus root = extractRootCause(status);
+				if (root != null && FileNotFoundException.class == root.getException().getClass())
+					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
 			}
 		}
 		return status;
