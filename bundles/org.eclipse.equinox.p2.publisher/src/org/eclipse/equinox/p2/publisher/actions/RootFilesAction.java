@@ -89,7 +89,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		IProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); 
+		IProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version);
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(iuId, version), launcherCapability});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
@@ -123,11 +123,10 @@ public class RootFilesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private static IPathComputer createPrefixComputer(File root) {
+	private IPathComputer createPrefixComputer(File root) {
 		if (root == null)
 			return createParentPrefixComputer(1);
-		else
-			return createRootPrefixComputer(root);
+		return createRootPrefixComputer(root);
 	}
 
 	/**

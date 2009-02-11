@@ -29,6 +29,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProductActionTest.class);
 		suite.addTestSuite(ProductActionTestMac.class);
 		suite.addTestSuite(ProductActionWithAdviceFileTest.class);
+		suite.addTestSuite(ProductFileAdviceTest.class);
+		suite.addTestSuite(ProductFileTest.class);
 		suite.addTestSuite(RootFilesActionTest.class);
 		suite.addTestSuite(RootIUActionTest.class);
 		suite.addTestSuite(GeneralPublisherTests.class);

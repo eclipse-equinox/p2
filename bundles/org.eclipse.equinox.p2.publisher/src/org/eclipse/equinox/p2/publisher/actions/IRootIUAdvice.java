@@ -16,7 +16,8 @@ public interface IRootIUAdvice {
 
 	/**
 	 * Returns the list of children of the root for this publishing operation.
-	 * Returned elements are either the String id of the IUs or the IUs themselves.
+	 * Returned elements are either the String id of the IUs, a VersionedName describing 
+	 * the IU or the IUs themselves.
 	 * @param result 
 	 * @return the collection of children
 	 */

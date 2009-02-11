@@ -12,6 +12,8 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.publisher.*;
 
 public class ProductPublisherApplication extends AbstractPublisherApplication {
@@ -30,7 +32,14 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	private IPublisherAction createProductAction() {
-		return new ProductAction(source, product, flavor, new File(executables));
+		IProductDescriptor productDescriptor = null;
+		try {
+			productDescriptor = new ProductFile(product);
+		} catch (Exception e) {
+			if (product == null)
+				throw new IllegalArgumentException("unable to load product file"); //$NON-NLS-1$
+		}
+		return new ProductAction(source, productDescriptor, flavor, new File(executables));
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {

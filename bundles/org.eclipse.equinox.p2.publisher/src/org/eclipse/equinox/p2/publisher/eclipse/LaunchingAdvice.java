@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 
-public class LaunchingAdvice extends AbstractAdvice implements ILaunchingAdvice {
+public class LaunchingAdvice extends AbstractAdvice implements IExecutableAdvice {
 
 	private LauncherData data;
 	private String configSpec;

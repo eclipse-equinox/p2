@@ -87,6 +87,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	private void createLauncherAdvice(IPublisherInfo info, IPublisherResult results) {
 		Collection ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
 		VersionAdvice advice = new VersionAdvice();
+		boolean found = false;
 		for (Iterator i = ius.iterator(); i.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) i.next();
 			// skip over source bundles and fragments
@@ -94,8 +95,10 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			if (iu.getId().endsWith(".source") || iu.isFragment()) //$NON-NLS-1$
 				continue;
 			advice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), iu.getVersion());
+			found = true;
 		}
-		info.addAdvice(advice);
+		if (found)
+			info.addAdvice(advice);
 	}
 
 	private Collection getIUs(Collection ius, String prefix) {
@@ -141,6 +144,6 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			return result;
 		// otherwise, assume that we are running against an Eclipse install and do the default thing
 		String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
-		return ExecutablesDescriptor.createDescriptor(os, executableName, location); 
+		return ExecutablesDescriptor.createDescriptor(os, executableName, location);
 	}
 }

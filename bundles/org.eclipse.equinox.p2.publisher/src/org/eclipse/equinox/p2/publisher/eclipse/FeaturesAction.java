@@ -237,7 +237,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String configSpec = descriptor.getConfigSpec();
 		if (configSpec != null)
-			iu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
+			iu.setFilter(createFilterSpec(configSpec));
 		File[] fileResult = attachFiles(iu, descriptor, location);
 		setupLinks(iu, descriptor);
 		setupPermissions(iu, descriptor);

@@ -13,6 +13,10 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 
+/**
+ * Advises publisher actions as to which IUs should be listed as children of an
+ * eventual root IU.  Each child is described as a VersionedName.
+ */
 public class RootIUAdvice extends AbstractAdvice implements IRootIUAdvice {
 
 	private Collection children;

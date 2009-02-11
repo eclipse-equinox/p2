@@ -10,7 +10,10 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 
 public class PublisherResult implements IPublisherResult {
 
@@ -37,6 +40,26 @@ public class PublisherResult implements IPublisherResult {
 			map.put(id, ius);
 		}
 		ius.add(iu);
+	}
+
+	public IInstallableUnit getIU(String id, Version version, String type) {
+		if (type == null || type == ROOT) {
+			Collection ius = (Collection) rootIUs.get(id);
+			for (Iterator i = ius.iterator(); i.hasNext();) {
+				IInstallableUnit iu = (IInstallableUnit) i.next();
+				if (iu.getVersion().equals(version))
+					return iu;
+			}
+		}
+		if (type == null || type == NON_ROOT) {
+			Collection ius = (Collection) nonRootIUs.get(id);
+			for (Iterator i = ius.iterator(); i.hasNext();) {
+				IInstallableUnit iu = (IInstallableUnit) i.next();
+				if (iu.getVersion().equals(version))
+					return iu;
+			}
+		}
+		return null;
 	}
 
 	// TODO this method really should not be needed as it just returns the first
@@ -98,4 +121,24 @@ public class PublisherResult implements IPublisherResult {
 		}
 	}
 
+	class QueryableMap implements IQueryable {
+		private Map map;
+
+		public QueryableMap(Map map) {
+			this.map = map;
+		}
+
+		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			return query.perform(flatten(this.map.values()).iterator(), collector);
+		}
+	}
+
+	/**
+	 * Queries both the root and non root IUs
+	 */
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		IQueryable nonRootQueryable = new QueryableMap(nonRootIUs);
+		IQueryable rootQueryable = new QueryableMap(rootIUs);
+		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, collector, monitor);
+	}
 }

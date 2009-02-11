@@ -13,11 +13,11 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -64,8 +64,9 @@ public class ProductActionTest extends ActionTest {
 	 * Tests publishing a product containing a branded application with a custom
 	 * splash screen, icon, etc.
 	 */
-	public void testBrandedApplication() throws IOException {
-		testAction = new ProductAction(source, TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString(), flavorArg, executablesFeatureLocation);
+	public void testBrandedApplication() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		testAction.perform(publisherInfo, publisherResult, null);
 		Collection ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
@@ -78,7 +79,8 @@ public class ProductActionTest extends ActionTest {
 	 * IConfigAdvice (start levels, auto-start).
 	 */
 	public void testSetBundleConfigData() throws Exception {
-		testAction = new ProductAction(source, TestData.getFile("ProductActionTest", "startLevel.product").toString(), flavorArg, executablesFeatureLocation);
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "startLevel.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 
 		testAction.perform(publisherInfo, publisherResult, null);
 		IConfigAdvice configAdvice = productFileAdviceCapture.getValue();
@@ -98,11 +100,12 @@ public class ProductActionTest extends ActionTest {
 	/**
 	 * Tests that correct advice is created for the org.eclipse.platform product.
 	 */
-	public void testPlatformProduct() throws IOException {
-		testAction = new ProductAction(source, TestData.getFile("ProductActionTest", "platform.product").toString(), flavorArg, executablesFeatureLocation);
+	public void testPlatformProduct() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		testAction.perform(publisherInfo, publisherResult, null);
 
-		ILaunchingAdvice launchAdvice = productFileAdviceCapture.getValue();
+		IExecutableAdvice launchAdvice = productFileAdviceCapture.getValue();
 		assertEquals("1.0", "eclipse", launchAdvice.getExecutableName());
 
 		String[] programArgs = launchAdvice.getProgramArguments();

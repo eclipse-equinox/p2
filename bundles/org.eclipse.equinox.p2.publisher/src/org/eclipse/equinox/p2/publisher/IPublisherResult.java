@@ -10,7 +10,9 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.util.Collection;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
 /**
  * Publisher results represent the result of running a publishing operation.  A result is a 
@@ -19,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
  * determined by the actions involved in the operation and it is up to the consumer of the
  * result to interpret the collections.
  */
-public interface IPublisherResult {
+public interface IPublisherResult extends IQueryable {
 	/**
 	 * Merge mode setting that causes all root results to be merged into 
 	 * the root of the merged results and all non-roots to become non-roots.
@@ -89,6 +91,17 @@ public interface IPublisherResult {
 	 * with the given ID.  There are some uses for this but not many and they can use #getIUs
 	 */
 	public IInstallableUnit getIU(String id, String type);
+
+	/**
+	 * Returns the IU of the given type with the given id and version in this result.
+	 * @param id the id of the IU to look for
+	 * @param version the version of the IU to look for
+	 * @param type the type of IU to look for in this result
+	 * @return the requested IU
+	 * @see #ROOT
+	 * @see #NON_ROOT
+	 */
+	public IInstallableUnit getIU(String id, Version version, String type);
 
 	/**
 	 * Merges the given result in this result according to the given mode. 

@@ -111,7 +111,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		LaunchingAdvice launchingAdvice = new LaunchingAdvice(launcherData, configSpec);
 		ArrayList launchingList = new ArrayList();
 		launchingList.add(launchingAdvice);
-		expect(publisherInfo.getAdvice(configSpec, false, null, null, ILaunchingAdvice.class)).andReturn(launchingList);
+		expect(publisherInfo.getAdvice(configSpec, false, null, null, IExecutableAdvice.class)).andReturn(launchingList);
 
 		//setup metadata repository
 		IInstallableUnit[] ius = {mockIU("foo", null), mockIU("bar", null)}; //$NON-NLS-1$ //$NON-NLS-2$

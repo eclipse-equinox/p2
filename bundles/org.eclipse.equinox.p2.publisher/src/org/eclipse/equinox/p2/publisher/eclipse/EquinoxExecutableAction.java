@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
@@ -26,8 +26,21 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
 
+/**
+ * Given the description of an executable, this action publishes optionally 
+ * non-destructively brands the executable, publishes the resultant artifacts
+ * and publishes the required IUs to identify the branded executable, configure
+ * the executable and set it up as the launcher for a profile.
+ * <p>
+ * This action works on one platform configuration only.
+ * <p>
+ * This action consults the following types of advice:
+ * </ul>
+ * <li>{@link IBrandingAdvice}</li>
+ * </ul>
+ */
 public class EquinoxExecutableAction extends AbstractPublisherAction {
-	private static String TYPE = "executable";
+	private static String TYPE = "executable"; //$NON-NLS-1$
 
 	protected String configSpec;
 	protected String idBase;
@@ -47,11 +60,15 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
-		// TODO temporary measure for handling the Eclipse launcher feature files.
-		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
-		publishExecutableIU(info, brandedExecutables, result);
-		publishExecutableCU(info, brandedExecutables, result);
-		publishExecutableSetter(brandedExecutables, result);
+		ExecutablesDescriptor brandedExecutables = brandExecutables(info, executables);
+		try {
+			publishExecutableIU(info, brandedExecutables, result);
+			publishExecutableCU(info, brandedExecutables, result);
+			publishExecutableSetter(brandedExecutables, result);
+		} finally {
+			if (brandedExecutables.isTemporary())
+				FileUtils.deleteAll(brandedExecutables.getLocation());
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -119,13 +136,13 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	private String getExecutableId() {
-		return ConfigCUsAction.getCUId(idBase, TYPE, "", configSpec);
+		return createCUIdString(idBase, TYPE, "", configSpec);
 	}
 
 	// Create the CU that installs (e.g., unzips) the executable
 	private void publishExecutableCU(IPublisherInfo info, ExecutablesDescriptor execDescriptor, IPublisherResult result) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String id = ConfigCUsAction.getCUId(idBase, TYPE, flavor, configSpec);
+		String id = createCUIdString(idBase, TYPE, flavor, configSpec);
 		cu.setId(id);
 		cu.setVersion(version);
 		cu.setFilter(createFilterSpec(configSpec));
@@ -161,22 +178,60 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		return touchpointData;
 	}
 
-	protected ExecutablesDescriptor brandExecutables(ExecutablesDescriptor descriptor) {
+	/**
+	 * Brands a copy of the given executable descriptor with the information in the 
+	 * current product definition.  The files described in the descriptor are also copied
+	 * to a temporary location to avoid destructive modification
+	 * @param info the publisher info that sets the context for this operation
+	 * @param descriptor the executable descriptor to brand.
+	 * @return the new descriptor
+	 */
+	protected ExecutablesDescriptor brandExecutables(IPublisherInfo info, ExecutablesDescriptor descriptor) {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(descriptor);
 		result.makeTemporaryCopy();
-		File[] list = descriptor.getFiles();
-		for (int i = 0; i < list.length; i++)
-			mungeExecutableFileName(list[i], descriptor);
-		result.setExecutableName("eclipse", true); //$NON-NLS-1$
+		IBrandingAdvice advice = getBrandingAdvice(info);
+		if (advice == null || advice.getIcons() == null)
+			partialBrandExecutables(result);
+		else
+			fullBrandExecutables(result, advice);
 		return result;
 	}
 
-	/**
-	 * @TODO This method is a temporary hack to rename the launcher.exe files
-	 * to eclipse.exe (or "launcher" to "eclipse"). Eventually we will either hand-craft
-	 * metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
-	 * launchers.
-	 */
+	private IBrandingAdvice getBrandingAdvice(IPublisherInfo info) {
+		// there is expected to only be one branding advice for a given configspec so
+		// just return the first one we find.
+		Collection advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();)
+			return (IBrandingAdvice) i.next();
+		return null;
+	}
+
+	protected void fullBrandExecutables(ExecutablesDescriptor descriptor, IBrandingAdvice advice) {
+		BrandingIron iron = new BrandingIron();
+		iron.setIcons(advice.getIcons());
+		iron.setName(advice.getExecutableName());
+		iron.setOS(advice.getOS());
+		iron.setRoot(descriptor.getLocation().getAbsolutePath());
+		try {
+			iron.brand();
+			descriptor.setExecutableName(advice.getExecutableName(), true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	protected void partialBrandExecutables(ExecutablesDescriptor descriptor) {
+		File[] list = descriptor.getFiles();
+		for (int i = 0; i < list.length; i++)
+			mungeExecutableFileName(list[i], descriptor);
+		descriptor.setExecutableName("eclipse", true); //$NON-NLS-1$
+	}
+
+	// TODO This method is a temporary hack to rename the launcher.exe files
+	// to eclipse.exe (or "launcher" to "eclipse"). Eventually we will either hand-craft
+	// metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
+	// launchers.
 	private void mungeExecutableFileName(File file, ExecutablesDescriptor descriptor) {
 		if (file.getName().equals("launcher")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse"); //$NON-NLS-1$

@@ -62,10 +62,6 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		PROGRAM_ARGS_TO_SKIP.add("-configuration"); //$NON-NLS-1$
 	}
 
-	public static String getCUId(String id, String type, String flavor, String configSpec) {
-		return flavor + id + "." + type + "." + AbstractPublisherAction.createIdString(configSpec); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
 	public static String getAbstractCUCapabilityNamespace(String id, String type, String flavor, String configSpec) {
 		return flavor + id;
 	}
@@ -103,7 +99,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
 			publishBundleCUs(info, bundles, configSpec, innerResult);
 			publishConfigIUs(configAdvice, innerResult, configSpec);
-			Collection launchingAdvice = info.getAdvice(configSpec, false, null, null, ILaunchingAdvice.class);
+			Collection launchingAdvice = info.getAdvice(configSpec, false, null, null, IExecutableAdvice.class);
 			publishIniIUs(launchingAdvice, innerResult, configSpec);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
@@ -212,10 +208,10 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 */
 	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map touchpointData) {
 		InstallableUnitDescription cu = new InstallableUnitDescription();
-		String resultId = getCUId(id, type, flavor, configSpec);
+		String resultId = createCUIdString(id, type, flavor, configSpec);
 		cu.setId(resultId);
 		cu.setVersion(version);
-		cu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
+		cu.setFilter(createFilterSpec(configSpec));
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
 		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
@@ -261,7 +257,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		String unconfigurationData = ""; //$NON-NLS-1$
 
 		for (Iterator j = launchingAdvice.iterator(); j.hasNext();) {
-			ILaunchingAdvice advice = (ILaunchingAdvice) j.next();
+			IExecutableAdvice advice = (IExecutableAdvice) j.next();
 			String[] jvmArgs = advice.getVMArguments();
 			for (int i = 0; i < jvmArgs.length; i++)
 				if (shouldPublishJvmArg(jvmArgs[i])) {
@@ -326,7 +322,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	}
 
 	protected GeneratorBundleInfo createGeneratorBundleInfo(IPublisherInfo info, BundleInfo bundleInfo, IPublisherResult result) {
-		if (bundleInfo.getLocation() != null)
+		if (bundleInfo.getLocation() != null || bundleInfo.getVersion() != null)
 			return new GeneratorBundleInfo(bundleInfo);
 
 		String name = bundleInfo.getSymbolicName();

@@ -17,119 +17,21 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.IFilterAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
-	public static void addSelfCapability(InstallableUnitDescription root) {
-		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
-	}
-
-	/**
-	 * Returns the canonical form of config spec with the given ws, os and arch.
-	 * Note that the result is intended to be machine readable (i.e., parseConfigSpec
-	 * will parse the the result).
-	 * @param ws the window system
-	 * @param os the operating system
-	 * @param arch the machine architecture
-	 * @return the machine readable format of the given config spec
-	 */
-	public static String createConfigSpec(String ws, String os, String arch) {
-		return ws + '.' + os + '.' + arch;
-	}
-
-	/**
-	 * Returns the LDAP filter form that matches the given config spec.  Returns
-	 * an empty String if the spec does not identify an ws, os or arch.
-	 * @param configSpec a config spec to filter
-	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
-	 * parse into a filter.
-	 */
-	public static String createFilterSpec(String configSpec) {
-		String[] config = parseConfigSpec(configSpec);
-		if (config[0] != null || config[1] != null || config[2] != null) {
-			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterOs = config[1] != null && config[1] != CONFIG_ANY ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
-				return null;
-			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the normalized string form of the given config spec.  This is useful for putting
-	 * in IU ids etc. Note that the result is not intended to be machine readable (i.e., parseConfigSpec
-	 * may not work on the result).
-	 * @param configSpec the config spec to format
-	 * @return the readable format of the given config spec
-	 */
-	public static String createIdString(String configSpec) {
-		String[] config = parseConfigSpec(configSpec);
-		return config[0] + '.' + config[1] + '.' + config[2];
-	}
-
-	public static Collection createIURequirements(Collection children) {
-		ArrayList result = new ArrayList(children.size());
-		for (Iterator i = children.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
-			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
-		}
-		return result;
-	}
-
-	public static InstallableUnitDescription createIUShell(String id, Version version) {
-		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
-		root.setId(id);
-		root.setVersion(version);
-		return root;
-	}
-
-	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
-		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
-		//TODO this size calculation is bogus
-		ArtifactDescriptor result = new ArtifactDescriptor(key);
-		if (pathOnDisk != null) {
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
-			// TODO - this is wrong but I'm testing a work-around for bug 205842
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
-		}
-		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
-		result.setProcessingSteps(steps);
-		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
-		return result;
-	}
-
-	public static InstallableUnitDescription createParentIU(Collection children, String id, Version version) {
-		InstallableUnitDescription root = createIUShell(id, version);
-		root.addRequiredCapabilities(createIURequirements(children));
-		addSelfCapability(root);
-		return root;
-	}
-
-	//This is to hide FileUtils from other actions
-	public static IPathComputer createParentPrefixComputer(int segmentsToKeep) {
-		return FileUtils.createParentPrefixComputer(segmentsToKeep);
-	}
-
-	//This is to hide FileUtils from other actions
-	public static IPathComputer createRootPrefixComputer(final File root) {
-		return FileUtils.createRootPathComputer(root);
-	}
-
-	public static IProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
-	}
+	protected IPublisherInfo info;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -161,11 +63,145 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
+	 * Returns the canonical form of config spec with the given ws, os and arch.
+	 * Note that the result is intended to be machine readable (i.e., parseConfigSpec
+	 * will parse the the result).
+	 * @param ws the window system
+	 * @param os the operating system
+	 * @param arch the machine architecture
+	 * @return the machine readable format of the given config spec
+	 */
+	public static String createConfigSpec(String ws, String os, String arch) {
+		return ws + '.' + os + '.' + arch;
+	}
+
+	protected void addSelfCapability(InstallableUnitDescription root) {
+		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
+	}
+
+	/**
+	 * Returns the LDAP filter form that matches the given config spec.  Returns
+	 * an empty String if the spec does not identify an ws, os or arch.
+	 * @param configSpec a config spec to filter
+	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
+	 * parse into a filter.
+	 */
+	protected String createFilterSpec(String configSpec) {
+		String[] config = parseConfigSpec(configSpec);
+		if (config[0] != null || config[1] != null || config[2] != null) {
+			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = config[1] != null && config[1] != CONFIG_ANY ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
+				return null;
+			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the normalized string form of the given config spec.  This is useful for putting
+	 * in IU ids etc. Note that the result is not intended to be machine readable (i.e., parseConfigSpec
+	 * may not work on the result).
+	 * @param configSpec the config spec to format
+	 * @return the readable format of the given config spec
+	 */
+	protected String createIdString(String configSpec) {
+		String[] config = parseConfigSpec(configSpec);
+		return config[0] + '.' + config[1] + '.' + config[2];
+	}
+
+	protected String createCUIdString(String id, String type, String flavor, String configSpec) {
+		return flavor + id + "." + type + "." + createIdString(configSpec); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * Creates and returns a collection of RequiredCapabilities for the IUs represented
+	 * by the given collection.  The collection may include a mixture of IInstallableUnits
+	 * or VersionedNames.
+	 * @param children descriptions of the IUs on which requirements are to be made
+	 * @return a collection of RequiredCapabilities representing the given IUs
+	 */
+	protected Collection createIURequirements(Collection children) {
+		ArrayList result = new ArrayList(children.size());
+		for (Iterator i = children.iterator(); i.hasNext();) {
+			Object next = i.next();
+			if (next instanceof IInstallableUnit) {
+				IInstallableUnit iu = (IInstallableUnit) next;
+				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+			} else if (next instanceof VersionedName) {
+				VersionedName name = (VersionedName) next;
+				VersionRange range = new VersionRange(name.getVersion(), true, name.getVersion(), true);
+				String filter = getFilterAdvice(name);
+				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, name.getId(), range, filter, false, false));
+			}
+		}
+		return result;
+	}
+
+	private String getFilterAdvice(VersionedName name) {
+		if (info == null)
+			return null;
+		Collection filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
+		for (Iterator i = filterAdvice.iterator(); i.hasNext();) {
+			IFilterAdvice advice = (IFilterAdvice) i.next();
+			String result = advice.getFilter(name.getId(), name.getVersion(), false);
+			if (result != null)
+				return result;
+		}
+		return null;
+	}
+
+	protected InstallableUnitDescription createIUShell(String id, Version version) {
+		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
+		root.setId(id);
+		root.setVersion(version);
+		return root;
+	}
+
+	protected IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
+		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
+		//TODO this size calculation is bogus
+		ArtifactDescriptor result = new ArtifactDescriptor(key);
+		if (pathOnDisk != null) {
+			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
+			// TODO - this is wrong but I'm testing a work-around for bug 205842
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		}
+		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		result.setProcessingSteps(steps);
+		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		return result;
+	}
+
+	protected InstallableUnitDescription createParentIU(Collection children, String id, Version version) {
+		InstallableUnitDescription root = createIUShell(id, version);
+		root.addRequiredCapabilities(createIURequirements(children));
+		addSelfCapability(root);
+		return root;
+	}
+
+	//This is to hide FileUtils from other actions
+	protected IPathComputer createParentPrefixComputer(int segmentsToKeep) {
+		return FileUtils.createParentPrefixComputer(segmentsToKeep);
+	}
+
+	//This is to hide FileUtils from other actions
+	protected IPathComputer createRootPrefixComputer(final File root) {
+		return FileUtils.createRootPathComputer(root);
+	}
+
+	protected IProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
+		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
+	}
+
+	/**
 	 * Add all of the advised provided and required capabilities for the given installable unit.
 	 * @param iu the IU to decorate
 	 * @param info the publisher info supplying the advice
 	 */
-	protected static void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
+	protected void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
 		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
@@ -195,7 +231,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param inclusion the file to be published. files can be <code>null</code> but no action is taken.
 	 * @param info the publisher info.
 	 */
-	protected static void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {
 		// no files to publish so this is done.
 		if (inclusion == null)
 			return;
@@ -253,7 +289,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param info the publisher info.
 	 * @param prefixComputer
 	 */
-	protected static void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo info, IPathComputer prefixComputer) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo info, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
 		if (inclusions == null || inclusions.length < 1)
 			return;

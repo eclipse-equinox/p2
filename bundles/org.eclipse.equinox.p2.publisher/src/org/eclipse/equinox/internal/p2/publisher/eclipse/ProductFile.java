@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - Additional function and fixes
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
@@ -16,14 +17,14 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * 
- * @since 3.1
+ *  Used to parse a .product file.
  */
 public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_PATH = "path"; //$NON-NLS-1$
@@ -31,6 +32,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_FRAGMENT = "fragment"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_APPLICATION = "application"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_VALUE = "value"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_LOCATION = "location"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_AUTO_START = "autoStart"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_START_LEVEL = "startLevel"; //$NON-NLS-1$
@@ -73,6 +75,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String EL_PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String EL_PLUGIN = "plugin"; //$NON-NLS-1$
 	private static final String EL_PRODUCT = "product"; //$NON-NLS-1$
+	private static final String EL_PROPERTY = "property"; //$NON-NLS-1$
 	private static final String EL_CONFIG_INI = "configIni"; //$NON-NLS-1$
 	private static final String EL_LAUNCHER = "launcher"; //$NON-NLS-1$
 	private static final String EL_LAUNCHER_ARGS = "launcherArgs"; //$NON-NLS-1$
@@ -121,6 +124,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private Properties launcherArgs = new Properties();
 	private File location;
 	private List bundleInfos;
+	private Properties properties;
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -166,14 +170,33 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		//		}
 	}
 
+	/**
+	 * Gets the name of the launcher specified in the .product file.
+	 */
 	public String getLauncherName() {
 		return launcherName;
 	}
 
+	/**
+	 * Gets the location of the .product file.
+	 */
 	public File getLocation() {
 		return location;
 	}
 
+	/**
+	 * Returns the properties found in .product file.  Properties
+	 * are located in the <configurations> block of the file
+	 */
+	public Properties getConfigurationProperties() {
+		return properties == null ? new Properties() : properties;
+	}
+
+	/**
+	 * Returns a List<VersionedName> for each bundle that makes up this product.
+	 * @param includeFragments Indicates whether or not fragments should
+	 * be included in the list
+	 */
 	public List getBundles(boolean includeFragments) {
 		List p = plugins != null ? plugins : Collections.EMPTY_LIST;
 		if (!includeFragments)
@@ -199,25 +222,28 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return bundleInfos != null ? bundleInfos : Collections.EMPTY_LIST;
 	}
 
+	/**
+	 * Returns a list<VersionedName> of fragments that constitute this product.
+	 */
 	public List getFragments() {
 		if (fragments == null)
 			return Collections.EMPTY_LIST;
 		return fragments;
 	}
 
+	/**
+	 * Returns a List<VersionedName> of features that constitute this product.
+	 */
 	public List getFeatures() {
 		if (features == null)
 			return Collections.EMPTY_LIST;
 		return features;
 	}
 
-	/**
-	 * Parses the specified url and constructs a feature
-	 */
 	public String[] getIcons(String os) {
 		Collection result = (Collection) icons.get(os);
 		if (result == null)
-			return new String[0];
+			return null;
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
@@ -230,31 +256,56 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return configPath;
 	}
 
+	/**
+	 * Returns the ID for this product.
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * Returns the location (the bundle) that defines the splash screen
+	 */
 	public String getSplashLocation() {
 		return splashLocation;
 	}
 
+	/**
+	 * Returns the product name.
+	 */
 	public String getProductName() {
 		return productName;
 	}
 
+	/**
+	 * Returns the application identifier for this product.
+	 */
 	public String getApplication() {
 		return application;
 	}
 
+	/**
+	 * Returns true if this product is built using feature, 
+	 * false otherwise.
+	 */
 	public boolean useFeatures() {
 		return useFeatures;
 	}
 
+	/**
+	 * Returns the version of the product
+	 */
 	public String getVersion() {
 		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
 	}
 
+	/**
+	 * Returns the VM arguments for a specific platform.
+	 * If the empty string is used for the OS, this returns
+	 * the default VM arguments
+	 */
 	public String getVMArguments(String os) {
+		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
 		if (os.equals(OS_WIN32)) {
 			key = VM_ARGS_WIN;
@@ -277,7 +328,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return normalize(args);
 	}
 
+	/**
+	 * Returns the program arguments for a specific platform.
+	 * If the empty string is used for the OS, this returns
+	 * the default program arguments
+	 */
 	public String getProgramArguments(String os) {
+		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
 		if (os.equals(OS_WIN32)) {
 			key = PROGRAM_ARGS_WIN;
@@ -388,9 +445,28 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_CONFIGURATIONS :
 				if (EL_PLUGIN.equals(localName)) {
 					processPluginConfiguration(attributes);
+				} else if (EL_PROPERTY.equals(localName)) {
+					processPropertyConfiguration(attributes);
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Processes the property tag in the .product file.  These tags contain
+	 * a Name and Value pair.  For each tag (with a non-null name), a property 
+	 * is created.
+	 */
+	private void processPropertyConfiguration(Attributes attributes) {
+		String name = attributes.getValue(ATTRIBUTE_NAME);
+		String value = attributes.getValue(ATTRIBUTE_VALUE);
+		if (name == null)
+			return;
+		if (value == null)
+			value = ""; //$NON-NLS-1$
+		if (properties == null)
+			properties = new Properties();
+		properties.put(name, value);
 	}
 
 	private void processPluginConfiguration(Attributes attributes) {
@@ -505,21 +581,23 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	private void processPlugin(Attributes attributes) {
 		String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
+		VersionedName name = new VersionedName(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (fragment != null && new Boolean(fragment).booleanValue()) {
 			if (fragments == null)
 				fragments = new ArrayList();
-			fragments.add(attributes.getValue(ATTRIBUTE_ID));
+			fragments.add(name);
 		} else {
 			if (plugins == null)
 				plugins = new ArrayList();
-			plugins.add(attributes.getValue(ATTRIBUTE_ID));
+			plugins.add(name);
 		}
 	}
 
 	private void processFeature(Attributes attributes) {
+		VersionedName name = new VersionedName(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (features == null)
 			features = new ArrayList();
-		features.add(attributes.getValue(ATTRIBUTE_ID));
+		features.add(name);
 	}
 
 	private void processProduct(Attributes attributes) {

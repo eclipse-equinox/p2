@@ -80,4 +80,22 @@ public interface IPublisherInfo {
 	 * @see AbstractPublisherAction#createConfigSpec(String, String, String)
 	 */
 	public String[] getConfigurations();
+
+	/**
+	 * Returns the artifact repository given to the publisher as context for 
+	 * the publisher actions.  May be <code>null</code>.  Note that multiple 
+	 * repositories may be represented as one composite repository.
+	 * 
+	 * @return the context artifact repository or <code>null</code> if none.
+	 */
+	public IArtifactRepository getContextArtifactRepository();
+
+	/**
+	 * Returns the metadata repository given to the publisher as context for 
+	 * the publisher actions.  May be <code>null</code>.  Note that multiple 
+	 * repositories may be represented as one composite repository.
+	 * 
+	 * @return the context metadata repository or <code>null</code> if none.
+	 */
+	public IMetadataRepository getContextMetadataRepository();
 }

@@ -12,10 +12,10 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -59,11 +59,12 @@ public class ProductActionTestMac extends ActionTest {
 	/**
 	 * Tests that correct advice is created for the org.eclipse.platform product.
 	 */
-	public void testPlatformProduct() throws IOException {
-		testAction = new ProductAction(source, TestData.getFile("ProductActionTest", "platform.product").toString(), flavorArg, executablesFeatureLocation);
+	public void testPlatformProduct() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		testAction.perform(publisherInfo, publisherResult, null);
 
-		ILaunchingAdvice launchAdvice = productFileAdviceCapture.getValue();
+		IExecutableAdvice launchAdvice = productFileAdviceCapture.getValue();
 		assertEquals("1.0", "eclipse", launchAdvice.getExecutableName());
 
 		String[] programArgs = launchAdvice.getProgramArguments();

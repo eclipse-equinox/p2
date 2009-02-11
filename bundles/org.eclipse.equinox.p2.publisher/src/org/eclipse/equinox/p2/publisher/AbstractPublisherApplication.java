@@ -17,14 +17,18 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
@@ -116,6 +120,50 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
 			info.setConfigurations(AbstractPublisherAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
+
+		if (arg.equalsIgnoreCase("-contextMetadata")) //$NON-NLS-1$
+			info.setContextMetadataRepository(processMetadataRepositoryList(parameter));
+
+		if (arg.equalsIgnoreCase("-contextArtifacts")) //$NON-NLS-1$
+			info.setContextArtifactRepository(processArtifactRepositoryList(parameter));
+	}
+
+	private IArtifactRepository processArtifactRepositoryList(String parameter) {
+		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
+		if (list == null || list.length == 0)
+			return null;
+
+		CompositeArtifactRepository result = null;
+		try {
+			URI repositoryURI = new URI("memory:"); //$NON-NLS-1$
+			result = (CompositeArtifactRepository) defaultArtifactManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null); //$NON-NLS-1$
+			for (int i = 0; i < list.length; i++)
+				result.addChild(new URI(list[i]));
+		} catch (ProvisionException e) {
+			// TODO log something here
+		} catch (URISyntaxException e) {
+			// TODO log something here
+		}
+		return result;
+	}
+
+	private IMetadataRepository processMetadataRepositoryList(String parameter) {
+		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
+		if (list == null || list.length == 0)
+			return null;
+
+		CompositeMetadataRepository result = null;
+		try {
+			URI repositoryURI = new URI("memory:"); //$NON-NLS-1$
+			result = (CompositeMetadataRepository) defaultMetadataManager.createRepository(repositoryURI, "artifact name", IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null); //$NON-NLS-1$
+			for (int i = 0; i < list.length; i++)
+				result.addChild(new URI(list[i]));
+		} catch (ProvisionException e) {
+			// TODO log something here
+		} catch (URISyntaxException e) {
+			// TODO log something here
+		}
+		return result;
 	}
 
 	protected void processFlag(String arg, PublisherInfo info) {

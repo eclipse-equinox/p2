@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.*;
@@ -25,15 +26,14 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	protected String name;
 	protected String executableName;
 	protected String flavor;
-	protected String[] topLevel;
-	protected IPublisherInfo info;
+	protected VersionedName[] topLevel;
 	protected String[] nonRootFiles;
 	protected boolean start = false;
 
 	protected EclipseInstallAction() {
 	}
 
-	public EclipseInstallAction(String source, String id, Version version, String name, String executableName, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
+	public EclipseInstallAction(String source, String id, Version version, String name, String executableName, String flavor, VersionedName[] topLevel, String[] nonRootFiles, boolean start) {
 		this.source = source;
 		this.id = id;
 		this.version = version;

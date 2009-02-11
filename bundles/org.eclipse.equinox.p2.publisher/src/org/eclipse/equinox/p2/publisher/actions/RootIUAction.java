@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.publisher.Messages;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -35,7 +34,6 @@ public class RootIUAction extends AbstractPublisherAction {
 	private String id;
 	private String name;
 	private Collection versionAdvice;
-	private IPublisherInfo info;
 
 	public RootIUAction(String id, Version version, String name) {
 		this.id = id;
@@ -122,6 +120,8 @@ public class RootIUAction extends AbstractPublisherAction {
 							iu = queryFor(childId);
 						if (iu != null)
 							children.add(iu);
+					} else if (object instanceof VersionedName) {
+						children.add(object);
 					} else if (object instanceof IInstallableUnit)
 						children.add(object);
 				}

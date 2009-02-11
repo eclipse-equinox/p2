@@ -19,6 +19,8 @@ public class PublisherInfo implements IPublisherInfo {
 	private int artifactOptions = 0;
 	private IMetadataRepository metadataRepository;
 	private IArtifactRepository artifactRepository;
+	private IMetadataRepository contextMetadataRepository;
+	private IArtifactRepository contextArtifactRepository;
 	private String[] configurations = new String[0];
 	private List adviceList = new ArrayList(11);
 
@@ -44,6 +46,14 @@ public class PublisherInfo implements IPublisherInfo {
 		return metadataRepository;
 	}
 
+	public IArtifactRepository getContextArtifactRepository() {
+		return contextArtifactRepository;
+	}
+
+	public IMetadataRepository getContextMetadataRepository() {
+		return contextMetadataRepository;
+	}
+
 	public int getArtifactOptions() {
 		return artifactOptions;
 	}
@@ -54,6 +64,14 @@ public class PublisherInfo implements IPublisherInfo {
 
 	public void setMetadataRepository(IMetadataRepository value) {
 		metadataRepository = value;
+	}
+
+	public void setContextArtifactRepository(IArtifactRepository value) {
+		contextArtifactRepository = value;
+	}
+
+	public void setContextMetadataRepository(IMetadataRepository value) {
+		contextMetadataRepository = value;
 	}
 
 	public void setArtifactOptions(int value) {

@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.*;
 
@@ -21,7 +22,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String name;
 	protected String executableName;
 	protected String flavor;
-	protected String[] topLevel;
+	protected VersionedName[] topLevel;
 	protected boolean start;
 	protected String[] rootExclusions;
 
@@ -54,10 +55,18 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			flavor = parameter;
 
 		if (arg.equalsIgnoreCase("-top")) //$NON-NLS-1$
-			topLevel = AbstractPublisherAction.getArrayFromString(parameter, ",");
+			topLevel = createVersionedNameList(parameter);
 
 		if (arg.equalsIgnoreCase("-rootExclusions")) //$NON-NLS-1$
 			rootExclusions = AbstractPublisherAction.getArrayFromString(parameter, ",");
+	}
+
+	private VersionedName[] createVersionedNameList(String parameter) {
+		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
+		VersionedName[] result = new VersionedName[list.length];
+		for (int i = 0; i < result.length; i++)
+			result[i] = VersionedName.parse(list[i]);
+		return result;
 	}
 
 	protected IPublisherAction[] createActions() {
