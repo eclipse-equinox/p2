@@ -42,9 +42,17 @@ public abstract class ArtifactRepositoryFactory {
 	public abstract IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
-	 * Loads the repository at the given location.  The location is expected to contain 
-	 * data that describes a valid artifact repository of a known type.  If this manager
-	 * already knows a repository at the given location then that repository is returned.
+	 * Loads and returns the repository of this factory's type at the given location. 
+	 * <p>
+	 * The error code returned in the case of failure is significant. In particular an
+	 * error code of {@link ProvisionException#REPOSITORY_FAILED_READ} indicates
+	 * that the location definitely identifies a repository of this type, but an error occurred
+	 * while loading the repository. The repository manager will not attempt to load
+	 * a repository from that location using any other factory.  An error code of
+	 * {@link ProvisionException#REPOSITORY_NOT_FOUND} indicates there is no
+	 * repository of this type at the given location, and the repository manager is free
+	 * to try again with a different repository factory.
+	 * </p>
 	 * 
 	 * @param location the location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress

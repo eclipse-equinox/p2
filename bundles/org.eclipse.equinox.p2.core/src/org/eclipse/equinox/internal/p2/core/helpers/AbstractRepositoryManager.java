@@ -567,11 +567,17 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			added = addRepository(location, true, false);
 			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
+			ProvisionException failure = null;
 			try {
 				for (int i = 0; i < suffixes.length; i++) {
 					if (sub.isCanceled())
 						throw new OperationCanceledException();
-					result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+					try {
+						result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+					} catch (ProvisionException e) {
+						failure = e;
+						break;
+					}
 					if (result != null) {
 						addRepository(result, false, suffixes[i]);
 						break;
@@ -589,6 +595,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 					removeRepository(location);
 				else
 					rememberNotFound(location);
+				if (failure != null)
+					throw failure;
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			}
 		} finally {
@@ -600,16 +608,16 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return result;
 	}
 
-	private IRepository loadRepository(URI location, String suffix, String type, SubMonitor monitor) {
+	private IRepository loadRepository(URI location, String suffix, String type, SubMonitor monitor) throws ProvisionException {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++)
 			try {
 				return factoryLoad(location, providers[i], monitor);
-			} catch (CoreException e) {
+			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
-					log("Unable to load repository: " + location, e); //$NON-NLS-1$
+					throw e;
 			}
 		return null;
 	}

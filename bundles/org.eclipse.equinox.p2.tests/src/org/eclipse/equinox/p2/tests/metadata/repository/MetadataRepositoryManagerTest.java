@@ -211,6 +211,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testLoadMissingRepository() throws IOException {
 		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
+		tempFile.delete();
 		URI location = tempFile.toURI();
 		try {
 			manager.loadRepository(location, null);
@@ -218,6 +219,38 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		}
+	}
+
+	/**
+	 * Tests loading a repository that is malformed
+	 */
+	public void testLoadBrokenRepository() {
+		File site = getTestData("Repository", "/testData/metadataRepo/bad/");
+		URI location = site.toURI();
+		try {
+			manager.loadRepository(location, null);
+			fail("1.0");//should fail
+		} catch (ProvisionException e) {
+			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+		}
+	}
+
+	/**
+	 * Tests loading a repository that is malformed, that is co-located with a well-formed
+	 * update site repository. The load should fail due to the malformed simple repository,
+	 * and not fall back to the well-formed update site repository. See bug 247566 for details.
+	 */
+	public void testLoadBrokenSimpleRepositoryWithGoodUpdateSite() {
+		File site = getTestData("Repository", "/testData/metadataRepo/badSimpleGoodUpdateSite/");
+		URI location = site.toURI();
+		try {
+			manager.loadRepository(location, null);
+			fail("1.0");//should fail
+		} catch (ProvisionException e) {
+			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
 		}
 	}
 

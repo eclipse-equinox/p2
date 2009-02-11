@@ -43,6 +43,16 @@ public abstract class MetadataRepositoryFactory {
 
 	/**
 	 * Loads a repository corresponding to the given URL.
+	 * <p>
+	 * The error code returned in the case of failure is significant. In particular an
+	 * error code of {@link ProvisionException#REPOSITORY_FAILED_READ} indicates
+	 * that the location definitely identifies a repository of this type, but an error occurred
+	 * while loading the repository. The repository manager will not attempt to load
+	 * a repository from that location using any other factory.  An error code of
+	 * {@link ProvisionException#REPOSITORY_NOT_FOUND} indicates there is no
+	 * repository of this type at the given location, and the repository manager is free
+	 * to try again with a different repository factory.
+	 * </p>
 	 * 
 	 * @param location The location of the repository to load
 	 * @param monitor a progress monitor, or <code>null</code> if progress
