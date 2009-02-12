@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 
 public abstract class AbstractPublishTask extends Task {
+	protected static final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
 
 	protected boolean compress = false;
 	protected boolean reusePackedFiles = false;
