@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
  */
 public class CommonPatternsTest extends VersionTesting {
 	public static String MOZ_PREFIX = "format((<N=0;?s=m;?N=0;?s=m;?>(.<N=0;?s=m;?N=0;?s=m;?>)*)=p<0.m.0.m>;):";
-	public static String TRIPLE_PREFIX = "format([n=0;[.n=0;[.n=0;[.S=m;]]]]):";
+	public static String TRIPLE_PREFIX = "format(n=0;[.n=0;[.n=0;]][dS=m;]):";
 	public static String RPM_PREFIX = "format(<[n=0;:]a(d=[^a-zA-Z0-9@_-];?a)*>[-n[dS=!;]]):";
 	public static String JSR277_PREFIX = "format(n(.n=0;){0,3}[-S=m;]):";
 
@@ -109,6 +109,11 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v17, v18);
 	}
 
+	public void testMozillaPatternToString() {
+		String test = MOZ_PREFIX + "1.1pre1aa";
+		assertEquals(MOZ_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
+	}
+
 	public void testTripletPattern() {
 		Version v1 = Version.parseVersion(TRIPLE_PREFIX + "1");
 		Version v1a = Version.parseVersion(TRIPLE_PREFIX + "1.0");
@@ -127,6 +132,14 @@ public class CommonPatternsTest extends VersionTesting {
 
 		Version v5 = Version.parseVersion(TRIPLE_PREFIX + "2");
 		assertOrder(v3, v5);
+
+		Version v6 = Version.parseVersion(TRIPLE_PREFIX + "1.1-FC1");
+		assertOrder(v6, v3);
+	}
+
+	public void testTripletPatternToString() {
+		String test = TRIPLE_PREFIX + "1.0-FC1";
+		assertEquals(TRIPLE_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
 	}
 
 	// TODO: Not clear what a missing RPM EPOCH (i.e. first '.n:' should be interpreted as
@@ -151,6 +164,11 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v11, v14);
 		assertOrder(v12, v14);
 		assertOrder(v13, v14);
+	}
+
+	public void testRPMPatternToString() {
+		String test = RPM_PREFIX + "33:1.2.3a-23/i386";
+		assertEquals(RPM_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
 	}
 
 	/**
@@ -183,5 +201,10 @@ public class CommonPatternsTest extends VersionTesting {
 
 		Version v5 = Version.parseVersion(JSR277_PREFIX + "2");
 		assertOrder(v3, v5);
+	}
+
+	public void testJsr277PatternToString() {
+		String test = JSR277_PREFIX + "1.0.0.0-a";
+		assertEquals(JSR277_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
 	}
 }
