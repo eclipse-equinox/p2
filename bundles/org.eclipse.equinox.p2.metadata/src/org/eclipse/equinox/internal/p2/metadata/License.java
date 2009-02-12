@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2008 Genuitec, LLC and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Genuitec, LLC and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  * 		Genuitec, LLC - initial API and implementation
- * 		IBM Corporation - optional URL field instead of required name
+ * 		IBM Corporation - ongoing development
  *      EclipseSource - ongoing development
  ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;

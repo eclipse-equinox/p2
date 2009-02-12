@@ -8,10 +8,12 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -41,7 +43,7 @@ public class RequiredCapability implements IRequiredCapability {
 	/**
 	 * TODO replace booleans with int options flag.
 	 */
-	RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 		this.namespace = namespace;
@@ -52,7 +54,7 @@ public class RequiredCapability implements IRequiredCapability {
 		this.multiple = multiple;
 	}
 
-	RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		this(namespace, name, range, filter, optional, multiple);
 		this.greedy = greedy;
 	}

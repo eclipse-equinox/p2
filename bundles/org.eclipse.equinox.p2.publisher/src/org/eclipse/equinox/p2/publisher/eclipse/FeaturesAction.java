@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -342,7 +344,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			}
 			if (entries[i].isPlugin()) {
 				IRequiredCapability from = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
-				requirementChanges.add(new RequirementChange(from, req));
+				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
 			patchRequirements.add(req);

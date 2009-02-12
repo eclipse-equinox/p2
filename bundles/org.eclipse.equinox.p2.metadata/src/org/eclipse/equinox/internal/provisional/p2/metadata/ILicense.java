@@ -40,7 +40,7 @@ public interface ILicense {
 	 * version of the license where all whitespace has been reduced to one space.
 	 * 
 	 * Any SPI must maintain the same semantics as:
-	 * <code>{@link org.eclipse.equinox.internal.provisional.p2.metadata.License#getDigest()}</code>
+	 * <code>{@link org.eclipse.equinox.internal.provisional.p2.metadata.ILicense#getDigest()}</code>
 	 * @return the message digest as a <code>BigInteger</code>, never <code>null</code>
 	 */
 	public BigInteger getDigest();

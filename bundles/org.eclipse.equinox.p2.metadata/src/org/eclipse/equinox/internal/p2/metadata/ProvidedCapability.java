@@ -9,10 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 /**
  * Describes a capability as exposed or required by an installable unit
@@ -22,7 +24,7 @@ public class ProvidedCapability implements IProvidedCapability {
 	private final String namespace;
 	private final Version version;
 
-	ProvidedCapability(String namespace, String name, Version version) {
+	public ProvidedCapability(String namespace, String name, Version version) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 		this.namespace = namespace;

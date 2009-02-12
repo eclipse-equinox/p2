@@ -9,10 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Iterator;
 import java.util.Map;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 
 /**
  * A touchpoint instruction contains either a sequence of instruction statements
@@ -103,7 +105,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	/**
 	 * Clients must use the factory method on {@link MetadataFactory}.
 	 */
-	TouchpointInstruction(String body, String importAttribute) {
+	public TouchpointInstruction(String body, String importAttribute) {
 		this.body = body;
 		this.importAttribute = importAttribute;
 	}

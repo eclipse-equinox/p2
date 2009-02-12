@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;

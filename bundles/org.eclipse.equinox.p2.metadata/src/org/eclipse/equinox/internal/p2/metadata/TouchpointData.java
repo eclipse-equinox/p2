@@ -9,10 +9,11 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * Touchpoint data instances contain the additional information needed by a touchpoint
@@ -55,7 +56,7 @@ public class TouchpointData implements ITouchpointData {
 	/**
 	 * Clients must use the factory method on {@link MetadataFactory}.
 	 */
-	TouchpointData(Map instructions) {
+	public TouchpointData(Map instructions) {
 		this.instructions = instructions;
 	}
 

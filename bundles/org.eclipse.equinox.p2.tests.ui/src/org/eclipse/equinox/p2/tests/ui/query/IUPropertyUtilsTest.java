@@ -77,7 +77,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		iuDescription.setId("some IU");
 		iuDescription.setVersion(new Version(1, 0, 0));
-		iuDescription.setLicense(new License(new URI("http://example.com"), "%license"));
+		iuDescription.setLicense(MetadataFactory.createLicense(new URI("http://example.com"), "%license"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
 
 		// Create a bunch of fragments which spec our IU as their host

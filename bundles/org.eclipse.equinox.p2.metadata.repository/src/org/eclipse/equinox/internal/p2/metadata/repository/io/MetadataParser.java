@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -407,7 +409,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		protected void finished() {
-			requirementChanges.add(new RequirementChange(from.size() == 0 ? null : (IRequiredCapability) from.get(0), to.size() == 0 ? null : (IRequiredCapability) to.get(0)));
+			requirementChanges.add(MetadataFactory.createRequirementChange(from.size() == 0 ? null : (IRequiredCapability) from.get(0), to.size() == 0 ? null : (IRequiredCapability) to.get(0)));
 		}
 	}
 

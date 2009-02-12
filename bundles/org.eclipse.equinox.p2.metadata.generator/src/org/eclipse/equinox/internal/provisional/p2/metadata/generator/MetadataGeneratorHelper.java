@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -851,7 +853,7 @@ public class MetadataGeneratorHelper {
 			}
 			if (entries[i].isPlugin()) {
 				IRequiredCapability from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
-				requirementChanges.add(new RequirementChange(from, req));
+				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
 			patchRequirements.add(req);

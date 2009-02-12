@@ -9,9 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing Development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
@@ -21,7 +22,7 @@ public class TouchpointType implements ITouchpointType {
 	private String id;//never null
 	private Version version;//never null
 
-	TouchpointType(String id, Version aVersion) {
+	public TouchpointType(String id, Version aVersion) {
 		this.id = id;
 		this.version = aVersion;
 	}
