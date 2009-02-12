@@ -176,7 +176,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null)
 			for (int i = 0; i < associatedSites.length; i++)
-				generateSiteReference(associatedSites[i].getURL(), null, info.getMetadataRepository());
+				generateSiteReference(associatedSites[i].getURL(), associatedSites[i].getAnnotation(), null, info.getMetadataRepository());
 
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
 		if (siteFile != null && siteFile.exists()) {
@@ -209,16 +209,17 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Generates and publishes a reference to an update site location
 	 * @param location The update site location
+	 * @param label The update site label
 	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param metadataRepo The repository into which the references are added
 	 */
-	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
+	private void generateSiteReference(String location, String label, String featureId, IMetadataRepository metadataRepo) {
 		if (metadataRepo == null)
 			return;
 		try {
 			URI associateLocation = new URI(location);
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.ENABLED);
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, IRepository.ENABLED);
+			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_METADATA, IRepository.ENABLED);
+			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_ARTIFACT, IRepository.ENABLED);
 		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)

@@ -55,7 +55,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		assertModifiable();
 	}
 
-	public void addReference(URI repositoryLocation, int repositoryType, int options) {
+	public void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
 		assertModifiable();
 	}
 

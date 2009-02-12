@@ -92,9 +92,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public synchronized void addReference(URI repositoryLocation, int repositoryType, int options) {
+	public synchronized void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
 		assertModifiable();
-		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
+		repositories.add(new RepositoryReference(repositoryLocation, nickname, repositoryType, options));
 	}
 
 	public void initialize(RepositoryState state) {

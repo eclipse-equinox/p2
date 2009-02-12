@@ -59,8 +59,23 @@ public class RepositoryEvent extends EventObject {
 	public static final int ENABLEMENT = 8;
 
 	private final int kind, type;
-
 	private boolean isEnabled;
+	private String nickname;
+
+	/**
+	 * Creates and returns a new repository discovery event.
+	 * @param location the location of the repository that changed.
+	 * @param nickname the repository nickname
+	 * @param repositoryType the type of repository that was changed
+	 * @param enabled whether the repository is enabled
+	 * @return A new repository discovery event
+	 * @see IRepository#PROP_NICKNAME
+	 */
+	public static RepositoryEvent newDiscoveryEvent(URI location, String nickname, int repositoryType, boolean enabled) {
+		RepositoryEvent event = new RepositoryEvent(location, repositoryType, DISCOVERED, enabled);
+		event.nickname = nickname;
+		return event;
+	}
 
 	/**
 	 * Creates a new repository event.
@@ -89,6 +104,15 @@ public class RepositoryEvent extends EventObject {
 	 */
 	public int getKind() {
 		return kind;
+	}
+
+	/**
+	 * Returns the nickname of the repository. This method is only applicable
+	 * for the {@link #DISCOVERED} event type. For other event types this
+	 * method returns <code>null</code>.
+	 */
+	public String getRepositoryNickname() {
+		return nickname;
 	}
 
 	/**

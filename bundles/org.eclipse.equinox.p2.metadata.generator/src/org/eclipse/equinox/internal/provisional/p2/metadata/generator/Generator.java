@@ -988,14 +988,14 @@ public class Generator {
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
 			//publish feature site references
-			String updateURL = feature.getUpdateSiteURL();
+			URLEntry updateURL = feature.getUpdateSite();
 			//don't enable feature update sites by default since this results in too many
 			//extra sites being loaded and searched (Bug 234177)
 			if (updateURL != null)
-				generateSiteReference(updateURL, feature.getId(), false);
+				generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), false);
 			URLEntry[] discoverySites = feature.getDiscoverySites();
 			for (int j = 0; j < discoverySites.length; j++)
-				generateSiteReference(discoverySites[j].getURL(), feature.getId(), false);
+				generateSiteReference(discoverySites[j].getURL(), discoverySites[j].getAnnotation(), feature.getId(), false);
 
 			//generate feature IU
 			String location = feature.getLocation();
@@ -1108,13 +1108,13 @@ public class Generator {
 	 * @param isEnabled Whether the site should be enabled by default
 	 * @deprecated moved to FeaturesAction
 	 */
-	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
+	private void generateSiteReference(String location, String name, String featureId, boolean isEnabled) {
 		IMetadataRepository metadataRepo = info.getMetadataRepository();
 		try {
 			URI associateLocation = URIUtil.fromString(location);
 			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
+			metadataRepo.addReference(associateLocation, name, IRepository.TYPE_METADATA, flags);
+			metadataRepo.addReference(associateLocation, name, IRepository.TYPE_ARTIFACT, flags);
 		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)
@@ -1251,7 +1251,7 @@ public class Generator {
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null)
 			for (int i = 0; i < associatedSites.length; i++)
-				generateSiteReference(associatedSites[i].getURL(), null, true);
+				generateSiteReference(associatedSites[i].getURL(), associatedSites[i].getAnnotation(), null, true);
 
 		if (PROTOCOL_FILE.equals(siteLocation.getScheme())) {
 			File siteFile = URIUtil.toFile(siteLocation);

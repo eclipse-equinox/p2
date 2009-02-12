@@ -19,11 +19,13 @@ public class RepositoryReference {
 	public URI Location;
 	public int Type;
 	public int Options;
+	public String Nickname;
 
-	public RepositoryReference(URI location, int type, int options) {
+	public RepositoryReference(URI location, String nickname, int type, int options) {
 		this.Location = location;
 		this.Type = type;
 		this.Options = options;
+		this.Nickname = nickname;
 	}
 
 	public boolean equals(Object obj) {

@@ -183,16 +183,8 @@ public class Feature {
 		return providerName;
 	}
 
-	public String getUpdateSiteLabel() {
-		if (updateSite != null)
-			return updateSite.getAnnotation();
-		return null;
-	}
-
-	public String getUpdateSiteURL() {
-		if (updateSite != null)
-			return updateSite.getURL();
-		return null;
+	public URLEntry getUpdateSite() {
+		return updateSite;
 	}
 
 	public String getVersion() {

@@ -468,14 +468,15 @@ public class FeaturesAction extends AbstractPublisherAction {
 	/**
 	 * Generates and publishes a reference to an update site location
 	 * @param location The update site location
+	 * @param nickname The update site label
 	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param metadataRepo The repo into which the references are added
 	 */
-	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
+	private void generateSiteReference(String location, String nickname, String featureId, IMetadataRepository metadataRepo) {
 		try {
 			URI associateLocation = new URI(location);
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.NONE);
-			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, IRepository.NONE);
+			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_METADATA, IRepository.NONE);
+			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_ARTIFACT, IRepository.NONE);
 		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)
@@ -486,14 +487,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	private void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo info) {
 		//publish feature site references
-		String updateURL = feature.getUpdateSiteURL();
+		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
 		//extra sites being loaded and searched (Bug 234177)
 		if (updateURL != null)
-			generateSiteReference(updateURL, feature.getId(), info.getMetadataRepository());
+			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), info.getMetadataRepository());
 		URLEntry[] discoverySites = feature.getDiscoverySites();
-		for (int j = 0; j < discoverySites.length; j++)
-			generateSiteReference(discoverySites[j].getURL(), feature.getId(), info.getMetadataRepository());
+		for (int i = 0; i < discoverySites.length; i++)
+			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), info.getMetadataRepository());
 	}
 
 	protected Feature[] getFeatures(File[] locations) {

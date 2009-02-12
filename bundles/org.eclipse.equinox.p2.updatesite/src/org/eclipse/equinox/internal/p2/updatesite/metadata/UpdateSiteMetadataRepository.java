@@ -35,7 +35,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	public void addReference(URI location, int type, int options) {
+	public void addReference(URI location, String nickname, int type, int options) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 

@@ -49,6 +49,8 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 			RepositoryReference ref = (RepositoryReference) it.next();
 			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.Location.toString());
 			assertEquals("1.2", IRepository.ENABLED, ref.Options);
+			assertEquals("1.3", "Eclipse Project Update Site", ref.Nickname);
+
 			if (ref.Type == IRepository.TYPE_METADATA)
 				metadataFound = true;
 			else if (ref.Type == IRepository.TYPE_ARTIFACT)

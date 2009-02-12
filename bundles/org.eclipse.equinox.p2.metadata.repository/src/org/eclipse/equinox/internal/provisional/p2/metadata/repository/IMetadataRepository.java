@@ -50,13 +50,14 @@ public interface IMetadataRepository extends IRepository, IQueryable {
 	 * be marked as disabled.
 	 * 
 	 * @param location the location of the repository to add
+	 * @param nickname The nickname of the repository, or <code>null</code>
 	 * @param type the repository type (currently either {@link IRepository#TYPE_METADATA}
 	 * or {@link IRepository#TYPE_ARTIFACT}).
 	 * @param options bit-wise or of option constants (currently either 
 	 * {@link IRepository#ENABLED} or {@link IRepository#NONE}).
 	 * @see IMetadataRepositoryManager#setEnabled(URI, boolean)
 	 */
-	public void addReference(URI location, int type, int options);
+	public void addReference(URI location, String nickname, int type, int options);
 
 	/**
 	 * Removes all installable units that match the given query from this repository.

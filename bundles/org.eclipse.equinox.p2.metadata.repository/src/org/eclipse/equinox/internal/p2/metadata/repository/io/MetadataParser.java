@@ -61,11 +61,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set references) {
 			super(parentHandler, REPOSITORY_REFERENCE_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
+			String name = parseOptionalAttribute(attributes, NAME_ATTRIBUTE);
 			int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[0]);
 			int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[1]);
 			URI location = parseURIAttribute(attributes, true);
 			if (location != null)
-				references.add(new RepositoryReference(location, type, options));
+				references.add(new RepositoryReference(location, name, type, options));
 		}
 
 		public void startElement(String name, Attributes attributes) {

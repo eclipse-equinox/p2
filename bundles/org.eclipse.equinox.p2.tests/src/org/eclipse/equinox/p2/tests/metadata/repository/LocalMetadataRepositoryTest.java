@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -52,7 +51,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
+	public void testCompressedRepository() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
@@ -84,7 +83,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testGetProperties() throws MalformedURLException, ProvisionException {
+	public void testGetProperties() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		Map properties = repo.getProperties();
@@ -97,7 +96,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testSetProperty() throws MalformedURLException, ProvisionException {
+	public void testSetProperty() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		Map properties = repo.getProperties();
@@ -149,7 +148,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
+	public void testUncompressedRepository() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
@@ -179,14 +178,14 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * @throws MalformedURLException 
 	 * @throws ProvisionException 
 	 */
-	public void testLoadSelfReference() throws MalformedURLException, ProvisionException {
+	public void testLoadSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURI = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURI, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReference(repoURI, IRepository.TYPE_METADATA, IRepository.NONE);
+		repo.addReference(repoURI, "testNick", IRepository.TYPE_METADATA, IRepository.NONE);
 		//adding a reference doesn't save the repository, but setting a property does
 		repo.setProperty("changed", "false");
 
@@ -226,7 +225,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURL = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReference(repoURL, IRepository.TYPE_METADATA, IRepository.NONE);
+		repo.addReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE);
 		//adding a reference doesn't save the repository, but setting a property does
 		repo.setProperty("changed", "false");
 
