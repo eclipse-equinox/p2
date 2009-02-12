@@ -129,6 +129,28 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue("1.0", manager.contains(location));
 	}
 
+	public void testNickname() throws ProvisionException {
+		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
+		URI location = site.toURI();
+		manager.addRepository(location);
+		String nick = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		assertNull(nick);
+		nick = "Nick";
+		manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, nick);
+		nick = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		assertEquals("Nick", nick);
+		//ensure loading the repository doesn't affect the nickname
+		manager.loadRepository(location, getMonitor());
+		nick = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		assertEquals("Nick", nick);
+
+		//remove and re-add the repository should lose the nickname
+		manager.removeRepository(location);
+		manager.loadRepository(location, getMonitor());
+		nick = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		assertNull(nick);
+	}
+
 	public void testPathWithSpaces() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		URI location = site.toURI();
