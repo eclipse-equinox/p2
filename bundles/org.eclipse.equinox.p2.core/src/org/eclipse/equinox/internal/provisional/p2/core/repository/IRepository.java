@@ -42,6 +42,13 @@ public interface IRepository extends IAdaptable {
 	public static final String PROP_NAME = "name"; //$NON-NLS-1$
 
 	/**
+	 * The key for a string property providing a user-defined name for the repository.
+	 * This property is never stored in the repository itself, but is instead tracked and managed
+	 * by an {@link IRepositoryManager}.
+	 */
+	public static final String PROP_NICKNAME = "p2.nickname"; //$NON-NLS-1$
+
+	/**
 	 * The key for a string property providing a human-readable description for the repository.
 	 */
 	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$

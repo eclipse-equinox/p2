@@ -34,6 +34,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		public boolean isSystem = false;
 		public URI location;
 		public String name;
+		public String nickname;
 		public SoftReference repository;
 		public String suffix;
 
@@ -48,6 +49,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
 	public static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String KEY_NAME = "name"; //$NON-NLS-1$
+	public static final String KEY_NICKNAME = "nickname"; //$NON-NLS-1$
 	public static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
 	public static final String KEY_SUFFIX = "suffix"; //$NON-NLS-1$
 	public static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
@@ -491,10 +493,12 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				return null;// Repository not found
 			if (IRepository.PROP_DESCRIPTION.equals(key))
 				return info.description;
-			if (IRepository.PROP_NAME.equals(key))
+			else if (IRepository.PROP_NAME.equals(key))
 				return info.name;
-			if (IRepository.PROP_SYSTEM.equals(key))
+			else if (IRepository.PROP_SYSTEM.equals(key))
 				return Boolean.toString(info.isSystem);
+			else if (IRepository.PROP_NICKNAME.equals(key))
+				return info.nickname;
 			// Key not known, return null
 			return null;
 		}
@@ -512,10 +516,12 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				return;// Repository not found
 			if (IRepository.PROP_DESCRIPTION.equals(key))
 				info.description = value;
-			if (IRepository.PROP_NAME.equals(key))
+			else if (IRepository.PROP_NAME.equals(key))
 				info.name = value;
-			if (IRepository.PROP_SYSTEM.equals(key))
-				//only true is value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
+			else if (IRepository.PROP_NICKNAME.equals(key))
+				info.nickname = value;
+			else if (IRepository.PROP_SYSTEM.equals(key))
+				//only true if value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
 				info.isSystem = Boolean.valueOf(value).booleanValue();
 			// Key not known
 		}
@@ -712,6 +718,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
 		changed |= putValue(node, KEY_DESCRIPTION, info.description);
 		changed |= putValue(node, KEY_NAME, info.name);
+		changed |= putValue(node, KEY_NICKNAME, info.nickname);
 		changed |= putValue(node, KEY_SUFFIX, info.suffix);
 		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
 		if (changed && flush)
@@ -788,6 +795,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			RepositoryInfo info = new RepositoryInfo();
 			info.location = location;
 			info.name = child.get(KEY_NAME, null);
+			info.nickname = child.get(KEY_NICKNAME, null);
 			info.description = child.get(KEY_DESCRIPTION, null);
 			info.isSystem = child.getBoolean(KEY_SYSTEM, false);
 			info.isEnabled = child.getBoolean(KEY_ENABLED, true);
