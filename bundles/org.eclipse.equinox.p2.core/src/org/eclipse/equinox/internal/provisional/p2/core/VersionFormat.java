@@ -1082,6 +1082,7 @@ public class VersionFormat implements Serializable {
 			}
 		}
 		sb.append(']');
+		sb.append(';');
 	}
 
 	static Fragment createAutoFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
@@ -1190,7 +1191,12 @@ public class VersionFormat implements Serializable {
 		else {
 			int start = sb.length();
 			sb.append("format"); //$NON-NLS-1$
-			topFragment.toString(sb);
+			if (topFragment.getPadValue() != null) {
+				sb.append('(');
+				topFragment.toString(sb);
+				sb.append(')');
+			} else
+				topFragment.toString(sb);
 			fmtString = sb.substring(start);
 		}
 	}
