@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008-2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,9 @@ public class Messages extends NLS {
 	public static String cannot_configure_source_bundle;
 	public static String error_parsing_startlevel;
 	public static String no_bundle_pool;
+	public static String error_processing_vmargs;
+	public static String invalid_byte_format;
+	public static String unable_to_open_file;
 
 	static {
 		// load message values from bundle file and assign to fields below

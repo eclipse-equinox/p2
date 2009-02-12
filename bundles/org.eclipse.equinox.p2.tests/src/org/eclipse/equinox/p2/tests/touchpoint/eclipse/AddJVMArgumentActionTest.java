@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008-2009 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,16 +8,22 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddJVMArgumentAction;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
+
+	private static File tempDir;
+	private LauncherData launcherData;
+	private Map parameters;
 
 	public AddJVMArgumentActionTest(String name) {
 		super(name);
@@ -27,8 +33,12 @@ public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
-		Map parameters = new HashMap();
+	public void setUp() throws Exception {
+		super.setUp();
+		tempDir = new File(System.getProperty("java.io.tmpdir"), "JVMArgs");
+		tempDir.mkdirs();
+
+		parameters = new HashMap();
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
@@ -37,18 +47,36 @@ public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", operand.second());
 		touchpoint.initializeOperand(profile, operand, parameters);
+		parameters.put(ActionConstants.PARM_PROFILE_DATA_DIRECTORY, tempDir);
+
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotNull(manipulator);
+		launcherData = manipulator.getLauncherData();
+	}
 
+	public void tearDown() throws Exception {
+		delete(tempDir);
+		super.tearDown();
+	}
+
+	public void testExecuteUndo() {
 		String jvmArg = "-Dtest=true";
-		assertFalse(Arrays.asList(manipulator.getLauncherData().getJvmArgs()).contains(jvmArg));
+
+		assertFalse(Arrays.asList(launcherData.getJvmArgs()).contains(jvmArg));
 		parameters.put(ActionConstants.PARM_JVM_ARG, jvmArg);
-		parameters = Collections.unmodifiableMap(parameters);
 
 		AddJVMArgumentAction action = new AddJVMArgumentAction();
-		action.execute(parameters);
-		assertTrue(Arrays.asList(manipulator.getLauncherData().getJvmArgs()).contains(jvmArg));
-		action.undo(parameters);
-		assertFalse(Arrays.asList(manipulator.getLauncherData().getJvmArgs()).contains(jvmArg));
+		action.execute(Collections.unmodifiableMap(parameters));
+		assertTrue(Arrays.asList(launcherData.getJvmArgs()).contains(jvmArg));
+		action.undo(Collections.unmodifiableMap(parameters));
+		assertFalse(Arrays.asList(launcherData.getJvmArgs()).contains(jvmArg));
+
+		// Test using byte argument
+		String byteArg = "-Xmx256M";
+		parameters.put(ActionConstants.PARM_JVM_ARG, byteArg);
+		action.execute(Collections.unmodifiableMap(parameters));
+		assertTrue(Arrays.asList(launcherData.getJvmArgs()).contains(byteArg));
+		action.undo(Collections.unmodifiableMap(parameters));
+		assertFalse(Arrays.asList(launcherData.getJvmArgs()).contains(byteArg));
 	}
 }

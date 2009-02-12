@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008-2009 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -36,6 +36,7 @@ public class ActionConstants {
 	public static final String PARM_LINK_TARGET = "linkTarget"; //$NON-NLS-1$
 	public static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
 	public static final String PARM_PERMISSIONS = "permissions"; //$NON-NLS-1$
+	public static final String PARM_PROFILE_DATA_DIRECTORY = "profileDataDirectory"; //$NON-NLS-1$
 
 	public static final String PARM_REPOSITORY_LOCATION = "location"; //$NON-NLS-1$
 	public static final String PARM_REPOSITORY_TYPE = "type"; //$NON-NLS-1$
