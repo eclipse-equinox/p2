@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,7 +115,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 				if (doLoad) {
 					InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 					CompositeRepositoryIO io = new CompositeRepositoryIO();
-					CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, sub.newChild(100));
+					CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeMetadataRepository.XML_REPO_TYPE, sub.newChild(100));
 
 					CompositeMetadataRepository result = new CompositeMetadataRepository(resultState);
 

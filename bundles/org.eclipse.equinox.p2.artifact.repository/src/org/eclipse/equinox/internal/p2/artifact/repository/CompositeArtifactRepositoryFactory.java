@@ -50,7 +50,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				}
 			} else {
 				//download to local temp file
-				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION); 
+				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION);
 				try {
 					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
 					IStatus status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
@@ -83,7 +83,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 					descriptorStream = jInStream;
 				}
 				CompositeRepositoryIO io = new CompositeRepositoryIO();
-				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, sub.newChild(100));
+				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.XML_REPO_TYPE, sub.newChild(100));
 
 				CompositeArtifactRepository result = new CompositeArtifactRepository(resultState);
 
