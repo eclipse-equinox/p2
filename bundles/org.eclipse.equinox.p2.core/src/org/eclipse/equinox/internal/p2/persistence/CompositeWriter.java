@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.p2.persistence;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
@@ -35,13 +33,13 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 	/**
 	 * Writes a list of URIs referring to sub repositories
 	 */
-	protected void writeChildren(List children) {
-		if (children.size() == 0)
+	protected void writeChildren(URI[] children) {
+		if (children == null || children.length == 0)
 			return;
 		start(CHILDREN_ELEMENT);
-		attribute(COLLECTION_SIZE_ATTRIBUTE, children.size());
-		for (Iterator iter = children.iterator(); iter.hasNext();)
-			writeChild((URI) iter.next());
+		attribute(COLLECTION_SIZE_ATTRIBUTE, children.length);
+		for (int i = 0; i < children.length; i++)
+			writeChild(children[i]);
 		end(CHILDREN_ELEMENT);
 	}
 
@@ -55,7 +53,7 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 	/**
 	 * Write the given composite repository to the output stream.
 	 */
-	public void write(ICompositeRepository repository) {
+	public void write(CompositeRepositoryState repository) {
 		start(REPOSITORY_ELEMENT);
 		attribute(NAME_ATTRIBUTE, repository.getName());
 		attribute(TYPE_ATTRIBUTE, repository.getType());

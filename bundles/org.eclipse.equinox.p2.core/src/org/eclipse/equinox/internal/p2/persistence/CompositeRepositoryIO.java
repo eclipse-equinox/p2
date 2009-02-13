@@ -11,40 +11,26 @@
 package org.eclipse.equinox.internal.p2.persistence;
 
 import java.io.*;
-import java.net.URI;
 import java.net.URL;
-import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * This class reads and writes composite repository metadata
- * (e.g. table of contents files);
- * 
- * This class is not used for reading or writing the actual composite repositories.
+ * This class reads and writes repository metadata (e.g. table of contents files) 
+ * for composite artifact and metadata repositories.
+ * <p>
+ * Note: This class is not used for reading or writing the actual composite repositories.
  */
 public class CompositeRepositoryIO {
-
-	public static class CompositeRepositoryState {
-		public String Name;
-		public String Type;
-		public String Version;
-		public String Provider;
-		public String Description;
-		public URI Location;
-		public Map Properties;
-		public URI[] Children;
-	}
 
 	/**
 	 * Writes the given repository to the stream.
 	 * This method performs buffering, and closes the stream when finished.
 	 */
-	public void write(ICompositeRepository repository, OutputStream output, String type) {
+	public void write(CompositeRepositoryState repository, OutputStream output, String type) {
 		OutputStream bufferedOutput = null;
 		try {
 			try {

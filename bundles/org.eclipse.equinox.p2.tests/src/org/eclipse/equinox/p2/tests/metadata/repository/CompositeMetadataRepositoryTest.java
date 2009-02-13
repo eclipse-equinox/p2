@@ -19,6 +19,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -319,7 +320,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("Error Loading repository", e);
 		}
 
-		ArrayList children = compRepo.getChildren();
+		List children = compRepo.getChildren();
 
 		try {
 			//ensure children are correct
@@ -563,4 +564,62 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("99.0", e);
 		}
 	}
+
+	public void testRelativeChildren() {
+		// setup
+		File one = getTestData("0.0", "testData/testRepos/simple.1");
+		File two = getTestData("0.1", "testData/testRepos/simple.2");
+		File temp = getTempFolder();
+		copy("0.2", one, new File(temp, "one"));
+		copy("0.3", two, new File(temp, "two"));
+
+		// create the composite repository and add the children
+		URI location = new File(temp, "comp").toURI();
+		CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "test", null);
+		try {
+			repository.addChild(new URI("../one"));
+			repository.addChild(new URI("../two"));
+		} catch (URISyntaxException e) {
+			fail("1.99", e);
+		}
+
+		// query the number of IUs
+		List children = repository.getChildren();
+		assertEquals("2.0", 2, children.size());
+		Collector collector = repository.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		assertEquals("2.1", 2, collector.size());
+
+		// ensure the child URIs are stored as relative
+		CompositeRepositoryState state = repository.toState();
+		URI[] childURIs = state.getChildren();
+		assertNotNull("3.0", childURIs);
+		assertEquals("3.1", 2, childURIs.length);
+		assertFalse("3.2", childURIs[0].isAbsolute());
+		assertFalse("3.3", childURIs[1].isAbsolute());
+
+		// cleanup
+		delete(temp);
+	}
+
+	public void testRelativeRemoveChild() {
+		try {
+			URI location = new URI("memory:/in/memory");
+			URI one = new URI("one");
+			URI two = new URI("two");
+			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			repository.addChild(one);
+			repository.addChild(two);
+			List children = repository.getChildren();
+			assertEquals("1.0", 2, children.size());
+			// remove an absolute URI (child one should be first since order is important)
+			repository.removeChild((URI) children.iterator().next());
+			assertEquals("1.1", 1, repository.getChildren().size());
+			// remove a relative URI (child two)
+			repository.removeChild(two);
+			assertEquals("1.2", 0, repository.getChildren().size());
+		} catch (URISyntaxException e) {
+			fail("99.0", e);
+		}
+	}
+
 }

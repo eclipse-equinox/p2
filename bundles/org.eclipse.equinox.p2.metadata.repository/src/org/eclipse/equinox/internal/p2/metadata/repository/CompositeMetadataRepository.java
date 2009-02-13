@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
-import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO.CompositeRepositoryState;
+import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -39,7 +39,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 
-	private ArrayList childrenURIs = new ArrayList();
+	private List childrenURIs = new ArrayList();
 
 	/**
 	 * Create a Composite repository in memory.
@@ -67,6 +67,15 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return null;
 	}
 
+	/*
+	 * Add the given object to the specified list if it doesn't already exist
+	 * in it. Return a boolean value indicating whether or not the object was 
+	 * actually added.
+	 */
+	private static boolean add(List list, Object obj) {
+		return list.contains(obj) ? false : list.add(obj);
+	}
+
 	static private IMetadataRepositoryManager getManager() {
 		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 	}
@@ -89,11 +98,27 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 * This is only called by the parser when loading a repository.
 	 */
 	public CompositeMetadataRepository(CompositeRepositoryState state) {
-		super(state.Name, state.Type, state.Version, null, state.Description, state.Provider, state.Properties);
-		for (int i = 0; i < state.Children.length; i++) {
-			if (!childrenURIs.contains(state.Children[i]))
-				childrenURIs.add(state.Children[i]);
-		}
+		super(state.getName(), state.getType(), state.getVersion(), null, state.getDescription(), state.getProvider(), state.getProperties());
+		for (int i = 0; i < state.getChildren().length; i++)
+			add(childrenURIs, state.getChildren()[i]);
+	}
+
+	/*
+	 * Create and return a new repository state object which represents this repository.
+	 * It will be used while persisting the repository to disk.
+	 */
+	public CompositeRepositoryState toState() {
+		CompositeRepositoryState result = new CompositeRepositoryState();
+		result.setName(getName());
+		result.setType(getType());
+		result.setVersion(getVersion());
+		result.setLocation(getLocation());
+		result.setDescription(getDescription());
+		result.setProvider(getProvider());
+		result.setProperties(getProperties());
+		// it is important to directly access the field so we have the relative URIs
+		result.setChildren((URI[]) childrenURIs.toArray(new URI[childrenURIs.size()]));
+		return result;
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
@@ -102,12 +127,13 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		Iterator repositoryIterator = childrenURIs.iterator();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, 20 * childrenURIs.size());
+		// call #getChildren here so the URIs are made absolute and can be handed off to the manager for loading
+		List children = getChildren();
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, 20 * children.size());
 		try {
-			List repositories = new ArrayList(childrenURIs.size());
-			SubMonitor loopMonitor = sub.newChild(10 * childrenURIs.size());
-			while (repositoryIterator.hasNext()) {
+			List repositories = new ArrayList(children.size());
+			SubMonitor loopMonitor = sub.newChild(10 * children.size());
+			for (Iterator repositoryIterator = children.iterator(); repositoryIterator.hasNext();) {
 				try {
 					//Try to load the repositories one by one
 					URI currentURI = (URI) repositoryIterator.next();
@@ -129,7 +155,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			loopMonitor.done();
 
 			// Query all the all the repositories this composite repo contains
-			SubMonitor queryMonitor = sub.newChild(10 * childrenURIs.size());
+			SubMonitor queryMonitor = sub.newChild(10 * children.size());
 			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) repositories.toArray(new IQueryable[repositories.size()]));
 			collector = queryable.query(query, collector, queryMonitor);
 			queryMonitor.done();
@@ -141,15 +167,22 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	public void addChild(URI childURI) {
-		if (!childrenURIs.contains(childURI)) {
-			childrenURIs.add(childURI);
+		if (add(childrenURIs, childURI))
 			save();
-		}
 	}
 
 	public void removeChild(URI childURI) {
-		childrenURIs.remove(childURI);
-		save();
+		boolean removed = childrenURIs.remove(childURI);
+		// if the child wasn't there make sure and try the other permutation
+		// (absolute/relative) to see if it really is in the list.
+		if (!removed) {
+			if (childURI.isAbsolute())
+				removed = childrenURIs.remove(URIUtil.makeRelative(childURI, location));
+			else
+				removed = childrenURIs.remove(URIUtil.makeAbsolute(childURI, location));
+		}
+		if (removed)
+			save();
 	}
 
 	public void removeAllChildren() {
@@ -226,14 +259,17 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 				output = jOutput;
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-			new CompositeRepositoryIO().write(this, output, XML_REPO_TYPE);
+			new CompositeRepositoryIO().write(toState(), output, XML_REPO_TYPE);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}
 	}
 
-	public ArrayList getChildren() {
-		return childrenURIs;
+	public List getChildren() {
+		List result = new ArrayList();
+		for (Iterator iter = childrenURIs.iterator(); iter.hasNext();)
+			result.add(URIUtil.makeAbsolute((URI) iter.next(), location));
+		return result;
 	}
 
 	public static URI getActualLocationURI(URI base, String extension) {

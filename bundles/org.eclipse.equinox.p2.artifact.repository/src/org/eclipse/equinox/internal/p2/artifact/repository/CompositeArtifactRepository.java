@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
-import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO.CompositeRepositoryState;
+import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
@@ -37,7 +37,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	static final public String CONTENT_FILENAME = "compositeArtifacts"; //$NON-NLS-1$
 	public static final String XML_REPO_TYPE = "artifactRepository"; //$NON-NLS-1$
 
-	private ArrayList childrenURIs = new ArrayList();
+	// locations of the children repositories... can be absolute or relative.
+	private List childrenURIs = new ArrayList();
 
 	/**
 	 * Create a Composite repository in memory.
@@ -73,18 +74,42 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * This is only called by the parser when loading a repository.
 	 */
 	public CompositeArtifactRepository(CompositeRepositoryState state) {
-		super(state.Name, state.Type, state.Version, null, state.Description, state.Provider, state.Properties);
-		for (int i = 0; i < state.Children.length; i++) {
-			//duplicate checking
-			if (!childrenURIs.contains(state.Children[i]))
-				childrenURIs.add(state.Children[i]);
-		}
+		super(state.getName(), state.getType(), state.getVersion(), null, state.getDescription(), state.getProvider(), state.getProperties());
+		for (int i = 0; i < state.getChildren().length; i++)
+			add(childrenURIs, state.getChildren()[i]);
 	}
 
 	public CompositeArtifactRepository(URI location, String repositoryName, Map properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
 		save();
+	}
+
+	/*
+	 * Create and return a new repository state object which represents this repository.
+	 * It will be used while persisting the repository to disk.
+	 */
+	public CompositeRepositoryState toState() {
+		CompositeRepositoryState result = new CompositeRepositoryState();
+		result.setName(getName());
+		result.setType(getType());
+		result.setVersion(getVersion());
+		result.setLocation(getLocation());
+		result.setDescription(getDescription());
+		result.setProvider(getProvider());
+		result.setProperties(getProperties());
+		// it is important to directly access the field so we have the relative URIs
+		result.setChildren((URI[]) childrenURIs.toArray(new URI[childrenURIs.size()]));
+		return result;
+	}
+
+	/*
+	 * Add the given object to the specified list if it doesn't already exist
+	 * in it. Return a boolean value indicating whether or not the object was 
+	 * actually added.
+	 */
+	private static boolean add(List list, Object obj) {
+		return list.contains(obj) ? false : list.add(obj);
 	}
 
 	public static URI getActualLocation(URI base, boolean compress) {
@@ -121,10 +146,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public void addChild(URI childURI) {
-		if (!childrenURIs.contains(childURI)) {
-			childrenURIs.add(childURI);
+		if (add(childrenURIs, childURI))
 			save();
-		}
 	}
 
 	public boolean addChild(URI childURI, String comparatorID) {
@@ -139,8 +162,17 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public void removeChild(URI childURI) {
-		childrenURIs.remove(childURI);
-		save();
+		boolean removed = childrenURIs.remove(childURI);
+		// if the child wasn't there make sure and try the other permutation
+		// (absolute/relative) to see if it really is in the list.
+		if (!removed) {
+			if (childURI.isAbsolute())
+				removed = childrenURIs.remove(URIUtil.makeRelative(childURI, location));
+			else
+				removed = childrenURIs.remove(URIUtil.makeAbsolute(childURI, location));
+		}
+		if (removed)
+			save();
 	}
 
 	public void removeAllChildren() {
@@ -148,8 +180,11 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		save();
 	}
 
-	public ArrayList getChildren() {
-		return childrenURIs;
+	public List getChildren() {
+		List result = new ArrayList();
+		for (Iterator iter = childrenURIs.iterator(); iter.hasNext();)
+			result.add(URIUtil.makeAbsolute((URI) iter.next(), location));
+		return result;
 	}
 
 	/**
@@ -197,33 +232,33 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public boolean contains(IArtifactKey key) {
-		boolean contains = false;
-		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && !contains;) {
+		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext();) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
 				IArtifactRepository current = load(currentURI);
-				contains = current.contains(key);
+				if (current.contains(key))
+					return true;
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
 				LogHelper.log(e);
 			}
 		}
-		return contains;
+		return false;
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
-		boolean contains = false;
-		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext() && !contains;) {
+		for (Iterator repositoryIterator = childrenURIs.iterator(); repositoryIterator.hasNext();) {
 			try {
 				URI currentURI = (URI) repositoryIterator.next();
 				IArtifactRepository current = load(currentURI);
-				contains = current.contains(descriptor);
+				if (current.contains(descriptor))
+					return true;
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
 				LogHelper.log(e);
 			}
 		}
-		return contains;
+		return false;
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
@@ -234,9 +269,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				IArtifactRepository current = load(currentURI);
 				IArtifactDescriptor[] tempResult = current.getArtifactDescriptors(key);
 				for (int i = 0; i < tempResult.length; i++)
-					//duplicate checking
-					if (!result.contains(tempResult[i]))
-						result.add(tempResult[i]);
+					add(result, tempResult[i]);
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
 				LogHelper.log(e);
@@ -253,9 +286,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				IArtifactRepository current = load(currentURI);
 				IArtifactKey[] tempResult = current.getArtifactKeys();
 				for (int i = 0; i < tempResult.length; i++)
-					//duplicate checking
-					if (!result.contains(tempResult[i]))
-						result.add(tempResult[i]);
+					add(result, tempResult[i]);
 			} catch (ProvisionException e) {
 				//repository failed to load. fall through
 				LogHelper.log(e);
@@ -383,7 +414,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 					os = jOs;
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-				new CompositeRepositoryIO().write(this, os, XML_REPO_TYPE);
+				new CompositeRepositoryIO().write(toState(), os, XML_REPO_TYPE);
 			} catch (IOException e) {
 				// TODO proper exception handling
 				e.printStackTrace();
@@ -397,6 +428,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private IArtifactRepository load(URI repoURI) throws ProvisionException {
+		// make sure we are dealing with an absolute location
+		repoURI = URIUtil.makeAbsolute(repoURI, location);
 		boolean loaded = getManager().contains(repoURI);
 		IArtifactRepository repo = getManager().loadRepository(repoURI, null);
 		if (!loaded) {
@@ -405,7 +438,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			//set repository to system to hide from users
 			getManager().setRepositoryProperty(repoURI, IRepository.PROP_SYSTEM, String.valueOf(true));
 		}
-
 		return repo;
 	}
 
@@ -488,7 +520,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			if (!isSane((URI) childrenURIs.get(i), comparatorID, i + 1))
 				return false;
 		}
-
 		return true;
 	}
 }

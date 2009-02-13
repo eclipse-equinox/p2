@@ -11,14 +11,14 @@
 package org.eclipse.equinox.internal.provisional.p2.core.repository;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface ICompositeRepository extends IRepository {
 	/**
 	 * 
-	 * @return an ArrayList of URIs containing the locations of the children repositories
+	 * @return a list of URIs containing the locations of the children repositories
 	 */
-	public abstract ArrayList getChildren();
+	public abstract List getChildren();
 
 	/**
 	 * Removes all child repositories

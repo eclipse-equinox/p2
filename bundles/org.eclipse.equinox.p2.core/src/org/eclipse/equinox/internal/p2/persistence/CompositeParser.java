@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -160,15 +159,15 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		protected void finished() {
 			if (isValidXML()) {
 				state = new CompositeRepositoryState();
-				state.Name = attrValues[0];
-				state.Type = attrValues[1];
-				state.Version = attrValues[2];
-				state.Description = attrValues[3];
-				state.Provider = attrValues[4];
-				state.Properties = (propertiesHandler == null ? new OrderedProperties(0) //
-						: propertiesHandler.getProperties());
-				state.Children = (childrenHandler == null ? new URI[0] //
-						: childrenHandler.getChildren());
+				state.setName(attrValues[0]);
+				state.setType(attrValues[1]);
+				state.setVersion(attrValues[2]);
+				state.setDescription(attrValues[3]);
+				state.setProvider(attrValues[4]);
+				state.setProperties((propertiesHandler == null ? new OrderedProperties(0) //
+						: propertiesHandler.getProperties()));
+				state.setChildren((childrenHandler == null ? new URI[0] //
+						: childrenHandler.getChildren()));
 			}
 		}
 	}
