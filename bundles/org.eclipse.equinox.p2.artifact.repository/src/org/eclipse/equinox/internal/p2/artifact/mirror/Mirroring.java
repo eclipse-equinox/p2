@@ -32,6 +32,7 @@ public class Mirroring {
 	private boolean compare = false;
 	private IArtifactComparator comparator;
 	private String comparatorID;
+	private IArtifactKey[] keysToMirror;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
@@ -62,7 +63,7 @@ public class Mirroring {
 			throw new IllegalStateException(NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
 		if (compare)
 			getComparator(); //initialize the comparator. Only needed if we're comparing. Used to force error if comparatorID is invalid.
-		IArtifactKey[] keys = source.getArtifactKeys();
+		IArtifactKey[] keys = keysToMirror == null ? source.getArtifactKeys() : keysToMirror;
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
 		for (int i = 0; i < keys.length; i++) {
 			IArtifactKey key = keys[i];
@@ -171,5 +172,9 @@ public class Mirroring {
 			status = repo.getRawArtifact(descriptor, output, new NullProgressMonitor());
 		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
 		return status;
+	}
+
+	public void setArtifactKeys(IArtifactKey[] keys) {
+		this.keysToMirror = keys;
 	}
 }
