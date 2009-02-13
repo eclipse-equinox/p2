@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -40,7 +41,33 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	private ArrayList childrenURIs = new ArrayList();
 
-	private IMetadataRepositoryManager getManager() {
+	/**
+	 * Create a Composite repository in memory.
+	 * @return the repository or null if unable to create one
+	 */
+	public static CompositeMetadataRepository createMemoryComposite() {
+		IMetadataRepositoryManager manager = getManager();
+		if (manager != null) {
+			try {
+				//create a unique opaque URI 
+				long time = System.currentTimeMillis();
+				URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
+				while (manager.contains(repositoryURI))
+					repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
+
+				CompositeMetadataRepository result = (CompositeMetadataRepository) manager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+				manager.removeRepository(repositoryURI);
+				return result;
+			} catch (ProvisionException e) {
+				// just return null
+			} catch (URISyntaxException e) {
+				// just return null
+			}
+		}
+		return null;
+	}
+
+	static private IMetadataRepositoryManager getManager() {
 		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 	}
 

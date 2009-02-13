@@ -39,7 +39,33 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	private ArrayList childrenURIs = new ArrayList();
 
-	private IArtifactRepositoryManager getManager() {
+	/**
+	 * Create a Composite repository in memory.
+	 * @return the repository or null if unable to create one
+	 */
+	public static CompositeArtifactRepository createMemoryComposite() {
+		IArtifactRepositoryManager manager = getManager();
+		if (manager != null) {
+			try {
+				//create a unique URI
+				long time = System.currentTimeMillis();
+				URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
+				while (manager.contains(repositoryURI))
+					repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
+
+				CompositeArtifactRepository result = (CompositeArtifactRepository) manager.createRepository(repositoryURI, repositoryURI.toString(), IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+				manager.removeRepository(repositoryURI);
+				return result;
+			} catch (ProvisionException e) {
+				// just return null
+			} catch (URISyntaxException e) {
+				// just return null
+			}
+		}
+		return null;
+	}
+
+	static private IArtifactRepositoryManager getManager() {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 

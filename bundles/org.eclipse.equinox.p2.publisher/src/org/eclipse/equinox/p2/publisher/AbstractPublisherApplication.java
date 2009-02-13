@@ -133,16 +133,16 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (list == null || list.length == 0)
 			return null;
 
-		CompositeArtifactRepository result = null;
-		try {
-			URI repositoryURI = new URI("memory:"); //$NON-NLS-1$
-			result = (CompositeArtifactRepository) defaultArtifactManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null); //$NON-NLS-1$
-			for (int i = 0; i < list.length; i++)
-				result.addChild(new URI(list[i]));
-		} catch (ProvisionException e) {
-			// TODO log something here
-		} catch (URISyntaxException e) {
-			// TODO log something here
+		CompositeArtifactRepository result = CompositeArtifactRepository.createMemoryComposite();
+		if (result != null) {
+			for (int i = 0; i < list.length; i++) {
+				try {
+					result.addChild(URIUtil.fromString(list[i]));
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return result;
 	}
@@ -152,16 +152,15 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (list == null || list.length == 0)
 			return null;
 
-		CompositeMetadataRepository result = null;
-		try {
-			URI repositoryURI = new URI("memory:"); //$NON-NLS-1$
-			result = (CompositeMetadataRepository) defaultMetadataManager.createRepository(repositoryURI, "artifact name", IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null); //$NON-NLS-1$
-			for (int i = 0; i < list.length; i++)
-				result.addChild(new URI(list[i]));
-		} catch (ProvisionException e) {
-			// TODO log something here
-		} catch (URISyntaxException e) {
-			// TODO log something here
+		CompositeMetadataRepository result = CompositeMetadataRepository.createMemoryComposite();
+		if (result != null) {
+			for (int i = 0; i < list.length; i++) {
+				try {
+					result.addChild(URIUtil.fromString(list[i]));
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+				}
+			}
 		}
 		return result;
 	}

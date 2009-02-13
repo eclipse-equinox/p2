@@ -10,13 +10,67 @@ package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.*;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 
 public abstract class AbstractPublishTask extends Task {
 	protected static final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
+
+	/**
+	 * Support nested repository elements that looking something like
+	 *    <repo location="file:/foo" metadata="true" artifact="true" />
+	 * Both metadata and artifact are optional:
+	 *  1) if neither are set, the repo is used for both metadata and artifacts
+	 *  2) if only one is true, the repo is that type and not the other 
+	 */
+	static public class RepoEntry {
+		private URI repoLocation;
+		private Boolean metadata = null;
+		private Boolean artifact = null;
+
+		/**
+		 * If not set, default is true if we aren't set as an artifact repo 
+		 */
+		public boolean isMetadataRepository() {
+			if (metadata != null)
+				return metadata.booleanValue();
+			return !Boolean.TRUE.equals(artifact);
+		}
+
+		/**
+		 * If not set, default is true if we aren't set as an metadata repo 
+		 */
+		public boolean isArtifactRepository() {
+			if (artifact != null)
+				return artifact.booleanValue();
+			return !Boolean.TRUE.equals(metadata);
+		}
+
+		public URI getRepositoryLocation() {
+			return repoLocation;
+		}
+
+		public void setLocation(String location) {
+			try {
+				repoLocation = URIUtil.fromString(location);
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Repository location (" + location + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+
+		public void setMetadata(boolean metadata) {
+			this.metadata = Boolean.valueOf(metadata);
+		}
+
+		public void setArtifact(boolean artifact) {
+			this.artifact = Boolean.valueOf(artifact);
+		}
+	}
 
 	protected boolean compress = false;
 	protected boolean reusePackedFiles = false;
@@ -27,10 +81,30 @@ public abstract class AbstractPublishTask extends Task {
 	protected URI artifactLocation;
 	protected String artifactRepoName;
 	protected PublisherInfo provider = null;
+	protected List contextRepositories = new ArrayList();
 
 	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
 		info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
 		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
+
+		if (contextRepositories.size() > 0) {
+			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
+			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite();
+
+			for (Iterator iterator = contextRepositories.iterator(); iterator.hasNext();) {
+				RepoEntry entry = (RepoEntry) iterator.next();
+				if (contextMetadata != null && entry.isMetadataRepository())
+					contextMetadata.addChild(entry.getRepositoryLocation());
+				if (contextArtifact != null && entry.isArtifactRepository())
+					contextArtifact.addChild(entry.getRepositoryLocation());
+			}
+
+			if (contextMetadata != null && contextMetadata.getChildren().size() > 0)
+				info.setContextMetadataRepository(contextMetadata);
+
+			if (contextArtifact != null && contextArtifact.getChildren().size() > 0)
+				info.setContextArtifactRepository(contextArtifact);
+		}
 	}
 
 	protected PublisherInfo getInfo() {
@@ -90,5 +164,10 @@ public abstract class AbstractPublishTask extends Task {
 	public void setRepositoryName(String name) {
 		setArtifactRepositoryName(name);
 		setMetadataRepositoryName(name);
+	}
+
+	// nested <contextRepository/> elements
+	public void addConfiguredContextRepository(RepoEntry repo) {
+		contextRepositories.add(repo);
 	}
 }
