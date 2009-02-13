@@ -17,7 +17,8 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		repo = getMetadataRepositoryManager().loadRepository(new File("/Users/Pascal/Downloads/builds/transfer/files/updates/3.5-I-builds/I20090211-0900/").toURI(), new NullProgressMonitor());
+		File repoFile = getTestData("Repo for permissive slicer test", "testData/permissiveSlicer");
+		repo = getMetadataRepositoryManager().loadRepository(repoFile.toURI(), new NullProgressMonitor());
 	}
 
 	public void testSliceRCPOut() {
