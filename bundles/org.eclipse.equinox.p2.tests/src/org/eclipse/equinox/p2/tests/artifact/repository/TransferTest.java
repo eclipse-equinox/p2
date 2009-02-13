@@ -37,7 +37,7 @@ public class TransferTest extends AbstractProvisioningTest {
 		int httpSize = -1;
 		URL u;
 		try {
-			u = new URL("http://download.eclipse.org/eclipse/updates/3.5-I-builds/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
+			u = new URL("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
 			HttpURLConnection c = (HttpURLConnection) u.openConnection();
 			httpSize = c.getContentLength();
 		} catch (MalformedURLException e1) {
