@@ -15,7 +15,6 @@ import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -23,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.osgi.util.NLS;
 
 public class Publisher {
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
@@ -43,34 +41,47 @@ public class Publisher {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createMetadataRepository(URI location, String name, boolean append, boolean compress) throws ProvisionException {
-		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository result = null;
-		boolean existing = manager.contains(location);
-
 		try {
-			result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			if (result != null) {
-				manager.removeRepository(result.getLocation());
-				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
+			IMetadataRepository result = loadMetadataRepository(location, true);
+			if (result != null && result.isModifiable()) {
+				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+				if (!append)
+					result.removeAll();
 				return result;
 			}
 		} catch (ProvisionException e) {
-			//repo exists, fall through to load
+			//fall through and create a new repository
 		}
 
-		result = manager.loadRepository(location, null);
+		// 	the given repo location is not an existing repo so we have to create something
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
-			if (!existing)
-				manager.removeRepository(location);
-			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-			if (!result.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
-			if (!append)
-				result.removeAll();
+			manager.removeRepository(result.getLocation());
+			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			return result;
 		}
-		return null;
+		// I don't think we can really get here, but just in case, we better throw a provisioning exception
+		String msg = org.eclipse.equinox.internal.p2.metadata.repository.Messages.repoMan_internalError;
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+	}
+
+	/**
+	 * Load a metadata repository from the given location.
+	 * @param location the URI location of the repo
+	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
+	 * @return the loaded repository
+	 * @throws ProvisionException
+	 */
+	public static IMetadataRepository loadMetadataRepository(URI location, boolean removeFromManager) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		boolean existing = manager.contains(location);
+
+		IMetadataRepository result = manager.loadRepository(location, null);
+		if (!existing && result != null)
+			manager.removeRepository(result.getLocation());
+		return result;
 	}
 
 	/**
@@ -86,39 +97,50 @@ public class Publisher {
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository createArtifactRepository(URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
-		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		IArtifactRepository result = null;
-		boolean existing = manager.contains(location);
-
 		try {
-			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			if (result != null) {
-				manager.removeRepository(result.getLocation());
+			IArtifactRepository result = loadArtifactRepository(location, true);
+			if (result != null && result.isModifiable()) {
+				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (reusePackedFiles)
 					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+				if (!append)
+					result.removeAll();
 				return result;
 			}
 		} catch (ProvisionException e) {
-			//repo exists, fall through to load
+			//fall through and create a new repository
 		}
 
-		result = manager.loadRepository(location, null);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
-			if (!existing)
-				manager.removeRepository(location);
-			if (!result.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
-			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+			manager.removeRepository(result.getLocation());
 			if (reusePackedFiles)
 				result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			if (!append)
-				result.removeAll();
+			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 			return result;
 		}
+		// I don't think we can really get here, but just in case, we better throw a provisioning exception
+		String msg = org.eclipse.equinox.internal.p2.artifact.repository.Messages.repoMan_internalError;
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+	}
 
-		return null;
+	/**
+	 * Load an artifact repository from the given location.
+	 * @param location the URI location of the repo
+	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
+	 * @return the loaded repository
+	 * @throws ProvisionException
+	 */
+	public static IArtifactRepository loadArtifactRepository(URI location, boolean removeFromManager) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		boolean existing = manager.contains(location);
+
+		IArtifactRepository result = manager.loadRepository(location, null);
+		if (!existing && removeFromManager)
+			manager.removeRepository(location);
+		return result;
 	}
 
 	public Publisher(IPublisherInfo info) {
