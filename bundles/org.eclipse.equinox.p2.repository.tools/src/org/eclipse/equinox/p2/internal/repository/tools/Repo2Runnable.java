@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
@@ -35,21 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
  * 
  * @since 1.0
  */
-public class Repo2Runnable implements IApplication {
-
-	private String destinationArtifactRepository; // where to publish the files
-	private String destinationMetadataRepository; // where to copy the metadata to
-	private List sourceArtifactRepositories = new ArrayList(); // where are the artifacts?
-
-	// only one of these needs to be set. if it is the repo then we will process
-	// the whole repo. otherwise we will process just the list of IUS.
-	private List sourceMetadataRepositories = new ArrayList(); // where is the metadata?
-	private List sourceIUs = new ArrayList(); // list of IUs to process
-
-	// lists of artifact and metadata repositories to remove after we are done
-	private List artifactReposToRemove = new ArrayList();
-	private List metadataReposToRemove = new ArrayList();
-
+public class Repo2Runnable extends AbstractApplication {
 	// the list of IUs that we actually transformed... could have come from the repo 
 	// or have been user-specified.
 	private Collection processedIUs = new ArrayList();
@@ -62,6 +47,8 @@ public class Repo2Runnable implements IApplication {
 		// ensure all the right parameters are set
 		validate();
 
+		initializeRepos(progress);
+
 		// figure out which IUs we need to process
 		collectIUs(progress.newChild(1));
 
@@ -70,24 +57,6 @@ public class Repo2Runnable implements IApplication {
 		int i = 0;
 		for (Iterator iter = processedIUs.iterator(); iter.hasNext();)
 			operands[i++] = new InstallableUnitOperand(null, (IInstallableUnit) iter.next());
-
-		// ensure the user-specified artifact repos will be consulted by loading them
-		IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
-		if (sourceArtifactRepositories != null && !sourceArtifactRepositories.isEmpty()) {
-			for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
-				URI repoLocation = (URI) iter.next();
-				if (!artifactRepositoryManager.contains(repoLocation))
-					artifactReposToRemove.add(repoLocation);
-				artifactRepositoryManager.loadRepository(repoLocation, progress.newChild(1));
-			}
-		}
-		// do a create here to ensure that we don't default to a #load later and grab a repo which is the wrong type
-		// e.g. extension location type because a plugins/ directory exists.
-		try {
-			artifactRepositoryManager.createRepository(new Path(destinationArtifactRepository).toFile().toURI(), "Runnable repository.", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e) {
-			// ignore... perhaps one already exists and we will just load it later
-		}
 
 		// call the engine with only the "collect" phase so all we do is download
 		IProfile profile = createProfile();
@@ -109,11 +78,7 @@ public class Repo2Runnable implements IApplication {
 		} finally {
 			// cleanup by removing the temporary profile and unloading the repos which were new
 			removeProfile(profile);
-			for (Iterator iter = artifactReposToRemove.iterator(); iter.hasNext();)
-				artifactRepositoryManager.removeRepository((URI) iter.next());
-			IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
-			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
-				metadataRepositoryManager.removeRepository((URI) iter.next());
+			finalizeRepositories();
 		}
 	}
 
@@ -148,17 +113,7 @@ public class Repo2Runnable implements IApplication {
 		// publishing the metadata is optional
 		if (destinationMetadataRepository == null)
 			return;
-		URI location = new File(destinationMetadataRepository).toURI();
-		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
-		if (!manager.contains(location))
-			metadataReposToRemove.add(location);
-		IMetadataRepository repository;
-		try {
-			repository = manager.createRepository(location, location + " - metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e) {
-			repository = manager.loadRepository(location, monitor);
-		}
-		repository.addInstallableUnits((IInstallableUnit[]) processedIUs.toArray(new IInstallableUnit[processedIUs.size()]));
+		destinationMetadataRepository.addInstallableUnits((IInstallableUnit[]) processedIUs.toArray(new IInstallableUnit[processedIUs.size()]));
 	}
 
 	/*
@@ -208,7 +163,7 @@ public class Repo2Runnable implements IApplication {
 	/*
 	 * Iterate over the command-line arguments and prepare the transformer for processing.
 	 */
-	private void processCommandLineArgs(String[] args) {
+	private void processCommandLineArgs(String[] args) throws URISyntaxException {
 		if (args == null)
 			return;
 		for (int i = 0; i < args.length; i++) {
@@ -223,8 +178,12 @@ public class Repo2Runnable implements IApplication {
 			}
 
 			if (option.equalsIgnoreCase("-destination")) { //$NON-NLS-1$
-				setDestinationArtifactRepository(arg);
-				setDestinationMetadataRepository(arg);
+				RepositoryDescriptor artifact = new RepositoryDescriptor();
+				artifact.setLocation(URIUtil.fromString(arg));
+				artifact.setKind("A"); //$NON-NLS-1$
+				RepositoryDescriptor metadata = new RepositoryDescriptor();
+				metadata.setLocation(URIUtil.fromString(arg));
+				metadata.setKind("M"); //$NON-NLS-1$
 			}
 		}
 	}
@@ -247,69 +206,5 @@ public class Repo2Runnable implements IApplication {
 	 */
 	public void stop() {
 		// nothing to do
-	}
-
-	/*
-	 * Set the location of the metadata repository. 
-	 */
-	public void addSourceMetadataRepository(String location) {
-		URI uri = Activator.getURI(location);
-		if (uri != null)
-			sourceMetadataRepositories.add(uri);
-	}
-
-	/*
-	 * Add the given location as a metadata repository.
-	 */
-	public void addSourceMetadataRepository(URI location) {
-		if (location != null)
-			sourceMetadataRepositories.add(location);
-	}
-
-	/*
-	 * Get the list of source metadata repositories for this transformer.
-	 */
-	public List getSourceMetadataRepositories() {
-		return sourceMetadataRepositories;
-	}
-
-	/*
-	 * Set the location of the artifact repository.
-	 */
-	public void addSourceArtifactRepository(String location) {
-		URI uri = Activator.getURI(location);
-		if (uri != null)
-			sourceArtifactRepositories.add(uri);
-	}
-
-	/*
-	 * Add the given location as an artifact repository.
-	 */
-	public void addSourceArtifactRepository(URI location) {
-		if (location != null)
-			sourceArtifactRepositories.add(location);
-	}
-
-	/*
-	 * Set the destination location for the artifacts.
-	 */
-	public void setDestinationArtifactRepository(String location) {
-		destinationArtifactRepository = new Path(location).toOSString();
-	}
-
-	/*
-	 * Set the destination location for the metadata if the user wishes to
-	 * copy/publish the metadata.
-	 */
-	public void setDestinationMetadataRepository(String location) {
-		destinationMetadataRepository = new Path(location).toOSString();
-	}
-
-	/*
-	 * Set the list of installable units that we should process. Should use only one
-	 * of either this list or the source metadata repository.
-	 */
-	public void setSourceIUs(List ius) {
-		sourceIUs = ius;
 	}
 }

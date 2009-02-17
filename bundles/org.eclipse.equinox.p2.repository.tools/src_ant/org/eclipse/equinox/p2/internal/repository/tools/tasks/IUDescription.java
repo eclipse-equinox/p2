@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.DataType;
 
 /**
  * @since 1.0
  */
-public class IUTask extends Task {
+public class IUDescription extends DataType {
 
 	private String id;
 	private String version;
 
-	public IUTask() {
+	public IUDescription() {
 		super();
 	}
 

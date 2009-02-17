@@ -9,8 +9,17 @@
             library="lib/repository-tools-ant.jar"
             name="p2.repo2runnable">
       </antTask>
-</extension>
-
+  </extension>
+  
+  <extension
+         point="org.eclipse.ant.core.antTasks">
+     <antTask
+            class="org.eclipse.equinox.p2.internal.repository.tools.tasks.MirrorTask"
+            library="lib/repository-tools-ant.jar"
+            name="p2.mirror">
+      </antTask>
+  </extension>
+  
   <extension
          id="org.eclipse.equinox.p2.repository.repo2runnable"
          point="org.eclipse.core.runtime.applications">
@@ -18,5 +27,6 @@
          <run class="org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable"/>
       </application>
    </extension>
+
 
 </plugin>

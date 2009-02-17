@@ -41,7 +41,7 @@ public class Activator implements BundleActivator {
 		bundleContext = context;
 
 		// TODO needed to do this to ensure the profile registry was registered
-		Bundle bundle = getBundle("org.eclipse.equinox.p2.exemplarysetup");
+		Bundle bundle = getBundle("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
 		if (bundle == null)
 			throw new ProvisionException("Unable to start exemplarysetup bundle.");
 		bundle.start(Bundle.START_TRANSIENT);
