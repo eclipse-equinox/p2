@@ -315,7 +315,8 @@ public class BasicTests extends AbstractReconcilerTest {
 		// add this to the "toRemove" set in case we fail, we still want it to be removed by the cleanup
 		toRemove.add(temp);
 		copy("1.1", link, temp);
-		addLink("1.2", temp);
+		String linkFilename = getUniqueString();
+		createLinkFile("1.2", linkFilename, temp.getAbsolutePath());
 
 		reconcile("2.0");
 
@@ -324,8 +325,8 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("3.3", "ccc");
 		assertTrue("3.4", isInstalled("ccc", "1.0.0"));
 
-		delete(temp);
-		reconcile("4.0");
+		removeLinkFile("4.0", linkFilename);
+		reconcile("4.1");
 		assertDoesNotExistInBundlesInfo("5.0", "bbb");
 		assertFalse("5.1", isInstalled("bbb", "1.0.0"));
 		assertDoesNotExistInBundlesInfo("5.3", "ccc");
