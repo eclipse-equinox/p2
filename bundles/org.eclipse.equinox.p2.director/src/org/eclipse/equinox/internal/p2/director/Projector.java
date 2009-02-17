@@ -35,7 +35,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
-	private static boolean DEBUG_ENCODING = true;
+	private static boolean DEBUG_ENCODING = false;
 	private IQueryable picker;
 	private QueryableArray patches;
 
