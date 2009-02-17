@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -295,6 +296,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (!exe.exists())
 			exe = new File(root, "java");
 		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		// command-line if you want to run and allow a remote debugger to connect
+		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
 		run(message, command);
 	}
 
@@ -463,5 +466,15 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
 		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
 		return !collector.isEmpty();
+	}
+
+	public IInstallableUnit getRemoteIU(String id, String version) {
+		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
+		IProfile[] profiles = registry.getProfiles();
+		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
+		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
+		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, collector.size());
+		return (IInstallableUnit) collector.iterator().next();
 	}
 }

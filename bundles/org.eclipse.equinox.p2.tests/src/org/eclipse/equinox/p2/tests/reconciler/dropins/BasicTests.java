@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.reconciler.dropins;
 import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 //- add new
 //- remove only
@@ -55,6 +56,9 @@ public class BasicTests extends AbstractReconcilerTest {
 		// NOTE: Enable this tests when we can handle a simple repo without the site.xml placeholder
 		// see bug 252752
 		//suite.addTest(new BasicTests("testSimpleRepo"));
+
+		// suite.addTest(new BasicTests("test_251167"));
+		// suite.addTest(new BasicTests("test_p2Repo"));
 		return suite;
 	}
 
@@ -115,9 +119,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		// cleanup
 		remove("99.0", "dropins", "myBundle_2.0.0.jar");
 		reconcile("99.1");
-		// TODO re-enable this when we fix bug 248468
-		if (!DISABLED)
-			assertDoesNotExistInBundlesInfo("99.2", "myBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("99.2", "myBundle", "2.0.0");
 	}
 
 	/*
@@ -243,5 +245,61 @@ public class BasicTests extends AbstractReconcilerTest {
 		remove("99.0", "dropins", "simplerepo");
 		reconcile("99.1");
 		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
+	}
+
+	/*
+	 * Add 2 bundles to the dropins and reconcile. A has an optional dependency on B.
+	 * Remove B and re-reconcile. The problem was that B was no longer installed or in
+	 *  the bundles.info but it was still in the profile.
+	 */
+	public void test_251167() {
+		assertInitialized();
+
+		// empty state
+		assertDoesNotExistInBundlesInfo("1.0", "A");
+		assertDoesNotExistInBundlesInfo("1.1", "B");
+
+		// setup the test data
+		File jar = getTestData("2.0", "testData/reconciler/251167/A_1.0.0.jar");
+		add("2.1", "dropins", jar);
+		jar = getTestData("2.2", "testData/reconciler/251167/B_1.0.0.jar");
+		add("2.3", "dropins", jar);
+		reconcile("2.4");
+
+		assertExistsInBundlesInfo("3.0", "A");
+		assertExistsInBundlesInfo("3.1", "B");
+		assertTrue("3.2", isInstalled("A", "1.0.0"));
+		assertTrue("3.3", isInstalled("B", "1.0.0"));
+
+		// remove B
+		remove("4.0", "dropins", "B_1.0.0.jar");
+		reconcile("4.1");
+
+		assertExistsInBundlesInfo("5.0", "A");
+		assertDoesNotExistInBundlesInfo("5.1", "B");
+		assertTrue("5.2", isInstalled("A", "1.0.0"));
+		assertFalse("5.3", isInstalled("B", "1.0.0"));
+	}
+
+	/*
+	 * - add content.jar
+	 * - add artifacts.jar
+	 * - add indexs + plugins/features/binary dir (bug 252752)
+	 */
+	public void test_p2Repo() {
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "zzz");
+		assertFalse("0.2", isInstalled("zFeature", "1.0.0"));
+
+		File source = getTestData("1.0", "testData/reconciler/basicRepo.jar");
+		add("1.1", "dropins", source);
+
+		reconcile("2.0");
+
+		assertExistsInBundlesInfo("3.0", "zzz");
+		assertTrue("3.1", isInstalled("zzz", "1.0.0"));
+		assertTrue("3.2", isInstalled("zFeature.feature.group", "1.0.0"));
+		IInstallableUnit unit = getRemoteIU("zzz", "1.0.0");
+		assertEquals("3.3", "foo", unit.getProperty("test"));
 	}
 }
