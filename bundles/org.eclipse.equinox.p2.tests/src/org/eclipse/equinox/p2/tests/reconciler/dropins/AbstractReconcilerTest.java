@@ -179,6 +179,29 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	/*
+	 * Create a link file in the dropins which points to the given target
+	 */
+	public void addLink(String message, File target) {
+		File linkFile = new File(output, "eclipse/dropins/" + getUniqueString() + ".link");
+		assertFalse(message + " - link file already exists", linkFile.exists());
+		Properties properties = new Properties();
+		properties.put("path", target.getAbsolutePath());
+		OutputStream outputStream = null;
+		try {
+			outputStream = new BufferedOutputStream(new FileOutputStream(linkFile));
+			properties.store(outputStream, null);
+		} catch (IOException e) {
+			fail(message, e);
+		} finally {
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	/*
 	 * Create a link file in the links folder. Point it to the given extension location.
 	 */
 	public void createLinkFile(String message, String filename, String extensionLocation) {

@@ -59,6 +59,8 @@ public class BasicTests extends AbstractReconcilerTest {
 
 		// suite.addTest(new BasicTests("test_251167"));
 		// suite.addTest(new BasicTests("test_p2Repo"));
+		suite.addTest(new BasicTests("testDisabledBundleInLink"));
+
 		return suite;
 	}
 
@@ -301,5 +303,32 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertTrue("3.2", isInstalled("zFeature.feature.group", "1.0.0"));
 		IInstallableUnit unit = getRemoteIU("zzz", "1.0.0");
 		assertEquals("3.3", "foo", unit.getProperty("test"));
+	}
+
+	/*
+	 * See bug 265121.
+	 */
+	public void testDisabledBundleInLink() {
+		assertInitialized();
+		File link = getTestData("1.0", "testData/reconciler/link");
+		File temp = getTempFolder();
+		// add this to the "toRemove" set in case we fail, we still want it to be removed by the cleanup
+		toRemove.add(temp);
+		copy("1.1", link, temp);
+		addLink("1.2", temp);
+
+		reconcile("2.0");
+
+		assertDoesNotExistInBundlesInfo("3.0", "bbb");
+		assertFalse("3.1", isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("3.3", "ccc");
+		assertTrue("3.4", isInstalled("ccc", "1.0.0"));
+
+		delete(temp);
+		reconcile("4.0");
+		assertDoesNotExistInBundlesInfo("5.0", "bbb");
+		assertFalse("5.1", isInstalled("bbb", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("5.3", "ccc");
+		assertFalse("5.4", isInstalled("ccc", "1.0.0"));
 	}
 }
