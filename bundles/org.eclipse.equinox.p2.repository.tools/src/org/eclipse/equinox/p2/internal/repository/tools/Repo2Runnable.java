@@ -143,8 +143,8 @@ public class Repo2Runnable extends AbstractApplication {
 	 */
 	private IProfile createProfile() throws ProvisionException {
 		Map properties = new Properties();
-		properties.put(IProfile.PROP_CACHE, destinationArtifactRepository);
-		properties.put(IProfile.PROP_INSTALL_FOLDER, destinationArtifactRepository);
+		properties.put(IProfile.PROP_CACHE, URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
+		properties.put(IProfile.PROP_INSTALL_FOLDER, URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
 		IProfileRegistry registry = Activator.getProfileRegistry();
 		return registry.addProfile(System.currentTimeMillis() + "-" + Math.random(), properties); //$NON-NLS-1$
 	}
