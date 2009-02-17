@@ -14,37 +14,46 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
 public class PermissiveSlicer extends Slicer {
-	private boolean skipOptionalRequirement;
+	private boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the
 	private boolean everythingGreedy;
 	private boolean considerFilter;
-	private boolean considerStrictDependency;
+	private boolean considerOnlyStrictDependency;
+	private boolean evalFilterTo;
 
-	public PermissiveSlicer(IQueryable input, Dictionary context, boolean skipOptionalRequirement, boolean everythingGreedy, boolean considerFilter, boolean considerStrictDependency) {
+	public PermissiveSlicer(IQueryable input, Dictionary context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency) {
 		super(input, context);
-		this.skipOptionalRequirement = skipOptionalRequirement;
+		this.considerFilter = (context == null || context.size() == 0) ? false : true;
+		this.includeOptionalDependencies = includeOptionalDependencies;
 		this.everythingGreedy = everythingGreedy;
-		this.considerFilter = considerFilter;
-		this.considerStrictDependency = considerStrictDependency;
+		this.evalFilterTo = evalFilterTo;
+		this.considerOnlyStrictDependency = considerOnlyStrictDependency;
 	}
 
 	protected boolean isApplicable(IInstallableUnit iu) {
-		return true;
+		if (considerFilter)
+			return super.isApplicable(iu);
+		if (iu.getFilter() == null)
+			return true;
+		return evalFilterTo;
 	}
 
 	protected boolean isApplicable(IRequiredCapability req) {
 		//Every filter in this method needs to continue except when the filter does not pass
-		if (skipOptionalRequirement)
+		if (!includeOptionalDependencies)
 			if (req.isOptional())
 				return false;
 
-		if (considerStrictDependency) {
+		if (considerOnlyStrictDependency) {
 			if (!req.getRange().getMinimum().equals(req.getRange().getMaximum()))
 				return false;
 		}
 
+		//deal with filters
 		if (considerFilter)
 			return super.isApplicable(req);
-		return true;
+		if (req.getFilter() == null)
+			return true;
+		return evalFilterTo;
 	}
 
 	protected boolean isGreedy(IRequiredCapability req) {

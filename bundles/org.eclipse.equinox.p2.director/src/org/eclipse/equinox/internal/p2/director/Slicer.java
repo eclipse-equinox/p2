@@ -27,7 +27,7 @@ public class Slicer {
 	private Set considered; //IUs to add to the slice
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
-	private Dictionary selectionContext;
+	protected Dictionary selectionContext;
 	private MultiStatus result;
 
 	public Slicer(IQueryable input, Dictionary context) {
