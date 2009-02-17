@@ -765,6 +765,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			}
 			getPreferences().node(repoKey).removeNode();
 			saveToPreferences();
+			clearNotFound(toRemove);
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
