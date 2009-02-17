@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -73,7 +73,7 @@ public class FeaturesActionTest extends ActionTest {
 
 	private void verifyMetadata() {
 		//{foo.feature.jar=[foo.feature.jar 1.0.0], bar.feature.jar=[bar.feature.jar 1.1.1], foo.feature.group=[foo.feature.group 1.0.0], bar.feature.group=[bar.feature.group 1.1.1]}
-		ArrayList fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.jar", IPublisherResult.ROOT)); //$NON-NLS-1$
+		ArrayList fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit foo = (IInstallableUnit) fooIUs.get(0);
 		assertTrue(foo.getId().equalsIgnoreCase("foo.feature.jar")); //$NON-NLS-1$
@@ -112,7 +112,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
 
 		/*verify bar*/
-		ArrayList barIUs = new ArrayList(publisherResult.getIUs("bar.feature.jar", IPublisherResult.ROOT)); //$NON-NLS-1$
+		ArrayList barIUs = new ArrayList(publisherResult.getIUs("bar.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
 		assertTrue(barIUs.size() == 1);
 		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
 		assertTrue(bar.getId().equals("bar.feature.jar")); //$NON-NLS-1$
@@ -125,6 +125,13 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
+		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
+		assertTrue(fooIUs.size() == 1);
+		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
+		IRequiredCapability[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
+		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
+		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
+
 		//check zipped=true in touchpointData
 		String barValue = ((ITouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
@@ -133,9 +140,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
 		assertTrue(bar.getTouchpointType().getVersion().equals(fooVersion));
 		//String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy)
-		IRequiredCapability[] barRequiredCapabilities = bar.getRequiredCapabilities();
-		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$ 
-		assertTrue(barRequiredCapabilities.length == 1);
+		barRequiredCapabilities = bar.getRequiredCapabilities();
+
+		assertTrue(barRequiredCapabilities.length == 0);
 
 		IProvidedCapability[] barProvidedCapabilities = bar.getProvidedCapabilities();
 		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$ 

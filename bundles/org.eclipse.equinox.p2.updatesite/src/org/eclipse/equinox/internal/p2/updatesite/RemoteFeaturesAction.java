@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,8 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import java.util.Dictionary;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -68,8 +67,10 @@ public class RemoteFeaturesAction extends FeaturesAction {
 						result.addIU(bundleIUs[n], IPublisherResult.ROOT);
 				}
 			}
-			IInstallableUnit featureIU = createFeatureJarIU(feature, null, new PublisherInfo());
-			IInstallableUnit groupIU = createGroupIU(feature, featureIU, new PublisherInfo());
+			IInstallableUnit featureIU = createFeatureJarIU(feature, new PublisherInfo());
+			List childIUs = new ArrayList();
+			childIUs.add(featureIU);
+			IInstallableUnit groupIU = createGroupIU(feature, childIUs, new PublisherInfo());
 			result.addIU(featureIU, IPublisherResult.ROOT);
 			result.addIU(groupIU, IPublisherResult.ROOT);
 		}

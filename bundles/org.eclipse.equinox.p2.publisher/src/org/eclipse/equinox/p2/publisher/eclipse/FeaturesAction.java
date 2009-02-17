@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,7 +47,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return new ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, id, new Version(version));
 	}
 
-	public static IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, IPublisherInfo info) {
+	public static IInstallableUnit createFeatureJarIU(Feature feature, IPublisherInfo info) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -79,17 +77,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version), PublisherHelper.FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
-
-		// link in all the children (if any) as requirements.
-		// TODO consider if these should be linked as exact version numbers.  Should be ok but may be brittle.
-		if (childIUs != null) {
-			IRequiredCapability[] required = new IRequiredCapability[childIUs.size()];
-			for (int i = 0; i < childIUs.size(); i++) {
-				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				required[i] = MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
-			}
-			iu.setRequiredCapabilities(required);
-		}
 
 		// if the feature has a location and it is not a JAR then setup the touchpoint data
 		// TODO its not clear when this would ever be false reasonably.  Features are always
@@ -249,9 +236,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return new Object[] {iuResult, fileResult};
 	}
 
-	protected IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, IPublisherInfo info) {
+	protected IInstallableUnit createGroupIU(Feature feature, List childIUs, IPublisherInfo info) {
 		if (isPatch(feature))
-			return createPatchIU(feature, featureIU, info);
+			return createPatchIU(feature, childIUs, info);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -271,17 +258,22 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		IRequiredCapability[] required = new IRequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
+		List required = new ArrayList(entries.length + (childIUs == null ? 0 : childIUs.size()));
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
 			String requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
-			required[i] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
+			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false));
 		}
-		// the feature IU could be null if we are just generating a feature structure rather than
-		// actual features.
-		if (featureIU != null)
-			required[entries.length] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
-		iu.setRequiredCapabilities(required);
+
+		// link in all the children (if any) as requirements.
+		// TODO consider if these should be linked as exact version numbers.  Should be ok but may be brittle.
+		if (childIUs != null) {
+			for (int i = 0; i < childIUs.size(); i++) {
+				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
+				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
+			}
+		}
+		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
 		processTouchpointAdvice(iu, info);
 		processFeatureAdvice(feature, iu, info);
@@ -312,7 +304,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	private IInstallableUnit createPatchIU(Feature feature, IInstallableUnit featureIU, IPublisherInfo info) {
+	private IInstallableUnit createPatchIU(Feature feature, List childIUs, IPublisherInfo info) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -349,8 +341,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 			}
 			patchRequirements.add(req);
 		}
+
 		//Always add a requirement on the IU containing the feature jar
-		patchRequirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
+		if (childIUs != null) {
+			for (int i = 0; i < childIUs.size(); i++) {
+				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
+				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
+			}
+		}
 		iu.setRequiredCapabilities((IRequiredCapability[]) patchRequirements.toArray(new IRequiredCapability[patchRequirements.size()]));
 		iu.setApplicabilityScope(new IRequiredCapability[][] {(IRequiredCapability[]) applicabilityScope.toArray(new IRequiredCapability[applicabilityScope.size()])});
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
@@ -426,20 +424,23 @@ public class FeaturesAction extends AbstractPublisherAction {
 			createAdviceFileAdvice(feature, info);
 
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-			IInstallableUnit featureIU = generateFeatureJarIU(feature, childIUs, info);
-			if (featureIU != null) {
-				publishFeatureArtifacts(feature, featureIU, info);
-				result.addIU(featureIU, IPublisherResult.ROOT);
+			IInstallableUnit featureJarIU = generateFeatureJarIU(feature, info);
+			if (featureJarIU != null) {
+				publishFeatureArtifacts(feature, featureJarIU, info);
+				result.addIU(featureJarIU, IPublisherResult.NON_ROOT);
+				childIUs.add(featureJarIU);
+			}
+
+			IInstallableUnit groupIU = createGroupIU(feature, childIUs, info);
+			if (groupIU != null) {
+				result.addIU(groupIU, IPublisherResult.ROOT);
 			}
 			generateSiteReferences(feature, result, info);
-
-			IInstallableUnit groupIU = createGroupIU(feature, featureIU, info);
-			result.addIU(groupIU, IPublisherResult.ROOT);
 		}
 	}
 
-	protected IInstallableUnit generateFeatureJarIU(Feature feature, ArrayList childIUs, IPublisherInfo info) {
-		return createFeatureJarIU(feature, childIUs, info);
+	protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo info) {
+		return createFeatureJarIU(feature, info);
 	}
 
 	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo info) {
