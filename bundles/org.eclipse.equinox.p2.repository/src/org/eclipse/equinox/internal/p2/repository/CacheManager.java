@@ -84,13 +84,16 @@ public class CacheManager {
 			}
 			cacheFile.getParentFile().mkdirs();
 			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(cacheFile));
+			IStatus result;
 			try {
-				IStatus result = getTransport().download(remoteFile.toString(), metadata, monitor);
-				if (!result.isOK()) {
-					throw new ProvisionException(result);
-				}
+				result = getTransport().download(remoteFile.toString(), metadata, monitor);
 			} finally {
 				metadata.close();
+			}
+			if (!result.isOK()) {
+				//don't leave a partial cache file lying around
+				cacheFile.delete();
+				throw new ProvisionException(result);
 			}
 		}
 		return cacheFile;
@@ -169,7 +172,7 @@ public class CacheManager {
 			// cache is stale
 			return true;
 		}
-		return lastModifiedRemote > lastModified ? true : false;
+		return lastModifiedRemote > lastModified;
 	}
 
 	/**
