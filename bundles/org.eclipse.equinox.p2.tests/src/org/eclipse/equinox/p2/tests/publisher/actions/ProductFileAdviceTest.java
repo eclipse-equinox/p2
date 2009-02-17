@@ -9,7 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import java.io.File;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
@@ -139,15 +138,15 @@ public class ProductFileAdviceTest extends TestCase {
 	/**
 	 * Test method for {@link org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice#getIcons(java.lang.String)}.
 	 */
-	public void testGetIcons() {
-		String[] icons = productFileAdviceWin32.getIcons();
-		String absolutePath = new File(productFile.getLocation().getParentFile(), "test/icon.bmp").getAbsolutePath();
-		assertEquals("1.0", 1, icons.length);
-		assertEquals("1.1", absolutePath, icons[0]);
-
-		icons = productFileAdvice2.getIcons();
-		absolutePath = new File(productFile2.getLocation().getParentFile(), "icon.bmp").getAbsolutePath();
-		assertEquals("2.0", 1, icons.length);
-		assertEquals("2.1", absolutePath, icons[0]);
-	}
+	//	public void testGetIcons() {
+	//		String[] icons = productFileAdviceWin32.getIcons();
+	//		String absolutePath = new File(productFile.getLocation().getParentFile(), "test/icon.bmp").getAbsolutePath();
+	//		assertEquals("1.0", 1, icons.length);
+	//		assertEquals("1.1", absolutePath, icons[0]);
+	//
+	//		icons = productFileAdvice2.getIcons();
+	//		absolutePath = new File(productFile2.getLocation().getParentFile(), "icon.bmp").getAbsolutePath();
+	//		assertEquals("2.0", 1, icons.length);
+	//		assertEquals("2.1", absolutePath, icons[0]);
+	//	}
 }

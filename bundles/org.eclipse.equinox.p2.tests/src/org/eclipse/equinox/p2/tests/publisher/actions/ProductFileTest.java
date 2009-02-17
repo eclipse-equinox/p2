@@ -9,7 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
@@ -104,13 +103,12 @@ public class ProductFileTest extends TestCase {
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getIcons(java.lang.String)}.
 	 */
-	public void testGetIcons() {
-		String[] icons = productFile.getIcons("win32");
-		String absolutePath = new File(productFile.getLocation().getParentFile(), "test/icon.bmp").getAbsolutePath();
-		assertEquals("1.0", 1, icons.length);
-		assertEquals("1.1", absolutePath, icons[0]);
-	}
-
+	//	public void testGetIcons() {
+	//		String[] icons = productFile.getIcons("win32");
+	//		String absolutePath = new File(productFile.getLocation().getParentFile(), "test/icon.bmp").getAbsolutePath();
+	//		assertEquals("1.0", 1, icons.length);
+	//		assertEquals("1.1", absolutePath, icons[0]);
+	//	}
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigIniPath()}.
 	 */
