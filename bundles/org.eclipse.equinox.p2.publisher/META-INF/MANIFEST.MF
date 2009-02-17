@@ -45,9 +45,13 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
    org.eclipse.equinox.p2.ui.sdk",
  org.eclipse.equinox.internal.p2.publisher.eclipse;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.extensionlocation",
  org.eclipse.equinox.internal.p2.swt.tools;x-internal:=true,
- org.eclipse.equinox.p2.publisher,
+ org.eclipse.equinox.p2.publisher;x-friends:="org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.updatesite",
  org.eclipse.equinox.p2.publisher.actions;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher",
- org.eclipse.equinox.p2.publisher.eclipse,
- org.eclipse.equinox.spi.p2.publisher
+ org.eclipse.equinox.p2.publisher.eclipse;
+  x-friends:="org.eclipse.equinox.p2.directorywatcher,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.updatesite",
+ org.eclipse.equinox.spi.p2.publisher;x-friends:="org.eclipse.equinox.p2.updatesite"
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
