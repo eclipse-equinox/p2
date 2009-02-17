@@ -3,7 +3,7 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
@@ -27,7 +27,7 @@ public class Slicer {
 	private Set considered; //IUs to add to the slice
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
-	protected Dictionary selectionContext;
+	private Dictionary selectionContext;
 	private MultiStatus result;
 
 	public Slicer(IQueryable input, Dictionary context) {
@@ -35,6 +35,10 @@ public class Slicer {
 		slice = new TwoTierMap();
 		selectionContext = context;
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
+	}
+
+	public Slicer(IInstallableUnit[] installRoots, IInstallableUnit[] gatherAvailableInstallableUnits, Dictionary selectionContext) {
+		this(new QueryableArray(gatherAvailableInstallableUnits), selectionContext);
 	}
 
 	public IQueryable slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -73,7 +77,7 @@ public class Slicer {
 		return result;
 	}
 
-	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass
+	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass 
 	private void validateInput(IInstallableUnit[] ius) {
 		for (int i = 0; i < ius.length; i++) {
 			if (!isApplicable(ius[i]))
@@ -82,7 +86,7 @@ public class Slicer {
 	}
 
 	// Check whether the requirement is applicable
-	protected boolean isApplicable(IRequiredCapability req) {
+	private boolean isApplicable(IRequiredCapability req) {
 		String filter = req.getFilter();
 		if (filter == null)
 			return true;
@@ -93,7 +97,7 @@ public class Slicer {
 		}
 	}
 
-	protected boolean isApplicable(IInstallableUnit iu) {
+	private boolean isApplicable(IInstallableUnit iu) {
 		String enablementFilter = iu.getFilter();
 		if (enablementFilter == null)
 			return true;
@@ -104,7 +108,7 @@ public class Slicer {
 		}
 	}
 
-	protected void processIU(IInstallableUnit iu) {
+	private void processIU(IInstallableUnit iu) {
 		iu = iu.unresolved();
 
 		slice.put(iu.getId(), iu.getVersion(), iu);
@@ -120,16 +124,12 @@ public class Slicer {
 			if (!isApplicable(reqs[i]))
 				continue;
 
-			if (!isGreedy(reqs[i])) {
+			if (!reqs[i].isGreedy()) {
 				continue;
 			}
 
 			expandRequirement(iu, reqs[i]);
 		}
-	}
-
-	protected boolean isGreedy(IRequiredCapability req) {
-		return req.isGreedy();
 	}
 
 	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
