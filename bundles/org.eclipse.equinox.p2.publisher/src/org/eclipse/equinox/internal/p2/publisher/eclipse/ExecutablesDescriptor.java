@@ -224,7 +224,7 @@ public class ExecutablesDescriptor {
 	/**
 	 * If the executable represented by this descriptor has been branded then a mess
 	 * of files have been renamed.  Here scan the descriptor's file list and update the names
-	 * taking into accoun the different layout on different OSes.
+	 * taking into account the different layout on different OSes.
 	 * @param newName the new name of the executable.
 	 */
 	private void updateExecutableName(String newName) {
@@ -234,7 +234,8 @@ public class ExecutablesDescriptor {
 		String targetExecutable = executableName;
 		String executableExtension = Constants.OS_WIN32.equals(os) ? ".exe" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 		targetExecutable = executableName + executableExtension;
-		for (Iterator i = files.iterator(); i.hasNext();) {
+		Set filesCopy = new HashSet(files);
+		for (Iterator i = filesCopy.iterator(); i.hasNext();) {
 			File file = (File) i.next();
 			String base = file.getParent();
 
