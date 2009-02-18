@@ -170,7 +170,8 @@ public class MirrorRequest extends ArtifactRequest {
 			if (destination instanceof IStateful && status != null && !status.isOK()) {
 				IStatus destStatus = ((IStateful) destination).getStatus();
 				IStatus root = extractRootCause(status);
-				((IStateful) destination).setStatus(new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status, destStatus}, status.getMessage(), root.getException()));
+				Throwable e = root != null ? root.getException() : null;
+				((IStateful) destination).setStatus(new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status, destStatus}, status.getMessage(), e));
 			}
 		} finally {
 			try {
