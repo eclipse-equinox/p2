@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -42,7 +43,7 @@ public class Publisher {
 	 */
 	public static IMetadataRepository createMetadataRepository(URI location, String name, boolean append, boolean compress) throws ProvisionException {
 		try {
-			IMetadataRepository result = loadMetadataRepository(location, true);
+			IMetadataRepository result = loadMetadataRepository(location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (!append)
@@ -70,15 +71,16 @@ public class Publisher {
 	/**
 	 * Load a metadata repository from the given location.
 	 * @param location the URI location of the repo
+	 * @param modifiable whether to ask the manager for a modifiable repository
 	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository loadMetadataRepository(URI location, boolean removeFromManager) throws ProvisionException {
+	public static IMetadataRepository loadMetadataRepository(URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		boolean existing = manager.contains(location);
 
-		IMetadataRepository result = manager.loadRepository(location, null);
+		IMetadataRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
 		if (!existing && result != null)
 			manager.removeRepository(result.getLocation());
 		return result;
@@ -98,7 +100,7 @@ public class Publisher {
 	 */
 	public static IArtifactRepository createArtifactRepository(URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		try {
-			IArtifactRepository result = loadArtifactRepository(location, true);
+			IArtifactRepository result = loadArtifactRepository(location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (reusePackedFiles)
@@ -129,15 +131,16 @@ public class Publisher {
 	/**
 	 * Load an artifact repository from the given location.
 	 * @param location the URI location of the repo
+	 * @param modifiable whether to ask the manager for a modifiable repository
 	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository loadArtifactRepository(URI location, boolean removeFromManager) throws ProvisionException {
+	public static IArtifactRepository loadArtifactRepository(URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
 		boolean existing = manager.contains(location);
 
-		IArtifactRepository result = manager.loadRepository(location, null);
+		IArtifactRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
 		if (!existing && removeFromManager)
 			manager.removeRepository(location);
 		return result;
