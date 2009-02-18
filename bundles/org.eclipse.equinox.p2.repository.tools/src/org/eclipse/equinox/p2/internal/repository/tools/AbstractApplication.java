@@ -20,9 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractApplication {
 
@@ -85,7 +85,7 @@ public abstract class AbstractApplication {
 				URI repoLocation = (URI) iter.next();
 				if (!artifactRepositoryManager.contains(repoLocation))
 					artifactReposToRemove.add(repoLocation);
-				artifactRepositoryManager.loadRepository(repoLocation, progress);
+				artifactRepositoryManager.loadRepository(repoLocation, 0, progress);
 			}
 		}
 
@@ -95,7 +95,7 @@ public abstract class AbstractApplication {
 				URI repoLocation = (URI) iter.next();
 				if (!metadataRepositoryManager.contains(repoLocation))
 					metadataReposToRemove.add(repoLocation);
-				metadataRepositoryManager.loadRepository(repoLocation, progress);
+				metadataRepositoryManager.loadRepository(repoLocation, 0, progress);
 			}
 		}
 
@@ -117,21 +117,22 @@ public abstract class AbstractApplication {
 		try {
 			if (mgr.contains(toInit.getRepoLocation()))
 				metadataReposToRemove.add(toInit.getRepoLocation());
-			IMetadataRepository repository = mgr.loadRepository(toInit.getRepoLocation(), null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_destinationNotModifiable, toInit.getRepoLocation().toString()));
-			if (toInit.getName() != null)
-				repository.setName(toInit.getName());
-			if (!toInit.isAppend())
-				repository.removeAll();
-			return repository;
+			IMetadataRepository repository = mgr.loadRepository(toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			if (repository != null && repository.isModifiable()) {
+				if (toInit.getName() != null)
+					repository.setName(toInit.getName());
+				if (!toInit.isAppend())
+					repository.removeAll();
+				return repository;
+			}
 		} catch (ProvisionException e) {
 			//fall through and create a new repository below
 		}
+
 		IMetadataRepository source = null;
 		try {
 			if (toInit.getFormat() != null)
-				source = mgr.loadRepository(URIUtil.fromString(toInit.getFormat()), null);
+				source = mgr.loadRepository(URIUtil.fromString(toInit.getFormat()), 0, null);
 		} catch (ProvisionException e) {
 			//Ignore.
 		} catch (URISyntaxException e) {
@@ -146,21 +147,21 @@ public abstract class AbstractApplication {
 		try {
 			if (mgr.contains(toInit.getRepoLocation()))
 				artifactReposToRemove.add(toInit.getRepoLocation());
-			IArtifactRepository repository = mgr.loadRepository(toInit.getRepoLocation(), null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_destinationNotModifiable, toInit.getRepoLocation().toString()));
-			if (toInit.getName() != null)
-				repository.setName(toInit.getName());
-			if (!toInit.isAppend())
-				repository.removeAll();
-			return repository;
+			IArtifactRepository repository = mgr.loadRepository(toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			if (repository != null && repository.isModifiable()) {
+				if (toInit.getName() != null)
+					repository.setName(toInit.getName());
+				if (!toInit.isAppend())
+					repository.removeAll();
+				return repository;
+			}
 		} catch (ProvisionException e) {
 			//fall through and create a new repository below
 		}
 		IArtifactRepository source = null;
 		try {
 			if (toInit.getFormat() != null)
-				source = mgr.loadRepository(URIUtil.fromString(toInit.getFormat()), null);
+				source = mgr.loadRepository(URIUtil.fromString(toInit.getFormat()), 0, null);
 		} catch (ProvisionException e) {
 			//Ignore.
 		} catch (URISyntaxException e) {
