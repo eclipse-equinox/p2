@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -172,7 +172,6 @@ public class MetadataRepositoryIO {
 	private class Parser extends MetadataParser implements XMLConstants {
 
 		private IMetadataRepository theRepository = null;
-		protected Class theRepositoryClass = null;
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
@@ -205,10 +204,6 @@ public class MetadataRepositoryIO {
 
 		public IMetadataRepository getRepository() {
 			return theRepository;
-		}
-
-		public Class getRepositoryClass() {
-			return theRepositoryClass;
 		}
 
 		protected Object getRootObject() {

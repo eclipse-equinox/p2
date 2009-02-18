@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,10 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.xml.sax.*;
 
 /**
@@ -218,10 +216,6 @@ public class SimpleArtifactRepositoryIO {
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
-		}
-
-		public void parse(File file) throws IOException {
-			parse(new FileInputStream(file));
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {
@@ -421,10 +415,6 @@ public class SimpleArtifactRepositoryIO {
 				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 				// TODO: resolve access restriction on ArtifactKey construction
 				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
-			}
-
-			public ArtifactDescriptor getArtifact() {
-				return currentArtifact;
 			}
 
 			public void startElement(String name, Attributes attributes) {
