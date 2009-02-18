@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 
@@ -109,13 +110,13 @@ public class MirrorApplication implements IApplication {
 		destinationLoaded = getManager().contains(destinationLocation);
 
 		//must execute before initializeDestination is called
-		source = getManager().loadRepository(sourceLocation, null);
+		source = getManager().loadRepository(sourceLocation, 0, null);
 		destination = initializeDestination();
 
 		if (baselineLocation != null) {
 			baselineLoaded = getManager().contains(baselineLocation);
 			try {
-				baseline = getManager().loadRepository(baselineLocation, null);
+				baseline = getManager().loadRepository(baselineLocation, 0, null);
 			} catch (ProvisionException e) {
 				// catch the exception and log it. we will continue without doing a baseline comparison
 				System.err.println("Error occurred while trying to load baseline repository.");
@@ -126,14 +127,14 @@ public class MirrorApplication implements IApplication {
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
 		try {
-			IArtifactRepository repository = getManager().loadRepository(destinationLocation, null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_destinationNotModifiable, destinationLocation));
-			if (destinationName != null)
-				repository.setName(destinationName);
-			if (!append)
-				repository.removeAll();
-			return repository;
+			IArtifactRepository repository = getManager().loadRepository(destinationLocation, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			if (repository != null && repository.isModifiable()) {
+				if (destinationName != null)
+					repository.setName(destinationName);
+				if (!append)
+					repository.removeAll();
+				return repository;
+			}
 		} catch (ProvisionException e) {
 			//fall through and create a new repository below
 		}

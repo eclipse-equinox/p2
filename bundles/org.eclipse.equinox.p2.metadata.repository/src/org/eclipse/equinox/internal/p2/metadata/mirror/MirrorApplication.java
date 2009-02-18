@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 
@@ -86,7 +87,7 @@ public class MirrorApplication implements IApplication {
 		destinationLoaded = getManager().contains(destinationLocation);
 
 		//must execute before initializeDestination is called
-		source = getManager().loadRepository(sourceLocation, null);
+		source = getManager().loadRepository(sourceLocation, 0, null);
 		destination = initializeDestination();
 	}
 
@@ -109,14 +110,14 @@ public class MirrorApplication implements IApplication {
 
 	private IMetadataRepository initializeDestination() throws ProvisionException {
 		try {
-			IMetadataRepository repository = getManager().loadRepository(destinationLocation, null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException("Metadata repository not modifiable: " + destinationLocation); //$NON-NLS-1$
-			if (destinationName != null)
-				repository.setName(destinationName);
-			if (!append)
-				repository.removeAll();
-			return repository;
+			IMetadataRepository repository = getManager().loadRepository(destinationLocation, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			if (repository != null && repository.isModifiable()) {
+				if (destinationName != null)
+					repository.setName(destinationName);
+				if (!append)
+					repository.removeAll();
+				return repository;
+			}
 		} catch (ProvisionException e) {
 			//fall through and create repo
 		}
