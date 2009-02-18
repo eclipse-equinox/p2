@@ -35,8 +35,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.about.IInstallationPageContainer;
-import org.eclipse.ui.about.InstallationPage;
+import org.eclipse.ui.about.*;
 import org.eclipse.ui.menus.*;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -75,7 +74,7 @@ public class RevertProfilePage extends InstallationPage {
 		factory = new AbstractContributionFactory(pageContainer.getButtonBarURI(), null) {
 
 			public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
-				additions.addContributionItem(new ActionContributionItem(revertAction), null);
+				additions.addContributionItem(new ActionContributionItem(revertAction), new ActiveInstallationPageExpression(RevertProfilePage.this));
 			}
 		};
 		menuService.addContributionFactory(factory);
@@ -179,7 +178,7 @@ public class RevertProfilePage extends InstallationPage {
 					return;
 				boolean finish = revert();
 				if (finish) {
-					pageContainer.close();
+					pageContainer.closeContainer();
 				}
 			}
 		};

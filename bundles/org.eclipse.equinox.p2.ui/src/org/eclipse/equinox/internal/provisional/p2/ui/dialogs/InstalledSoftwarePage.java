@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
@@ -28,10 +27,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.about.IInstallationPageContainer;
-import org.eclipse.ui.about.InstallationPage;
+import org.eclipse.ui.about.*;
 import org.eclipse.ui.menus.*;
 import org.eclipse.ui.services.IServiceLocator;
 
@@ -72,6 +71,8 @@ public class InstalledSoftwarePage extends InstallationPage {
 		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
 		composite.setLayoutData(gd);
 		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
 		composite.setLayout(layout);
 
 		// Table of installed IU's
@@ -83,20 +84,12 @@ public class InstalledSoftwarePage extends InstallationPage {
 
 		});
 
-		Group group = new Group(composite, SWT.NONE);
-		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
-		layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		group.setLayout(layout);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
 		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
 
-		detailsArea = new Text(group, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
+		detailsArea = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
+		detailsArea.setBackground(detailsArea.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		detailsArea.setLayoutData(gd);
 
 		setControl(composite);
@@ -111,6 +104,7 @@ public class InstalledSoftwarePage extends InstallationPage {
 		factory = new AbstractContributionFactory(pageContainer.getButtonBarURI(), null) {
 
 			public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
+				ActiveInstallationPageExpression whenPageActive = new ActiveInstallationPageExpression(InstalledSoftwarePage.this);
 				// For the update action, we create a custom selection provider that will interpret no
 				// selection as checking for updates to everything.
 				// We also override the run method to close the containing dialog
@@ -143,24 +137,24 @@ public class InstalledSoftwarePage extends InstallationPage {
 					public void run() {
 						super.run();
 						if (getReturnCode() == Window.OK)
-							pageContainer.close();
+							pageContainer.closeContainer();
 					}
 				};
-				additions.addContributionItem(new ActionContributionItem(action), null);
+				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
 
 				// Uninstall action
 				action = new UninstallAction(Policy.getDefault(), installedIUGroup.getStructuredViewer(), profileId) {
 					public void run() {
 						super.run();
 						if (getReturnCode() == Window.OK)
-							pageContainer.close();
+							pageContainer.closeContainer();
 					}
 				};
-				additions.addContributionItem(new ActionContributionItem(action), null);
+				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
 
 				// Properties action
 				action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
-				additions.addContributionItem(new ActionContributionItem(action), null);
+				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
 			}
 		};
 		menuService.addContributionFactory(factory);

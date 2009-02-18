@@ -107,15 +107,6 @@
             </command>
                         
       </menuContribution>
-      <menuContribution
-            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.install">
-            <command
-                  commandId="org.eclipse.ui.help.installationDialog"
-            	  mnemonic="%TempInstallView.mnemonic"
-                  id="org.eclipse.equinox.p2.ui.sdk.tempInstallInfo">
-            </command>
-                        
-      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.activities">
@@ -153,12 +144,12 @@
           <page
             name="%installedSoftwarePage"
             class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
+            id="10.org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
           </page>
           <page
             name="%installHistoryPage"
             class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertProfilePage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
+            id="11.org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
           </page>
           
       </extension>
