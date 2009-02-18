@@ -55,6 +55,11 @@ public interface IRepositoryManager {
 	public static final int REPOSITORIES_SYSTEM = 1 << 0;
 
 	/**
+	 * Constant used to indicate that a repository should be modifiable
+	 */
+	public static final int REPOSITORY_HINT_MODIFIABLE = 1 << 0;
+
+	/**
 	 * Adds the repository at the given location to the list of repositories tracked by 
 	 * this repository manager.
 	 * <p>

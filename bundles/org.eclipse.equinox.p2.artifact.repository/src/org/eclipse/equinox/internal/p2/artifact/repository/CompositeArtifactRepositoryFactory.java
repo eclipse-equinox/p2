@@ -21,12 +21,13 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
-	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 		long time = 0;
 		final String debugMsg = "Restoring artifact repository "; //$NON-NLS-1$
@@ -49,6 +50,11 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 					compress = false;
 				}
 			} else {
+				//not local, return null if the caller wanted a modifiable repo
+				if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+					return null;
+				}
+
 				//download to local temp file
 				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION);
 				try {

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
@@ -38,7 +39,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 		// where one already exists
 		boolean failed = false;
 		try {
-			new SimpleArtifactRepositoryFactory().load(repoLocation, null);
+			new SimpleArtifactRepositoryFactory().load(repoLocation, 0, null);
 			failed = true;
 		} catch (ProvisionException e) {
 			// expected
@@ -54,7 +55,12 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		//return null if the caller wanted a modifiable repo
+		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+			return null;
+		}
+
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
@@ -65,7 +71,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// TODO proper progress monitoring
 		try {
-			IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().load(repoLocation, null);
+			IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().load(repoLocation, flags, null);
 			return new ExtensionLocationArtifactRepository(location, repo, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationArtifactRepository.TYPE, null);

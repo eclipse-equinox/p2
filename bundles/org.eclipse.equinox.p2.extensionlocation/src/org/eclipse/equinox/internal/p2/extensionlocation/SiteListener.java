@@ -73,11 +73,11 @@ public class SiteListener extends DirectoryChangeListener {
 			if (metadataRepository == null) {
 				artifactRepository.reload();
 				ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
-				metadataRepository = (ExtensionLocationMetadataRepository) factory.load(artifactRepository.getLocation(), null);
+				metadataRepository = (ExtensionLocationMetadataRepository) factory.load(artifactRepository.getLocation(), 0, null);
 			} else if (artifactRepository == null) {
 				metadataRepository.reload();
 				ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
-				artifactRepository = (ExtensionLocationArtifactRepository) factory.load(metadataRepository.getLocation(), null);
+				artifactRepository = (ExtensionLocationArtifactRepository) factory.load(metadataRepository.getLocation(), 0, null);
 			}
 		} catch (ProvisionException e) {
 			// TODO need proper error handling here.  What should we do if there is a failure

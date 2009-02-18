@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
@@ -49,7 +50,12 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		return Status.OK_STATUS;
 	}
 
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		//return null if the caller wanted a modifiable repo
+		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+			return null;
+		}
+
 		IMetadataRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
 		return new UpdateSiteMetadataRepository(location, repository);
@@ -59,7 +65,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		URI localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
-			return factory.load(localRepositoryURL, monitor);
+			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}

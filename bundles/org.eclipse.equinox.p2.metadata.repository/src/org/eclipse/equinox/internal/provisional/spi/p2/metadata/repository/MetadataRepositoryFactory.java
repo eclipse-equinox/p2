@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 /**
@@ -53,8 +54,14 @@ public abstract class MetadataRepositoryFactory {
 	 * repository of this type at the given location, and the repository manager is free
 	 * to try again with a different repository factory.
 	 * </p>
-	 * 
+	 * <p>
+	 * The flags passed in should be taken as a hint for the type of repository to load.  If
+	 * the factory knows it will not load a repository that satisfies these hints, it can fail
+	 * fast and return null.<br>
+	 * See {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE}
+	 * </p>
 	 * @param location The location of the repository to load
+	 * @param flags to consider while loading the repository
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The loaded metadata repository
@@ -64,7 +71,7 @@ public abstract class MetadataRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public abstract IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public abstract IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Validates a candidate repository URL and returns a status indicating the

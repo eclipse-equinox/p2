@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 
@@ -23,7 +24,11 @@ public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory 
 		return null;
 	}
 
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		//return null if the caller wanted a modifiable repo
+		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+			return null;
+		}
 		return new ProfileMetadataRepository(location, monitor);
 	}
 

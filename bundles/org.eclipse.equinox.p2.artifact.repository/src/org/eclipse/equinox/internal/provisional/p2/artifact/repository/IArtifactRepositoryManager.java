@@ -86,6 +86,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * load attempts.
 	 * </p>
 	 * 
+	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
 	 * @param location the location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
@@ -97,6 +98,37 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * </ul>
 	 */
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Loads the repository at the given location.  The location is expected to contain 
+	 * data that describes a valid artifact repository of a known type.  If this manager
+	 * already knows a repository at the given location then that repository is returned.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 * 
+	 * <p>
+	 * The flags passed in should be taken as a hint for the type of repository to load.  If
+	 * the manager will not load a repository that satisfies these hints, it can fail
+	 * fast.<br>
+	 * See {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE}
+	 * </p>
+	 * @param location the location in which to look for a repository description
+	 * @param flags - flags to consider when loading
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return a repository object for the given location
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
+	 */
+	public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards

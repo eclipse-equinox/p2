@@ -22,11 +22,12 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
-	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 		long time = 0;
 		final String debugMsg = "Restoring artifact repository "; //$NON-NLS-1$
@@ -49,6 +50,11 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 					compress = false;
 				}
 			} else {
+				//not local, return null if the caller wanted a modifiable repo
+				if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+					return null;
+				}
+
 				//download to local temp file
 				localFile = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
 				try {

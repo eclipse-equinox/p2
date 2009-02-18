@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
@@ -72,7 +73,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
-			validateAndLoad(location, false, monitor);
+			validateAndLoad(location, false, 0, monitor);
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		}
@@ -82,11 +83,11 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
-		return validateAndLoad(location, true, monitor);
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		return validateAndLoad(location, true, flags, monitor);
 	}
 
-	protected IMetadataRepository validateAndLoad(URI location, boolean doLoad, IProgressMonitor monitor) throws ProvisionException {
+	protected IMetadataRepository validateAndLoad(URI location, boolean doLoad, int flags, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {
@@ -95,6 +96,10 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 		}
 		SubMonitor sub = SubMonitor.convert(monitor, 400);
 		try {
+			//non local repos are not modifiable
+			if (!PROTOCOL_FILE.equals(location.getScheme()) && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0)
+				return null;
+
 			File localFile = getLocalFile(location, sub.newChild(300));
 			InputStream inStream = new BufferedInputStream(new FileInputStream(localFile));
 			JarInputStream jarStream = null;

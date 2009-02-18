@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -46,7 +47,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 	public void testNonFileURL() {
 		try {
 			URI nonFileURL = new URI("http://www.eclipse.org");
-			factory.load(nonFileURL, getMonitor());
+			factory.load(nonFileURL, 0, getMonitor());
 			fail("0.1");
 		} catch (ProvisionException e) {
 			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
@@ -59,7 +60,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File directory = new File(tempDirectory, "nonexistent");
 		delete(directory);
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 			fail("0.1");
 		} catch (ProvisionException e) {
 			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
@@ -70,7 +71,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File file = new File(tempDirectory, "exists.file");
 		try {
 			file.createNewFile();
-			factory.load(file.toURI(), getMonitor());
+			factory.load(file.toURI(), 0, getMonitor());
 			fail("0.1");
 		} catch (ProvisionException e) {
 			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
@@ -85,7 +86,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 			fail("0.1");
 		} catch (ProvisionException e) {
 			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
@@ -98,7 +99,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(directory, "plugins").mkdir();
 		new File(directory, "features").mkdir();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.1");
 		}
@@ -109,7 +110,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		new File(directory, "features").mkdir();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.1");
 		}
@@ -120,7 +121,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		new File(directory, "plugins").mkdir();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.1");
 		}
@@ -134,7 +135,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "plugins").mkdir();
 		new File(eclipseDirectory, "features").mkdir();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.1");
 		}
@@ -148,7 +149,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "plugins").mkdir();
 		new File(eclipseDirectory, "features").mkdir();
 		try {
-			factory.load(directory.toURI(), getMonitor());
+			factory.load(directory.toURI(), 0, getMonitor());
 			fail("0.1");
 		} catch (ProvisionException e) {
 			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
@@ -161,7 +162,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
 		try {
-			IMetadataRepository repo = factory.load(location, getMonitor());
+			IMetadataRepository repo = factory.load(location, 0, getMonitor());
 			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
 				fail("2.99");
 		} catch (ProvisionException ex) {
@@ -177,7 +178,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
 		URI location = directory.toURI();
 		try {
-			IMetadataRepository repo = factory.load(location, getMonitor());
+			IMetadataRepository repo = factory.load(location, 0, getMonitor());
 			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 2)
 				fail("3.0");
 		} catch (ProvisionException ex) {
@@ -193,7 +194,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		URI location = directory.toURI();
 		try {
-			IMetadataRepository repo = factory.load(location, getMonitor());
+			IMetadataRepository repo = factory.load(location, 0, getMonitor());
 			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 1)
 				fail("3.0");
 		} catch (ProvisionException ex) {
@@ -207,9 +208,22 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File eclipseDirectory = new File(directory, "eclipse");
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		try {
-			IMetadataRepository repo = factory.load(directory.toURI(), getMonitor());
+			IMetadataRepository repo = factory.load(directory.toURI(), 0, getMonitor());
 			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
 				fail("3.0");
+		} catch (ProvisionException e) {
+			fail("2.0");
+		}
+	}
+
+	public void testEclipseBaseModifiableRepository() {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File eclipseDirectory = new File(directory, "eclipse");
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
+		try {
+			IMetadataRepository repo = factory.load(directory.toURI(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, getMonitor());
+			assertNull("3.0", repo);
 		} catch (ProvisionException e) {
 			fail("2.0");
 		}
@@ -218,7 +232,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 	public void testUpdateSiteXMLURL() {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		try {
-			factory.load(site.toURI(), getMonitor());
+			factory.load(site.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
 				return;
@@ -229,7 +243,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 	public void testXXXSiteXXXXMLURL() {
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		try {
-			factory.load(site.toURI(), getMonitor());
+			factory.load(site.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
 			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
 				return;

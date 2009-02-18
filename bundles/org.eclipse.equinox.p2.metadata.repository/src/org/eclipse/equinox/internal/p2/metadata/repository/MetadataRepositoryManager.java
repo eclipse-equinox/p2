@@ -47,11 +47,11 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return factory.create(location, name, type, properties);
 	}
 
-	protected IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException {
+	protected IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
-		return factory.load(location, monitor.newChild(10));
+		return factory.load(location, flags, monitor.newChild(10));
 	}
 
 	protected String getBundleId() {
@@ -81,8 +81,15 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return IRepository.TYPE_METADATA;
 	}
 
+	/**
+	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
+	 */
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		return (IMetadataRepository) loadRepository(location, monitor, null);
+		return loadRepository(location, 0, monitor);
+	}
+
+	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		return (IMetadataRepository) loadRepository(location, monitor, null, flags);
 	}
 
 	/**

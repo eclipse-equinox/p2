@@ -177,7 +177,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		try {
-			IRepository result = loadRepository(location, monitor, null);
+			IRepository result = loadRepository(location, monitor, null, 0);
 			setEnabled(location, wasEnabled);
 			return result;
 		} catch (ProvisionException e) {
@@ -244,7 +244,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			boolean loaded = false;
 			try {
 				//repository should not already exist
-				loadRepository(location, (IProgressMonitor) null, type);
+				loadRepository(location, (IProgressMonitor) null, type, 0);
 				loaded = true;
 			} catch (ProvisionException e) {
 				//expected - fall through and create the new repository
@@ -341,7 +341,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Loads and returns a repository using the given repository factory extension. Returns
 	 * null if no factory could be found associated with that extension.
 	 */
-	protected abstract IRepository factoryLoad(URI location, IExtension extension, SubMonitor monitor) throws ProvisionException;
+	protected abstract IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException;
 
 	protected void fail(URI location, int code) throws ProvisionException {
 		String msg = null;
@@ -558,7 +558,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type) throws ProvisionException {
+	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type, int flags) throws ProvisionException {
 		boolean added = false;
 		IRepository result = null;
 
@@ -579,7 +579,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 					if (sub.isCanceled())
 						throw new OperationCanceledException();
 					try {
-						result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+						result = loadRepository(location, suffixes[i], type, flags, sub.newChild(100));
 					} catch (ProvisionException e) {
 						failure = e;
 						break;
@@ -614,13 +614,15 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return result;
 	}
 
-	private IRepository loadRepository(URI location, String suffix, String type, SubMonitor monitor) throws ProvisionException {
+	private IRepository loadRepository(URI location, String suffix, String type, int flags, SubMonitor monitor) throws ProvisionException {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++)
 			try {
-				return factoryLoad(location, providers[i], monitor);
+				IRepository repo = factoryLoad(location, providers[i], flags, monitor);
+				if (repo != null)
+					return repo;
 			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
 					throw e;

@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 
 /**
  * An artifact repository factory is responsible for creating and loading instances
@@ -53,8 +54,14 @@ public abstract class ArtifactRepositoryFactory {
 	 * repository of this type at the given location, and the repository manager is free
 	 * to try again with a different repository factory.
 	 * </p>
-	 * 
+	 * <p>
+	 * The flags passed in should be taken as a hint for the type of repository to load.  If
+	 * the factory knows it will not load a repository that satisfies these hints, it can fail
+	 * fast and return null.
+	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
+	 * </p>
 	 * @param location the location in which to look for a repository description
+	 * @param flags to consider while loading the repository
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return a repository object for the given location
@@ -64,5 +71,5 @@ public abstract class ArtifactRepositoryFactory {
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public abstract IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public abstract IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 }

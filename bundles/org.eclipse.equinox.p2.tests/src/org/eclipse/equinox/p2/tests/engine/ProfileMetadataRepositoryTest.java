@@ -75,7 +75,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		ProfileMetadataRepository repo = null;
 		try {
-			repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), getMonitor());
+			repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), 0, getMonitor());
 		} catch (ProvisionException e1) {
 			fail();
 		}
@@ -106,7 +106,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		ProfileMetadataRepository repo = null;
 		try {
-			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), getMonitor());
+			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
 		} catch (ProvisionException e1) {
 			fail();
 		}

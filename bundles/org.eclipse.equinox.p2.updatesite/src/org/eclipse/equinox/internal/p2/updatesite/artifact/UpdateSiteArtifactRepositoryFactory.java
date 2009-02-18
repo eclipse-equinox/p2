@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
@@ -40,7 +41,11 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IArtifactRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		//return null if the caller wanted a modifiable repo
+		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+			return null;
+		}
 		IArtifactRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
 		return new UpdateSiteArtifactRepository(location, repository);
@@ -50,7 +55,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		URI localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
-			return factory.load(localRepositoryURL, monitor);
+			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}

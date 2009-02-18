@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
@@ -37,7 +38,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 		// where one already exists
 		boolean failed = false;
 		try {
-			new SimpleMetadataRepositoryFactory().load(repoLocation, null);
+			new SimpleMetadataRepositoryFactory().load(repoLocation, 0, null);
 			failed = true;
 		} catch (ProvisionException e) {
 			// expected
@@ -53,7 +54,12 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		//return null if the caller wanted a modifiable repo
+		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
+			return null;
+		}
+
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())
@@ -64,7 +70,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// TODO proper progress monitoring
 		try {
-			IMetadataRepository repository = new SimpleMetadataRepositoryFactory().load(repoLocation, null);
+			IMetadataRepository repository = new SimpleMetadataRepositoryFactory().load(repoLocation, flags, null);
 			return new ExtensionLocationMetadataRepository(location, repository, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationMetadataRepository.TYPE, null);

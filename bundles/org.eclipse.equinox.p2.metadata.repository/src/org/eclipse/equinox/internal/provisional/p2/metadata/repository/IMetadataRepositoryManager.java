@@ -81,8 +81,38 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>There is no existing repository at that location.</li>
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
+	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
 	 */
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Loads a repository corresponding to the given URL.  If a repository has
+	 * previously been loaded at the given location, the same cached repository
+	 * may be returned.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 * <p>
+	 * The flags passed in should be taken as a hint for the type of repository to load.  If
+	 * the manager will not load a repository that satisfies these hints, it can fail
+	 * fast.<br>
+	 * See {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE}
+	 * </p>
+	 * @param location The location of the repository to load
+	 * @param flags - flags to consider when loading the repository
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The loaded metadata repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 */
+	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor montiro) throws ProvisionException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards
