@@ -38,10 +38,11 @@ import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Application implements IApplication {
 	private static final Integer EXIT_ERROR = new Integer(13);
-	static private String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
-	static private String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
-	static private String FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
-	static private String SIMPLE_CONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
+	static private final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
+	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
+	static private final String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
+	static private final String FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
+	static private final String SIMPLE_CONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 
 	public static final int COMMAND_INSTALL = 0;
 	public static final int COMMAND_UNINSTALL = 1;
@@ -331,7 +332,8 @@ public class Application implements IApplication {
 			}
 
 			if (opt.equalsIgnoreCase("-version")) { //$NON-NLS-1$
-				version = new Version(arg);
+				if (arg != null && !arg.startsWith(ANT_PROPERTY_PREFIX))
+					version = new Version(arg);
 			}
 
 			if (opt.equalsIgnoreCase(COMMAND_NAMES[COMMAND_UNINSTALL])) {
