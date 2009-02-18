@@ -132,7 +132,13 @@ public class Util {
 			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
 				try {
 					String repo = (String) iterator.next();
-					URI repoLocation = new URI(repo);
+					URI repoLocation;
+					try {
+						repoLocation = new URI(repo);
+					} catch (URISyntaxException e) {
+						//in 1.0 we wrote unencoded URL strings, so try as an unencoded string
+						repoLocation = URIUtil.fromString(repo);
+					}
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
 						bundleRepositories.add(repository);

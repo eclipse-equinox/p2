@@ -104,4 +104,12 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException(Messages.artifact_write_unsupported);
 	}
+
+	/**
+	 * Exposed for testing and debugging purposes.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public Collection testGetBundleRepositories() {
+		return bundleRepositories;
+	}
 }
