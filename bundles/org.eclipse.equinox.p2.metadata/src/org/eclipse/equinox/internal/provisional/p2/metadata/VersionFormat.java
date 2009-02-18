@@ -425,14 +425,6 @@ public class VersionFormat implements Serializable {
 			return fragments[0].getFirstLeaf();
 		}
 
-		Fragment[] getFragments() {
-			return fragments;
-		}
-
-		boolean isArray() {
-			return array;
-		}
-
 		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
 			if (array) {
 				ArrayList subSegs = new ArrayList();
@@ -503,10 +495,6 @@ public class VersionFormat implements Serializable {
 		LiteralFragment(Qualifier qualifier, String string) {
 			super(qualifier);
 			this.string = string;
-		}
-
-		String getString() {
-			return string;
 		}
 
 		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
