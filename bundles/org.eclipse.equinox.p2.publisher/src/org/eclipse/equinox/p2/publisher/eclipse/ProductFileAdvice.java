@@ -27,6 +27,8 @@ import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
  */
 public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
 
+	private final static String OSGI_SPLASH_PATH = "osgi.splashPath"; //$NON-NLS-1$
+	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
 	private IProductDescriptor product;
 	private String configSpec;
 	private String os;
@@ -143,7 +145,7 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 		result.setProperty("eclipse.product", product.getId()); //$NON-NLS-1$
 		String location = getSplashLocation();
 		if (location != null)
-			result.setProperty("osgi.splashPath", location); //$NON-NLS-1$
+			result.setProperty(OSGI_SPLASH_PATH, SPLASH_PREFIX + location); //$NON-NLS-1$
 		return result;
 	}
 

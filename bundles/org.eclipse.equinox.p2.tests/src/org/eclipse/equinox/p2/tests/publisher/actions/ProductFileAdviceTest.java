@@ -113,7 +113,7 @@ public class ProductFileAdviceTest extends TestCase {
 		assertEquals("1.4", "true", properties.get("osgi.sharedConfiguration.area.readOnly"));
 		assertEquals("1.5", "/d/sw/java64/jdk1.6.0_03/bin/java", properties.get("eclipse.vm"));
 		assertEquals("1.6", "test.product", properties.get("eclipse.product"));
-		assertEquals("1.1", "org.eclipse.equinox.p2.tests", properties.get("osgi.splashPath"));
+		assertEquals("1.1", "platform:/base/plugins/org.eclipse.equinox.p2.tests", properties.get("osgi.splashPath"));
 
 		properties = productFileAdvice2.getProperties();
 		assertEquals("2.0", 0, properties.size());
