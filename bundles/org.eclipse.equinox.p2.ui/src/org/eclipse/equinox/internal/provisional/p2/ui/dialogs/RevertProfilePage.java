@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ICopyable;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileSnapshots;
 import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
@@ -31,6 +33,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -43,11 +46,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * @since 3.4
  */
-public class RevertProfilePage extends InstallationPage {
+public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TableViewer configsViewer;
 	TreeViewer configContentsViewer;
+	IUDetailsLabelProvider labelProvider;
 	IAction revertAction;
 	String profileId;
 	IMenuService menuService;
@@ -141,6 +145,7 @@ public class RevertProfilePage extends InstallationPage {
 			}
 
 		});
+		CopyUtils.activateCopy(this, configsViewer.getControl());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		configsViewer.getControl().setLayoutData(gd);
 	}
@@ -156,18 +161,19 @@ public class RevertProfilePage extends InstallationPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigContentsLabel);
-		configContentsViewer = new TreeViewer(composite, SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configContentsViewer = new TreeViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configContentsViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
 		configContentsViewer.setComparer(new ProvElementComparer());
 		configContentsViewer.setContentProvider(new DeferredQueryContentProvider());
 
 		// columns before labels or you get a blank table
 		setTreeColumns(configContentsViewer.getTree());
-		configContentsViewer.setLabelProvider(new IUDetailsLabelProvider());
+		labelProvider = new IUDetailsLabelProvider();
+		configContentsViewer.setLabelProvider(labelProvider);
 
 		gd = new GridData(GridData.FILL_BOTH);
 		configContentsViewer.getControl().setLayoutData(gd);
-
+		CopyUtils.activateCopy(this, configContentsViewer.getControl());
 	}
 
 	private void createRevertAction() {
@@ -206,6 +212,7 @@ public class RevertProfilePage extends InstallationPage {
 
 	private void setTreeColumns(Tree tree) {
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
+		tree.setHeaderVisible(true);
 
 		for (int i = 0; i < columns.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
@@ -274,5 +281,29 @@ public class RevertProfilePage extends InstallationPage {
 	public void dispose() {
 		super.dispose();
 		menuService.removeContributionFactory(factory);
+	}
+
+	public void copyToClipboard(Control activeControl) {
+		String text = ""; //$NON-NLS-1$
+		if (activeControl == configContentsViewer.getControl()) {
+			text = CopyUtils.getIndentedClipboardText(((IStructuredSelection) configContentsViewer.getSelection()).toArray(), labelProvider);
+		} else if (activeControl == configsViewer.getControl()) {
+			Object[] elements = ((IStructuredSelection) configsViewer.getSelection()).toArray();
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0; i < elements.length; i++) {
+				if (elements[i] instanceof RollbackProfileElement) {
+					if (i > 0)
+						buffer.append(CopyUtils.NEWLINE);
+					buffer.append(((RollbackProfileElement) elements[i]).getLabel(elements[i]));
+				}
+			}
+			text = buffer.toString();
+		} else
+			return;
+		if (text.length() == 0)
+			return;
+		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
+		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 }
