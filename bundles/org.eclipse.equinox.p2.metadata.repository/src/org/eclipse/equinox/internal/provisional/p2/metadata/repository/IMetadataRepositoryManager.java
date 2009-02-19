@@ -112,7 +112,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor montiro) throws ProvisionException;
+	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards
