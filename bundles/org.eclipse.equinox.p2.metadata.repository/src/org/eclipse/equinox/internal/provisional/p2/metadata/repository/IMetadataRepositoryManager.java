@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,6 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>There is no existing repository at that location.</li>
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
-	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
 	 */
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
@@ -97,12 +96,11 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * </p>
 	 * <p>
 	 * The flags passed in should be taken as a hint for the type of repository to load.  If
-	 * the manager will not load a repository that satisfies these hints, it can fail
-	 * fast.<br>
-	 * See {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE}
+	 * the manager cannot load a repository that satisfies these hints, it can fail fast.
 	 * </p>
 	 * @param location The location of the repository to load
-	 * @param flags - flags to consider when loading the repository
+	 * @param flags - bit-wise or of flags to consider when loading the repository
+	 *  (currently only {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE} is supported)
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The loaded metadata repository
@@ -111,6 +109,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * <li>There is no existing repository at that location.</li>
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
+	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
 	 */
 	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 

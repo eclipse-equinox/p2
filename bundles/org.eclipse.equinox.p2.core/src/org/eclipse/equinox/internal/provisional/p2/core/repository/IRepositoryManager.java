@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public interface IRepositoryManager {
 	public static final int REPOSITORIES_LOCAL = 1 << 2;
 
 	/**
-	 * Constant used to indicate that non-system repositories are of interest
+	 * Constant used to indicate that non-system repositories are of interest.
 	 * @see IRepository#PROP_SYSTEM
 	 * @see #getKnownRepositories(int)
 	 */
@@ -55,7 +55,9 @@ public interface IRepositoryManager {
 	public static final int REPOSITORIES_SYSTEM = 1 << 0;
 
 	/**
-	 * Constant used to indicate that a repository should be modifiable
+	 * Constant used to indicate that a repository manager should only load the
+	 * repository if the repository is modifiable.
+	 * @see IRepository#isModifiable()
 	 */
 	public static final int REPOSITORY_HINT_MODIFIABLE = 1 << 0;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,6 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * load attempts.
 	 * </p>
 	 * 
-	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
 	 * @param location the location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
@@ -109,15 +108,13 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
-	 * 
 	 * <p>
 	 * The flags passed in should be taken as a hint for the type of repository to load.  If
-	 * the manager will not load a repository that satisfies these hints, it can fail
-	 * fast.<br>
-	 * See {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE}
+	 * the manager cannot load a repository that satisfies these hints, it can fail fast.
 	 * </p>
 	 * @param location the location in which to look for a repository description
-	 * @param flags - flags to consider when loading
+	 * @param flags - bit-wise or of flags to consider when loading the repository
+	 *  (currently only {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE} is supported)
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return a repository object for the given location
