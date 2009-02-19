@@ -73,7 +73,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 			IInstallableUnit groupIU = createGroupIU(feature, childIUs, new PublisherInfo());
 			result.addIU(featureIU, IPublisherResult.ROOT);
 			result.addIU(groupIU, IPublisherResult.ROOT);
-			//			generateSiteReferences(feature, result, info);
+			generateSiteReferences(feature, result, info);
 		}
 	}
 }
