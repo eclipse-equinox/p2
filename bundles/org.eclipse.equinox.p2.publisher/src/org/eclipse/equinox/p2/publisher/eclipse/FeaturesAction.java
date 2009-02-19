@@ -488,7 +488,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo info) {
+	protected void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo info) {
 		//publish feature site references
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many

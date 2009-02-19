@@ -11,7 +11,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.mirror;x-internal:=true
    org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.publisher,
    org.eclipse.equinox.p2.reconciler.dropins,
-   org.eclipse.equinox.p2.ui",
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.updatesite",
  org.eclipse.equinox.internal.p2.metadata.repository.io;x-friends:="org.eclipse.equinox.p2.engine",
  org.eclipse.equinox.internal.provisional.p2.metadata.repository;
   x-friends:="org.eclipse.equinox.p2.console,

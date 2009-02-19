@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
@@ -81,11 +82,13 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
 		IStatus status = generateMetadata(updateSite, repository, monitor);
+		//site references should be published on load
+		if (repository instanceof LocalMetadataRepository)
+			((LocalMetadataRepository) repository).publishRepositoryReferences();
 		if (monitor.isCanceled())
 			throw new OperationCanceledException();
 		if (!status.isOK())
 			throw new ProvisionException(status);
-
 	}
 
 	private IStatus generateMetadata(UpdateSite updateSite, IMetadataRepository repository, IProgressMonitor monitor) {

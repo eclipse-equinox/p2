@@ -115,7 +115,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	/**
 	 * Broadcast discovery events for all repositories referenced by this repository.
 	 */
-	private void publishRepositoryReferences() {
+	public void publishRepositoryReferences() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
