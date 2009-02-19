@@ -44,7 +44,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 			prepareSourceRepos();
 			application.initializeRepos(null);
 			List ius = prepareIUs();
-			if (ius == null || ius.size() == 0)
+			if ((ius == null || ius.size() == 0) && (sourceRepos == null || sourceRepos.isEmpty()))
 				throw new BuildException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
