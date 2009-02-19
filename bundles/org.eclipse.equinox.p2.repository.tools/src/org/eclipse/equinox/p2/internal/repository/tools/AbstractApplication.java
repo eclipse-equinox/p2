@@ -90,8 +90,8 @@ public abstract class AbstractApplication {
 		}
 
 		IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
-		if (sourceArtifactRepositories != null && !sourceArtifactRepositories.isEmpty()) {
-			for (Iterator iter = sourceArtifactRepositories.iterator(); iter.hasNext();) {
+		if (sourceMetadataRepositories != null && !sourceMetadataRepositories.isEmpty()) {
+			for (Iterator iter = sourceMetadataRepositories.iterator(); iter.hasNext();) {
 				URI repoLocation = (URI) iter.next();
 				if (!metadataRepositoryManager.contains(repoLocation))
 					metadataReposToRemove.add(repoLocation);
