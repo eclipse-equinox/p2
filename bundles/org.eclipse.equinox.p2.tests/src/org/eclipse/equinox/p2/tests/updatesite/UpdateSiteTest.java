@@ -476,6 +476,30 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}
 
+	public void testFeatureSiteReferences() throws ProvisionException, URISyntaxException {
+		File site = getTestData("0.1", "/testData/updatesite/siteFeatureReferences");
+		URI siteURI = site.toURI();
+		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
+		URI testDiscoverySite = new URI("http://download.eclipse.org/test/discoverysite");
+
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(manager);
+		manager.removeRepository(testUpdateSite);
+		manager.removeRepository(testDiscoverySite);
+		IMetadataRepository repository = manager.loadRepository(siteURI, 0, getMonitor());
+		try {
+			//wait for site references to be published asynchronously
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			fail("4.99", e);
+		}
+		assertNotNull(repository);
+		assertTrue("1.0", manager.contains(testUpdateSite));
+		assertTrue("1.1", manager.contains(testDiscoverySite));
+		assertFalse("1.2", manager.isEnabled(testUpdateSite));
+		assertFalse("1.3", manager.isEnabled(testDiscoverySite));
+	}
+
 	public void testMetadataRepoCount() {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
