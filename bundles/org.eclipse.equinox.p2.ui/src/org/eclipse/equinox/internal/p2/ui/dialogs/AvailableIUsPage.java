@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -24,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.PropertyDialogAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
@@ -40,7 +40,6 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -69,7 +68,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	AvailableIUGroup availableIUGroup;
 	Composite availableIUButtonBar;
 	Combo repoCombo;
-	Link propLink, repoLink, installLink;
+	Link repoLink, installLink;
 	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox;
 	Text detailsArea;
 	StructuredViewerProvisioningListener profileListener;
@@ -79,6 +78,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Image info, warning, error;
 	int batchCount = 0;
 	URI[] comboRepos;
+	IUDetailsGroup iuDetailsGroup;
 
 	public AvailableIUsPage(Policy policy, String profileId, QueryableMetadataRepositoryManager manager) {
 		super("AvailableSoftwarePage"); //$NON-NLS-1$
@@ -119,7 +119,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		availableIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateDetails();
-				checkPropertyLink();
+				iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 			}
 		});
 
@@ -136,27 +136,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		activateCopy(availableIUGroup.getStructuredViewer().getControl());
 
 		// Details area
-		Group detailsComposite = new Group(composite, SWT.NONE);
-		detailsComposite.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
-		layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		detailsComposite.setLayout(layout);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		detailsComposite.setLayoutData(gd);
-
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
-		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
-
-		detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
-		detailsArea.setLayoutData(gd);
-
-		gd = new GridData(SWT.END, SWT.FILL, true, false);
-		gd.horizontalIndent = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-		propLink = createLink(detailsComposite, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer()), ProvUIMessages.AvailableIUsPage_GotoProperties);
-		propLink.setLayoutData(gd);
+		iuDetailsGroup = new IUDetailsGroup(composite, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH));
+		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		// Controls for filtering/presentation/site selection
 		Composite controlsComposite = new Composite(composite, SWT.NONE);
@@ -349,10 +330,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 	}
 
-	void checkPropertyLink() {
-		propLink.setVisible(availableIUGroup.getSelectedIUElements().length == 1);
-	}
-
 	void validateNextButton() {
 		setPageComplete(availableIUGroup.getCheckedLeafIUs().length > 0);
 	}
@@ -414,7 +391,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (focusControl != null)
 			focusControl.setFocus();
 		updateDetails();
-		checkPropertyLink();
+		iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 		validateNextButton();
 		fillRepoCombo(ALL);
 		setRepoComboDecoration(null);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -48,6 +49,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 	ProvElementContentProvider contentProvider;
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
+	private IUDetailsGroup iuDetailsGroup;
 
 	protected ResolutionWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation initialResolution) {
 		super("ResolutionPage"); //$NON-NLS-1$
@@ -122,11 +124,8 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		createSizingInfo(composite);
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
-		Group group = new Group(sashForm, SWT.NONE);
-		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
-		group.setLayout(new GridLayout());
-
-		createDetailsArea(group);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, treeViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH));
+		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		updateStatus();
 		setControl(sashForm);
@@ -136,14 +135,6 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 
 	protected void createSizingInfo(Composite parent) {
 		// Default is to do nothing
-	}
-
-	protected void createDetailsArea(Composite parent) {
-		detailsArea = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
-		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
-		detailsArea.setLayoutData(data);
 	}
 
 	public boolean performFinish() {
@@ -307,6 +298,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		if (couldNotResolve) {
 			if (iu != null)
 				detail = getIUDescription(iu);
+			iuDetailsGroup.enablePropertyLink(true);
 			return detail;
 		}
 
@@ -320,11 +312,13 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 				return resolutionResult.getSummaryReport();
 
 			// The overall status is not an error, so we may as well just return info about this iu rather than everything.
+			iuDetailsGroup.enablePropertyLink(true);
 			return getIUDescription(iu);
 		}
 
 		//No IU is selected, give the overall report
 		detail = resolutionResult.getSummaryReport();
+		iuDetailsGroup.enablePropertyLink(false);
 		if (detail == null)
 			detail = ""; //$NON-NLS-1$
 		return detail;

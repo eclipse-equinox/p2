@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,10 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -40,6 +40,7 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 	Object[] initialSelections;
 	CheckboxTableViewer tableViewer;
 	Text detailsArea;
+	IUDetailsGroup iuDetailsGroup;
 	ProvElementContentProvider contentProvider;
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
@@ -96,6 +97,7 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateDetails();
+				iuDetailsGroup.enablePropertyLink(!event.getSelection().isEmpty());
 			}
 		});
 
@@ -118,11 +120,8 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		setInitialCheckState();
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
-		Group group = new Group(sashForm, SWT.NONE);
-		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
-		group.setLayout(new GridLayout());
-
-		createDetailsArea(group);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH));
+		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		setControl(sashForm);
 		sashForm.setWeights(new int[] {80, 20});
@@ -134,14 +133,6 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		// and checking to include in the provisioning operation.
 		CheckboxTableViewer v = CheckboxTableViewer.newCheckList(parent, SWT.BORDER | SWT.FULL_SELECTION);
 		return v;
-	}
-
-	protected void createDetailsArea(Composite parent) {
-		detailsArea = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
-		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
-		detailsArea.setLayoutData(data);
 	}
 
 	protected void updateDetails() {
