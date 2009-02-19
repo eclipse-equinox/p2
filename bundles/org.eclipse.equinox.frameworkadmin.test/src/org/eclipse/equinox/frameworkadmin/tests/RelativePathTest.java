@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,11 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
@@ -69,7 +72,7 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2);
 		manipulator.getConfigData().addBundle(bi);
 		manipulator.save(false);
-//		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm());
+		//		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm());
 
 		Manipulator newManipulator = fwkAdmin.getManipulator();
 		LauncherData newLauncherData = newManipulator.getLauncherData();
@@ -79,6 +82,32 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 			manipulator.load();
 		} catch (IllegalStateException e) {
 			//TODO We ignore the framework JAR location not set exception
+		}
+
+	}
+
+	public void testMakeRelative() {
+		URL base = null;
+		try {
+			base = new URL("file:/c:/a/eclipse/");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			fail("0.99");
+		}
+		// data - [0] is the test data and [1] is the expected result
+		String[][] data = new String[][] { //
+		new String[] {"file:c:/b/shared/plugins/bar.jar", "file:../../b/shared/plugins/bar.jar"}, //
+				new String[] {"file:d:/b/shared/plugins/bar.jar", "file:d:/b/shared/plugins/bar.jar"}, //
+				new String[] {"file:/c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
+				new String[] {"file:c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
+				new String[] {"file:/c:/a/shared/plugins/bar.jar", "file:../shared/plugins/bar.jar"}, //
+				new String[] {"file:/d:/a/eclipse/plugins/bar.jar", "file:/d:/a/eclipse/plugins/bar.jar"}, //
+				new String[] {"file:/c:/x/eclipse/plugins/bar.jar", "file:../../x/eclipse/plugins/bar.jar"}, //
+				new String[] {"file://home/eclipse/foo.jar", "file://home/eclipse/foo.jar"}, //
+				new String[] {"file:///home/eclipse/foo.jar", "file:///home/eclipse/foo.jar"}, //
+		};
+		for (int i = 0; i < data.length; i++) {
+			assertEquals("1." + i, data[i][1], EquinoxManipulatorImpl.makeRelative(data[i][0], base));
 		}
 
 	}
