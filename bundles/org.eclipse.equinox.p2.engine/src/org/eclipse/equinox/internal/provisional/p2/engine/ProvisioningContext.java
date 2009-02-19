@@ -18,6 +18,7 @@ public class ProvisioningContext {
 	private URI[] artifactRepositories; //artifact repositories to consult
 	private Properties properties = new Properties();
 	private List extraIUs = new ArrayList();
+	private Collection additionalRequirements;
 
 	public ProvisioningContext() {
 		// null repos means look at them all
@@ -59,5 +60,13 @@ public class ProvisioningContext {
 
 	public void setExtraIUs(List extraIUs) {
 		this.extraIUs = extraIUs;
+	}
+
+	public void setAdditionalRequirements(Collection requirements) {
+		additionalRequirements = requirements;
+	}
+
+	public Collection getAdditionalRequirements() {
+		return additionalRequirements;
 	}
 }
