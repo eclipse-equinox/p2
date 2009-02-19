@@ -232,7 +232,7 @@ public class ProfileSynchronizer {
 				IArtifactRepository repository = Activator.loadArtifactRepository(new URI(repositoryId), null);
 
 				if (repository instanceof IFileArtifactRepository) {
-					currentExtensions.add(repositoryId);
+					currentExtensions.add(escapePipe(repositoryId));
 					buffer.append(repositoryId);
 					if (it.hasNext())
 						buffer.append(PIPE);
@@ -259,6 +259,19 @@ public class ProfileSynchronizer {
 			return null;
 
 		return currentExtensionsProperty;
+	}
+
+	/**
+	 * Escapes the pipe ('|') character in a URI using the standard URI escape sequence.
+	 * This is done because the pipe character is used as the delimiter between locations
+	 * in the cache extensions profile property.
+	 */
+	private String escapePipe(String location) {
+		String result = location.toString();
+		int pipeIndex;
+		while ((pipeIndex = result.indexOf(',')) != -1)
+			result = result.substring(0, pipeIndex) + "%7C" + result.substring(pipeIndex + 1); //$NON-NLS-1$
+		return result;
 	}
 
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
