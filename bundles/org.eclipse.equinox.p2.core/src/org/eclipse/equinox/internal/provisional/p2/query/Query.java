@@ -35,4 +35,15 @@ public interface Query {
 	 * the collector passed in.
 	 */
 	public abstract Collector perform(Iterator iterator, Collector result);
+
+	/**
+	 * Gets the ID for this Query. 
+	 */
+	public String getId();
+
+	/**
+	 * Gets a particular property of the query.
+	 * @param property The property to retrieve 
+	 */
+	public Object getProperty(String property);
 }

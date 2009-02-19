@@ -10,6 +10,7 @@
 package org.eclipse.equinox.internal.provisional.p2.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
 
 /**
  * A Composite Query is an aggregate query in which each sub-query
@@ -21,6 +22,21 @@ public class CompositeQuery implements Query {
 
 	public CompositeQuery(Query[] queries) {
 		this.queries = queries;
+	}
+
+	/**
+	 * Gets the ID for this Query. 
+	 */
+	public String getId() {
+		return QueryHelpers.getId(this);
+	}
+
+	/**
+	 * Gets a particular property of the query.
+	 * @param property The property to retrieve 
+	 */
+	public Object getProperty(String property) {
+		return QueryHelpers.getProperty(this, property);
 	}
 
 	/**

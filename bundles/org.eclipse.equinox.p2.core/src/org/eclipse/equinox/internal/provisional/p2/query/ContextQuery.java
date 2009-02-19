@@ -10,6 +10,7 @@
 package org.eclipse.equinox.internal.provisional.p2.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
 
 /**
  * ContextQuery is the abstract superclass for Queries that require the entire
@@ -42,4 +43,19 @@ public abstract class ContextQuery implements Query {
 	 * the collector passed in.
 	 */
 	public abstract Collector perform(Iterator iterator, Collector result);
+
+	/**
+	 * Gets the ID for this Query. 
+	 */
+	public String getId() {
+		return QueryHelpers.getId(this);
+	}
+
+	/**
+	 * Gets a particular property of the query.
+	 * @param property The property to retrieve 
+	 */
+	public Object getProperty(String property) {
+		return QueryHelpers.getProperty(this, property);
+	}
 }
