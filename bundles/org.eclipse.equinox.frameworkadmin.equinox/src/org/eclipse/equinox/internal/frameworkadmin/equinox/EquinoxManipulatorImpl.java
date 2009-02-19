@@ -555,34 +555,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			return original;
 
 		//Returns the original string if no relativization has been done
-		String result = makeRelative(path, new Path(rootPath));
-		return path.toOSString().equals(result) ? original : result;
-	}
-
-	/*
-	 * Make the given path relative to the specified root, if applicable. If not, then
-	 * return the path as-is.
-	 *
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
-	 */
-	private static String makeRelative(IPath toRel, IPath base) {
-		String relDevice = toRel.getDevice();
-		String baseDevice = base.getDevice();
-		//if the devices are different, we cannot make one relative to the other
-		if (relDevice != baseDevice && (relDevice == null || !relDevice.equalsIgnoreCase(baseDevice)))
-			return toRel.toOSString();
-		int i = base.matchingFirstSegments(toRel);
-		if (i == 0) {
-			return toRel.toOSString();
-		}
-		String result = ""; //$NON-NLS-1$
-		for (int j = 0; j < (base.segmentCount() - i); j++) {
-			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
-		}
-		if (i == toRel.segmentCount())
-			return "."; //$NON-NLS-1$
-		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
-		return result;
+		IPath result = path.makeRelativeTo(new Path(rootPath));
+		return path.equals(result) ? original : result.toString();
 	}
 
 	public static String makeRelative(String urlString, URL rootURL) {
@@ -617,7 +591,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (deviceOne != deviceTwo && (deviceOne == null || !deviceOne.equalsIgnoreCase(two.getDevice())))
 			return urlString;
 
-		return urlString.substring(0, index) + makeRelative(one, two);
+		return urlString.substring(0, index) + one.makeRelativeTo(two);
 	}
 
 	public static String makeArrayRelative(String array, URL rootURL) {
@@ -648,7 +622,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * Make the given path absolute to the specified root, if applicable. If not, then
 	 * return the path as-is.
 	 *
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
+	 * TODO: can we use URIUtil in these #make* methods?
 	 */
 	public static String makeAbsolute(String original, String rootPath) {
 		IPath path = new Path(original);
