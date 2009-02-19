@@ -267,7 +267,7 @@ public class ProfileSynchronizer {
 	 * in the cache extensions profile property.
 	 */
 	private String escapePipe(String location) {
-		String result = location.toString();
+		String result = location;
 		int pipeIndex;
 		while ((pipeIndex = result.indexOf(',')) != -1)
 			result = result.substring(0, pipeIndex) + "%7C" + result.substring(pipeIndex + 1); //$NON-NLS-1$
@@ -277,9 +277,9 @@ public class ProfileSynchronizer {
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 
-		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue();
+		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue(); //$NON-NLS-1$
 		if (resolve)
-			request.removeProfileProperty("org.eclipse.equinox.p2.resolve");
+			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
 
 		List toAdd = new ArrayList();
 		List toRemove = new ArrayList();
