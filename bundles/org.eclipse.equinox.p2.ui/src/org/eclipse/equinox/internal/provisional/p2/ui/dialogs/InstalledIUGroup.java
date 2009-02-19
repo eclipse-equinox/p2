@@ -67,7 +67,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 
 		// Now the visuals, columns before labels.
 		setTreeColumns(installedIUViewer.getTree());
-		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
+		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), null));
 
 		// Input last.
 		installedIUViewer.setInput(getInput());

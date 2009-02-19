@@ -12,7 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
@@ -25,10 +26,10 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.about.*;
 import org.eclipse.ui.menus.*;
@@ -38,7 +39,7 @@ import org.eclipse.ui.services.IServiceLocator;
  * @since 3.4
  *
  */
-public class InstalledSoftwarePage extends InstallationPage {
+public class InstalledSoftwarePage extends InstallationPage implements ICopyable {
 
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
@@ -83,6 +84,8 @@ public class InstalledSoftwarePage extends InstallationPage {
 			}
 
 		});
+
+		CopyUtils.activateCopy(this, installedIUGroup.getStructuredViewer().getControl());
 
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
@@ -181,5 +184,14 @@ public class InstalledSoftwarePage extends InstallationPage {
 		int pixels = convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH);
 		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, pixels / 3), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, pixels * 2 / 3)};
 
+	}
+	public void copyToClipboard(Control activeControl) {
+		Object[] elements = installedIUGroup.getSelectedIUElements();
+		if (elements.length == 0)
+			return;
+		String text = CopyUtils.getIndentedClipboardText(elements, new IUDetailsLabelProvider(null, getColumnConfig(), null));
+		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
+		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 }

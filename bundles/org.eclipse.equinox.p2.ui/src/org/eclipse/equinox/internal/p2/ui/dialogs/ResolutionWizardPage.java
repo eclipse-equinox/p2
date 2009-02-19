@@ -30,14 +30,13 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-public abstract class ResolutionWizardPage extends WizardPage {
+public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 	protected IUElementListRoot input;
 	PlannerResolutionOperation resolvedOperation;
 	ResolutionResult resolutionResult;
@@ -47,6 +46,7 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	TreeViewer treeViewer;
 	Text detailsArea;
 	ProvElementContentProvider contentProvider;
+	IUDetailsLabelProvider labelProvider;
 	protected Display display;
 
 	protected ResolutionWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation initialResolution) {
@@ -86,6 +86,7 @@ public abstract class ResolutionWizardPage extends WizardPage {
 		Tree tree = treeViewer.getTree();
 		tree.setLayoutData(data);
 		tree.setHeaderVisible(true);
+		activateCopy(tree);
 		IUColumnConfig[] columns = getColumnConfig();
 		for (int i = 0; i < columns.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.LEFT, i);
@@ -106,7 +107,8 @@ public abstract class ResolutionWizardPage extends WizardPage {
 
 		contentProvider = new ProvElementContentProvider();
 		treeViewer.setContentProvider(contentProvider);
-		treeViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), getShell()));
+		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
+		treeViewer.setLabelProvider(labelProvider);
 
 		if (resolvedOperation == null)
 			// this will also set the input on the viewer
@@ -351,4 +353,8 @@ public abstract class ResolutionWizardPage extends WizardPage {
 	}
 
 	protected abstract IQueryable getQueryable(ProvisioningPlan plan);
+
+	protected String getClipboardText(Control control) {
+		return CopyUtils.getIndentedClipboardText(getSelectedElements(), labelProvider);
+	}
 }

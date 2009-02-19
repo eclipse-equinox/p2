@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -40,7 +41,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -50,7 +50,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
+public class AvailableIUsPage extends ProvisioningWizardPage implements ISelectableIUsPage {
 	private static final String DIALOG_SETTINGS_SECTION = "AvailableIUsPage"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
@@ -133,6 +133,7 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		setDropTarget(availableIUGroup.getStructuredViewer().getControl());
+		activateCopy(availableIUGroup.getStructuredViewer().getControl());
 
 		// Details area
 		Group detailsComposite = new Group(composite, SWT.NONE);
@@ -772,5 +773,13 @@ public class AvailableIUsPage extends WizardPage implements ISelectableIUsPage {
 		repoDec.setDescriptionText(status.getMessage());
 		repoDec.setShowOnlyOnFocus(false);
 		repoDec.showHoverText(status.getMessage());
+	}
+
+	protected String getClipboardText(Control control) {
+		// The default label provider constructor uses the default column config.
+		// since we passed the default column config to the available iu group,
+		// we know that this label provider matches the one used there.
+		return CopyUtils.getIndentedClipboardText(getSelectedIUElements(), new IUDetailsLabelProvider());
+
 	}
 }

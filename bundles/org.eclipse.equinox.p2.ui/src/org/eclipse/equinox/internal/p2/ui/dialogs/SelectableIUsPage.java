@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.*;
@@ -35,13 +34,14 @@ import org.eclipse.swt.widgets.*;
  * @since 3.5
  *
  */
-public class SelectableIUsPage extends WizardPage implements ISelectableIUsPage {
+public class SelectableIUsPage extends ProvisioningWizardPage implements ISelectableIUsPage {
 
 	IUElementListRoot root;
 	Object[] initialSelections;
 	CheckboxTableViewer tableViewer;
 	Text detailsArea;
 	ProvElementContentProvider contentProvider;
+	IUDetailsLabelProvider labelProvider;
 	protected Display display;
 	protected Policy policy;
 	String profileId;
@@ -80,6 +80,7 @@ public class SelectableIUsPage extends WizardPage implements ISelectableIUsPage 
 		Table table = tableViewer.getTable();
 		table.setLayoutData(data);
 		table.setHeaderVisible(true);
+		activateCopy(table);
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
 		for (int i = 0; i < columns.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.LEFT, i);
@@ -112,7 +113,8 @@ public class SelectableIUsPage extends WizardPage implements ISelectableIUsPage 
 		contentProvider = new ProvElementContentProvider();
 		tableViewer.setContentProvider(contentProvider);
 		tableViewer.setInput(root);
-		tableViewer.setLabelProvider(new IUDetailsLabelProvider(null, ProvUI.getIUColumnConfig(), getShell()));
+		labelProvider = new IUDetailsLabelProvider(null, ProvUI.getIUColumnConfig(), getShell());
+		tableViewer.setLabelProvider(labelProvider);
 		setInitialCheckState();
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
@@ -191,5 +193,16 @@ public class SelectableIUsPage extends WizardPage implements ISelectableIUsPage 
 	 */
 	public boolean canFlipToNextPage() {
 		return isPageComplete();
+	}
+
+	protected String getClipboardText(Control control) {
+		StringBuffer buffer = new StringBuffer();
+		Object[] elements = getSelectedElements();
+		for (int i = 0; i < elements.length; i++) {
+			if (i > 0)
+				buffer.append(CopyUtils.NEWLINE);
+			buffer.append(labelProvider.getClipboardText(elements[i], CopyUtils.DELIMITER));
+		}
+		return buffer.toString();
 	}
 }

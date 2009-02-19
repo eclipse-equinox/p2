@@ -66,11 +66,11 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getText(Object obj) {
-		return getColumnText(obj, 0);
+		return getColumnText(obj, PRIMARY_COLUMN);
 	}
 
 	public Image getImage(Object obj) {
-		return getColumnImage(obj, columnConfig[0].columnField);
+		return getColumnImage(obj, PRIMARY_COLUMN);
 	}
 
 	public String getColumnText(Object element, int columnIndex) {
@@ -196,12 +196,12 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		toolTipProperty = propertyName;
 	}
 
-	public String getClipboardText(Object element) {
+	public String getClipboardText(Object element, String columnDelimiter) {
 		StringBuffer result = new StringBuffer();
 		for (int i = 0; i < columnConfig.length; i++) {
 			if (i != 0)
-				result.append(" "); //$NON-NLS-1$
-			result.append(getColumnText(element, columnConfig[i].columnField));
+				result.append(columnDelimiter);
+			result.append(getColumnText(element, i));
 		}
 		return result.toString();
 	}
