@@ -1,28 +1,27 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
- * program and the accompanying materials are made available under the terms of
- * the Eclipse Public License v1.0 which accompanies this distribution, and is
- * available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2008, 2009 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
-
-import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 
 import java.io.*;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Comparator;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
 import org.osgi.framework.Version;
 
 public class SimpleConfiguratorManipulatorUtils {
 
-	private static final String VERSION_PREFIX = "#version=";
-	private static final String VERSION_1 = "1";
-	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206");
+	private static final String VERSION_PREFIX = "#version="; //$NON-NLS-1$
+	private static final String VERSION_1 = "1"; //$NON-NLS-1$
+	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206"); //$NON-NLS-1$
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 
@@ -93,7 +92,7 @@ public class SimpleConfiguratorManipulatorUtils {
 		return VERSION_PREFIX + VERSION_1;
 	}
 
-	public static String createBundleInfoLine(BundleInfo bundleInfo, boolean oldStyle) throws IOException {
+	public static String createBundleInfoLine(BundleInfo bundleInfo, boolean oldStyle) {
 		// symbolicName,version,location,startLevel,markedAsStarted
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(bundleInfo.getSymbolicName());
@@ -112,14 +111,15 @@ public class SimpleConfiguratorManipulatorUtils {
 		if (oldStyle) {
 			String scheme = location.getScheme();
 			if (scheme == null)
-				scheme = "file";
-			return scheme + ":" + location.getSchemeSpecificPart();
+				scheme = "file"; //$NON-NLS-1$
+			return scheme + ':' + location.getSchemeSpecificPart();
 		}
 
+		//encode comma characters because it is used as the segment delimiter in the bundle info file
 		String result = location.toString();
 		int commaIndex = result.indexOf(',');
 		while (commaIndex != -1) {
-			result = result.substring(0, commaIndex) + "%2C" + result.substring(commaIndex + 1);
+			result = result.substring(0, commaIndex) + "%2C" + result.substring(commaIndex + 1); //$NON-NLS-1$
 			commaIndex = result.indexOf(',');
 		}
 		return result;
