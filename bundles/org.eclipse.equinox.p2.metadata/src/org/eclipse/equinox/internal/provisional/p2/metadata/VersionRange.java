@@ -167,7 +167,7 @@ public class VersionRange implements Serializable {
 			includeMax = (c == ']');
 		} else {
 			StringBuffer sbMin = new StringBuffer();
-			pos = copyEscaped(versionRange, pos, null, sbMin);
+			pos = copyEscaped(versionRange, pos, rawPrefix ? "/" : null, sbMin); //$NON-NLS-1$
 			includeMin = includeMax = true;
 			minStr = sbMin.toString();
 			maxStr = null;
