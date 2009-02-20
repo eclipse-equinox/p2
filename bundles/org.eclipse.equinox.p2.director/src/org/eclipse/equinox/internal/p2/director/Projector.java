@@ -51,15 +51,45 @@ public class Projector {
 	private Collection solution;
 
 	private MultiStatus result;
+	private Map fragments;
 
 	abstract class PropositionalVariable {
 
+		abstract void handleMatches(List matches);
 	}
 
 	class AbstractVariable extends PropositionalVariable {
 		@Override
 		public String toString() {
 			return "AbstractVariable: " + hashCode();
+		}
+
+		@Override
+		void handleMatches(List matches) {
+			// do nothing
+		}
+	}
+
+	class Fragment extends PropositionalVariable {
+		private final IInstallableUnit iu;
+		private final List matches = new ArrayList();
+
+		public Fragment(IInstallableUnit iu) {
+			this.iu = iu;
+		}
+
+		@Override
+		public String toString() {
+			return "Fragment" + iu + " -> " + matches;
+		}
+
+		@Override
+		void handleMatches(List matches) {
+			this.matches.addAll(matches);
+		}
+
+		List getMatches() {
+			return matches;
 		}
 	}
 
@@ -95,6 +125,10 @@ public class Projector {
 			return iu;
 		}
 
+		@Override
+		void handleMatches(List matches) {
+			// do nothing
+		}
 	}
 
 	private IUVariable newIUVariable(IInstallableUnit iu) {
@@ -104,6 +138,20 @@ public class Projector {
 			variables.put(iu, var);
 		}
 		return var;
+	}
+
+	private Fragment newFragmentVariable(IInstallableUnit iu) {
+		Fragment var = (Fragment) fragments.get(iu);
+		if (var == null) {
+			var = new Fragment(iu);
+			fragments.put(iu, var);
+		}
+		return var;
+	}
+
+	private boolean isFragment(IInstallableUnit iu) {
+		// TODO Pascal, you need to fill this :)
+		return false;
 	}
 
 	public Projector(IQueryable q, Dictionary context) {
@@ -336,7 +384,12 @@ public class Projector {
 
 		Collector patches = getApplicablePatches(iu);
 		expandLifeCycle(iu);
-		PropositionalVariable iuVar = newIUVariable(iu);
+		PropositionalVariable iuVar;
+		if (isFragment(iu)) {
+			iuVar = newFragmentVariable(iu);
+		} else {
+			iuVar = newIUVariable(iu);
+		}
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
 			expandRequirements(iu.getRequiredCapabilities(), iu, iuVar);
@@ -378,6 +431,7 @@ public class Projector {
 					if (isApplicable(reqs[i][1])) {
 						IRequiredCapability req = reqs[i][1];
 						List matches = getApplicableMatches(req);
+						iuVar.handleMatches(matches);
 						if (!req.isOptional()) {
 							if (matches.isEmpty()) {
 								missingRequirement(patch, req);
@@ -397,6 +451,7 @@ public class Projector {
 					if (isApplicable(reqs[i][0])) {
 						IRequiredCapability req = reqs[i][0];
 						List matches = getApplicableMatches(req);
+						iuVar.handleMatches(matches);
 						if (!req.isOptional()) {
 							if (matches.isEmpty()) {
 								//TODO Need to change NAME
@@ -430,6 +485,7 @@ public class Projector {
 				}
 				IRequiredCapability req = (IRequiredCapability) entry.getKey();
 				List matches = getApplicableMatches(req);
+				iuVar.handleMatches(matches);
 				if (!req.isOptional()) {
 					if (matches.isEmpty()) {
 						missingRequirement(iu, req);
@@ -716,5 +772,19 @@ public class Projector {
 		if (DEBUG)
 			printSolution(solution);
 		return solution;
+	}
+
+	public Collection extractFragments() {
+		Collection col = new ArrayList();
+		for (Iterator iterator = fragments.values().iterator(); iterator.hasNext();) {
+			Fragment fragment = (Fragment) iterator.next();
+			for (Iterator it = fragment.matches.iterator(); it.hasNext();) {
+				IUVariable var = (IUVariable) it.next();
+				if (dependencyHelper.getBooleanValueFor(var)) {
+					col.add(var.getInstallableUnit());
+				}
+			}
+		}
+		return col;
 	}
 }
