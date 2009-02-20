@@ -1,0 +1,13 @@
+package org.eclipse.equinox.internal.p2.director;
+
+public class Explanation {
+
+	public static final String MISSING_DEPENDENCY = "Missing Dependency";
+	public static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
+	public static final String SINGLETON_CONSTRAINT = "Singleton Constraint";
+
+	private Explanation() {
+		// no instance of that class for the moment
+	}
+
+}

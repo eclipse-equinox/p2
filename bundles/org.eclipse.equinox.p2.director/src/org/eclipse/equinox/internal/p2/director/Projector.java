@@ -178,6 +178,7 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
+			// TODO changed constant 100000 by an estimation of the number of variables required in the encoding.
 			dependencyHelper = new DependencyHelper(solver, 100000);
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
@@ -351,12 +352,12 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				createImplication(iuVar, matches, iuVar + "->" + req);
+				createImplication(iuVar, matches, Explanation.MISSING_DEPENDENCY + ":" + iuVar + "->" + req);
 			}
 		} else {
 			if (!matches.isEmpty()) {
 				PropositionalVariable abs = getAbstractVariable();
-				createImplication(abs, matches, "abs -> " + matches);
+				createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY + ":" + matches);
 				optionalAbstractRequirements.add(abs);
 			}
 		}
@@ -436,12 +437,12 @@ public class Projector {
 							if (matches.isEmpty()) {
 								missingRequirement(patch, req);
 							} else {
-								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, "abstract->" + matches);
+								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, Explanation.MISSING_DEPENDENCY + ":" + matches);
 							}
 						} else {
 							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
-								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, "abs -> " + matches);
+								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_DEPENDENCY + ":" + matches);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -455,16 +456,16 @@ public class Projector {
 						if (!req.isOptional()) {
 							if (matches.isEmpty()) {
 								//TODO Need to change NAME
-								dependencyHelper.implication(iuVar).implies(patchVar).named("NAME");
+								dependencyHelper.implication(iuVar).implies(patchVar).named(Explanation.MISSING_DEPENDENCY);
 							} else {
 								matches.add(patchVar);
-								createImplication(iuVar, matches, "B->" + matches);
+								createImplication(iuVar, matches, Explanation.MISSING_DEPENDENCY + ":" + matches);
 							}
 						} else {
 							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
 								optionalAbstractRequirements.add(patchVar);
-								createImplication(abs, matches, "abs -> " + optionalAbstractRequirements);
+								createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY + ":" + optionalAbstractRequirements);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -492,14 +493,14 @@ public class Projector {
 					} else {
 						if (!requiredPatches.isEmpty())
 							matches.addAll(requiredPatches);
-						createImplication(iuVar, matches, iuVar + "->" + req);
+						createImplication(iuVar, matches, Explanation.MISSING_DEPENDENCY + ":" + req);
 					}
 				} else {
 					if (!matches.isEmpty()) {
 						if (!requiredPatches.isEmpty())
 							matches.addAll(requiredPatches);
 						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, matches, "abs -> " + matches);
+						createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY + ":" + matches);
 						optionalAbstractRequirements.add(abs);
 					}
 				}
@@ -721,19 +722,6 @@ public class Projector {
 					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
 					Tracing.debug("Solver solution NOT found: " + (stop - start)); //$NON-NLS-1$
 				}
-				if (DEBUG) {
-					start = System.currentTimeMillis();
-					Tracing.debug("Determining cause of failure: " + start);
-				}
-				Set why = dependencyHelper.why();
-				if (DEBUG) {
-					stop = System.currentTimeMillis();
-					Tracing.debug("Explanation found: " + (stop - start));
-					Tracing.debug("Explanation:");
-					for (Iterator i = why.iterator(); i.hasNext();) {
-						Tracing.debug(i.next().toString());
-					}
-				}
 				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
 			}
 		} catch (TimeoutException e) {
@@ -786,5 +774,30 @@ public class Projector {
 			}
 		}
 		return col;
+	}
+
+	public IStatus getExplanation(Set explanation) {
+		IStatus myResult = new Status(IStatus.OK, DirectorActivator.PI_DIRECTOR, null);
+		long start = 0, stop;
+		if (DEBUG) {
+			start = System.currentTimeMillis();
+			Tracing.debug("Determining cause of failure: " + start);
+		}
+		Set why;
+		try {
+			why = dependencyHelper.why();
+			if (DEBUG) {
+				stop = System.currentTimeMillis();
+				Tracing.debug("Explanation found: " + (stop - start));
+				Tracing.debug("Explanation:");
+				for (Iterator i = why.iterator(); i.hasNext();) {
+					Tracing.debug(i.next().toString());
+				}
+			}
+			explanation.addAll(why);
+		} catch (TimeoutException e) {
+			myResult = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Timeout);
+		}
+		return myResult;
 	}
 }

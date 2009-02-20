@@ -36,6 +36,8 @@ public class SimplePlanner implements IPlanner {
 	private static final String INCLUDE_PROFILE_IUS = "org.eclipse.equinox.p2.internal.profileius"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
+	private Set explanation;
+
 	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, ProfileChangeRequest changeRequest) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
 		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
@@ -284,9 +286,12 @@ public class SimplePlanner implements IPlanner {
 				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
 				//We invoke the old resolver to get explanations for now
-				IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-				if (!oldResolverStatus.isOK())
-					s = oldResolverStatus;
+				explanation = new HashSet();
+				IStatus explanationStatus = projector.getExplanation(explanation);
+				// IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
+				// TODO that code has no sense now with the new explanation scheme
+				if (!explanationStatus.isOK())
+					s = explanationStatus;
 				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
@@ -437,5 +442,12 @@ public class SimplePlanner implements IPlanner {
 		sub.done();
 		Collection results = resultsMap.values();
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
+	}
+
+	public Set getExplanation() {
+		if (explanation == null) {
+			throw new IllegalStateException("That method should be called only in case of failure to find a suitable plan");
+		}
+		return explanation;
 	}
 }
