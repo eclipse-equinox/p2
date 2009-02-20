@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
@@ -121,7 +122,17 @@ public abstract class AbstractRepositoryTask extends Task {
 					String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
 					for (int i = 0; i < 2; i++) {
 						for (int j = 0; j < elements[i].length; j++) {
-							URI uri = new File(fileset.getDir(), elements[i][j]).toURI();
+							File file = new File(fileset.getDir(), elements[i][j]);
+							URI uri = file.toURI();
+
+							if (file.isFile() && file.getName().endsWith(".zip")) { //$NON-NLS-1$
+								try {
+									uri = new URI("jar:" + uri.toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+								} catch (URISyntaxException e) {
+									//?
+									continue;
+								}
+							}
 							application.addSourceArtifactRepository(uri);
 							application.addSourceMetadataRepository(uri);
 						}
@@ -156,7 +167,7 @@ public abstract class AbstractRepositoryTask extends Task {
 			}
 
 			if (collector.isEmpty())
-				throw new BuildException("Unable to find: " + id + (version != null ? " " + version : ""));
+				throw new BuildException("Unable to find: " + id + (version != null ? " " + version : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			result.add(collector.iterator().next());
 		}
 		return result;
