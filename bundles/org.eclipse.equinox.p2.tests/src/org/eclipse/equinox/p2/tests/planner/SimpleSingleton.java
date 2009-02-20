@@ -49,4 +49,8 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
+
+	public void testExplanation() {
+		fail("Explanation API not defined yet!");
+	}
 }

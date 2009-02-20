@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -95,5 +93,9 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		assertInstallOperand(plan4, pp1);
 		assertInstallOperand(plan5, d1);
 		assertInstallOperand(plan5, c1);
+	}
+
+	public void testExplanation1() {
+		fail("Explanation API not defined yet!");
 	}
 }

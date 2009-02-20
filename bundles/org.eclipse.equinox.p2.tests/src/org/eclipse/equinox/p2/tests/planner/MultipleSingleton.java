@@ -75,6 +75,10 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
+	public void testExplanation2() {
+		fail("Explanation API not defined yet!");
+	}
+
 	public void test3() {
 		//Test that we can install A3 and A4 together
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
@@ -87,6 +91,10 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {w});
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
+	}
+
+	public void testExplanation4() {
+		fail("Explanation API not defined yet!");
 	}
 
 	public void test5b() {
@@ -108,5 +116,9 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {u, v});
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
+	}
+
+	public void testExplanation5() {
+		fail("Explanation API not defined yet!");
 	}
 }

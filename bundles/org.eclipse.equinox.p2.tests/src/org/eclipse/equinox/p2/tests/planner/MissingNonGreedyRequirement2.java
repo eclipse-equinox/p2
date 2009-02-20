@@ -44,4 +44,8 @@ public class MissingNonGreedyRequirement2 extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
+
+	public void testExplanation() {
+		fail("Explanation API not defined yet!");
+	}
 }
