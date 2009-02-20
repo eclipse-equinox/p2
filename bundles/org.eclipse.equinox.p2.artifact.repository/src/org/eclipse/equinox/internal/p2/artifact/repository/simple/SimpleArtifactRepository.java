@@ -737,7 +737,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * of mkdirs (see bug 265654).
 	 */
 	private void mkdirs(File dir) {
-		if (dir.exists())
+		if (dir == null || dir.exists())
 			return;
 		if (dir.mkdir())
 			return;
