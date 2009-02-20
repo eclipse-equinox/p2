@@ -19,6 +19,9 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImp
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
+	/** Constant value indicating if the current platform is Windows */
+	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
+
 	public RelativePathTest(String name) throws Exception {
 		super(name);
 	}
@@ -89,25 +92,38 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 	public void testMakeRelative() {
 		URL base = null;
 		try {
-			base = new URL("file:/c:/a/eclipse/");
+			base = new URL("file:/eclipse/");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			fail("0.99");
+			fail("0.98");
 		}
 		// data - [0] is the test data and [1] is the expected result
 		String[][] data = new String[][] { //
-		new String[] {"file:c:/b/shared/plugins/bar.jar", "file:../../b/shared/plugins/bar.jar"}, //
-				new String[] {"file:d:/b/shared/plugins/bar.jar", "file:d:/b/shared/plugins/bar.jar"}, //
-				new String[] {"file:/c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
-				new String[] {"file:c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
-				new String[] {"file:/c:/a/shared/plugins/bar.jar", "file:../shared/plugins/bar.jar"}, //
-				new String[] {"file:/d:/a/eclipse/plugins/bar.jar", "file:/d:/a/eclipse/plugins/bar.jar"}, //
-				new String[] {"file:/c:/x/eclipse/plugins/bar.jar", "file:../../x/eclipse/plugins/bar.jar"}, //
-				new String[] {"file://home/eclipse/foo.jar", "file://home/eclipse/foo.jar"}, //
-				new String[] {"file:///home/eclipse/foo.jar", "file:///home/eclipse/foo.jar"}, //
+				new String[] {"file:/home/eclipse/foo.jar", "file:../home/eclipse/foo.jar"}, //
+				new String[] {"file:///home/eclipse/foo.jar", "file:../home/eclipse/foo.jar"}, //
 		};
-		for (int i = 0; i < data.length; i++) {
+		for (int i = 0; i < data.length; i++)
 			assertEquals("1." + i, data[i][1], EquinoxManipulatorImpl.makeRelative(data[i][0], base));
+
+		if (WINDOWS) {
+			// platform specific data
+			try {
+				base = new URL("file:/c:/a/eclipse/");
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				fail("0.99");
+			}
+			data = new String[][] {
+					new String[] {"file:c:/b/shared/plugins/bar.jar", "file:../../b/shared/plugins/bar.jar"}, //
+					new String[] {"file:d:/b/shared/plugins/bar.jar", "file:d:/b/shared/plugins/bar.jar"}, //
+					new String[] {"file:/c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
+					new String[] {"file:c:/a/eclipse/plugins/bar.jar", "file:plugins/bar.jar"}, //
+					new String[] {"file:/c:/a/shared/plugins/bar.jar", "file:../shared/plugins/bar.jar"}, //
+					new String[] {"file:/d:/a/eclipse/plugins/bar.jar", "file:/d:/a/eclipse/plugins/bar.jar"}, //
+					new String[] {"file:/c:/x/eclipse/plugins/bar.jar", "file:../../x/eclipse/plugins/bar.jar"}, //
+			};
+			for (int i = 0; i < data.length; i++)
+				assertEquals("2." + i, data[i][1], EquinoxManipulatorImpl.makeRelative(data[i][0], base));
 		}
 
 	}
