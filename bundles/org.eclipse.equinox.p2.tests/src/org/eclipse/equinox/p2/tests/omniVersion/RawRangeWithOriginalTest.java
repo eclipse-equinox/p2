@@ -140,4 +140,12 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 			assertTrue(true);
 		}
 	}
+
+	public void testGreaterThan() {
+		// any version equal or greater than 1.0.0 is ok 
+		VersionRange lowerBound = new VersionRange("raw:2.1.0.M/format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
+		assertNotIncludedInRange("1.0", lowerBound, "raw:2.0.9");
+		assertIncludedInRange("1.1", lowerBound, "raw:2.2");
+		assertIncludedInRange("1.3", lowerBound, "raw:999.999.999.'foo'");
+	}
 }
