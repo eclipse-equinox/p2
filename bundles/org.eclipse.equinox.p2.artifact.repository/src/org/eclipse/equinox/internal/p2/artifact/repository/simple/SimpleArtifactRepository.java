@@ -709,7 +709,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		OutputStream target = null;
 		try {
 			if (isFolderBased(newDescriptor)) {
-				outputFile.mkdirs();
+				mkdirs(outputFile);
 				if (!outputFile.isDirectory())
 					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, outputFile.toString())));
 				target = new ZippedFolderOutputStream(outputFile);
@@ -729,6 +729,20 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			throw failedWrite(e);
 		}
 
+	}
+
+	/**
+	 * We implement mkdirs ourselves because this code is known to run in
+	 * highly concurrent scenarios, and there is a race condition in the JRE implementation
+	 * of mkdirs (see bug 265654).
+	 */
+	private void mkdirs(File dir) {
+		if (dir.exists())
+			return;
+		if (dir.mkdir())
+			return;
+		mkdirs(dir.getParentFile());
+		dir.mkdir();
 	}
 
 	private ProvisionException failedWrite(Exception e) throws ProvisionException {
@@ -856,7 +870,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					}
 					if (!artifactsFile.exists()) {
 						// create parent folders
-						artifactsFile.getParentFile().mkdirs();
+						mkdirs(artifactsFile.getParentFile());
 					}
 					os = new FileOutputStream(artifactsFile);
 				} else {
@@ -864,8 +878,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 						artifactsFile.delete();
 					}
 					if (!jarFile.exists()) {
-						if (!jarFile.getParentFile().exists())
-							jarFile.getParentFile().mkdirs();
+						mkdirs(jarFile.getParentFile());
 						jarFile.createNewFile();
 					}
 					JarOutputStream jOs = new JarOutputStream(new FileOutputStream(jarFile));
