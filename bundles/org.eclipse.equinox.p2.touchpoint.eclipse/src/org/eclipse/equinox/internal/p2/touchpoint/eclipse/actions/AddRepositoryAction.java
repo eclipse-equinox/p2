@@ -26,7 +26,7 @@ public class AddRepositoryAction extends RepositoryAction {
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
 			if (isSelfProfile(profile))
 				addToSelf(event);
@@ -41,7 +41,17 @@ public class AddRepositoryAction extends RepositoryAction {
 	}
 
 	public IStatus undo(Map parameters) {
-		//TODO: we don't know if the repository was already present
-		return Status.OK_STATUS;
+		try {
+			final RepositoryEvent event = createEvent(parameters);
+			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
+			if (profile != null)
+				removeRepositoryFromProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
+			if (isSelfProfile(profile))
+				removeFromSelf(event);
+			return Status.OK_STATUS;
+		} catch (CoreException e) {
+			return e.getStatus();
+		}
 	}
 }

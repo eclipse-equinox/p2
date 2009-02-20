@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
@@ -24,6 +24,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * Helper base class for dealing with repositories associated with profiles. Repositories
@@ -33,6 +35,14 @@ import org.eclipse.osgi.util.NLS;
  * @see RemoveRepositoryAction
  */
 abstract class RepositoryAction extends ProvisioningAction {
+
+	private static final String METADATA_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository"; //$NON-NLS-1$
+	private static final String ARTIFACT_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository"; //$NON-NLS-1$
+
+	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
+	private static final String REPOSITORY_COUNT = "count"; //$NON-NLS-1$
+	private static final String KEY_URI = "uri"; //$NON-NLS-1$
+	private static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
 
 	/**
 	 * Returns the repository manager of the given type, or <code>null</code>
@@ -51,22 +61,25 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Associates the repository described by the given event with the given profile.
 	 * Has no effect if the repository is already associated with this profile.
 	 */
-	protected void addRepositoryToProfile(Profile profile, URI location, int type) {
-		String key = type == IRepository.TYPE_METADATA ? IProfile.PROP_METADATA_REPOSITORIES : IProfile.PROP_ARTIFACT_REPOSITORIES;
-		String encodedURI = encodeURI(location);
-		String currentRepos = profile.getProperty(key);
-		if (currentRepos == null) {
-			currentRepos = encodedURI;
-		} else {
-			//if we already have the repository location, we are done
-			StringTokenizer tokens = new StringTokenizer(currentRepos, ","); //$NON-NLS-1$
-			while (tokens.hasMoreTokens())
-				if (tokens.nextToken().equals(encodedURI))
-					return;
-			//add to comma-separated list
-			currentRepos = currentRepos + ',' + encodedURI;
+	protected void addRepositoryToProfile(Profile profile, URI location, int type, boolean enabled) {
+		Preferences node = getRepositoryPreferenceNode(profile, location, type);
+		int count = 0;
+
+		if (repositoryExists(node)) {
+			count = getRepositoryCount(node);;
+			// If a user as added a repository we need to set the initial count manually
+			if (count == 0)
+				count = 1;
 		}
-		profile.setProperty(key, currentRepos);
+		node.put(KEY_URI, location.toString());
+		node.put(KEY_ENABLED, Boolean.toString(enabled));
+		count++;
+		setRepositoryCount(node, count);
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			// TODO: perhaps an Exception should be passed backwards and associated with State
+		}
 	}
 
 	/**
@@ -74,8 +87,21 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 */
 	protected void addToSelf(RepositoryEvent event) {
 		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
-		if (manager != null)
-			manager.addRepository(event.getRepositoryLocation());
+		Preferences node = getRepositoryPreferenceNode(null, event.getRepositoryLocation(), event.getRepositoryType());
+
+		int count = getRepositoryCount(node);
+		if (manager.contains(event.getRepositoryLocation())) {
+			// If a user as added a repository we need to set the initial count manually
+			if (count == 0)
+				count = 1;
+		} else {
+			if (manager != null)
+				manager.addRepository(event.getRepositoryLocation());
+		}
+		// increment the counter & send to preferences
+		count++;
+		setRepositoryCount(node, count);
+
 		if (!event.isRepositoryEnabled())
 			manager.setEnabled(event.getRepositoryLocation(), false);
 	}
@@ -106,22 +132,6 @@ abstract class RepositoryAction extends ProvisioningAction {
 	}
 
 	/**
-	 * Encodes a URI as a string, in a form suitable for storing in a comma-separated
-	 * list of location strings. Any comma character in the local string is encoded.
-	 */
-	private String encodeURI(URI repositoryLocation) {
-		char[] chars = repositoryLocation.toString().toCharArray();
-		StringBuffer result = new StringBuffer(chars.length);
-		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == ',')
-				result.append("${#").append(Integer.toString(chars[i])).append('}'); //$NON-NLS-1$
-			else
-				result.append(chars[i]);
-		}
-		return result.toString();
-	}
-
-	/**
 	 * Returns the id of this action.
 	 */
 	protected abstract String getId();
@@ -149,8 +159,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 */
 	protected void removeFromSelf(RepositoryEvent event) {
 		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
-		if (manager != null)
+		Preferences node = getRepositoryPreferenceNode(null, event.getRepositoryLocation(), event.getRepositoryType());
+		int count = getRepositoryCount(node);
+		if ((--count < 1) && (manager != null))
 			manager.removeRepository(event.getRepositoryLocation());
+		setRepositoryCount(node, count);
 	}
 
 	/**
@@ -159,29 +172,76 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * this profile.
 	 */
 	protected void removeRepositoryFromProfile(Profile profile, URI location, int type) {
-		String key = type == IRepository.TYPE_METADATA ? IProfile.PROP_METADATA_REPOSITORIES : IProfile.PROP_ARTIFACT_REPOSITORIES;
-		String encodedURI = encodeURI(location);
-		String currentRepos = profile.getProperty(key);
-		//if this profile has no associated repositories, we are done
-		if (currentRepos == null)
-			return;
-		//find the matching location, if any
-		StringTokenizer tokens = new StringTokenizer(currentRepos, ","); //$NON-NLS-1$
-		StringBuffer result = new StringBuffer(currentRepos.length());
-		boolean found = false;
-		while (tokens.hasMoreTokens()) {
-			final String nextLocation = tokens.nextToken();
-			if (nextLocation.equals(encodedURI)) {
-				found = true;
-			} else {
-				//add back any location not being removed
-				result.append(nextLocation);
-				if (tokens.hasMoreTokens())
-					result.append(',');
+		Preferences node = getRepositoryPreferenceNode(profile, location, type);
+
+		int count = getRepositoryCount(node);
+		if (--count < 1) {
+			// TODO: Remove all associated values
+			try {
+				String[] keys = node.keys();
+
+				for (int i = 0; i < keys.length; i++)
+					node.remove(keys[i]);
+			} catch (BackingStoreException e) {
+				// TODO: Should this be passed back to be associated with State?
 			}
+
+		} else
+			setRepositoryCount(node, count);
+
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			// TODO: perhaps an Exception should be passed backwards and associated with State
 		}
-		if (!found)
-			return;
-		profile.setProperty(key, result.toString());
+	}
+
+	/*
+	 * Get the counter associated with a repository 
+	 */
+	protected int getRepositoryCount(Preferences node) {
+		return node.getInt(REPOSITORY_COUNT, 0);
+	}
+
+	/*
+	 * Sets the counter associated with this repository to a specific value
+	 */
+	protected void setRepositoryCount(Preferences node, int count) {
+		if (count < 1)
+			node.remove(REPOSITORY_COUNT);
+		else
+			node.putInt(REPOSITORY_COUNT, count);
+	}
+
+	/*
+	 * Determine if a repository is already known
+	 */
+	protected boolean repositoryExists(Preferences node) {
+		if (node.get(KEY_URI, null) == null)
+			return false;
+		return true;
+	}
+
+	/*
+	 * Get the preference node associated with profile & location 
+	 */
+	protected Preferences getRepositoryPreferenceNode(Profile profile, URI location, int type) {
+		String key = type == IRepository.TYPE_METADATA ? METADATA_REPOSITORY : ARTIFACT_REPOSITORY;
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+
+		if (profile != null)
+			return prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/" + key + "/" + NODE_REPOSITORIES + "/" + getKey(location)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		return prefService.getRootNode().node("/profile/_SELF_/" + key + "/" + NODE_REPOSITORIES + "/" + getKey(location)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+	}
+
+	/*
+	 * Copied from AbstractRepositoryManager
+	 */
+	private String getKey(URI location) {
+		String key = location.toString().replace('/', '_');
+		//remove trailing slash
+		if (key.endsWith("_")) //$NON-NLS-1$
+			key = key.substring(0, key.length() - 1);
+		return key;
 	}
 }

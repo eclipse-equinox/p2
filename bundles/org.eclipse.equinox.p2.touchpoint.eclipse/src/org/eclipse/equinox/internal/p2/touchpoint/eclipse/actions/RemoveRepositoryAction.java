@@ -41,7 +41,7 @@ public class RemoveRepositoryAction extends RepositoryAction {
 			RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if we are provisioning into the self profile, update the current set of repositories in this configuration
 			if (isSelfProfile(profile))
 				addToSelf(event);

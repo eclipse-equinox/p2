@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@ import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -43,6 +44,24 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
+	private class SaveJob extends Job {
+		SaveJob() {
+			super(Messages.repoMan_save);
+			setSystem(true);
+		}
+
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				Preferences node = getPreferences();
+				if (node != null)
+					node.flush();
+			} catch (BackingStoreException e) {
+				log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+			}
+			return Status.OK_STATUS;
+		}
+	}
+
 	public static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
 	public static final String EL_FACTORY = "factory"; //$NON-NLS-1$
 	public static final String EL_FILTER = "filter"; //$NON-NLS-1$
@@ -59,6 +78,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
+	private static final long SAVE_SCHEDULE_DELAY = 500;
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -79,6 +99,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Set used to manage exclusive load locks on repository locations.
 	 */
 	private Map loadLocks = new HashMap();
+
+	private final Job saveJob = new SaveJob();
 
 	protected AbstractRepositoryManager() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
@@ -452,8 +474,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/**
 	 * Return the preference node which is the root for where we store the repository information.
 	 */
-	private Preferences getPreferences() {
-		return new ConfigurationScope().getNode(getBundleId()).node(NODE_REPOSITORIES);
+	Preferences getPreferences() {
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+
+		try {
+			return prefService.getRootNode().node("/profile/_SELF_/" + getBundleId() + "/" + NODE_REPOSITORIES); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -691,18 +719,27 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 */
 	private void remember(IRepository repository, String suffix) {
 		boolean changed = false;
-		Preferences node = getPreferences().node(getKey(repository.getLocation()));
-		changed |= putValue(node, KEY_URI, repository.getLocation().toString());
-		changed |= putValue(node, KEY_URL, null);
-		changed |= putValue(node, KEY_DESCRIPTION, repository.getDescription());
-		changed |= putValue(node, KEY_NAME, repository.getName());
-		changed |= putValue(node, KEY_PROVIDER, repository.getProvider());
-		changed |= putValue(node, KEY_TYPE, repository.getType());
-		changed |= putValue(node, KEY_VERSION, repository.getVersion());
-		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
-		changed |= putValue(node, KEY_SUFFIX, suffix);
-		if (changed)
-			saveToPreferences();
+		Preferences node = getPreferences();
+		// Ensure we retrieved preferences
+		if (node == null)
+			return;
+		node = node.node(getKey(repository.getLocation()));
+
+		try {
+			changed |= putValue(node, KEY_URI, repository.getLocation().toString());
+			changed |= putValue(node, KEY_URL, null);
+			changed |= putValue(node, KEY_DESCRIPTION, repository.getDescription());
+			changed |= putValue(node, KEY_NAME, repository.getName());
+			changed |= putValue(node, KEY_PROVIDER, repository.getProvider());
+			changed |= putValue(node, KEY_TYPE, repository.getType());
+			changed |= putValue(node, KEY_VERSION, repository.getVersion());
+			changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+			changed |= putValue(node, KEY_SUFFIX, suffix);
+			if (changed)
+				saveToPreferences();
+		} catch (IllegalStateException e) {
+			//the repository was removed concurrently, so we don't need to save it
+		}
 	}
 
 	/**
@@ -714,18 +751,27 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 */
 	private boolean remember(RepositoryInfo info, boolean flush) {
 		boolean changed = false;
-		Preferences node = getPreferences().node(getKey(info.location));
-		changed |= putValue(node, KEY_URI, info.location.toString());
-		changed |= putValue(node, KEY_URL, null);
-		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
-		changed |= putValue(node, KEY_DESCRIPTION, info.description);
-		changed |= putValue(node, KEY_NAME, info.name);
-		changed |= putValue(node, KEY_NICKNAME, info.nickname);
-		changed |= putValue(node, KEY_SUFFIX, info.suffix);
-		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
-		if (changed && flush)
-			saveToPreferences();
-		return changed;
+		Preferences node = getPreferences();
+		// Ensure we retrieved preferences
+		if (node == null)
+			return changed;
+		node = node.node(getKey(info.location));
+		try {
+			changed |= putValue(node, KEY_URI, info.location.toString());
+			changed |= putValue(node, KEY_URL, null);
+			changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
+			changed |= putValue(node, KEY_DESCRIPTION, info.description);
+			changed |= putValue(node, KEY_NAME, info.name);
+			changed |= putValue(node, KEY_NICKNAME, info.nickname);
+			changed |= putValue(node, KEY_SUFFIX, info.suffix);
+			changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
+			if (changed && flush)
+				saveToPreferences();
+			return changed;
+		} catch (IllegalStateException e) {
+			//the repository was removed concurrently, so we don't need to save it
+			return false;
+		}
 	}
 
 	/**
@@ -765,8 +811,11 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				Tracing.debug(msg);
 				new Exception(msg).printStackTrace();
 			}
-			getPreferences().node(repoKey).removeNode();
-			saveToPreferences();
+			Preferences node = getPreferences();
+			if (node != null) {
+				getPreferences().node(repoKey).removeNode();
+				saveToPreferences();
+			}
 			clearNotFound(toRemove);
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
@@ -783,6 +832,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	private void restoreFromPreferences() {
 		// restore the list of repositories from the preference store
 		Preferences node = getPreferences();
+		if (node == null)
+			return;
 		String[] children;
 		try {
 			children = node.childrenNames();
@@ -846,11 +897,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Save the list of repositories to the file-system.
 	 */
 	private void saveToPreferences() {
-		try {
-			getPreferences().flush();
-		} catch (BackingStoreException e) {
-			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
-		}
+		saveJob.schedule(SAVE_SCHEDULE_DELAY);
 	}
 
 	/* (non-Javadoc)
@@ -877,18 +924,24 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		if (bus != null)
 			bus.removeListener(this);
 		//ensure all repository state in memory is written to disk
+		boolean changed = false;
 		synchronized (repositoryLock) {
 			if (repositories != null) {
-				boolean changed = false;
 				for (Iterator it = repositories.values().iterator(); it.hasNext();) {
 					RepositoryInfo info = (RepositoryInfo) it.next();
 					changed |= remember(info, false);
 				}
-				if (changed)
-					saveToPreferences();
 			}
 		}
-		saveToPreferences();
+		if (changed)
+			saveToPreferences();
+		//if there is a save job waiting, make sure it runs immediately before we discard state
+		saveJob.wakeUp();
+		try {
+			saveJob.join();
+		} catch (InterruptedException e) {
+			//ignore
+		}
 		repositories = null;
 		unavailableRepositories = null;
 	}

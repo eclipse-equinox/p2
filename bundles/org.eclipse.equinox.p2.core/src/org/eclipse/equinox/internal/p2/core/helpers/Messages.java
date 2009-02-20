@@ -30,6 +30,7 @@ class Messages extends NLS {
 	public static String repoMan_failedRead;
 	public static String repoMan_internalError;
 	public static String repoMan_notExists;
+	public static String repoMan_save;
 	public static String repoMan_unknownType;
 
 	public static String Util_Invalid_Zip_File_Format;

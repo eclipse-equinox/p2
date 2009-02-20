@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -106,7 +106,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 		//bash the repository preference file (don't try this at home, kids)
 		final String REPO_BUNDLE = "org.eclipse.equinox.p2.artifact.repository";
-		Preferences prefs = new ConfigurationScope().getNode(REPO_BUNDLE).node("repositories");
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		Preferences prefs = prefService.getRootNode().node("/profile/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] children = prefs.childrenNames();
 			for (int i = 0; i < children.length; i++)
