@@ -462,7 +462,7 @@ public class Application implements IApplication {
 		}
 
 		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
+			return ProvisioningHelper.getInstallableUnits(location, query, collector, monitor);
 		}
 	}
 
