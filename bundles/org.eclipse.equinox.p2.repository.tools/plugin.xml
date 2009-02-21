@@ -9,15 +9,18 @@
             library="lib/repository-tools-ant.jar"
             name="p2.repo2runnable">
       </antTask>
-  </extension>
-  
-  <extension
-         point="org.eclipse.ant.core.antTasks">
+
      <antTask
             class="org.eclipse.equinox.p2.internal.repository.tools.tasks.MirrorTask"
             library="lib/repository-tools-ant.jar"
             name="p2.mirror">
       </antTask>
+      
+      <antTask
+			library="lib/repository-tools-ant.jar"
+			name="p2.process.artifacts"
+			class="org.eclipse.equinox.p2.internal.repository.tools.tasks.ProcessRepoTask" >
+	  </antTask>
   </extension>
   
   <extension

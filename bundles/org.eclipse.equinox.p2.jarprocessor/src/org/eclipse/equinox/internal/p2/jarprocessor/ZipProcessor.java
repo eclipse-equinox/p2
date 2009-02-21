@@ -10,11 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.IProcessStep;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 
 /**
  * @author aniefer@ca.ibm.com
@@ -22,23 +32,22 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
  */
 public class ZipProcessor {
 
-	private IProcessStep signStep = null;
-	private IProcessStep packStep = null;
-	private IProcessStep packUnpackStep = null;
-	private IProcessStep unpackStep = null;
-
+	private JarProcessorExecutor executor = null;
+	private JarProcessorExecutor.Options options = null;
+	
 	private String workingDirectory = null;
 	private Properties properties = null;
 	private Set packExclusions = null;
 	private Set signExclusions = null;
-	private String command = null;
-	private boolean packing = false;
-	private boolean signing = false;
-	private boolean repacking = false;
-	private boolean unpacking = false;
-	private boolean verbose = false;
-	private boolean processAll = false;
-
+	
+	public void setExecutor(JarProcessorExecutor executor) {
+		this.executor = executor;
+	}
+	
+	public void setOptions(JarProcessorExecutor.Options options) {
+		this.options = options;
+	}
+	
 	public void setWorkingDirectory(String dir) {
 		workingDirectory = dir;
 	}
@@ -49,45 +58,24 @@ public class ZipProcessor {
 		return workingDirectory;
 	}
 
-	public void setSignCommand(String command) {
-		this.command = command;
-		this.signing = (command != null);
+	private boolean repacking() {
+		return options.repack || (options.pack && options.signCommand != null);
 	}
-
-	public void setPack(boolean pack) {
-		this.packing = pack;
-	}
-
-	public void setRepack(boolean repack) {
-		this.repacking = repack;
-	}
-
-	public void setUnpack(boolean unpack) {
-		this.unpacking = unpack;
-	}
-
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
-	}
-
-	public void setProcessAll(boolean all) {
-		this.processAll = all;
-	}
-
+	
 	public void processZip(File zipFile) throws ZipException, IOException {
-		if (verbose)
+		if (options.verbose)
 			System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
 		ZipFile zip = new ZipFile(zipFile);
 		initialize(zip);
 
-		String extension = unpacking ? "pack.gz" : ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
+		String extension = options.unpack ? "pack.gz" : ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
 		File tempDir = new File(getWorkingDirectory(), "temp_" + zipFile.getName()); //$NON-NLS-1$
 		JarProcessor processor = new JarProcessor();
-		processor.setVerbose(verbose);
-		processor.setProcessAll(processAll);
+		processor.setVerbose(options.verbose);
+		processor.setProcessAll(options.processAll);
 		processor.setWorkingDirectory(tempDir.getCanonicalPath());
-		if (unpacking) {
-			processor.addProcessStep(unpackStep);
+		if (options.unpack) {
+			executor.addPackUnpackStep(processor, properties, options);
 		}
 
 		File outputFile = new File(getWorkingDirectory(), zipFile.getName() + ".temp"); //$NON-NLS-1$
@@ -102,31 +90,31 @@ public class ZipProcessor {
 
 				InputStream entryStream = zip.getInputStream(entry);
 
-				boolean pack = packing && !packExclusions.contains(name);
-				boolean sign = signing && !signExclusions.contains(name);
-				boolean repack = repacking && !packExclusions.contains(name);
+				boolean pack = options.pack && !packExclusions.contains(name);
+				boolean sign = options.signCommand != null && !signExclusions.contains(name);
+				boolean repack = repacking() && !packExclusions.contains(name);
 
 				File extractedFile = null;
 
-				if (entry.getName().endsWith(extension) && (pack || sign || repack || unpacking)) {
+				if (entry.getName().endsWith(extension) && (pack || sign || repack || options.unpack)) {
 					extractedFile = new File(tempDir, name);
 					parent = extractedFile.getParentFile();
 					if (!parent.exists())
 						parent.mkdirs();
-					if (verbose)
+					if (options.verbose)
 						System.out.println("Extracting " + entry.getName()); //$NON-NLS-1$
 					FileOutputStream extracted = new FileOutputStream(extractedFile);
 					Utils.transferStreams(entryStream, extracted, true); // this will close the stream
 					entryStream = null;
 
-					boolean skip = Utils.shouldSkipJar(extractedFile, processAll, verbose);
+					boolean skip = Utils.shouldSkipJar(extractedFile, options.processAll, options.verbose);
 					if (skip) {
 						//skipping this file 
 						entryStream = new FileInputStream(extractedFile);
-						if (verbose)
+						if (options.verbose)
 							System.out.println(entry.getName() + " is not marked, skipping."); //$NON-NLS-1$
 					} else {
-						if (unpacking) {
+						if (options.unpack) {
 							File result = processor.processJar(extractedFile);
 							name = name.substring(0, name.length() - extractedFile.getName().length()) + result.getName();
 							extractedFile = result;
@@ -134,19 +122,19 @@ public class ZipProcessor {
 							if (repack || sign) {
 								processor.clearProcessSteps();
 								if (repack)
-									processor.addProcessStep(packUnpackStep);
+									executor.addPackUnpackStep(processor, properties, options);
 								if (sign)
-									processor.addProcessStep(signStep);
+									executor.addSignStep(processor, properties, options);
 								extractedFile = processor.processJar(extractedFile);
 							}
 							if (pack) {
 								processor.clearProcessSteps();
-								processor.addProcessStep(packStep);
+								executor.addPackStep(processor, properties, options);
 								File modifiedFile = processor.processJar(extractedFile);
 								if (modifiedFile.exists()) {
 									try {
 										String newName = name.substring(0, name.length() - extractedFile.getName().length()) + modifiedFile.getName();
-										if (verbose) {
+										if (options.verbose) {
 											System.out.println("Adding " + newName + " to " + outputFile.getPath()); //$NON-NLS-1$ //$NON-NLS-2$
 											System.out.println();
 										}
@@ -158,13 +146,13 @@ public class ZipProcessor {
 										Utils.clear(modifiedFile);
 									} catch (IOException e) {
 										Utils.close(entryStream);
-										if (verbose) {
+										if (options.verbose) {
 											e.printStackTrace();
 											System.out.println("Warning: Problem reading " + modifiedFile.getPath() + ".");
 										}
 									}
 									entryStream = null;
-								} else if (verbose) {
+								} else if (options.verbose) {
 									System.out.println("Warning: " + modifiedFile.getPath() + " not found.");
 								}
 							}
@@ -173,14 +161,14 @@ public class ZipProcessor {
 							try {
 								entryStream = new FileInputStream(extractedFile);
 							} catch (IOException e) {
-								if (verbose) {
+								if (options.verbose) {
 									e.printStackTrace();
 									System.out.println("Warning: Problem reading " + extractedFile.getPath() + ".");
 								}
 							}
 						}
 
-						if (verbose && entryStream != null) {
+						if (options.verbose && entryStream != null) {
 							System.out.println("Adding " + name + " to " + outputFile.getPath()); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					}
@@ -192,7 +180,7 @@ public class ZipProcessor {
 						Utils.transferStreams(entryStream, zipOut, false);
 						zipOut.closeEntry();
 					} catch (ZipException e) {
-						if(verbose) {
+						if(options.verbose) {
 							System.out.println("Warning: " + name + " already exists in " + outputFile.getName() + ".  Skipping.");
 						}
 					}
@@ -202,7 +190,7 @@ public class ZipProcessor {
 				if (extractedFile != null)
 					Utils.clear(extractedFile);
 				
-				if (verbose) {
+				if (options.verbose) {
 					System.out.println();
 					System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
 				}
@@ -227,7 +215,7 @@ public class ZipProcessor {
 				stream = zip.getInputStream(entry);
 				properties.load(stream);
 			} catch (IOException e) {
-				if (verbose)
+				if (options.verbose)
 					e.printStackTrace();
 			} finally {
 				Utils.close(stream);
@@ -237,9 +225,7 @@ public class ZipProcessor {
 		packExclusions = Utils.getPackExclusions(properties);
 		signExclusions = Utils.getSignExclusions(properties);
 
-		packUnpackStep = new PackUnpackStep(properties, verbose);
-		packStep = new PackStep(properties, verbose);
-		signStep = new SignCommandStep(properties, command, verbose);
-		unpackStep = new UnpackStep(properties, verbose);
+		if (executor == null)
+			executor = new JarProcessorExecutor();
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,12 +32,8 @@ public class JarProcessorExecutor {
 		if (options.input.isFile() && options.input.getName().endsWith(".zip")) { //$NON-NLS-1$
 			ZipProcessor processor = new ZipProcessor();
 			processor.setWorkingDirectory(options.outputDir);
-			processor.setSignCommand(options.signCommand);
-			processor.setPack(options.pack);
-			processor.setRepack(options.repack || (options.pack && options.signCommand != null));
-			processor.setUnpack(options.unpack);
-			processor.setVerbose(options.verbose);
-			processor.setProcessAll(options.processAll);
+			processor.setOptions(options);
+			processor.setExecutor(this);
 			try {
 				processor.processZip(options.input);
 			} catch (ZipException e) {
