@@ -51,8 +51,11 @@ public class MissingDependency extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		Set explanation = plan.getExplanationFor(a1);
-		System.out.println(explanation);
-		assertTrue(explanation.size() > 0);
-		fail("Explanation is too complicated for now");
+		// check that a1 can be installed
+		assertEquals(0, explanation.size());
+		// check that b1 cannot be installed
+		explanation = plan.getExplanationFor(b1);
+		System.out.println("B:" + explanation);
+		assertEquals(1, explanation.size());
 	}
 }
