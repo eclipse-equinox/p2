@@ -282,7 +282,7 @@ public class SimplePlanner implements IPlanner {
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				LogHelper.log(s);
-				
+
 				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
 				IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 				Map iusToProblem = new HashMap(added.length);
@@ -292,7 +292,7 @@ public class SimplePlanner implements IPlanner {
 						iusToProblem.put(added[i], explanation);
 					}
 				}
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), null);
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), iusToProblem);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
