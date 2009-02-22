@@ -37,7 +37,10 @@ public class MirrorApplication extends AbstractApplication {
 			validate();
 			initializeRepos(new NullProgressMonitor());
 			IQueryable slice = slice(new NullProgressMonitor());
-			mirrorArtifacts(slice, new NullProgressMonitor());
+			IStatus mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
+			if (mirrorStatus.getSeverity() == IStatus.ERROR) {
+				return mirrorStatus;
+			}
 			mirrorMetadata(slice, new NullProgressMonitor());
 		} finally {
 			finalizeRepositories();
@@ -45,7 +48,7 @@ public class MirrorApplication extends AbstractApplication {
 		return Status.OK_STATUS;
 	}
 
-	private void mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) {
+	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) {
 		Collector ius = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
 		ArrayList keys = new ArrayList(ius.size());
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
@@ -57,7 +60,7 @@ public class MirrorApplication extends AbstractApplication {
 		}
 		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, true);
 		mirror.setArtifactKeys((IArtifactKey[]) keys.toArray(new IArtifactKey[keys.size()]));
-		mirror.run(true, false);
+		return mirror.run(true, false);
 	}
 
 	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {

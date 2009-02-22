@@ -28,13 +28,14 @@ public class MirrorTask extends AbstractRepositoryTask {
 			application.initializeRepos(null);
 			List ius = prepareIUs();
 			if (ius == null || ius.size() == 0)
-				throw new BuildException("Need to specify one or more IUs.");
+				throw new BuildException("Need to specify one or more IUs to mirror.");
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
-			if (result.matches(IStatus.ERROR))
-				throw new ProvisionException(result);
+			if (result.matches(IStatus.ERROR)) {
+				throw new BuildException(TaskHelper.statusToString(result, null).toString());
+			}
 		} catch (ProvisionException e) {
-			throw new BuildException("Error occurred while transforming repository.", e);
+			throw new BuildException(e);
 		}
 	}
 
