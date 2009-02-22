@@ -302,15 +302,15 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(variable + "=1"); //$NON-NLS-1$
 		}
-		dependencyHelper.setTrue(variable, Explanation.IU_TO_INSTALL + ":" + variable);
+		dependencyHelper.setTrue(variable, new Explanation.IUToInstall(iu));
 	}
 
-	private void createNegation(IInstallableUnit iu) throws ContradictionException {
+	private void createNegation(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
 		IUVariable variable = newIUVariable(iu);
 		if (DEBUG) {
 			Tracing.debug(variable + "=0"); //$NON-NLS-1$
 		}
-		dependencyHelper.setFalse(variable, Explanation.IU_MISSING + ":" + variable);
+		dependencyHelper.setFalse(variable, new Explanation.MissingIU(iu, req));
 	}
 
 	//	private void createExistence(IInstallableUnit iu) throws ContradictionException {
@@ -352,12 +352,12 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				createImplication(iuVar, matches, Explanation.HARD_DEPENDENCY + ":" + iuVar + "->" + req);
+				createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
 			}
 		} else {
 			if (!matches.isEmpty()) {
 				PropositionalVariable abs = getAbstractVariable();
-				createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY);
+				createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 				optionalAbstractRequirements.add(abs);
 			}
 		}
@@ -379,7 +379,7 @@ public class Projector {
 
 		slice.put(iu.getId(), iu.getVersion(), iu);
 		if (!isApplicable(iu)) {
-			createNegation(iu);
+			createNegation(iu, null);
 			return;
 		}
 
@@ -437,12 +437,12 @@ public class Projector {
 							if (matches.isEmpty()) {
 								missingRequirement(patch, req);
 							} else {
-								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, Explanation.HARD_DEPENDENCY + ":" + iuVar + " -> " + matches);
+								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, new Explanation.HardRequirement(iu, req));
 							}
 						} else {
 							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
-								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_DEPENDENCY);
+								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -456,16 +456,16 @@ public class Projector {
 						if (!req.isOptional()) {
 							if (matches.isEmpty()) {
 								//TODO Need to change NAME
-								dependencyHelper.implication(iuVar).implies(patchVar).named(Explanation.HARD_DEPENDENCY + iuVar + " -> " + patchVar);
+								dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, patch));
 							} else {
 								matches.add(patchVar);
-								createImplication(iuVar, matches, Explanation.HARD_DEPENDENCY + ":" + iuVar + " -> " + matches);
+								createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
 							}
 						} else {
 							if (!matches.isEmpty()) {
 								PropositionalVariable abs = getAbstractVariable();
 								optionalAbstractRequirements.add(patchVar);
-								createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY);
+								createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 								optionalAbstractRequirements.add(abs);
 							}
 						}
@@ -493,14 +493,14 @@ public class Projector {
 					} else {
 						if (!requiredPatches.isEmpty())
 							matches.addAll(requiredPatches);
-						createImplication(iuVar, matches, Explanation.HARD_DEPENDENCY + ":" + iuVar + " -> " + req);
+						createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
 					}
 				} else {
 					if (!matches.isEmpty()) {
 						if (!requiredPatches.isEmpty())
 							matches.addAll(requiredPatches);
 						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, matches, Explanation.OPTIONAL_DEPENDENCY);
+						createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 						optionalAbstractRequirements.add(abs);
 					}
 				}
@@ -521,7 +521,7 @@ public class Projector {
 
 	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
 		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
-		createNegation(iu);
+		createNegation(iu, req);
 	}
 
 	/**
@@ -596,17 +596,17 @@ public class Projector {
 			createAtMostOne(new PropositionalVariable[] {abs, noop});
 		}
 		optionalRequirements.add(noop);
-		createImplication(iuVar, optionalRequirements, Explanation.OPTIONAL_DEPENDENCY);
+		createImplication(iuVar, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
 	}
 
-	private void createImplication(PropositionalVariable left, List right, String name) throws ContradictionException {
+	private void createImplication(PropositionalVariable left, List right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
 
-	private void createImplication(PropositionalVariable[] left, List right, String name) throws ContradictionException {
+	private void createImplication(PropositionalVariable[] left, List right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
