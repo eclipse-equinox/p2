@@ -28,7 +28,7 @@ public class FailingMetadataRepositoryFactory extends MetadataRepositoryFactory 
 	}
 
 	@Override
-	public IMetadataRepository load(URI location, IProgressMonitor monitor) {
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) {
 		throw new RuntimeException("Exception thrown deliberately as part of test");
 	}
 

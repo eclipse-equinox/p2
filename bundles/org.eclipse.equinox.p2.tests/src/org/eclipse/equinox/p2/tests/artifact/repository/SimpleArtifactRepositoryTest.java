@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -157,7 +158,10 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		location = new File(getTempFolder(), getUniqueString()).toURI();
 		factory.create(location, "test type", null, null);
 		try {
-			factory.load(location, new NullProgressMonitor());
+			//bug 248951, ask for a modifiable repo
+			IRepository repo = factory.load(location, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, new NullProgressMonitor());
+			assertNotNull(repo);
+			assertTrue(repo.isModifiable());
 		} catch (ProvisionException e) {
 			fail("2.0", e);
 		}

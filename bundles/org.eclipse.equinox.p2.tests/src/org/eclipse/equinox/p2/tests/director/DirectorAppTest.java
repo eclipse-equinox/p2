@@ -9,7 +9,10 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -20,7 +23,9 @@ import org.eclipse.equinox.internal.p2.director.app.Application;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 
@@ -460,6 +465,28 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		delete(artifactRepo1);
 		delete(metadataRepo1);
 		delete(destinationRepo);
+	}
+
+	public void testQueryMultipleRepos() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+		URI metadataRepo1 = getTestData("10.1", "/testData/metadataRepo/good").toURI();
+		URI metadataRepo2 = getTestData("10.1", "/testData/metadataRepo/multipleversions1").toURI();
+		Application application = new Application();
+		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, Query.class, Collector.class);
+		method.setAccessible(true);
+		URI[] uris = new URI[] {metadataRepo1, metadataRepo2};
+		Query query = new MatchQuery() {
+			public boolean isMatch(Object candidate) {
+				if (candidate instanceof IInstallableUnit) {
+					IInstallableUnit iu = (IInstallableUnit) candidate;
+					if (iu.getId().equals("Default"))
+						return true;
+				}
+				return false;
+			}
+		};
+		Collector collector = new Collector();
+		Collector result = (Collector) method.invoke(application, uris, query, collector);
+		assertEquals("1.0", 1, result.size());
 	}
 
 	/**

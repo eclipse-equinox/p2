@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
-
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -24,12 +26,15 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * Tests for {@link org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction}.
  */
 public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	private static final String TEST_LOCATION = "http://eclipse.org/eclipse/updates/AddRepositoryActionTest";
+	private static final String KEY_URI = "uri";
 	AddRepositoryAction action;
 	private URI locationURI;
 
@@ -110,6 +115,38 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", result.isOK());
 	}
 
+	public void testMultipleActionAdd() {
+		Map args = getValidArguments();
+		IStatus result = action.execute(args);
+		assertTrue("1.0", result.isOK());
+
+		result = action.execute(args);
+		assertTrue("1.1", result.isOK());
+
+		result = action.undo(args);
+		assertTrue("1.2", result.isOK());
+
+		assertTrue("2.0", locationExists(null, TEST_LOCATION));
+	}
+
+	public void testUserWins() {
+		try {
+			getArtifactRepositoryManager().addRepository(new URI(TEST_LOCATION));
+			assertTrue("0.1", locationExists(null, TEST_LOCATION));
+		} catch (URISyntaxException e) {
+			// Should not occur
+		}
+
+		Map args = getValidArguments();
+		IStatus result = action.execute(args);
+		assertTrue("1.0", result.isOK());
+
+		result = action.undo(args);
+		assertTrue("1.1", result.isOK());
+
+		assertTrue("2.0", locationExists(null, TEST_LOCATION));
+	}
+
 	/**
 	 * Tests for install of an IU that adds a repository.
 	 */
@@ -131,9 +168,34 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//check that profile property is set
 		profile = getProfile(id);
-		String value = profile.getProperty(IProfile.PROP_METADATA_REPOSITORIES);
-		assertNull("2.0", value);
-		value = profile.getProperty(IProfile.PROP_ARTIFACT_REPOSITORIES);
-		assertEquals("2.1", TEST_LOCATION, value);
+		// Get Preference node associated with the profile
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		Preferences pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
+		String value = pref.get(KEY_URI, null);
+
+		assertEquals("2.0", value, TEST_LOCATION);
+	}
+
+	/*
+	 * Modified from AbstractRepositoryManager
+	 */
+	private String getKey(String location) {
+		String key = location.replace('/', '_');
+		//remove trailing slash
+		if (key.endsWith("_")) //$NON-NLS-1$
+			key = key.substring(0, key.length() - 1);
+		return key;
+	}
+
+	private boolean locationExists(IProfile profile, String location) {
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		Preferences pref;
+		if (profile != null)
+			pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifactRepositories/repositories/" + getKey(location));
+		else
+			pref = prefService.getRootNode().node("/profile/_SELF_/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(location));
+		if (location.equals(pref.get(KEY_URI, null)))
+			return true;
+		return false;
 	}
 }

@@ -1,11 +1,12 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -70,6 +71,24 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	public void testQualifyAction() {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		assertEquals("org.eclipse.equinox.p2.touchpoint.eclipse.installBundle", touchpoint.qualifyAction("installBundle"));
+	}
+
+	/**
+	 * Tests loading cache extensions from a profile whose install directory contains spaces
+	 */
+	public void testBug262073() throws MalformedURLException {
+		Map properties = new HashMap();
+		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
+		//use URL here so spaces are not encoded
+		URL spacesLocation = site.toURL();
+		site = getTestData("Repositoy", "/testData/artifactRepo/simple/");
+		URL location = site.toURL();
+
+		properties.put("org.eclipse.equinox.p2.cache.extensions", location.toString() + "|" + spacesLocation.toString());
+		IProfile profile = createProfile("testBug262073", null, properties);
+		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(profile);
+		Collection repos = repo.testGetBundleRepositories();
+		assertEquals("1.0", 3, repos.size());
 	}
 
 	public void testInitializeCompleteOperand() {
