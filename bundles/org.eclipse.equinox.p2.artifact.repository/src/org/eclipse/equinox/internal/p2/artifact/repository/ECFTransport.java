@@ -23,6 +23,7 @@ import org.eclipse.ecf.filetransfer.identity.FileCreateException;
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -30,6 +31,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.Authenticatio
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -68,6 +72,28 @@ public class ECFTransport extends Transport {
 	private ECFTransport() {
 		retrievalFactoryTracker = new ServiceTracker(Activator.getContext(), IRetrieveFileTransferFactory.class.getName(), null);
 		retrievalFactoryTracker.open();
+		startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
+	}
+
+	private boolean startBundle(String bundleId) {
+		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
+		if (packageAdmin == null)
+			return false;
+
+		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
+		if (bundles != null && bundles.length > 0) {
+			for (int i = 0; i < bundles.length; i++) {
+				try {
+					if ((bundles[0].getState() & Bundle.INSTALLED) == 0) {
+						bundles[0].start();
+						return true;
+					}
+				} catch (BundleException e) {
+					// failed, try next bundle
+				}
+			}
+		}
+		return false;
 	}
 
 	protected IStatus convertToStatus(IFileTransferEvent event, Exception failure, long startTime, String location) {
