@@ -114,7 +114,7 @@ public class Projector {
 		}
 
 		public int hashCode() {
-			return iu.getId().hashCode() * 19 + iu.getVersion().hashCode() * 5779;
+			return iu.hashCode();
 		}
 
 		public String toString() {
@@ -680,7 +680,7 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, vars).named("At most 1 of " + vars); //$NON-NLS-1$
+		dependencyHelper.atMost(1, vars).named("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
 	}
 
 	private PropositionalVariable getAbstractVariable() {
@@ -774,6 +774,14 @@ public class Projector {
 			}
 		}
 		return col;
+	}
+
+	public Set getExplanationFor(IInstallableUnit iu) {
+		try {
+			return dependencyHelper.whyNot(newIUVariable(iu));
+		} catch (TimeoutException e) {
+			return Collections.EMPTY_SET;
+		}
 	}
 
 	public IStatus getExplanation(Set explanation) {

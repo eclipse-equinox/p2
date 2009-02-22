@@ -36,8 +36,6 @@ public class SimplePlanner implements IPlanner {
 	private static final String INCLUDE_PROFILE_IUS = "org.eclipse.equinox.p2.internal.profileius"; //$NON-NLS-1$
 	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
-	private Set explanation;
-
 	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, ProfileChangeRequest changeRequest) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
 		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
@@ -53,7 +51,7 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(status, operands, computeActualChangeRequest(toState, changeRequest));
+		return new ProvisioningPlan(status, operands, computeActualChangeRequest(toState, changeRequest), null);
 	}
 
 	private Map[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
@@ -283,16 +281,18 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
-				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
-				//We invoke the old resolver to get explanations for now
-				explanation = new HashSet();
-				IStatus explanationStatus = projector.getExplanation(explanation);
-				// IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-				// TODO that code has no sense now with the new explanation scheme
-				if (!explanationStatus.isOK())
-					s = explanationStatus;
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest));
+				
+				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
+				IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
+				Map iusToProblem = new HashMap(added.length);
+				for (int i = 0; i < added.length; i++) {
+					Set explanation = projector.getExplanationFor(added[i]);
+					if (explanation != null) {
+						iusToProblem.put(added[i], explanation);
+					}
+				}
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), null);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
@@ -442,12 +442,5 @@ public class SimplePlanner implements IPlanner {
 		sub.done();
 		Collection results = resultsMap.values();
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
-	}
-
-	public Set getExplanation() {
-		if (explanation == null) {
-			throw new IllegalStateException("That method should be called only in case of failure to find a suitable plan");
-		}
-		return explanation;
 	}
 }

@@ -23,18 +23,20 @@ public class ProvisioningPlan {
 	Operand[] operands;
 	Map actualChangeRequest;
 	Map sideEffectChanges;
+	Map iuToProblem;
 
 	public ProvisioningPlan(IStatus status) {
-		this(status, new Operand[0], null);
+		this(status, new Operand[0], null, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, Map iuToProblem) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
 			this.actualChangeRequest = actualChangeRequest[0];
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
+		this.iuToProblem = iuToProblem;
 	}
 
 	public IStatus getStatus() {
@@ -91,5 +93,9 @@ public class ProvisioningPlan {
 			}
 			return query.perform(list.iterator(), collector);
 		}
+	}
+
+	public Set getExplanationFor(IInstallableUnit iu) {
+		return (Set) iuToProblem.get(iu);
 	}
 }
