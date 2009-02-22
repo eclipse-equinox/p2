@@ -777,6 +777,8 @@ public class Projector {
 	}
 
 	public Set getExplanationFor(IInstallableUnit iu) {
+		//TODO if the iu is resolved then return null.
+		//TODO if the iu is in an unknown state, then return a special value in the set
 		try {
 			return dependencyHelper.whyNot(newIUVariable(iu));
 		} catch (TimeoutException e) {
