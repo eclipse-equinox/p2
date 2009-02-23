@@ -159,7 +159,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		ArrayList locations = new ArrayList();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(policy.getQueryContext().getMetadataRepositoryFlags())));
 		if (includeDisabledRepos) {
-			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED)));
+			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | IRepositoryManager.REPOSITORIES_NON_SYSTEM)));
 		}
 		return locations;
 	}
