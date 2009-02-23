@@ -49,9 +49,6 @@ public class ProfilePreferences extends EclipsePreferences {
 		if (segmentCount == 2)
 			profileLock = new Object();
 
-		// ensure profile exists
-		computeProfile(path);
-
 		if (segmentCount < 3)
 			return;
 		// cache the qualifier
