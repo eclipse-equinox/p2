@@ -1,5 +1,6 @@
 package org.eclipse.equinox.internal.p2.director;
 
+import java.util.Arrays;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public abstract class Explanation implements Comparable<Explanation> {
@@ -53,14 +54,14 @@ public abstract class Explanation implements Comparable<Explanation> {
 	}
 
 	public static class Singleton extends Explanation {
-		public final IInstallableUnit iu;
+		public final IInstallableUnit[] ius;
 
-		public Singleton(IInstallableUnit iu) {
-			this.iu = iu;
+		public Singleton(IInstallableUnit[] ius) {
+			this.ius = ius;
 		}
 
 		public String toString() {
-			return SINGLETON_CONSTRAINT + ":" + iu;
+			return SINGLETON_CONSTRAINT + ":" + Arrays.asList(ius);
 		}
 
 		@Override

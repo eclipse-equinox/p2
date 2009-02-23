@@ -683,7 +683,12 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, vars).named(Explanation.SINGLETON_CONSTRAINT + ":" + Arrays.toString(vars)); //$NON-NLS-1$
+		IInstallableUnit[] ius = new IInstallableUnit[vars.length];
+		int i = 0;
+		for (PropositionalVariable var : vars) {
+			ius[i++] = ((IUVariable) var).getInstallableUnit();
+		}
+		dependencyHelper.atMost(1, vars).named(new Explanation.Singleton(ius)); //$NON-NLS-1$
 	}
 
 	private PropositionalVariable getAbstractVariable() {
