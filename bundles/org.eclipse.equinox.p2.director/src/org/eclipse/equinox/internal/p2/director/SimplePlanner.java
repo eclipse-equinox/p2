@@ -274,7 +274,7 @@ public class SimplePlanner implements IPlanner {
 			IQueryable slice = slicer.slice(allIUs, sub.newChild(ExpandWork / 4));
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus());
-			Projector projector = new Projector(slice, newSelectionContext);
+			Projector projector = new Projector(slice, newSelectionContext, null, profileChangeRequest.getAddedInstallableUnits());
 			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)

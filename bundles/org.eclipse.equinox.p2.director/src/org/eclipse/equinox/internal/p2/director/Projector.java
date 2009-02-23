@@ -42,6 +42,8 @@ public class Projector {
 	private Map variables; //key IU, value IUVariable
 	private Map noopVariables; //key IU, value AbstractVariable
 	private List abstractVariables;
+	private IInstallableUnit[] alreadyExistingRoots;
+	private IInstallableUnit[] newRoots;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
@@ -155,7 +157,7 @@ public class Projector {
 		return false;
 	}
 
-	public Projector(IQueryable q, Dictionary context) {
+	public Projector(IQueryable q, Dictionary context, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots) {
 		picker = q;
 		variables = new HashMap();
 		noopVariables = new HashMap();
@@ -164,6 +166,8 @@ public class Projector {
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
+		this.alreadyExistingRoots = alreadyExistingRoots;
+		this.newRoots = newRoots;
 	}
 
 	public void encode(IInstallableUnit[] ius, IProgressMonitor monitor) {
