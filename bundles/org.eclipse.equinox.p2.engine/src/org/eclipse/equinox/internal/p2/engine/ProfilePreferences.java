@@ -55,14 +55,14 @@ public class ProfilePreferences extends EclipsePreferences {
 		qualifier = getSegment(path, 2);
 	}
 
-	private IProfile computeProfile(String path) {
+	private IProfile computeProfile(String path) throws BackingStoreException {
 		String profileName = getSegment(path, 1);
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 		IProfile result = null;
 		if (profileName != null && profileRegistry != null)
 			result = profileRegistry.getProfile(profileName);
 		if (result == null && !profileName.equals(IProfileRegistry.SELF))
-			throw new IllegalArgumentException(NLS.bind(Messages.ProfilePreferences_Profile_not_found, profileName));
+			throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_Profile_not_found, profileName));
 		return result;
 	}
 
