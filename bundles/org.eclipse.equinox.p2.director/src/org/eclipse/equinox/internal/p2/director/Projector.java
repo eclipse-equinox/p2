@@ -49,6 +49,7 @@ public class Projector {
 
 	private DependencyHelper dependencyHelper;
 	private Collection solution;
+	private Collection assumptions;
 
 	private MultiStatus result;
 	private Map fragments;
@@ -162,6 +163,7 @@ public class Projector {
 		selectionContext = context;
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
+		assumptions = new ArrayList();
 	}
 
 	public void encode(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -178,7 +180,7 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			// TODO changed constant 100000 by an estimation of the number of variables required in the encoding.
+			// TODO change constant 100000 by an estimation of the number of variables required in the encoding.
 			dependencyHelper = new DependencyHelper(solver, 100000);
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
@@ -302,7 +304,8 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(variable + "=1"); //$NON-NLS-1$
 		}
-		dependencyHelper.setTrue(variable, new Explanation.IUToInstall(iu));
+		// dependencyHelper.setTrue(variable, new Explanation.IUToInstall(iu));
+		assumptions.add(variable);
 	}
 
 	private void createNegation(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
@@ -708,7 +711,7 @@ public class Projector {
 		try {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			if (dependencyHelper.hasASolution()) {
+			if (dependencyHelper.hasASolution(assumptions)) {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
 				}
@@ -795,7 +798,7 @@ public class Projector {
 		}
 		Set why;
 		try {
-			why = dependencyHelper.why();
+			why = dependencyHelper.why(assumptions);
 			if (DEBUG) {
 				stop = System.currentTimeMillis();
 				Tracing.debug("Explanation found: " + (stop - start));
