@@ -596,7 +596,7 @@ public class Projector {
 		PropositionalVariable noop = getNoOperationVariable(iu);
 		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
 			PropositionalVariable abs = (PropositionalVariable) i.next();
-			createAtMostOne(new PropositionalVariable[] {abs, noop});
+			createIncompatibleValues(abs, noop);
 		}
 		optionalRequirements.add(noop);
 		createImplication(iuVar, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
@@ -689,6 +689,14 @@ public class Projector {
 			ius[i++] = ((IUVariable) var).getInstallableUnit();
 		}
 		dependencyHelper.atMost(1, vars).named(new Explanation.Singleton(ius)); //$NON-NLS-1$
+	}
+
+	private void createIncompatibleValues(PropositionalVariable v1, PropositionalVariable v2) throws ContradictionException {
+		PropositionalVariable[] vars = {v1, v2};
+		if (DEBUG) {
+			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
+		}
+		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT); //$NON-NLS-1$
 	}
 
 	private PropositionalVariable getAbstractVariable() {
