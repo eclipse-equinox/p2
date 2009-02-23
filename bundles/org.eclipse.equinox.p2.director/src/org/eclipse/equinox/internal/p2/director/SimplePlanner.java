@@ -258,7 +258,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			IProfile profile = profileChangeRequest.getProfile();
 
-			IInstallableUnit[] allIUs = updatePlannerInfo(profileChangeRequest);
+			Object[] updatedPlan = updatePlannerInfo(profileChangeRequest);
 
 			URI[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
@@ -271,11 +271,11 @@ public class SimplePlanner implements IPlanner {
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext);
-			IQueryable slice = slicer.slice(allIUs, sub.newChild(ExpandWork / 4));
+			IQueryable slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus());
 			Projector projector = new Projector(slice, newSelectionContext);
-			projector.encode(allIUs, null, null, sub.newChild(ExpandWork / 4));
+			projector.encode(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, (IInstallableUnit[]) updatedPlan[1], profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
 				return new ProvisioningPlan(s);
@@ -300,7 +300,7 @@ public class SimplePlanner implements IPlanner {
 			s = Status.OK_STATUS;
 
 			Collection newState = projector.extractSolution();
-			newState.remove(allIUs[0]);
+			newState.remove(updatedPlan[0]);
 
 			ResolutionHelper newStateHelper = new ResolutionHelper(newSelectionContext, null);
 			newState = newStateHelper.attachCUs(newState);
@@ -326,18 +326,11 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	//The planner uses installable unit properties to keep track of what it has been asked to install. This updates this information
-	private IInstallableUnit[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
-		//Support for backward compatibility. Convert planner_marker properties into strict inclusion rules
-		Collector previousMarkers = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), PLANNER_MARKER, Boolean.TRUE.toString()), new Collector(), null);
-		for (Iterator iterator = previousMarkers.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			profileChangeRequest.setInstallableUnitInclusionRules(iu, PlannerHelper.createStrictInclusionRule(iu));
-			profileChangeRequest.removeInstallableUnitProfileProperty(iu, PLANNER_MARKER);
-		}
-
+	//It returns at index 0 a meta IU representing everything that needs to be installed
+	//It returns at index 1 all the IUs that are in the profile after the removal have been done, but before the addition have been done 
+	private Object[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
 		Collection includedIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection();
 		Collection alreadyInstalled = new HashSet(includedIUs);
-		alreadyInstalled.addAll(previousMarkers.toCollection());
 
 		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = profileChangeRequest.getRemovedInstallableUnits();
@@ -390,7 +383,7 @@ public class SimplePlanner implements IPlanner {
 			}
 			gatheredRequirements.add(profileRequirement);
 		}
-		return new IInstallableUnit[] {createIURepresentingTheProfile(gatheredRequirements)};
+		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), (IInstallableUnit[]) alreadyInstalled.toArray(new IInstallableUnit[alreadyInstalled.size()])};
 	}
 
 	private IRequiredCapability createRequirement(IInstallableUnit iu, String rule) {
