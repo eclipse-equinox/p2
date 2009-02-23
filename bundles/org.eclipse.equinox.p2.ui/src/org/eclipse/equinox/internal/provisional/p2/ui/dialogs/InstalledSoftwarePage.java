@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
@@ -31,9 +31,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.about.*;
-import org.eclipse.ui.menus.*;
-import org.eclipse.ui.services.IServiceLocator;
+import org.eclipse.ui.about.InstallationPage;
+import org.eclipse.ui.menus.AbstractContributionFactory;
 
 /**
  * @since 3.4
@@ -43,22 +42,15 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
-	IMenuService menuService;
-	IInstallationPageContainer pageContainer;
+	private static final int UPDATE_ID = IDialogConstants.CLIENT_ID;
+	private static final int UNINSTALL_ID = IDialogConstants.CLIENT_ID + 1;
+	private static final int PROPERTIES_ID = IDialogConstants.CLIENT_ID + 2;
+	private static final String BUTTON_ACTION = "org.eclipse.equinox.p2.ui.buttonAction"; //$NON-NLS-1$
+
 	AbstractContributionFactory factory;
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.about.InstallationPage#init(org.eclipse.ui.services.IServiceLocator)
-	 */
-	public void init(IServiceLocator locator) {
-		pageContainer = (IInstallationPageContainer) locator.getService(IInstallationPageContainer.class);
-		menuService = (IMenuService) locator.getService(IMenuService.class);
-		// this assumes that the control is created before init
-		contributeButtonActions();
-
-	}
+	Button updateButton, uninstallButton, propertiesButton;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
@@ -78,12 +70,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 		// Table of installed IU's
 		installedIUGroup = new InstalledIUGroup(Policy.getDefault(), composite, JFaceResources.getDialogFont(), Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell()), getColumnConfig());
-		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				updateDetailsArea();
-			}
-
-		});
+		// we hook selection listeners on the viewer in createPageButtons because we
+		// rely on the actions we create there getting selection events before we use
+		// them to update button enablement.
 
 		CopyUtils.activateCopy(this, installedIUGroup.getStructuredViewer().getControl());
 
@@ -98,69 +87,73 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		setControl(composite);
 	}
 
-	private void contributeButtonActions() {
-		if (pageContainer == null || menuService == null)
-			return;
-
+	public void createPageButtons(Composite parent) {
 		final String profileId = Policy.getDefault().getProfileChooser().getProfileId(getShell());
+		// For the update action, we create a custom selection provider that will interpret no
+		// selection as checking for updates to everything.
+		// We also override the run method to close the containing dialog
+		// if we successfully try to resolve.  This is done to ensure that progress
+		// is shown properly.
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
+		Action action = new UpdateAction(Policy.getDefault(), new ISelectionProvider() {
+			public void addSelectionChangedListener(ISelectionChangedListener listener) {
+				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
+			}
 
-		factory = new AbstractContributionFactory(pageContainer.getButtonBarURI(), null) {
+			public ISelection getSelection() {
+				StructuredViewer viewer = installedIUGroup.getStructuredViewer();
+				ISelection selection = viewer.getSelection();
+				if (selection.isEmpty()) {
+					final Object[] all = ((IStructuredContentProvider) viewer.getContentProvider()).getElements(viewer.getInput());
+					return new StructuredSelection(all);
+				}
+				return selection;
+			}
 
-			public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
-				ActiveInstallationPageExpression whenPageActive = new ActiveInstallationPageExpression(InstalledSoftwarePage.this);
-				// For the update action, we create a custom selection provider that will interpret no
-				// selection as checking for updates to everything.
-				// We also override the run method to close the containing dialog
-				// if we successfully try to resolve.  This is done to ensure that progress
-				// is shown properly.
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
-				Action action = new UpdateAction(Policy.getDefault(), new ISelectionProvider() {
-					public void addSelectionChangedListener(ISelectionChangedListener listener) {
-						installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
-					}
+			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+				installedIUGroup.getStructuredViewer().removeSelectionChangedListener(listener);
+			}
 
-					public ISelection getSelection() {
-						StructuredViewer viewer = installedIUGroup.getStructuredViewer();
-						ISelection selection = viewer.getSelection();
-						if (selection.isEmpty()) {
-							final Object[] all = ((IStructuredContentProvider) viewer.getContentProvider()).getElements(viewer.getInput());
-							return new StructuredSelection(all);
-						}
-						return selection;
-					}
-
-					public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-						installedIUGroup.getStructuredViewer().removeSelectionChangedListener(listener);
-					}
-
-					public void setSelection(ISelection selection) {
-						installedIUGroup.getStructuredViewer().setSelection(selection);
-					}
-				}, profileId, true) {
-					public void run() {
-						super.run();
-						if (getReturnCode() == Window.OK)
-							pageContainer.closeContainer();
-					}
-				};
-				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
-
-				// Uninstall action
-				action = new UninstallAction(Policy.getDefault(), installedIUGroup.getStructuredViewer(), profileId) {
-					public void run() {
-						super.run();
-						if (getReturnCode() == Window.OK)
-							pageContainer.closeContainer();
-					}
-				};
-				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
-
-				// Properties action
-				action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
-				additions.addContributionItem(new ActionContributionItem(action), whenPageActive);
+			public void setSelection(ISelection selection) {
+				installedIUGroup.getStructuredViewer().setSelection(selection);
+			}
+		}, profileId, true) {
+			public void run() {
+				super.run();
+				if (getReturnCode() == Window.OK)
+					getPageContainer().closeContainer();
 			}
 		};
-		menuService.addContributionFactory(factory);
+		updateButton = createButton(parent, UPDATE_ID, action.getText());
+		updateButton.setData(BUTTON_ACTION, action);
+		// Uninstall action
+		action = new UninstallAction(Policy.getDefault(), installedIUGroup.getStructuredViewer(), profileId) {
+			public void run() {
+				super.run();
+				if (getReturnCode() == Window.OK)
+					getPageContainer().closeContainer();
+			}
+		};
+		uninstallButton = createButton(parent, UNINSTALL_ID, action.getText());
+		uninstallButton.setData(BUTTON_ACTION, action);
+
+		// Properties action
+		action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
+		propertiesButton = createButton(parent, PROPERTIES_ID, action.getText());
+		propertiesButton.setData(BUTTON_ACTION, action);
+
+		// We rely on the actions getting selection events before we do, because
+		// we rely on the enablement state of the action.  So we don't hook
+		// the selection listener on our table until after actions are created.
+		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				updateDetailsArea();
+				updateEnablement();
+			}
+
+		});
+
+		updateEnablement();
 	}
 
 	void updateDetailsArea() {
@@ -175,9 +168,17 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		detailsArea.setText(""); //$NON-NLS-1$
 	}
 
-	public void dispose() {
-		super.dispose();
-		menuService.removeContributionFactory(factory);
+	void updateEnablement() {
+		if (updateButton == null || updateButton.isDisposed())
+			return;
+		Button[] buttons = {updateButton, uninstallButton, propertiesButton};
+		for (int i = 0; i < buttons.length; i++) {
+			Action action = (Action) buttons[i].getData(BUTTON_ACTION);
+			if (action == null || !action.isEnabled())
+				buttons[i].setEnabled(false);
+			else
+				buttons[i].setEnabled(true);
+		}
 	}
 
 	private IUColumnConfig[] getColumnConfig() {
@@ -185,6 +186,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, pixels / 3), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, pixels * 2 / 3)};
 
 	}
+
 	public void copyToClipboard(Control activeControl) {
 		Object[] elements = installedIUGroup.getSelectedIUElements();
 		if (elements.length == 0)
@@ -193,5 +195,22 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
 		clipboard.dispose();
+	}
+
+	protected void buttonPressed(int buttonId) {
+		switch (buttonId) {
+			case UPDATE_ID :
+				((Action) updateButton.getData(BUTTON_ACTION)).run();
+				break;
+			case UNINSTALL_ID :
+				((Action) uninstallButton.getData(BUTTON_ACTION)).run();
+				break;
+			case PROPERTIES_ID :
+				((Action) propertiesButton.getData(BUTTON_ACTION)).run();
+				break;
+			default :
+				super.buttonPressed(buttonId);
+				break;
+		}
 	}
 }

@@ -26,9 +26,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
@@ -38,9 +38,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.about.*;
-import org.eclipse.ui.menus.*;
-import org.eclipse.ui.services.IServiceLocator;
+import org.eclipse.ui.about.InstallationPage;
+import org.eclipse.ui.menus.AbstractContributionFactory;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -48,40 +47,19 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class RevertProfilePage extends InstallationPage implements ICopyable {
 
+	private static final int REVERT_ID = IDialogConstants.CLIENT_ID;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TableViewer configsViewer;
 	TreeViewer configContentsViewer;
 	IUDetailsLabelProvider labelProvider;
 	IAction revertAction;
 	String profileId;
-	IMenuService menuService;
-	IInstallationPageContainer pageContainer;
 	AbstractContributionFactory factory;
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.about.InstallationPage#init(org.eclipse.ui.services.IServiceLocator)
-	 */
-	public void init(IServiceLocator locator) {
-		pageContainer = (IInstallationPageContainer) locator.getService(IInstallationPageContainer.class);
-		menuService = (IMenuService) locator.getService(IMenuService.class);
-
-		// this assumes that the control is created before init
-		contributeButtonActions();
-
-	}
-
-	private void contributeButtonActions() {
-		if (pageContainer == null || menuService == null)
-			return;
-		factory = new AbstractContributionFactory(pageContainer.getButtonBarURI(), null) {
-
-			public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
-				additions.addContributionItem(new ActionContributionItem(revertAction), new ActiveInstallationPageExpression(RevertProfilePage.this));
-			}
-		};
-		menuService.addContributionFactory(factory);
+	public void createPageButtons(Composite parent) {
+		createButton(parent, REVERT_ID, revertAction.getText());
 	}
 
 	public void createControl(Composite parent) {
@@ -184,7 +162,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					return;
 				boolean finish = revert();
 				if (finish) {
-					pageContainer.closeContainer();
+					getPageContainer().closeContainer();
 				}
 			}
 		};
@@ -195,6 +173,14 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	private Object getInput() {
 		ProfileSnapshots element = new ProfileSnapshots(profileId);
 		return element;
+	}
+
+	protected void buttonPressed(int buttonId) {
+		switch (buttonId) {
+			case REVERT_ID :
+				revertAction.run();
+				break;
+		}
 	}
 
 	void handleSelectionChanged(IStructuredSelection selection) {
@@ -276,11 +262,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			}
 		}
 		return reverted;
-	}
-
-	public void dispose() {
-		super.dispose();
-		menuService.removeContributionFactory(factory);
 	}
 
 	public void copyToClipboard(Control activeControl) {
