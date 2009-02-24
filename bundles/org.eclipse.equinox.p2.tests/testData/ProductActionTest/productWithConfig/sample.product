@@ -24,7 +24,7 @@
       <solaris/>
       <win useIco="false">
          <bmp
-            winSmallLow="/test/icon.bmp"/>
+            winSmallLow="test/icon.bmp"/>
       </win>
    </launcher>
 
