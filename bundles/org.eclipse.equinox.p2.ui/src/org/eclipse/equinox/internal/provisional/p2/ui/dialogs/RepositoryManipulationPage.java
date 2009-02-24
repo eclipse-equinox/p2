@@ -449,8 +449,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		exportButton.setEnabled(elements.length > 0);
 		removeButton.setEnabled(elements.length > 0);
 		refreshButton.setEnabled(elements.length == 1);
-		if (elements.length == 1) {
-			if (elements[0].isEnabled())
+		if (elements.length >= 1) {
+			if (toggleMeansDisable(elements))
 				disableButton.setText(ProvUIMessages.RepositoryManipulationPage_DisableButton);
 			else
 				disableButton.setText(ProvUIMessages.RepositoryManipulationPage_EnableButton);
@@ -515,12 +515,15 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void toggleRepositoryEnablement() {
 		MetadataRepositoryElement[] selected = getSelectedElements();
-		if (selected.length == 1) {
-			selected[0].setEnabled(!selected[0].isEnabled());
+		if (selected.length >= 1) {
+			boolean enableSites = !toggleMeansDisable(selected);
+			for (int i = 0; i < selected.length; i++)
+				selected[i].setEnabled(enableSites);
 			if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
 				repositoryViewer.refresh(true);
 			else
-				repositoryViewer.update(selected[0], null);
+				for (int i = 0; i < selected.length; i++)
+					repositoryViewer.update(selected[i], null);
 			changed = true;
 		}
 		validateButtons();
@@ -692,6 +695,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 			};
 		return localCacheRepoManipulator;
+	}
+
+	// If more than half of the selected repos are enabled, toggle means disable.
+	// Otherwise it means enable.
+	private boolean toggleMeansDisable(MetadataRepositoryElement[] elements) {
+		double count = 0;
+		for (int i = 0; i < elements.length; i++)
+			if (elements[i].isEnabled())
+				count++;
+		return (count / elements.length) > 0.5;
 	}
 
 	URI[] getKnownRepositories() {
