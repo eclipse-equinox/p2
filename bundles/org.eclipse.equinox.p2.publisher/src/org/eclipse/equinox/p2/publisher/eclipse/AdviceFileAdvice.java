@@ -15,25 +15,30 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
+import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 
 /**
  * Publishing advice from a p2 advice file. An advice file (p2.inf) can be embedded
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IBundleAdvice {
+
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
 	 */
 	public static final IPath BUNDLE_ADVICE_FILE = new Path("META-INF/p2.inf"); //$NON-NLS-1$
 
-	private static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
-	private final IPath basePath;
-	private final IPath adviceFilePath;
-
 	private final String id;
 	private final Version version;
+
+	private Map touchpointInstructions;
+	private IProvidedCapability[] providedCapabilities;
+	private IRequiredCapability[] requiredCapabilities;
+	private Properties iuProperties;
+	private InstallableUnitDescription[] otherIUs;
 
 	/**
 	 * Creates advice for an advice file at the given location. If <tt>basePath</tt>
@@ -55,14 +60,24 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		Assert.isNotNull(adviceFilePath);
 		this.id = id;
 		this.version = version;
-		this.basePath = basePath;
-		this.adviceFilePath = adviceFilePath;
+
+		Map advice = loadAdviceMap(basePath, adviceFilePath);
+		if (advice.isEmpty())
+			return;
+
+		AdviceFileParser parser = new AdviceFileParser(advice);
+		parser.parse();
+		touchpointInstructions = parser.getTouchpointInstructions();
+		providedCapabilities = parser.getProvidedCapabilities();
+		requiredCapabilities = parser.getRequiredCapabilities();
+		iuProperties = parser.getProperties();
+		otherIUs = parser.getOtherInstallableUnitDescriptions();
 	}
 
 	/**
 	 * Loads the advice file and returns it in map form.
 	 */
-	private Map getInstructions() {
+	private static Map loadAdviceMap(IPath basePath, IPath adviceFilePath) {
 		File location = basePath.toFile();
 		if (location == null || !location.exists())
 			return Collections.EMPTY_MAP;
@@ -72,31 +87,21 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		try {
 			if (location.isDirectory()) {
 				File adviceFile = new File(location, adviceFilePath.toString());
-				try {
-					stream = new BufferedInputStream(new FileInputStream(adviceFile));
-				} catch (IOException e) {
-					return Collections.EMPTY_MAP;
-				}
+				stream = new BufferedInputStream(new FileInputStream(adviceFile));
 			} else if (location.isFile()) {
-				try {
-					jar = new ZipFile(location);
-					ZipEntry entry = jar.getEntry(adviceFilePath.toString());
-					if (entry == null)
-						return Collections.EMPTY_MAP;
-					stream = new BufferedInputStream(jar.getInputStream(entry));
-				} catch (IOException e) {
+				jar = new ZipFile(location);
+				ZipEntry entry = jar.getEntry(adviceFilePath.toString());
+				if (entry == null)
 					return Collections.EMPTY_MAP;
-				}
+
+				stream = new BufferedInputStream(jar.getInputStream(entry));
 			}
 
-			Properties advice = null;
-			try {
-				advice = new Properties();
-				advice.load(stream);
-			} catch (IOException e) {
-				return Collections.EMPTY_MAP;
-			}
-			return advice != null ? advice : Collections.EMPTY_MAP;
+			Properties advice = new Properties();
+			advice.load(stream);
+			return (advice != null ? advice : Collections.EMPTY_MAP);
+		} catch (IOException e) {
+			return Collections.EMPTY_MAP;
 		} finally {
 			if (stream != null)
 				try {
@@ -114,37 +119,64 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	}
 
 	public boolean isApplicable(String configSpec, boolean includeDefault, String candidateId, Version candidateVersion) {
-		if (!id.equals(candidateId) || !version.equals(candidateVersion))
-			return false;
-		// only process this advice if there is an advice file present
-		File location = basePath.toFile();
-		if (!location.isDirectory())
-			return location.exists();
-		return new File(location, adviceFilePath.toString()).exists();
+		return id.equals(candidateId) && version.equals(candidateVersion);
 	}
 
 	/*(non-Javadoc)
 	 * @see org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice#getTouchpointData()
 	 */
 	public ITouchpointData getTouchpointData(ITouchpointData existing) {
-		Map touchpointData = new HashMap(existing.getInstructions());
-		Map bundleAdvice = getInstructions();
-		for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
+		if (touchpointInstructions == null)
+			return existing;
+
+		Map resultInstructions = new HashMap(existing.getInstructions());
+		for (Iterator iterator = touchpointInstructions.keySet().iterator(); iterator.hasNext();) {
 			String key = (String) iterator.next();
-			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
-				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
-				String instruction = ""; //$NON-NLS-1$
-				if (touchpointData.containsKey(phase)) {
-					Object previous = touchpointData.get(phase);
-					instruction = previous instanceof ITouchpointInstruction ? ((ITouchpointInstruction) previous).getBody() : (String) previous;
-					if (instruction.length() > 0 && !instruction.endsWith(";")) //$NON-NLS-1$
-						instruction += ';';
+			ITouchpointInstruction instruction = (ITouchpointInstruction) touchpointInstructions.get(key);
+			ITouchpointInstruction existingInstruction = (ITouchpointInstruction) resultInstructions.get(key);
+
+			if (existingInstruction != null) {
+				String body = existingInstruction.getBody();
+				if (body == null || body.length() == 0)
+					body = instruction.getBody();
+				else if (instruction.getBody() != null) {
+					if (!body.endsWith(";")) //$NON-NLS-1$
+						body += ';';
+					body += instruction.getBody();
 				}
-				instruction += ((String) bundleAdvice.get(key)).trim();
-				touchpointData.put(phase, instruction);
+
+				String importAttribute = existingInstruction.getImportAttribute();
+				if (importAttribute == null || importAttribute.length() == 0)
+					importAttribute = instruction.getImportAttribute();
+				else if (instruction.getImportAttribute() != null) {
+					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
+						importAttribute += ',';
+					importAttribute += instruction.getBody();
+				}
+				instruction = MetadataFactory.createTouchpointInstruction(body, importAttribute);
 			}
+			resultInstructions.put(key, instruction);
 		}
-		return MetadataFactory.createTouchpointData(touchpointData);
+		return MetadataFactory.createTouchpointData(resultInstructions);
 	}
 
+	public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
+		return providedCapabilities;
+	}
+
+	public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
+		return requiredCapabilities;
+	}
+
+	public Properties getArtifactProperties(File location) {
+		return null;
+	}
+
+	public Properties getIUProperties(File location) {
+		return iuProperties;
+	}
+
+	public InstallableUnitDescription[] getOtherInstallableUnitDescriptions(IInstallableUnit iu) {
+		return otherIUs;
+	}
 }

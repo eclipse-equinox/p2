@@ -243,14 +243,14 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * Add all of the advised properties for the bundle at the given location to the given IU.
-	 * @param bundle the bundle IU to decorate
+	 * @param iu the bundle IU to decorate
 	 * @param location the location of the bundle
 	 * @param info the publisher info supplying the advice
 	 */
-	private static void processPropertiesAdvice(InstallableUnitDescription bundle, String location, IPublisherInfo info) {
+	private static void processPropertiesAdvice(InstallableUnitDescription iu, String location, IPublisherInfo info) {
 		if (location == null)
 			return;
-		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IBundleAdvice.class);
 		File bundleFile = new File(location);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IBundleAdvice entry = (IBundleAdvice) i.next();
@@ -259,7 +259,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				continue;
 			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
 				String key = (String) j.next();
-				bundle.setProperty(key, props.getProperty(key));
+				iu.setProperty(key, props.getProperty(key));
 			}
 		}
 	}
@@ -270,18 +270,18 @@ public class BundlesAction extends AbstractPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	private static void processCapabilityAdvice(InstallableUnitDescription iu, BundleDescription bundle, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, ICapabilityAdvice.class);
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
 			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
-			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
-			if (providedAdvice != null) {
+			if (requiredAdvice != null) {
 				IRequiredCapability[] current = iu.getRequiredCapabilities();
 				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
 				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
 				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
 				iu.setRequiredCapabilities(result);
 			}
+			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
 				IProvidedCapability[] current = iu.getProvidedCapabilities();
 				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];
