@@ -41,13 +41,15 @@ public class ProvisioningPlan {
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
 		this.explanation = explanation;
-		rootIUs = new HashSet();
-		for (Object o : explanation) {
-			if (!(o instanceof Explanation.IUToInstall)) {
-				detailedExplanation = (Explanation) o;
-				break;
+		if (explanation != null) {
+			rootIUs = new HashSet();
+			for (Object o : explanation) {
+				if (!(o instanceof Explanation.IUToInstall)) {
+					detailedExplanation = (Explanation) o;
+					break;
+				}
+				rootIUs.add(((IUToInstall) o).iu);
 			}
-			rootIUs.add(((IUToInstall) o).iu);
 		}
 	}
 
