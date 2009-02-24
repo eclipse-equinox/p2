@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -49,6 +50,12 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation() {
-		fail("Explanation API not defined yet!");
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getExplanation();
+		System.out.println(explanation);
+		assertFalse(explanation.isEmpty());
 	}
 }

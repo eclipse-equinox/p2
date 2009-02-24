@@ -8,11 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -76,7 +76,13 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation2() {
-		fail("Explanation API not defined yet!");
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {y});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getExplanation();
+		assertFalse(explanation.isEmpty());
+		System.out.println(explanation);
 	}
 
 	public void test3() {

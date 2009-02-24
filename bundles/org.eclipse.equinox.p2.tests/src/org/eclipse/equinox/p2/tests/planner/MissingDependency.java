@@ -50,12 +50,11 @@ public class MissingDependency extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1, b1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getExplanationFor(a1);
-		// check that a1 can be installed
-		assertEquals(0, explanation.size());
-		// check that b1 cannot be installed
-		explanation = plan.getExplanationFor(b1);
-		System.out.println("B:" + explanation);
-		assertEquals(1, explanation.size());
+		Set explanation = plan.getExplanation();
+		System.out.println(explanation);
+		assertEquals(2, explanation.size());
+		Set rootConflictingIUs = plan.getUninstallableRootIUs();
+		System.out.println(rootConflictingIUs);
+		assertEquals(1, rootConflictingIUs.size());
 	}
 }
