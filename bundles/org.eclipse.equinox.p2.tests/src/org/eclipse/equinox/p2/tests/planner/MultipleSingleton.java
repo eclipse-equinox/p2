@@ -84,7 +84,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		Set explanation = plan.getExplanation();
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
-		assertTrue(plan.getUninstallableRootIUs().contains(y));
+		assertTrue(plan.getNonInstallableRootIUs().contains(y));
 		System.out.println(explanation);
 	}
 
@@ -111,7 +111,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
-		assertTrue(plan.getUninstallableRootIUs().contains(w));
+		assertTrue(plan.getNonInstallableRootIUs().contains(w));
 
 	}
 
@@ -144,8 +144,8 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		Set explanation = plan.getExplanation();
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
-		assertTrue(plan.getUninstallableRootIUs().contains(u));
-		assertTrue(plan.getUninstallableRootIUs().contains(v));
+		assertTrue(plan.getNonInstallableRootIUs().contains(u));
+		assertTrue(plan.getNonInstallableRootIUs().contains(v));
 		System.out.println(explanation);
 
 	}
