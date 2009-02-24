@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -58,5 +59,6 @@ public class MissingDependency extends AbstractProvisioningTest {
 		assertEquals(1, rootConflictingIUs.size());
 		assertTrue(rootConflictingIUs.contains(b1));
 		assertFalse(rootConflictingIUs.contains(a1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getShortExplanation());
 	}
 }
