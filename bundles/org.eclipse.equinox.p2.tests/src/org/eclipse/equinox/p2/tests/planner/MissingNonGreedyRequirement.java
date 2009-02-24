@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -55,7 +56,8 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		Set explanation = plan.getExplanation();
-		System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
+		assertTrue(plan.getNonInstallableRootIUs().contains(a1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getShortExplanation());
 	}
 }
