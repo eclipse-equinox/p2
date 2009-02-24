@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWizardPage;
+
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
