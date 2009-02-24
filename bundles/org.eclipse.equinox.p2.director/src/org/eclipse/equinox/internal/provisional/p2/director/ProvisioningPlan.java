@@ -115,7 +115,7 @@ public class ProvisioningPlan {
 		for (Object o : explanation) {
 			if (!(o instanceof Explanation.IUToInstall))
 				break;
-			set.add(((IUToInstall) o).req);
+			set.add(((IUToInstall) o).iu);
 		}
 		return set;
 	}
