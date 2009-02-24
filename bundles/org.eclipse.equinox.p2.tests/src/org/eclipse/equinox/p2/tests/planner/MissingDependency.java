@@ -54,7 +54,7 @@ public class MissingDependency extends AbstractProvisioningTest {
 		Set explanation = plan.getExplanation();
 		System.out.println(explanation);
 		assertEquals(2, explanation.size());
-		Set rootConflictingIUs = plan.getUninstallableRootIUs();
+		Set rootConflictingIUs = plan.getNonInstallableRootIUs();
 		System.out.println(rootConflictingIUs);
 		assertEquals(1, rootConflictingIUs.size());
 		assertTrue(rootConflictingIUs.contains(b1));
