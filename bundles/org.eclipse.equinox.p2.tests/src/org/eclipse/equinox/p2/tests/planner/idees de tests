@@ -1,0 +1,10 @@
+Idees de tests
+
+- Conflit avec ce qui est deja installe
+	e.g. j'installe CDT mais c'est pas la bonne version pour la plateforme installee
+	
+- Conflit entre les choses que l'on cherche a installer
+   e.g. jinstalle EMF et CDT et elles ne sont pas compatibles ensemble
+   e.g. jinstalle EMF et CDT, Mylyn et elles ne sont pas compatibles ensemble
+ 
+- Explication pourquoi un patch ne peut pas s'installer
