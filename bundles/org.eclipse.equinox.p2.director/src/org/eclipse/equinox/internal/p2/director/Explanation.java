@@ -5,17 +5,24 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public abstract class Explanation implements Comparable<Explanation> {
 
-	public static final String HARD_DEPENDENCY = "Hard Dependency";
-	public static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
-	public static final String SINGLETON_CONSTRAINT = "Singleton Constraint";
-	public static final String IU_TO_INSTALL = "IU to install";
-	public static final String IU_MISSING = "Missing Requirement";
+	private static final String HARD_DEPENDENCY = "Hard Dependency";
+	private static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
+	private static final String SINGLETON_CONSTRAINT = "Singleton Constraint";
+	private static final String IU_TO_INSTALL = "IU to install";
+	private static final String IU_MISSING = "Missing Requirement";
+
+	public static final int MISSING_REQUIREMENT = 1;
+	public static final int VIOLATED_SINGLETON_CONSTRAINT = 2;
 
 	private Explanation() {
 		// no instance of that class for the moment
 	}
 
 	protected abstract int orderValue();
+
+	public int shortAnswer() {
+		throw new UnsupportedOperationException();
+	}
 
 	public static class IUToInstall extends Explanation {
 		public final IInstallableUnit iu;
@@ -51,6 +58,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public int orderValue() {
 			return 2;
 		}
+
+		@Override
+		public int shortAnswer() {
+			return MISSING_REQUIREMENT;
+		}
+
 	}
 
 	public static class Singleton extends Explanation {
@@ -67,6 +80,11 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public int orderValue() {
 			return 3;
+		}
+
+		@Override
+		public int shortAnswer() {
+			return VIOLATED_SINGLETON_CONSTRAINT;
 		}
 	}
 

@@ -26,6 +26,8 @@ public class ProvisioningPlan {
 	Map actualChangeRequest;
 	Map sideEffectChanges;
 	Set explanation;
+	Set rootIUs;
+	Explanation detailedExplanation;
 
 	public ProvisioningPlan(IStatus status) {
 		this(status, new Operand[0], null, null);
@@ -39,6 +41,14 @@ public class ProvisioningPlan {
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
 		this.explanation = explanation;
+		rootIUs = new HashSet();
+		for (Object o : explanation) {
+			if (!(o instanceof Explanation.IUToInstall)) {
+				detailedExplanation = (Explanation) o;
+				break;
+			}
+			rootIUs.add(((IUToInstall) o).iu);
+		}
 	}
 
 	public IStatus getStatus() {
@@ -111,12 +121,14 @@ public class ProvisioningPlan {
 	 * elements that cannot be installed altogether (singleton contraint?).
 	 */
 	public Set getUninstallableRootIUs() {
-		Set set = new HashSet();
-		for (Object o : explanation) {
-			if (!(o instanceof Explanation.IUToInstall))
-				break;
-			set.add(((IUToInstall) o).iu);
-		}
-		return set;
+		return rootIUs;
+	}
+
+	public int getShortExplanation() {
+		return detailedExplanation.shortAnswer();
+	}
+
+	public Explanation getExplanationDetails() {
+		return detailedExplanation;
 	}
 }
