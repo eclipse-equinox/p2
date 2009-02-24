@@ -292,6 +292,21 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
+	private Collection processOtherIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
+		List result = new ArrayList();
+		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), AdviceFileAdvice.class);
+		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
+			AdviceFileAdvice entry = (AdviceFileAdvice) iterator.next();
+			InstallableUnitDescription[] others = entry.getOtherInstallableUnitDescriptions(iu);
+			for (int i = 0; others != null && i < others.length; i++) {
+				result.add(MetadataFactory.createInstallableUnit(others[i]));
+			}
+
+		}
+
+		return result;
+	}
+
 	/**
 	 * Adds all applicable touchpoint advice to the given installable unit.
 	 * @param iu The installable unit to add touchpoint advice to
@@ -739,6 +754,9 @@ public class BundlesAction extends AbstractPublisherAction {
 								createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues, localizationIUs);
 							}
 						}
+
+						Collection others = processOtherIUsAdvice(bundleIU, info);
+						result.addIUs(others, IPublisherResult.ROOT);
 
 						result.addIU(bundleIU, IPublisherResult.ROOT);
 						result.addIUs(localizationIUs, IPublisherResult.NON_ROOT);

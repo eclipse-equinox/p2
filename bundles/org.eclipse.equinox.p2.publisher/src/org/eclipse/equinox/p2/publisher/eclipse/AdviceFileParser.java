@@ -52,7 +52,7 @@ public class AdviceFileParser {
 			else if (current.startsWith("instructions."))
 				parseInstructions("instructions.", adviceInstructions);
 			else if (current.startsWith("unit."))
-				parseUnit("unit.", adviceOtherIUs);
+				parseUnits("unit.", adviceOtherIUs);
 			else
 				throw new IllegalStateException("bad token: " + current);
 		}
@@ -63,7 +63,7 @@ public class AdviceFileParser {
 	}
 
 	private String currentValue() {
-		return (String) advice.get(current);
+		return ((String) advice.get(current)).trim();
 	}
 
 	private void parseProperties(String prefix, Map properties) {
@@ -179,6 +179,16 @@ public class AdviceFileParser {
 		instructions.put(phase, instruction);
 	}
 
+	private void parseUnits(String prefix, List ius) {
+		while (current != null && current.startsWith(prefix)) {
+			int dotIndex = current.indexOf('.', prefix.length());
+			if (dotIndex == -1)
+				throw new IllegalStateException("bad token: " + current);
+
+			parseUnit(current.substring(0, dotIndex + 1), ius);
+		}
+	}
+
 	private void parseUnit(String prefix, List units) {
 		String unitId = null;
 		Version unitVersion = null;
@@ -199,6 +209,7 @@ public class AdviceFileParser {
 		//		updatedescriptor ??
 
 		while (current != null && current.startsWith(prefix)) {
+			String c = current;
 			String token = current.substring(prefix.length());
 			if (token.equals("id"))
 				unitId = currentValue();
@@ -230,6 +241,9 @@ public class AdviceFileParser {
 				parseInstructions(prefix + "instructions.", unitInstructions);
 			else
 				throw new IllegalStateException("bad token: " + current);
+
+			if (c.equals(current))
+				next();
 		}
 
 		InstallableUnitDescription description = unitHostRequirements.isEmpty() ? new InstallableUnitDescription() : new InstallableUnitFragmentDescription();
@@ -377,6 +391,6 @@ public class AdviceFileParser {
 		if (adviceOtherIUs.isEmpty())
 			return null;
 
-		return (InstallableUnitDescription[]) adviceOtherIUs.toArray(new IProvidedCapability[adviceOtherIUs.size()]);
+		return (InstallableUnitDescription[]) adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
 	}
 }
