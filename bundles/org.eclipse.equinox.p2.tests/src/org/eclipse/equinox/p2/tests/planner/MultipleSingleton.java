@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -82,6 +83,8 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		Set explanation = plan.getExplanation();
 		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
+		assertTrue(plan.getUninstallableRootIUs().contains(y));
 		System.out.println(explanation);
 	}
 
@@ -100,7 +103,16 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation4() {
-		fail("Explanation API not defined yet!");
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {w});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getExplanation();
+		System.out.println(explanation);
+		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
+		assertTrue(plan.getUninstallableRootIUs().contains(w));
+
 	}
 
 	public void test5b() {
@@ -125,6 +137,16 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation5() {
-		fail("Explanation API not defined yet!");
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {u, v});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getExplanation();
+		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getShortExplanation());
+		assertTrue(plan.getUninstallableRootIUs().contains(u));
+		assertTrue(plan.getUninstallableRootIUs().contains(v));
+		System.out.println(explanation);
+
 	}
 }
