@@ -247,7 +247,11 @@ public class ECFTransport {
 		final IStatus[] result = new IStatus[1];
 		IFileTransferListener listener = new IFileTransferListener() {
 			public void handleTransferEvent(IFileTransferEvent event) {
-				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
+				if (event instanceof IFileTransferConnectStartEvent) {
+					IFileTransferConnectStartEvent cse = (IFileTransferConnectStartEvent) event;
+					FileTransferJob connectJob = cse.prepareConnectJob(null);
+					cse.connectUsingJob(connectJob);
+				} else if (event instanceof IIncomingFileTransferReceiveStartEvent) {
 					IIncomingFileTransferReceiveStartEvent rse = (IIncomingFileTransferReceiveStartEvent) event;
 					try {
 						if (target != null) {
