@@ -41,9 +41,10 @@ public class ProvisioningPlan {
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
 		this.explanation = explanation;
+		rootIUs = new HashSet();
 		if (explanation != null) {
-			rootIUs = new HashSet();
-			for (Object o : explanation) {
+			for (Iterator iterator = explanation.iterator(); iterator.hasNext();) {
+				Object o = iterator.next();
 				if (!(o instanceof Explanation.IUToInstall)) {
 					detailedExplanation = (Explanation) o;
 					break;
@@ -122,7 +123,7 @@ public class ProvisioningPlan {
 	 * element that cannot be installed (missing dependency?) or two 
 	 * elements that cannot be installed altogether (singleton contraint?).
 	 */
-	public Set getUninstallableRootIUs() {
+	public Set getNonInstallableRootIUs() {
 		return rootIUs;
 	}
 
