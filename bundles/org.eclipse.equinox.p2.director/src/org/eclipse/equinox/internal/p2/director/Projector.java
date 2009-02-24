@@ -5,8 +5,9 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors: IBM Corporation - initial API and implementation
- * 	Daniel Le Berre - Fix in the encoding and the optimization function
+ * Daniel Le Berre - Fix in the encoding and the optimization function
  * Alban Browaeys - Optimized string concatenation in bug 251357
+ * Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -167,6 +168,7 @@ public class Projector {
 	}
 
 	public void encode(IInstallableUnit[] ius, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
+		assert ius.length == 1;
 		try {
 			long start = 0;
 			if (DEBUG) {
@@ -197,12 +199,15 @@ public class Projector {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
 				}
-				processIU((IInstallableUnit) iusToEncode.next());
+				IInstallableUnit iuToEncode = (IInstallableUnit) iusToEncode.next();
+				if (iuToEncode != ius[0]) {
+					processIU(iuToEncode, false);
+				}
 			}
 			createConstraintsForSingleton();
 			for (int i = 0; i < ius.length; i++) {
 				IInstallableUnit iu = ius[i];
-				createMustHave(iu);
+				createMustHave(iu, alreadyExistingRoots, newRoots);
 			}
 			createOptimizationFunction(ius);
 			if (DEBUG) {
@@ -215,8 +220,7 @@ public class Projector {
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
 		} catch (ContradictionException e) {
-			// TODO: jkca is this the right answer here?
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
 		}
 	}
 
@@ -299,7 +303,8 @@ public class Projector {
 		dependencyHelper.setObjectiveFunction((WeightedObject[]) weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
 	}
 
-	private void createMustHave(IInstallableUnit iu) throws ContradictionException {
+	private void createMustHave(IInstallableUnit iu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots) throws ContradictionException {
+		processIU(iu, true);
 		IUVariable variable = newIUVariable(iu);
 		if (DEBUG) {
 			Tracing.debug(variable + "=1"); //$NON-NLS-1$
@@ -347,7 +352,7 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, PropositionalVariable iuVar, List optionalAbstractRequirements) throws ContradictionException {
+	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, PropositionalVariable iuVar, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
 		if (!isApplicable(req))
 			return;
 		List matches = getApplicableMatches(req);
@@ -355,7 +360,13 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
+				Explanation explanation;
+				if (isRootIu) {
+					explanation = new Explanation.IUToInstall(req);
+				} else {
+					explanation = new Explanation.HardRequirement(iu, req);
+				}
+				createImplication(iuVar, matches, explanation);
 			}
 		} else {
 			if (!matches.isEmpty()) {
@@ -366,18 +377,18 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, PropositionalVariable iuVar) throws ContradictionException {
+	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, PropositionalVariable iuVar, boolean isRootIu) throws ContradictionException {
 		if (reqs.length == 0) {
 			return;
 		}
 		List optionalAbstractRequirements = new ArrayList();
 		for (int i = 0; i < reqs.length; i++) {
-			expandRequirement(reqs[i], iu, iuVar, optionalAbstractRequirements);
+			expandRequirement(reqs[i], iu, iuVar, optionalAbstractRequirements, isRootIu);
 		}
 		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
-	public void processIU(IInstallableUnit iu) throws ContradictionException {
+	public void processIU(IInstallableUnit iu, boolean isRootIU) throws ContradictionException {
 		iu = iu.unresolved();
 
 		slice.put(iu.getId(), iu.getVersion(), iu);
@@ -387,7 +398,7 @@ public class Projector {
 		}
 
 		Collector patches = getApplicablePatches(iu);
-		expandLifeCycle(iu);
+		expandLifeCycle(iu, isRootIU);
 		PropositionalVariable iuVar;
 		if (isFragment(iu)) {
 			iuVar = newFragmentVariable(iu);
@@ -396,130 +407,150 @@ public class Projector {
 		}
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
-			expandRequirements(iu.getRequiredCapabilities(), iu, iuVar);
+			expandRequirements(iu.getRequiredCapabilities(), iu, iuVar, isRootIU);
 		} else {
 			//Patches are applicable to the IU
+			expandRequirementsWithPatches(iu, patches, iuVar, isRootIU);
+		}
+	}
 
-			//Unmodified dependencies
-			Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
-			for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
-				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
-				IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
-				if (reqs.length == 0)
-					return;
+	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector patches, PropositionalVariable iuVar, boolean isRootIu) throws ContradictionException {
+		//Unmodified dependencies
+		Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
+		for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
+			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
+			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
+			if (reqs.length == 0)
+				return;
 
-				// Optional requirements are encoded via:
-				// ABS -> (match1(req) or match2(req) or ... or matchN(req))
-				// noop(IU)-> ~ABS
-				// IU -> (noop(IU) or ABS)
-				// Therefore we only need one optional requirement statement per IU
-				List optionalAbstractRequirements = new ArrayList();
-				for (int i = 0; i < reqs.length; i++) {
-					//The requirement is unchanged
-					if (reqs[i][0] == reqs[i][1]) {
-						if (!isApplicable(reqs[i][0]))
-							continue;
-
-						List patchesAppliedElseWhere = (List) unchangedRequirements.get(reqs[i][0]);
-						if (patchesAppliedElseWhere == null) {
-							patchesAppliedElseWhere = new ArrayList();
-							unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
-						}
-						patchesAppliedElseWhere.add(patch);
-						continue;
-					}
-
-					PropositionalVariable patchVar = newIUVariable(patch);
-					//Generate dependency when the patch is applied
-					//P1 -> (A -> D) equiv. (P1 & A) -> D
-					if (isApplicable(reqs[i][1])) {
-						IRequiredCapability req = reqs[i][1];
-						List matches = getApplicableMatches(req);
-						iuVar.handleMatches(matches);
-						if (!req.isOptional()) {
-							if (matches.isEmpty()) {
-								missingRequirement(patch, req);
-							} else {
-								createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, new Explanation.HardRequirement(iu, req));
-							}
-						} else {
-							if (!matches.isEmpty()) {
-								PropositionalVariable abs = getAbstractVariable();
-								createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
-								optionalAbstractRequirements.add(abs);
-							}
-						}
-					}
-					//Generate dependency when the patch is not applied
-					//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
-					if (isApplicable(reqs[i][0])) {
-						IRequiredCapability req = reqs[i][0];
-						List matches = getApplicableMatches(req);
-						iuVar.handleMatches(matches);
-						if (!req.isOptional()) {
-							if (matches.isEmpty()) {
-								//TODO Need to change NAME
-								dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, patch));
-							} else {
-								matches.add(patchVar);
-								createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
-							}
-						} else {
-							if (!matches.isEmpty()) {
-								PropositionalVariable abs = getAbstractVariable();
-								optionalAbstractRequirements.add(patchVar);
-								createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
-								optionalAbstractRequirements.add(abs);
-							}
-						}
-					}
-				}
-				createOptionalityExpression(iu, optionalAbstractRequirements);
-			}
+			// Optional requirements are encoded via:
+			// ABS -> (match1(req) or match2(req) or ... or matchN(req))
+			// noop(IU)-> ~ABS
+			// IU -> (noop(IU) or ABS)
+			// Therefore we only need one optional requirement statement per IU
 			List optionalAbstractRequirements = new ArrayList();
-			for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
-				Entry entry = (Entry) iterator.next();
-				List patchesApplied = (List) entry.getValue();
-				List allPatches = new ArrayList(patches.toCollection());
-				allPatches.removeAll(patchesApplied);
-				List requiredPatches = new ArrayList();
-				for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
-					IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
-					requiredPatches.add(newIUVariable(patch));
-				}
-				IRequiredCapability req = (IRequiredCapability) entry.getKey();
-				List matches = getApplicableMatches(req);
-				iuVar.handleMatches(matches);
-				if (!req.isOptional()) {
-					if (matches.isEmpty()) {
-						missingRequirement(iu, req);
-					} else {
-						if (!requiredPatches.isEmpty())
-							matches.addAll(requiredPatches);
-						createImplication(iuVar, matches, new Explanation.HardRequirement(iu, req));
+			for (int i = 0; i < reqs.length; i++) {
+				//The requirement is unchanged
+				if (reqs[i][0] == reqs[i][1]) {
+					if (!isApplicable(reqs[i][0]))
+						continue;
+
+					List patchesAppliedElseWhere = (List) unchangedRequirements.get(reqs[i][0]);
+					if (patchesAppliedElseWhere == null) {
+						patchesAppliedElseWhere = new ArrayList();
+						unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
 					}
-				} else {
-					if (!matches.isEmpty()) {
-						if (!requiredPatches.isEmpty())
-							matches.addAll(requiredPatches);
-						PropositionalVariable abs = getAbstractVariable();
-						createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
-						optionalAbstractRequirements.add(abs);
+					patchesAppliedElseWhere.add(patch);
+					continue;
+				}
+
+				PropositionalVariable patchVar = newIUVariable(patch);
+				//Generate dependency when the patch is applied
+				//P1 -> (A -> D) equiv. (P1 & A) -> D
+				if (isApplicable(reqs[i][1])) {
+					IRequiredCapability req = reqs[i][1];
+					List matches = getApplicableMatches(req);
+					iuVar.handleMatches(matches);
+					if (!req.isOptional()) {
+						if (matches.isEmpty()) {
+							missingRequirement(patch, req);
+						} else {
+							Explanation explanation;
+							if (isRootIu) {
+								explanation = new Explanation.IUToInstall(req);
+							} else {
+								explanation = new Explanation.HardRequirement(iu, req);
+							}
+							createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, explanation);
+						}
+					} else {
+						if (!matches.isEmpty()) {
+							PropositionalVariable abs = getAbstractVariable();
+							createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
+							optionalAbstractRequirements.add(abs);
+						}
+					}
+				}
+				//Generate dependency when the patch is not applied
+				//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
+				if (isApplicable(reqs[i][0])) {
+					IRequiredCapability req = reqs[i][0];
+					List matches = getApplicableMatches(req);
+					iuVar.handleMatches(matches);
+					if (!req.isOptional()) {
+						if (matches.isEmpty()) {
+							dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, patch));
+						} else {
+							matches.add(patchVar);
+							Explanation explanation;
+							if (isRootIu) {
+								explanation = new Explanation.IUToInstall(req);
+							} else {
+								explanation = new Explanation.HardRequirement(iu, req);
+							}
+							createImplication(iuVar, matches, explanation);
+						}
+					} else {
+						if (!matches.isEmpty()) {
+							PropositionalVariable abs = getAbstractVariable();
+							optionalAbstractRequirements.add(patchVar);
+							createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
+							optionalAbstractRequirements.add(abs);
+						}
 					}
 				}
 			}
 			createOptionalityExpression(iu, optionalAbstractRequirements);
 		}
+		List optionalAbstractRequirements = new ArrayList();
+		for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
+			Entry entry = (Entry) iterator.next();
+			List patchesApplied = (List) entry.getValue();
+			List allPatches = new ArrayList(patches.toCollection());
+			allPatches.removeAll(patchesApplied);
+			List requiredPatches = new ArrayList();
+			for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
+				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
+				requiredPatches.add(newIUVariable(patch));
+			}
+			IRequiredCapability req = (IRequiredCapability) entry.getKey();
+			List matches = getApplicableMatches(req);
+			iuVar.handleMatches(matches);
+			if (!req.isOptional()) {
+				if (matches.isEmpty()) {
+					missingRequirement(iu, req);
+				} else {
+					if (!requiredPatches.isEmpty())
+						matches.addAll(requiredPatches);
+					Explanation explanation;
+					if (isRootIu) {
+						explanation = new Explanation.IUToInstall(req);
+					} else {
+						explanation = new Explanation.HardRequirement(iu, req);
+					}
+					createImplication(iuVar, matches, explanation);
+				}
+			} else {
+				if (!matches.isEmpty()) {
+					if (!requiredPatches.isEmpty())
+						matches.addAll(requiredPatches);
+					PropositionalVariable abs = getAbstractVariable();
+					createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
+					optionalAbstractRequirements.add(abs);
+				}
+			}
+		}
+		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
-	private void expandLifeCycle(IInstallableUnit iu) throws ContradictionException {
+	private void expandLifeCycle(IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		if (!(iu instanceof IInstallableUnitPatch))
 			return;
 		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
 		IRequiredCapability req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, newIUVariable(iu), Collections.EMPTY_LIST);
+		expandRequirement(req, iu, newIUVariable(iu), Collections.EMPTY_LIST, isRootIu);
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
@@ -802,8 +833,7 @@ public class Projector {
 		}
 	}
 
-	public IStatus getExplanation(Set explanation) {
-		IStatus myResult = new Status(IStatus.OK, DirectorActivator.PI_DIRECTOR, null);
+	public Set getExplanation() {
 		long start = 0, stop;
 		if (DEBUG) {
 			start = System.currentTimeMillis();
@@ -811,7 +841,7 @@ public class Projector {
 		}
 		Set why;
 		try {
-			why = dependencyHelper.why(assumptions);
+			why = dependencyHelper.why();
 			if (DEBUG) {
 				stop = System.currentTimeMillis();
 				Tracing.debug("Explanation found: " + (stop - start));
@@ -820,10 +850,9 @@ public class Projector {
 					Tracing.debug(i.next().toString());
 				}
 			}
-			explanation.addAll(why);
+			return why;
 		} catch (TimeoutException e) {
-			myResult = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Timeout);
 		}
-		return myResult;
+		return null;
 	}
 }

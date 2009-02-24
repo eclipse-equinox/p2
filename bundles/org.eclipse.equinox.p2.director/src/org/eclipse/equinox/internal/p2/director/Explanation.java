@@ -18,14 +18,14 @@ public abstract class Explanation implements Comparable<Explanation> {
 	protected abstract int orderValue();
 
 	public static class IUToInstall extends Explanation {
-		public final IInstallableUnit iu;
+		public final IRequiredCapability req;
 
-		public IUToInstall(IInstallableUnit iu) {
-			this.iu = iu;
+		public IUToInstall(IRequiredCapability req) {
+			this.req = req;
 		}
 
 		public String toString() {
-			return IU_TO_INSTALL + ":" + iu;
+			return IU_TO_INSTALL + ":" + req;
 		}
 
 		@Override

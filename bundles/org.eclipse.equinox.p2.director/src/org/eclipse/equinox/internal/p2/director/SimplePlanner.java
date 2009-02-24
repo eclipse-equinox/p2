@@ -285,14 +285,9 @@ public class SimplePlanner implements IPlanner {
 
 				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
 				IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
-				Map iusToProblem = new HashMap(added.length);
-				for (int i = 0; i < added.length; i++) {
-					Set explanation = projector.getExplanationFor(added[i]);
-					if (explanation != null) {
-						iusToProblem.put(added[i], explanation);
-					}
-				}
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), iusToProblem);
+
+				Set explanation = projector.getExplanation();
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), explanation);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
