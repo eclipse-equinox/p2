@@ -16,16 +16,16 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		prefServ = (IPreferencesService) ServiceHelper.getService(TestActivator.context, IPreferencesService.class.getName());
 	}
 
-	public void testInvalidProfile() {
-
-		boolean exceptionThrown = false;
-		try {
-			prefServ.getRootNode().node("/profile/NonExistantProfile/testing");
-		} catch (IllegalArgumentException e) {
-			exceptionThrown = true;
-		}
-		assertTrue("IllegalArgumentException not thrown for non-existant profile", exceptionThrown);
-	}
+	//	public void testInvalidProfile() {
+	//
+	//		boolean exceptionThrown = false;
+	//		try {
+	//			prefServ.getRootNode().node("/profile/NonExistantProfile/testing");
+	//		} catch (IllegalArgumentException e) {
+	//			exceptionThrown = true;
+	//		}
+	//		assertTrue("IllegalArgumentException not thrown for non-existant profile", exceptionThrown);
+	//	}
 
 	public void testProfilePreference() {
 		Preferences pref = null;
