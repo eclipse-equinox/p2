@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -68,7 +70,13 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			return;
 
 		AdviceFileParser parser = new AdviceFileParser(id, version, advice);
-		parser.parse();
+		try {
+			parser.parse();
+		} catch (Exception e) {
+			String message = "An error occured while parsing advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + ".";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
+		}
 		touchpointInstructions = parser.getTouchpointInstructions();
 		providedCapabilities = parser.getProvidedCapabilities();
 		requiredCapabilities = parser.getRequiredCapabilities();
@@ -108,6 +116,9 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			advice.load(stream);
 			return (advice != null ? advice : Collections.EMPTY_MAP);
 		} catch (IOException e) {
+			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + ".";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
 			return Collections.EMPTY_MAP;
 		} finally {
 			if (stream != null)

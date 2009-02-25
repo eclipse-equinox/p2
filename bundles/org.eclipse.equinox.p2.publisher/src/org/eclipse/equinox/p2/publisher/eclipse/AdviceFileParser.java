@@ -57,8 +57,11 @@ public class AdviceFileParser {
 				parseInstructions("instructions.", adviceInstructions);
 			else if (current.startsWith("units."))
 				parseUnits("units.", adviceOtherIUs);
-			else
-				throw new IllegalStateException("bad token: " + current);
+			else {
+				// we ignore elements we do not understand
+				next();
+			}
+
 		}
 	}
 
@@ -102,8 +105,9 @@ public class AdviceFileParser {
 				namespace = currentValue();
 			} else if (token.equals("version")) {
 				capabilityVersion = new Version(substituteVersionAndQualifier(currentValue()));
-			} else
-				throw new IllegalStateException("bad token: " + current);
+			} else {
+				// we ignore elements we do not understand
+			}
 			next();
 		}
 
@@ -147,8 +151,9 @@ public class AdviceFileParser {
 				namespace = currentValue();
 			} else if (token.equals("range")) {
 				range = new VersionRange(substituteVersionAndQualifier(currentValue()));
-			} else
-				throw new IllegalStateException("bad token: " + current);
+			} else {
+				// we ignore elements we do not understand
+			}
 			next();
 		}
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
@@ -175,8 +180,9 @@ public class AdviceFileParser {
 		if (current != null && current.startsWith(prefix)) {
 			if (current.substring(prefix.length()).equals("import")) {
 				importAttribute = currentValue();
-			} else
-				throw new IllegalStateException("bad token: " + current);
+			} else {
+				// we ignore elements we do not understand
+			}
 			next();
 		}
 		ITouchpointInstruction instruction = MetadataFactory.createTouchpointInstruction(body, importAttribute);
@@ -187,7 +193,7 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
-				throw new IllegalStateException("bad token: " + current);
+				throw new IllegalStateException("bad token: " + current + " = " + currentValue());
 
 			parseUnit(current.substring(0, dotIndex + 1), ius);
 		}
@@ -249,8 +255,10 @@ public class AdviceFileParser {
 				parseRequires(prefix + "requires.", unitRequires);
 			else if (token.startsWith("instructions."))
 				parseInstructions(prefix + "instructions.", unitInstructions);
-			else
-				throw new IllegalStateException("bad token: " + current);
+			else {
+				// we ignore elements we do not understand
+				next();
+			}
 		}
 
 		InstallableUnitDescription description = unitHostRequirements.isEmpty() ? new InstallableUnitDescription() : new InstallableUnitFragmentDescription();
@@ -262,7 +270,7 @@ public class AdviceFileParser {
 			try {
 				description.setCopyright(MetadataFactory.createCopyright(new URI(unitCopyrightLocation), unitCopyright));
 			} catch (URISyntaxException e) {
-				throw new IllegalStateException();
+				throw new IllegalStateException("bad copyright URI at token: " + current + ", " + currentValue());
 			}
 		}
 		if (unitTouchpointId != null)
@@ -299,7 +307,7 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
-				throw new IllegalStateException("bad token: " + current);
+				throw new IllegalStateException("bad token: " + current + " = " + currentValue());
 
 			parseLicense(current.substring(0, dotIndex + 1), licenses);
 		}
@@ -314,8 +322,9 @@ public class AdviceFileParser {
 		if (current != null && current.startsWith(prefix)) {
 			if (current.substring(prefix.length()).equals("import")) {
 				location = currentValue();
-			} else
-				throw new IllegalStateException("bad token: " + current);
+			} else {
+				// we ignore elements we do not understand
+			}
 			next();
 		}
 
@@ -323,7 +332,7 @@ public class AdviceFileParser {
 			ILicense license = MetadataFactory.createLicense(new URI(location), body);
 			licenses.add(license);
 		} catch (URISyntaxException e) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("bad license URI at token: " + current + ", " + currentValue());
 		}
 	}
 
@@ -331,7 +340,7 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
-				throw new IllegalStateException("bad token: " + current);
+				throw new IllegalStateException("bad token: " + current + " = " + currentValue());
 
 			parseArtifact(current.substring(0, dotIndex + 1), artifacts);
 		}
@@ -349,8 +358,10 @@ public class AdviceFileParser {
 				artifactId = currentValue();
 			} else if (token.equals("version")) {
 				artifactVersion = new Version(substituteVersionAndQualifier(currentValue()));
-			} else
-				throw new IllegalStateException("bad token: " + current);
+			} else {
+				// we ignore elements we do not understand
+			}
+
 			next();
 		}
 		IArtifactKey artifactKey = new ArtifactKey(artifactClassifier, artifactId, artifactVersion);
@@ -361,7 +372,7 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
-				throw new IllegalStateException("bad token: " + current);
+				throw new IllegalStateException("bad token: " + current + " = " + currentValue());
 
 			parseRequired(current.substring(0, dotIndex + 1), hostRequirements);
 		}
@@ -369,7 +380,7 @@ public class AdviceFileParser {
 
 	private String substituteVersionAndQualifier(String version) {
 		if (version.indexOf("$version$") != -1) {
-			version = version.replaceAll("\\$version\\$", hostVersion.toString());
+			version = replace(version, "$version$", hostVersion.toString());
 		}
 
 		if (version.indexOf("$qualifier$") != -1) {
@@ -379,12 +390,31 @@ public class AdviceFileParser {
 			if (qualifier.length() == 0) {
 				// Note: this works only for OSGi versions and version ranges
 				// where the qualifier if present must be at the end of a version string
-				version = version.replaceAll(".\\$qualifier\\$", "");
+				version = replace(version, ".$qualifier$", "");
 			}
-
-			version = version.replaceAll("\\$qualifier\\$", qualifier);
+			version = replace(version, "$qualifier$", qualifier);
 		}
 		return version;
+	}
+
+	// originally from org.eclipse.core.internal.net.StringUtil
+	public static String replace(String source, String from, String to) {
+		if (from.length() == 0)
+			return source;
+		StringBuffer buffer = new StringBuffer();
+		int current = 0;
+		int pos = 0;
+		while (pos != -1) {
+			pos = source.indexOf(from, current);
+			if (pos == -1) {
+				buffer.append(source.substring(current));
+			} else {
+				buffer.append(source.substring(current, pos));
+				buffer.append(to);
+				current = pos + from.length();
+			}
+		}
+		return buffer.toString();
 	}
 
 	public Properties getProperties() {
