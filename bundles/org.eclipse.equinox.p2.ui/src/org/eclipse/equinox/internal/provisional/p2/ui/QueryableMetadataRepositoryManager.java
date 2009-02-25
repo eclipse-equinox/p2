@@ -79,20 +79,20 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		List repoLocations = getRepoLocations(manager);
-
+		Collection repoLocations = getRepoLocations(manager);
+		Iterator iterator = repoLocations.iterator();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoLocations.size() * 2);
 		if (sub.isCanceled())
 			return result;
-		for (int i = 0; i < repoLocations.size(); i++) {
+		while (iterator.hasNext()) {
+			URI location = (URI) iterator.next();
 			if (sub.isCanceled())
 				return result;
 			if (query == null) {
-				if (!result.accept(repoLocations.get(i)))
+				if (!result.accept(location))
 					break;
 				sub.worked(2);
 			} else {
-				URI location = (URI) repoLocations.get(i);
 				try {
 					Object alreadyLoaded = loaded.get(location);
 					IMetadataRepository repo;
@@ -105,7 +105,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 					if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
 						handleNotFound(e, location);
 					else
-						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
+						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location), StatusManager.LOG);
 				} catch (OperationCanceledException e) {
 					break;
 				}
@@ -128,14 +128,15 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
-		List repoLocations = getRepoLocations(manager);
+		Collection repoLocations = getRepoLocations(manager);
+		Iterator iter = repoLocations.iterator();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoLocations.size());
 		if (sub.isCanceled())
 			return;
-		for (int i = 0; i < repoLocations.size(); i++) {
+		while (iter.hasNext()) {
 			if (sub.isCanceled())
 				return;
-			URI location = (URI) repoLocations.get(i);
+			URI location = (URI) iter.next();
 			try {
 				Object repo = loaded.get(location);
 				if (repo == null) {
@@ -147,19 +148,20 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
 					handleNotFound(e, location);
 				else
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations.get(i)), StatusManager.LOG);
+					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location), StatusManager.LOG);
 			}
 		}
 	}
 
 	/**
-	 * Returns a List<URI> of repository locations.
+	 * Returns a Collection<URI> of repository locations.
 	 */
-	private List getRepoLocations(IMetadataRepositoryManager manager) {
-		ArrayList locations = new ArrayList();
-		locations.addAll(Arrays.asList(manager.getKnownRepositories(policy.getQueryContext().getMetadataRepositoryFlags())));
+	private Collection getRepoLocations(IMetadataRepositoryManager manager) {
+		Set locations = new HashSet();
+		int flags = policy.getQueryContext().getMetadataRepositoryFlags();
+		locations.addAll(Arrays.asList(manager.getKnownRepositories(flags)));
 		if (includeDisabledRepos) {
-			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | IRepositoryManager.REPOSITORIES_NON_SYSTEM)));
+			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | flags)));
 		}
 		return locations;
 	}
@@ -221,10 +223,11 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			return false;
 		}
 		MetadataRepositoryManager mgr = (MetadataRepositoryManager) manager;
-		List repoURLs = getRepoLocations(mgr);
-		for (int i = 0; i < repoURLs.size(); i++) {
-			if (repoURLs.get(i) instanceof URI) {
-				IMetadataRepository repo = mgr.getRepository((URI) repoURLs.get(i));
+		Iterator repoURIs = getRepoLocations(mgr).iterator();
+		while (repoURIs.hasNext()) {
+			Object location = repoURIs.next();
+			if (location instanceof URI) {
+				IMetadataRepository repo = mgr.getRepository((URI) location);
 				if (repo == null)
 					return false;
 			}
