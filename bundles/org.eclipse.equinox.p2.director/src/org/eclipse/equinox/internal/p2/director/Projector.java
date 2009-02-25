@@ -55,6 +55,8 @@ public class Projector {
 	private MultiStatus result;
 	private Map fragments;
 
+	private Collection alreadyInstalledIUs;
+
 	static abstract class PropositionalVariable {
 
 		abstract void handleMatches(List matches);
@@ -169,6 +171,7 @@ public class Projector {
 
 	public void encode(IInstallableUnit[] ius, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
 		assert ius.length == 1;
+		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
 		try {
 			long start = 0;
 			if (DEBUG) {
@@ -363,7 +366,11 @@ public class Projector {
 				IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 				Explanation explanation;
 				if (isRootIu) {
-					explanation = new Explanation.IUToInstall(reqIu);
+					if (alreadyInstalledIUs.contains(reqIu)) {
+						explanation = new Explanation.IUInstalled(reqIu);
+					} else {
+						explanation = new Explanation.IUToInstall(reqIu);
+					}
 				} else {
 					explanation = new Explanation.HardRequirement(iu, req);
 				}
@@ -459,7 +466,11 @@ public class Projector {
 							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 							Explanation explanation;
 							if (isRootIu) {
-								explanation = new Explanation.IUToInstall(reqIu);
+								if (alreadyInstalledIUs.contains(reqIu)) {
+									explanation = new Explanation.IUInstalled(reqIu);
+								} else {
+									explanation = new Explanation.IUToInstall(reqIu);
+								}
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req);
 							}
@@ -488,7 +499,11 @@ public class Projector {
 
 							Explanation explanation;
 							if (isRootIu) {
-								explanation = new Explanation.IUToInstall(reqIu);
+								if (alreadyInstalledIUs.contains(reqIu)) {
+									explanation = new Explanation.IUInstalled(reqIu);
+								} else {
+									explanation = new Explanation.IUToInstall(reqIu);
+								}
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req);
 							}
@@ -529,7 +544,11 @@ public class Projector {
 					IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 					Explanation explanation;
 					if (isRootIu) {
-						explanation = new Explanation.IUToInstall(reqIu);
+						if (alreadyInstalledIUs.contains(reqIu)) {
+							explanation = new Explanation.IUInstalled(reqIu);
+						} else {
+							explanation = new Explanation.IUToInstall(reqIu);
+						}
 					} else {
 						explanation = new Explanation.HardRequirement(iu, req);
 					}

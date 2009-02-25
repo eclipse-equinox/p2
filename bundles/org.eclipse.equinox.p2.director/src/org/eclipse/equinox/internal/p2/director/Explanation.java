@@ -9,6 +9,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 	private static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
 	private static final String SINGLETON_CONSTRAINT = "Singleton Constraint";
 	private static final String IU_TO_INSTALL = "IU to install";
+	private static final String IU_INSTALLED = "IU already installed";
 	private static final String IU_MISSING = "Missing Requirement";
 
 	public static final int MISSING_REQUIREMENT = 1;
@@ -38,6 +39,23 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public int orderValue() {
 			return 1;
+		}
+	}
+
+	public static class IUInstalled extends Explanation {
+		public final IInstallableUnit iu;
+
+		public IUInstalled(IInstallableUnit iu) {
+			this.iu = iu;
+		}
+
+		public String toString() {
+			return IU_INSTALLED + ":" + iu;
+		}
+
+		@Override
+		public int orderValue() {
+			return 6;
 		}
 	}
 
