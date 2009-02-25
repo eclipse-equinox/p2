@@ -8,7 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -65,7 +67,13 @@ public class PatchTest12 extends AbstractProvisioningTest {
 
 	}
 
-	public void testExplanation() {
-		fail("Explanation API not defined yet!");
+	public void testExplanation1() {
+		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
+		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
+		Set conflictRootIUs = plan3.getNonInstallableRootIUs();
+		assertTrue(conflictRootIUs.contains(p1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getShortExplanation());
 	}
 }
