@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -24,7 +26,7 @@ import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IBundleAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IBundleAdvice, IFeatureAdvice {
 
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
@@ -176,7 +178,15 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		return iuProperties;
 	}
 
-	public InstallableUnitDescription[] getOtherInstallableUnitDescriptions(IInstallableUnit iu) {
+	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions(IInstallableUnit iu) {
 		return otherIUs;
+	}
+
+	public Properties getArtifactProperties(Feature feature) {
+		return null;
+	}
+
+	public Properties getIUProperties(Feature feature) {
+		return iuProperties;
 	}
 }

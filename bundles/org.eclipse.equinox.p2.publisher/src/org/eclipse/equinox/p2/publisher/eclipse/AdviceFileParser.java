@@ -52,7 +52,7 @@ public class AdviceFileParser {
 			else if (current.startsWith("instructions."))
 				parseInstructions("instructions.", adviceInstructions);
 			else if (current.startsWith("unit."))
-				parseUnits("unit.", adviceOtherIUs);
+				parseUnits("units.", adviceOtherIUs);
 			else
 				throw new IllegalStateException("bad token: " + current);
 		}
@@ -209,26 +209,32 @@ public class AdviceFileParser {
 		//		updatedescriptor ??
 
 		while (current != null && current.startsWith(prefix)) {
-			String c = current;
 			String token = current.substring(prefix.length());
-			if (token.equals("id"))
+			if (token.equals("id")) {
 				unitId = currentValue();
-			else if (token.equals("version"))
+				next();
+			} else if (token.equals("version")) {
 				unitVersion = new Version(currentValue());
-			else if (token.equals("filter"))
+				next();
+			} else if (token.equals("filter")) {
 				unitFilter = currentValue();
-			else if (token.equals("copyright"))
+				next();
+			} else if (token.equals("copyright")) {
 				unitCopyright = currentValue();
-			else if (token.equals("copyright.location"))
+				next();
+			} else if (token.equals("copyright.location")) {
 				unitCopyrightLocation = currentValue();
-			else if (token.equals("touchpoint.id"))
+				next();
+			} else if (token.equals("touchpoint.id")) {
 				unitTouchpointId = currentValue();
-			else if (token.equals("touchpoinit.version"))
+				next();
+			} else if (token.equals("touchpoinit.version")) {
 				unitTouchpointVersion = new Version(currentValue());
-			else if (token.startsWith("hostRequirements."))
+				next();
+			} else if (token.startsWith("hostRequirements."))
 				parseHostRequirements(prefix + "hostRequirements.", unitHostRequirements);
-			else if (token.startsWith("arifacts."))
-				parseArtifacts(prefix + "arifacts.", unitArtifacts);
+			else if (token.startsWith("artifacts."))
+				parseArtifacts(prefix + "artifacts.", unitArtifacts);
 			else if (token.startsWith("licenses."))
 				parseLicenses(prefix + "licenses.", unitLicenses);
 			else if (token.startsWith("properties."))
@@ -241,9 +247,6 @@ public class AdviceFileParser {
 				parseInstructions(prefix + "instructions.", unitInstructions);
 			else
 				throw new IllegalStateException("bad token: " + current);
-
-			if (c.equals(current))
-				next();
 		}
 
 		InstallableUnitDescription description = unitHostRequirements.isEmpty() ? new InstallableUnitDescription() : new InstallableUnitFragmentDescription();
@@ -331,7 +334,7 @@ public class AdviceFileParser {
 	}
 
 	private void parseArtifact(String prefix, List artifacts) {
-		String artifactClassifier = "osgi.bundle";
+		String artifactClassifier = null;
 		String artifactId = null;
 		Version artifactVersion = null;
 		while (current != null && current.startsWith(prefix)) {

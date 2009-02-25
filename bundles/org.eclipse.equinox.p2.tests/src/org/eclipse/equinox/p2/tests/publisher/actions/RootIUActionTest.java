@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
-import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
 @SuppressWarnings( {"restriction", "unchecked"})

@@ -12,6 +12,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
+import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
@@ -224,8 +226,10 @@ public class BundlesActionTest extends ActionTest {
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$		
 		expect(publisherInfo.getAdvice(null, true, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();

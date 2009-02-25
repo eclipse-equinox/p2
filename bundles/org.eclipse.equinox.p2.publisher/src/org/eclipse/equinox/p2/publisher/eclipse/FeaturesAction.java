@@ -87,35 +87,12 @@ public class FeaturesAction extends AbstractPublisherAction {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
-		processFeatureAdvice(feature, iu, info);
+		processFeatureAdvice(iu, feature, info);
 		return MetadataFactory.createInstallableUnit(iu);
-	}
-
-	private static Properties getFeatureAdvice(Feature feature, IPublisherInfo info) {
-		Properties result = new Properties();
-		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IFeatureAdvice entry = (IFeatureAdvice) i.next();
-			Properties props = entry.getIUProperties(feature);
-			if (props != null)
-				result.putAll(props);
-		}
-		return result;
 	}
 
 	private static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
-	}
-
-	private static void processFeatureAdvice(Feature feature, InstallableUnitDescription iu, IPublisherInfo info) {
-		Properties extraProperties = getFeatureAdvice(feature, info);
-		if (extraProperties != null) {
-			Enumeration e = extraProperties.propertyNames();
-			while (e.hasMoreElements()) {
-				String name = (String) e.nextElement();
-				iu.setProperty(name, extraProperties.getProperty(name));
-			}
-		}
 	}
 
 	/**
@@ -147,7 +124,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	protected void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
+		Collection advice = info.getAdvice(null, false, feature.getId(), new Version(feature.getVersion()), IFeatureAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IFeatureAdvice entry = (IFeatureAdvice) i.next();
 			Properties props = entry.getArtifactProperties(feature);
@@ -195,8 +172,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void createAdviceFileAdvice(Feature feature, IPublisherInfo info) {
 		//assume p2.inf is co-located with feature.xml
 		String location = feature.getLocation();
-		if (location != null)
-			info.addAdvice(new AdviceFileAdvice(feature.getId(), new Version(feature.getVersion()), new Path(location), new Path("p2.inf"))); //$NON-NLS-1$
+		if (location != null) {
+			String groupId = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+			info.addAdvice(new AdviceFileAdvice(groupId, new Version(feature.getVersion()), new Path(location), new Path("p2.inf"))); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -244,6 +223,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setId(id);
 		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
+
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
@@ -275,8 +255,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
-		processTouchpointAdvice(iu, info);
-		processFeatureAdvice(feature, iu, info);
+		processTouchpointAdvice(iu, null, info);
+		processFeatureAdvice(iu, feature, info);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
@@ -301,6 +281,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		processCapabilityAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -362,8 +343,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setTouchpointType(ITouchpointType.NONE);
-		processTouchpointAdvice(iu, info);
-		processFeatureAdvice(feature, iu, info);
+		processTouchpointAdvice(iu, null, info);
+		processFeatureAdvice(iu, feature, info);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
@@ -389,6 +370,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		processCapabilityAdvice(iu, info);
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
@@ -434,6 +416,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 			IInstallableUnit groupIU = createGroupIU(feature, childIUs, info);
 			if (groupIU != null) {
 				result.addIU(groupIU, IPublisherResult.ROOT);
+				Collection others = processAdditionalIUsAdvice(groupIU, info);
+				result.addIUs(others, IPublisherResult.ROOT);
 			}
 			generateSiteReferences(feature, result, info);
 		}
@@ -649,17 +633,39 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	private void processTouchpointAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, ITouchpointAdvice.class);
-		ITouchpointData result = MetadataFactory.createTouchpointData(new HashMap());
+	/**
+	 * Add all of the advised properties for the bundle at the given location to the given IU.
+	 * @param iu the feature IU to decorate
+	 * @param publisherInfo the publisher info supplying the advice
+	 */
+	private static void processFeatureAdvice(InstallableUnitDescription iu, Feature feature, IPublisherInfo publisherInfo) {
+		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IFeatureAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
-			result = entry.getTouchpointData(result);
+			IFeatureAdvice entry = (IFeatureAdvice) i.next();
+			Properties props = entry.getIUProperties(feature);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				iu.setProperty(key, props.getProperty(key));
+			}
 		}
-		iu.addTouchpointData(result);
 	}
 
-	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo info) {
+	private static Collection processAdditionalIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
+		List result = new ArrayList();
+		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), AdviceFileAdvice.class);
+		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
+			AdviceFileAdvice entry = (AdviceFileAdvice) iterator.next();
+			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
+			for (int i = 0; others != null && i < others.length; i++) {
+				result.add(MetadataFactory.createInstallableUnit(others[i]));
+			}
+		}
+		return result;
+	}
+
+	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo publisherInfo) {
 		// add all the artifacts associated with the feature
 		// TODO this is a little strange.  If there are several artifacts, how do we know which files go with
 		// which artifacts when we publish them?  For now it would be surprising to have more than one
@@ -668,13 +674,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
 			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(artifacts[j], file);
-			addProperties((ArtifactDescriptor) ad, feature, info);
+			addProperties((ArtifactDescriptor) ad, feature, publisherInfo);
 			((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.
 			if (file.isDirectory())
-				publishArtifact(ad, new File[] {file}, null, info, createRootPrefixComputer(file));
+				publishArtifact(ad, new File[] {file}, null, publisherInfo, createRootPrefixComputer(file));
 			else
-				publishArtifact(ad, file, info);
+				publishArtifact(ad, file, publisherInfo);
 		}
 	}
 

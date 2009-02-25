@@ -26,6 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
@@ -166,7 +168,17 @@ public class FeaturesActionTest extends ActionTest {
 		metadataRepository = new TestMetadataRepository(new IInstallableUnit[] {mockIU(BAR, null)});
 
 		ArrayList adviceCollection = fillAdvice(new ArrayList());
-		expect(publisherInfo.getAdvice(null, false, null, null, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ITouchpointAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.jar", fooVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
@@ -174,7 +186,7 @@ public class FeaturesActionTest extends ActionTest {
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
 		EasyMock.expectLastCall().anyTimes();
-		expect(publisherInfo.getAdvice(null, false, null, null, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {

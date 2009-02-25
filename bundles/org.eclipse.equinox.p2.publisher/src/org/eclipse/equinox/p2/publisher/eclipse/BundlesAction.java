@@ -292,35 +292,17 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private Collection processOtherIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
+	private Collection processAdditionalIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
 		List result = new ArrayList();
 		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), AdviceFileAdvice.class);
 		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
 			AdviceFileAdvice entry = (AdviceFileAdvice) iterator.next();
-			InstallableUnitDescription[] others = entry.getOtherInstallableUnitDescriptions(iu);
+			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
 			for (int i = 0; others != null && i < others.length; i++) {
 				result.add(MetadataFactory.createInstallableUnit(others[i]));
 			}
-
 		}
-
 		return result;
-	}
-
-	/**
-	 * Adds all applicable touchpoint advice to the given installable unit.
-	 * @param iu The installable unit to add touchpoint advice to
-	 * @param currentInstructions The set of touchpoint instructions assembled for this IU so far
-	 * @param info The publisher info
-	 */
-	private static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
-		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
-			result = entry.getTouchpointData(result);
-		}
-		iu.addTouchpointData(result);
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
@@ -755,7 +737,7 @@ public class BundlesAction extends AbstractPublisherAction {
 							}
 						}
 
-						Collection others = processOtherIUsAdvice(bundleIU, info);
+						Collection others = processAdditionalIUsAdvice(bundleIU, info);
 						result.addIUs(others, IPublisherResult.ROOT);
 
 						result.addIU(bundleIU, IPublisherResult.ROOT);
