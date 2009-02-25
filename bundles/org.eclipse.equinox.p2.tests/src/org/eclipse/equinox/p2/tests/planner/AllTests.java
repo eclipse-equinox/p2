@@ -35,6 +35,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DropinsScenario.class);
 		suite.addTestSuite(ExplanationDeepConflict.class);
+		suite.addTestSuite(ExplanationForOptionalDependencies.class);
+		suite.addTestSuite(ExplanationForPartialInstallation.class);
 		suite.addTestSuite(ExplanationSeveralConflictingRoots.class);
 		suite.addTestSuite(GreedyRequirement.class);
 		suite.addTestSuite(InclusionRuleTest.class);
