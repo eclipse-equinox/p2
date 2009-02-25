@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
@@ -64,6 +65,15 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected boolean append = false;
 	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
+	private IStatus status;
+
+	/**
+	 * Returns the error message for this application, or the empty string
+	 * if the application terminated successfully.
+	 */
+	public IStatus getStatus() {
+		return status;
+	}
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace) {
@@ -73,13 +83,21 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			if (artifactLocation == null)
 				artifactLocation = location.toURI();
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
-		} else
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
+		}
 		initializeRepositories(info);
 	}
 
+	protected IStatus createConfigurationEror(String message) {
+		return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.publisher", message); //$NON-NLS-1$
+	}
+
 	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
-		info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
+		if (artifactLocation != null)
+			info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
+		else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
+		if (metadataLocation == null)
+			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
 		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
 	}
 
@@ -224,24 +242,31 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	public Object run(PublisherInfo info) throws Exception {
-		registerEventBus();
-		registerDefaultMetadataRepoManager();
-		registerDefaultArtifactRepoManager();
-		initialize(info);
-		validateInfo(info);
-		System.out.println(NLS.bind(Messages.message_generatingMetadata, info.getSummary()));
+		try {
+			registerEventBus();
+			registerDefaultMetadataRepoManager();
+			registerDefaultArtifactRepoManager();
+			initialize(info);
+			validateInfo(info);
+			System.out.println(NLS.bind(Messages.message_generatingMetadata, info.getSummary()));
 
-		long before = System.currentTimeMillis();
-		IPublisherAction[] actions = createActions();
-		Publisher publisher = createPublisher(info);
-		IStatus result = publisher.publish(actions, new NullProgressMonitor());
-		long after = System.currentTimeMillis();
+			long before = System.currentTimeMillis();
+			IPublisherAction[] actions = createActions();
+			Publisher publisher = createPublisher(info);
+			IStatus result = publisher.publish(actions, new NullProgressMonitor());
+			long after = System.currentTimeMillis();
 
-		if (result.isOK()) {
-			System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
-			return IApplication.EXIT_OK;
+			if (result.isOK()) {
+				System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
+				return IApplication.EXIT_OK;
+			}
+			System.out.println(result);
+		} catch (ProvisionException e) {
+			status = e.getStatus();
+			if (status.getSeverity() == IStatus.ERROR && status.getMessage() != null) {
+				System.out.println(status.getMessage());
+			}
 		}
-		System.out.println(result);
 		return new Integer(1);
 	}
 
