@@ -705,13 +705,17 @@ public class Projector {
 			if (singletons.isEmpty())
 				continue;
 
-			PropositionalVariable[] singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size() + 1]);
-			for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
-				singletonArray[singletonArray.length - 1] = (PropositionalVariable) iterator2.next();
+			PropositionalVariable[] singletonArray;
+			if (nonSingletons.isEmpty()) {
+				singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size()]);
 				createAtMostOne(singletonArray);
+			} else {
+				singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size() + 1]);
+				for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
+					singletonArray[singletonArray.length - 1] = (PropositionalVariable) iterator2.next();
+					createAtMostOne(singletonArray);
+				}
 			}
-			singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size()]);
-			createAtMostOne(singletonArray);
 		}
 	}
 
