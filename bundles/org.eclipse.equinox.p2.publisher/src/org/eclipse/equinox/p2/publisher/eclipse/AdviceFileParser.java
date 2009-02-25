@@ -51,7 +51,7 @@ public class AdviceFileParser {
 				parseRequires("requires.", adviceRequires);
 			else if (current.startsWith("instructions."))
 				parseInstructions("instructions.", adviceInstructions);
-			else if (current.startsWith("unit."))
+			else if (current.startsWith("units."))
 				parseUnits("units.", adviceOtherIUs);
 			else
 				throw new IllegalStateException("bad token: " + current);
