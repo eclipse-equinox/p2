@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
-import org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
 @SuppressWarnings( {"restriction", "unchecked"})
@@ -343,7 +342,9 @@ public class RootIUActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).andReturn(rootIUAdviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IVersionAdvice.class)).andReturn(null).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
 	}
 

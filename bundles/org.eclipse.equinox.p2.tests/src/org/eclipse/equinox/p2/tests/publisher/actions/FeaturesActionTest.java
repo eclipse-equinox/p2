@@ -21,12 +21,15 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -166,7 +169,17 @@ public class FeaturesActionTest extends ActionTest {
 		metadataRepository = new TestMetadataRepository(new IInstallableUnit[] {mockIU(BAR, null)});
 
 		ArrayList adviceCollection = fillAdvice(new ArrayList());
-		expect(publisherInfo.getAdvice(null, false, null, null, IFeatureAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ITouchpointAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.jar", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
@@ -174,18 +187,18 @@ public class FeaturesActionTest extends ActionTest {
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
 		EasyMock.expectLastCall().anyTimes();
-		expect(publisherInfo.getAdvice(null, false, null, null, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {
 		Properties prop = new Properties();
 		prop.setProperty("key1", "value1"); //$NON-NLS-1$//$NON-NLS-2$
 		prop.setProperty("key2", "value2"); //$NON-NLS-1$//$NON-NLS-2$
-		IFeatureAdvice featureAdvice = EasyMock.createMock(IFeatureAdvice.class);
-		expect(featureAdvice.getIUProperties((Feature) EasyMock.anyObject())).andReturn(prop).anyTimes();
-		expect(featureAdvice.getArtifactProperties((Feature) EasyMock.anyObject())).andReturn(null).anyTimes();
-		EasyMock.replay(featureAdvice);
-		adviceCollection.add(featureAdvice);
+		IPropertyAdvice propertyAdvice = EasyMock.createMock(IPropertyAdvice.class);
+		expect(propertyAdvice.getInstallableUnitProperties((InstallableUnitDescription) EasyMock.anyObject())).andReturn(prop).anyTimes();
+		expect(propertyAdvice.getArtifactProperties((IInstallableUnit) EasyMock.anyObject(), (IArtifactDescriptor) EasyMock.anyObject())).andReturn(null).anyTimes();
+		EasyMock.replay(propertyAdvice);
+		adviceCollection.add(propertyAdvice);
 		return adviceCollection;
 	}
 }
