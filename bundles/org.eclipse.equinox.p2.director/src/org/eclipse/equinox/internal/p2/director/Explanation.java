@@ -109,19 +109,28 @@ public abstract class Explanation implements Comparable<Explanation> {
 	public static class HardRequirement extends Explanation {
 		public final IInstallableUnit iu;
 		public final IRequiredCapability req;
+		public final IInstallableUnitPatch patch;
 
 		public HardRequirement(IInstallableUnit iu, IRequiredCapability req) {
 			this.iu = iu;
 			this.req = req;
+			this.patch = null;
 		}
 
-		public HardRequirement(IInstallableUnit iu, IInstallableUnitPatch path) {
+		public HardRequirement(IInstallableUnit iu, IInstallableUnitPatch patch) {
 			this.iu = iu;
 			this.req = null;
+			this.patch = patch;
+		}
+
+		public HardRequirement(IInstallableUnit iu, IRequiredCapability req, IInstallableUnitPatch patch) {
+			this.iu = iu;
+			this.req = req;
+			this.patch = patch;
 		}
 
 		public String toString() {
-			return HARD_DEPENDENCY + ":" + iu + "-> " + req;
+			return HARD_DEPENDENCY + ":" + (patch == null ? "" : patch.toString() + " ") + iu + "-> " + req;
 		}
 
 		@Override

@@ -472,7 +472,7 @@ public class Projector {
 									explanation = new Explanation.IUToInstall(reqIu);
 								}
 							} else {
-								explanation = new Explanation.HardRequirement(iu, req);
+								explanation = new Explanation.HardRequirement(iu, req, patch);
 							}
 							createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, explanation);
 						}
@@ -492,7 +492,7 @@ public class Projector {
 					iuVar.handleMatches(matches);
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
-							dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, patch));
+							dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, (IInstallableUnitPatch) null));
 						} else {
 							matches.add(patchVar);
 							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
