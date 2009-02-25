@@ -67,7 +67,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		if (advice.isEmpty())
 			return;
 
-		AdviceFileParser parser = new AdviceFileParser(advice);
+		AdviceFileParser parser = new AdviceFileParser(id, version, advice);
 		parser.parse();
 		touchpointInstructions = parser.getTouchpointInstructions();
 		providedCapabilities = parser.getProvidedCapabilities();

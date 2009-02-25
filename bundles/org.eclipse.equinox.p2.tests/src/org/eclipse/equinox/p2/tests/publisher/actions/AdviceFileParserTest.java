@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
 
 public class AdviceFileParserTest extends TestCase {
 	public void testNoAdvice() {
-		AdviceFileParser parser = new AdviceFileParser(Collections.EMPTY_MAP);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.MIN_VERSION, Collections.EMPTY_MAP);
 		parser.parse();
 	}
 
@@ -28,7 +28,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("properties.testName1", "testValue1");
 		map.put("properties.testName2", "testValue2");
 
-		AdviceFileParser parser = new AdviceFileParser(map);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
 		parser.parse();
 		assertEquals("testValue1", parser.getProperties().getProperty("testName1"));
 		assertEquals("testValue2", parser.getProperties().getProperty("testName2"));
@@ -38,21 +38,21 @@ public class AdviceFileParserTest extends TestCase {
 		Map map = new HashMap();
 		map.put("provides.0.namespace", "testNamespace1");
 		map.put("provides.0.name", "testName1");
-		map.put("provides.0.version", "1.2.3");
+		map.put("provides.0.version", "1.2.3.$qualifier$");
 
-		AdviceFileParser parser = new AdviceFileParser(map);
+		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
 		parser.parse();
 		IProvidedCapability[] capabilities = parser.getProvidedCapabilities();
 		assertEquals(1, capabilities.length);
 		assertEquals("testNamespace1", capabilities[0].getNamespace());
 		assertEquals("testName1", capabilities[0].getName());
-		assertEquals(new Version("1.2.3"), capabilities[0].getVersion());
+		assertEquals(new Version("1.2.3.v20090909"), capabilities[0].getVersion());
 
 		map.put("provides.1.namespace", "testNamespace2");
 		map.put("provides.1.name", "testName2");
-		map.put("provides.1.version", "1.2.4");
+		map.put("provides.1.version", "$version$");
 
-		parser = new AdviceFileParser(map);
+		parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
 		parser.parse();
 		capabilities = parser.getProvidedCapabilities();
 		assertEquals(2, capabilities.length);
@@ -61,47 +61,47 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(new Version("1.2.3"), capabilities[0].getVersion());
 		assertEquals("testNamespace2", capabilities[1].getNamespace());
 		assertEquals("testName2", capabilities[1].getName());
-		assertEquals(new Version("1.2.4"), capabilities[1].getVersion());
+		assertEquals(Version.MIN_VERSION, capabilities[1].getVersion());
 	}
 
 	public void testRequiresAdvice() {
 		Map map = new HashMap();
 		map.put("requires.0.namespace", "testNamespace1");
 		map.put("requires.0.name", "testName1");
-		map.put("requires.0.range", "1.2.3");
+		map.put("requires.0.range", "[1.2.3.$qualifier$, 2)");
 		map.put("requires.0.greedy", Boolean.TRUE.toString());
 		map.put("requires.0.optional", Boolean.TRUE.toString());
 		map.put("requires.0.multiple", Boolean.TRUE.toString());
 
-		AdviceFileParser parser = new AdviceFileParser(map);
+		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
 		parser.parse();
 		IRequiredCapability[] capabilities = parser.getRequiredCapabilities();
 		assertEquals(1, capabilities.length);
 		assertEquals("testNamespace1", capabilities[0].getNamespace());
 		assertEquals("testName1", capabilities[0].getName());
-		assertEquals(new VersionRange("1.2.3"), capabilities[0].getRange());
+		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), capabilities[0].getRange());
 
 		map.put("requires.1.namespace", "testNamespace2");
 		map.put("requires.1.name", "testName2");
-		map.put("requires.1.range", "1.2.4");
+		map.put("requires.1.range", "$version$");
 		map.put("requires.1.greedy", Boolean.FALSE.toString());
 		map.put("requires.1.optional", Boolean.FALSE.toString());
 		//default 
 		//		map.put("requires.1.multiple", Boolean.FALSE.toString());
 
-		parser = new AdviceFileParser(map);
+		parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
 		parser.parse();
 		capabilities = parser.getRequiredCapabilities();
 		assertEquals(2, capabilities.length);
 		assertEquals("testNamespace1", capabilities[0].getNamespace());
 		assertEquals("testName1", capabilities[0].getName());
-		assertEquals(new VersionRange("1.2.3"), capabilities[0].getRange());
+		assertEquals(new VersionRange("[1.2.3, 2)"), capabilities[0].getRange());
 		assertEquals(true, capabilities[0].isGreedy());
 		assertEquals(true, capabilities[0].isOptional());
 		assertEquals(true, capabilities[0].isMultiple());
 		assertEquals("testNamespace2", capabilities[1].getNamespace());
 		assertEquals("testName2", capabilities[1].getName());
-		assertEquals(new VersionRange("1.2.4"), capabilities[1].getRange());
+		assertEquals(new VersionRange(Version.MIN_VERSION.toString()), capabilities[1].getRange());
 		assertEquals(false, capabilities[1].isGreedy());
 		assertEquals(false, capabilities[1].isOptional());
 		assertEquals(false, capabilities[1].isMultiple());
@@ -114,7 +114,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("instructions.unconfigure", "removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)");
 		map.put("instructions.unconfigure.import", "some.removeProgramArg");
 
-		AdviceFileParser parser = new AdviceFileParser(map);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
 		parser.parse();
 		ITouchpointInstruction configure = (ITouchpointInstruction) parser.getTouchpointInstructions().get("configure");
 		assertEquals(null, configure.getImportAttribute());

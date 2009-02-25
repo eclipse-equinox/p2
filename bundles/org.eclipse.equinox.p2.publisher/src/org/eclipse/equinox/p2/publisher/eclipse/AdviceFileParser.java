@@ -30,8 +30,12 @@ public class AdviceFileParser {
 	private final Map advice;
 	private Iterator keysIterator;
 	private String current;
+	//	private String hostId; not currently used
+	private Version hostVersion;
 
-	public AdviceFileParser(Map advice) {
+	public AdviceFileParser(String id, Version version, Map advice) {
+		// this.hostId = id; not currently used
+		this.hostVersion = version;
 		this.advice = advice;
 	}
 
@@ -93,11 +97,11 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
 			if (token.equals("name")) {
-				name = (String) advice.get(current);
+				name = currentValue();
 			} else if (token.equals("namespace")) {
-				namespace = (String) advice.get(current);
+				namespace = currentValue();
 			} else if (token.equals("version")) {
-				capabilityVersion = new Version((String) advice.get(current));
+				capabilityVersion = new Version(substituteVersionAndQualifier(currentValue()));
 			} else
 				throw new IllegalStateException("bad token: " + current);
 			next();
@@ -142,7 +146,7 @@ public class AdviceFileParser {
 			} else if (token.equals("namespace")) {
 				namespace = currentValue();
 			} else if (token.equals("range")) {
-				range = new VersionRange(currentValue());
+				range = new VersionRange(substituteVersionAndQualifier(currentValue()));
 			} else
 				throw new IllegalStateException("bad token: " + current);
 			next();
@@ -214,7 +218,7 @@ public class AdviceFileParser {
 				unitId = currentValue();
 				next();
 			} else if (token.equals("version")) {
-				unitVersion = new Version(currentValue());
+				unitVersion = new Version(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals("filter")) {
 				unitFilter = currentValue();
@@ -229,7 +233,7 @@ public class AdviceFileParser {
 				unitTouchpointId = currentValue();
 				next();
 			} else if (token.equals("touchpoinit.version")) {
-				unitTouchpointVersion = new Version(currentValue());
+				unitTouchpointVersion = new Version(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.startsWith("hostRequirements."))
 				parseHostRequirements(prefix + "hostRequirements.", unitHostRequirements);
@@ -344,7 +348,7 @@ public class AdviceFileParser {
 			} else if (token.equals("id")) {
 				artifactId = currentValue();
 			} else if (token.equals("version")) {
-				artifactVersion = new Version(currentValue());
+				artifactVersion = new Version(substituteVersionAndQualifier(currentValue()));
 			} else
 				throw new IllegalStateException("bad token: " + current);
 			next();
@@ -361,6 +365,26 @@ public class AdviceFileParser {
 
 			parseRequired(current.substring(0, dotIndex + 1), hostRequirements);
 		}
+	}
+
+	private String substituteVersionAndQualifier(String version) {
+		if (version.indexOf("$version$") != -1) {
+			version = version.replaceAll("\\$version\\$", hostVersion.toString());
+		}
+
+		if (version.indexOf("$qualifier$") != -1) {
+			String qualifier = hostVersion.getQualifier();
+			if (qualifier == null)
+				qualifier = "";
+			if (qualifier.length() == 0) {
+				// Note: this works only for OSGi versions and version ranges
+				// where the qualifier if present must be at the end of a version string
+				version = version.replaceAll(".\\$qualifier\\$", "");
+			}
+
+			version = version.replaceAll("\\$qualifier\\$", qualifier);
+		}
+		return version;
 	}
 
 	public Properties getProperties() {
