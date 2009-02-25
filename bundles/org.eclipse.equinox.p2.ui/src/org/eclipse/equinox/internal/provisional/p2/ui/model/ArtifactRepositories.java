@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RootElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
@@ -41,16 +40,4 @@ public class ArtifactRepositories extends RootElement {
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Repositories;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * Overridden because we know that the queryable artifact repo manager can handle a null query
-	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#isSufficientForQuery(org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor)
-	 */
-	// TODO this is not ideal
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224504
-	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
-		return queryDescriptor.collector != null && queryDescriptor.queryable != null;
-	}
-
 }

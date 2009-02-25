@@ -13,69 +13,44 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.net.URI;
 import java.util.Arrays;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 /**
- * An object that adds queryable support to an artifact repository 
- * manager.  It can be constructed to filter the repositories according to repository filter
- * flags.  When a query is provided, the object being queried is repository URL.
- * Callers interested in only the resulting repository URL's can specify a null query, 
- * in which case the collector will be accepting all iterated URL's.
+ * An object that adds provides queryable support 
+ * for an artifact repository manager.  The policy determines which 
+ * repositories are included in the query.  Since artifact repositories
+ * do not support queries, the query will be performed over the repository
+ * locations.
  */
-public class QueryableArtifactRepositoryManager implements IQueryable {
+public class QueryableArtifactRepositoryManager extends QueryableRepositoryManager {
 
-	int flags = IRepositoryManager.REPOSITORIES_ALL;
-
-	public QueryableArtifactRepositoryManager(int flags) {
-		this.flags = flags;
+	public QueryableArtifactRepositoryManager(Policy policy, boolean includeDisabledRepos) {
+		super(policy, includeDisabledRepos);
 	}
 
-	/**
-	 * Iterates over the artifact repositories configured in this queryable.
-	 * If a query is specified, the query is run on each URI, passing any URIs that satisfy the
-	 * query to the provided collector.  If no query is specified, all repository URIs iterated are passed
-	 * to the collector.
-	 * <p>
-	 * This method is long-running; progress and cancellation are provided
-	 * by the given progress monitor. 
-	 * </p>
-	 * 
-	 * @param query The query to perform on the URIs, or <code>null</code> if all URIs should
-	 * be accepted.
-	 * @param result Collects the repository URIs
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 * @return The collector argument
-	 */
-	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
-			return result;
-		}
-		URI[] repoLocations = manager.getKnownRepositories(flags);
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoLocations.length);
-		// If the query is null, all URI's are passed to the collector.
-		if (query == null) {
-			for (int i = 0; i < repoLocations.length; i++) {
-				if (!result.accept(repoLocations[i]))
-					break;
-				monitor.worked(1);
-			}
-		} else
-			// Perform query over all of the URI's.
-			query.perform(Arrays.asList(repoLocations).iterator(), result);
+	protected IRepositoryManager getRepositoryManager() {
+		return (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+	}
 
-		monitor.done();
-		return result;
+	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+		if (manager instanceof IArtifactRepositoryManager) {
+			((IArtifactRepositoryManager) manager).loadRepository(location, monitor);
+		}
+		return null;
+	}
+
+	protected Collector query(URI uri, Query query, Collector collector, IProgressMonitor monitor) {
+		// artifact repositories do not support querying, so we always use the location.
+		query.perform(Arrays.asList(new URI[] {uri}).iterator(), collector);
+		return collector;
 	}
 }
