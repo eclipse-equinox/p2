@@ -73,7 +73,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		try {
 			parser.parse();
 		} catch (Exception e) {
-			String message = "An error occured while parsing advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + ".";
+			String message = "An error occured while parsing advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 		}
@@ -116,7 +116,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			advice.load(stream);
 			return (advice != null ? advice : Collections.EMPTY_MAP);
 		} catch (IOException e) {
-			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + ".";
+			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 			return Collections.EMPTY_MAP;
