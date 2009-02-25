@@ -45,9 +45,9 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
-		assertFalse(plan.getNonInstallableRootIUs().contains(cdt));
-		assertFalse(plan.getNonInstallableRootIUs().contains(sdk));
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
+		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
+		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getSeverity() != IStatus.ERROR);
 		//

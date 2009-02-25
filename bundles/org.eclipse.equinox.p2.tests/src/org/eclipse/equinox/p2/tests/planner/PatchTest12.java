@@ -72,8 +72,8 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
-		Set conflictRootIUs = plan3.getNonInstallableRootIUs();
+		Set conflictRootIUs = plan3.getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRootIUs.contains(p1));
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getShortExplanation());
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getRequestStatus().getShortExplanation());
 	}
 }

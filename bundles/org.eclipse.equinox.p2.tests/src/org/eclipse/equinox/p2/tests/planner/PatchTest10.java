@@ -80,9 +80,9 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		Set problems = plan3.getNonInstallableRootIUs();
+		Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();
 		System.out.println(problems);
-		System.out.println(plan3.getExplanation());
+		System.out.println(plan3.getRequestStatus().getExplanations());
 		assertEquals(3, problems.size());
 		assertTrue(problems.contains(a1));
 		assertTrue(problems.contains(p1));

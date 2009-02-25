@@ -42,9 +42,9 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getExplanation());
-		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
-		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+		System.out.println(plan.getRequestStatus().getExplanations());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
@@ -67,9 +67,9 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getExplanation());
-		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
-		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+		System.out.println(plan.getRequestStatus().getExplanations());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 
 		//		assertEquals(0, plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().size());
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(emf));
@@ -91,9 +91,9 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getExplanation());
-		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
-		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+		System.out.println(plan.getRequestStatus().getExplanations());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));

@@ -43,11 +43,11 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getExplanation());
-		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
+		System.out.println(plan.getRequestStatus().getExplanations());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
 		//Here we verify that we only return the roots we asked the installation of. The SDK is installable since it is already installed
-		assertFalse(plan.getNonInstallableRootIUs().contains(sdk));
-
+		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
+		assertTrue(plan.getRequestStatus().getConflictsWithAnyRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
 	}

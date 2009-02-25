@@ -55,9 +55,9 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getExplanation();
+		Set explanation = plan.getRequestStatus().getExplanations();
 		assertFalse(explanation.isEmpty());
-		assertTrue(plan.getNonInstallableRootIUs().contains(a1));
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getShortExplanation());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(a1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getRequestStatus().getShortExplanation());
 	}
 }
