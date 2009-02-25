@@ -10,11 +10,12 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest {
 	private IProfile profile;
 	private IPlanner planner;
+	private IInstallableUnit sdk;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		IInstallableUnit sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]"), null));
+		sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]"), null));
 		IInstallableUnit sdkPart = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 		IInstallableUnit sdkPart2 = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
@@ -42,11 +43,18 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		System.out.println(plan.getExplanation());
+		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
+		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
+		//		assertEquals(0, plan.getRequestStatus(emf).getConflictsWithAnyRoots().size());
+		//		assertEquals(0, plan.getRequestStatus(emf).getConflictsWithInstalledRoots().size());
 	}
 
 	public void testConflictingSingletonAndMissingDependency2() {
 		//CDT will have a singleton conflict EMF
-		//EMF will be missing a dependency
+		//EMF will be missing a dependency and will be in conflict with CDT
 		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "ASingleton", new VersionRange("[2.0.0, 2.0.0]"), null));
 		IInstallableUnit aSingleton1 = createIU("ASingleton", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 		IInstallableUnit aSingleton2 = createIU("ASingleton", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
@@ -60,11 +68,18 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		System.out.println(plan.getExplanation());
+		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
+		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+
+		//		assertEquals(0, plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().size());
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(emf));
+		//		assertEquals(0, plan.getRequestStatus(emf).getConflictsWithInstalledRoots().size());
+		//		assertTrue(plan.getRequestStatus(emf).getConflictsWithAnyRoots().contains(cdt));
 	}
 
 	public void testConflictingSingletonAndMissingDependency3() {
 		//CDT will have a singleton conflict EMF and with the SDK
-		//EMF will be missing a dependency
+		//EMF will be conflicting with CDT
 		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]"), null));
 		IInstallableUnit sdkPart3 = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("3.0.0")), true);
 
@@ -77,5 +92,13 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		System.out.println(plan.getExplanation());
+		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
+		assertTrue(plan.getNonInstallableRootIUs().contains(emf));
+
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(emf));
+		//		assertEquals(0, plan.getRequestStatus(emf).getConflictsWithInstalledRoots().size());
+		//		assertTrue(plan.getRequestStatus(emf).getConflictsWithAnyRoots().contains(cdt));
 	}
 }

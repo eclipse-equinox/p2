@@ -35,7 +35,6 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 
 	public void testDeepSingletonConflict() {
 		//CDT will have a singleton conflict with SDK
-		//EMF will be missing a dependency
 		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "CDTPart", new VersionRange("[1.0.0, 1.0.0]"), null));
 		IInstallableUnit cdtPart = createIU("CDTPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[2.0.0, 2.0.0]"), null));
 		IInstallableUnit innerInnerSDKPart2 = createIU("InnerInnerSDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
@@ -46,8 +45,10 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		System.out.println(plan.getExplanation());
 		assertTrue(plan.getNonInstallableRootIUs().contains(cdt));
-
-		//Here we verify that we only return the roots we asked the installation of
+		//Here we verify that we only return the roots we asked the installation of. The SDK is installable since it is already installed
 		assertFalse(plan.getNonInstallableRootIUs().contains(sdk));
+
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
+		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
 	}
 }
