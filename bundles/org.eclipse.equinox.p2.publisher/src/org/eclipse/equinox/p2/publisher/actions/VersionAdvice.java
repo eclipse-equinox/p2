@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
@@ -22,21 +23,68 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	 * Load the given namespace with version mappings from the properties file at 
 	 * the given location.  The properties file is expected to be in the normal format
 	 * produced and consumed by PDE Build.
-	 * @param namespace the namespace to populate
+	 * @param namespace the namespace to populate.  If "null" is passed
+	 * in, the version will be stored in the "null" namespace
 	 * @param location the location of the mapping file
 	 */
 	public void load(String namespace, String location) {
-
+		if (namespace == null)
+			namespace = "null"; //$NON-NLS-1$
+		Properties properties = new Properties();
+		File file = new File(location);
+		if (file.exists()) {
+			InputStream stream = null;
+			try {
+				stream = new BufferedInputStream(new FileInputStream(file));
+				properties.load(stream);
+			} catch (IOException e) {
+				// nothing
+			} finally {
+				if (stream != null)
+					try {
+						stream.close();
+					} catch (IOException e) {
+						//nothing
+					}
+			}
+		}
+		if (properties.size() > 0) {
+			Enumeration enumeration = properties.keys();
+			while (enumeration.hasMoreElements()) {
+				String key = (String) enumeration.nextElement();
+				String value = properties.getProperty(key);
+				setVersion(namespace, key, new Version(value));
+			}
+		}
 	}
 
+	/**
+	 * Returns the version advice for the given id in the given namespace.
+	 * @param namespace the namespace in which to look for advice
+	 * @param id the item for which advice is sought
+	 * @return the version advice found or <code>null</code> if none
+	 */
 	public Version getVersion(String namespace, String id) {
 		Map values = (Map) versions.get(namespace);
 		// if no one says anything then don't say anything.  someone else might have an opinion
+		if (values != null) {
+			Version result = (Version) values.get(id);
+			if (result != null)
+				return result;
+		}
+
+		values = (Map) versions.get("null"); //$NON-NLS-1$
 		if (values == null)
 			return null;
 		return (Version) values.get(id);
 	}
 
+	/**
+	 * Sets the version advice for the given id in the given namespace.
+	 * @param namespace the namespace in which to look for advice
+	 * @param id the item for which advice is sought
+	 * @param version the version advice for the given id or <code>null</code> to remove advice
+	 */
 	public void setVersion(String namespace, String id, Version version) {
 		Map values = (Map) versions.get(namespace);
 		if (values == null) {

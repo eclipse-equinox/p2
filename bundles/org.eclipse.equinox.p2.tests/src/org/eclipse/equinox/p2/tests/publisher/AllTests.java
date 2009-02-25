@@ -35,6 +35,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(RootFilesActionTest.class);
 		suite.addTestSuite(RootIUActionTest.class);
 		suite.addTestSuite(GeneralPublisherTests.class);
+		suite.addTestSuite(VersionAdviceTest.class);
 		return suite;
 	}
 

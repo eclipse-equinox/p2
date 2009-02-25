@@ -26,12 +26,4 @@ public interface IVersionAdvice extends IPublisherAdvice {
 	 */
 	public Version getVersion(String namespace, String id);
 
-	/**
-	 * Sets the version advice for the given id in the given namespace.
-	 * @param namespace the namespace in which to look for advice
-	 * @param id the item for which advice is sought
-	 * @param version the version advice for the given id or <code>null</code> to remove advice
-	 */
-	public void setVersion(String namespace, String id, Version version);
-
 }
