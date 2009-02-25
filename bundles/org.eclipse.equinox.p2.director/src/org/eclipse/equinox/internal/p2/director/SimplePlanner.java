@@ -59,10 +59,10 @@ public class SimplePlanner implements IPlanner {
 		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
 		Map requestStatus = new HashMap(added.length + removed.length);
 		for (int i = 0; i < added.length; i++) {
-			requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+			requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR, null));
 		}
 		for (int i = 0; i < removed.length; i++) {
-			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR, null));
 		}
 		return new Map[] {requestStatus, null};
 	}
@@ -73,16 +73,16 @@ public class SimplePlanner implements IPlanner {
 		Map requestStatus = new HashMap(added.length + removed.length);
 		for (int i = 0; i < added.length; i++) {
 			if (toState.contains(added[i]))
-				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.OK));
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.OK, null));
 			else
-				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR, null));
 		}
 
 		for (int i = 0; i < removed.length; i++) {
 			if (!toState.contains(removed[i]))
-				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.OK));
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.OK, null));
 			else
-				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR, null));
 		}
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
@@ -92,7 +92,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator iterator = includedIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit removal = (IInstallableUnit) iterator.next();
 			if (!requestStatus.containsKey(removal))
-				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO));
+				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO, null));
 		}
 		return new Map[] {requestStatus, sideEffectStatus};
 	}
@@ -287,7 +287,7 @@ public class SimplePlanner implements IPlanner {
 				IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 
 				Set explanation = projector.getExplanation();
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), explanation);
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)

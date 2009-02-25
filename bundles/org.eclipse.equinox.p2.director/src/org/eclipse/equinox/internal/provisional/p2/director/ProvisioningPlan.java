@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.director.Explanation;
-import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -25,33 +23,20 @@ public class ProvisioningPlan {
 	Operand[] operands;
 	Map actualChangeRequest;
 	Map sideEffectChanges;
-	Set explanation;
-	Set rootIUs;
-	Explanation detailedExplanation;
+	RequestStatus globalRequestStatus;
 
 	public ProvisioningPlan(IStatus status) {
 		this(status, new Operand[0], null, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, Set explanation) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
 			this.actualChangeRequest = actualChangeRequest[0];
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
-		this.explanation = explanation;
-		rootIUs = new HashSet();
-		if (explanation != null) {
-			for (Iterator iterator = explanation.iterator(); iterator.hasNext();) {
-				Object o = iterator.next();
-				if (!(o instanceof Explanation.IUToInstall)) {
-					detailedExplanation = (Explanation) o;
-					break;
-				}
-				rootIUs.add(((IUToInstall) o).iu);
-			}
-		}
+		this.globalRequestStatus = globalStatus;
 	}
 
 	public IStatus getStatus() {
@@ -81,6 +66,10 @@ public class ProvisioningPlan {
 		return (RequestStatus) actualChangeRequest.get(iu);
 	}
 
+	public RequestStatus getRequestStatus() {
+		return globalRequestStatus;
+	}
+
 	public Map getSideEffectChanges() {
 		if (sideEffectChanges == null)
 			return Collections.EMPTY_MAP;
@@ -108,30 +97,5 @@ public class ProvisioningPlan {
 			}
 			return query.perform(list.iterator(), collector);
 		}
-	}
-
-	public Set getExplanation() {
-		return explanation;
-	}
-
-	/**
-	 * To get the Root IUs that are conflicting.
-	 * Note that for the moment, the set contains IRequiredCapability,
-	 * not IUs.
-	 * 
-	 * @return an empty set if all the Root IUs are installable, one 
-	 * element that cannot be installed (missing dependency?) or two 
-	 * elements that cannot be installed altogether (singleton contraint?).
-	 */
-	public Set getNonInstallableRootIUs() {
-		return rootIUs;
-	}
-
-	public int getShortExplanation() {
-		return detailedExplanation.shortAnswer();
-	}
-
-	public Explanation getExplanationDetails() {
-		return detailedExplanation;
 	}
 }

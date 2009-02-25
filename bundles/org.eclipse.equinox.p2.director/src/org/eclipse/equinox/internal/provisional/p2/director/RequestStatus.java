@@ -9,8 +9,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.Explanation.IUInstalled;
+import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class RequestStatus {
@@ -20,11 +22,32 @@ public class RequestStatus {
 	private byte initialRequestType;
 	private IInstallableUnit iu;
 	private int severity;
+	private Set explanation;
+	private Explanation detailedExplanation;
+	private Set conflictingRootIUs;
+	private Set conflictingInstalledIUs;
 
-	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int severity) {
+	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int severity, Set explanation) {
 		this.iu = iu;
 		this.severity = severity;
 		this.initialRequestType = initialRequesType;
+		this.explanation = explanation;
+		conflictingRootIUs = new HashSet();
+		conflictingInstalledIUs = new HashSet();
+		if (explanation != null) {
+			Iterator iterator = explanation.iterator();
+			Object o = null;
+			while (iterator.hasNext() && ((o = iterator.next()) instanceof Explanation.IUToInstall)) {
+				conflictingRootIUs.add(((IUToInstall) o).iu);
+			}
+			if (o instanceof Explanation.IUInstalled) {
+				conflictingInstalledIUs.add(((IUInstalled) o).iu);
+				while (iterator.hasNext() && ((o = iterator.next()) instanceof Explanation.IUInstalled)) {
+					conflictingInstalledIUs.add(((IUInstalled) o).iu);
+				}
+			}
+			detailedExplanation = (Explanation) o;
+		}
 	}
 
 	public byte getInitialRequestType() {
@@ -42,18 +65,26 @@ public class RequestStatus {
 	//Return the already installed roots with which this IU is in conflict
 	//Return an empty set if there is no conflict
 	public Set getConflictsWithInstalledRoots() {
-		return Collections.EMPTY_SET;
+		return conflictingRootIUs;
 	}
 
 	//Return the already installed roots with which this IU is in conflict
 	//Return an empty set if there is no conflict
 	public Set getConflictsWithAnyRoots() {
-		return Collections.EMPTY_SET;
+		return conflictingInstalledIUs;
 	}
 
 	//Return an explanation as to why this IU can not be resolved.
 	public Set getExplanations() {
 		//To start with, this does not have to return the most specific explanation. If it simply returns an global explanation it is good enough.
-		return null;
+		return explanation;
+	}
+
+	public int getShortExplanation() {
+		return detailedExplanation.shortAnswer();
+	}
+
+	public Explanation getExplanationDetails() {
+		return detailedExplanation;
 	}
 }

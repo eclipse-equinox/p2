@@ -55,7 +55,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public int orderValue() {
-			return 6;
+			return 2;
 		}
 	}
 
@@ -74,7 +74,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public int orderValue() {
-			return 2;
+			return 3;
 		}
 
 		@Override
@@ -97,7 +97,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public int orderValue() {
-			return 3;
+			return 4;
 		}
 
 		@Override
@@ -135,7 +135,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public int orderValue() {
-			return 4;
+			return 5;
 		}
 	}
 
@@ -148,7 +148,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public int orderValue() {
 			// TODO Auto-generated method stub
-			return 5;
+			return 6;
 		}
 	};
 
