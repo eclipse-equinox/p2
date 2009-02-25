@@ -39,7 +39,7 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {missingOptionalDependency});
 
 		IRequiredCapability emfMissing = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfMissing}, null, true);
+		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfMissing}, NO_PROPERTIES, true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
