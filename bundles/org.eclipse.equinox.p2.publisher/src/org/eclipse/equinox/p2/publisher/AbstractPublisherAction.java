@@ -204,7 +204,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
 			IAdditionalInstallableUnitAdvice entry = (IAdditionalInstallableUnitAdvice) iterator.next();
 			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
-			ius.addAll(Arrays.asList(others));
+			if (others != null)
+				ius.addAll(Arrays.asList(others));
 		}
 		return (InstallableUnitDescription[]) ius.toArray(new InstallableUnitDescription[ius.size()]);
 	}
@@ -258,14 +259,14 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
 			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
-			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
-			if (providedAdvice != null) {
+			if (requiredAdvice != null) {
 				IRequiredCapability[] current = iu.getRequiredCapabilities();
 				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
 				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
 				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
 				iu.setRequiredCapabilities(result);
 			}
+			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
 				IProvidedCapability[] current = iu.getProvidedCapabilities();
 				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];

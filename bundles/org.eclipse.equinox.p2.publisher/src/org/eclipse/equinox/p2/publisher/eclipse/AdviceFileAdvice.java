@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.publisher.actions.*;
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IPropertyAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IPropertyAdvice, IAdditionalInstallableUnitAdvice {
 
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
