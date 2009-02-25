@@ -195,7 +195,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
 		PublisherInfo info = new PublisherInfo();
 		Version version = new Version(bundleDescription.getVersion().toString());
-		info.addAdvice(new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+		if (advice.containsAdvice())
+			info.addAdvice(advice);
 		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bundleDescription.getSymbolicName(), version, shape));
 		return BundlesAction.createBundleIU(bundleDescription, artifactKey, info);

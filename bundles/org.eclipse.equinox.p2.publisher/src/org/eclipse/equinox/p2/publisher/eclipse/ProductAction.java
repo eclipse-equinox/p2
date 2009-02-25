@@ -102,8 +102,10 @@ public class ProductAction extends AbstractPublisherAction {
 		File productFileLocation = product.getLocation();
 		if (productFileLocation == null)
 			return;
-		info.addAdvice(new AdviceFileAdvice(product.getId(), new Version(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf"))); //$NON-NLS-1$
 
+		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), new Version(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf")); //$NON-NLS-1$
+		if (advice.containsAdvice())
+			info.addAdvice(advice);
 	}
 
 	private void createRootAdvice() {

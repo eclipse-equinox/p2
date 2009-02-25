@@ -40,6 +40,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private IRequiredCapability[] requiredCapabilities;
 	private Properties iuProperties;
 	private InstallableUnitDescription[] otherIUs;
+	private boolean containsAdvice = false;
 
 	/**
 	 * Creates advice for an advice file at the given location. If <tt>basePath</tt>
@@ -73,6 +74,11 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		requiredCapabilities = parser.getRequiredCapabilities();
 		iuProperties = parser.getProperties();
 		otherIUs = parser.getOtherInstallableUnitDescriptions();
+		containsAdvice = true;
+	}
+
+	public boolean containsAdvice() {
+		return containsAdvice;
 	}
 
 	/**

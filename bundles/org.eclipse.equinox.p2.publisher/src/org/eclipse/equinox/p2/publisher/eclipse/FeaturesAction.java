@@ -154,7 +154,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		String location = feature.getLocation();
 		if (location != null) {
 			String groupId = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
-			info.addAdvice(new AdviceFileAdvice(groupId, new Version(feature.getVersion()), new Path(location), new Path("p2.inf"))); //$NON-NLS-1$
+			AdviceFileAdvice advice = new AdviceFileAdvice(groupId, new Version(feature.getVersion()), new Path(location), new Path("p2.inf")); //$NON-NLS-1$
+			if (advice.containsAdvice())
+				info.addAdvice(advice);
 		}
 	}
 

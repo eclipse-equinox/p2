@@ -692,8 +692,13 @@ public class BundlesAction extends AbstractPublisherAction {
 	 */
 	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo info) {
 		String location = bundleDescription.getLocation();
-		if (location != null)
-			info.addAdvice(new AdviceFileAdvice(bundleDescription.getSymbolicName(), Version.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
+		if (location == null)
+			return;
+
+		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), Version.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+		if (advice.containsAdvice())
+			info.addAdvice(advice);
+
 	}
 
 	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {
