@@ -10,21 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
-/**
- * Touchpoint advice provides information related to the touch points associated
- * with an installable unit being published.
- */
-public interface ITouchpointAdvice extends IPublisherAdvice {
-	/**
-	 * Returns a touchpoint data that merges the given touchpoint data
-	 * with any new touchpoint data contributed by this advice.
-	 * 
-	 * @param existingData The current set of touchpoint data.
-	 * @return the merged touchpoint data
-	 */
-	public ITouchpointData getTouchpointData(ITouchpointData existingData);
+public interface IAdditionalInstallableUnitAdvice extends IPublisherAdvice {
 
+	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions(IInstallableUnit iu);
 }

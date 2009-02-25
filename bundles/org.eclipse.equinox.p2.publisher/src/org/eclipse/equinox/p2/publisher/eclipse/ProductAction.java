@@ -83,6 +83,7 @@ public class ProductAction extends AbstractPublisherAction {
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
+
 		return Status.OK_STATUS;
 	}
 

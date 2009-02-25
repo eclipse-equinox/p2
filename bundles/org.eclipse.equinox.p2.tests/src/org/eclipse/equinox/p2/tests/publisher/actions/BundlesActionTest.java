@@ -12,8 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
@@ -21,13 +19,16 @@ import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
@@ -214,22 +215,27 @@ public class BundlesActionTest extends ActionTest {
 		sdkProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sdkProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 
-		IBundleAdvice bundleAdvice = EasyMock.createMock(IBundleAdvice.class);
-		expect(bundleAdvice.getArtifactProperties(TEST_FILE1)).andReturn(sarProperties).anyTimes();
-		expect(bundleAdvice.getArtifactProperties(TEST_FILE2)).andReturn(sdkProperties).anyTimes();
-		expect(bundleAdvice.getIUProperties((File) anyObject())).andReturn(new Properties()).anyTimes();
+		IPropertyAdvice propertyAdvice1 = EasyMock.createMock(IPropertyAdvice.class);
+		expect(propertyAdvice1.getInstallableUnitProperties((InstallableUnitDescription) EasyMock.anyObject())).andReturn(null).anyTimes();
+		expect(propertyAdvice1.getArtifactProperties((IInstallableUnit) EasyMock.anyObject(), (IArtifactDescriptor) EasyMock.anyObject())).andReturn(sarProperties).anyTimes();
+		EasyMock.replay(propertyAdvice1);
+		ArrayList adviceCollection1 = new ArrayList();
+		adviceCollection1.add(propertyAdvice1);
 
-		EasyMock.replay(bundleAdvice);
-		ArrayList adviceCollection = new ArrayList();
-		adviceCollection.add(bundleAdvice);
-		expect(publisherInfo.getAdvice(null, false, null, null, IBundleAdvice.class)).andReturn(adviceCollection).anyTimes();
+		IPropertyAdvice propertyAdvice2 = EasyMock.createMock(IPropertyAdvice.class);
+		expect(propertyAdvice2.getInstallableUnitProperties((InstallableUnitDescription) EasyMock.anyObject())).andReturn(null).anyTimes();
+		expect(propertyAdvice2.getArtifactProperties((IInstallableUnit) EasyMock.anyObject(), (IArtifactDescriptor) EasyMock.anyObject())).andReturn(sdkProperties).anyTimes();
+		EasyMock.replay(propertyAdvice2);
+		ArrayList adviceCollection2 = new ArrayList();
+		adviceCollection2.add(propertyAdvice2);
+
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IPropertyAdvice.class)).andReturn(adviceCollection1).times(2); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, AdviceFileAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$		
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IPropertyAdvice.class)).andReturn(adviceCollection2).times(2);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$		
 		expect(publisherInfo.getAdvice(null, true, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();

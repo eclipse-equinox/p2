@@ -195,6 +195,59 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
+	protected static InstallableUnitDescription[] processAdditionalInstallableUnitsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
+		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
+		if (advice.isEmpty())
+			return null;
+
+		List ius = new ArrayList();
+		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
+			IAdditionalInstallableUnitAdvice entry = (IAdditionalInstallableUnitAdvice) iterator.next();
+			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
+			ius.addAll(Arrays.asList(others));
+		}
+		return (InstallableUnitDescription[]) ius.toArray(new InstallableUnitDescription[ius.size()]);
+	}
+
+	/**
+	 * Add all of the advised artifact properties for the given IU and artifact descriptor.
+	 * @param iu the IU
+	 * @param descriptor the descriptor to decorate
+	 * @param info the publisher info supplying the advice
+	 */
+	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, ArtifactDescriptor descriptor, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IPropertyAdvice entry = (IPropertyAdvice) i.next();
+			Properties props = entry.getArtifactProperties(iu, descriptor);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				descriptor.setRepositoryProperty(key, props.getProperty(key));
+			}
+		}
+	}
+
+	/**
+	 * Add all of the advised IU properties for the given IU.
+	 * @param iu the IU to decorate
+	 * @param info the publisher info supplying the advice
+	 */
+	protected static void processInstallableUnitPropertiesAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IPropertyAdvice entry = (IPropertyAdvice) i.next();
+			Properties props = entry.getInstallableUnitProperties(iu);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				iu.setProperty(key, props.getProperty(key));
+			}
+		}
+	}
+
 	/**
 	 * Add all of the advised provided and required capabilities for the given installable unit.
 	 * @param iu the IU to decorate
@@ -235,7 +288,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (advice.isEmpty())
 				return;
 
-			currentInstructions = new HashMap();
+			currentInstructions = Collections.EMPTY_MAP;
 		}
 
 		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);

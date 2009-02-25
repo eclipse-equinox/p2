@@ -8,25 +8,24 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
-import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.*;
 
 /**
  * Publishing advice from a p2 advice file. An advice file (p2.inf) can be embedded
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IBundleAdvice, IFeatureAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IPropertyAdvice {
 
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
@@ -170,23 +169,15 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		return requiredCapabilities;
 	}
 
-	public Properties getArtifactProperties(File location) {
-		return null;
-	}
-
-	public Properties getIUProperties(File location) {
-		return iuProperties;
-	}
-
 	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions(IInstallableUnit iu) {
 		return otherIUs;
 	}
 
-	public Properties getArtifactProperties(Feature feature) {
+	public Properties getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
 		return null;
 	}
 
-	public Properties getIUProperties(Feature feature) {
+	public Properties getInstallableUnitProperties(InstallableUnitDescription iu) {
 		return iuProperties;
 	}
 }

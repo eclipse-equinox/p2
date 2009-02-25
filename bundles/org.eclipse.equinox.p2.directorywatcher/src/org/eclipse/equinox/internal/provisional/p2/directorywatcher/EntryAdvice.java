@@ -15,36 +15,23 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 
 /**
  * Entry advice captures the name, location, modified time, shape etc of something
  * discovered by the repository listener.  It is a simplified structure intended to represent
  * only one entry at a time and that entry is the the only entry being published.  
  */
-public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
+public class EntryAdvice implements IPropertyAdvice {
 	private Properties metadataProps = new Properties();
 	private Properties artifactProps = new Properties();
 
-	public Properties getIUProperties(Feature feature) {
-		return metadataProps;
-	}
-
-	public Properties getArtifactProperties(Feature feature) {
-		return artifactProps;
-	}
-
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 		return true;
-	}
-
-	public Properties getIUProperties(File location) {
-		return metadataProps;
-	}
-
-	public Properties getArtifactProperties(File location) {
-		return artifactProps;
 	}
 
 	void setProperties(File location, long timestamp, URI reference) {
@@ -69,5 +56,13 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 
 	public Map getInstructions(File location) {
 		return null;
+	}
+
+	public Properties getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+		return artifactProps;
+	}
+
+	public Properties getInstallableUnitProperties(InstallableUnitDescription iu) {
+		return metadataProps;
 	}
 }

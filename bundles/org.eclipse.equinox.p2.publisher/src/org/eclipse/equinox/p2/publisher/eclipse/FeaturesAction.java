@@ -87,7 +87,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
-		processFeatureAdvice(iu, feature, info);
+		processInstallableUnitPropertiesAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -115,26 +115,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	public FeaturesAction(File[] locations) {
 		this.locations = locations;
-	}
-
-	/**
-	 * Add all of the advice for the feature at the given location to the given descriptor.
-	 * @param descriptor the descriptor to decorate
-	 * @param feature the feature we are getting advice for
-	 * @param info the publisher info supplying the advice
-	 */
-	protected void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, feature.getId(), new Version(feature.getVersion()), IFeatureAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IFeatureAdvice entry = (IFeatureAdvice) i.next();
-			Properties props = entry.getArtifactProperties(feature);
-			if (props == null)
-				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				descriptor.setRepositoryProperty(key, props.getProperty(key));
-			}
-		}
 	}
 
 	// attach the described files from the given location to the given iu description.  Return
@@ -256,7 +236,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
 		processTouchpointAdvice(iu, null, info);
-		processFeatureAdvice(iu, feature, info);
+		processInstallableUnitPropertiesAdvice(iu, info);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
@@ -344,7 +324,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		iu.setTouchpointType(ITouchpointType.NONE);
 		processTouchpointAdvice(iu, null, info);
-		processFeatureAdvice(iu, feature, info);
+		processInstallableUnitPropertiesAdvice(iu, info);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
@@ -416,8 +396,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 			IInstallableUnit groupIU = createGroupIU(feature, childIUs, info);
 			if (groupIU != null) {
 				result.addIU(groupIU, IPublisherResult.ROOT);
-				Collection others = processAdditionalIUsAdvice(groupIU, info);
-				result.addIUs(others, IPublisherResult.ROOT);
+				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(groupIU, info);
+				for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
+					result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
+				}
 			}
 			generateSiteReferences(feature, result, info);
 		}
@@ -633,38 +615,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	/**
-	 * Add all of the advised properties for the bundle at the given location to the given IU.
-	 * @param iu the feature IU to decorate
-	 * @param publisherInfo the publisher info supplying the advice
-	 */
-	private static void processFeatureAdvice(InstallableUnitDescription iu, Feature feature, IPublisherInfo publisherInfo) {
-		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IFeatureAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IFeatureAdvice entry = (IFeatureAdvice) i.next();
-			Properties props = entry.getIUProperties(feature);
-			if (props == null)
-				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				iu.setProperty(key, props.getProperty(key));
-			}
-		}
-	}
-
-	private static Collection processAdditionalIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
-		List result = new ArrayList();
-		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), AdviceFileAdvice.class);
-		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
-			AdviceFileAdvice entry = (AdviceFileAdvice) iterator.next();
-			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
-			for (int i = 0; others != null && i < others.length; i++) {
-				result.add(MetadataFactory.createInstallableUnit(others[i]));
-			}
-		}
-		return result;
-	}
-
 	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo publisherInfo) {
 		// add all the artifacts associated with the feature
 		// TODO this is a little strange.  If there are several artifacts, how do we know which files go with
@@ -673,9 +623,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		IArtifactKey[] artifacts = featureIU.getArtifacts();
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
-			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(artifacts[j], file);
-			addProperties((ArtifactDescriptor) ad, feature, publisherInfo);
-			((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
+			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(artifacts[j], file);
+			processArtifactPropertiesAdvice(featureIU, ad, publisherInfo);
+			ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.
 			if (file.isDirectory())
 				publishArtifact(ad, new File[] {file}, null, publisherInfo, createRootPrefixComputer(file));

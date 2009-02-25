@@ -200,7 +200,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
-		processCapabilityAdvice(iu, bd, info);
+		processCapabilityAdvice(iu, info);
 
 		// Set certain properties from the manifest header attributes as IU properties.
 		// The values of these attributes may be localized (strings starting with '%')
@@ -227,7 +227,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		processTouchpointAdvice(iu, touchpointData, info);
 
-		processPropertiesAdvice(iu, bd.getLocation(), info);
+		processInstallableUnitPropertiesAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -239,70 +239,6 @@ public class BundlesAction extends AbstractPublisherAction {
 			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
 		}
 		return updateRange;
-	}
-
-	/**
-	 * Add all of the advised properties for the bundle at the given location to the given IU.
-	 * @param iu the bundle IU to decorate
-	 * @param location the location of the bundle
-	 * @param info the publisher info supplying the advice
-	 */
-	private static void processPropertiesAdvice(InstallableUnitDescription iu, String location, IPublisherInfo info) {
-		if (location == null)
-			return;
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IBundleAdvice.class);
-		File bundleFile = new File(location);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IBundleAdvice entry = (IBundleAdvice) i.next();
-			Properties props = entry.getIUProperties(bundleFile);
-			if (props == null)
-				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				iu.setProperty(key, props.getProperty(key));
-			}
-		}
-	}
-
-	/**
-	 * Add all of the advised provided and required capabilities for the given installable unit.
-	 * @param iu the IU to decorate
-	 * @param info the publisher info supplying the advice
-	 */
-	private static void processCapabilityAdvice(InstallableUnitDescription iu, BundleDescription bundle, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
-			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
-			if (requiredAdvice != null) {
-				IRequiredCapability[] current = iu.getRequiredCapabilities();
-				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
-				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
-				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
-				iu.setRequiredCapabilities(result);
-			}
-			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
-			if (providedAdvice != null) {
-				IProvidedCapability[] current = iu.getProvidedCapabilities();
-				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];
-				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
-				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
-				iu.setCapabilities(result);
-			}
-		}
-	}
-
-	private Collection processAdditionalIUsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
-		List result = new ArrayList();
-		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), AdviceFileAdvice.class);
-		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
-			AdviceFileAdvice entry = (AdviceFileAdvice) iterator.next();
-			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
-			for (int i = 0; others != null && i < others.length; i++) {
-				result.add(MetadataFactory.createInstallableUnit(others[i]));
-			}
-		}
-		return result;
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
@@ -711,9 +647,13 @@ public class BundlesAction extends AbstractPublisherAction {
 					} else {
 						createAdviceFileAdvice(bundles[i], info);
 						IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+
+						// Create the bundle IU according to any shape advice we have
+						IInstallableUnit bundleIU = createBundleIU(bd, key, info);
+
 						File location = new File(bd.getLocation());
 						IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
-						addProperties((ArtifactDescriptor) ad, location, info);
+						processArtifactPropertiesAdvice(bundleIU, (ArtifactDescriptor) ad, info);
 
 						// Publish according to the shape on disk
 						File bundleLocation = new File(bd.getLocation());
@@ -721,9 +661,6 @@ public class BundlesAction extends AbstractPublisherAction {
 							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info);
 						else
 							publishArtifact(ad, new File(bd.getLocation()), info);
-
-						// Create the bundle IU according to any shape advice we have
-						IInstallableUnit bundleIU = createBundleIU(bd, key, info);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -737,12 +674,13 @@ public class BundlesAction extends AbstractPublisherAction {
 							}
 						}
 
-						Collection others = processAdditionalIUsAdvice(bundleIU, info);
-						result.addIUs(others, IPublisherResult.ROOT);
-
 						result.addIU(bundleIU, IPublisherResult.ROOT);
 						result.addIUs(localizationIUs, IPublisherResult.NON_ROOT);
 						localizationIUs.clear();
+						InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
+						for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
+							result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
+						}
 					}
 				}
 			}
@@ -756,26 +694,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		String location = bundleDescription.getLocation();
 		if (location != null)
 			info.addAdvice(new AdviceFileAdvice(bundleDescription.getSymbolicName(), Version.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE));
-	}
-
-	/**
-	 * Add all of the advice for the bundle at the given location to the given descriptor.
-	 * @param descriptor the descriptor to decorate
-	 * @param location the location of the bundle
-	 * @param info the publisher info supplying the advice
-	 */
-	private void addProperties(ArtifactDescriptor descriptor, File location, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IBundleAdvice entry = (IBundleAdvice) i.next();
-			Properties props = entry.getArtifactProperties(location);
-			if (props == null)
-				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				descriptor.setRepositoryProperty(key, props.getProperty(key));
-			}
-		}
 	}
 
 	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {

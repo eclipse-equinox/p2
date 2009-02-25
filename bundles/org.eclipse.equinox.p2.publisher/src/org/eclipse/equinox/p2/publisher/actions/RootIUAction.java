@@ -49,24 +49,21 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
 		processCapabilityAdvice(descriptor, info);
-		processTouchpointAdvice(descriptor);
+		processTouchpointAdvice(descriptor, null, info);
+		processInstallableUnitPropertiesAdvice(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
 		result.addIU(rootIU, IPublisherResult.NON_ROOT);
+
+		InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(rootIU, info);
+		for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
+			result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
+		}
+
 		return Status.OK_STATUS;
 		// TODO why do we create a category here?
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
-	}
-
-	private void processTouchpointAdvice(InstallableUnitDescription descriptor) {
-		Collection allAdvice = info.getAdvice(null, true, id, version, ITouchpointAdvice.class);
-		if (allAdvice == null || allAdvice.isEmpty())
-			return;
-		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
-		for (Iterator it = allAdvice.iterator(); it.hasNext();)
-			touchpointData = ((ITouchpointAdvice) it.next()).getTouchpointData(touchpointData);
-		descriptor.addTouchpointData(touchpointData);
 	}
 
 	/**
