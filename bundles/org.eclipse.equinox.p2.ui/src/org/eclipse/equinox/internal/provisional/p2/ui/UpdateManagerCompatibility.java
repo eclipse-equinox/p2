@@ -199,15 +199,27 @@ public class UpdateManagerCompatibility {
 		String bookmarksFile = dialog.open();
 		while (bookmarksFile != null && sites == null) {
 			File file = new File(bookmarksFile);
-			Vector bookmarks = new Vector();
-			parse(file.getAbsolutePath(), bookmarks);
-			sites = getSites(bookmarks);
+			sites = readBookmarkFile(file);
 			if (sites == null || sites.length == 0) {
 				MessageDialog.openInformation(shell, ProvUIMessages.UpdateManagerCompatibility_InvalidSitesTitle, ProvUIMessages.UpdateManagerCompatibility_InvalidSiteFileMessage);
 				bookmarksFile = dialog.open();
 			}
 		}
 		return sites == null ? new MetadataRepositoryElement[0] : sites;
+	}
+
+	public static MetadataRepositoryElement[] readBookmarkFile(File file) {
+		Vector bookmarks = new Vector();
+		parse(file.getAbsolutePath(), bookmarks);
+		return getSites(bookmarks);
+	}
+
+	public static void writeBookmarkFile(String filename, MetadataRepositoryElement[] sites) {
+		Vector bookmarks = new Vector(sites.length);
+		for (int i = 0; i < sites.length; i++)
+			bookmarks.add(sites[i]);
+		store(filename, bookmarks);
+
 	}
 
 	/**
@@ -227,10 +239,7 @@ public class UpdateManagerCompatibility {
 		if (bookmarksFile == null)
 			return;
 
-		Vector bookmarks = new Vector(sites.length);
-		for (int i = 0; i < sites.length; i++)
-			bookmarks.add(sites[i]);
-		store(bookmarksFile, bookmarks);
+		writeBookmarkFile(bookmarksFile, sites);
 	}
 
 	/**
