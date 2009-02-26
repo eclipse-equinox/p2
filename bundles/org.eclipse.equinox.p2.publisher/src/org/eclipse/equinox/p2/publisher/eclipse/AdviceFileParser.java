@@ -29,11 +29,12 @@ public class AdviceFileParser {
 	private static final String UPDATE_RANGE = "update.range"; //$NON-NLS-1$
 	private static final String UPDATE_ID = "update.id"; //$NON-NLS-1$
 	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
-	private static final String TOUCHPOINIT_VERSION = "touchpoinit.version"; //$NON-NLS-1$
+	private static final String TOUCHPOINT_VERSION = "touchpoint.version"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_ID = "touchpoint.id"; //$NON-NLS-1$
 	private static final String COPYRIGHT_LOCATION = "copyright.location"; //$NON-NLS-1$
 	private static final String COPYRIGHT = "copyright"; //$NON-NLS-1$
 	private static final String ID = "id"; //$NON-NLS-1$
+	private static final String SINGLETON = "singleton"; //$NON-NLS-1$
 	private static final String IMPORT = "import"; //$NON-NLS-1$
 	private static final String RANGE = "range"; //$NON-NLS-1$
 	private static final String FILTER = "filter"; //$NON-NLS-1$
@@ -43,6 +44,7 @@ public class AdviceFileParser {
 	private static final String VERSION = "version"; //$NON-NLS-1$
 	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final String NAME = "name"; //$NON-NLS-1$
+	private static final String LOCATION = "location"; //$NON-NLS-1$
 
 	private static final String UNITS_PREFIX = "units."; //$NON-NLS-1$
 	private static final String INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
@@ -240,10 +242,10 @@ public class AdviceFileParser {
 		String unitTouchpointId = null;
 		Version unitTouchpointVersion = null;
 
-		String updateId = null;
-		VersionRange updateRange = null;
-		int updateSeverity = 0;
-		String updateDescription = null;
+		String unitUpdateId = null;
+		VersionRange unitUpdateRange = null;
+		int unitUpdateSeverity = 0;
+		String unitUpdateDescription = null;
 
 		List unitArtifacts = new ArrayList();
 		Properties unitProperties = new Properties();
@@ -262,6 +264,9 @@ public class AdviceFileParser {
 			} else if (token.equals(VERSION)) {
 				unitVersion = new Version(substituteVersionAndQualifier(currentValue()));
 				next();
+			} else if (token.equals(SINGLETON)) {
+				unitSingleton = Boolean.valueOf(currentValue()).booleanValue();
+				next();
 			} else if (token.equals(FILTER)) {
 				unitFilter = currentValue();
 				next();
@@ -274,20 +279,20 @@ public class AdviceFileParser {
 			} else if (token.equals(TOUCHPOINT_ID)) {
 				unitTouchpointId = currentValue();
 				next();
-			} else if (token.equals(TOUCHPOINIT_VERSION)) {
+			} else if (token.equals(TOUCHPOINT_VERSION)) {
 				unitTouchpointVersion = new Version(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(UPDATE_ID)) {
-				updateId = currentValue();
+				unitUpdateId = currentValue();
 				next();
 			} else if (token.equals(UPDATE_RANGE)) {
-				updateRange = new VersionRange(substituteVersionAndQualifier(currentValue()));
+				unitUpdateRange = new VersionRange(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(UPDATE_SEVERITY)) {
-				updateSeverity = Integer.parseInt(currentValue());
+				unitUpdateSeverity = Integer.parseInt(currentValue());
 				next();
 			} else if (token.equals(UPDATE_DESCRIPTION)) {
-				updateDescription = currentValue();
+				unitUpdateDescription = currentValue();
 				next();
 			} else if (token.startsWith(HOST_REQUIREMENTS_PREFIX))
 				parseHostRequirements(prefix + HOST_REQUIREMENTS_PREFIX, unitHostRequirements);
@@ -316,7 +321,8 @@ public class AdviceFileParser {
 		description.setFilter(unitFilter);
 		if (unitCopyright != null || unitCopyrightLocation != null) {
 			try {
-				description.setCopyright(MetadataFactory.createCopyright(new URI(unitCopyrightLocation), unitCopyright));
+				URI uri = unitCopyrightLocation != null ? new URI(unitCopyrightLocation) : null;
+				description.setCopyright(MetadataFactory.createCopyright(uri, unitCopyright));
 			} catch (URISyntaxException e) {
 				throw new IllegalStateException("bad copyright URI at token: " + current + ", " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -324,8 +330,8 @@ public class AdviceFileParser {
 		if (unitTouchpointId != null)
 			description.setTouchpointType(MetadataFactory.createTouchpointType(unitTouchpointId, unitTouchpointVersion));
 
-		if (updateId != null)
-			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateId, updateRange, updateSeverity, updateDescription));
+		if (unitUpdateId != null)
+			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(unitUpdateId, unitUpdateRange, unitUpdateSeverity, unitUpdateDescription));
 
 		if (!unitLicenses.isEmpty())
 			description.setLicense((ILicense) unitLicenses.get(0));
@@ -358,10 +364,10 @@ public class AdviceFileParser {
 	private void parseLicenses(String prefix, List licenses) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex != -1)
 				throw new IllegalStateException("bad token: " + current + " = " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
 
-			parseLicense(current.substring(0, dotIndex + 1), licenses);
+			parseLicense(current, licenses);
 		}
 	}
 
@@ -372,7 +378,7 @@ public class AdviceFileParser {
 		prefix += '.';
 		String location = null;
 		if (current != null && current.startsWith(prefix)) {
-			if (current.substring(prefix.length()).equals(IMPORT)) {
+			if (current.substring(prefix.length()).equals(LOCATION)) {
 				location = currentValue();
 			} else {
 				// we ignore elements we do not understand
@@ -381,7 +387,8 @@ public class AdviceFileParser {
 		}
 
 		try {
-			ILicense license = MetadataFactory.createLicense(new URI(location), body);
+			URI uri = location != null ? new URI(location) : null;
+			ILicense license = MetadataFactory.createLicense(uri, body);
 			licenses.add(license);
 		} catch (URISyntaxException e) {
 			throw new IllegalStateException("bad license URI at token: " + current + ", " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -496,7 +503,7 @@ public class AdviceFileParser {
 		return adviceInstructions;
 	}
 
-	public InstallableUnitDescription[] getOtherInstallableUnitDescriptions() {
+	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions() {
 		if (adviceOtherIUs.isEmpty())
 			return null;
 
