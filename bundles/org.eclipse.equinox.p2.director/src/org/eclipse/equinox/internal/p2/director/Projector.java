@@ -62,7 +62,7 @@ public class Projector {
 		abstract void handleMatches(List matches);
 	}
 
-	class AbstractVariable extends PropositionalVariable {
+	static class AbstractVariable extends PropositionalVariable {
 		@Override
 		public String toString() {
 			return "AbstractVariable: " + hashCode();
@@ -185,10 +185,11 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			// TODO change constant 100000 by an estimation of the number of variables required in the encoding.
-			dependencyHelper = new DependencyHelper(solver, 100000);
+			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
+			int maxVarIdEstimate = collector.size() * 2;
+			dependencyHelper = new DependencyHelper(solver, maxVarIdEstimate);
 
-			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+			Iterator iusToEncode = collector.iterator();
 			if (DEBUG) {
 				List iusToOrder = new ArrayList();
 				while (iusToEncode.hasNext()) {
@@ -666,7 +667,7 @@ public class Projector {
 
 	private void createImplication(PropositionalVariable[] left, List right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
-			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
+			Tracing.debug(name + ": " + Arrays.asList(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
