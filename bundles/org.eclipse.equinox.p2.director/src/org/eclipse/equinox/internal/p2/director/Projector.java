@@ -186,7 +186,7 @@ public class Projector {
 			}
 			solver.setTimeoutOnConflicts(1000);
 			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
-			int maxVarIdEstimate = collector.size() * 2;
+			int maxVarIdEstimate = collector.size() * 3;
 			dependencyHelper = new DependencyHelper(solver, maxVarIdEstimate);
 
 			Iterator iusToEncode = collector.iterator();
