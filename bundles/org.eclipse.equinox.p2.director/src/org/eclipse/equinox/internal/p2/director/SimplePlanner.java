@@ -109,10 +109,10 @@ public class SimplePlanner implements IPlanner {
 		}
 		// Now deal with profile property changes/additions
 		Map propertyChanges = profileChangeRequest.getPropertiesToAdd();
-		Iterator iter = propertyChanges.keySet().iterator();
+		Iterator iter = propertyChanges.entrySet().iterator();
 		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			operands.add(new PropertyOperand(key, existingProperties.get(key), propertyChanges.get(key)));
+			Map.Entry entry = (Map.Entry) iter.next();
+			operands.add(new PropertyOperand((String) entry.getKey(), existingProperties.get(entry.getKey()), entry.getValue()));
 		}
 		// Now deal with iu property changes/additions.
 		// TODO we aren't yet checking that the IU will exist in the final profile, will the engine do this?
@@ -121,21 +121,22 @@ public class SimplePlanner implements IPlanner {
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			Map iuPropertyChanges = (Map) allIUPropertyChanges.get(iu);
-			Iterator iuPropIter = iuPropertyChanges.keySet().iterator();
+			Iterator iuPropIter = iuPropertyChanges.entrySet().iterator();
 			while (iuPropIter.hasNext()) {
-				String key = (String) iuPropIter.next();
-				Object oldValue = profile.getInstallableUnitProperty(iu, key);
-				operands.add(new InstallableUnitPropertyOperand(iu, key, oldValue, iuPropertyChanges.get(key)));
+				Map.Entry entry = (Map.Entry) iuPropIter.next();
+				Object oldValue = profile.getInstallableUnitProperty(iu, (String) entry.getKey());
+				operands.add(new InstallableUnitPropertyOperand(iu, (String) entry.getKey(), oldValue, entry.getValue()));
 			}
 		}
 		// Now deal with iu property removals.
 		// TODO we could optimize by not generating property removals for IU's that aren't there or won't be there.
 		Map allIUPropertyDeletions = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove();
-		iter = allIUPropertyDeletions.keySet().iterator();
+		iter = allIUPropertyDeletions.entrySet().iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			Map.Entry entry = (Map.Entry) iter.next();
+			IInstallableUnit iu = (IInstallableUnit) entry.getKey();
 			Map existingIUProperties = profile.getInstallableUnitProperties(iu);
-			List iuPropertyRemovals = (List) allIUPropertyDeletions.get(iu);
+			List iuPropertyRemovals = (List) entry.getValue();
 			for (Iterator it = iuPropertyRemovals.iterator(); it.hasNext();) {
 				String key = (String) it.next();
 				if (existingIUProperties.containsKey(key))
@@ -284,7 +285,7 @@ public class SimplePlanner implements IPlanner {
 				LogHelper.log(s);
 
 				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
-				IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
+				// IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 
 				Set explanation = projector.getExplanation();
 				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
