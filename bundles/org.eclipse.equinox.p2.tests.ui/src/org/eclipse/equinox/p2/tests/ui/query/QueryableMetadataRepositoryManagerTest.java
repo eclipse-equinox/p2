@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.RepositoryLocationQuery;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.TestData;
 
@@ -160,8 +161,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
-		//null query collects repository URLs
-		result = manager.query(null, new Collector(), getMonitor());
+		//RepoLocationQuery collects repository URLs
+		result = manager.query(new RepositoryLocationQuery(), new Collector(), getMonitor());
 		assertEquals("2.0", 3, result.size());
 		Collection resultCollection = result.toCollection();
 		assertTrue("2.1", resultCollection.contains(existing));
