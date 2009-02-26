@@ -86,6 +86,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
 		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
+		assertEquals(1, plan.getRequestStatus().getConflictsWithInstalledRoots().size());
 
 	}
 
