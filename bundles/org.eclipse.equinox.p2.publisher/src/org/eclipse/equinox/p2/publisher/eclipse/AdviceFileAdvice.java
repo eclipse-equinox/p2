@@ -102,6 +102,8 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		try {
 			if (location.isDirectory()) {
 				File adviceFile = new File(location, adviceFilePath.toString());
+				if (!adviceFile.isFile())
+					return Collections.EMPTY_MAP;
 				stream = new BufferedInputStream(new FileInputStream(adviceFile));
 			} else if (location.isFile()) {
 				jar = new ZipFile(location);
