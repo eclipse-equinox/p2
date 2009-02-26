@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.admin.AddMetadataRepositoryOperation;
-
 import java.net.URI;
+import org.eclipse.equinox.internal.p2.ui.admin.AddMetadataRepositoryOperation;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -26,11 +26,11 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 
-	public AddMetadataRepositoryDialog(Shell parentShell, int repoFlags) {
-		super(parentShell, repoFlags);
+	public AddMetadataRepositoryDialog(Shell parentShell, Policy policy) {
+		super(parentShell, policy);
 	}
 
-	protected ProvisioningOperation getOperation(URI location) {
+	protected AddRepositoryOperation getOperation(URI location) {
 		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, location);
 	}
 }

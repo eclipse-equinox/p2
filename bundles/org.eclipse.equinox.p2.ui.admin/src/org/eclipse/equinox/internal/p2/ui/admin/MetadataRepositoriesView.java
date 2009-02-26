@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunne
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -65,10 +65,10 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected int openAddRepositoryDialog(Shell shell) {
-		return new AddMetadataRepositoryDialog(shell, getRepoFlags()).open();
+		return new AddMetadataRepositoryDialog(shell, ProvAdminUIActivator.getDefault().getPolicy()).open();
 	}
 
-	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
+	protected RemoveRepositoryOperation getRemoveOperation(Object[] elements) {
 		ArrayList locations = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IRepositoryElement)

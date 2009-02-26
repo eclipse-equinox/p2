@@ -63,6 +63,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String RepositoryImplementationPropertyPage_LocationLabel;
 	public static String RepositoryImplementationPropertyPage_NameColumnLabel;
 	public static String RepositoryImplementationPropertyPage_NameLabel;
+	public static String RepositoryImplementationPropertyPage_NicknameLabel;
 	public static String RepositoryImplementationPropertyPage_NoRepositorySelected;
 	public static String RepositoryImplementationPropertyPage_PropertiesLabel;
 	public static String RepositoryImplementationPropertyPage_ValueColumnLabel;

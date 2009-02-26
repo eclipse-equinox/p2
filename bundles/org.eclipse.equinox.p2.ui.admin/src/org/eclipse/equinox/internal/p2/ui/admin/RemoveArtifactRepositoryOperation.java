@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
 
 /**
  * Operation which removes the artifact repository with the given URL.
  * 
  * @since 3.4
  */
-public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
+public class RemoveArtifactRepositoryOperation extends RemoveRepositoryOperation {
 
 	public RemoveArtifactRepositoryOperation(String label, URI[] repoLocations) {
 		super(label, repoLocations);

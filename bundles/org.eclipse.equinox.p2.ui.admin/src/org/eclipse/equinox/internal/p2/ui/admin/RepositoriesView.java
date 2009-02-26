@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
@@ -166,7 +166,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract int openAddRepositoryDialog(Shell shell);
 
-	protected abstract ProvisioningOperation getRemoveOperation(Object[] elements);
+	protected abstract RemoveRepositoryOperation getRemoveOperation(Object[] elements);
 
 	protected abstract String getAddCommandLabel();
 

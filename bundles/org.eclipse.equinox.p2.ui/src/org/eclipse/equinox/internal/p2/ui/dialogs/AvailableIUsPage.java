@@ -27,7 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
@@ -545,9 +545,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (!alwaysPrompt && !isNewText && selectionIndex != repoCombo.getSelectionIndex()) {
 			repoCombo.select(selectionIndex);
 		} else if (alwaysPrompt) {
-			AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy.getQueryContext().getMetadataRepositoryFlags()) {
-				protected ProvisioningOperation getOperation(URI repositoryLocation) {
-					RepositoryOperation op = repoMan.getAddOperation(repositoryLocation);
+			AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy) {
+				protected AddRepositoryOperation getOperation(URI repositoryLocation) {
+					AddRepositoryOperation op = repoMan.getAddOperation(repositoryLocation);
 					op.setNotify(false);
 					return op;
 				}

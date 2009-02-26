@@ -13,12 +13,13 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -33,9 +34,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
- * assumes the user view of a repository is a name and URL (and possibly other
- * info as this class develops). Individual subclasses will dictate what kind of
- * repository and how it's created.
+ * assumes the user view of a repository is a name and URI. Individual subclasses 
+ * will dictate what kind of repository and how it's created.
  * 
  * @since 3.4
  * 
@@ -43,18 +43,15 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
-	Text url;
-	RepositoryLocationValidator urlValidator;
+	Text url, nickname;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
-	protected int repoFlag;
+	Policy policy;
 
-	public AddRepositoryDialog(Shell parentShell, int repoFlag) {
-
+	public AddRepositoryDialog(Shell parentShell, Policy policy) {
 		super(parentShell);
-		this.repoFlag = repoFlag;
-		urlValidator = createRepositoryLocationValidator();
+		this.policy = policy;
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parentShell, IProvHelpContextIds.ADD_REPOSITORY_DIALOG);
 	}
@@ -69,10 +66,70 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		initializeDialogUnits(comp);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
+		layout.marginTop = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+
 		comp.setLayout(layout);
 		GridData data = new GridData();
 		comp.setLayoutData(data);
 
+		// Name: []
+		Label nameLabel = new Label(comp, SWT.NONE);
+		nameLabel.setText(ProvUIMessages.AddRepositoryDialog_NameLabel);
+		nickname = new Text(comp, SWT.BORDER);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
+
+		nickname.setLayoutData(data);
+
+		// Third column is the vertical button group, spanning 2 lines
+		Composite buttonParent = new Composite(comp, SWT.NONE);
+		layout = new GridLayout();
+		layout.numColumns = 1;
+		layout.marginWidth = 5;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		buttonParent.setLayout(layout);
+		data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data.verticalSpan = 2;
+		buttonParent.setLayoutData(data);
+
+		Button localButton = new Button(buttonParent, SWT.PUSH);
+		localButton.setText(ProvUIMessages.RepositoryGroup_LocalRepoBrowseButton);
+		localButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
+				dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
+				dialog.setFilterPath(lastLocalLocation);
+				String path = dialog.open();
+				if (path != null) {
+					lastLocalLocation = path;
+					url.setText(RepositoryLocationValidator.makeFileURLString(path));
+					validateRepositoryURL(false);
+				}
+			}
+		});
+		setButtonLayoutData(localButton);
+
+		Button archiveButton = new Button(buttonParent, SWT.PUSH);
+		archiveButton.setText(ProvUIMessages.RepositoryGroup_ArchivedRepoBrowseButton);
+		archiveButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
+				dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
+				dialog.setFilterExtensions(ARCHIVE_EXTENSIONS);
+				dialog.setFileName(lastArchiveLocation);
+				String path = dialog.open();
+				if (path != null) {
+					lastArchiveLocation = path;
+					url.setText(RepositoryLocationValidator.makeJarURLString(path));
+					validateRepositoryURL(false);
+				}
+			}
+		});
+		setButtonLayoutData(archiveButton);
+
+		// Location: []
 		Label urlLabel = new Label(comp, SWT.NONE);
 		urlLabel.setText(ProvUIMessages.AddRepositoryDialog_LocationLabel);
 		url = new Text(comp, SWT.BORDER);
@@ -90,60 +147,32 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		url.setText(getInitialLocationText());
 		url.setSelection(0, url.getText().length());
 
-		// add vertical buttons for setting archive or local repos
-		Composite buttonParent = new Composite(comp, SWT.NONE);
-		layout = new GridLayout();
-		layout.numColumns = 1;
-		layout.marginWidth = 5;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-		buttonParent.setLayout(layout);
-		Button locationButton = new Button(buttonParent, SWT.PUSH);
-		locationButton.setText(ProvUIMessages.RepositoryGroup_LocalRepoBrowseButton);
-		locationButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
-				dialog.setFilterPath(lastLocalLocation);
-				String path = dialog.open();
-				if (path != null) {
-					lastLocalLocation = path;
-					url.setText(RepositoryLocationValidator.makeFileURLString(path));
-					validateRepositoryURL(false);
-				}
-			}
-		});
-		setButtonLayoutData(locationButton);
-		locationButton = new Button(buttonParent, SWT.PUSH);
-		locationButton.setText(ProvUIMessages.RepositoryGroup_ArchivedRepoBrowseButton);
-		locationButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
-				dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
-				dialog.setFilterExtensions(ARCHIVE_EXTENSIONS);
-				dialog.setFileName(lastArchiveLocation);
-				String path = dialog.open();
-				if (path != null) {
-					lastArchiveLocation = path;
-					url.setText(RepositoryLocationValidator.makeJarURLString(path));
-					validateRepositoryURL(false);
-				}
-			}
-		});
-		setButtonLayoutData(locationButton);
+		comp.setTabList(new Control[] {nickname, url, buttonParent});
+
 		Dialog.applyDialogFont(comp);
 		return comp;
 	}
 
-	protected RepositoryLocationValidator createRepositoryLocationValidator() {
-		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
-		validator.setKnownRepositoriesFlag(repoFlag);
-		return validator;
+	/**
+	 * Return a location validator appropriate for this dialog.  The
+	 * default is to retrieve it from the repository manipulator.
+	 * Subclasses may override.
+	 * 
+	 * @return the validator
+	 */
+	protected RepositoryLocationValidator getRepositoryLocationValidator() {
+		return getRepositoryManipulator().getRepositoryLocationValidator(getShell());
 	}
 
-	protected RepositoryLocationValidator getRepositoryLocationValidator() {
-		return urlValidator;
+	/**
+	 * Return a RepositoryManipulator appropriate for validating and adding the
+	 * repository.
+	 * 
+	 * The default manipulator is described by the policy.  Subclasses may override.
+	 * @return the repository manipulator
+	 */
+	protected RepositoryManipulator getRepositoryManipulator() {
+		return policy.getRepositoryManipulator();
 	}
 
 	protected void okPressed() {
@@ -172,12 +201,25 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
-			ProvisioningOperationRunner.schedule(getOperation(getUserLocation()), StatusManager.SHOW | StatusManager.LOG);
+			AddRepositoryOperation op = getOperation(getUserLocation());
+			String nick = nickname.getText().trim();
+			if (nick.length() > 0)
+				op.setNicknames(new String[] {nick});
+			ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 		}
 		return status;
 	}
 
-	protected abstract ProvisioningOperation getOperation(URI repositoryLocation);
+	/**
+	 * Get an add operation appropriate for this dialog.  The default behavior
+	 * is to retrieve it from the policy, but subclasses may override.
+	 * 
+	 * @param repositoryLocation to be added
+	 * @return the add operation
+	 */
+	protected AddRepositoryOperation getOperation(URI repositoryLocation) {
+		return getRepositoryManipulator().getAddOperation(repositoryLocation);
+	}
 
 	/**
 	 * Validate the repository URL, returning a status that is appropriate
