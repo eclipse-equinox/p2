@@ -79,7 +79,13 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 		return null;
 	}
 
-	public String getClipboardText(Object element) {
-		return getColumnText(element, COL_LOCATION);
+	public String getClipboardText(Object element, String columnDelimiter) {
+		StringBuffer result = new StringBuffer();
+		result.append(getColumnText(element, COL_NAME));
+		result.append(columnDelimiter);
+		result.append(getColumnText(element, COL_LOCATION));
+		result.append(columnDelimiter);
+		result.append(getColumnText(element, COL_ENABLEMENT));
+		return result.toString();
 	}
 }

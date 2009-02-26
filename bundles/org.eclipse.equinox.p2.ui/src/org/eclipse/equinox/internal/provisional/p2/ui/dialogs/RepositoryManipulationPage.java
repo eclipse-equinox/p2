@@ -17,8 +17,7 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
-import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryManipulatorDropTarget;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.MetadataRepositoryElementComparator;
@@ -86,7 +85,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * 
  * @since 3.5
  */
-public class RepositoryManipulationPage extends PreferencePage implements IWorkbenchPreferencePage {
+public class RepositoryManipulationPage extends PreferencePage implements IWorkbenchPreferencePage, ICopyable {
 	private final static int WIDTH_IN_DLUS = 480;
 	private final static int HEIGHT_IN_DLUS = 240;
 	final static String DEFAULT_FILTER_TEXT = ProvUIMessages.RepositoryManipulationPage_DefaultFilterString;
@@ -137,7 +136,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	class MetadataRepositoryPatternFilter extends PatternFilter {
 		public boolean isElementVisible(Viewer viewer, Object element) {
 			if (element instanceof MetadataRepositoryElement) {
-				return wordMatches(labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_NAME) + labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_LOCATION));
+				return wordMatches(labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_NAME) + " " + labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_LOCATION)); //$NON-NLS-1$
 			}
 			return false;
 		}
@@ -226,6 +225,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			}
 		});
 		setTableColumns();
+		CopyUtils.activateCopy(this, table);
+
 		repositoryViewer.setComparer(new ProvElementComparer());
 		comparator = new MetadataRepositoryElementComparator(RepositoryDetailsLabelProvider.COL_NAME);
 		repositoryViewer.setComparator(comparator);
@@ -695,6 +696,26 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 			};
 		return localCacheRepoManipulator;
+	}
+
+	public void copyToClipboard(Control activeControl) {
+		MetadataRepositoryElement[] elements = getSelectedElements();
+		if (elements.length == 0)
+			elements = getElements();
+		String text = ""; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < elements.length; i++) {
+			buffer.append(labelProvider.getClipboardText(elements[i], CopyUtils.DELIMITER));
+			if (i > 0)
+				buffer.append(CopyUtils.NEWLINE);
+		}
+		text = buffer.toString();
+
+		if (text.length() == 0)
+			return;
+		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
+		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	// If more than half of the selected repos are enabled, toggle means disable.
