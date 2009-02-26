@@ -23,10 +23,12 @@ public class AdviceFileParser {
 
 	private static final String QUALIFIER_SUBSTITUTION = "$qualifier$"; //$NON-NLS-1$
 	private static final String VERSION_SUBSTITUTION = "$version$"; //$NON-NLS-1$
+
+	private static final String UPDATE_DESCRIPTION = "update.description"; //$NON-NLS-1$
+	private static final String UPDATE_SEVERITY = "update.severity"; //$NON-NLS-1$
+	private static final String UPDATE_RANGE = "update.range"; //$NON-NLS-1$
+	private static final String UPDATE_ID = "update.id"; //$NON-NLS-1$
 	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
-	private static final String LICENSES_PREFIX = "licenses."; //$NON-NLS-1$
-	private static final String ARTIFACTS_PREFIX = "artifacts."; //$NON-NLS-1$
-	private static final String HOST_REQUIREMENTS_PREFIX = "hostRequirements."; //$NON-NLS-1$
 	private static final String TOUCHPOINIT_VERSION = "touchpoinit.version"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_ID = "touchpoint.id"; //$NON-NLS-1$
 	private static final String COPYRIGHT_LOCATION = "copyright.location"; //$NON-NLS-1$
@@ -41,11 +43,16 @@ public class AdviceFileParser {
 	private static final String VERSION = "version"; //$NON-NLS-1$
 	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final String NAME = "name"; //$NON-NLS-1$
+
 	private static final String UNITS_PREFIX = "units."; //$NON-NLS-1$
 	private static final String INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
 	private static final String REQUIRES_PREFIX = "requires."; //$NON-NLS-1$
 	private static final String PROVIDES_PREFIX = "provides."; //$NON-NLS-1$
 	private static final String PROPERTIES_PREFIX = "properties."; //$NON-NLS-1$
+	private static final String LICENSES_PREFIX = "licenses."; //$NON-NLS-1$
+	private static final String ARTIFACTS_PREFIX = "artifacts."; //$NON-NLS-1$
+	private static final String HOST_REQUIREMENTS_PREFIX = "hostRequirements."; //$NON-NLS-1$
+
 	private Properties adviceProperties = new Properties();
 	private List adviceProvides = new ArrayList();
 	private List adviceRequires = new ArrayList();
@@ -233,6 +240,11 @@ public class AdviceFileParser {
 		String unitTouchpointId = null;
 		Version unitTouchpointVersion = null;
 
+		String updateId = null;
+		VersionRange updateRange = null;
+		int updateSeverity = 0;
+		String updateDescription = null;
+
 		List unitArtifacts = new ArrayList();
 		Properties unitProperties = new Properties();
 		List unitHostRequirements = new ArrayList();
@@ -264,6 +276,18 @@ public class AdviceFileParser {
 				next();
 			} else if (token.equals(TOUCHPOINIT_VERSION)) {
 				unitTouchpointVersion = new Version(substituteVersionAndQualifier(currentValue()));
+				next();
+			} else if (token.equals(UPDATE_ID)) {
+				updateId = currentValue();
+				next();
+			} else if (token.equals(UPDATE_RANGE)) {
+				updateRange = new VersionRange(substituteVersionAndQualifier(currentValue()));
+				next();
+			} else if (token.equals(UPDATE_SEVERITY)) {
+				updateSeverity = Integer.parseInt(currentValue());
+				next();
+			} else if (token.equals(UPDATE_DESCRIPTION)) {
+				updateDescription = currentValue();
 				next();
 			} else if (token.startsWith(HOST_REQUIREMENTS_PREFIX))
 				parseHostRequirements(prefix + HOST_REQUIREMENTS_PREFIX, unitHostRequirements);
@@ -299,6 +323,10 @@ public class AdviceFileParser {
 		}
 		if (unitTouchpointId != null)
 			description.setTouchpointType(MetadataFactory.createTouchpointType(unitTouchpointId, unitTouchpointVersion));
+
+		if (updateId != null)
+			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateId, updateRange, updateSeverity, updateDescription));
+
 		if (!unitLicenses.isEmpty())
 			description.setLicense((ILicense) unitLicenses.get(0));
 
