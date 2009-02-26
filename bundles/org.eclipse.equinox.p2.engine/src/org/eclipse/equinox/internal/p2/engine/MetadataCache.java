@@ -79,7 +79,8 @@ public class MetadataCache {
 				if (o instanceof CommitOperationEvent) {
 					IInstallableUnit[] toAddArray = (IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]);
 					toAdd.clear();
-					getRepository().addInstallableUnits(toAddArray);
+					if (toAddArray.length > 0)
+						getRepository().addInstallableUnits(toAddArray);
 				}
 				if (o instanceof RollbackOperationEvent)
 					toAdd.clear();
