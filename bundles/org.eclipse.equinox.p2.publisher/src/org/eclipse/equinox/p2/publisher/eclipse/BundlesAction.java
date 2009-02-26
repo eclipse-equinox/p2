@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -31,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
-import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
@@ -49,8 +49,11 @@ import org.osgi.framework.Constants;
  *
  * This action consults the following types of advice:
  * </ul>
- * <li>{@link IBundleAdvice}</li>
+ * <li>{@link IAdditionalInstallableUnitAdvice }</li>
+ * <li>{@link IBundleShapeAdvice}</li>
  * <li>{@link ICapabilityAdvice}</li>
+ * <li>{@link IPropertyAdvice}</li>
+ * <li>{@link ITouchpointAdvice}</li>
  * </ul>
  */
 public class BundlesAction extends AbstractPublisherAction {
