@@ -32,35 +32,35 @@ public class ExceptionTableEntry extends ClassFileStruct {
 		}
 	}
 
-	/**
+	/*
 	 * @see IExceptionTableEntry#getStartPC()
 	 */
 	public int getStartPC() {
 		return this.startPC;
 	}
 
-	/**
+	/*
 	 * @see IExceptionTableEntry#getEndPC()
 	 */
 	public int getEndPC() {
 		return this.endPC;
 	}
 
-	/**
+	/*
 	 * @see IExceptionTableEntry#getHandlerPC()
 	 */
 	public int getHandlerPC() {
 		return this.handlerPC;
 	}
 
-	/**
+	/*
 	 * @see IExceptionTableEntry#getCatchTypeIndex()
 	 */
 	public int getCatchTypeIndex() {
 		return this.catchTypeIndex;
 	}
 
-	/**
+	/*
 	 * @see IExceptionTableEntry#getCatchType()
 	 */
 	public char[] getCatchType() {

@@ -30,14 +30,14 @@ public class ClassFileAttribute extends ClassFileStruct {
 		return this.attributeNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IClassFileAttribute#getAttributeName()
 	 */
 	public char[] getAttributeName() {
 		return this.attributeName;
 	}
 
-	/**
+	/*
 	 * @see IClassFileAttribute#getAttributeLength()
 	 */
 	public long getAttributeLength() {

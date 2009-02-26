@@ -26,7 +26,7 @@ public class MethodInfo extends ClassFileStruct {
 	private char[] name;
 	private int nameIndex;
 
-	/**
+	/*
 	 * @param classFileBytes byte[]
 	 * @param constantPool IConstantPool
 	 * @param offset int
@@ -108,63 +108,63 @@ public class MethodInfo extends ClassFileStruct {
 		this.attributeBytes = readOffset;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getAccessFlags()
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getAttributeCount()
 	 */
 	public int getAttributeCount() {
 		return this.attributesCount;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getAttributes()
 	 */
 	public ClassFileAttribute[] getAttributes() {
 		return this.attributes;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getCodeAttribute()
 	 */
 	public CodeAttribute getCodeAttribute() {
 		return this.codeAttribute;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getDescriptor()
 	 */
 	public char[] getDescriptor() {
 		return this.descriptor;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getDescriptorIndex()
 	 */
 	public int getDescriptorIndex() {
 		return this.descriptorIndex;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getExceptionAttribute()
 	 */
 	public ExceptionAttribute getExceptionAttribute() {
 		return this.exceptionAttribute;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getName()
 	 */
 	public char[] getName() {
 		return this.name;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#getNameIndex()
 	 */
 	public int getNameIndex() {
@@ -175,21 +175,21 @@ public class MethodInfo extends ClassFileStruct {
 		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#isClinit()
 	 */
 	public boolean isClinit() {
 		return this.name[0] == '<' && this.name.length == 8; // Can only match <clinit>
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#isConstructor()
 	 */
 	public boolean isConstructor() {
 		return this.name[0] == '<' && this.name.length == 6; // Can only match <init>
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#isDeprecated()
 	 */
 	public boolean isDeprecated() {
@@ -200,7 +200,7 @@ public class MethodInfo extends ClassFileStruct {
 		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
 	}
 
-	/**
+	/*
 	 * @see IMethodInfo#isSynthetic()
 	 */
 	public boolean isSynthetic() {

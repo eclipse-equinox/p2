@@ -22,7 +22,7 @@ public class ConstantPool extends ClassFileStruct {
 		this.classFileBytes = reference;
 	}
 
-	/**
+	/*
 	 * @see IConstantPool#decodeEntry(int)
 	 */
 	public ConstantPoolEntry decodeEntry(int index) {
@@ -83,14 +83,14 @@ public class ConstantPool extends ClassFileStruct {
 		return constantPoolEntry;
 	}
 
-	/**
+	/*
 	 * @see IConstantPool#getConstantPoolCount()
 	 */
 	public int getConstantPoolCount() {
 		return this.constantPoolCount;
 	}
 
-	/**
+	/*
 	 * @see IConstantPool#getEntryKind(int)
 	 */
 	public int getEntryKind(int index) {

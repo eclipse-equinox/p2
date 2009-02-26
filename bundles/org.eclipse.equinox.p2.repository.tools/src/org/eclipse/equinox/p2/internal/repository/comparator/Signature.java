@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator;
 
 import java.util.ArrayList;
 
-/**
+/*
  * Provides methods for encoding and decoding type and method signature strings.
  * <p>
  * Signatures obtained from parsing source files (i.e. files with one of the
@@ -135,81 +135,81 @@ import java.util.ArrayList;
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class Signature {
-	/**
+	/*
 	 * Character constant indicating the primitive type boolean in a signature.
 	 * Value is <code>'Z'</code>.
 	 */
 	public static final char C_BOOLEAN = 'Z';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type byte in a signature.
 	 * Value is <code>'B'</code>.
 	 */
 	public static final char C_BYTE = 'B';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type char in a signature.
 	 * Value is <code>'C'</code>.
 	 */
 	public static final char C_CHAR = 'C';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type double in a signature.
 	 * Value is <code>'D'</code>.
 	 */
 	public static final char C_DOUBLE = 'D';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type float in a signature.
 	 * Value is <code>'F'</code>.
 	 */
 	public static final char C_FLOAT = 'F';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type int in a signature.
 	 * Value is <code>'I'</code>.
 	 */
 	public static final char C_INT = 'I';
 
-	/**
+	/*
 	 * Character constant indicating the semicolon in a signature.
 	 * Value is <code>';'</code>.
 	 */
 	public static final char C_SEMICOLON = ';';
 
-	/**
+	/*
 	 * Character constant indicating the colon in a signature.
 	 * Value is <code>':'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_COLON = ':';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type long in a signature.
 	 * Value is <code>'J'</code>.
 	 */
 	public static final char C_LONG = 'J';
 
-	/**
+	/*
 	 * Character constant indicating the primitive type short in a signature.
 	 * Value is <code>'S'</code>.
 	 */
 	public static final char C_SHORT = 'S';
 
-	/**
+	/*
 	 * Character constant indicating result type void in a signature.
 	 * Value is <code>'V'</code>.
 	 */
 	public static final char C_VOID = 'V';
 
-	/**
+	/*
 	 * Character constant indicating the start of a resolved type variable in a
 	 * signature. Value is <code>'T'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_TYPE_VARIABLE = 'T';
 
-	/**
+	/*
 	 * Character constant indicating an unbound wildcard type argument
 	 * in a signature.
 	 * Value is <code>'*'</code>.
@@ -217,14 +217,14 @@ public final class Signature {
 	 */
 	public static final char C_STAR = '*';
 
-	/**
+	/*
 	 * Character constant indicating an exception in a signature.
 	 * Value is <code>'^'</code>.
 	 * @since 3.1
 	 */
 	public static final char C_EXCEPTION_START = '^';
 
-	/**
+	/*
 	 * Character constant indicating a bound wildcard type argument
 	 * in a signature with extends clause.
 	 * Value is <code>'+'</code>.
@@ -232,7 +232,7 @@ public final class Signature {
 	 */
 	public static final char C_EXTENDS = '+';
 
-	/**
+	/*
 	 * Character constant indicating a bound wildcard type argument
 	 * in a signature with super clause.
 	 * Value is <code>'-'</code>.
@@ -240,164 +240,164 @@ public final class Signature {
 	 */
 	public static final char C_SUPER = '-';
 
-	/**
+	/*
 	 * Character constant indicating the dot in a signature.
 	 * Value is <code>'.'</code>.
 	 */
 	public static final char C_DOT = '.';
 
-	/**
+	/*
 	 * Character constant indicating the dollar in a signature.
 	 * Value is <code>'$'</code>.
 	 */
 	public static final char C_DOLLAR = '$';
 
-	/**
+	/*
 	 * Character constant indicating an array type in a signature.
 	 * Value is <code>'['</code>.
 	 */
 	public static final char C_ARRAY = '[';
 
-	/**
+	/*
 	 * Character constant indicating the start of a resolved, named type in a
 	 * signature. Value is <code>'L'</code>.
 	 */
 	public static final char C_RESOLVED = 'L';
 
-	/**
+	/*
 	 * Character constant indicating the start of an unresolved, named type in a
 	 * signature. Value is <code>'Q'</code>.
 	 */
 	public static final char C_UNRESOLVED = 'Q';
 
-	/**
+	/*
 	 * Character constant indicating the end of a named type in a signature.
 	 * Value is <code>';'</code>.
 	 */
 	public static final char C_NAME_END = ';';
 
-	/**
+	/*
 	 * Character constant indicating the start of a parameter type list in a
 	 * signature. Value is <code>'('</code>.
 	 */
 	public static final char C_PARAM_START = '(';
 
-	/**
+	/*
 	 * Character constant indicating the end of a parameter type list in a
 	 * signature. Value is <code>')'</code>.
 	 */
 	public static final char C_PARAM_END = ')';
 
-	/**
+	/*
 	 * Character constant indicating the start of a formal type parameter
 	 * (or type argument) list in a signature. Value is <code>'&lt;'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_GENERIC_START = '<';
 
-	/**
+	/*
 	 * Character constant indicating the end of a generic type list in a
 	 * signature. Value is <code>'&gt;'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_GENERIC_END = '>';
 
-	/**
+	/*
 	 * Character constant indicating a capture of a wildcard type in a
 	 * signature. Value is <code>'!'</code>.
 	 * @since 3.1
 	 */
 	public static final char C_CAPTURE = '!';
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type boolean.
 	 * Value is <code>"Z"</code>.
 	 */
 	public static final String SIG_BOOLEAN = "Z"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type byte.
 	 * Value is <code>"B"</code>.
 	 */
 	public static final String SIG_BYTE = "B"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type char.
 	 * Value is <code>"C"</code>.
 	 */
 	public static final String SIG_CHAR = "C"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type double.
 	 * Value is <code>"D"</code>.
 	 */
 	public static final String SIG_DOUBLE = "D"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type float.
 	 * Value is <code>"F"</code>.
 	 */
 	public static final String SIG_FLOAT = "F"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type int.
 	 * Value is <code>"I"</code>.
 	 */
 	public static final String SIG_INT = "I"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type long.
 	 * Value is <code>"J"</code>.
 	 */
 	public static final String SIG_LONG = "J"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * String constant for the signature of the primitive type short.
 	 * Value is <code>"S"</code>.
 	 */
 	public static final String SIG_SHORT = "S"; //$NON-NLS-1$
 
-	/** String constant for the signature of result type void.
+	/* String constant for the signature of result type void.
 	 * Value is <code>"V"</code>.
 	 */
 	public static final String SIG_VOID = "V"; //$NON-NLS-1$
 
-	/**
+	/*
 	 * Kind constant for a class type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
 	public static final int CLASS_TYPE_SIGNATURE = 1;
 
-	/**
+	/*
 	 * Kind constant for a base (primitive or void) type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
 	public static final int BASE_TYPE_SIGNATURE = 2;
 
-	/**
+	/*
 	 * Kind constant for a type variable signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
 	public static final int TYPE_VARIABLE_SIGNATURE = 3;
 
-	/**
+	/*
 	 * Kind constant for an array type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
 	public static final int ARRAY_TYPE_SIGNATURE = 4;
 
-	/**
+	/*
 	 * Kind constant for a wildcard type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.1
 	 */
 	public static final int WILDCARD_TYPE_SIGNATURE = 5;
 
-	/**
+	/*
 	 * Kind constant for the capture of a wildcard type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.1
@@ -417,7 +417,7 @@ public final class Signature {
 	//	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	private static final char[] CAPTURE = "capture-of".toCharArray(); //$NON-NLS-1$
 
-	/**
+	/*
 	 * Returns the number of parameter types in the given method signature.
 	 *
 	 * @param methodSignature the method signature
@@ -450,7 +450,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Extracts the parameter type signatures from the given method signature.
 	 * The method signature is expected to be dot-based.
 	 *
@@ -491,7 +491,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Extracts the return type from the given method signature. The method signature is
 	 * expected to be dot-based.
 	 *
@@ -513,7 +513,7 @@ public final class Signature {
 		return CharOperation.subarray(methodSignature, paren + 1, last + 1);
 	}
 
-	/**
+	/*
 	 * Extracts the class and interface bounds from the given formal type
 	 * parameter signature. The class bound, if present, is listed before
 	 * the interface bounds. The signature is expected to be dot-based.
@@ -558,7 +558,7 @@ public final class Signature {
 		return result;
 	}
 
-	/**
+	/*
 	 * Extracts the type parameter signatures from the given method or type signature.
 	 * The method or type signature is expected to be dot-based.
 	 *
@@ -636,7 +636,7 @@ public final class Signature {
 		throw new IllegalArgumentException();
 	}
 
-	/**
+	/*
 	 * Converts the given type signature to a readable string. The signature is expected to
 	 * be dot-based.
 	 *
@@ -678,7 +678,7 @@ public final class Signature {
 		return result;
 	}
 
-	/**
+	/*
 	 * Converts the given method signature to a readable form. The method signature is expected to
 	 * be dot-based.
 	 * <p>
@@ -750,7 +750,7 @@ public final class Signature {
 		return result;
 	}
 
-	/**
+	/*
 	 * Scans the given string for a type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -768,7 +768,7 @@ public final class Signature {
 		return appendTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
 	}
 
-	/**
+	/*
 	 * Scans the given string for a type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -863,7 +863,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Scans the given string for an array type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -880,7 +880,7 @@ public final class Signature {
 		return appendArrayTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
 	}
 
-	/**
+	/*
 	 * Scans the given string for an array type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -906,7 +906,7 @@ public final class Signature {
 		return appendTypeArgumentSignature(string, start + 1, fullyQualifyTypeNames, buffer);
 	}
 
-	/**
+	/*
 	 * Scans the given string for an array type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -956,7 +956,7 @@ public final class Signature {
 		return e;
 	}
 
-	/**
+	/*
 	 * Scans the given string for a class type signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -1027,7 +1027,7 @@ public final class Signature {
 					if (resolved) {
 						// once we hit "$" there are no more package prefixes
 						removePackageQualifiers = false;
-						/**
+						/*
 						 * Convert '$' in resolved type signatures into '.'.
 						 * NOTE: This assumes that the type signature is an inner type
 						 * signature. This is true in most cases, but someone can define a
@@ -1051,7 +1051,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Scans the given string for a list of type arguments signature starting at the
 	 * given index and appends it to the given buffer, and returns the index of the
 	 * last character.
@@ -1096,7 +1096,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Scans the given string for a type argument signature starting at the given
 	 * index and appends it to the given buffer, and returns the index of the last
 	 * character.
@@ -1131,7 +1131,7 @@ public final class Signature {
 		}
 	}
 
-	/**
+	/*
 	 * Converts the given method signature to a readable form. The method signature is expected to
 	 * be dot-based.
 	 * <p>

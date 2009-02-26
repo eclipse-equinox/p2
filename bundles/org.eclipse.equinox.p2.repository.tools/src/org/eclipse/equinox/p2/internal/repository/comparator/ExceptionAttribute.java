@@ -38,21 +38,21 @@ public class ExceptionAttribute extends ClassFileAttribute {
 		}
 	}
 
-	/**
+	/*
 	 * @see IExceptionAttribute#getExceptionIndexes()
 	 */
 	public int[] getExceptionIndexes() {
 		return this.exceptionIndexes;
 	}
 
-	/**
+	/*
 	 * @see IExceptionAttribute#getExceptionNames()
 	 */
 	public char[][] getExceptionNames() {
 		return this.exceptionNames;
 	}
 
-	/**
+	/*
 	 * @see IExceptionAttribute#getExceptionsNumber()
 	 */
 	public int getExceptionsNumber() {

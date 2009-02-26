@@ -32,14 +32,14 @@ public class SourceFileAttribute extends ClassFileAttribute {
 		this.sourceFileName = constantPoolEntry.getUtf8Value();
 	}
 
-	/**
+	/*
 	 * @see ISourceAttribute#getSourceFileIndex()
 	 */
 	public int getSourceFileIndex() {
 		return this.sourceFileIndex;
 	}
 
-	/**
+	/*
 	 * @see ISourceAttribute#getSourceFileName()
 	 */
 	public char[] getSourceFileName() {

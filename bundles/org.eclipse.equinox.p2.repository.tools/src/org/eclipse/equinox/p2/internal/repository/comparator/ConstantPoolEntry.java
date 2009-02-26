@@ -55,14 +55,14 @@ public class ConstantPoolEntry {
 		this.classInfoName = null;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getKind()
 	 */
 	public int getKind() {
 		return this.kind;
 	}
 
-	/**
+	/*
 	 * Sets the kind.
 	 * @param kind The kind to set
 	 */
@@ -70,133 +70,133 @@ public class ConstantPoolEntry {
 		this.kind = kind;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getClassInfoNameIndex()
 	 */
 	public int getClassInfoNameIndex() {
 		return this.classInfoNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getClassIndex()
 	 */
 	public int getClassIndex() {
 		return this.classIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getNameAndTypeIndex()
 	 */
 	public int getNameAndTypeIndex() {
 		return this.nameAndTypeIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getStringIndex()
 	 */
 	public int getStringIndex() {
 		return this.stringIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getStringValue()
 	 */
 	public String getStringValue() {
 		return new String(this.stringValue);
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getIntegerValue()
 	 */
 	public int getIntegerValue() {
 		return this.integerValue;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getFloatValue()
 	 */
 	public float getFloatValue() {
 		return this.floatValue;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getDoubleValue()
 	 */
 	public double getDoubleValue() {
 		return this.doubleValue;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getLongValue()
 	 */
 	public long getLongValue() {
 		return this.longValue;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getNameAndTypeInfoDescriptorIndex()
 	 */
 	public int getNameAndTypeInfoDescriptorIndex() {
 		return this.nameAndTypeDescriptorIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getNameAndTypeInfoNameIndex()
 	 */
 	public int getNameAndTypeInfoNameIndex() {
 		return this.nameAndTypeNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getClassName()
 	 */
 	public char[] getClassName() {
 		return this.className;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getFieldName()
 	 */
 	public char[] getFieldName() {
 		return this.fieldName;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getMethodName()
 	 */
 	public char[] getMethodName() {
 		return this.methodName;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getFieldDescriptor()
 	 */
 	public char[] getFieldDescriptor() {
 		return this.fieldDescriptor;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getMethodDescriptor()
 	 */
 	public char[] getMethodDescriptor() {
 		return this.methodDescriptor;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getUtf8Value()
 	 */
 	public char[] getUtf8Value() {
 		return this.utf8Value;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getClassInfoName()
 	 */
 	public char[] getClassInfoName() {
 		return this.classInfoName;
 	}
 
-	/**
+	/*
 	 * Sets the classInfoNameIndex.
 	 * @param classInfoNameIndex The classInfoNameIndex to set
 	 */
@@ -204,7 +204,7 @@ public class ConstantPoolEntry {
 		this.classInfoNameIndex = classInfoNameIndex;
 	}
 
-	/**
+	/*
 	 * Sets the classIndex.
 	 * @param classIndex The classIndex to set
 	 */
@@ -212,7 +212,7 @@ public class ConstantPoolEntry {
 		this.classIndex = classIndex;
 	}
 
-	/**
+	/*
 	 * Sets the nameAndTypeIndex.
 	 * @param nameAndTypeIndex The nameAndTypeIndex to set
 	 */
@@ -220,7 +220,7 @@ public class ConstantPoolEntry {
 		this.nameAndTypeIndex = nameAndTypeIndex;
 	}
 
-	/**
+	/*
 	 * Sets the stringIndex.
 	 * @param stringIndex The stringIndex to set
 	 */
@@ -228,7 +228,7 @@ public class ConstantPoolEntry {
 		this.stringIndex = stringIndex;
 	}
 
-	/**
+	/*
 	 * Sets the stringValue.
 	 * @param stringValue The stringValue to set
 	 */
@@ -236,7 +236,7 @@ public class ConstantPoolEntry {
 		this.stringValue = stringValue;
 	}
 
-	/**
+	/*
 	 * Sets the integerValue.
 	 * @param integerValue The integerValue to set
 	 */
@@ -244,7 +244,7 @@ public class ConstantPoolEntry {
 		this.integerValue = integerValue;
 	}
 
-	/**
+	/*
 	 * Sets the floatValue.
 	 * @param floatValue The floatValue to set
 	 */
@@ -252,7 +252,7 @@ public class ConstantPoolEntry {
 		this.floatValue = floatValue;
 	}
 
-	/**
+	/*
 	 * Sets the doubleValue.
 	 * @param doubleValue The doubleValue to set
 	 */
@@ -260,7 +260,7 @@ public class ConstantPoolEntry {
 		this.doubleValue = doubleValue;
 	}
 
-	/**
+	/*
 	 * Sets the longValue.
 	 * @param longValue The longValue to set
 	 */
@@ -268,7 +268,7 @@ public class ConstantPoolEntry {
 		this.longValue = longValue;
 	}
 
-	/**
+	/*
 	 * Gets the nameAndTypeDescriptorIndex.
 	 * @return Returns a int
 	 */
@@ -276,7 +276,7 @@ public class ConstantPoolEntry {
 		return this.nameAndTypeDescriptorIndex;
 	}
 
-	/**
+	/*
 	 * Sets the nameAndTypeDescriptorIndex.
 	 * @param nameAndTypeDescriptorIndex The nameAndTypeDescriptorIndex to set
 	 */
@@ -284,7 +284,7 @@ public class ConstantPoolEntry {
 		this.nameAndTypeDescriptorIndex = nameAndTypeDescriptorIndex;
 	}
 
-	/**
+	/*
 	 * Gets the nameAndTypeNameIndex.
 	 * @return Returns a int
 	 */
@@ -292,7 +292,7 @@ public class ConstantPoolEntry {
 		return this.nameAndTypeNameIndex;
 	}
 
-	/**
+	/*
 	 * Sets the nameAndTypeNameIndex.
 	 * @param nameAndTypeNameIndex The nameAndTypeNameIndex to set
 	 */
@@ -300,7 +300,7 @@ public class ConstantPoolEntry {
 		this.nameAndTypeNameIndex = nameAndTypeNameIndex;
 	}
 
-	/**
+	/*
 	 * Sets the className.
 	 * @param className The className to set
 	 */
@@ -308,7 +308,7 @@ public class ConstantPoolEntry {
 		this.className = className;
 	}
 
-	/**
+	/*
 	 * Sets the fieldName.
 	 * @param fieldName The fieldName to set
 	 */
@@ -316,7 +316,7 @@ public class ConstantPoolEntry {
 		this.fieldName = fieldName;
 	}
 
-	/**
+	/*
 	 * Sets the methodName.
 	 * @param methodName The methodName to set
 	 */
@@ -324,7 +324,7 @@ public class ConstantPoolEntry {
 		this.methodName = methodName;
 	}
 
-	/**
+	/*
 	 * Sets the fieldDescriptor.
 	 * @param fieldDescriptor The fieldDescriptor to set
 	 */
@@ -332,7 +332,7 @@ public class ConstantPoolEntry {
 		this.fieldDescriptor = fieldDescriptor;
 	}
 
-	/**
+	/*
 	 * Sets the methodDescriptor.
 	 * @param methodDescriptor The methodDescriptor to set
 	 */
@@ -340,7 +340,7 @@ public class ConstantPoolEntry {
 		this.methodDescriptor = methodDescriptor;
 	}
 
-	/**
+	/*
 	 * Sets the utf8Value.
 	 * @param utf8Value The utf8Value to set
 	 */
@@ -348,7 +348,7 @@ public class ConstantPoolEntry {
 		this.utf8Value = utf8Value;
 	}
 
-	/**
+	/*
 	 * Sets the classInfoName.
 	 * @param classInfoName The classInfoName to set
 	 */
@@ -356,14 +356,14 @@ public class ConstantPoolEntry {
 		this.classInfoName = classInfoName;
 	}
 
-	/**
+	/*
 	 * @see IConstantPoolEntry#getUtf8Length()
 	 */
 	public int getUtf8Length() {
 		return this.utf8Length;
 	}
 
-	/**
+	/*
 	 * Sets the utf8Length.
 	 * @param utf8Length The utf8Length to set
 	 */

@@ -21,14 +21,14 @@ public class ConstantValueAttribute extends ClassFileAttribute {
 		this.constantPoolEntry = constantPool.decodeEntry(this.constantValueIndex);
 	}
 
-	/**
+	/*
 	 * @see IConstantValueAttribute#getConstantValue()
 	 */
 	public ConstantPoolEntry getConstantValue() {
 		return this.constantPoolEntry;
 	}
 
-	/**
+	/*
 	 * @see IConstantValueAttribute#getConstantValueIndex()
 	 */
 	public int getConstantValueIndex() {

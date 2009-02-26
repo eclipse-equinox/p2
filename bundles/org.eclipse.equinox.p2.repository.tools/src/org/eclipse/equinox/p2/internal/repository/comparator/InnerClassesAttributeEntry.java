@@ -49,49 +49,49 @@ public class InnerClassesAttributeEntry extends ClassFileStruct {
 		}
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getAccessFlags()
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getInnerClassName()
 	 */
 	public char[] getInnerClassName() {
 		return this.innerClassName;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getInnerClassNameIndex()
 	 */
 	public int getInnerClassNameIndex() {
 		return this.innerClassNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getInnerName()
 	 */
 	public char[] getInnerName() {
 		return this.innerName;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getInnerNameIndex()
 	 */
 	public int getInnerNameIndex() {
 		return this.innerNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getOuterClassName()
 	 */
 	public char[] getOuterClassName() {
 		return this.outerClassName;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttributeEntry#getOuterClassNameIndex()
 	 */
 	public int getOuterClassNameIndex() {

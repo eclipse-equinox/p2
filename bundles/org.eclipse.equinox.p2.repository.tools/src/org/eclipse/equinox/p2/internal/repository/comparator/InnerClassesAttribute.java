@@ -39,14 +39,14 @@ public class InnerClassesAttribute extends ClassFileAttribute {
 		}
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttribute#getInnerClassAttributesEntries()
 	 */
 	public InnerClassesAttributeEntry[] getInnerClassAttributesEntries() {
 		return this.entries;
 	}
 
-	/**
+	/*
 	 * @see IInnerClassesAttribute#getNumberOfClasses()
 	 */
 	public int getNumberOfClasses() {

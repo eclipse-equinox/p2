@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.internal.repository.comparator;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -230,7 +231,7 @@ public class Disassembler {
 		return decodeStringValue(s.toCharArray());
 	}
 
-	/**
+	/*
 	 * @see org.eclipse.jdt.core.util.ClassFileBytesDisassembler#disassemble(byte[], java.lang.String, int)
 	 */
 	public String disassemble(byte[] classFileBytes, String lineSeparator, int mode) throws ClassFormatException {
@@ -486,13 +487,6 @@ public class Disassembler {
 	}
 
 	/**
-	 * @see #disassemble(org.eclipse.jdt.core.util.ClassFileReader, java.lang.String, int)
-	 */
-	public String disassemble(ClassFileReader classFileReader, String lineSeparator) {
-		return disassemble(classFileReader, lineSeparator, Disassembler.DETAILED);
-	}
-
-	/**
 	 * Answers back the disassembled string of the ClassFileReader according to the
 	 * mode.
 	 * This is an output quite similar to the javap tool.
@@ -503,7 +497,7 @@ public class Disassembler {
 	 *
 	 * @return the disassembled string of the ClassFileReader according to the mode
 	 */
-	public String disassemble(ClassFileReader classFileReader, String lineSeparator, int mode) {
+	private String disassemble(ClassFileReader classFileReader, String lineSeparator, int mode) {
 		if (classFileReader == null)
 			return Utility.EMPTY_STRING;
 		char[] className = classFileReader.getClassName();
@@ -1045,11 +1039,35 @@ public class Disassembler {
 
 	private void disassembleTypeMembers(ClassFileReader classFileReader, char[] className, StringBuffer buffer, String lineSeparator, int tabNumber, int mode, boolean isEnum) {
 		FieldInfo[] fields = classFileReader.getFieldInfos();
+		// sort fields
+		Arrays.sort(fields, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				FieldInfo fieldInfo1 = (FieldInfo) o1;
+				FieldInfo fieldInfo2 = (FieldInfo) o2;
+				int compare = new String(fieldInfo1.getName()).compareTo(new String(fieldInfo2.getName()));
+				if (compare == 0) {
+					return new String(fieldInfo1.getDescriptor()).compareTo(new String(fieldInfo2.getDescriptor()));
+				}
+				return compare;
+			}
+		});
 		for (int i = 0, max = fields.length; i < max; i++) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);
 		}
 		MethodInfo[] methods = classFileReader.getMethodInfos();
+		// sort methods
+		Arrays.sort(methods, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				MethodInfo methodInfo1 = (MethodInfo) o1;
+				MethodInfo methodInfo2 = (MethodInfo) o2;
+				int compare = new String(methodInfo1.getName()).compareTo(new String(methodInfo2.getName()));
+				if (compare == 0) {
+					return new String(methodInfo1.getDescriptor()).compareTo(new String(methodInfo2.getDescriptor()));
+				}
+				return compare;
+			}
+		});
 		for (int i = 0, max = methods.length; i < max; i++) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			disassemble(classFileReader, className, methods[i], buffer, lineSeparator, tabNumber, mode);
@@ -1060,13 +1078,6 @@ public class Disassembler {
 		for (int i = 0; i < tabNumber; i++) {
 			buffer.append(Messages.disassembler_indentation);
 		}
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.ClassFileBytesDisassembler#getDescription()
-	 */
-	public String getDescription() {
-		return Messages.disassembler_description;
 	}
 
 	private EnclosingMethodAttribute getEnclosingMethodAttribute(ClassFileReader classFileReader) {

@@ -25,7 +25,7 @@ public class FieldInfo extends ClassFileStruct {
 	private char[] name;
 	private int nameIndex;
 
-	/**
+	/*
 	 * @param classFileBytes byte[]
 	 * @param constantPool IConstantPool
 	 * @param offset int
@@ -87,77 +87,77 @@ public class FieldInfo extends ClassFileStruct {
 		this.attributeBytes = readOffset;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getAccessFlags()
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getAttributeCount()
 	 */
 	public int getAttributeCount() {
 		return this.attributesCount;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getAttributes()
 	 */
 	public ClassFileAttribute[] getAttributes() {
 		return this.attributes;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getConstantValueAttribute()
 	 */
 	public ConstantValueAttribute getConstantValueAttribute() {
 		return this.constantValueAttribute;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getDescriptor()
 	 */
 	public char[] getDescriptor() {
 		return this.descriptor;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getDescriptorIndex()
 	 */
 	public int getDescriptorIndex() {
 		return this.descriptorIndex;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getName()
 	 */
 	public char[] getName() {
 		return this.name;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#getNameIndex()
 	 */
 	public int getNameIndex() {
 		return this.nameIndex;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#hasConstantValueAttribute()
 	 */
 	public boolean hasConstantValueAttribute() {
 		return this.constantValueAttribute != null;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#isDeprecated()
 	 */
 	public boolean isDeprecated() {
 		return this.isDeprecated;
 	}
 
-	/**
+	/*
 	 * @see IFieldInfo#isSynthetic()
 	 */
 	public boolean isSynthetic() {

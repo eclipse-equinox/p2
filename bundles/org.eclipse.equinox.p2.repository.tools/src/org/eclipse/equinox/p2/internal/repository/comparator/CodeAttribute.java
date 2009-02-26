@@ -58,21 +58,21 @@ public class CodeAttribute extends ClassFileAttribute {
 		}
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getAttributes()
 	 */
 	public ClassFileAttribute[] getAttributes() {
 		return this.attributes;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getAttributesCount()
 	 */
 	public int getAttributesCount() {
 		return this.attributesCount;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getBytecodes()
 	 */
 	public byte[] getBytecodes() {
@@ -82,42 +82,42 @@ public class CodeAttribute extends ClassFileAttribute {
 		return this.bytecodes;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getCodeLength()
 	 */
 	public long getCodeLength() {
 		return this.codeLength;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getExceptionTable()
 	 */
 	public ExceptionTableEntry[] getExceptionTable() {
 		return this.exceptionTableEntries;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getExceptionTableLength()
 	 */
 	public int getExceptionTableLength() {
 		return this.exceptionTableLength;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getMaxLocals()
 	 */
 	public int getMaxLocals() {
 		return this.maxLocals;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#getMaxStack()
 	 */
 	public int getMaxStack() {
 		return this.maxStack;
 	}
 
-	/**
+	/*
 	 * @see ICodeAttribute#traverse(IBytecodeVisitor visitor)
 	 */
 	public void traverse(DefaultBytecodeVisitor visitor) throws ClassFormatException {

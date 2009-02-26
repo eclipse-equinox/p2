@@ -13,47 +13,47 @@ package org.eclipse.equinox.p2.internal.repository.comparator;
 import java.util.Arrays;
 
 public class ClassFileReader extends ClassFileStruct {
-	/**
+	/*
 	 * This value should be used to read completely each part of a .class file.
 	 */
 	public static final int ALL = 0xFFFF;
 
-	/**
+	/*
 	 * This value should be used to read only the constant pool entries of a .class file.
 	 */
 	public static final int CONSTANT_POOL = 0x0001;
 
-	/**
+	/*
 	 * This value should be used to read the constant pool entries and
 	 * the method infos of a .class file.
 	 */
 	public static final int METHOD_INFOS = 0x0002 + CONSTANT_POOL;
 
-	/**
+	/*
 	 * This value should be used to read the constant pool entries and
 	 * the field infos of a .class file.
 	 */
 	public static final int FIELD_INFOS = 0x0004 + CONSTANT_POOL;
 
-	/**
+	/*
 	 * This value should be used to read the constant pool entries and
 	 * the super interface names of a .class file.
 	 */
 	public static final int SUPER_INTERFACES = 0x0008 + CONSTANT_POOL;
 
-	/**
+	/*
 	 * This value should be used to read the constant pool entries and
 	 * the attributes of a .class file.
 	 */
 	public static final int CLASSFILE_ATTRIBUTES = 0x0010 + CONSTANT_POOL;
 
-	/**
+	/*
 	 * This value should be used to read the method bodies.
 	 * It has to be used with METHOD_INFOS.
 	 */
 	public static final int METHOD_BODIES = 0x0020;
 
-	/**
+	/*
 	 * This value should be used to read the whole contents of the .class file except the
 	 * method bodies.
 	 */
@@ -84,7 +84,7 @@ public class ClassFileReader extends ClassFileStruct {
 	private char[] superclassName;
 	private int superclassNameIndex;
 
-	/**
+	/*
 	 * Constructor for ClassFileReader.
 	 *
 	 * @param classFileBytes the raw bytes of the .class file
@@ -314,35 +314,35 @@ public class ClassFileReader extends ClassFileStruct {
 		}
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getAccessFlags()
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getAttributeCount()
 	 */
 	public int getAttributeCount() {
 		return this.attributesCount;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getAttributes()
 	 */
 	public ClassFileAttribute[] getAttributes() {
 		return this.attributes;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getClassIndex()
 	 */
 	public int getClassIndex() {
 		return this.classNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getClassName()
 	 */
 	public char[] getClassName() {
@@ -354,112 +354,112 @@ public class ClassFileReader extends ClassFileStruct {
 		return utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getConstantPool()
 	 */
 	public ConstantPool getConstantPool() {
 		return this.constantPool;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getFieldInfos()
 	 */
 	public FieldInfo[] getFieldInfos() {
 		return this.fields;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getFieldsCount()
 	 */
 	public int getFieldsCount() {
 		return this.fieldsCount;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getInnerClassesAttribute()
 	 */
 	public InnerClassesAttribute getInnerClassesAttribute() {
 		return this.innerClassesAttribute;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getInterfaceIndexes()
 	 */
 	public int[] getInterfaceIndexes() {
 		return this.interfaceIndexes;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getInterfaceNames()
 	 */
 	public char[][] getInterfaceNames() {
 		return this.interfaceNames;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getMagic()
 	 */
 	public int getMagic() {
 		return this.magicNumber;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getMajorVersion()
 	 */
 	public int getMajorVersion() {
 		return this.majorVersion;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getMethodInfos()
 	 */
 	public MethodInfo[] getMethodInfos() {
 		return this.methods;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getMethodsCount()
 	 */
 	public int getMethodsCount() {
 		return this.methodsCount;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getMinorVersion()
 	 */
 	public int getMinorVersion() {
 		return this.minorVersion;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getSourceFileAttribute()
 	 */
 	public SourceFileAttribute getSourceFileAttribute() {
 		return this.sourceFileAttribute;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getSuperclassIndex()
 	 */
 	public int getSuperclassIndex() {
 		return this.superclassNameIndex;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#getSuperclassName()
 	 */
 	public char[] getSuperclassName() {
 		return this.superclassName;
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#isClass()
 	 */
 	public boolean isClass() {
 		return !isInterface();
 	}
 
-	/**
+	/*
 	 * @see IClassFileReader#isInterface()
 	 */
 	public boolean isInterface() {
