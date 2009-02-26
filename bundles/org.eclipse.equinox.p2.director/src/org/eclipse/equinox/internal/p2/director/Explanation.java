@@ -139,7 +139,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		}
 	}
 
-	public static Explanation OPTIONAL_REQUIREMENT = new Explanation() {
+	public static final Explanation OPTIONAL_REQUIREMENT = new Explanation() {
 
 		public String toString() {
 			return OPTIONAL_DEPENDENCY;
