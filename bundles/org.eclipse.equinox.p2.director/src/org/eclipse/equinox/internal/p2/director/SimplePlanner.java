@@ -117,15 +117,16 @@ public class SimplePlanner implements IPlanner {
 		// Now deal with iu property changes/additions.
 		// TODO we aren't yet checking that the IU will exist in the final profile, will the engine do this?
 		Map allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
-		iter = allIUPropertyChanges.keySet().iterator();
+		iter = allIUPropertyChanges.entrySet().iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			Map iuPropertyChanges = (Map) allIUPropertyChanges.get(iu);
+			Map.Entry entry = (Map.Entry) iter.next();
+			IInstallableUnit iu = (IInstallableUnit) entry.getKey();
+			Map iuPropertyChanges = (Map) entry.getValue();
 			Iterator iuPropIter = iuPropertyChanges.entrySet().iterator();
 			while (iuPropIter.hasNext()) {
-				Map.Entry entry = (Map.Entry) iuPropIter.next();
-				Object oldValue = profile.getInstallableUnitProperty(iu, (String) entry.getKey());
-				operands.add(new InstallableUnitPropertyOperand(iu, (String) entry.getKey(), oldValue, entry.getValue()));
+				Map.Entry entry2 = (Map.Entry) iuPropIter.next();
+				Object oldValue = profile.getInstallableUnitProperty(iu, (String) entry2.getKey());
+				operands.add(new InstallableUnitPropertyOperand(iu, (String) entry2.getKey(), oldValue, entry2.getValue()));
 			}
 		}
 		// Now deal with iu property removals.
