@@ -40,7 +40,6 @@ public class Projector {
 	private IQueryable picker;
 	private QueryableArray patches;
 
-	private Map variables; //key IU, value IUVariable
 	private Map noopVariables; //key IU, value AbstractVariable
 	private List abstractVariables;
 
@@ -53,114 +52,18 @@ public class Projector {
 	private Collection assumptions;
 
 	private MultiStatus result;
-	private Map fragments;
 
 	private Collection alreadyInstalledIUs;
 
-	static abstract class PropositionalVariable {
-
-		abstract void handleMatches(List matches);
-	}
-
-	static class AbstractVariable extends PropositionalVariable {
+	static class AbstractVariable {
 		@Override
 		public String toString() {
 			return "AbstractVariable: " + hashCode();
 		}
-
-		@Override
-		void handleMatches(List matches) {
-			// do nothing
-		}
-	}
-
-	static class Fragment extends PropositionalVariable {
-		private final IInstallableUnit iu;
-		private final List matches = new ArrayList();
-
-		public Fragment(IInstallableUnit iu) {
-			this.iu = iu;
-		}
-
-		@Override
-		public String toString() {
-			return "Fragment" + iu + " -> " + matches;
-		}
-
-		@Override
-		void handleMatches(List matches) {
-			this.matches.addAll(matches);
-		}
-
-		List getMatches() {
-			return matches;
-		}
-	}
-
-	static class IUVariable extends PropositionalVariable {
-
-		private final IInstallableUnit iu;
-
-		public IUVariable(IInstallableUnit iu) {
-			this.iu = iu;
-		}
-
-		public boolean equals(Object obj) {
-			if (obj == null)
-				return false;
-			if (obj == this)
-				return true;
-			if (obj instanceof IUVariable) {
-				IUVariable other = (IUVariable) obj;
-				return other.iu.getId().equals(iu.getId()) && other.iu.getVersion().equals(iu.getVersion());
-			}
-			return false;
-		}
-
-		public int hashCode() {
-			return iu.hashCode();
-		}
-
-		public String toString() {
-			return iu.getId() + '_' + iu.getVersion();
-		}
-
-		public IInstallableUnit getInstallableUnit() {
-			return iu;
-		}
-
-		@Override
-		void handleMatches(List matches) {
-			// do nothing
-		}
-	}
-
-	private IUVariable newIUVariable(IInstallableUnit iu) {
-		IUVariable var = (IUVariable) variables.get(iu);
-		if (var == null) {
-			var = new IUVariable(iu);
-			variables.put(iu, var);
-		}
-		return var;
-	}
-
-	private Fragment newFragmentVariable(IInstallableUnit iu) {
-		Fragment var = (Fragment) fragments.get(iu);
-		if (var == null) {
-			var = new Fragment(iu);
-			fragments.put(iu, var);
-		}
-		return var;
-	}
-
-	private boolean isFragment(IInstallableUnit iu) {
-		// TODO Pascal, you need to fill this :)
-		return false;
 	}
 
 	public Projector(IQueryable q, Dictionary context) {
 		picker = q;
-		variables = new HashMap();
 		noopVariables = new HashMap();
 		slice = new TwoTierMap();
 		selectionContext = context;
@@ -248,7 +151,7 @@ public class Projector {
 			BigInteger weight = BigInteger.ONE;
 			int count = toSort.size();
 			for (int i = 0; i < count; i++) {
-				weightedObjects.add(WeightedObject.newWO(newIUVariable(((IInstallableUnit) toSort.get(i))), weight));
+				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
 				weight = weight.multiply(POWER);
 			}
 			if (weight.compareTo(maxWeight) > 0)
@@ -280,7 +183,7 @@ public class Projector {
 					Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
 					for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 						IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
-						weightedObjects.add(WeightedObject.newWO(newIUVariable(match), patchWeight));
+						weightedObjects.add(WeightedObject.newWO(match, patchWeight));
 					}
 				}
 			}
@@ -309,20 +212,18 @@ public class Projector {
 
 	private void createMustHave(IInstallableUnit iu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots) throws ContradictionException {
 		processIU(iu, true);
-		IUVariable variable = newIUVariable(iu);
 		if (DEBUG) {
-			Tracing.debug(variable + "=1"); //$NON-NLS-1$
+			Tracing.debug(iu + "=1"); //$NON-NLS-1$
 		}
 		// dependencyHelper.setTrue(variable, new Explanation.IUToInstall(iu));
-		assumptions.add(variable);
+		assumptions.add(iu);
 	}
 
 	private void createNegation(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
-		IUVariable variable = newIUVariable(iu);
 		if (DEBUG) {
-			Tracing.debug(variable + "=0"); //$NON-NLS-1$
+			Tracing.debug(iu + "=0"); //$NON-NLS-1$
 		}
-		dependencyHelper.setFalse(variable, new Explanation.MissingIU(iu, req));
+		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
 	}
 
 	//	private void createExistence(IInstallableUnit iu) throws ContradictionException {
@@ -356,7 +257,7 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, PropositionalVariable iuVar, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
 		if (!isApplicable(req))
 			return;
 		List matches = getApplicableMatches(req);
@@ -375,24 +276,24 @@ public class Projector {
 				} else {
 					explanation = new Explanation.HardRequirement(iu, req);
 				}
-				createImplication(iuVar, matches, explanation);
+				createImplication(iu, matches, explanation);
 			}
 		} else {
 			if (!matches.isEmpty()) {
-				PropositionalVariable abs = getAbstractVariable();
+				AbstractVariable abs = getAbstractVariable();
 				createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 				optionalAbstractRequirements.add(abs);
 			}
 		}
 	}
 
-	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, PropositionalVariable iuVar, boolean isRootIu) throws ContradictionException {
+	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		if (reqs.length == 0) {
 			return;
 		}
 		List optionalAbstractRequirements = new ArrayList();
 		for (int i = 0; i < reqs.length; i++) {
-			expandRequirement(reqs[i], iu, iuVar, optionalAbstractRequirements, isRootIu);
+			expandRequirement(reqs[i], iu, optionalAbstractRequirements, isRootIu);
 		}
 		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
@@ -408,22 +309,16 @@ public class Projector {
 
 		Collector patches = getApplicablePatches(iu);
 		expandLifeCycle(iu, isRootIU);
-		PropositionalVariable iuVar;
-		if (isFragment(iu)) {
-			iuVar = newFragmentVariable(iu);
-		} else {
-			iuVar = newIUVariable(iu);
-		}
 		//No patches apply, normal code path
 		if (patches.size() == 0) {
-			expandRequirements(iu.getRequiredCapabilities(), iu, iuVar, isRootIU);
+			expandRequirements(iu.getRequiredCapabilities(), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
-			expandRequirementsWithPatches(iu, patches, iuVar, isRootIU);
+			expandRequirementsWithPatches(iu, patches, isRootIU);
 		}
 	}
 
-	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector patches, PropositionalVariable iuVar, boolean isRootIu) throws ContradictionException {
+	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector patches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
 		for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
@@ -453,13 +348,11 @@ public class Projector {
 					continue;
 				}
 
-				PropositionalVariable patchVar = newIUVariable(patch);
 				//Generate dependency when the patch is applied
 				//P1 -> (A -> D) equiv. (P1 & A) -> D
 				if (isApplicable(reqs[i][1])) {
 					IRequiredCapability req = reqs[i][1];
 					List matches = getApplicableMatches(req);
-					iuVar.handleMatches(matches);
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
@@ -475,12 +368,12 @@ public class Projector {
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req, patch);
 							}
-							createImplication(new PropositionalVariable[] {patchVar, iuVar}, matches, explanation);
+							createImplication(new Object[] {patch, iu}, matches, explanation);
 						}
 					} else {
 						if (!matches.isEmpty()) {
-							PropositionalVariable abs = getAbstractVariable();
-							createImplication(new PropositionalVariable[] {patchVar, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
+							AbstractVariable abs = getAbstractVariable();
+							createImplication(new Object[] {patch, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
 							optionalAbstractRequirements.add(abs);
 						}
 					}
@@ -490,12 +383,11 @@ public class Projector {
 				if (isApplicable(reqs[i][0])) {
 					IRequiredCapability req = reqs[i][0];
 					List matches = getApplicableMatches(req);
-					iuVar.handleMatches(matches);
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
-							dependencyHelper.implication(iuVar).implies(patchVar).named(new Explanation.HardRequirement(iu, (IInstallableUnitPatch) null));
+							dependencyHelper.implication(iu).implies(patch).named(new Explanation.HardRequirement(iu, (IInstallableUnitPatch) null));
 						} else {
-							matches.add(patchVar);
+							matches.add(patch);
 							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 
 							Explanation explanation;
@@ -508,12 +400,12 @@ public class Projector {
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req);
 							}
-							createImplication(iuVar, matches, explanation);
+							createImplication(iu, matches, explanation);
 						}
 					} else {
 						if (!matches.isEmpty()) {
-							PropositionalVariable abs = getAbstractVariable();
-							optionalAbstractRequirements.add(patchVar);
+							AbstractVariable abs = getAbstractVariable();
+							optionalAbstractRequirements.add(patch);
 							createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 							optionalAbstractRequirements.add(abs);
 						}
@@ -531,11 +423,10 @@ public class Projector {
 			List requiredPatches = new ArrayList();
 			for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
 				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
-				requiredPatches.add(newIUVariable(patch));
+				requiredPatches.add(patch);
 			}
 			IRequiredCapability req = (IRequiredCapability) entry.getKey();
 			List matches = getApplicableMatches(req);
-			iuVar.handleMatches(matches);
 			if (!req.isOptional()) {
 				if (matches.isEmpty()) {
 					missingRequirement(iu, req);
@@ -553,13 +444,13 @@ public class Projector {
 					} else {
 						explanation = new Explanation.HardRequirement(iu, req);
 					}
-					createImplication(iuVar, matches, explanation);
+					createImplication(iu, matches, explanation);
 				}
 			} else {
 				if (!matches.isEmpty()) {
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
-					PropositionalVariable abs = getAbstractVariable();
+					AbstractVariable abs = getAbstractVariable();
 					createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 					optionalAbstractRequirements.add(abs);
 				}
@@ -575,7 +466,7 @@ public class Projector {
 		IRequiredCapability req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, newIUVariable(iu), Collections.EMPTY_LIST, isRootIu);
+		expandRequirement(req, iu, Collections.EMPTY_LIST, isRootIu);
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
@@ -597,7 +488,7 @@ public class Projector {
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
-				target.add(newIUVariable(match));
+				target.add(match);
 			}
 		}
 		return target;
@@ -648,24 +539,23 @@ public class Projector {
 	private void createOptionalityExpression(IInstallableUnit iu, List optionalRequirements) throws ContradictionException {
 		if (optionalRequirements.isEmpty())
 			return;
-		IUVariable iuVar = newIUVariable(iu);
-		PropositionalVariable noop = getNoOperationVariable(iu);
+		AbstractVariable noop = getNoOperationVariable(iu);
 		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
-			PropositionalVariable abs = (PropositionalVariable) i.next();
+			AbstractVariable abs = (AbstractVariable) i.next();
 			createIncompatibleValues(abs, noop);
 		}
 		optionalRequirements.add(noop);
-		createImplication(iuVar, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
+		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
 	}
 
-	private void createImplication(PropositionalVariable left, List right, Explanation name) throws ContradictionException {
+	private void createImplication(Object left, List right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
 
-	private void createImplication(PropositionalVariable[] left, List right, Explanation name) throws ContradictionException {
+	private void createImplication(Object[] left, List right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + Arrays.asList(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -717,56 +607,51 @@ public class Projector {
 			for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
 				IInstallableUnit iu = (IInstallableUnit) conflictIterator.next();
 				if (iu.isSingleton()) {
-					singletons.add(newIUVariable(iu));
+					singletons.add(iu);
 				} else {
-					nonSingletons.add(newIUVariable(iu));
+					nonSingletons.add(iu);
 				}
 			}
 			if (singletons.isEmpty())
 				continue;
 
-			PropositionalVariable[] singletonArray;
+			IInstallableUnit[] singletonArray;
 			if (nonSingletons.isEmpty()) {
-				singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size()]);
+				singletonArray = (IInstallableUnit[]) singletons.toArray(new IInstallableUnit[singletons.size()]);
 				createAtMostOne(singletonArray);
 			} else {
-				singletonArray = (PropositionalVariable[]) singletons.toArray(new PropositionalVariable[singletons.size() + 1]);
+				singletonArray = (IInstallableUnit[]) singletons.toArray(new IInstallableUnit[singletons.size() + 1]);
 				for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
-					singletonArray[singletonArray.length - 1] = (PropositionalVariable) iterator2.next();
+					singletonArray[singletonArray.length - 1] = (IInstallableUnit) iterator2.next();
 					createAtMostOne(singletonArray);
 				}
 			}
 		}
 	}
 
-	private void createAtMostOne(PropositionalVariable[] vars) throws ContradictionException {
+	private void createAtMostOne(IInstallableUnit[] ius) throws ContradictionException {
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
+			Tracing.debug("At most 1 of " + Arrays.toString(ius)); //$NON-NLS-1$
 		}
-		IInstallableUnit[] ius = new IInstallableUnit[vars.length];
-		int i = 0;
-		for (PropositionalVariable var : vars) {
-			ius[i++] = ((IUVariable) var).getInstallableUnit();
-		}
-		dependencyHelper.atMost(1, vars).named(new Explanation.Singleton(ius)); //$NON-NLS-1$
+		dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius)); //$NON-NLS-1$
 	}
 
-	private void createIncompatibleValues(PropositionalVariable v1, PropositionalVariable v2) throws ContradictionException {
-		PropositionalVariable[] vars = {v1, v2};
+	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
+		AbstractVariable[] vars = {v1, v2};
 		if (DEBUG) {
 			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
 		}
 		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT); //$NON-NLS-1$
 	}
 
-	private PropositionalVariable getAbstractVariable() {
+	private AbstractVariable getAbstractVariable() {
 		AbstractVariable abstractVariable = new AbstractVariable();
 		abstractVariables.add(abstractVariable);
 		return abstractVariable;
 	}
 
-	private PropositionalVariable getNoOperationVariable(IInstallableUnit iu) {
-		PropositionalVariable v = (PropositionalVariable) noopVariables.get(iu);
+	private AbstractVariable getNoOperationVariable(IInstallableUnit iu) {
+		AbstractVariable v = (AbstractVariable) noopVariables.get(iu);
 		if (v == null) {
 			v = new AbstractVariable();
 			noopVariables.put(iu, v);
@@ -815,9 +700,9 @@ public class Projector {
 		IVec sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
 			Object var = i.next();
-			if (var instanceof IUVariable) {
-				IUVariable iuVar = (IUVariable) var;
-				solution.add(iuVar.getInstallableUnit());
+			if (var instanceof IInstallableUnit) {
+				IInstallableUnit iu = (IInstallableUnit) var;
+				solution.add(iu);
 			}
 		}
 	}
@@ -838,25 +723,11 @@ public class Projector {
 		return solution;
 	}
 
-	public Collection extractFragments() {
-		Collection col = new ArrayList();
-		for (Iterator iterator = fragments.values().iterator(); iterator.hasNext();) {
-			Fragment fragment = (Fragment) iterator.next();
-			for (Iterator it = fragment.matches.iterator(); it.hasNext();) {
-				IUVariable var = (IUVariable) it.next();
-				if (dependencyHelper.getBooleanValueFor(var)) {
-					col.add(var.getInstallableUnit());
-				}
-			}
-		}
-		return col;
-	}
-
 	public Set getExplanationFor(IInstallableUnit iu) {
 		//TODO if the iu is resolved then return null.
 		//TODO if the iu is in an unknown state, then return a special value in the set
 		try {
-			return dependencyHelper.whyNot(newIUVariable(iu));
+			return dependencyHelper.whyNot(iu);
 		} catch (TimeoutException e) {
 			return Collections.EMPTY_SET;
 		}
