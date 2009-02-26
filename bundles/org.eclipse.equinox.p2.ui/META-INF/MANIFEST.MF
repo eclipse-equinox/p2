@@ -73,7 +73,8 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;x-internal:=true,
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.expressions, 
- org.eclipse.equinox.simpleconfigurator,
+ org.eclipse.equinox.simpleconfigurator.manipulator,
+ org.eclipse.equinox.p2.exemplarysetup,
  org.eclipse.equinox.security.ui;bundle-version="[1.0.0,2.0.0)"
  
 Eclipse-LazyStart: true
