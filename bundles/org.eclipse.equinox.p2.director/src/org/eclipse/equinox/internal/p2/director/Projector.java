@@ -72,8 +72,7 @@ public class Projector {
 		assumptions = new ArrayList();
 	}
 
-	public void encode(IInstallableUnit[] ius, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
-		assert ius.length == 1;
+	public void encode(IInstallableUnit metaIu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
 		try {
 			long start = 0;
@@ -107,16 +106,15 @@ public class Projector {
 					throw new OperationCanceledException();
 				}
 				IInstallableUnit iuToEncode = (IInstallableUnit) iusToEncode.next();
-				if (iuToEncode != ius[0]) {
+				if (iuToEncode != metaIu) {
 					processIU(iuToEncode, false);
 				}
 			}
 			createConstraintsForSingleton();
-			for (int i = 0; i < ius.length; i++) {
-				IInstallableUnit iu = ius[i];
-				createMustHave(iu, alreadyExistingRoots, newRoots);
-			}
-			createOptimizationFunction(ius);
+
+			createMustHave(metaIu, alreadyExistingRoots, newRoots);
+
+			createOptimizationFunction(metaIu);
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
@@ -132,7 +130,7 @@ public class Projector {
 	}
 
 	//Create an optimization function favoring the highest version of each IU
-	private void createOptimizationFunction(IInstallableUnit[] ius) {
+	private void createOptimizationFunction(IInstallableUnit metaIu) {
 
 		List weightedObjects = new ArrayList();
 
@@ -177,16 +175,15 @@ public class Projector {
 
 		BigInteger patchWeight = maxWeight.negate();
 		if (patches != null) {
-			for (int i = 0; i < ius.length; i++) {
-				IRequiredCapability[] reqs = ius[i].getRequiredCapabilities();
-				for (int j = 0; j < reqs.length; j++) {
-					Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-					for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-						IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
-						weightedObjects.add(WeightedObject.newWO(match, patchWeight));
-					}
+			IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
+			for (int j = 0; j < reqs.length; j++) {
+				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+					IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
+					weightedObjects.add(WeightedObject.newWO(match, patchWeight));
 				}
 			}
+
 		}
 
 		if (!weightedObjects.isEmpty()) {
