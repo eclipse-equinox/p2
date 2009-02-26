@@ -91,7 +91,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getAddOperation(java.net.URI)
 	 */
-	public RepositoryOperation getAddOperation(URI repoLocation) {
+	public AddRepositoryOperation getAddOperation(URI repoLocation) {
 		return new AddColocatedRepositoryOperation(getAddOperationLabel(), repoLocation);
 	}
 
@@ -119,7 +119,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getRemoveOperation(java.net.URI[])
 	 */
-	public RepositoryOperation getRemoveOperation(URI[] reposToRemove) {
+	public RemoveRepositoryOperation getRemoveOperation(URI[] reposToRemove) {
 		return new RemoveColocatedRepositoryOperation(getRemoveOperationLabel(), reposToRemove);
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -60,6 +61,8 @@ public class ElementUtils {
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
 							}
 						}
+						ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, elements[i].getName());
+						ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, elements[i].getName());
 					}
 					// Are there any elements that need to be deleted?  Go over the original state
 					// and remove any elements that weren't in the elements we were given

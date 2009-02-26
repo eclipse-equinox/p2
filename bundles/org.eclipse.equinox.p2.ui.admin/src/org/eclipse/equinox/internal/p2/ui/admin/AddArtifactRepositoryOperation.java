@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
- * Operation which adds an artifact repository given its URL.
+ * Operation which adds an artifact repository given its URI.
  * 
  * @since 3.4
  */
-public class AddArtifactRepositoryOperation extends RepositoryOperation {
+public class AddArtifactRepositoryOperation extends AddRepositoryOperation {
 
 	public AddArtifactRepositoryOperation(String label, URI location) {
 		super(label, new URI[] {location});
@@ -35,5 +35,11 @@ public class AddArtifactRepositoryOperation extends RepositoryOperation {
 			mon.worked(1);
 		}
 		return okStatus();
+	}
+
+	protected void setNickname(URI location, String nickname) throws ProvisionException {
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+		}
 	}
 }

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.swt.SWT;
@@ -29,7 +30,8 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 	private IRepositoryElement repositoryElement;
 	private Composite composite;
 	private Text name;
-	private Text url;
+	private Text location;
+	private Text nickname;
 	private Text description;
 	private Table propertiesTable;
 
@@ -52,13 +54,18 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 
 		Label urlLabel = new Label(composite, SWT.NONE);
 		urlLabel.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_LocationLabel);
-		url = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-		url.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		location = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+		location.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Label nameLabel = new Label(composite, SWT.NONE);
 		nameLabel.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_NameLabel);
 		name = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 		name.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label nicknameLabel = new Label(composite, SWT.NONE);
+		nicknameLabel.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_NicknameLabel);
+		nickname = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+		nickname.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Label descriptionLabel = new Label(composite, SWT.NONE);
 		descriptionLabel.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_DescriptionLabel);
@@ -87,6 +94,7 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 		TableColumn valueColumn = new TableColumn(propertiesTable, SWT.NONE);
 		valueColumn.setText(ProvAdminUIMessages.RepositoryImplementationPropertyPage_ValueColumnLabel);
 
+		initializeFields();
 		initializeTable();
 
 		nameColumn.pack();
@@ -94,6 +102,26 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 
 		return composite;
 
+	}
+
+	private void initializeFields() {
+		IRepositoryElement element = getRepositoryElement();
+		if (element != null) {
+			IRepository repo = getRepositoryElement().getRepository(null);
+			location.setText(repo.getLocation().toString());
+			String value = repo.getName();
+			if (value != null)
+				name.setText(value);
+			value = repo.getDescription();
+			if (value != null)
+				description.setText(value);
+			String nick = element.getName();
+			// Kind of a hack, to avoid figuring out which manager to go to get the
+			// nickname.  Instead we are just assuming that any name stored in the element that
+			// is not location or provider name is the nickname.
+			if (!nick.equals(value) && !nick.equals(repo.getLocation().toString()))
+				nickname.setText(nick);
+		}
 	}
 
 	private void initializeTable() {

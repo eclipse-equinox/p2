@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.query;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
@@ -38,6 +40,14 @@ public class MetadataRepositoryElementCollector extends QueriedElementCollector 
 	public boolean accept(Object match) {
 		if (!(match instanceof URI))
 			return true;
-		return super.accept(new MetadataRepositoryElement(parent, (URI) match, ProvisioningUtil.getMetadataRepositoryEnablement((URI) match)));
+		MetadataRepositoryElement element = new MetadataRepositoryElement(parent, (URI) match, ProvisioningUtil.getMetadataRepositoryEnablement((URI) match));
+		try {
+			String nickname = ProvisioningUtil.getMetadataRepositoryProperty((URI) match, IRepository.PROP_NICKNAME);
+			if (nickname != null && nickname.length() > 0)
+				element.setNickname(nickname);
+		} catch (ProvisionException e) {
+			// swallow
+		}
+		return super.accept(element);
 	}
 }

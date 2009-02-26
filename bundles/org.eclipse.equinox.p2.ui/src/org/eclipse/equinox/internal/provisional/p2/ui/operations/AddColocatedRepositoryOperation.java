@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 
 /**
  * Operation that adds colocated artifact and metadata repositories
@@ -20,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  * 
  * @since 3.4
  */
-public class AddColocatedRepositoryOperation extends RepositoryOperation {
+public class AddColocatedRepositoryOperation extends AddRepositoryOperation {
 	public AddColocatedRepositoryOperation(String label, URI url) {
 		super(label, new URI[] {url});
 	}
@@ -39,5 +40,12 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 			mon.worked(1);
 		}
 		return okStatus();
+	}
+
+	protected void setNickname(URI location, String nickname) throws ProvisionException {
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+			ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+		}
 	}
 }

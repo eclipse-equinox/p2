@@ -57,6 +57,13 @@ public class ProvisioningUtil {
 		return manager.getRepositoryProperty(location, key);
 	}
 
+	public static void setMetadataRepositoryProperty(URI location, String key, String value) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		manager.setRepositoryProperty(location, key, value);
+	}
+
 	public static boolean getMetadataRepositoryEnablement(URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
@@ -75,7 +82,16 @@ public class ProvisioningUtil {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		return manager.loadRepository(location, monitor);
+		IMetadataRepository repo = manager.loadRepository(location, monitor);
+		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+		// This will keep the name in the manager even when the repo is not loaded
+		String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		if (name == null) {
+			name = getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
+			if (name != null)
+				setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+		}
+		return repo;
 	}
 
 	public static IStatus validateMetadataRepositoryLocation(URI location, IProgressMonitor monitor) {
@@ -119,6 +135,13 @@ public class ProvisioningUtil {
 		return manager.getRepositoryProperty(location, key);
 	}
 
+	public static void setArtifactRepositoryProperty(URI location, String key, String value) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		manager.setRepositoryProperty(location, key, value);
+	}
+
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
@@ -126,6 +149,14 @@ public class ProvisioningUtil {
 		IArtifactRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location));
+		}
+		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+		// This will keep the name in the manager even when the repo is not loaded
+		String name = getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		if (name == null) {
+			name = getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+			if (name != null)
+				setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 		}
 		return repo;
 	}

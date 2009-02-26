@@ -15,11 +15,11 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
- * Operation that removes the colocated repositories with the given URLs. *
+ * Operation that removes the colocated repositories with the given locations. *
  * 
  * @since 3.4
  */
-public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
+public class RemoveColocatedRepositoryOperation extends RemoveRepositoryOperation {
 
 	public RemoveColocatedRepositoryOperation(String label, URI[] repoLocations) {
 		super(label, repoLocations);

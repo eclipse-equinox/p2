@@ -121,9 +121,11 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public String getName() {
 		try {
-			String name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+			String name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null)
-				return ""; //$NON-NLS-1$
+				name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+			if (name == null)
+				name = ""; //$NON-NLS-1$
 			return name;
 		} catch (ProvisionException e) {
 			return ""; //$NON-NLS-1$

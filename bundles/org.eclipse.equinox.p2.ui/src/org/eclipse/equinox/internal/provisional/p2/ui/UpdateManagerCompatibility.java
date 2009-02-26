@@ -104,7 +104,12 @@ public class UpdateManagerCompatibility {
 
 		String sel = getAttribute(child, "selected"); //$NON-NLS-1$
 		boolean selected = (sel != null && sel.equals("true")); //$NON-NLS-1$
-		bookmarks.add(new MetadataRepositoryElement(null, uri, selected));
+
+		MetadataRepositoryElement element = new MetadataRepositoryElement(null, uri, selected);
+		String nickname = getAttribute(child, "name"); //$NON-NLS-1$
+		if (nickname != null && nickname.length() > 0)
+			element.setNickname(nickname);
+		bookmarks.add(element);
 	}
 
 	private static void createFolder(Node child, Vector bookmarks) {

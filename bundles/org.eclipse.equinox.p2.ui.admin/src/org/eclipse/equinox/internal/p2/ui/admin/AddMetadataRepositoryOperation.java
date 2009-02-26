@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Operation that adds a metadata repository given its URL.
  * 
  * @since 3.4
  */
-public class AddMetadataRepositoryOperation extends RepositoryOperation {
+public class AddMetadataRepositoryOperation extends AddRepositoryOperation {
 
 	public AddMetadataRepositoryOperation(String label, URI location) {
 		super(label, new URI[] {location});
@@ -35,5 +35,11 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 			mon.worked(1);
 		}
 		return okStatus();
+	}
+
+	protected void setNickname(URI location, String nickname) throws ProvisionException {
+		for (int i = 0; i < locations.length; i++) {
+			ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+		}
 	}
 }

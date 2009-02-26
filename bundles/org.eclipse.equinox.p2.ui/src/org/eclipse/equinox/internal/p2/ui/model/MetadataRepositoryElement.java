@@ -42,6 +42,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	URI location;
 	boolean isEnabled;
 	boolean alreadyReportedNotFound = false;
+	String name;
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
 		this(parent, null, null, location, isEnabled);
@@ -145,14 +146,22 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		try {
-			String name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name == null)
-				return ""; //$NON-NLS-1$
-			return name;
-		} catch (ProvisionException e) {
-			return ""; //$NON-NLS-1$
+		if (name == null) {
+			try {
+				name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+				if (name == null)
+					name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
+				if (name == null)
+					name = ""; //$NON-NLS-1$
+			} catch (ProvisionException e) {
+				name = ""; //$NON-NLS-1$
+			}
 		}
+		return name;
+	}
+
+	public void setNickname(String name) {
+		this.name = name;
 	}
 
 	/*

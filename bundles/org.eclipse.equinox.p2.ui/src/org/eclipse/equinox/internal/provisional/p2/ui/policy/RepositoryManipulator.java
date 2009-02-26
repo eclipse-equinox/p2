@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -51,7 +52,7 @@ public abstract class RepositoryManipulator {
 	 * Return an operation that could be used to add the specified URL as
 	 * a repository.
 	 */
-	public abstract RepositoryOperation getAddOperation(URI repoLocation);
+	public abstract AddRepositoryOperation getAddOperation(URI repoLocation);
 
 	/**
 	 * Return a String describing a possible add operation.  This is used 
@@ -63,7 +64,7 @@ public abstract class RepositoryManipulator {
 	 * Return an operation that could be used to remove the specified URL as
 	 * a repositories.
 	 */
-	public abstract RepositoryOperation getRemoveOperation(URI[] repoLocations);
+	public abstract RemoveRepositoryOperation getRemoveOperation(URI[] repoLocations);
 
 	/**
 	 * Return a String describing a possible remove operation.  This is used 
