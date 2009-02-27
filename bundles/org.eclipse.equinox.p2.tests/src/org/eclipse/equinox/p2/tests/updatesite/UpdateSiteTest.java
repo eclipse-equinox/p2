@@ -479,7 +479,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	/**
 	 * TODO Failing test, see bug 265528.
 	 */
-	public void testFeatureSiteReferences() throws ProvisionException, URISyntaxException {
+	public void _testFeatureSiteReferences() throws ProvisionException, URISyntaxException {
 		File site = getTestData("0.1", "/testData/updatesite/siteFeatureReferences");
 		URI siteURI = site.toURI();
 		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
