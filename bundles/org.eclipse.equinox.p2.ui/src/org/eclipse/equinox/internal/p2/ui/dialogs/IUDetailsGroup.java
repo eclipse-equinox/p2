@@ -51,7 +51,6 @@ public class IUDetailsGroup {
 	/**
 	 * Creates the group composite that holds the details area
 	 * @param parent The parent composite
-	 * @param selectionProvider The selection provider that controls which IU is selected
 	 */
 	void createGroupComposite(Composite parent) {
 		Group detailsComposite = new Group(parent, SWT.NONE);
