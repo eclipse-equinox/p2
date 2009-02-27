@@ -31,8 +31,10 @@ public class AdviceFileParserTest extends TestCase {
 
 	public void testPropertyAdvice() {
 		Map map = new HashMap();
-		map.put("properties.testName1", "testValue1");
-		map.put("properties.testName2", "testValue2");
+		map.put("properties.0.name", "testName1");
+		map.put("properties.0.value", "testValue1");
+		map.put("properties.1.name", "testName2");
+		map.put("properties.1.value", "testValue2");
 
 		AdviceFileParser parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
 		parser.parse();
@@ -156,8 +158,10 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("units.1.artifacts.1.classifier", "testClassifier2");
 		map.put("units.1.licenses.0", "testLicense");
 		map.put("units.1.licenses.0.location", "http://localhost/license");
-		map.put("units.1.properties.testName1", "testValue1");
-		map.put("units.1.properties.testName2", "testValue2");
+		map.put("units.1.properties.0.name", "testName1");
+		map.put("units.1.properties.0.value", "testValue1");
+		map.put("units.1.properties.1.name", "testName2");
+		map.put("units.1.properties.1.value", "testValue2");
 		map.put("units.1.requires.0.namespace", "testNamespace1");
 		map.put("units.1.requires.0.name", "testName1");
 		map.put("units.1.requires.0.range", "[1.2.3.$qualifier$, 2)");

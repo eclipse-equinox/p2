@@ -45,6 +45,7 @@ public class AdviceFileParser {
 	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final String NAME = "name"; //$NON-NLS-1$
 	private static final String LOCATION = "location"; //$NON-NLS-1$
+	private static final String VALUE = "value"; //$NON-NLS-1$
 
 	private static final String UNITS_PREFIX = "units."; //$NON-NLS-1$
 	private static final String INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
@@ -108,12 +109,30 @@ public class AdviceFileParser {
 
 	private void parseProperties(String prefix, Map properties) {
 		while (current != null && current.startsWith(prefix)) {
-			String propertyName = current.substring(prefix.length());
-			if (propertyName.indexOf('.') != -1)
-				throw new IllegalStateException();
-			properties.put(propertyName, currentValue());
+			int dotIndex = current.indexOf('.', prefix.length());
+			if (dotIndex == -1)
+				throw new IllegalStateException("bad token: " + current); //$NON-NLS-1$
+
+			parseProperty(current.substring(0, dotIndex + 1), properties);
+		}
+	}
+
+	private void parseProperty(String prefix, Map properties) {
+		String propertyName = null;
+		String propertyValue = null;
+		while (current != null && current.startsWith(prefix)) {
+			String token = current.substring(prefix.length());
+			if (token.equals(NAME)) {
+				propertyName = currentValue();
+			} else if (token.equals(VALUE)) {
+				propertyValue = currentValue();
+			} else {
+				// we ignore elements we do not understand
+			}
 			next();
 		}
+
+		properties.put(propertyName, propertyValue);
 	}
 
 	private void parseProvides(String prefix, List provides) {
