@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,7 @@ import java.util.*;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.osgi.util.NLS;
@@ -55,14 +54,11 @@ public class ProfilePreferences extends EclipsePreferences {
 		qualifier = getSegment(path, 2);
 	}
 
-	private IProfile computeProfile(String path) throws BackingStoreException {
-		String profileName = getSegment(path, 1);
+	private IProfile computeProfile(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 		IProfile result = null;
-		if (profileName != null && profileRegistry != null)
-			result = profileRegistry.getProfile(profileName);
-		if (result == null && !profileName.equals(IProfileRegistry.SELF))
-			throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_Profile_not_found, profileName));
+		if (profileId != null && profileRegistry != null)
+			result = profileRegistry.getProfile(profileId);
 		return result;
 	}
 
@@ -108,10 +104,19 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected void load() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			IProfile profile = computeProfile(absolutePath());
-			//if there is no self profile, use a default location for preferences
+			String profileId = getSegment(absolutePath(), 1);
+			IProfile profile = computeProfile(profileId);
 			if (profile == null) {
-				load(getDefaultLocation());
+				//use the default location for the self profile, otherwise just do nothing and return
+				if (IProfileRegistry.SELF.equals(profileId)) {
+					File location = getDefaultLocation();
+					if (location != null) {
+						load(location);
+						return;
+					}
+				}
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 				return;
 			}
 			IEngine engine = (IEngine) ServiceHelper.getService(EngineActivator.getContext(), IEngine.SERVICE_NAME);
@@ -138,6 +143,10 @@ public class ProfilePreferences extends EclipsePreferences {
 	private File getDefaultLocation() {
 		//use engine agent location for preferences if there is no self profile
 		AgentLocation location = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.SERVICE_NAME);
+		if (location == null) {
+			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
+			return null;
+		}
 		return URLUtil.toFile(location.getDataArea(EngineActivator.ID));
 	}
 
@@ -147,10 +156,19 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected void save() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			IProfile profile = computeProfile(absolutePath());
-			//if there is no self profile, use a default location for preferences
+			String profileId = getSegment(absolutePath(), 1);
+			IProfile profile = computeProfile(profileId);
 			if (profile == null) {
-				save(getDefaultLocation());
+				//use the default location for the self profile, otherwise just do nothing and return
+				if (IProfileRegistry.SELF.equals(profileId)) {
+					File location = getDefaultLocation();
+					if (location != null) {
+						save(location);
+						return;
+					}
+				}
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 				return;
 			}
 			IEngine engine = (IEngine) ServiceHelper.getService(EngineActivator.getContext(), IEngine.SERVICE_NAME);
@@ -203,6 +221,8 @@ public class ProfilePreferences extends EclipsePreferences {
 
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile phaseProfile, Map parameters) {
 			File dataDirectory = (File) parameters.get(PARM_PROFILE_DATA_DIRECTORY);
+			if (dataDirectory == null)
+				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.ProfilePreferences_nullDir);
 			try {
 				save(dataDirectory);
 			} catch (BackingStoreException e) {
@@ -225,6 +245,8 @@ public class ProfilePreferences extends EclipsePreferences {
 
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile phaseProfile, Map parameters) {
 			File dataDirectory = (File) parameters.get(PARM_PROFILE_DATA_DIRECTORY);
+			if (dataDirectory == null)
+				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.ProfilePreferences_nullDir);
 			try {
 				load(dataDirectory);
 			} catch (BackingStoreException e) {

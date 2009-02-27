@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
 import org.eclipse.core.runtime.preferences.IPreferencesService;
@@ -16,16 +26,18 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		prefServ = (IPreferencesService) ServiceHelper.getService(TestActivator.context, IPreferencesService.class.getName());
 	}
 
-	//	public void testInvalidProfile() {
-	//
-	//		boolean exceptionThrown = false;
-	//		try {
-	//			prefServ.getRootNode().node("/profile/NonExistantProfile/testing");
-	//		} catch (IllegalArgumentException e) {
-	//			exceptionThrown = true;
-	//		}
-	//		assertTrue("IllegalArgumentException not thrown for non-existant profile", exceptionThrown);
-	//	}
+	/**
+	 * Tests that a node corresponding to a non-existent profile cannot be persisted.
+	 */
+	public void testInvalidProfile() {
+		try {
+			//reading and storing for a non-existent profile shouldn't cause any errors
+			Preferences node = prefServ.getRootNode().node("/profile/NonExistantProfile/testing");
+			node.sync();
+		} catch (BackingStoreException e) {
+			fail("1.0", e);
+		}
+	}
 
 	public void testProfilePreference() {
 		Preferences pref = null;

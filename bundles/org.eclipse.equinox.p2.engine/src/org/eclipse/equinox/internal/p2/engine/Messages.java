@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,8 @@ class Messages extends NLS {
 
 	public static String ProfilePreferences_save_failed;
 	public static String ProfilePreferences_load_failed;
+
+	public static String ProfilePreferences_nullDir;
 	public static String ProfilePreferences_Profile_not_found;
 
 	public static String reg_dir_not_available;
