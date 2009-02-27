@@ -8,7 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -77,6 +79,16 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation() {
-		fail("Explanation API not defined yet!");
+		//The update of the feature is expected to fail because the patches are installed without flexibility (strict mode) 
+		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
+		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
+		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
+		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set conflictingRoot = plan.getRequestStatus().getConflictsWithInstalledRoots();
+		assertEquals(1, conflictingRoot.size());
+		assertTrue(conflictingRoot.contains(p2Feature20));
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
 	}
 }

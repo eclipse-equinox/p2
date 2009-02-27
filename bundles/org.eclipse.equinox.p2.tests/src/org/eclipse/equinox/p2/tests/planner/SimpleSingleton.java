@@ -9,10 +9,10 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -51,6 +51,11 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	}
 
 	public void testExplanation() {
-		fail("Explanation API not defined yet!");
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {y});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
 	}
 }
