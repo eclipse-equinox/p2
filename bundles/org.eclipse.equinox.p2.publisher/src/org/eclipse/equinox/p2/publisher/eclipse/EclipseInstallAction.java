@@ -100,7 +100,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	}
 
 	protected IPublisherAction createJREAction() {
-		return new JREAction(info, null);
+		return new JREAction((File) null);
 	}
 
 	protected IPublisherAction createApplicationExecutableAction(String[] configSpecs) {

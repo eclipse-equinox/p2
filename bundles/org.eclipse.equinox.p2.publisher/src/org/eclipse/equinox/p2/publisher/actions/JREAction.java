@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -27,50 +28,69 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
 
 public class JREAction extends AbstractPublisherAction {
-
+	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "/profiles/JavaSE-1.6.profile"; //$NON-NLS-1$
+	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
+	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
+	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
+	private static final String PROFILE_SYSTEM_PACKAGES = "org.osgi.framework.system.packages"; //$NON-NLS-1$
 
-	private File location;
+	private File jreLocation;
+	private String environment;
+	private Properties profileProperties;
+
+	public JREAction(File location) {
+		this.jreLocation = location;
+	}
+
+	public JREAction(String environment) {
+
+		this.environment = environment;
+	}
+
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		initialize(publisherInfo);
+		IArtifactDescriptor artifact = createJREData(results);
+		if (artifact != null)
+			publishArtifact(artifact, new File[] {jreLocation}, null, publisherInfo, createRootPrefixComputer(jreLocation));
+		return Status.OK_STATUS;
+	}
 
 	/**
 	 * Creates IUs and artifact descriptors for the JRE.  The resulting IUs are added
 	 * to the given set, and the resulting artifact descriptor, if any, is returned.
 	 * If the jreLocation is <code>null</code>, default information is generated.
 	 */
-	public static IArtifactDescriptor createJREData(File jreLocation, IPublisherResult results) {
+	protected IArtifactDescriptor createJREData(IPublisherResult results) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(false);
-		String id = "a.jre"; //$NON-NLS-1$
-		Version version = DEFAULT_JRE_VERSION;
-		iu.setId(id);
-		iu.setVersion(version);
+		iu.setId(DEFAULT_JRE_NAME);
+		iu.setVersion(DEFAULT_JRE_VERSION);
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 
+		generateJREIUData(iu);
+
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configId = "config." + id;//$NON-NLS-1$
+		String configId = "config." + iu.getId();//$NON-NLS-1$
 		cu.setId(configId);
-		cu.setVersion(version);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, PublisherHelper.versionMax, true), null, false, false)});
+		cu.setVersion(iu.getVersion());
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, PublisherHelper.versionMax, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, version)});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 
 		if (jreLocation == null || !jreLocation.exists()) {
-			// set some reasonable defaults
-			iu.setVersion(version);
-			iu.setCapabilities(generateJRECapability(id, version, null));
-			results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
-
 			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+			results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 			results.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 			return null;
 		}
-		generateJREIUData(iu, id, version, jreLocation);
 
 		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER, id, version);
+		IArtifactKey key = new ArtifactKey(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER, iu.getId(), iu.getVersion());
 		iu.setArtifacts(new IArtifactKey[] {key});
 		results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
@@ -86,82 +106,136 @@ public class JREAction extends AbstractPublisherAction {
 		return PublisherHelper.createArtifactDescriptor(key, jreLocation);
 	}
 
-	private static IProvidedCapability[] generateJRECapability(String installableUnitId, Version installableUnitVersion, InputStream profileStream) {
-		if (profileStream == null) {
-			//use the 1.6 profile stored in the generator bundle
-			try {
-				profileStream = Activator.getContext().getBundle().getEntry("/profiles/JavaSE-1.6.profile").openStream(); //$NON-NLS-1$
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		Properties p = new Properties();
+	private IProvidedCapability[] generateJRECapability(String id, Version version) {
+		if (profileProperties == null)
+			return new IProvidedCapability[0];
+
 		try {
-			p.load(profileStream);
-			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages")); //$NON-NLS-1$ //$NON-NLS-2$
+			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, (String) profileProperties.get(PROFILE_SYSTEM_PACKAGES));
 			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
-			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(installableUnitId, installableUnitVersion);
+			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(id, version);
 			for (int i = 1; i <= jrePackages.length; i++) {
 				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null);
 			}
 			return exportedPackageAsCapabilities;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (BundleException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			if (profileStream != null) {
-				try {
-					profileStream.close();
-				} catch (IOException e) {
-					//ignore secondary failure
-				}
-			}
 		}
 		return new IProvidedCapability[0];
 	}
 
-	private static void generateJREIUData(InstallableUnitDescription iu, String installableUnitId, Version installableUnitVersion, File jreLocation) {
-		//Look for a JRE profile file to set version and capabilities
-		File[] profiles = jreLocation.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
+	private void generateJREIUData(InstallableUnitDescription iu) {
+		if (profileProperties == null || profileProperties.size() == 0)
+			return; //got nothing
+
+		String profileLocation = profileProperties.getProperty(PROFILE_LOCATION);
+
+		String profileName = profileLocation != null ? new Path(profileLocation).lastSegment() : profileProperties.getProperty(PROFILE_NAME);
+		if (profileName.endsWith(".profile")) //$NON-NLS-1$
+			profileName = profileName.substring(0, profileName.length() - 8);
+		Version version = null;
+		int idx = profileName.indexOf('-');
+		if (idx != -1) {
+			try {
+				version = new Version(profileName.substring(idx + 1));
+			} catch (IllegalArgumentException e) {
+				//ignore
 			}
-		});
-		if (profiles.length != 1) {
-			iu.setVersion(DEFAULT_JRE_VERSION);
-			iu.setCapabilities(generateJRECapability(installableUnitId, installableUnitVersion, null));
-			return;
+			profileName = profileName.substring(0, idx);
 		}
-		String profileName = new Path(profiles[0].getAbsolutePath()).lastSegment();
-		Version version = DEFAULT_JRE_VERSION;
-		//TODO Find a better way to determine JRE version
-		if (profileName.indexOf("1.6") > 0) { //$NON-NLS-1$
+		if (version == null) {
+			try {
+				String targetVersion = profileProperties.getProperty(PROFILE_TARGET_VERSION);
+				version = targetVersion != null ? new Version(targetVersion) : null;
+			} catch (IllegalArgumentException e) {
+				//ignore
+			}
+		}
+
+		if (version == null)
 			version = new Version("1.6"); //$NON-NLS-1$
-		} else if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
-			version = new Version("1.5"); //$NON-NLS-1$
-		} else if (profileName.indexOf("1.4") > 0) { //$NON-NLS-1$
-			version = new Version("1.4"); //$NON-NLS-1$
-		}
+
 		iu.setVersion(version);
-		try {
-			iu.setCapabilities(generateJRECapability(installableUnitId, installableUnitVersion, new FileInputStream(profiles[0])));
-		} catch (FileNotFoundException e) {
-			//Shouldn't happen, but ignore and fall through to use default
+
+		profileName = profileName.replace('-', '.');
+		profileName = profileName.replace('/', '.');
+		profileName = profileName.replace('_', '.');
+		iu.setId("a.jre." + profileName.toLowerCase()); //$NON-NLS-1$
+
+		IProvidedCapability[] capabilities = generateJRECapability(iu.getId(), iu.getVersion());
+		iu.setCapabilities(capabilities);
+	}
+
+	private void initialize(IPublisherInfo publisherInfo) {
+		this.info = publisherInfo;
+
+		if (jreLocation != null) {
+			//Look for a JRE profile file to set version and capabilities
+			File[] profiles = jreLocation.listFiles(new FileFilter() {
+				public boolean accept(File pathname) {
+					return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
+				}
+			});
+			if (profiles != null && profiles.length > 0) {
+				profileProperties = loadProfile(profiles[0]);
+			}
+		}
+		if (profileProperties == null) {
+			String entry = environment != null ? "/profiles/" + environment.replace('/', '_') + ".profile" : DEFAULT_PROFILE; //$NON-NLS-1$ //$NON-NLS-2$
+			URL profileURL = Activator.getContext().getBundle().getEntry(entry);
+			profileProperties = loadProfile(profileURL);
 		}
 	}
 
-	public JREAction(IPublisherInfo info, File location) {
-		this.location = location;
+	private Properties loadProfile(File profileFile) {
+		if (profileFile == null || !profileFile.exists())
+			return null;
+
+		try {
+			InputStream stream = new BufferedInputStream(new FileInputStream(profileFile));
+			Properties properties = loadProfile(stream);
+			if (properties != null)
+				properties.put(PROFILE_LOCATION, profileFile.getAbsolutePath());
+			return properties;
+		} catch (FileNotFoundException e) {
+			//null
+		}
+		return null;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
-		IArtifactDescriptor artifact = createJREData(location, results);
-		if (artifact != null)
-			publishArtifact(artifact, new File[] {location}, null, info, createRootPrefixComputer(location));
-		return Status.OK_STATUS;
+	private Properties loadProfile(URL profileURL) {
+		if (profileURL == null)
+			return null;
+
+		try {
+			InputStream stream = profileURL.openStream();
+			return loadProfile(stream);
+		} catch (IOException e) {
+			//null
+		}
+		return null;
 	}
 
+	/**
+	 * Always closes the stream when done
+	 */
+	private Properties loadProfile(InputStream stream) {
+		if (stream != null) {
+			try {
+				Properties properties = new Properties();
+				properties.load(stream);
+				return properties;
+			} catch (IOException e) {
+				return null;
+			} finally {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// error
+				}
+			}
+		}
+		return null;
+	}
 }

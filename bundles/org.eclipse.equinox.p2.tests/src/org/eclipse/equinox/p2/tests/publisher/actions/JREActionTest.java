@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings( {"unchecked"})
 public class JREActionTest extends ActionTest {
 
 	private File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
@@ -43,34 +43,34 @@ public class JREActionTest extends ActionTest {
 	}
 
 	public void test14() throws Exception {
-		// TODO currently failing so comment it out
-		if (DISABLED)
-			return;
-		testAction = new JREAction(publisherInfo, J14);
+		testAction = new JREAction(J14);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults(92, new Version("1.4.0")); //$NON-NLS-1$
-		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
+		verifyResults("a.jre.j2se", 92, new Version("1.4.0"), true); //$NON-NLS-1$
+		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void test15() throws Exception {
-		// TODO currently failing so comment it out
-		if (DISABLED)
-			return;
-		testAction = new JREAction(publisherInfo, J15);
+		testAction = new JREAction(J15);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults(119, new Version("1.5.0")); //$NON-NLS-1$
-		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
+		verifyResults("a.jre.j2se", 119, new Version("1.5.0"), true); //$NON-NLS-1$
+		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void test16() throws Exception {
-		testAction = new JREAction(publisherInfo, J16);
+		testAction = new JREAction(J16);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults(117, new Version("1.6.0")); //$NON-NLS-1$
-		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
+		verifyResults("a.jre.javase", 117, new Version("1.6.0"), true); //$NON-NLS-1$
+		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.javase,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	private void verifyResults(int numProvidedCapabilities, Version JREVersion) {
-		ArrayList fooIUs = new ArrayList(publisherResult.getIUs("a.jre", IPublisherResult.ROOT)); //$NON-NLS-1$
+	public void testOSGiMin() throws Exception {
+		testAction = new JREAction("OSGi/Minimum-1.2");
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		verifyResults("a.jre.osgi.minimum", 2, new Version("1.2.0"), false); //$NON-NLS-1$
+	}
+
+	private void verifyResults(String id, int numProvidedCapabilities, Version JREVersion, boolean testInstructions) {
+		ArrayList fooIUs = new ArrayList(publisherResult.getIUs(id, IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit foo = (IInstallableUnit) fooIUs.get(0);
 
@@ -85,20 +85,21 @@ public class JREActionTest extends ActionTest {
 		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
 		assertTrue(fooProvidedCapabilities.length == numProvidedCapabilities);
 
-		ArrayList barIUs = new ArrayList(publisherResult.getIUs("config.a.jre", IPublisherResult.ROOT)); //$NON-NLS-1$
+		ArrayList barIUs = new ArrayList(publisherResult.getIUs("config." + id, IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(barIUs.size() == 1);
 		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
 
-		Map instructions = bar.getTouchpointData()[0].getInstructions();
-		assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
-
+		if (testInstructions) {
+			Map instructions = bar.getTouchpointData()[0].getInstructions();
+			assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
+			assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		IRequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "a.jre", new VersionRange(JREVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
+		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
 		assertTrue(requiredCapability.length == 1);
 
 		IProvidedCapability[] providedCapability = bar.getProvidedCapabilities();
-		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config.a.jre", JREVersion); //$NON-NLS-1$ 
+		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, JREVersion); //$NON-NLS-1$ 
 		assertTrue(providedCapability.length == 1);
 
 		assertTrue(bar.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$

@@ -50,6 +50,7 @@ public class ProductAction extends AbstractPublisherAction {
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
 		// add the actions that just configure things.
 		actions.add(createConfigCUsAction());
+		actions.add(createJREAction());
 		actions.add(createDefaultCUsAction());
 		actions.add(createRootIUAction());
 		return (IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]);
@@ -69,6 +70,11 @@ public class ProductAction extends AbstractPublisherAction {
 
 	protected IPublisherAction createConfigCUsAction() {
 		return new ConfigCUsAction(info, flavor, id, version);
+	}
+
+	protected IPublisherAction createJREAction() {
+		//TODO set a proper execution environment
+		return new JREAction((String) null);
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
