@@ -43,6 +43,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	private static final String REPOSITORY_COUNT = "count"; //$NON-NLS-1$
 	private static final String KEY_URI = "uri"; //$NON-NLS-1$
 	private static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
+	private static final String KEY_NICKNAME = "nickname"; //$NON-NLS-1$
 
 	/**
 	 * Returns the repository manager of the given type, or <code>null</code>
@@ -61,18 +62,20 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Associates the repository described by the given event with the given profile.
 	 * Has no effect if the repository is already associated with this profile.
 	 */
-	protected void addRepositoryToProfile(Profile profile, URI location, int type, boolean enabled) {
+	protected void addRepositoryToProfile(Profile profile, URI location, String nickname, int type, boolean enabled) {
 		Preferences node = getRepositoryPreferenceNode(profile, location, type);
 		int count = 0;
 
 		if (repositoryExists(node)) {
-			count = getRepositoryCount(node);;
-			// If a user as added a repository we need to set the initial count manually
+			count = getRepositoryCount(node);
+			// If a user has added a repository we need to set the initial count manually
 			if (count == 0)
 				count = 1;
 		}
 		node.put(KEY_URI, location.toString());
 		node.put(KEY_ENABLED, Boolean.toString(enabled));
+		if (nickname != null)
+			node.put(KEY_NICKNAME, nickname);
 		count++;
 		setRepositoryCount(node, count);
 		try {
@@ -87,23 +90,27 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 */
 	protected void addToSelf(RepositoryEvent event) {
 		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
-		Preferences node = getRepositoryPreferenceNode(null, event.getRepositoryLocation(), event.getRepositoryType());
+		final URI location = event.getRepositoryLocation();
+		Preferences node = getRepositoryPreferenceNode(null, location, event.getRepositoryType());
 
 		int count = getRepositoryCount(node);
-		if (manager.contains(event.getRepositoryLocation())) {
+		if (manager.contains(location)) {
 			// If a user as added a repository we need to set the initial count manually
 			if (count == 0)
 				count = 1;
 		} else {
 			if (manager != null)
-				manager.addRepository(event.getRepositoryLocation());
+				manager.addRepository(location);
 		}
 		// increment the counter & send to preferences
 		count++;
 		setRepositoryCount(node, count);
 
 		if (!event.isRepositoryEnabled())
-			manager.setEnabled(event.getRepositoryLocation(), false);
+			manager.setEnabled(location, false);
+		final String name = event.getRepositoryNickname();
+		if (name != null)
+			manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 	}
 
 	protected RepositoryEvent createEvent(Map parameters) throws CoreException {
@@ -125,10 +132,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 		} catch (NumberFormatException e) {
 			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_TYPE, getId()), e));
 		}
+		String name = (String) parameters.get(ActionConstants.PARM_REPOSITORY_NICKNAME);
 		//default is to be enabled
 		String enablement = (String) parameters.get(ActionConstants.PARM_REPOSITORY_ENABLEMENT);
 		boolean enabled = enablement == null ? true : Boolean.valueOf(enablement).booleanValue();
-		return new RepositoryEvent(location, type, RepositoryEvent.DISCOVERED, enabled);
+		return RepositoryEvent.newDiscoveryEvent(location, name, type, enabled);
 	}
 
 	/**

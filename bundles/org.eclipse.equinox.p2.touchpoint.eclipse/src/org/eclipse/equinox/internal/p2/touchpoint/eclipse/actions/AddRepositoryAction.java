@@ -26,7 +26,7 @@ public class AddRepositoryAction extends RepositoryAction {
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryType(), event.isRepositoryEnabled());
+				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
 			if (isSelfProfile(profile))
 				addToSelf(event);
