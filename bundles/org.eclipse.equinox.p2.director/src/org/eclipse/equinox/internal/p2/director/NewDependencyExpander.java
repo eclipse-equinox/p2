@@ -28,7 +28,7 @@ import org.osgi.framework.InvalidSyntaxException;
  */
 public class NewDependencyExpander {
 
-	private class Match {
+	private static class Match {
 		/**
 		 * The {@link IInstallableUnit}s satisfying this requirement.
 		 */
@@ -59,7 +59,7 @@ public class NewDependencyExpander {
 	/**
 	 * Represents a requirement name in the map of required capabilities.
 	 */
-	private class MatchKey {
+	private static class MatchKey {
 		String name;
 		String namespace;
 
@@ -85,7 +85,7 @@ public class NewDependencyExpander {
 	}
 
 	// Installable units that are optional have a dependency on themselves.
-	private class OptionalInstallableUnit implements IInstallableUnit {
+	private static class OptionalInstallableUnit implements IInstallableUnit {
 		private boolean optionalReqs;
 		private IInstallableUnit wrapped;
 

@@ -8,8 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -74,5 +73,19 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
+	}
+
+	public void testExplanation() {
+		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
+		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
+		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
+		Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();
+		System.out.println(problems);
+		System.out.println(plan3.getRequestStatus().getExplanations());
+		assertEquals(3, problems.size());
+		assertTrue(problems.contains(a1));
+		assertTrue(problems.contains(p1));
+		assertTrue(problems.contains(pp1));
 	}
 }

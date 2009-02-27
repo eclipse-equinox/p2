@@ -51,7 +51,7 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(status, operands, computeActualChangeRequest(toState, changeRequest));
+		return new ProvisioningPlan(status, operands, computeActualChangeRequest(toState, changeRequest), null);
 	}
 
 	private Map[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
@@ -59,10 +59,10 @@ public class SimplePlanner implements IPlanner {
 		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
 		Map requestStatus = new HashMap(added.length + removed.length);
 		for (int i = 0; i < added.length; i++) {
-			requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+			requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR, null));
 		}
 		for (int i = 0; i < removed.length; i++) {
-			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR, null));
 		}
 		return new Map[] {requestStatus, null};
 	}
@@ -73,16 +73,16 @@ public class SimplePlanner implements IPlanner {
 		Map requestStatus = new HashMap(added.length + removed.length);
 		for (int i = 0; i < added.length; i++) {
 			if (toState.contains(added[i]))
-				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.OK));
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.OK, null));
 			else
-				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR));
+				requestStatus.put(added[i], new RequestStatus(added[i], RequestStatus.ADDED, IStatus.ERROR, null));
 		}
 
 		for (int i = 0; i < removed.length; i++) {
 			if (!toState.contains(removed[i]))
-				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.OK));
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.OK, null));
 			else
-				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR));
+				requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR, null));
 		}
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
@@ -92,7 +92,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator iterator = includedIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit removal = (IInstallableUnit) iterator.next();
 			if (!requestStatus.containsKey(removal))
-				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO));
+				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO, null));
 		}
 		return new Map[] {requestStatus, sideEffectStatus};
 	}
@@ -109,33 +109,35 @@ public class SimplePlanner implements IPlanner {
 		}
 		// Now deal with profile property changes/additions
 		Map propertyChanges = profileChangeRequest.getPropertiesToAdd();
-		Iterator iter = propertyChanges.keySet().iterator();
+		Iterator iter = propertyChanges.entrySet().iterator();
 		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			operands.add(new PropertyOperand(key, existingProperties.get(key), propertyChanges.get(key)));
+			Map.Entry entry = (Map.Entry) iter.next();
+			operands.add(new PropertyOperand((String) entry.getKey(), existingProperties.get(entry.getKey()), entry.getValue()));
 		}
 		// Now deal with iu property changes/additions.
 		// TODO we aren't yet checking that the IU will exist in the final profile, will the engine do this?
 		Map allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
-		iter = allIUPropertyChanges.keySet().iterator();
+		iter = allIUPropertyChanges.entrySet().iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			Map iuPropertyChanges = (Map) allIUPropertyChanges.get(iu);
-			Iterator iuPropIter = iuPropertyChanges.keySet().iterator();
+			Map.Entry entry = (Map.Entry) iter.next();
+			IInstallableUnit iu = (IInstallableUnit) entry.getKey();
+			Map iuPropertyChanges = (Map) entry.getValue();
+			Iterator iuPropIter = iuPropertyChanges.entrySet().iterator();
 			while (iuPropIter.hasNext()) {
-				String key = (String) iuPropIter.next();
-				Object oldValue = profile.getInstallableUnitProperty(iu, key);
-				operands.add(new InstallableUnitPropertyOperand(iu, key, oldValue, iuPropertyChanges.get(key)));
+				Map.Entry entry2 = (Map.Entry) iuPropIter.next();
+				Object oldValue = profile.getInstallableUnitProperty(iu, (String) entry2.getKey());
+				operands.add(new InstallableUnitPropertyOperand(iu, (String) entry2.getKey(), oldValue, entry2.getValue()));
 			}
 		}
 		// Now deal with iu property removals.
 		// TODO we could optimize by not generating property removals for IU's that aren't there or won't be there.
 		Map allIUPropertyDeletions = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove();
-		iter = allIUPropertyDeletions.keySet().iterator();
+		iter = allIUPropertyDeletions.entrySet().iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			Map.Entry entry = (Map.Entry) iter.next();
+			IInstallableUnit iu = (IInstallableUnit) entry.getKey();
 			Map existingIUProperties = profile.getInstallableUnitProperties(iu);
-			List iuPropertyRemovals = (List) allIUPropertyDeletions.get(iu);
+			List iuPropertyRemovals = (List) entry.getValue();
 			for (Iterator it = iuPropertyRemovals.iterator(); it.hasNext();) {
 				String key = (String) it.next();
 				if (existingIUProperties.containsKey(key))
@@ -258,7 +260,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			IProfile profile = profileChangeRequest.getProfile();
 
-			IInstallableUnit[] allIUs = updatePlannerInfo(profileChangeRequest);
+			Object[] updatedPlan = updatePlannerInfo(profileChangeRequest);
 
 			URI[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
@@ -271,23 +273,23 @@ public class SimplePlanner implements IPlanner {
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext);
-			IQueryable slice = slicer.slice(allIUs, sub.newChild(ExpandWork / 4));
+			IQueryable slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus());
 			Projector projector = new Projector(slice, newSelectionContext);
-			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
+			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
 				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
-				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
-				//We invoke the old resolver to get explanations for now
-				IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-				if (!oldResolverStatus.isOK())
-					s = oldResolverStatus;
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest));
+
+				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
+				// IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
+
+				Set explanation = projector.getExplanation();
+				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
@@ -295,7 +297,7 @@ public class SimplePlanner implements IPlanner {
 			s = Status.OK_STATUS;
 
 			Collection newState = projector.extractSolution();
-			newState.remove(allIUs[0]);
+			newState.remove(updatedPlan[0]);
 
 			ResolutionHelper newStateHelper = new ResolutionHelper(newSelectionContext, null);
 			newState = newStateHelper.attachCUs(newState);
@@ -321,18 +323,11 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	//The planner uses installable unit properties to keep track of what it has been asked to install. This updates this information
-	private IInstallableUnit[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
-		//Support for backward compatibility. Convert planner_marker properties into strict inclusion rules
-		Collector previousMarkers = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), PLANNER_MARKER, Boolean.TRUE.toString()), new Collector(), null);
-		for (Iterator iterator = previousMarkers.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			profileChangeRequest.setInstallableUnitInclusionRules(iu, PlannerHelper.createStrictInclusionRule(iu));
-			profileChangeRequest.removeInstallableUnitProfileProperty(iu, PLANNER_MARKER);
-		}
-
+	//It returns at index 0 a meta IU representing everything that needs to be installed
+	//It returns at index 1 all the IUs that are in the profile after the removal have been done, but before the addition have been done 
+	private Object[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
 		Collection includedIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection();
 		Collection alreadyInstalled = new HashSet(includedIUs);
-		alreadyInstalled.addAll(previousMarkers.toCollection());
 
 		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = profileChangeRequest.getRemovedInstallableUnits();
@@ -385,7 +380,7 @@ public class SimplePlanner implements IPlanner {
 			}
 			gatheredRequirements.add(profileRequirement);
 		}
-		return new IInstallableUnit[] {createIURepresentingTheProfile(gatheredRequirements)};
+		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), (IInstallableUnit[]) alreadyInstalled.toArray(new IInstallableUnit[alreadyInstalled.size()])};
 	}
 
 	private IRequiredCapability createRequirement(IInstallableUnit iu, String rule) {

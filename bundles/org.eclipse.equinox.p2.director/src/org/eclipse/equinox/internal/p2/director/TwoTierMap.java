@@ -132,7 +132,7 @@ public class TwoTierMap implements Map, Serializable {
 			}
 			return result;
 		}
-		Object result = (innerMap == null) ? null : innerMap.remove(key2);
+		Object result = innerMap.remove(key2);
 		if (result != null && innerMap.isEmpty()) {
 			this.outerMap.remove(key1);
 		}

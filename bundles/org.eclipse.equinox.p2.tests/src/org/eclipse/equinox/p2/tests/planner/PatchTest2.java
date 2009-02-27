@@ -8,9 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -89,5 +89,31 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 
+	}
+
+	public void testExplanation3() {
+		//p2 does not cause a1 to resolve therefore the application fails
+		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
+		req3.addInstallableUnits(new IInstallableUnit[] {a1, p2});
+		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getRequestStatus().getShortExplanation());
+		System.out.println(plan3.getRequestStatus().getExplanations());
+		Set conflictingRoot = plan3.getRequestStatus().getConflictsWithInstalledRoots();
+		assertTrue(conflictingRoot.contains(a1));
+		assertEquals(1, conflictingRoot.size());
+	}
+
+	public void testExplanation5() {
+		//p4 does not cause a1 to resolve therefore the application fails
+		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
+		req5.addInstallableUnits(new IInstallableUnit[] {a1, p4});
+		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan5.getRequestStatus().getShortExplanation());
+		System.out.println(plan5.getRequestStatus().getExplanations());
+		Set conflictingRoot = plan5.getRequestStatus().getConflictsWithInstalledRoots();
+		assertTrue(conflictingRoot.contains(a1));
+		assertEquals(1, conflictingRoot.size());
 	}
 }

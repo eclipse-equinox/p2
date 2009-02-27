@@ -8,11 +8,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -75,6 +76,20 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
+	public void testExplanation2() {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {y});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getRequestStatus().getExplanations();
+		System.out.println(explanation);
+		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
+		assertEquals(1, plan.getRequestStatus().getConflictsWithInstalledRoots().size());
+
+	}
+
 	public void test3() {
 		//Test that we can install A3 and A4 together
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
@@ -87,6 +102,19 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {w});
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
+	}
+
+	public void testExplanation4() {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {w});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getRequestStatus().getExplanations();
+		System.out.println(explanation);
+		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(w));
+
 	}
 
 	public void test5b() {
@@ -108,5 +136,19 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {u, v});
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
+	}
+
+	public void testExplanation5() {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(new IInstallableUnit[] {u, v});
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
+		Set explanation = plan.getRequestStatus().getExplanations();
+		assertFalse(explanation.isEmpty());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(u));
+		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(v));
+		System.out.println(explanation);
+
 	}
 }

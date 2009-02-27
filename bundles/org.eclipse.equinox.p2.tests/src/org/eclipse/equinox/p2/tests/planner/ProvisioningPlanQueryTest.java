@@ -17,22 +17,22 @@ public class ProvisioningPlanQueryTest extends AbstractProvisioningTest {
 
 	public void testAddition() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(null, createIU("A"))};
-		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		assertEquals(0, new ProvisioningPlan(Status.OK_STATUS, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
+		assertEquals(0, new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 	}
 
 	public void testRemoval() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), null)};
-		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		assertEquals(0, new ProvisioningPlan(Status.OK_STATUS, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
+		assertEquals(0, new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 	}
 
 	public void testUpdate() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), createIU("B"))};
-		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		Collector c = new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		assertEquals(1, new ProvisioningPlan(Status.OK_STATUS, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, new ProvisioningPlan(Status.OK_STATUS, ops, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 	}
 }

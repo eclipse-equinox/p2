@@ -66,7 +66,8 @@ public class Recommendation {
 		} else if (minCompare > 0) {
 			resultMin = r1.getMinimum();
 			resultMinIncluded = r1.getIncludeMinimum();
-		} else if (minCompare == 0) {
+		} else {
+			// minCompare == 0
 			resultMin = r1.getMinimum();
 			resultMinIncluded = r1.getIncludeMinimum() && r2.getIncludeMinimum();
 		}
@@ -78,7 +79,8 @@ public class Recommendation {
 		} else if (maxCompare < 0) {
 			resultMax = r1.getMaximum();
 			resultMaxIncluded = r1.getIncludeMaximum();
-		} else if (maxCompare == 0) {
+		} else {
+			// maxCompare == 0
 			resultMax = r1.getMaximum();
 			resultMaxIncluded = r1.getIncludeMaximum() && r2.getIncludeMaximum();
 		}

@@ -8,9 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -57,6 +57,18 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
+	}
+
+	public void testExplanation() {
+		//The application of the patch does not succeed because there is no C matching the requirement imposed by the patch
+		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
+		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
+		assertEquals(Explanation.MISSING_REQUIREMENT, plan1.getRequestStatus().getShortExplanation());
+		Set conflictingRoots = plan1.getRequestStatus().getConflictsWithInstalledRoots();
+		assertEquals(1, conflictingRoots.size());
+		assertTrue(conflictingRoots.contains(p1));
 	}
 
 	public void testPatchApply() {

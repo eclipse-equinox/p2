@@ -23,18 +23,20 @@ public class ProvisioningPlan {
 	Operand[] operands;
 	Map actualChangeRequest;
 	Map sideEffectChanges;
+	RequestStatus globalRequestStatus;
 
 	public ProvisioningPlan(IStatus status) {
-		this(status, new Operand[0], null);
+		this(status, new Operand[0], null, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
 			this.actualChangeRequest = actualChangeRequest[0];
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
+		this.globalRequestStatus = globalStatus;
 	}
 
 	public IStatus getStatus() {
@@ -62,6 +64,10 @@ public class ProvisioningPlan {
 		if (actualChangeRequest == null)
 			return null;
 		return (RequestStatus) actualChangeRequest.get(iu);
+	}
+
+	public RequestStatus getRequestStatus() {
+		return globalRequestStatus;
 	}
 
 	public Map getSideEffectChanges() {
