@@ -168,13 +168,23 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private Collection createLauncherBundleInfo(Set ius) {
 		Collection result = new HashSet();
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher."); //$NON-NLS-1$
-		for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
-			IInstallableUnit object = (IInstallableUnit) iterator.next();
-			if (object.getId().endsWith(".source")) //$NON-NLS-1$
-				continue;
+		if (launchers.size() > 0) {
+			for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
+				IInstallableUnit object = (IInstallableUnit) iterator.next();
+				if (object.getId().endsWith(".source")) //$NON-NLS-1$
+					continue;
+				GeneratorBundleInfo temp = new GeneratorBundleInfo();
+				temp.setSymbolicName(object.getId());
+				temp.setVersion(object.getVersion().toString());
+				temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+				temp.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+				result.add(temp);
+			}
+		} else if (launcherConfig != null) {
+			String[] config = Generator.parseConfigSpec(launcherConfig);
+			//we want ws.os.arch
 			GeneratorBundleInfo temp = new GeneratorBundleInfo();
-			temp.setSymbolicName(object.getId());
-			temp.setVersion(object.getVersion().toString());
+			temp.setSymbolicName("org.eclipse.equinox.launcher." + config[1] + '.' + config[0] + '.' + config[2]); //$NON-NLS-1$
 			temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			temp.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			result.add(temp);

@@ -623,6 +623,7 @@ public class Generator {
 		}
 
 		List bundleInfoList = new ArrayList();
+		List defaults = new ArrayList();
 		if (info.addDefaultIUs())
 			bundleInfoList.addAll(info.getDefaultIUs(result.rootIUs));
 
@@ -632,7 +633,7 @@ public class Generator {
 			GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
 			IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
 			if (configuredIU == null) {
-				if (!generateRootIU)
+				if (!generateRootIU && data == null)
 					continue;
 				Query query = new InstallableUnitQuery(bundle.getSymbolicName());
 				Collector collector = new Collector();
@@ -657,8 +658,10 @@ public class Generator {
 			String filter = configuredIU == null ? null : configuredIU.getFilter();
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 			//the configuration unit should share the same platform filter as the IU being configured.
-			if (cu != null)
+			if (cu != null) {
 				result.rootIUs.add(cu);
+				defaults.add(cu);
+			}
 			String key = null;
 			if (productFile != null && productFile.useFeatures())
 				key = GeneratorResult.CONFIGURATION_CUS;
@@ -673,6 +676,12 @@ public class Generator {
 				set.add(cu);
 				result.configurationIUs.put(key, set);
 			}
+		}
+
+		IMetadataRepository metadataRepository = info.getMetadataRepository();
+		if (metadataRepository != null && !defaults.isEmpty()) {
+			// Product Query will run against the repo later in createProductIU, make sure these CUs are in before then
+			metadataRepository.addInstallableUnits((IInstallableUnit[]) defaults.toArray(new IInstallableUnit[defaults.size()]));
 		}
 	}
 
