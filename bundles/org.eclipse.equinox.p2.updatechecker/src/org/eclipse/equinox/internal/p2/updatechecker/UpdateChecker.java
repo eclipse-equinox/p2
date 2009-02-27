@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
-
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
 /**
  * Default implementation of {@link IUpdateChecker}.
@@ -145,7 +144,7 @@ public class UpdateChecker implements IUpdateChecker {
 				repoMgr.loadRepository(repositories[i], null);
 				available.add(repositories[i]);
 			} catch (ProvisionException e) {
-				//ignore unavailable repository
+				LogHelper.log(e.getStatus());
 			}
 		}
 		return (URI[]) available.toArray(new URI[available.size()]);
