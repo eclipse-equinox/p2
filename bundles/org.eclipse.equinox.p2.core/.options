@@ -13,6 +13,9 @@ org.eclipse.equinox.p2.core/generator/parsing=false
 #Detailed debugging information while saving/restoring the engine's install registry
 org.eclipse.equinox.p2.core/engine/installregistry=false
 
+#Detailed debugging information while saving/restoring profile preferences
+org.eclipse.equinox.p2.core/engine/profilepreferences=false
+
 #Detailed debugging information while saving/restoring metadata repositories
 org.eclipse.equinox.p2.core/metadata/parsing=false
 

@@ -33,6 +33,7 @@ public class Tracing {
 	public static boolean DEBUG_PLANNER_OPERANDS = false;
 	public static boolean DEBUG_PLANNER_PROJECTOR = false;
 	public static boolean DEBUG_RECONCILER = false;
+	public static boolean DEBUG_PROFILE_PREFERENCES = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -43,6 +44,7 @@ public class Tracing {
 				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
+				DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", false); //$NON-NLS-1$
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
 				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
 				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
