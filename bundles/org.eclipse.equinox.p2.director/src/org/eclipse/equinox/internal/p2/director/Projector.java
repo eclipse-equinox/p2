@@ -222,14 +222,6 @@ public class Projector {
 		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
 	}
 
-	//	private void createExistence(IInstallableUnit iu) throws ContradictionException {
-	//		IUVariable variable = newIUVariable(iu);
-	//		if (DEBUG) {
-	//			Tracing.debug(variable + "=1"); //$NON-NLS-1$
-	//		}
-	//		dependencyHelper.setTrue(variable, variable.toString());
-	//	}
-
 	// Check whether the requirement is applicable
 	private boolean isApplicable(IRequiredCapability req) {
 		String filter = req.getFilter();
@@ -557,27 +549,6 @@ public class Projector {
 		}
 		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
-
-	//	private void createImplication(PropositionalVariable[] left, PropositionalVariable right, String name) throws ContradictionException {
-	//		if (DEBUG) {
-	//			Tracing.debug(name + ": " + Arrays.toString(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
-	//		}
-	//		dependencyHelper.implication(left).implies(right).named(name);
-	//	}
-
-	//	private void createImplication(Object[] left, List right, String name) throws ContradictionException {
-	//		if (DEBUG) {
-	//			Tracing.debug(name + ": " + Arrays.toString(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
-	//		}
-	//		dependencyHelper.implication(left).implies(right.toArray()).named(name);
-	//	}
-
-	//	private void createImplication(PropositionalVariable left, PropositionalVariable[] right, String name) throws ContradictionException {
-	//		if (DEBUG) {
-	//			Tracing.debug(name + ": " + left + "->" + Arrays.toString(right)); //$NON-NLS-1$ //$NON-NLS-2$
-	//		}
-	//		dependencyHelper.implication(left).implies(right).named(name);
-	//	}
 
 	//Return IUPatches that are applicable for the given iu
 	private Collector getApplicablePatches(IInstallableUnit iu) {
