@@ -284,11 +284,11 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
-				if (!(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
+				LogHelper.log(s);
+				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
 					return new ProvisioningPlan(s);
 
 				boolean newExplanation = Boolean.getBoolean("p2.new.explanation"); //$NON-NLS-1$
-				LogHelper.log(s);
 				if (!newExplanation) {
 					//We invoke the old resolver to get explanations for now
 					IStatus oldResolverStatus = new NewDependencyExpander(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
