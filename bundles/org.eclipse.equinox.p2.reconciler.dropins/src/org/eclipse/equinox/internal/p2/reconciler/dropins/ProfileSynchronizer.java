@@ -44,6 +44,7 @@ public class ProfileSynchronizer {
 
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
+	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 	final IProfile profile;
 
 	final Map repositoryMap;
@@ -70,6 +71,8 @@ public class ProfileSynchronizer {
 			return Status.OK_STATUS;
 
 		ProvisioningContext context = getContext();
+		context.setProperty(EXPLANATION, Boolean.FALSE.toString());
+
 		ProfileChangeRequest request = createProfileChangeRequest(context);
 		String updatedCacheExtensions = synchronizeCacheExtensions();
 		if (request == null) {
@@ -79,7 +82,6 @@ public class ProfileSynchronizer {
 			}
 			return Status.OK_STATUS;
 		}
-
 		if (updatedCacheExtensions != null)
 			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
 
