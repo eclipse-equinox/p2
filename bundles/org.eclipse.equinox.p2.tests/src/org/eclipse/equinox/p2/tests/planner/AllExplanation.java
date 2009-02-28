@@ -9,6 +9,7 @@ public class AllExplanation extends TestCase {
 		suite.addTestSuite(ExplanationDeepConflict.class);
 		suite.addTestSuite(ExplanationForOptionalDependencies.class);
 		suite.addTestSuite(ExplanationForPartialInstallation.class);
+		suite.addTestSuite(ExplanationLargeConflict.class);
 		suite.addTestSuite(ExplanationSeveralConflictingRoots.class);
 		suite.addTestSuite(MissingDependency.class);
 		suite.addTestSuite(MissingNonGreedyRequirement.class);
