@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -243,6 +243,24 @@ public class ECFTransport {
 		return null;
 	}
 
+	/**
+	 * Check if the given exception represents a permission failure (401 for HTTP),
+	 * and throw a special marker exception if a permission failure was encountered.
+	 */
+	private void checkPermissionDenied(Throwable t) throws ProtocolException {
+		if (!(t instanceof IncomingFileTransferException))
+			return;
+		IncomingFileTransferException e = (IncomingFileTransferException) t;
+		if (e.getErrorCode() == 401)
+			throw ERROR_401;
+		//try to figure out if we have a 401 by parsing the exception message
+		IStatus status = e.getStatus();
+		Throwable exception = status.getException();
+		if (exception instanceof IOException)
+			if (exception.getMessage() != null && (exception.getMessage().indexOf(" 401 ") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+				throw ERROR_401;
+	}
+
 	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, IConnectContext context, final IProgressMonitor monitor) throws ProtocolException {
 		final IStatus[] result = new IStatus[1];
 		IFileTransferListener listener = new IFileTransferListener() {
@@ -287,20 +305,20 @@ public class ECFTransport {
 			retrievalContainer.setConnectContextForAuthentication(context);
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
-			if (e.getErrorCode() == 401)
-				throw ERROR_401;
-			//try to figure out if we have a 401 by parsing the exception message
-			IStatus status = e.getStatus();
-			Throwable exception = status.getException();
-			if (exception instanceof IOException) {
-				if (exception.getMessage() != null && (exception.getMessage().indexOf("401") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
-					throw ERROR_401;
-			}
-			return statusOn(target, status);
+			checkPermissionDenied(e);
+			return statusOn(target, e.getStatus());
 		} catch (FileCreateException e) {
 			return statusOn(target, e.getStatus());
 		}
 		waitFor(toDownload, result);
+		final Throwable exception = result[0].getException();
+		checkPermissionDenied(exception);
+		//if the transfer failed, return the underlying exception status, otherwise return top level DownloadStatus
+		if (exception instanceof IncomingFileTransferException) {
+			IStatus status = ((IncomingFileTransferException) exception).getStatus();
+			if (!status.isOK())
+				return statusOn(target, status);
+		}
 		return statusOn(target, result[0]);
 	}
 
