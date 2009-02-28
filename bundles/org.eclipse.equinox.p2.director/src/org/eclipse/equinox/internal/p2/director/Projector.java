@@ -200,7 +200,7 @@ public class Projector {
 				b.append(' ');
 				b.append(object.thing);
 			}
-			Tracing.debug("objective function: " + b);
+			Tracing.debug("objective function: " + b); //$NON-NLS-1$
 		}
 		dependencyHelper.setObjectiveFunction((WeightedObject[]) weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
 	}
@@ -597,17 +597,25 @@ public class Projector {
 
 	private void createAtMostOne(IInstallableUnit[] ius) throws ContradictionException {
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(ius)); //$NON-NLS-1$
+			StringBuffer b = new StringBuffer();
+			for (int i = 0; i < ius.length; i++) {
+				b.append(ius[i].toString());
+			}
+			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius)); //$NON-NLS-1$
+		dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius));
 	}
 
 	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
 		AbstractVariable[] vars = {v1, v2};
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
+			StringBuffer b = new StringBuffer();
+			for (int i = 0; i < vars.length; i++) {
+				b.append(vars[i].toString());
+			}
+			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT); //$NON-NLS-1$
+		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
 	}
 
 	private AbstractVariable getAbstractVariable() {
@@ -703,22 +711,22 @@ public class Projector {
 		long start = 0, stop;
 		if (DEBUG) {
 			start = System.currentTimeMillis();
-			Tracing.debug("Determining cause of failure: " + start);
+			Tracing.debug("Determining cause of failure: " + start); //$NON-NLS-1$
 		}
 		Set why;
 		try {
 			why = dependencyHelper.why();
 			if (DEBUG) {
 				stop = System.currentTimeMillis();
-				Tracing.debug("Explanation found: " + (stop - start));
-				Tracing.debug("Explanation:");
+				Tracing.debug("Explanation found: " + (stop - start)); //$NON-NLS-1$
+				Tracing.debug("Explanation:"); //$NON-NLS-1$
 				for (Iterator i = why.iterator(); i.hasNext();) {
 					Tracing.debug(i.next().toString());
 				}
 			}
 			return why;
 		} catch (TimeoutException e) {
+			return null;
 		}
-		return null;
 	}
 }
