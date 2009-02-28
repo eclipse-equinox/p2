@@ -56,7 +56,6 @@ public class Projector {
 	private Collection alreadyInstalledIUs;
 
 	static class AbstractVariable {
-		@Override
 		public String toString() {
 			return "AbstractVariable: " + hashCode();
 		}
@@ -373,7 +372,7 @@ public class Projector {
 					List matches = getApplicableMatches(req);
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
-							dependencyHelper.implication(iu).implies(patch).named(new Explanation.HardRequirement(iu, (IInstallableUnitPatch) null));
+							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, (IInstallableUnitPatch) null));
 						} else {
 							matches.add(patch);
 							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
@@ -540,7 +539,7 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		dependencyHelper.implication(left).implies(right.toArray()).named(name);
+		dependencyHelper.implication(new Object[] {left}).implies(right.toArray()).named(name);
 	}
 
 	private void createImplication(Object[] left, List right, Explanation name) throws ContradictionException {

@@ -3,7 +3,7 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.Arrays;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
-public abstract class Explanation implements Comparable<Explanation> {
+public abstract class Explanation implements Comparable {
 
 	private static final String HARD_DEPENDENCY = "Hard Dependency";
 	private static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
@@ -36,7 +36,6 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return IU_TO_INSTALL + ":" + iu;
 		}
 
-		@Override
 		public int orderValue() {
 			return 1;
 		}
@@ -53,7 +52,6 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return IU_INSTALLED + ":" + iu;
 		}
 
-		@Override
 		public int orderValue() {
 			return 2;
 		}
@@ -72,12 +70,10 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return IU_MISSING + ":" + iu + " missing required " + req;
 		}
 
-		@Override
 		public int orderValue() {
 			return 3;
 		}
 
-		@Override
 		public int shortAnswer() {
 			return MISSING_REQUIREMENT;
 		}
@@ -95,12 +91,10 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return SINGLETON_CONSTRAINT + ":" + Arrays.asList(ius);
 		}
 
-		@Override
 		public int orderValue() {
 			return 4;
 		}
 
-		@Override
 		public int shortAnswer() {
 			return VIOLATED_SINGLETON_CONSTRAINT;
 		}
@@ -133,7 +127,6 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return HARD_DEPENDENCY + ":" + (patch == null ? "" : patch.toString() + " ") + iu + "-> " + req;
 		}
 
-		@Override
 		public int orderValue() {
 			return 5;
 		}
@@ -145,17 +138,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return OPTIONAL_DEPENDENCY;
 		}
 
-		@Override
 		public int orderValue() {
 			// TODO Auto-generated method stub
 			return 6;
 		}
 	};
 
-	public int compareTo(Explanation arg0) {
-		if (this.orderValue() == arg0.orderValue()) {
-			return this.toString().compareTo(arg0.toString());
+	public int compareTo(Object arg0) {
+		Explanation exp = (Explanation) arg0;
+		if (this.orderValue() == exp.orderValue()) {
+			return this.toString().compareTo(exp.toString());
 		}
-		return this.orderValue() - arg0.orderValue();
+		return this.orderValue() - exp.orderValue();
 	}
 }
