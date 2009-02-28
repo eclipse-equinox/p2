@@ -14,14 +14,45 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 
+/**
+ * A preference implementation that stores preferences in the engine's profile
+ * data area. There is one preference file per profile, with an additional file
+ * that is used when there is no currently running profile.
+ */
 public class ProfilePreferences extends EclipsePreferences {
+	private static final long SAVE_SCHEDULE_DELAY = 500;
+	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
+
+	private class SaveJob extends Job {
+		SaveJob() {
+			super(Messages.ProfilePreferences_saving);
+			setSystem(true);
+		}
+
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				doSave();
+			} catch (BackingStoreException e) {
+				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
+			}
+			return Status.OK_STATUS;
+		}
+
+		public boolean belongsTo(Object family) {
+			return family == PROFILE_SAVE_JOB_FAMILY;
+		}
+	}
+
 	private int segmentCount;
 	private String qualifier;
 	//private IPath location;
@@ -30,6 +61,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	private static Set loadedNodes = new HashSet();
 
 	private Object profileLock;
+	private SaveJob saveJob;
 
 	public ProfilePreferences() {
 		this(null, null);
@@ -150,11 +182,30 @@ public class ProfilePreferences extends EclipsePreferences {
 		return URLUtil.toFile(location.getDataArea(EngineActivator.ID));
 	}
 
+	/**
+	 * Schedules the save job. This method is synchronized to protect lazily initialization 
+	 * of the save job instance.
+	 */
+	protected synchronized void save() {
+		if (saveJob == null)
+			saveJob = new SaveJob();
+		//only schedule a save if the engine bundle is still running
+		BundleContext context = EngineActivator.getContext();
+		if (context == null)
+			return;
+		try {
+			if (context.getBundle().getState() == Bundle.ACTIVE)
+				saveJob.schedule(SAVE_SCHEDULE_DELAY);
+		} catch (IllegalStateException e) {
+			//bundle has been stopped concurrently, so don't save
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * Create an Engine phase to save profile preferences
 	 */
-	protected void save() throws BackingStoreException {
+	protected void doSave() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getSegment(absolutePath(), 1);
 			IProfile profile = computeProfile(profileId);

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.Engine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
@@ -58,6 +59,8 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 	public void stop(BundleContext aContext) throws Exception {
 		tracker.close();
 		tracker = null;
+		//ensure there are no more profile preference save jobs running
+		Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
 
 		EngineActivator.context = null;
 	}

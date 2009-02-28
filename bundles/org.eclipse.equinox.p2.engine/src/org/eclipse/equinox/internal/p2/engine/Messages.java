@@ -39,6 +39,8 @@ class Messages extends NLS {
 	public static String Profile_Parent_Not_Found;
 
 	public static String ProfilePreferences_save_failed;
+
+	public static String ProfilePreferences_saving;
 	public static String ProfilePreferences_load_failed;
 
 	public static String ProfilePreferences_nullDir;

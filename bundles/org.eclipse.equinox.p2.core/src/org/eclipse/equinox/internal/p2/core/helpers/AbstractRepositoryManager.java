@@ -14,7 +14,6 @@ import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -44,24 +43,6 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	private class SaveJob extends Job {
-		SaveJob() {
-			super(Messages.repoMan_save);
-			setSystem(true);
-		}
-
-		protected IStatus run(IProgressMonitor monitor) {
-			try {
-				Preferences node = getPreferences();
-				if (node != null)
-					node.flush();
-			} catch (BackingStoreException e) {
-				log("Error while saving repositories in preferences", e); //$NON-NLS-1$
-			}
-			return Status.OK_STATUS;
-		}
-	}
-
 	public static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
 	public static final String EL_FACTORY = "factory"; //$NON-NLS-1$
 	public static final String EL_FILTER = "filter"; //$NON-NLS-1$
@@ -78,7 +59,6 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
-	private static final long SAVE_SCHEDULE_DELAY = 500;
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -99,8 +79,6 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Set used to manage exclusive load locks on repository locations.
 	 */
 	private Map loadLocks = new HashMap();
-
-	private final Job saveJob = new SaveJob();
 
 	protected AbstractRepositoryManager() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
@@ -897,7 +875,13 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Save the list of repositories to the file-system.
 	 */
 	private void saveToPreferences() {
-		saveJob.schedule(SAVE_SCHEDULE_DELAY);
+		try {
+			Preferences node = getPreferences();
+			if (node != null)
+				node.flush();
+		} catch (BackingStoreException e) {
+			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+		}
 	}
 
 	/* (non-Javadoc)
@@ -933,14 +917,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				}
 			}
 		}
-		if (changed)
+		if (changed) {
+			if (Tracing.DEBUG)
+				Tracing.debug("Unsaved preferences when shutting down " + getClass().getName()); //$NON-NLS-1$
 			saveToPreferences();
-		//if there is a save job waiting, make sure it runs immediately before we discard state
-		saveJob.wakeUp();
-		try {
-			saveJob.join();
-		} catch (InterruptedException e) {
-			//ignore
 		}
 		repositories = null;
 		unavailableRepositories = null;

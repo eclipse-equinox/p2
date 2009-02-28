@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.ProfilePreferences;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.service.prefs.BackingStoreException;
@@ -58,13 +60,26 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		} catch (BackingStoreException e) {
 			fail("Unable to write to preferences: " + e.getMessage());
 		}
+		waitForSave();
 
 		try {
 			pref.parent().removeNode();
 		} catch (BackingStoreException e) {
 			//
 		}
+		waitForSave();
 		pref = prefServ.getRootNode().node("/profile/_SELF_/testing");
-		assertTrue("Value not present after load", value.equals(pref.get(key, null)));
+		assertEquals("Value not present after load", value, pref.get(key, null));
+	}
+
+	/**
+	 * Wait for preferences to be flushed to disk
+	 */
+	private void waitForSave() {
+		try {
+			Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
+		} catch (InterruptedException e) {
+			fail("4.99", e);
+		}
 	}
 }
