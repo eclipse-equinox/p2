@@ -41,7 +41,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
-	private static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
 
 	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
@@ -708,6 +708,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		IMetadataRepository repo = metadataRepositoryManager.createRepository(location, "metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		metadataRepos.add(repo);
+		return repo;
+	}
+
+	protected IMetadataRepository loadMetadataRepository(URI location) throws ProvisionException {
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		IMetadataRepository repo = metadataRepositoryManager.loadRepository(location, null);
 		metadataRepos.add(repo);
 		return repo;
 	}
