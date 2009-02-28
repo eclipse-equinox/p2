@@ -283,13 +283,19 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
+				boolean oldExplanation = false;
 				LogHelper.log(s);
-
-				//Now gather the reasons why things did not resolve and put it in a map that will be passed to the provisioning plan
-				// IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
-
+				if (oldExplanation) {
+					//We invoke the old resolver to get explanations for now
+					IStatus oldResolverStatus = new NewDependencyExpander(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
+					if (!oldResolverStatus.isOK())
+						s = oldResolverStatus;
+					return new ProvisioningPlan(oldResolverStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, null));
+				}
+				//Invoke the new resolver
 				Set explanation = projector.getExplanation();
-				return new ProvisioningPlan(s, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
+				IStatus explanationStatus = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, explanation.toString(), null);
+				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
