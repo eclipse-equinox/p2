@@ -288,7 +288,9 @@ public class SimplePlanner implements IPlanner {
 				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
 					return new ProvisioningPlan(s);
 
-				boolean newExplanation = Boolean.getBoolean("p2.new.explanation"); //$NON-NLS-1$
+				boolean newExplanation = true;
+				if (System.getProperty("p2.new.explanation") != null && Boolean.getBoolean("p2.new.explanation") == false)
+					newExplanation = false;
 				if (!newExplanation) {
 					//We invoke the old resolver to get explanations for now
 					IStatus oldResolverStatus = new NewDependencyExpander(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
