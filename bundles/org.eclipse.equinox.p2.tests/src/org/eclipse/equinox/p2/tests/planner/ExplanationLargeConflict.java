@@ -30,6 +30,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 	private IProfile SDKprofile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		repo1 = loadMetadataRepository(getTestData("repo1", "testData/testLargeConflict/repo1").toURI());
 		repo2 = loadMetadataRepository(getTestData("repo2", "testData/testLargeConflict/repo2").toURI());
 
