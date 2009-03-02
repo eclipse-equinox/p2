@@ -89,7 +89,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 					descriptorStream = jInStream;
 				}
 				CompositeRepositoryIO io = new CompositeRepositoryIO();
-				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.XML_REPO_TYPE, sub.newChild(100));
+				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
 
 				CompositeArtifactRepository result = new CompositeArtifactRepository(resultState);
 

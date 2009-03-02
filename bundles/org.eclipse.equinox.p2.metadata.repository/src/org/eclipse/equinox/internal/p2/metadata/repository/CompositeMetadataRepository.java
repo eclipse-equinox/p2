@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
 public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository {
 
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
-	public static final String XML_REPO_TYPE = "metadataRepository"; //$NON-NLS-1$
+	public static final String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
@@ -259,7 +259,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 				output = jOutput;
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-			new CompositeRepositoryIO().write(toState(), output, XML_REPO_TYPE);
+			new CompositeRepositoryIO().write(toState(), output, PI_REPOSITORY_TYPE);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}

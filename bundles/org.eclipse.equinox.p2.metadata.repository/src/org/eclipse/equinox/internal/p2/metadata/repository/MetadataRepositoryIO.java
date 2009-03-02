@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import java.net.MalformedURLException;
-
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
@@ -96,9 +95,9 @@ public class MetadataRepositoryIO {
 		// Constants defining the structure of the XML for a MetadataRepository
 
 		// A format version number for metadata repository XML.
-		public static final String XML_VERSION = "1.0.0"; //$NON-NLS-1$
-		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
+		public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
+		public static final Version CURRENT_VERSION = new Version(1, 1, 0);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
 		// Constants for processing Instructions
 		public static final String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$
@@ -110,7 +109,7 @@ public class MetadataRepositoryIO {
 
 	protected XMLWriter.ProcessingInstruction[] createPI(Class repositoryClass) {
 		//TODO We should remove this processing instruction, but currently old clients rely on this. See bug 210450.
-		return new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeClassVersionInstruction(XMLConstants.PI_REPOSITORY_TARGET, repositoryClass, XMLConstants.CURRENT_VERSION)};
+		return new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(XMLConstants.PI_REPOSITORY_TARGET, XMLConstants.CURRENT_VERSION)};
 	}
 
 	// XML writer for a IMetadataRepository
@@ -163,8 +162,8 @@ public class MetadataRepositoryIO {
 			attribute(URI_ATTRIBUTE, reference.Location.toString());
 
 			try {
-			// we write the URL attribute for backwards compatibility with 3.4.x
-			// this attribute should be removed if we make a breaking format change.
+				// we write the URL attribute for backwards compatibility with 3.4.x
+				// this attribute should be removed if we make a breaking format change.
 				attribute(URL_ATTRIBUTE, URIUtil.toURL(reference.Location).toExternalForm());
 			} catch (MalformedURLException e) {
 				attribute(URL_ATTRIBUTE, reference.Location.toString());

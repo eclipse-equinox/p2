@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 public interface ProfileXMLConstants extends XMLConstants {
 
 	// A format version number for profile XML.
-	public static final Version CURRENT_VERSION = new Version(0, 0, 2);
+	public static final Version CURRENT_VERSION = new Version(0, 1, 0);
 	public static final Version COMPATIBLE_VERSION = new Version(0, 0, 1);
 	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 

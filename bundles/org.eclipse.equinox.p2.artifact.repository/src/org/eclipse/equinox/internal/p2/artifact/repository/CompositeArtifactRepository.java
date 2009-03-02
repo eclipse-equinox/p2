@@ -35,7 +35,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final public String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final public String CONTENT_FILENAME = "compositeArtifacts"; //$NON-NLS-1$
-	public static final String XML_REPO_TYPE = "artifactRepository"; //$NON-NLS-1$
+	public static final String PI_REPOSITORY_TYPE = "compositeArtifactRepository"; //$NON-NLS-1$
 
 	// locations of the children repositories... can be absolute or relative.
 	private List childrenURIs = new ArrayList();
@@ -414,7 +414,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 					os = jOs;
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-				new CompositeRepositoryIO().write(toState(), os, XML_REPO_TYPE);
+				new CompositeRepositoryIO().write(toState(), os, PI_REPOSITORY_TYPE);
 			} catch (IOException e) {
 				// TODO proper exception handling
 				e.printStackTrace();

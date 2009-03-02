@@ -15,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.ICompositeRepository;
 
 /*
  * Class used to persist a composite repository.
@@ -26,7 +25,7 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 	private static final Version CURRENT_VERSION = new Version(1, 0, 0);
 
 	public CompositeWriter(OutputStream output, String type) throws UnsupportedEncodingException {
-		super(output, new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeClassVersionInstruction(type, ICompositeRepository.class, CURRENT_VERSION)});
+		super(output, new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(type, CURRENT_VERSION)});
 		// TODO: add a processing instruction for the metadata version
 	}
 

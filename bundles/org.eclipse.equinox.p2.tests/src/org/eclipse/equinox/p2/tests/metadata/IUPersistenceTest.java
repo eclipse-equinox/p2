@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,15 +38,6 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (IU_TEST_TARGET.equals(target)) {
-					String clazz = extractPIClass(data);
-					try {
-						if (!Class.forName(clazz).equals(InstallableUnit.class)) {
-							throw new SAXException("Wrong class '" + clazz + "' in processing instruction"); //$NON-NLS-1$//$NON-NLS-2$
-						}
-					} catch (ClassNotFoundException e) {
-						throw new SAXException("InstallableUnit class '" + clazz + "' not found"); //$NON-NLS-1$//$NON-NLS-2$
-					}
-
 					Version iuTestVersion = extractPIVersion(target, data);
 					if (!IU_TEST_VERSION.equals(iuTestVersion)) {
 						throw new SAXException("Bad iu test version.");
@@ -133,7 +122,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	class IUStringWriter extends MetadataWriter {
 
 		public IUStringWriter(ByteArrayOutputStream stream) throws IOException {
-			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeClassVersionInstruction(IU_TEST_TARGET, InstallableUnit.class, IU_TEST_VERSION)});
+			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(IU_TEST_TARGET, IU_TEST_VERSION)});
 		}
 
 		public void writeTest(IInstallableUnit iu) {

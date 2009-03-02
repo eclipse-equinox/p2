@@ -342,7 +342,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	class ProfileStringWriter extends ProfileWriter {
 
 		public ProfileStringWriter(ByteArrayOutputStream stream) throws IOException {
-			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeClassVersionInstruction(PROFILE_TEST_TARGET, Profile.class, PROFILE_TEST_VERSION)});
+			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TEST_TARGET, PROFILE_TEST_VERSION)});
 		}
 
 		public void writeTest(IProfile[] profiles) {
@@ -397,15 +397,6 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (PROFILE_TEST_TARGET.equals(target)) {
-					String clazz = extractPIClass(data);
-					try {
-						if (!Class.forName(clazz).equals(Profile.class)) {
-							throw new SAXException("Wrong class '" + clazz + "' in processing instruction"); //$NON-NLS-1$//$NON-NLS-2$
-						}
-					} catch (ClassNotFoundException e) {
-						throw new SAXException("Profile class '" + clazz + "' not found"); //$NON-NLS-1$//$NON-NLS-2$
-					}
-
 					Version profileTestVersion = extractPIVersion(target, data);
 					if (!PROFILE_TEST_VERSION.equals(profileTestVersion)) {
 						throw new SAXException("Bad profile test version.");

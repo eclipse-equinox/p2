@@ -484,7 +484,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	static class Writer extends ProfileWriter {
 
 		public Writer(OutputStream output) throws IOException {
-			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeClassVersionInstruction(PROFILE_TARGET, Profile.class, ProfileXMLConstants.CURRENT_VERSION)});
+			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TARGET, ProfileXMLConstants.CURRENT_VERSION)});
 		}
 	}
 

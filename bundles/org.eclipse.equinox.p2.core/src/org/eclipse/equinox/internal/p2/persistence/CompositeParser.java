@@ -98,10 +98,6 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		public void processingInstruction(String target, String data) throws SAXException {
 			if (repositoryType.equals(target)) {
-				// TODO: should the root handler be constructed based on class
-				// 		 via an extension registry mechanism?
-				// String clazz = extractPIClass(data);
-				// TODO: version tolerance by extension
 				Version repositoryVersion = extractPIVersion(target, data);
 				if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
 					throw new SAXException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));

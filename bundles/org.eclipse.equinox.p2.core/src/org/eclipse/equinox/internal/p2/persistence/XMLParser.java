@@ -19,10 +19,10 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.osgi.util.tracker.ServiceTracker;
 import org.xml.sax.*;
 import org.xml.sax.ContentHandler;
@@ -501,12 +501,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	}
 
-	// Helpers for processing instructions that include a Class and/or a Version.
-
-	public String extractPIClass(String data) {
-		return extractPIAttribute(data, PI_CLASS_ATTRIBUTE);
-	}
-
+	// Helper for processing instructions that include a Version.
 	public Version extractPIVersion(String target, String data) {
 		return checkVersion(target, PI_VERSION_ATTRIBUTE, extractPIAttribute(data, PI_VERSION_ATTRIBUTE));
 	}

@@ -33,8 +33,8 @@ public class XMLWriter implements XMLConstants {
 			}
 		}
 
-		public static ProcessingInstruction makeClassVersionInstruction(String target, Class clazz, Version version) {
-			return new ProcessingInstruction(target, new String[] {PI_CLASS_ATTRIBUTE, PI_VERSION_ATTRIBUTE}, new String[] {clazz.getName(), version.toString()});
+		public static ProcessingInstruction makeTargetVersionInstruction(String target, Version version) {
+			return new ProcessingInstruction(target, new String[] {PI_VERSION_ATTRIBUTE}, new String[] {version.toString()});
 		}
 
 		public String toString() {
