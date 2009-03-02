@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import java.net.MalformedURLException;
+
 import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
@@ -159,6 +161,15 @@ public class MetadataRepositoryIO {
 		private void writeRepositoryReference(RepositoryReference reference) {
 			start(REPOSITORY_REFERENCE_ELEMENT);
 			attribute(URI_ATTRIBUTE, reference.Location.toString());
+
+			try {
+			// we write the URL attribute for backwards compatibility with 3.4.x
+			// this attribute should be removed if we make a breaking format change.
+				attribute(URL_ATTRIBUTE, URIUtil.toURL(reference.Location).toExternalForm());
+			} catch (MalformedURLException e) {
+				attribute(URL_ATTRIBUTE, reference.Location.toString());
+			}
+
 			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.Type));
 			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.Options));
 			end(REPOSITORY_REFERENCE_ELEMENT);

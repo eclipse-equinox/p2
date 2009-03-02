@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
@@ -258,8 +258,17 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			start(LICENSES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, 1);
 			start(LICENSE_ELEMENT);
-			if (license.getLocation() != null)
+			if (license.getLocation() != null) {
 				attribute(URI_ATTRIBUTE, license.getLocation().toString());
+
+				try {
+					// we write the URL attribute for backwards compatibility with 3.4.x
+					// this attribute should be removed if we make a breaking format change.
+					attribute(URL_ATTRIBUTE, URIUtil.toURL(license.getLocation()).toExternalForm());
+				} catch (MalformedURLException e) {
+					attribute(URL_ATTRIBUTE, license.getLocation().toString());
+				}
+			}
 			cdata(license.getBody(), true);
 			end(LICENSE_ELEMENT);
 			end(LICENSES_ELEMENT);
@@ -270,8 +279,16 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (copyright != null) {
 			start(COPYRIGHT_ELEMENT);
 			try {
-				if (copyright.getLocation() != null)
+				if (copyright.getLocation() != null) {
 					attribute(URI_ATTRIBUTE, copyright.getLocation().toString());
+					try {
+						// we write the URL attribute for backwards compatibility with 3.4.x
+						// this attribute should be removed if we make a breaking format change.
+						attribute(URL_ATTRIBUTE, URIUtil.toURL(copyright.getLocation()).toExternalForm());
+					} catch (MalformedURLException e) {
+						attribute(URL_ATTRIBUTE, copyright.getLocation().toString());
+					}
+				}
 			} catch (IllegalStateException ise) {
 				LogHelper.log(new Status(IStatus.INFO, Activator.ID, "Error writing the copyright URL: " + copyright.getLocation())); //$NON-NLS-1$
 			}
