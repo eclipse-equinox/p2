@@ -101,13 +101,13 @@ public class SimplePlanner implements IPlanner {
 	/**
 	 * Converts a set containing a list of resolver explanations into a human-readable status object.
 	 */
-	private IStatus convertExplanationToStatus(Set problems) {
-		if (problems == null)
+	private IStatus convertExplanationToStatus(Set explanations) {
+		if (explanations == null)
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
-		MultiStatus explanation = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
-		for (Iterator it = problems.iterator(); it.hasNext();)
-			explanation.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, it.next().toString()));
-		return explanation;
+		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
+		for (Iterator it = explanations.iterator(); it.hasNext();)
+			root.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, it.next().toString()));
+		return root;
 	}
 
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {

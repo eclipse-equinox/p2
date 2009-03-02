@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,6 @@ public class Messages extends NLS {
 	public static String Planner_Missing_opb_file;
 	public static String Planner_Timeout;
 	public static String Planner_Problems_resolving_plan;
-	public static String Planner_Trivial_exception;
 	public static String Planner_Unsatisfiable_problem;
 	public static String Planner_Unsatisfied_dependency;
 	public static String Planner_NoSolution;
