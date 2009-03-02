@@ -71,7 +71,7 @@ public class IUDetailsGroup {
 		gd.verticalIndent = Dialog.convertVerticalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_SPACING);
 		gd.heightHint = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
 		gd.widthHint = widthHint;
-		detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
+		detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
 		detailsArea.setLayoutData(gd);
 
 		gd = new GridData(SWT.END, SWT.BOTTOM, true, false);

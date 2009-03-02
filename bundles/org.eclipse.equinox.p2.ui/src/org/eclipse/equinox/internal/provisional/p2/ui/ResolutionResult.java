@@ -119,7 +119,8 @@ public class ResolutionResult {
 		// Now print the children status info (if there are children)
 		IStatus[] children = status.getChildren();
 		for (int i = 0; i < children.length; i++) {
-			buffer.append('\n');
+			if (buffer.length() > 0)
+				buffer.append('\n');
 			appendDetailText(children[i], buffer, indent + 1, true);
 		}
 	}
