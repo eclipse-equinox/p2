@@ -508,6 +508,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	void refreshRepository() {
 		final MetadataRepositoryElement[] selected = getSelectedElements();
 		final ProvisionException[] fail = new ProvisionException[1];
+		final boolean[] remove = new boolean[1];
+		remove[0] = false;
 		if (selected.length != 1)
 			return;
 		final URI location = selected[0].getLocation();
@@ -515,15 +517,38 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		try {
 			dialog.run(true, true, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
-					SubMonitor mon = SubMonitor.convert(monitor, NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
+					SubMonitor mon = SubMonitor.convert(monitor, NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 300);
 					try {
 						ProvUI.clearRepositoryNotFound(location);
-						ProvisioningUtil.refreshArtifactRepositories(new URI[] {location}, mon.newChild(50));
-						ProvisioningUtil.refreshMetadataRepositories(new URI[] {location}, mon.newChild(50));
+						// If the manager doesn't know this repo, refreshing it will not work.
+						// We temporarily add it, but we must remove it in case the user cancels out of this page.
+						if (!includesRepo(manipulator.getKnownRepositories(), location)) {
+							// Start a batch operation so we can swallow events
+							ProvUI.startBatchOperation();
+							AddRepositoryOperation op = manipulator.getAddOperation(location);
+							op.setNotify(false);
+							op.execute(mon.newChild(100));
+							remove[0] = true;
+						}
+						ProvisioningUtil.refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
+						ProvisioningUtil.refreshMetadataRepositories(new URI[] {location}, mon.newChild(100));
 					} catch (ProvisionException e) {
 						// Need to report after dialog is closed or the error dialog will disappear when progress
 						// disappears
 						fail[0] = e;
+					} finally {
+						// If we temporarily added a repo so we could read it, remove it.
+						if (remove[0]) {
+							RemoveRepositoryOperation op = manipulator.getRemoveOperation(new URI[] {location});
+							op.setNotify(false);
+							try {
+								op.execute(new NullProgressMonitor());
+							} catch (ProvisionException e) {
+								// Don't report
+							}
+							// stop swallowing events
+							ProvUI.endBatchOperation(false);
+						}
 					}
 				}
 			});
@@ -540,6 +565,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 		repositoryViewer.update(selected[0], null);
 		setDetails();
+	}
+
+	boolean includesRepo(URI[] repos, URI repo) {
+		for (int i = 0; i < repos.length; i++)
+			if (repos[i].equals(repo))
+				return true;
+		return false;
 	}
 
 	void toggleRepositoryEnablement() {

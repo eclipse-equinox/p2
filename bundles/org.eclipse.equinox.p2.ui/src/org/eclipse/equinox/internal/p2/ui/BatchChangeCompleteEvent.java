@@ -24,11 +24,18 @@ public class BatchChangeCompleteEvent extends EventObject {
 	private static final long serialVersionUID = -4513769756968621852L;
 
 	/**
+	 * When the batch event is received, do we treat it as notification
+	 * or ignore it?
+	 */
+	public boolean notify;
+
+	/**
 	 * Construct a new instance of this event.
 	 * @param source the source of the event
 	 */
-	public BatchChangeCompleteEvent(Object source) {
+	public BatchChangeCompleteEvent(Object source, boolean notify) {
 		super(source);
+		this.notify = notify;
 	}
 
 }
