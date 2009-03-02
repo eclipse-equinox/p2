@@ -105,8 +105,13 @@ public class SimplePlanner implements IPlanner {
 		if (explanations == null)
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
 		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
-		for (Iterator it = explanations.iterator(); it.hasNext();)
-			root.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, it.next().toString()));
+		for (Iterator it = explanations.iterator(); it.hasNext();) {
+			final Object next = it.next();
+			if (next instanceof Explanation)
+				root.add(((Explanation) next).toStatus());
+			else
+				root.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, next.toString()));
+		}
 		return root;
 	}
 

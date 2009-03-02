@@ -32,11 +32,14 @@ public class Messages extends NLS {
 	public static String Director_Unsatisfied_Dependencies;
 	public static String Director_Unsatisfied_Dependency;
 	public static String Explanation_alreadyInstalled;
+	public static String Explanation_from;
 	public static String Explanation_hardDependency;
 	public static String Explanation_missingRequired;
 	public static String Explanation_optionalDependency;
 	public static String Explanation_singleton;
+	public static String Explanation_to;
 	public static String Explanation_toInstall;
+	public static String Explanation_unsatisfied;
 
 	public static String Planner_Error_saving_opbfile;
 	public static String Planner_Format_error;
