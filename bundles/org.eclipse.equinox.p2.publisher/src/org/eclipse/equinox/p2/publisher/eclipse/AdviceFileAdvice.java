@@ -76,6 +76,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			String message = "An error occured while parsing advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
+			return;
 		}
 		touchpointInstructions = parser.getTouchpointInstructions();
 		providedCapabilities = parser.getProvidedCapabilities();
