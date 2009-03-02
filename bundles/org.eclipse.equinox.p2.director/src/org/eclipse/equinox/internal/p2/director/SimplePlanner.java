@@ -299,7 +299,7 @@ public class SimplePlanner implements IPlanner {
 					return new ProvisioningPlan(oldResolverStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, null));
 				}
 				//Invoke the new resolver
-				Set explanation = projector.getExplanation();
+				Set explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
 				IStatus explanationStatus = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, explanation.toString(), null);
 				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
 			}

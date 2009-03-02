@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
@@ -35,7 +36,7 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
+	static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private static boolean DEBUG_ENCODING = false;
 	private IQueryable picker;
 	private QueryableArray patches;
@@ -47,7 +48,7 @@ public class Projector {
 
 	private Dictionary selectionContext;
 
-	private DependencyHelper dependencyHelper;
+	DependencyHelper dependencyHelper;
 	private Collection solution;
 	private Collection assumptions;
 
@@ -59,6 +60,51 @@ public class Projector {
 		public String toString() {
 			return "AbstractVariable: " + hashCode();
 		}
+	}
+
+	/**
+	 * Job for computing SAT failure explanation in the background.
+	 */
+	class ExplanationJob extends Job {
+		private Set explanation;
+
+		public ExplanationJob() {
+			super(Messages.Planner_NoSolution);
+			//explanations cannot be canceled directly, so don't show it to the user
+			setSystem(true);
+		}
+
+		public boolean belongsTo(Object family) {
+			return family == ExplanationJob.this;
+		}
+
+		public Set getExplanationResult() {
+			return explanation;
+		}
+
+		protected IStatus run(IProgressMonitor monitor) {
+			long start = 0;
+			if (DEBUG) {
+				start = System.currentTimeMillis();
+				Tracing.debug("Determining cause of failure: " + start); //$NON-NLS-1$
+			}
+			try {
+				explanation = dependencyHelper.why();
+				if (DEBUG) {
+					long stop = System.currentTimeMillis();
+					Tracing.debug("Explanation found: " + (stop - start)); //$NON-NLS-1$
+					Tracing.debug("Explanation:"); //$NON-NLS-1$
+					for (Iterator i = explanation.iterator(); i.hasNext();) {
+						Tracing.debug(i.next().toString());
+					}
+				}
+			} catch (TimeoutException e) {
+				if (DEBUG)
+					Tracing.debug("Timeout while computing explanations"); //$NON-NLS-1$
+			}
+			return Status.OK_STATUS;
+		}
+
 	}
 
 	public Projector(IQueryable q, Dictionary context) {
@@ -703,26 +749,15 @@ public class Projector {
 		}
 	}
 
-	public Set getExplanation() {
-		long start = 0, stop;
-		if (DEBUG) {
-			start = System.currentTimeMillis();
-			Tracing.debug("Determining cause of failure: " + start); //$NON-NLS-1$
-		}
-		Set why;
+	public Set getExplanation(IProgressMonitor monitor) {
+		ExplanationJob job = new ExplanationJob();
+		job.schedule();
 		try {
-			why = dependencyHelper.why();
-			if (DEBUG) {
-				stop = System.currentTimeMillis();
-				Tracing.debug("Explanation found: " + (stop - start)); //$NON-NLS-1$
-				Tracing.debug("Explanation:"); //$NON-NLS-1$
-				for (Iterator i = why.iterator(); i.hasNext();) {
-					Tracing.debug(i.next().toString());
-				}
-			}
-			return why;
-		} catch (TimeoutException e) {
-			return null;
+			Job.getJobManager().join(job, monitor);
+		} catch (InterruptedException e) {
+			if (DEBUG)
+				Tracing.debug("Interupted while computing explanations"); //$NON-NLS-1$
 		}
+		return job.getExplanationResult();
 	}
 }
