@@ -757,6 +757,10 @@ public class Projector {
 		} catch (InterruptedException e) {
 			if (DEBUG)
 				Tracing.debug("Interupted while computing explanations"); //$NON-NLS-1$
+		} catch (OperationCanceledException e) {
+			//notify the job that we don't need it any more
+			job.cancel();
+			throw e;
 		}
 		return job.getExplanationResult();
 	}
