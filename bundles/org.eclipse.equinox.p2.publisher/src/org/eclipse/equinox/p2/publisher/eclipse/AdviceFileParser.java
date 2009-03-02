@@ -21,6 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 
 public class AdviceFileParser {
 
+	private static final String ADVICE_VERSION = "advice.version"; //$NON-NLS-1$
+
 	private static final String QUALIFIER_SUBSTITUTION = "$qualifier$"; //$NON-NLS-1$
 	private static final String VERSION_SUBSTITUTION = "$version$"; //$NON-NLS-1$
 
@@ -56,6 +58,9 @@ public class AdviceFileParser {
 	private static final String ARTIFACTS_PREFIX = "artifacts."; //$NON-NLS-1$
 	private static final String HOST_REQUIREMENTS_PREFIX = "hostRequirements."; //$NON-NLS-1$
 
+	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
+	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+
 	private Properties adviceProperties = new Properties();
 	private List adviceProvides = new ArrayList();
 	private List adviceRequires = new ArrayList();
@@ -75,6 +80,10 @@ public class AdviceFileParser {
 	}
 
 	public void parse() {
+		String adviceVersion = (String) advice.get(ADVICE_VERSION);
+		if (adviceVersion != null)
+			checkAdviceVersion(adviceVersion);
+
 		List keys = new ArrayList(advice.keySet());
 		Collections.sort(keys);
 
@@ -92,11 +101,19 @@ public class AdviceFileParser {
 				parseInstructions(INSTRUCTIONS_PREFIX, adviceInstructions);
 			else if (current.startsWith(UNITS_PREFIX))
 				parseUnits(UNITS_PREFIX, adviceOtherIUs);
-			else {
+			else if (current.equals(ADVICE_VERSION)) {
+				next();
+			} else {
 				// we ignore elements we do not understand
 				next();
 			}
 		}
+	}
+
+	private void checkAdviceVersion(String adviceVersion) {
+		Version version = new Version(adviceVersion);
+		if (!VERSION_TOLERANCE.isIncluded(version))
+			throw new IllegalStateException("bad version: " + version + ". Expected range was " + VERSION_TOLERANCE); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void next() {

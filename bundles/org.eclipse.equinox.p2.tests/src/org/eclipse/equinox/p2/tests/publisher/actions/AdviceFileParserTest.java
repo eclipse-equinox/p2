@@ -29,6 +29,22 @@ public class AdviceFileParserTest extends TestCase {
 		assertNull(parser.getTouchpointInstructions());
 	}
 
+	public void testAdviceVersion() {
+		Map map = new HashMap();
+		map.put("advice.version", "1.0");
+		AdviceFileParser parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
+		parser.parse();
+
+		map.put("advice.version", "999");
+		parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
+		try {
+			parser.parse();
+		} catch (IllegalStateException e) {
+			return;
+		}
+		fail("expected version parse problem");
+	}
+
 	public void testPropertyAdvice() {
 		Map map = new HashMap();
 		map.put("properties.0.name", "testName1");

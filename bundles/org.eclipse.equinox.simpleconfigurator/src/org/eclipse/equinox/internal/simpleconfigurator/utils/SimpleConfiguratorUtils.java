@@ -11,11 +11,16 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 public class SimpleConfiguratorUtils {
 
 	private static final String UNC_PREFIX = "//";
 	private static final String VERSION_PREFIX = "#version=";
+	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
+	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+
 	private static final String VERSION_1 = "1";
 	private static final String FILE_SCHEME = "file";
 	private static final String REFERENCE_PREFIX = "reference:";
@@ -40,7 +45,7 @@ public class SimpleConfiguratorUtils {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines
-				if (line.length() == 0) 
+				if (line.length() == 0)
 					continue;
 
 				if (line.startsWith("#")) {//$NON-NLS-1$
@@ -65,15 +70,15 @@ public class SimpleConfiguratorUtils {
 	public static void parseCommentLine(String line) {
 		// version
 		if (line.startsWith(VERSION_PREFIX)) {
-			String version = line.substring(VERSION_PREFIX.length());
-			if (!VERSION_1.equals(version))
+			String version = line.substring(VERSION_PREFIX.length()).trim();
+			if (!VERSION_TOLERANCE.isIncluded(new Version(version)))
 				throw new IllegalArgumentException("Invalid version: " + version);
 		}
 	}
 
 	public static BundleInfo parseBundleInfoLine(String line, URI base) {
 		// symbolicName,version,location,startLevel,markedAsStarted
-		StringTokenizer tok = new StringTokenizer(line, COMMA); 
+		StringTokenizer tok = new StringTokenizer(line, COMMA);
 		int numberOfTokens = tok.countTokens();
 		if (numberOfTokens < 5)
 			throw new IllegalArgumentException("Line does not contain at least 5 tokens: " + line);
@@ -178,8 +183,8 @@ public class SimpleConfiguratorUtils {
 			bundleLocation = location.toString();
 		}
 
-		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) 
-			bundleLocation = REFERENCE_PREFIX + bundleLocation; 
+		if (useReference && bundleLocation.startsWith(FILE_PREFIX))
+			bundleLocation = REFERENCE_PREFIX + bundleLocation;
 		return bundleLocation;
 	}
 }
