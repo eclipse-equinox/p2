@@ -132,7 +132,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		activateCopy(availableIUGroup.getStructuredViewer().getControl());
 
 		// Details area
-		iuDetailsGroup = new IUDetailsGroup(composite, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH));
+		iuDetailsGroup = new IUDetailsGroup(composite, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH), false);
 		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		// Controls for filtering/presentation/site selection

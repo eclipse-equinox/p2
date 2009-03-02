@@ -38,13 +38,15 @@ public class IUDetailsGroup {
 	private Link propLink;
 	private ISelectionProvider selectionProvider;
 	private int widthHint;
+	private boolean scrollable;
 
 	/**
 	 * 
 	 */
-	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint) {
+	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable) {
 		this.selectionProvider = selectionProvider;
 		this.widthHint = widthHint;
+		this.scrollable = scrollable;
 		createGroupComposite(parent);
 	}
 
@@ -71,7 +73,10 @@ public class IUDetailsGroup {
 		gd.verticalIndent = Dialog.convertVerticalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_SPACING);
 		gd.heightHint = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
 		gd.widthHint = widthHint;
-		detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
+		if (scrollable)
+			detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
+		else
+			detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
 		detailsArea.setLayoutData(gd);
 
 		gd = new GridData(SWT.END, SWT.BOTTOM, true, false);

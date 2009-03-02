@@ -120,7 +120,7 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		setInitialCheckState();
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
-		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH));
+		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), false);
 		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		setControl(sashForm);
