@@ -155,24 +155,22 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				// well as recognize specifically a user-add that resulted in
 				// the enablement of a repository.  
 				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=248989
-				if (!(event instanceof UIRepositoryEvent))
+				if (!(event instanceof UIRepositoryEvent)) {
 					return;
+				}
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
 
-			protected void refreshAll() {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						final TreeViewer treeViewer = filteredTree.getViewer();
-						final Tree tree = treeViewer.getTree();
-						IWorkbench workbench = PlatformUI.getWorkbench();
-						if (workbench.isClosing())
-							return;
-						if (tree != null && !tree.isDisposed()) {
-							treeViewer.setInput(getNewInput());
-						}
-					}
-				});
+			protected void refreshViewer() {
+				final TreeViewer treeViewer = filteredTree.getViewer();
+				final Tree tree = treeViewer.getTree();
+				IWorkbench workbench = PlatformUI.getWorkbench();
+				if (workbench.isClosing())
+					return;
+				if (tree != null && !tree.isDisposed()) {
+					treeViewer.setInput(getNewInput());
+				}
+
 			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);

@@ -83,7 +83,7 @@ abstract class RepositoriesView extends ProvView {
 	protected void addListeners() {
 		super.addListeners();
 		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes()) {
-			protected void refreshAll() {
+			protected void refreshViewer() {
 				RepositoriesView.this.refreshAll(false);
 			}
 		};

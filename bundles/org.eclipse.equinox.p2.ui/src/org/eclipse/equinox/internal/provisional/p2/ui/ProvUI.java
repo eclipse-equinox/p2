@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -277,11 +276,11 @@ public class ProvUI {
 
 	}
 
-	public static void addProvisioningListener(StructuredViewerProvisioningListener listener) {
+	public static void addProvisioningListener(ProvUIProvisioningListener listener) {
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 	}
 
-	public static void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
+	public static void removeProvisioningListener(ProvUIProvisioningListener listener) {
 		ProvUIActivator.getDefault().removeProvisioningListener(listener);
 	}
 
@@ -289,8 +288,8 @@ public class ProvUI {
 		ProvUIActivator.getDefault().signalBatchOperationStart();
 	}
 
-	public static void endBatchOperation() {
-		ProvUIActivator.getDefault().signalBatchOperationComplete();
+	public static void endBatchOperation(boolean notify) {
+		ProvUIActivator.getDefault().signalBatchOperationComplete(notify);
 	}
 
 	public static void openUpdateManagerInstaller(Event event) {

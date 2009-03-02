@@ -84,7 +84,7 @@ public class ElementUtils {
 				} catch (ProvisionException e) {
 					return e.getStatus();
 				} finally {
-					ProvUI.endBatchOperation();
+					ProvUI.endBatchOperation(true);
 				}
 				return Status.OK_STATUS;
 			}

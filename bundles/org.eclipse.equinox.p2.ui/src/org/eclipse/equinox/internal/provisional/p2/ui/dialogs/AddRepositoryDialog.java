@@ -44,6 +44,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url, nickname;
+	URI addedLocation;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
@@ -198,10 +199,22 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		return userLocation;
 	}
 
+	/**
+	 * Get the location of the repository that was added by this dialog.  Return <code>null</code>
+	 * if the dialog has not yet added a repository location.
+	 * 
+	 * @return the location of the repository that has been added by this dialog, or <code>null</code>
+	 * if no repository has been added.
+	 */
+	public URI getAddedLocation() {
+		return addedLocation;
+	}
+
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
-			AddRepositoryOperation op = getOperation(getUserLocation());
+			addedLocation = getUserLocation();
+			AddRepositoryOperation op = getOperation(addedLocation);
 			String nick = nickname.getText().trim();
 			if (nick.length() > 0)
 				op.setNicknames(new String[] {nick});

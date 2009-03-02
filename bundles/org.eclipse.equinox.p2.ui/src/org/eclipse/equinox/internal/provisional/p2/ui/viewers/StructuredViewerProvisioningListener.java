@@ -11,13 +11,9 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
-import java.util.EventObject;
-import org.eclipse.equinox.internal.p2.ui.BatchChangeBeginningEvent;
-import org.eclipse.equinox.internal.p2.ui.BatchChangeCompleteEvent;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIProvisioningListener;
+
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
@@ -33,59 +29,15 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @since 3.4
  */
-public class StructuredViewerProvisioningListener implements ProvisioningListener {
+public class StructuredViewerProvisioningListener extends ProvUIProvisioningListener {
 
-	public static final int PROV_EVENT_METADATA_REPOSITORY = 0x0001;
-	public static final int PROV_EVENT_IU = 0x0002;
-	public static final int PROV_EVENT_PROFILE = 0x0004;
-	public static final int PROV_EVENT_ARTIFACT_REPOSITORY = 0x0008;
-
-	int eventTypes = 0;
-	int batchCount = 0;
 	StructuredViewer viewer;
 	Display display;
 
 	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes) {
+		super(eventTypes);
 		this.viewer = viewer;
-		this.eventTypes = eventTypes;
 		this.display = viewer.getControl().getDisplay();
-	}
-
-	public void notify(EventObject o) {
-		if (o instanceof BatchChangeBeginningEvent) {
-			batchCount++;
-		} else if (o instanceof BatchChangeCompleteEvent) {
-			batchCount--;
-			if (batchCount <= 0)
-				asyncRefresh();
-		} else if (batchCount > 0) {
-			// We are in the middle of a batch operation
-			return;
-		} else if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
-			ProfileEvent event = (ProfileEvent) o;
-			if (event.getReason() == ProfileEvent.CHANGED) {
-				profileChanged(event.getProfileId());
-			} else if (event.getReason() == ProfileEvent.ADDED) {
-				profileAdded(event.getProfileId());
-			} else if (event.getReason() == ProfileEvent.REMOVED) {
-				profileRemoved(event.getProfileId());
-			}
-		} else if (o instanceof RepositoryEvent) {
-			RepositoryEvent event = (RepositoryEvent) o;
-			// Do not refresh unless this is the type of repo that we are interested in
-			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
-				if (event.getKind() == RepositoryEvent.ADDED) {
-					repositoryAdded(event);
-				} else if (event.getKind() == RepositoryEvent.REMOVED) {
-					repositoryRemoved(event);
-
-				} else if (event.getKind() == RepositoryEvent.DISCOVERED) {
-					repositoryDiscovered(event);
-				} else if (event.getKind() == RepositoryEvent.CHANGED) {
-					repositoryChanged(event);
-				}
-			}
-		}
 	}
 
 	/**
@@ -179,9 +131,13 @@ public class StructuredViewerProvisioningListener implements ProvisioningListene
 			public void run() {
 				if (isClosing())
 					return;
-				refreshAll();
+				refreshViewer();
 			}
 		});
+	}
+
+	protected void refreshAll() {
+		asyncRefresh();
 	}
 
 	/**
@@ -190,12 +146,8 @@ public class StructuredViewerProvisioningListener implements ProvisioningListene
 	 * model elements is refreshed before the viewer is refreshed.  This will 
 	 * always be called from the UI thread.
 	 */
-	protected void refreshAll() {
+	protected void refreshViewer() {
 		viewer.refresh();
-	}
-
-	public int getEventTypes() {
-		return eventTypes;
 	}
 
 	/**

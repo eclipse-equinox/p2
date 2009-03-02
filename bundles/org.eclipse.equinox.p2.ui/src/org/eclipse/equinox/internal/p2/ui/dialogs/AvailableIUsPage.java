@@ -14,14 +14,10 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
@@ -72,7 +68,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox;
 	Text detailsArea;
 	StructuredViewerProvisioningListener profileListener;
-	ProvisioningListener repoListener;
+	ProvUIProvisioningListener comboRepoListener;
 	Display display;
 	ControlDecoration repoDec;
 	Image info, warning, error;
@@ -129,7 +125,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 		});
 
-		addProvisioningListeners();
+		addViewerProvisioningListeners();
 
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		setDropTarget(availableIUGroup.getStructuredViewer().getControl());
@@ -327,6 +323,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			gd = new GridData(SWT.END, SWT.FILL, true, false);
 			gd.horizontalSpan = 3;
 			repoLink.setLayoutData(gd);
+
+			addComboProvisioningListeners();
 		}
 	}
 
@@ -544,6 +542,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// select that item.
 		if (!alwaysPrompt && !isNewText && selectionIndex != repoCombo.getSelectionIndex()) {
 			repoCombo.select(selectionIndex);
+
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy) {
 				protected AddRepositoryOperation getOperation(URI repositoryLocation) {
@@ -561,6 +560,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			};
 			dialog.setTitle(repoMan.getAddOperationLabel());
 			dialog.open();
+			URI location = dialog.getAddedLocation();
+			if (location != null)
+				fillRepoCombo(location.toString());
 		} else if (isNewText) {
 			try {
 				getContainer().run(false, false, new IRunnableWithProgress() {
@@ -579,6 +581,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 								RepositoryOperation op = repoMan.getAddOperation(location);
 								op.setNotify(false);
 								op.execute(monitor);
+								fillRepoCombo(location.toString());
 							} catch (ProvisionException e) {
 								// TODO Auto-generated catch block
 								ProvUI.handleException(e, null, StatusManager.SHOW);
@@ -649,10 +652,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 	}
 
-	void addProvisioningListeners() {
-		// We might need to adjust the content of this viewer according to installation
-		// changes.  We want to be very selective about refreshing.
-		profileListener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_PROFILE) {
+	void addViewerProvisioningListeners() {
+		// We might need to adjust the content of the available IU group's viewer
+		// according to installation changes.  We want to be very selective about refreshing,
+		// because the viewer has its own listeners installed.
+		profileListener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE) {
 			protected void profileAdded(String id) {
 				// do nothing
 			}
@@ -663,57 +667,33 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 			protected void profileChanged(String id) {
 				if (id.equals(profileId)) {
-					display.asyncExec(new Runnable() {
-						public void run() {
-							if (isClosing())
-								return;
-							refreshAll();
-						}
-					});
+					asyncRefresh();
 				}
 			}
 		};
-		ProvUI.addProvisioningListener(profileListener);
-		repoListener = new ProvisioningListener() {
 
-			public void notify(EventObject o) {
-				if (o instanceof BatchChangeBeginningEvent) {
-					batchCount++;
-				} else if (o instanceof BatchChangeCompleteEvent) {
-					batchCount--;
-					if (batchCount <= 0)
-						if (policy.getRepositoryManipulator() != null)
-							fillRepoCombo(null);
-						else
-							display.asyncExec(new Runnable() {
-								public void run() {
-									availableIUGroup.updateAvailableViewState();
-								}
-							});
-				} else if (batchCount > 0) {
-					// We are in the middle of a batch operation
-					return;
-				} else if (o instanceof RepositoryEvent) {
-					final RepositoryEvent event = (RepositoryEvent) o;
-					// Do not refresh unless this is the type of repo that we are interested in
-					if (event.getRepositoryType() == IRepository.TYPE_METADATA) {
-						if (event.getKind() == RepositoryEvent.ADDED && event.isRepositoryEnabled()) {
-							fillRepoCombo(event.getRepositoryLocation().toString());
-						} else if (event.getKind() == RepositoryEvent.REMOVED) {
-							fillRepoCombo(null);
-						} else if (event.getKind() == RepositoryEvent.ENABLEMENT) {
-							if (event.isRepositoryEnabled())
-								fillRepoCombo(event.getRepositoryLocation().toString());
-							else
-								fillRepoCombo(null);
-						}
-					}
+		ProvUI.addProvisioningListener(profileListener);
+	}
+
+	void addComboProvisioningListeners() {
+		// We need to monitor repository events so that we can adjust the repo combo.
+		comboRepoListener = new ProvUIProvisioningListener(ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+			protected void repositoryAdded(RepositoryEvent e) {
+				if (e instanceof UIRepositoryEvent) {
+					fillRepoCombo(e.getRepositoryLocation().toString());
 				}
 			}
+
+			protected void repositoryRemoved(RepositoryEvent e) {
+				fillRepoCombo(null);
+			}
+
+			protected void refreshAll() {
+				fillRepoCombo(null);
+			}
 		};
-		IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
-		if (bus != null)
-			bus.addListener(repoListener);
+		ProvUI.addProvisioningListener(comboRepoListener);
+
 	}
 
 	void removeProvisioningListeners() {
@@ -721,12 +701,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			ProvUI.removeProvisioningListener(profileListener);
 			profileListener = null;
 		}
-		if (repoListener != null) {
-			IProvisioningEventBus bus = ProvUIActivator.getDefault().getProvisioningEventBus();
-			if (bus != null)
-				bus.removeListener(repoListener);
-			repoListener = null;
+		if (comboRepoListener != null) {
+			ProvUI.removeProvisioningListener(comboRepoListener);
+			comboRepoListener = null;
 		}
+
 	}
 
 	void setRepoComboDecoration(IStatus status) {

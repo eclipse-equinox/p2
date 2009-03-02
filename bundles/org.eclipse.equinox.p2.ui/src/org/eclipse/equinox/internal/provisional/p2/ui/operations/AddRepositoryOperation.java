@@ -50,8 +50,8 @@ public abstract class AddRepositoryOperation extends RepositoryOperation {
 				setNickname(locations[i], nicknames[i]);
 			}
 		}
-		if (batched && notify)
-			ProvUI.endBatchOperation();
+		if (batched)
+			ProvUI.endBatchOperation(notify);
 		return status;
 	}
 

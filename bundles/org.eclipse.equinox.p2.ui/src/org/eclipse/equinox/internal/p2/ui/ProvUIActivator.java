@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningLis
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -140,7 +139,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		}
 	}
 
-	public void addProvisioningListener(StructuredViewerProvisioningListener listener) {
+	public void addProvisioningListener(ProvUIProvisioningListener listener) {
 		getProvisioningEventBus().addListener(listener);
 	}
 
@@ -148,8 +147,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getProvisioningEventBus().publishEvent(new BatchChangeBeginningEvent(this));
 	}
 
-	public void signalBatchOperationComplete() {
-		getProvisioningEventBus().publishEvent(new BatchChangeCompleteEvent(this));
+	public void signalBatchOperationComplete(boolean notify) {
+		getProvisioningEventBus().publishEvent(new BatchChangeCompleteEvent(this, notify));
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
@@ -159,7 +158,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
-	public void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
+	public void removeProvisioningListener(ProvUIProvisioningListener listener) {
 		getProvisioningEventBus().removeListener(listener);
 	}
 

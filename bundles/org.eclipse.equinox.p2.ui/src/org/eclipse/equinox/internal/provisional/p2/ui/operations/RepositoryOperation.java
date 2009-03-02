@@ -43,7 +43,7 @@ public abstract class RepositoryOperation extends ProvisioningOperation {
 		}
 		IStatus status = doBatchedExecute(monitor);
 		if (batched && notify)
-			ProvUI.endBatchOperation();
+			ProvUI.endBatchOperation(notify);
 		return status;
 	}
 
