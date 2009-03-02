@@ -1,22 +1,26 @@
+/*******************************************************************************
+ * Copyright (c) 2009 Daniel Le Berre and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors: 
+ *   Daniel Le Berre - initial API and implementation
+ *   IBM - ongoing development
+ ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.Arrays;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class Explanation implements Comparable {
-
-	private static final String HARD_DEPENDENCY = "Hard Dependency";
-	private static final String OPTIONAL_DEPENDENCY = "Optional Dependency";
-	private static final String SINGLETON_CONSTRAINT = "Singleton Constraint";
-	private static final String IU_TO_INSTALL = "IU to install";
-	private static final String IU_INSTALLED = "IU already installed";
-	private static final String IU_MISSING = "Missing Requirement";
 
 	public static final int MISSING_REQUIREMENT = 1;
 	public static final int VIOLATED_SINGLETON_CONSTRAINT = 2;
 
-	private Explanation() {
-		// no instance of that class for the moment
+	protected Explanation() {
+		super();
 	}
 
 	protected abstract int orderValue();
@@ -33,7 +37,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return IU_TO_INSTALL + ":" + iu;
+			return NLS.bind(Messages.Explanation_toInstall, iu);
 		}
 
 		public int orderValue() {
@@ -49,7 +53,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return IU_INSTALLED + ":" + iu;
+			return NLS.bind(Messages.Explanation_alreadyInstalled, iu);
 		}
 
 		public int orderValue() {
@@ -67,7 +71,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return IU_MISSING + ":" + iu + " missing required " + req;
+			return NLS.bind(Messages.Explanation_missingRequired, iu, req);
 		}
 
 		public int orderValue() {
@@ -88,7 +92,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return SINGLETON_CONSTRAINT + ":" + Arrays.asList(ius);
+			return NLS.bind(Messages.Explanation_singleton, Arrays.asList(ius));
 		}
 
 		public int orderValue() {
@@ -124,7 +128,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return HARD_DEPENDENCY + ":" + (patch == null ? "" : patch.toString() + " ") + iu + "-> " + req;
+			return NLS.bind(Messages.Explanation_hardDependency, (patch == null ? "" : patch.toString() + ' ') + iu, req); //$NON-NLS-1$
 		}
 
 		public int orderValue() {
@@ -135,7 +139,7 @@ public abstract class Explanation implements Comparable {
 	public static final Explanation OPTIONAL_REQUIREMENT = new Explanation() {
 
 		public String toString() {
-			return OPTIONAL_DEPENDENCY;
+			return Messages.Explanation_optionalDependency;
 		}
 
 		public int orderValue() {

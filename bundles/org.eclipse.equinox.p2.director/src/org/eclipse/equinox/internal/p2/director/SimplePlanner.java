@@ -98,6 +98,18 @@ public class SimplePlanner implements IPlanner {
 		return new Map[] {requestStatus, sideEffectStatus};
 	}
 
+	/**
+	 * Converts a set containing a list of resolver explanations into a human-readable status object.
+	 */
+	private IStatus convertExplanationToStatus(Set problems) {
+		if (problems == null)
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
+		MultiStatus explanation = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
+		for (Iterator it = problems.iterator(); it.hasNext();)
+			explanation.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, it.next().toString()));
+		return explanation;
+	}
+
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {
 		IProfile profile = profileChangeRequest.getProfile();
 		List operands = new ArrayList();
@@ -300,7 +312,8 @@ public class SimplePlanner implements IPlanner {
 				}
 				//Invoke the new resolver
 				Set explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
-				IStatus explanationStatus = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, explanation.toString(), null);
+				//				IStatus explanationStatus = new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, explanation.toString(), null);
+				IStatus explanationStatus = convertExplanationToStatus(explanation);
 				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation));
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.

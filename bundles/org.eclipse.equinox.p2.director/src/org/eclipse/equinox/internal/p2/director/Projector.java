@@ -101,6 +101,13 @@ public class Projector {
 			} catch (TimeoutException e) {
 				if (DEBUG)
 					Tracing.debug("Timeout while computing explanations"); //$NON-NLS-1$
+			} finally {
+				//must never have a null result, because caller is waiting on result to be non-null
+				if (explanation == null)
+					explanation = Collections.EMPTY_SET;
+			}
+			synchronized (this) {
+				ExplanationJob.this.notify();
 			}
 			return Status.OK_STATUS;
 		}
@@ -752,15 +759,27 @@ public class Projector {
 	public Set getExplanation(IProgressMonitor monitor) {
 		ExplanationJob job = new ExplanationJob();
 		job.schedule();
+		monitor.setTaskName(Messages.Planner_NoSolution);
+		IProgressMonitor pm = new InfiniteProgress(monitor);
+		pm.beginTask(Messages.Planner_NoSolution, 1000);
 		try {
-			Job.getJobManager().join(job, monitor);
-		} catch (InterruptedException e) {
-			if (DEBUG)
-				Tracing.debug("Interupted while computing explanations"); //$NON-NLS-1$
-		} catch (OperationCanceledException e) {
-			//notify the job that we don't need it any more
-			job.cancel();
-			throw e;
+			synchronized (job) {
+				while (job.getExplanationResult() == null) {
+					if (monitor.isCanceled()) {
+						job.cancel();
+						throw new OperationCanceledException();
+					}
+					pm.worked(1);
+					try {
+						job.wait(100);
+					} catch (InterruptedException e) {
+						if (DEBUG)
+							Tracing.debug("Interrupted while computing explanations"); //$NON-NLS-1$
+					}
+				}
+			}
+		} finally {
+			monitor.done();
 		}
 		return job.getExplanationResult();
 	}
