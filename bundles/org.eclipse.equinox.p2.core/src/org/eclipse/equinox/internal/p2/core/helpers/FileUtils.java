@@ -21,30 +21,35 @@ public class FileUtils {
 	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
 		TarFile tarFile = new TarFile(source);
 		List untarredFiles = new ArrayList();
-		for (Enumeration e = tarFile.entries(); e.hasMoreElements();) {
-			TarEntry entry = (TarEntry) e.nextElement();
-			InputStream input = tarFile.getInputStream(entry);
-			try {
-				File outFile = new File(outputDir, entry.getName());
-				untarredFiles.add(outFile);
-				if (entry.getFileType() == TarEntry.DIRECTORY) {
-					outFile.mkdirs();
-				} else {
-					if (outFile.exists())
-						outFile.delete();
-					else
-						outFile.getParentFile().mkdirs();
-					try {
-						copyStream(input, false, new FileOutputStream(outFile), true);
-					} catch (FileNotFoundException e1) {
-						// TEMP: ignore this for now in case we're trying to replace
-						// a running eclipse.exe
+		try {
+			for (Enumeration e = tarFile.entries(); e.hasMoreElements();) {
+				TarEntry entry = (TarEntry) e.nextElement();
+				InputStream input = tarFile.getInputStream(entry);
+				try {
+					File outFile = new File(outputDir, entry.getName());
+					outFile = outFile.getCanonicalFile(); //bug 266844
+					untarredFiles.add(outFile);
+					if (entry.getFileType() == TarEntry.DIRECTORY) {
+						outFile.mkdirs();
+					} else {
+						if (outFile.exists())
+							outFile.delete();
+						else
+							outFile.getParentFile().mkdirs();
+						try {
+							copyStream(input, false, new FileOutputStream(outFile), true);
+						} catch (FileNotFoundException e1) {
+							// TEMP: ignore this for now in case we're trying to replace
+							// a running eclipse.exe
+						}
+						outFile.setLastModified(entry.getTime());
 					}
-					outFile.setLastModified(entry.getTime());
+				} finally {
+					input.close();
 				}
-			} finally {
-				input.close();
 			}
+		} finally {
+			tarFile.close();
 		}
 		return (File[]) untarredFiles.toArray(new File[untarredFiles.size()]);
 	}
