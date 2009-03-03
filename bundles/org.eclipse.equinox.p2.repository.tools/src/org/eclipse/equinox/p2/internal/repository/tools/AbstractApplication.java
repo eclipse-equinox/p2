@@ -140,7 +140,10 @@ public abstract class AbstractApplication {
 		}
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
-		return mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+		IMetadataRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+		if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
+			result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
+		return result;
 	}
 
 	private IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
@@ -170,7 +173,10 @@ public abstract class AbstractApplication {
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		return mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+		IArtifactRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+		if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
+			result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
+		return result;
 	}
 
 	public IMetadataRepository getCompositeMetadataRepository() {
