@@ -78,7 +78,10 @@ public class ProfileSynchronizer {
 		if (request == null) {
 			if (updatedCacheExtensions != null) {
 				Operand operand = new PropertyOperand(CACHE_EXTENSIONS, null, updatedCacheExtensions);
-				return executeOperands(new Operand[] {operand}, context, null);
+				IStatus engineResult = executeOperands(new Operand[] {operand}, context, null);
+				if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
+					writeTimestamps();
+				return engineResult;
 			}
 			return Status.OK_STATUS;
 		}
@@ -89,24 +92,43 @@ public class ProfileSynchronizer {
 		try {
 			//create the provisioning plan
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
-
 			IStatus status = plan.getStatus();
-			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL || plan.getOperands().length == 0)
+			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 				return status;
 
+			Operand[] operands = plan.getOperands();
+			if (operands.length == 0 || containsOnlyInstallableUnitPropertyOperandAdditions(operands)) {
+				writeTimestamps();
+				return status;
+			}
+
 			//invoke the engine to perform installs/uninstalls
-			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
-
-			if (!engineResult.isOK())
+			IStatus engineResult = executeOperands(operands, context, sub.newChild(50));
+			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 				return engineResult;
-			writeTimestamps();
 
+			writeTimestamps();
 			applyConfiguration();
 
 			return status;
 		} finally {
 			sub.done();
 		}
+	}
+
+	// This is a special case that occurs where all IUs being installed are not compatible with the profile so
+	// the operands will have no affect if executed on the profile.
+	private boolean containsOnlyInstallableUnitPropertyOperandAdditions(Operand[] operands) {
+		for (int i = 0; i < operands.length; i++) {
+			if (!(operands[i] instanceof InstallableUnitPropertyOperand))
+				return false;
+
+			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) operands[i];
+			//check if this is a removal or update
+			if (iuPropertyOperand.first() != null)
+				return false;
+		}
+		return true;
 	}
 
 	private void writeTimestamps() {
@@ -413,11 +435,6 @@ public class ProfileSynchronizer {
 		} finally {
 			context.ungetService(reference);
 		}
-	}
-
-	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		Operand[] operands = plan.getOperands();
-		return executeOperands(operands, provisioningContext, monitor);
 	}
 
 	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
