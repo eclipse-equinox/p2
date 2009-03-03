@@ -153,21 +153,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public ProductFile(String location) throws Exception {
 		super();
 		this.location = new File(location);
-		//		try {
+
 		parserFactory.setNamespaceAware(true);
 		parser = parserFactory.newSAXParser();
 		InputStream in = new BufferedInputStream(new FileInputStream(location));
-		parser.parse(new InputSource(in), this);
+		try {
+			parser.parse(new InputSource(in), this);
+		} finally {
+			if (in != null)
+				in.close();
+		}
 		parser = null;
-		//		} catch (ParserConfigurationException e) {
-		//			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FORMAT, NLS.bind(Messages.exception_productParse, location), e));
-		//		} catch (SAXException e) {
-		//			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FORMAT, NLS.bind(Messages.exception_productParse, location), e));
-		//		} catch (FileNotFoundException e) {
-		//			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FILE, NLS.bind(Messages.exception_missingElement, location), null));
-		//		} catch (IOException e) {
-		//			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FORMAT, NLS.bind(Messages.exception_productParse, location), e));
-		//		}
 	}
 
 	/**
