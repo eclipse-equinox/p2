@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
@@ -21,6 +22,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class ChmodAction extends ProvisioningAction {
 	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
+	public static final String PARM_OPTIONS = "options"; //$NON-NLS-1$   // TODO: Move this to ActionConstants
 
 	public IStatus execute(Map parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -32,8 +34,30 @@ public class ChmodAction extends ProvisioningAction {
 		String permissions = (String) parameters.get(ActionConstants.PARM_PERMISSIONS);
 		if (permissions == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PERMISSIONS, ACTION_CHMOD));
+		String optionsString = (String) parameters.get(PARM_OPTIONS);
 
-		chmod(targetDir, targetFile, permissions);
+		String options[] = null;
+		if (optionsString != null) {
+			ArrayList collect = new ArrayList();
+			String r = optionsString.trim();
+			while (r.length() > 0) {
+				int spaceIdx = r.indexOf(' ');
+				if (spaceIdx < 0) {
+					collect.add(r);
+					r = ""; //$NON-NLS-1$
+				} else {
+					collect.add(r.substring(0, spaceIdx));
+					r = r.substring(spaceIdx + 1);
+					r = r.trim();
+				}
+			}
+			if (collect.size() > 0) {
+				options = new String[collect.size()];
+				collect.toArray(options);
+			}
+		}
+
+		chmod(targetDir, targetFile, permissions, options);
 		return Status.OK_STATUS;
 	}
 
@@ -42,10 +66,20 @@ public class ChmodAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public void chmod(String targetDir, String targetFile, String perms) {
+	public void chmod(String targetDir, String targetFile, String perms, String[] options) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			Process process = r.exec(new String[] {"chmod", perms, targetDir + IPath.SEPARATOR + targetFile}); //$NON-NLS-1$
+			// Note: 3 is from chmod, permissions, and target
+			String[] args = new String[3 + (options == null ? 0 : options.length)];
+			int i = 0;
+			args[i++] = "chmod"; //$NON-NLS-1$
+			if (options != null) {
+				for (int j = 0; j < options.length; j++)
+					args[i++] = options[j];
+			}
+			args[i++] = perms;
+			args[i] = targetDir + IPath.SEPARATOR + targetFile;
+			Process process = r.exec(args);
 			readOffStream(process.getErrorStream());
 			readOffStream(process.getInputStream());
 			try {
