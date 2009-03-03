@@ -23,7 +23,7 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools",
- org.eclipse.equinox.internal.provisional.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.ui,org.eclipse.equinox.p2.repository.tools"
+ org.eclipse.equinox.internal.provisional.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.ui,org.eclipse.equinox.p2.repository.tools,org.eclipse.equinox.p2.director.app"
 Import-Package: javax.xml.parsers,
  org.eclipse.core.internal.preferences,
  org.eclipse.core.runtime.preferences,

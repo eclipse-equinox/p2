@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.Property;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
@@ -78,7 +79,6 @@ public class Application implements IApplication {
 
 	private ServiceReference packageAdminRef;
 	private PackageAdmin packageAdmin;
-	private boolean needsToUpdateRoamingValues = false;
 
 	private void ambigousCommand(int cmd1, int cmd2) throws CoreException {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
@@ -130,8 +130,6 @@ public class Application implements IApplication {
 		if (profileId == null)
 			profileId = IProfileRegistry.SELF;
 		IProfile profile = ProvisioningHelper.getProfile(profileId);
-		if (profile != null && (ProvisioningHelper.getProfile(IProfileRegistry.SELF) != null && !profile.getProfileId().equals(ProvisioningHelper.getProfile(IProfileRegistry.SELF).getProfileId())))
-			needsToUpdateRoamingValues = true;
 		if (profile == null) {
 			if (destination == null)
 				missingArgument("destination"); //$NON-NLS-1$
@@ -530,8 +528,6 @@ public class Application implements IApplication {
 	}
 
 	private IStatus updateRoamingProperties(IProfile profile) {
-		if (!needsToUpdateRoamingValues)
-			return Status.OK_STATUS;
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			return Status.OK_STATUS;
@@ -543,11 +539,13 @@ public class Application implements IApplication {
 		if (request.getProfileProperties().size() == 0)
 			return Status.OK_STATUS;
 
-		ProvisioningPlan result = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		context.setArtifactRepositories(new URI[0]);
+		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
-		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new ProvisioningContext(), new NullProgressMonitor());
+		return engine.perform(profile, new PhaseSet(new Phase[] {new Property(1)}) {}, result.getOperands(), context, new NullProgressMonitor());
 	}
 
 	private static URI[] getURIs(String spec) {
