@@ -21,7 +21,6 @@ public class SimpleConfiguratorUtils {
 	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
-	private static final String VERSION_1 = "1";
 	private static final String FILE_SCHEME = "file";
 	private static final String REFERENCE_PREFIX = "reference:";
 	private static final String FILE_PREFIX = "file:";
