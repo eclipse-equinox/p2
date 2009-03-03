@@ -84,7 +84,7 @@ public class ProvisioningOperationRunner {
 					final Job thisJob = this;
 					try {
 						IStatus status = op.execute(monitor);
-						if (status != Status.OK_STATUS && noPrompt) {
+						if (status.isOK() && noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
