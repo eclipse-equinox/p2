@@ -17,6 +17,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.*;
 
 /**
@@ -26,6 +28,8 @@ import org.eclipse.jface.viewers.*;
  */
 public class UpdateHandler extends PreloadingRepositoryHandler {
 
+	boolean hasNoRepos = false;
+
 	/**
 	 * The constructor.
 	 */
@@ -34,6 +38,13 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 	}
 
 	protected void doExecute(String profileId, QueryableMetadataRepositoryManager manager) {
+		if (hasNoRepos) {
+			boolean goToSites = MessageDialog.openQuestion(getShell(), ProvSDKMessages.UpdateHandler_NoSitesTitle, ProvSDKMessages.UpdateHandler_NoSitesMessage);
+			if (goToSites) {
+				Policy.getDefault().getRepositoryManipulator().manipulateRepositories(getShell());
+			}
+			return;
+		}
 		// get the profile roots
 		ElementQueryDescriptor queryDescriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new ProfileElement(null, profileId));
 		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
@@ -66,5 +77,15 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		}, profileId, false);
 		action.setRepositoryManager(manager);
 		action.run();
+	}
+
+	protected boolean preloadRepositories() {
+		hasNoRepos = false;
+		RepositoryManipulator repoMan = Policy.getDefault().getRepositoryManipulator();
+		if (repoMan != null && repoMan.getKnownRepositories().length == 0) {
+			hasNoRepos = true;
+			return false;
+		}
+		return super.preloadRepositories();
 	}
 }
