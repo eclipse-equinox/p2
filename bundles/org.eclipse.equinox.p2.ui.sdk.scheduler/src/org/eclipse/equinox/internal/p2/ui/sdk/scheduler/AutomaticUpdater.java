@@ -122,12 +122,7 @@ public class AutomaticUpdater implements IUpdateListener {
 												public void run() {
 													updateAction
 															.suppressWizard(true);
-													updateAction
-															.performAction(
-																	iusWithUpdates,
-																	event
-																			.getProfileId(),
-																	operation);
+													updateAction.run();
 												}
 											});
 								} else if (status.getSeverity() != IStatus.CANCEL) {
