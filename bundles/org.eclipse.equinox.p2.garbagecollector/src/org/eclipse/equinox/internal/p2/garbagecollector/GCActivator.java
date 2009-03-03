@@ -43,6 +43,15 @@ public class GCActivator implements BundleActivator {
 
 	public void start(BundleContext inContext) throws Exception {
 		GCActivator.context = inContext;
+
+		// TODO
+		// BEGIN hack to work around bug 266881 
+		if (context == null)
+			return;
+		if (!"true".equalsIgnoreCase(context.getProperty("equinox.p2.gc.enabled")))
+			return;
+		// END hack to work around bug  266881
+
 		DebugOptions debug = (DebugOptions) getService(inContext, DebugOptions.class.getName());
 		if (debug != null) {
 			CoreGarbageCollector.setDebugMode(debug.getBooleanOption(DEBUG_STRING, DEFAULT_DEBUG));
