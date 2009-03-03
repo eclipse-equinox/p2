@@ -132,7 +132,7 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
-		InstallWizard wizard = new InstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy(), false));
+		InstallWizard wizard = new InstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy().getQueryContext(), false));
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);

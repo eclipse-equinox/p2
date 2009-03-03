@@ -24,22 +24,22 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds provides specialized/optimized queryable support 
- * for a metadata repository.  The policy determines which repositories are included in 
- * the query.  Callers interested in only the resulting repository URIs
+ * for a metadata repository.  The query context determines which repositories 
+ * are included in the query.  Callers interested in only the resulting repository URIs
  * should specify a {@link RepositoryLocationQuery}, in which case the 
  * query is performed over the URI's.  Otherwise the query is performed over
  * the repositories themselves.
  */
 public class QueryableMetadataRepositoryManager extends QueryableRepositoryManager {
 
-	public QueryableMetadataRepositoryManager(Policy policy, boolean includeDisabledRepos) {
-		super(policy, includeDisabledRepos);
+	public QueryableMetadataRepositoryManager(IUViewQueryContext queryContext, boolean includeDisabledRepos) {
+		super(queryContext, includeDisabledRepos);
 	}
 
 	protected IRepository getRepository(IRepositoryManager manager, URI location) {

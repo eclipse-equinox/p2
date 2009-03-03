@@ -18,13 +18,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.Action;
@@ -52,8 +52,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
 	private static final int DEFAULT_WIDTH = 300;
-	private static final String ALL = ProvUIMessages.AvailableIUsPage_AllSites;
-	private static final int INDEX_ALL = 0;
+	private static final String SITE_NONE = ProvUIMessages.AvailableIUsPage_NoSites;
+	private static final int INDEX_SITE_NONE = 0;
+	private static final String SITE_ALL = ProvUIMessages.AvailableIUsPage_AllSites;
+	private static final int INDEX_SITE_ALL = 1;
+	private static final String SITE_LOCAL = ProvUIMessages.AvailableIUsPage_LocalSites;
 	private static final int DEC_MARGIN_WIDTH = 2;
 
 	String profileId;
@@ -384,14 +387,18 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (initialSelections != null)
 			availableIUGroup.setChecked(initialSelections);
 
+		// Focus should go on site combo unless it's not there.  In that case, go to the filter text.
 		Control focusControl = null;
-		focusControl = availableIUGroup.getDefaultFocusControl();
+		if (repoCombo != null)
+			focusControl = repoCombo;
+		else
+			focusControl = availableIUGroup.getDefaultFocusControl();
 		if (focusControl != null)
 			focusControl.setFocus();
 		updateDetails();
 		iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 		validateNextButton();
-		fillRepoCombo(ALL);
+		fillRepoCombo(SITE_NONE);
 		setRepoComboDecoration(null);
 	}
 
@@ -602,10 +609,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (repoCombo == null || policy.getRepositoryManipulator() == null)
 			return;
 		comboRepos = policy.getRepositoryManipulator().getKnownRepositories();
-		final String[] items = new String[comboRepos.length + 1];
-		items[INDEX_ALL] = ALL;
+		boolean hasLocalSites = localSitesAvailable();
+		final String[] items;
+		if (hasLocalSites)
+			// None, All, repo1, repo2....repo n, Local
+			items = new String[comboRepos.length + 3];
+		else
+			// None, All, repo1, repo2....repo n
+			items = new String[comboRepos.length + 2];
+		items[INDEX_SITE_NONE] = SITE_NONE;
+		items[INDEX_SITE_ALL] = SITE_ALL;
 		for (int i = 0; i < comboRepos.length; i++)
-			items[i + 1] = comboRepos[i].toString();
+			items[i + 2] = comboRepos[i].toString();
+		if (hasLocalSites)
+			items[items.length - 1] = SITE_LOCAL;
 		display.asyncExec(new Runnable() {
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
@@ -620,11 +637,21 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 						break;
 					}
 				if (!selected)
-					repoCombo.select(INDEX_ALL);
+					repoCombo.select(INDEX_SITE_NONE);
 				repoComboSelectionChanged();
 			}
 		});
 
+	}
+
+	private boolean localSitesAvailable() {
+		// use our current visibility flags plus the local filter
+		int flags = queryContext.getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
+		try {
+			return ProvisioningUtil.getMetadataRepositories(flags).length > 0;
+		} catch (ProvisionException e) {
+			return false;
+		}
 	}
 
 	int getComboIndex(String repoText) {
@@ -642,13 +669,16 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	void repoComboSelectionChanged() {
 		int selection = repoCombo.getSelectionIndex();
-		if (comboRepos == null || selection > comboRepos.length)
-			selection = INDEX_ALL;
-
-		if (selection == INDEX_ALL) {
-			availableIUGroup.setRepositoryFilter(null);
-		} else if (selection > 0) {
-			availableIUGroup.setRepositoryFilter(comboRepos[selection - 1]);
+		if (comboRepos == null || selection < 0)
+			selection = INDEX_SITE_NONE;
+		if (selection == INDEX_SITE_NONE) {
+			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_NONE, null);
+		} else if (selection == INDEX_SITE_ALL) {
+			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
+		} else if (selection - 2 >= comboRepos.length) {
+			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_LOCAL, null);
+		} else {
+			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_SPECIFIED, comboRepos[selection - 2]);
 		}
 	}
 

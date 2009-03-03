@@ -40,12 +40,11 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 	 * Tests the wizard
 	 */
 	public void testWizard() {
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
-		manager.loadAll(getMonitor());
-
 		Policy policy = Policy.getDefault();
 		IUViewQueryContext context = policy.getQueryContext();
 		context.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(context, false);
+		manager.loadAll(getMonitor());
 		InstallWizard wizard = new InstallWizard(policy, TESTPROFILE, null, null, manager);
 		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
 

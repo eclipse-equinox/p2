@@ -39,4 +39,13 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 
 		dialog.open();
 	}
+
+	protected boolean waitForPreload() {
+		// If there is no way for the user to manipulate repositories,
+		// then we may as well wait for existing repos to load so that
+		// content is available.  If the user can manipulate the
+		// repositories, then we don't wait, because we don't know which
+		// ones they want to work with.
+		return Policy.getDefault().getRepositoryManipulator() == null;
+	}
 }

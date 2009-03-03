@@ -167,6 +167,8 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_GotoProperties;
 	public static String AvailableIUsPage_GroupByCategory;
 	public static String AvailableIUsPage_HideInstalledItems;
+	public static String AvailableIUsPage_LocalSites;
+	public static String AvailableIUsPage_NoSites;
 	public static String AvailableIUsPage_RepoFilterInstructions;
 	public static String AvailableIUsPage_RepoFilterLabel;
 	public static String AvailableIUsPage_ShowLatestVersions;

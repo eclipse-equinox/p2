@@ -37,7 +37,7 @@ public class InstallWizard extends WizardWithLicenses {
 	}
 
 	public InstallWizard(Policy policy, String profileId) {
-		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy, false));
+		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy.getQueryContext(), false));
 	}
 
 	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {

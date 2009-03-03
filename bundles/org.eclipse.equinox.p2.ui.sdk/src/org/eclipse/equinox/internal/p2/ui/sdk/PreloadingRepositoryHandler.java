@@ -59,18 +59,20 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	}
 
 	void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
-		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault(), false);
+		if (loadJob != null)
+			loadJob.cancel();
+		loadJob = null;
+		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false);
 		if (preloadRepositories) {
-			if (loadJob == null) {
+			loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
 
-				loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
+				protected IStatus run(IProgressMonitor monitor) {
+					queryableManager.loadAll(monitor);
+					return Status.OK_STATUS;
+				}
 
-					protected IStatus run(IProgressMonitor monitor) {
-						queryableManager.loadAll(monitor);
-						return Status.OK_STATUS;
-					}
-
-				};
+			};
+			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					public void done(IJobChangeEvent event) {
 						loadJob = null;
@@ -86,15 +88,25 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				});
 				loadJob.setUser(true);
 				loadJob.schedule();
+
+			} else {
+				loadJob.setSystem(true);
+				loadJob.setUser(false);
+				loadJob.schedule();
+				doExecute(profileId, queryableManager);
 			}
-			return;
+		} else {
+			doExecute(profileId, queryableManager);
 		}
-		doExecute(profileId, queryableManager);
 	}
 
 	protected abstract void doExecute(String profileId, QueryableMetadataRepositoryManager manager);
 
 	protected boolean preloadRepositories() {
+		return true;
+	}
+
+	protected boolean waitForPreload() {
 		return true;
 	}
 

@@ -38,7 +38,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		if (input instanceof ProvElement) {
 			return getChildren(input);
 		}
-		return null;
+		return new Object[0];
 	}
 
 	/*
@@ -70,7 +70,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		if (parent instanceof ProvElement) {
 			return ((ProvElement) parent).getChildren(parent);
 		}
-		return null;
+		return new Object[0];
 	}
 
 	/* (non-Javadoc)

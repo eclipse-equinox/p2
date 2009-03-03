@@ -59,7 +59,7 @@ public class DefaultQueryProvider extends QueryProvider {
 		}
 		switch (queryType) {
 			case QueryProvider.ARTIFACT_REPOS :
-				queryable = new QueryableArtifactRepositoryManager(policy, false);
+				queryable = new QueryableArtifactRepositoryManager(context, false);
 				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector() {
 					public boolean accept(Object object) {
 						if (object instanceof URI)
@@ -165,7 +165,7 @@ public class DefaultQueryProvider extends QueryProvider {
 			case QueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {
-						queryable = new QueryableMetadataRepositoryManager(policy, ((MetadataRepositories) element).getIncludeDisabledRepositories());
+						queryable = new QueryableMetadataRepositoryManager(context, ((MetadataRepositories) element).getIncludeDisabledRepositories());
 						element.setQueryable(queryable);
 					}
 					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new MetadataRepositoryElementCollector(element.getQueryable(), element));

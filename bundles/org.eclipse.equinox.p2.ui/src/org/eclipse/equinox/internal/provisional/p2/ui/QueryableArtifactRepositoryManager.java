@@ -22,19 +22,19 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 
 /**
  * An object that adds provides queryable support 
- * for an artifact repository manager.  The policy determines which 
+ * for an artifact repository manager.  The query context determines which 
  * repositories are included in the query.  Since artifact repositories
  * do not support queries, the query will be performed over the repository
  * locations.
  */
 public class QueryableArtifactRepositoryManager extends QueryableRepositoryManager {
 
-	public QueryableArtifactRepositoryManager(Policy policy, boolean includeDisabledRepos) {
-		super(policy, includeDisabledRepos);
+	public QueryableArtifactRepositoryManager(IUViewQueryContext queryContext, boolean includeDisabledRepos) {
+		super(queryContext, includeDisabledRepos);
 	}
 
 	protected IRepositoryManager getRepositoryManager() {

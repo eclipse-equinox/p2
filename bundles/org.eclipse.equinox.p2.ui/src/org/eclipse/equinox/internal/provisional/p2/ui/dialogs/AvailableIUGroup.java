@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -52,9 +53,15 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
 	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 350;
 
+	public static final int AVAILABLE_ALL = 1;
+	public static final int AVAILABLE_NONE = 2;
+	public static final int AVAILABLE_LOCAL = 3;
+	public static final int AVAILABLE_SPECIFIED = 4;
+
 	QueryableMetadataRepositoryManager queryableManager;
 
 	IUViewQueryContext queryContext;
+	int filterConstant = AVAILABLE_ALL;
 	URI repositoryFilter;
 	// We restrict the type of the filter used because PatternFilter does
 	// unnecessary accesses of children that cause problems with the deferred
@@ -93,14 +100,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	public AvailableIUGroup(Policy policy, final Composite parent, Font font, QueryableMetadataRepositoryManager queryable, IUViewQueryContext queryContext, IUColumnConfig[] columnConfig) {
 		super(policy, parent, font, columnConfig);
 		this.display = parent.getDisplay();
-		if (queryable == null)
-			this.queryableManager = new QueryableMetadataRepositoryManager(policy, false);
-		else
-			this.queryableManager = queryable;
 		if (queryContext == null)
 			this.queryContext = policy.getQueryContext();
 		else
 			this.queryContext = queryContext;
+		if (queryable == null)
+			this.queryableManager = new QueryableMetadataRepositoryManager(this.queryContext, false);
+		else
+			this.queryableManager = queryable;
 		this.filter = new AvailableIUPatternFilter(getColumnConfig());
 		createGroupComposite(parent);
 	}
@@ -198,8 +205,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	Object getNewInput() {
 		if (repositoryFilter != null) {
 			return new MetadataRepositoryElement(queryContext, getPolicy(), repositoryFilter, true);
+		} else if (filterConstant == AVAILABLE_NONE)
+			return new Object();
+		else {
+			queryableManager.setQueryContext(queryContext);
+			return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 		}
-		return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 	}
 
 	/**
@@ -395,8 +406,22 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		checkViewer.fireCheckStateChanged(element, true);
 	}
 
-	public void setRepositoryFilter(URI repoLocation) {
-		repositoryFilter = repoLocation;
+	public void setRepositoryFilter(int filterFlag, URI repoLocation) {
+		filterConstant = filterFlag;
+
+		switch (filterFlag) {
+			case AVAILABLE_ALL :
+			case AVAILABLE_NONE :
+				repositoryFilter = null;
+				queryContext.setMetadataRepositoryFlags(queryContext.getMetadataRepositoryFlags() & ~IRepositoryManager.REPOSITORIES_LOCAL);
+				break;
+			case AVAILABLE_LOCAL :
+				repositoryFilter = null;
+				queryContext.setMetadataRepositoryFlags(queryContext.getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL);
+				break;
+			default :
+				repositoryFilter = repoLocation;
+		}
 		updateAvailableViewState();
 		filteredTree.clearCheckStateCache();
 	}

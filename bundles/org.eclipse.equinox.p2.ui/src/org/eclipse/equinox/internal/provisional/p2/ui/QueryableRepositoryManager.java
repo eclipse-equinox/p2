@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -45,11 +45,12 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 
 	private MultiStatus accumulatedNotFound = null;
 	private boolean includeDisabledRepos;
-	private Policy policy;
+	private IUViewQueryContext queryContext;
 
-	public QueryableRepositoryManager(Policy policy, boolean includeDisabledRepos) {
+	public QueryableRepositoryManager(IUViewQueryContext queryContext, boolean includeDisabledRepos) {
 		this.includeDisabledRepos = includeDisabledRepos;
-		this.policy = policy;
+		Assert.isNotNull(queryContext);
+		this.queryContext = queryContext;
 	}
 
 	/**
@@ -126,7 +127,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	private Collection getRepoLocations(IRepositoryManager manager) {
 		Set locations = new HashSet();
-		int flags = policy.getQueryContext().getMetadataRepositoryFlags();
+		int flags = queryContext.getMetadataRepositoryFlags();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(flags)));
 		if (includeDisabledRepos) {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | flags)));
@@ -241,5 +242,9 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	protected abstract Collector query(URI uri, Query query, Collector collector, IProgressMonitor monitor);
+
+	public void setQueryContext(IUViewQueryContext queryContext) {
+		this.queryContext = queryContext;
+	}
 
 }
