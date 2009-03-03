@@ -11,9 +11,13 @@
 package org.eclipse.equinox.internal.p2.jarprocessor.ant;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Properties;
+
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
@@ -24,6 +28,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
 public class JarProcessorTask extends Task {
 	private final Options options = new Options();
 	private final Properties signArgs = new Properties();
+	private final ArrayList inputFiles = new ArrayList();
 
 	public static final String ALIAS = "alias"; //$NON-NLS-1$
 	public static final String KEYSTORE = "keystore"; //$NON-NLS-1$
@@ -101,10 +106,29 @@ public class JarProcessorTask extends Task {
 	public void execute() {
 		options.processAll = true;
 		adjustAndValidateConfiguration();
-		new AntBasedProcessorExecutor(signArgs, getProject(), getTaskName()).runJarProcessor(options);
+		AntBasedProcessorExecutor executor = new AntBasedProcessorExecutor(signArgs, getProject(), getTaskName());
+		if (inputFiles.size() > 0)
+			executor.setInputFiles(inputFiles);
+		executor.runJarProcessor(options);
 	}
 
 	public void setVerbose(boolean verbose) {
 		options.verbose = verbose;
+	}
+
+	public void addInputFile(File file) {
+		inputFiles.add(file);
+	}
+
+	public void addConfiguredFile(FileSet fileset) {
+		DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
+		String [] included = scanner.getIncludedFiles();
+		for (int i = 0; i < included.length; i++) {
+			addInputFile(new File(scanner.getBasedir(), included[i]));
+		}
+		included = scanner.getIncludedDirectories();
+		for (int i = 0; i < included.length; i++) {
+			addInputFile(new File(scanner.getBasedir(), included[i]));
+		}
 	}
 }

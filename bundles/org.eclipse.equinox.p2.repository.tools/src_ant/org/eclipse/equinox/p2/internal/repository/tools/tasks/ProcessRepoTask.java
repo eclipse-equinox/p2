@@ -59,6 +59,7 @@ public class ProcessRepoTask extends Task {
 	private boolean pack = false;
 	private boolean repack = false;
 	private SigningOptions signing = null;
+	private JarProcessorTask jarProcessor = null;
 
 	public void execute() throws BuildException {
 		File file = URIUtil.toFile(repository);
@@ -66,22 +67,23 @@ public class ProcessRepoTask extends Task {
 			throw new BuildException("Repository must be local: " + repository.toString()); //$NON-NLS-1$
 		}
 		if (pack | repack | signing != null) {
-			JarProcessorTask task = new JarProcessorTask();
+			if (jarProcessor == null)
+				jarProcessor = new JarProcessorTask();
 			if (signing != null) {
-				task.setAlias(signing.alias);
-				task.setKeypass(signing.keypass);
-				task.setKeystore(signing.keystore);
-				task.setStorepass(signing.storepass);
-				task.setUnsign(signing.unsign);
+				jarProcessor.setAlias(signing.alias);
+				jarProcessor.setKeypass(signing.keypass);
+				jarProcessor.setKeystore(signing.keystore);
+				jarProcessor.setStorepass(signing.storepass);
+				jarProcessor.setUnsign(signing.unsign);
 
 				if (signing.alias != null && signing.alias.length() > 0 && !signing.alias.startsWith("${")) //$NON-NLS-1$
-					task.setSign(true);
+					jarProcessor.setSign(true);
 			}
-			task.setPack(pack);
-			task.setNormalize(repack);
-			task.setInputFolder(new File(repository));
-			task.setProject(getProject());
-			task.execute();
+			jarProcessor.setPack(pack);
+			jarProcessor.setNormalize(repack);
+			jarProcessor.setInputFolder(new File(repository));
+			jarProcessor.setProject(getProject());
+			jarProcessor.execute();
 		}
 
 		recreateRepository();
@@ -125,5 +127,35 @@ public class ProcessRepoTask extends Task {
 
 	public void addConfiguredSign(SigningOptions options) {
 		this.signing = options;
+	}
+
+	public void addConfiguredPlugin(IUDescription iu) {
+		if (jarProcessor == null)
+			jarProcessor = new JarProcessorTask();
+
+		String path = "plugins/" + iu.getId() + '_' + iu.getVersion(); //$NON-NLS-1$
+		File repo = new File(repository);
+		File plugin = new File(repo, path);
+		if (!plugin.exists())
+			plugin = new File(repo, path + ".jar"); //$NON-NLS-1$
+
+		if (plugin.exists()) {
+			jarProcessor.addInputFile(plugin);
+		}
+	}
+
+	public void addConfiguredFeature(IUDescription iu) {
+		if (jarProcessor == null)
+			jarProcessor = new JarProcessorTask();
+
+		String path = "features/" + iu.getId() + '_' + iu.getVersion(); //$NON-NLS-1$
+		File repo = new File(repository);
+		File feature = new File(repo, path);
+		if (!feature.exists())
+			feature = new File(repo, path + ".jar"); //$NON-NLS-1$
+
+		if (feature.exists()) {
+			jarProcessor.addInputFile(feature);
+		}
 	}
 }

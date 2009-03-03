@@ -87,7 +87,8 @@ public class JarProcessorExecutor {
 			}
 
 			try {
-				process(options.input, options.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER, options.verbose, processor, packProcessor);
+				FileFilter filter = createFileFilter(options);
+				process(options.input, filter, options.verbose, processor, packProcessor);
 			} catch (FileNotFoundException e) {
 				if (options.verbose)
 					e.printStackTrace();
@@ -95,6 +96,10 @@ public class JarProcessorExecutor {
 		}
 	}
 
+	protected FileFilter createFileFilter(Options options) {
+		return options.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER;
+	}
+	
 	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException {
 		if (!input.exists())
 			throw new FileNotFoundException();
@@ -108,14 +113,7 @@ public class JarProcessorExecutor {
 			return;
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
-				String dir = processor.getWorkingDirectory();
-				processor.setWorkingDirectory(dir + "/" + files[i].getName()); //$NON-NLS-1$
-				if (packProcessor != null)
-					packProcessor.setWorkingDirectory(dir + "/" + files[i].getName()); //$NON-NLS-1$
-				process(files[i], filter, verbose, processor, packProcessor);
-				processor.setWorkingDirectory(dir);
-				if (packProcessor != null)
-					packProcessor.setWorkingDirectory(dir);
+				processDirectory(files[i], filter, verbose, processor, packProcessor);
 			} else if (filter.accept(files[i])) {
 				try {
 					File result = processor.processJar(files[i]);
@@ -130,6 +128,19 @@ public class JarProcessorExecutor {
 		}
 	}
 
+	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException{
+		if (!input.isDirectory())
+			return;
+		String dir = processor.getWorkingDirectory();
+		processor.setWorkingDirectory(dir + "/" + input.getName()); //$NON-NLS-1$
+		if (packProcessor != null)
+			packProcessor.setWorkingDirectory(dir + "/" + input.getName()); //$NON-NLS-1$
+		process(input, filter, verbose, processor, packProcessor);
+		processor.setWorkingDirectory(dir);
+		if (packProcessor != null)
+			packProcessor.setWorkingDirectory(dir);
+	}
+	
 	public void addPackUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new PackUnpackStep(properties, options.verbose));
 	}
