@@ -30,6 +30,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(FormatRTest.class);
 		suite.addTestSuite(FormatSTest.class);
 		suite.addTestSuite(FormatTest.class);
+		suite.addTestSuite(FormatRangeTest.class);
 		suite.addTestSuite(MultiplicityTest.class);
 		suite.addTestSuite(OSGiRangeTest.class);
 		suite.addTestSuite(RawRangeTest.class);

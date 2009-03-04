@@ -19,13 +19,13 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
  *
  */
 public class FormatRangeTest extends VersionTesting {
-	public static String OSGI_PREFIX = "format([n=0;[.n=0;[.n=0;[.s]]]]):";
+	public static String OSGI_PREFIX = "format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):";
 
 	public void testRangeWithDefaultValues() {
 		VersionRange range = new VersionRange(OSGI_PREFIX + "0");
 		assertIncludedInRange("#1", range, OSGI_PREFIX + "0");
-		assertIncludedInRange("#1", range, OSGI_PREFIX + "M");
-		assertIncludedInRange("#2", range, OSGI_PREFIX + "(M)=pM;");
+		assertIncludedInRange("#2", range, OSGI_PREFIX + "0.0");
+		assertIncludedInRange("#3", range, OSGI_PREFIX + "0.0.0");
 	}
 
 	public void testEmptyRange() {
@@ -38,33 +38,22 @@ public class FormatRangeTest extends VersionTesting {
 	}
 
 	public void testRangeDelimitersInVersionString() {
-		VersionRange range = new VersionRange("format(S):[one\\, two,three\\, \\[and\\] four]");
+		VersionRange range = new VersionRange("format(S):[one\\,\\ two,three\\,\\ \\[and\\]\\ four]");
 		assertIncludedInRange("#1", range, "format(S):one, two");
 		assertIncludedInRange("#1", range, "format(S):three, [and] four");
 	}
 
 	public void testSingleVersionRange() {
-		VersionRange range = new VersionRange(OSGI_PREFIX + "[1.0.0, 1.0.0.'-')");
+		VersionRange range = new VersionRange(OSGI_PREFIX + "[1.0.0, 1.0.0.x)");
 		assertEquals("0.1", Version.parseVersion(OSGI_PREFIX + "1.0.0"), range.getMinimum());
-		assertEquals("0.2", Version.parseVersion(OSGI_PREFIX + "1.0.0.'-'"), range.getMaximum());
+		assertEquals("0.2", Version.parseVersion(OSGI_PREFIX + "1.0.0.x"), range.getMaximum());
 
 		assertNotIncludedInRange("0.9", range, OSGI_PREFIX + "0.9");
-		assertNotIncludedInRange("1.0", range, OSGI_PREFIX + "1"); // this is not osgi versions 1 is before than 1.0
-		assertNotIncludedInRange("1.1", range, OSGI_PREFIX + "1.0"); // this is not osgi, version 1.0 is before 1.0.0
 		assertIncludedInRange("1.2", range, OSGI_PREFIX + "1.0.0");
-		assertNotIncludedInRange("2.1", range, OSGI_PREFIX + "1.0.0.'0'");
+		assertNotIncludedInRange("2.1", range, OSGI_PREFIX + "1.0.0.z");
 		assertNotIncludedInRange("2.2", range, OSGI_PREFIX + "1.0.1");
 		assertNotIncludedInRange("2.3", range, OSGI_PREFIX + "1.1");
 		assertNotIncludedInRange("2.4", range, OSGI_PREFIX + "2");
-	}
-
-	public void testInvertedRange() {
-		VersionRange range = new VersionRange(OSGI_PREFIX + "[2.0.0, 1.0.0]");
-		assertNotIncludedInRange("1.0", range, OSGI_PREFIX + "1.0");
-		assertNotIncludedInRange("1.1", range, OSGI_PREFIX + "1.5.0");
-		assertNotIncludedInRange("1.2", range, OSGI_PREFIX + "2.0.0");
-		assertNotIncludedInRange("1.3", range, OSGI_PREFIX + "2.5.0");
-		assertNotIncludedInRange("1.4", range, OSGI_PREFIX + "0.5.0");
 	}
 
 	public void testGreaterThan() {
@@ -72,20 +61,18 @@ public class FormatRangeTest extends VersionTesting {
 		VersionRange lowerBound = new VersionRange(OSGI_PREFIX + "1.0.0");
 		assertNotIncludedInRange("1.0", lowerBound, OSGI_PREFIX + "0.9.0");
 		assertIncludedInRange("1.1", lowerBound, OSGI_PREFIX + "1.0.0");
-		assertIncludedInRange("1.2", lowerBound, OSGI_PREFIX + "1.9.9.'x'");
-		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "999.999.999.'foo'");
-		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "M.M.M.m");
+		assertIncludedInRange("1.2", lowerBound, OSGI_PREFIX + "1.9.9.x");
+		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "999.999.999.foo");
 	}
 
-	public void testGreaterThanEmptyString() {
-		// any version equal or greater than '' (empty string) is ok 
-		VersionRange lowerBound = new VersionRange(OSGI_PREFIX + "''");
-		assertIncludedInRange("0.1", lowerBound, OSGI_PREFIX + "''");
+	public void testGreaterThanMinimum() {
+		// any version equal or greater than Version.MIN_VERSION is ok 
+		VersionRange lowerBound = new VersionRange("raw:-M");
+		assertIncludedInRange("0.1", lowerBound, "raw:-M");
 		assertIncludedInRange("1.0", lowerBound, OSGI_PREFIX + "0.9.0");
 		assertIncludedInRange("1.1", lowerBound, OSGI_PREFIX + "1.0.0");
-		assertIncludedInRange("1.2", lowerBound, OSGI_PREFIX + "1.9.9.'x'");
-		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "999.999.999.'foo'");
-		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "M.M.M.m");
+		assertIncludedInRange("1.2", lowerBound, OSGI_PREFIX + "1.9.9.x");
+		assertIncludedInRange("1.3", lowerBound, OSGI_PREFIX + "999.999.999.foo");
 	}
 
 	public void testLowerThan() {
@@ -94,7 +81,7 @@ public class FormatRangeTest extends VersionTesting {
 		assertIncludedInRange("1.0", upperBound, OSGI_PREFIX + "0.0");
 		assertIncludedInRange("1.1", upperBound, OSGI_PREFIX + "0.9");
 		assertIncludedInRange("1.2", upperBound, OSGI_PREFIX + "1.0");
-		assertIncludedInRange("1.3", upperBound, OSGI_PREFIX + "1.9.9.'x'");
+		assertIncludedInRange("1.3", upperBound, OSGI_PREFIX + "1.9.9.x");
 		assertNotIncludedInRange("1.4", upperBound, OSGI_PREFIX + "2.0");
 		assertNotIncludedInRange("1.5", upperBound, OSGI_PREFIX + "2.1");
 	}
