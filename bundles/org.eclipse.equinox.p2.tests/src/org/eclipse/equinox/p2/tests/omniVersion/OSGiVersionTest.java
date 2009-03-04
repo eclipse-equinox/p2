@@ -33,7 +33,10 @@ public class OSGiVersionTest extends VersionTesting {
 
 	public void testOSGiStrings() {
 
-		Version v = null;
+		Version v = new Version("");
+		assertEquals("0.0.0", v.toString());
+		assertNotNull(v = Version.parseVersion(""));
+		assertEquals("0.0.0", v.toString());
 		assertNotNull(v = Version.parseVersion("1"));
 		assertEquals("1.0.0", v.toString());
 		assertNotNull(v = Version.parseVersion("1.0"));
