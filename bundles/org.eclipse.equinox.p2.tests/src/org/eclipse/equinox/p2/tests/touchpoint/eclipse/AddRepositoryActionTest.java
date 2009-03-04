@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,15 +16,22 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.service.prefs.Preferences;
@@ -174,6 +181,62 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		String value = pref.get(KEY_URI, null);
 
 		assertEquals("2.0", value, TEST_LOCATION);
+	}
+
+	/**
+	 * Tests adding a repository during an update (bug 266881).
+	 */
+	public void testBug266881() throws ProvisionException {
+		//need to install a real bundle with an artifact to check for GC bug
+		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();
+		getMetadataRepositoryManager().addRepository(site);
+		getArtifactRepositoryManager().addRepository(site);
+
+		//install the old IU
+		String id = "AddRepositoryActionTest.testUpdate";
+		Version version = new Version(1, 0, 0);
+		IInstallableUnit oldIU = createIU(id, version);
+		IProfile profile = createProfile(id);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		final IInstallableUnit[] oldIUs = new IInstallableUnit[] {oldIU};
+		request.addInstallableUnits(oldIUs);
+		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		assertTrue("1.0", result.isOK());
+
+		assertTrue("1.1", !getArtifactRepositoryManager().contains(locationURI));
+
+		//define new IU
+		version = new Version(1, 1, 0);
+		Map instructions = new HashMap();
+		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
+		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
+		IInstallableUnit newIU = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version));
+
+		//perform the update and install an ordinary bundle
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
+		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor()).iterator().next();
+		request = new ProfileChangeRequest(profile);
+		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
+		request.addInstallableUnits(newIUs);
+		request.removeInstallableUnits(oldIUs);
+		result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		if (!result.isOK())
+			LogHelper.log(result);
+		assertTrue("2.0", result.isOK());
+
+		//check that the artifact is still there
+		profile = getProfile(id);
+		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(profile), getMonitor());
+		assertEquals("3.0", 1, artifacts.getArtifactKeys().length);
+
+		//check that profile property is set
+		assertProfileContains("3.1", profile, newIUs);
+		// Get Preference node associated with the profile
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		Preferences pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
+		String value = pref.get(KEY_URI, null);
+
+		assertEquals("3.2", value, TEST_LOCATION);
 	}
 
 	/*
