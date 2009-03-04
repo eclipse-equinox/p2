@@ -16,6 +16,7 @@ public class ActionConstants {
 	public static final String PARM_FEATURE = "feature"; //$NON-NLS-1$
 	public static final String PARM_FEATURE_ID = "featureId"; //$NON-NLS-1$
 	public static final String PARM_FEATURE_VERSION = "featureVersion"; //$NON-NLS-1$
+	public static final String PARM_IGNORE = "@ignore"; //$NON-NLS-1$
 	public static final String PARM_JVM_ARG = "jvmArg"; //$NON-NLS-1$
 	public static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_START_LEVEL = "previousStartLevel"; //$NON-NLS-1$
@@ -23,6 +24,7 @@ public class ActionConstants {
 	public static final String PARM_PREVIOUS_VALUE = "previousValue"; //$NON-NLS-1$
 	public static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 	public static final String PARM_PROGRAM_ARG = "programArg"; //$NON-NLS-1$
+	public static final String PARM_PROGRAM_ARG_VALUE = "programArgValue"; //$NON-NLS-1$
 	public static final String PARM_PROP_NAME = "propName"; //$NON-NLS-1$
 	public static final String PARM_PROP_VALUE = "propValue"; //$NON-NLS-1$
 	public static final String PARM_START_LEVEL = "startLevel"; //$NON-NLS-1$

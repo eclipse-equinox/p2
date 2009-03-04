@@ -29,6 +29,10 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 		if (programArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
 
+		String programArgValue = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG_VALUE);
+		if (ActionConstants.PARM_IGNORE.equals(programArgValue))
+			return Status.OK_STATUS;
+
 		if (programArg.equals(ActionConstants.PARM_ARTIFACT)) {
 			try {
 				programArg = resolveArtifactParam(parameters);
@@ -36,8 +40,19 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 				return e.getStatus();
 			}
 		}
-
 		manipulator.getLauncherData().addProgramArg(programArg);
+
+		if (programArgValue != null) {
+			if (programArgValue.equals(ActionConstants.PARM_ARTIFACT)) {
+				try {
+					programArgValue = resolveArtifactParam(parameters);
+				} catch (CoreException e) {
+					return e.getStatus();
+				}
+			}
+			manipulator.getLauncherData().addProgramArg(programArgValue);
+		}
+
 		return Status.OK_STATUS;
 	}
 
@@ -46,6 +61,10 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
 		if (programArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
+
+		String programArgValue = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG_VALUE);
+		if (ActionConstants.PARM_IGNORE.equals(programArgValue))
+			return Status.OK_STATUS;
 
 		if (programArg.startsWith("-")) //$NON-NLS-1$
 			manipulator.getLauncherData().removeProgramArg(programArg);
