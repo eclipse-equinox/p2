@@ -23,6 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -131,7 +134,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
 			} else if (next instanceof VersionedName) {
 				VersionedName name = (VersionedName) next;
-				VersionRange range = new VersionRange(name.getVersion(), true, name.getVersion(), true);
+				Version version = name.getVersion();
+				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
 				String filter = getFilterAdvice(name);
 				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, name.getId(), range, filter, false, false));
 			}
@@ -305,14 +309,14 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * as a base for relative paths. Then copying the zip into the repository.
 	 * @param descriptor used to identify the zip.
 	 * @param inclusion the file to be published. files can be <code>null</code> but no action is taken.
-	 * @param info the publisher info.
+	 * @param publisherInfo the publisher info.
 	 */
-	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo publisherInfo) {
 		// no files to publish so this is done.
 		if (inclusion == null)
 			return;
 		// if the destination already contains the descriptor, there is nothing to do.
-		IArtifactRepository destination = info.getArtifactRepository();
+		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (destination == null || destination.contains(descriptor))
 			return;
 
@@ -327,7 +331,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		}
 
 		// if all we are doing is indexing things then add the descriptor and get on with it
-		if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
 			destination.addDescriptor(descriptor);
 			return;
 		}
@@ -362,19 +366,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param descriptor used to identify the zip.
 	 * @param inclusions and folders to be included in the zip. files can be null.
 	 * @param exclusions and folders to be excluded in the zip. files can be null.
-	 * @param info the publisher info.
+	 * @param publisherInfo the publisher info.
 	 * @param prefixComputer
 	 */
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo info, IPathComputer prefixComputer) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo publisherInfo, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
 		if (inclusions == null || inclusions.length < 1)
 			return;
 		// if the destination already contains the descriptor, there is nothing to do.
-		IArtifactRepository destination = info.getArtifactRepository();
+		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (destination == null || destination.contains(descriptor))
 			return;
 		// if all we are doing is indexing things then add the descriptor and get on with it
-		if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
 			destination.addDescriptor(descriptor);
 			return;
 		}
@@ -404,6 +408,32 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		}
 	}
 
-	public abstract IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor);
+	/**
+	 * Loop over the known metadata repositories looking for the given IU.
+	 * Return the first IU found.
+	 * @param iuId  the id of the IU to look for
+	 * @return the first matching IU or <code>null</code> if none.
+	 */
+	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
+		Query query = null;
+		if (version != null && !Version.emptyVersion.equals(version))
+			query = new InstallableUnitQuery(iuId, version);
+		else
+			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
+
+		Collector collector = new Collector();
+		if (publisherResult != null)
+			collector = publisherResult.query(query, collector, null);
+		if (collector.isEmpty() && info.getMetadataRepository() != null)
+			collector = info.getMetadataRepository().query(query, collector, new NullProgressMonitor());
+		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
+			collector = info.getContextMetadataRepository().query(query, collector, new NullProgressMonitor());
+
+		if (!collector.isEmpty())
+			return (IInstallableUnit) collector.iterator().next();
+		return null;
+	}
+
+	public abstract IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor);
 
 }

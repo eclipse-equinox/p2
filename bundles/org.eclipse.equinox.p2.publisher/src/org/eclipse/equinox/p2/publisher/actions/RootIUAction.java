@@ -17,8 +17,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
@@ -40,14 +38,14 @@ public class RootIUAction extends AbstractPublisherAction {
 		this.name = name;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
-		this.info = info;
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		this.info = publisherInfo;
 		return generateRootIU(results);
 	}
 
 	protected IStatus generateRootIU(IPublisherResult result) {
 		Collection children = getChildren(result);
-		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
+		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, null, false);
 		processCapabilityAdvice(descriptor, info);
 		processTouchpointAdvice(descriptor, null, info);
 		processInstallableUnitPropertiesAdvice(descriptor, info);
@@ -111,9 +109,7 @@ public class RootIUAction extends AbstractPublisherAction {
 					// query the known metadata repos
 					if (object instanceof String) {
 						String childId = (String) object;
-						IInstallableUnit iu = result.getIU(childId, null);
-						if (iu == null)
-							iu = queryFor(childId);
+						IInstallableUnit iu = queryForIU(result, childId, getVersionAdvice(childId));
 						if (iu != null)
 							children.add(iu);
 					} else if (object instanceof VersionedName) {
@@ -125,23 +121,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		return children;
 	}
 
-	/**
-	 * Loop over the known metadata repositories looking for the given IU.
-	 * Return the first IU found.
-	 * @param iuId  the id of the IU to look for
-	 * @return the first matching IU or <code>null</code> if none.
-	 */
-	private IInstallableUnit queryFor(String iuId) {
-		InstallableUnitQuery query = new InstallableUnitQuery(iuId, getVersionAdvice(iuId));
-		if (info.getMetadataRepository() == null)
-			return null;
-		Collector result = info.getMetadataRepository().query(query, new Collector(), new NullProgressMonitor());
-		if (!result.isEmpty())
-			return (IInstallableUnit) result.iterator().next();
-		return null;
-	}
-
-	private InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, Version version, String name, Collection requires, boolean configureLauncherData) {
+	private InstallableUnitDescription createTopLevelIUDescription(Collection children, Collection requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(id);
@@ -172,10 +152,11 @@ public class RootIUAction extends AbstractPublisherAction {
 		for (Iterator i = versionAdvice.iterator(); i.hasNext();) {
 			IVersionAdvice advice = (IVersionAdvice) i.next();
 			// TODO have to figure a way to know the namespace here.  for now just look everywhere
-			Version result = advice.getVersion(IVersionAdvice.NS_BUNDLE, iuID);
-			if (result != null)
-				return result;
-			result = advice.getVersion(IVersionAdvice.NS_FEATURE, iuID);
+			Version result = advice.getVersion(IInstallableUnit.NAMESPACE_IU_ID, iuID);
+			if (result == null)
+				result = advice.getVersion(IVersionAdvice.NS_BUNDLE, iuID);
+			if (result == null)
+				result = advice.getVersion(IVersionAdvice.NS_FEATURE, iuID);
 			if (result != null)
 				return result;
 		}

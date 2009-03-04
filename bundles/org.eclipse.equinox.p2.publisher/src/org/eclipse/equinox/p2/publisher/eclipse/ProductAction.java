@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 
@@ -29,6 +30,7 @@ public class ProductAction extends AbstractPublisherAction {
 	//protected String productLocation;
 	protected File executablesFeatureLocation;
 	protected IProductDescriptor product;
+	protected IPublisherResult publisherResults;
 
 	public ProductAction(String source, IProductDescriptor product, String flavor, File executablesFeatureLocation) {
 		super();
@@ -39,7 +41,7 @@ public class ProductAction extends AbstractPublisherAction {
 		//this.productLocation = productLocation;
 	}
 
-	protected IPublisherAction[] createActions() {
+	protected IPublisherAction[] createActions(IPublisherResult results) {
 		// generate the advice we can up front.
 		createAdvice();
 
@@ -77,15 +79,16 @@ public class ProductAction extends AbstractPublisherAction {
 		return new JREAction((String) null);
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		monitor = SubMonitor.convert(monitor);
-		this.info = info;
-		IPublisherAction[] actions = createActions();
+		this.info = publisherInfo;
+		publisherResults = results;
+		IPublisherAction[] actions = createActions(results);
 		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(actions[i].perform(info, results, monitor));
+			finalStatus.merge(actions[i].perform(publisherInfo, results, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
@@ -117,9 +120,11 @@ public class ProductAction extends AbstractPublisherAction {
 	private void createRootAdvice() {
 		Collection list;
 		if (product.useFeatures())
-			list = listElements(product.getFeatures(), ".feature.group"); //$NON-NLS-1$
+			// TODO: We need a real namespace here
+			list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$ 
 		else
-			list = listElements(product.getBundles(true), null);
+			//TODO: We need a real namespace here
+			list = versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID);
 		info.addAdvice(new RootIUAdvice(list));
 	}
 
@@ -133,13 +138,44 @@ public class ProductAction extends AbstractPublisherAction {
 			info.addAdvice(new ProductFileAdvice(product, configSpecs[i]));
 	}
 
+	private Collection versionElements(Collection elements, String namespace) {
+		Collection versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
+		List result = new ArrayList();
+		for (Iterator i = elements.iterator(); i.hasNext();) {
+			VersionedName element = (VersionedName) i.next();
+			if (element.getVersion() == null || Version.emptyVersion.equals(element.getVersion())) {
+				Iterator advice = versionAdvice.iterator();
+				Version advisedVersion = null;
+				while (advice.hasNext()) {
+					advisedVersion = ((VersionAdvice) advice.next()).getVersion(namespace, element.getId());
+					break;
+				}
+
+				if (advisedVersion != null) {
+					result.add(new VersionedName(element.getId(), advisedVersion));
+					continue;
+				}
+
+				//	no advice, find highest version
+				IInstallableUnit unit = queryForIU(publisherResults, element.getId(), null);
+				if (unit != null) {
+					result.add(unit);
+					continue;
+				}
+			}
+
+			result.add(element);
+		}
+		return result;
+	}
+
 	private Collection listElements(List elements, String suffix) {
 		if (suffix == null || suffix.length() == 0)
 			return elements;
 		ArrayList result = new ArrayList(elements.size());
 		for (Iterator i = elements.iterator(); i.hasNext();) {
-			VersionedName name = (VersionedName) i.next();
-			result.add(new VersionedName(name.getId() + suffix, name.getVersion()));
+			VersionedName elementName = (VersionedName) i.next();
+			result.add(new VersionedName(elementName.getId() + suffix, elementName.getVersion()));
 		}
 		return result;
 	}

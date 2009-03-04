@@ -167,7 +167,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * Do not call this method, it is called by <code>setupPublisherInfo</code>.
 	 */
 	protected void insertPublisherInfoBehavior() {
-		//leave empty, for easy insertion of publisherInfo mock
+		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 	}
 
 	public void cleanup() {
