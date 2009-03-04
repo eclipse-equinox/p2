@@ -67,7 +67,7 @@ public class GCActivator implements BundleActivator {
 			return;
 		}
 		eventBus.addListener(busListener = new SynchronousProvisioningListener() {
-			//The GC is triggered when an uninstall event occured during a "transaction" and the transaction is committed.   
+			//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.   
 			private boolean uninstallEventOccurred = false;
 
 			public void notify(EventObject o) {
