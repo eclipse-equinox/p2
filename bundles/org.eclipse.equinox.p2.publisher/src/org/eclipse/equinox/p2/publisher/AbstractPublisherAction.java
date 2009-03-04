@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.publisher.VersionedName;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
@@ -416,18 +415,22 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
 		Query query = null;
-		if (version != null && !Version.emptyVersion.equals(version))
+		Collector collector = null;
+		if (version != null && !Version.emptyVersion.equals(version)) {
 			query = new InstallableUnitQuery(iuId, version);
-		else
+			collector = new SingleElementCollector();
+		} else {
 			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
+			collector = new Collector();
+		}
 
-		Collector collector = new Collector();
+		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
-			collector = publisherResult.query(query, collector, null);
+			collector = publisherResult.query(query, collector, progress);
 		if (collector.isEmpty() && info.getMetadataRepository() != null)
-			collector = info.getMetadataRepository().query(query, collector, new NullProgressMonitor());
+			collector = info.getMetadataRepository().query(query, collector, progress);
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
-			collector = info.getContextMetadataRepository().query(query, collector, new NullProgressMonitor());
+			collector = info.getContextMetadataRepository().query(query, collector, progress);
 
 		if (!collector.isEmpty())
 			return (IInstallableUnit) collector.iterator().next();
