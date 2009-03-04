@@ -10,14 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
+import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -25,17 +32,33 @@ import org.eclipse.equinox.p2.tests.*;
  */
 public class SiteXMLActionTest extends AbstractProvisioningTest {
 	private TestMetadataRepository metadataRepository;
+	private IPublisherResult actionResult;
+	private URI siteLocation;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		IPublisherResult result = new PublisherResult();
+		actionResult = new PublisherResult();
 		PublisherInfo info = new PublisherInfo();
 		metadataRepository = new TestMetadataRepository(new IInstallableUnit[0]);
 		info.setMetadataRepository(metadataRepository);
-		URI siteLocation = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml").toURI();
-		SiteXMLAction action = new SiteXMLAction(siteLocation);
-		action.perform(info, result, getMonitor());
+		siteLocation = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml").toURI();
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updateSite", "SiteXMLActionTest")});
+		featuresAction.perform(info, actionResult, new NullProgressMonitor());
+
+		SiteXMLAction action = new SiteXMLAction(siteLocation, null);
+		action.perform(info, actionResult, getMonitor());
+	}
+
+	public void testQualifier() {
+		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+		Collector results = actionResult.query(categoryQuery, new Collector(), new NullProgressMonitor());
+		Iterator iter = results.iterator();
+		while (iter.hasNext()) {
+			IInstallableUnit unit = (IInstallableUnit) iter.next();
+			assertTrue("1.0", unit.getId().startsWith(URIUtil.toUnencodedString(siteLocation)));
+			assertEquals("2.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
+		}
 	}
 
 	/**

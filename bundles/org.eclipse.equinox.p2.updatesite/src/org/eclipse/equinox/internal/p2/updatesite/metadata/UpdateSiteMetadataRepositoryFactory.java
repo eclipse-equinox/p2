@@ -94,7 +94,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	private IStatus generateMetadata(UpdateSite updateSite, IMetadataRepository repository, IProgressMonitor monitor) {
 		PublisherInfo info = new PublisherInfo();
 		info.setMetadataRepository(repository);
-		IPublisherAction[] actions = new IPublisherAction[] {new RemoteUpdateSiteAction(updateSite)};
+		IPublisherAction[] actions = new IPublisherAction[] {new RemoteUpdateSiteAction(updateSite, null)};
 		Publisher publisher = new Publisher(info);
 		return publisher.publish(actions, monitor);
 	}

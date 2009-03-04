@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
+import java.net.URISyntaxException;
+import org.eclipse.equinox.p2.publisher.*;
 
 /**
  * <p>
@@ -18,13 +18,23 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
  * The -source <localdir> parameter must specify the top-level directory containing the update site.
  * </p>
  */
-public class UpdatesitePublisherApplication extends AbstractPublisherApplication {
+public class UpdateSitePublisherApplication extends AbstractPublisherApplication {
 
-	public UpdatesitePublisherApplication() {
+	private String categoryQualifier = null;
+
+	public UpdateSitePublisherApplication() {
 		// nothing todo
 	}
 
+	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
+		super.processParameter(arg, parameter, pinfo);
+
+		if (arg.equalsIgnoreCase("-categoryQualifier")) //$NON-NLS-1$
+			categoryQualifier = parameter;
+
+	}
+
 	protected IPublisherAction[] createActions() {
-		return new IPublisherAction[] {new LocalUpdateSiteAction(source)};
+		return new IPublisherAction[] {new LocalUpdateSiteAction(source, categoryQualifier)};
 	}
 }

@@ -39,13 +39,30 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
 	private URI location;
+	private String categoryQualifier = null;
 
-	public SiteXMLAction(URI location) {
+	/**
+	 * Creates a SiteXMLAction from a Location (URI) with an optional qualifier to use for category names
+	 * @param location The location of the update site
+	 * @param categoryQualifier The qualifier to prepend to categories. This qualifier is used
+	 * to ensure that the category IDs are unique between update sites. If <b>null</b> a default
+	 * qualifier will be generated
+	 */
+	public SiteXMLAction(URI location, String categoryQualifier) {
 		this.location = location;
+		this.categoryQualifier = categoryQualifier;
 	}
 
-	public SiteXMLAction(UpdateSite updateSite) {
+	/**
+	 * Creates a SiteXMLAction from an Update site with an optional qualifier to use for category names
+	 * @param updateSite The update site 
+	 * @param categoryQualifier The qualifier to prepend to categories. This qualifier is used
+	 * to ensure that the category IDs are unique between update sites. If <b>null</b> a default
+	 * qualifier will be generated
+	 */
+	public SiteXMLAction(UpdateSite updateSite, String categoryQualifier) {
 		this.updateSite = updateSite;
+		this.categoryQualifier = categoryQualifier;
 	}
 
 	private void initialize() {
@@ -247,13 +264,14 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @param parentCategory The parent category, or <code>null</code>
 	 * @return an IU representing the category
 	 */
-	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
+	public IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
-		String categoryId = category.getName();
+		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
 		cat.setVersion(Version.emptyVersion);
-		cat.setProperty(IInstallableUnit.PROP_NAME, category.getLabel());
+		String label = category.getLabel();
+		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
 
 		ArrayList reqsConfigurationUnits = new ArrayList(featureIUs.size());
@@ -291,6 +309,18 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setArtifacts(new IArtifactKey[0]);
 		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
+	}
+
+	/**
+	 * Creates a qualified category id. This action's qualifier is used if one exists 
+	 * or an existing update site's location is used.
+	 */
+	private String buildCategoryId(String categoryName) {
+		if (categoryQualifier != null)
+			return categoryQualifier + "." + categoryName; //$NON-NLS-1$
+		if (updateSite != null)
+			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
+		return categoryName;
 	}
 
 }

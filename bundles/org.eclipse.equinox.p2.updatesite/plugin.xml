@@ -27,7 +27,7 @@
             thread="any"
             visible="true">
          <run
-               class="org.eclipse.equinox.internal.p2.updatesite.UpdatesitePublisherApplication">
+               class="org.eclipse.equinox.internal.p2.updatesite.UpdateSitePublisherApplication">
          </run>
       </application>
    </extension>

@@ -26,16 +26,34 @@ import org.eclipse.osgi.util.NLS;
 public class LocalUpdateSiteAction implements IPublisherAction {
 	protected String source;
 	private UpdateSite updateSite;
+	private String categoryQualifier;
 
 	protected LocalUpdateSiteAction() {
+		// empty
 	}
 
-	public LocalUpdateSiteAction(String source) {
+	/**
+	 * Creates a local updatesite publisher action from a source location
+	 * @param source The location of the directory that contains the site.xml file
+	 * @param categoryQualifier The qualifier to prepend to categories. This qualifier is used
+	 * to ensure that the category IDs are unique between update sites. If <b>null</b> a default
+	 * qualifier will be generated
+	 */
+	public LocalUpdateSiteAction(String source, String categoryQualifier) {
 		this.source = source;
+		this.categoryQualifier = categoryQualifier;
 	}
 
-	public LocalUpdateSiteAction(UpdateSite updateSite) {
+	/**
+	 * Creates a local updatesite publisher action from an UpdateSite
+	 * @param updateSite The updatesite to use
+	 * @param categoryQualifier The qualifier to prepend to categories. This qualifier is used
+	 * to ensure that the category IDs are unique between update sites.  If <b>null</b> a default
+	 * qualifier will be generated
+	 */
+	public LocalUpdateSiteAction(UpdateSite updateSite, String categoryQualifier) {
 		this.updateSite = updateSite;
+		this.categoryQualifier = categoryQualifier;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
@@ -63,13 +81,16 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 
 	private IPublisherAction createSiteXMLAction() {
 		if (updateSite != null)
-			return new SiteXMLAction(updateSite);
-		if (source != null)
-			return new SiteXMLAction(new File(source, "site.xml").toURI()); //$NON-NLS-1$
+			return new SiteXMLAction(updateSite, categoryQualifier);
+		if (source != null) {
+			SiteXMLAction siteXmlAction = new SiteXMLAction(new File(source, "site.xml").toURI(), categoryQualifier); //$NON-NLS-1$
+			return siteXmlAction;
+		}
 		return null;
 	}
 
 	private void createAdvice() {
+		// empty
 	}
 
 	protected IPublisherAction createFeaturesAction() {
