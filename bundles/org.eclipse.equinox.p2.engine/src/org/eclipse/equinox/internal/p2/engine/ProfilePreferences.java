@@ -11,15 +11,16 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -30,13 +31,14 @@ import org.osgi.service.prefs.BackingStoreException;
  * that is used when there is no currently running profile.
  */
 public class ProfilePreferences extends EclipsePreferences {
-	private static final long SAVE_SCHEDULE_DELAY = 500;
-	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
-
 	private class SaveJob extends Job {
 		SaveJob() {
 			super(Messages.ProfilePreferences_saving);
 			setSystem(true);
+		}
+
+		public boolean belongsTo(Object family) {
+			return family == PROFILE_SAVE_JOB_FAMILY;
 		}
 
 		protected IStatus run(IProgressMonitor monitor) {
@@ -47,21 +49,21 @@ public class ProfilePreferences extends EclipsePreferences {
 			}
 			return Status.OK_STATUS;
 		}
-
-		public boolean belongsTo(Object family) {
-			return family == PROFILE_SAVE_JOB_FAMILY;
-		}
 	}
 
-	private int segmentCount;
-	private String qualifier;
-	//private IPath location;
-	private IEclipsePreferences loadLevel;
 	// cache which nodes have been loaded from disk
 	private static Set loadedNodes = new HashSet();
 
+	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
+
+	private static final long SAVE_SCHEDULE_DELAY = 500;
+	//private IPath location;
+	private IEclipsePreferences loadLevel;
 	private Object profileLock;
+	private String qualifier;
+
 	private SaveJob saveJob;
+	private int segmentCount;
 
 	public ProfilePreferences() {
 		this(null, null);
@@ -94,9 +96,43 @@ public class ProfilePreferences extends EclipsePreferences {
 		return result;
 	}
 
-	public void removeNode() throws BackingStoreException {
-		super.removeNode();
-		loadedNodes.remove(this.absolutePath());
+	/*
+	 * (non-Javadoc)
+	 * Create an Engine phase to save profile preferences
+	 */
+	protected void doSave() throws BackingStoreException {
+		synchronized (((ProfilePreferences) parent).profileLock) {
+			String profileId = getSegment(absolutePath(), 1);
+			IProfile profile = computeProfile(profileId);
+			if (profile == null) {
+				//use the default location for the self profile, otherwise just do nothing and return
+				if (IProfileRegistry.SELF.equals(profileId)) {
+					IPath location = getDefaultLocation();
+					if (location != null) {
+						super.save(location);
+						return;
+					}
+				}
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+				return;
+			}
+			super.save(getProfileLocation(profile));
+		}
+	}
+
+	/**
+	 * Returns the preference file to use when there is no active profile.
+	 */
+	private IPath getDefaultLocation() {
+		//use engine agent location for preferences if there is no self profile
+		AgentLocation location = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.SERVICE_NAME);
+		if (location == null) {
+			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
+			return null;
+		}
+		IPath dataArea = new Path(URLUtil.toFile(location.getDataArea(EngineActivator.ID)).getAbsolutePath());
+		return computeLocation(dataArea, qualifier);
 	}
 
 	protected IEclipsePreferences getLoadLevel() {
@@ -114,20 +150,25 @@ public class ProfilePreferences extends EclipsePreferences {
 		return loadLevel;
 	}
 
+	/**
+	 * Returns the location of the preference file for the given profile.
+	 */
+	private IPath getProfileLocation(IProfile profile) {
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+		File profileDataDirectory = profileRegistry.getProfileDataDirectory((Profile) profile);
+		return computeLocation(new Path(profileDataDirectory.getAbsolutePath()), qualifier);
+	}
+
+	protected EclipsePreferences internalCreate(EclipsePreferences nodeParent, String nodeName, Object context) {
+		return new ProfilePreferences(nodeParent, nodeName);
+	}
+
 	protected synchronized boolean isAlreadyLoaded(IEclipsePreferences node) {
 		return loadedNodes.contains(node.absolutePath());
 	}
 
 	protected synchronized boolean isAlreadyLoaded(String path) {
 		return loadedNodes.contains(path);
-	}
-
-	protected synchronized void loaded() {
-		loadedNodes.add(name());
-	}
-
-	protected EclipsePreferences internalCreate(EclipsePreferences nodeParent, String nodeName, Object context) {
-		return new ProfilePreferences(nodeParent, nodeName);
 	}
 
 	/*
@@ -141,7 +182,7 @@ public class ProfilePreferences extends EclipsePreferences {
 			if (profile == null) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
-					File location = getDefaultLocation();
+					IPath location = getDefaultLocation();
 					if (location != null) {
 						load(location);
 						return;
@@ -151,35 +192,17 @@ public class ProfilePreferences extends EclipsePreferences {
 					Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 				return;
 			}
-			IEngine engine = (IEngine) ServiceHelper.getService(EngineActivator.getContext(), IEngine.SERVICE_NAME);
-			if (engine == null) {
-				throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_load_failed, profile.getProfileId()));
-			}
-			PhaseSet set = new ProfilePreferencePhaseSet(new PreferenceLoad());
-			Exception failure;
-			try {
-				IStatus status = engine.perform(profile, set, new Operand[0], null, null);
-				// Check return status.
-				if (status.isOK())
-					return;
-				failure = (Exception) status.getException();
-			} catch (IllegalStateException e) {
-				failure = e;
-			}
-			if (failure != null && failure instanceof BackingStoreException)
-				throw (BackingStoreException) failure;
-			throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_load_failed, profile.getProfileId()), failure);
+			load(getProfileLocation(profile));
 		}
 	}
 
-	private File getDefaultLocation() {
-		//use engine agent location for preferences if there is no self profile
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.SERVICE_NAME);
-		if (location == null) {
-			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
-			return null;
-		}
-		return URLUtil.toFile(location.getDataArea(EngineActivator.ID));
+	protected synchronized void loaded() {
+		loadedNodes.add(name());
+	}
+
+	public void removeNode() throws BackingStoreException {
+		super.removeNode();
+		loadedNodes.remove(this.absolutePath());
 	}
 
 	/**
@@ -198,112 +221,6 @@ public class ProfilePreferences extends EclipsePreferences {
 				saveJob.schedule(SAVE_SCHEDULE_DELAY);
 		} catch (IllegalStateException e) {
 			//bundle has been stopped concurrently, so don't save
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * Create an Engine phase to save profile preferences
-	 */
-	protected void doSave() throws BackingStoreException {
-		synchronized (((ProfilePreferences) parent).profileLock) {
-			String profileId = getSegment(absolutePath(), 1);
-			IProfile profile = computeProfile(profileId);
-			if (profile == null) {
-				//use the default location for the self profile, otherwise just do nothing and return
-				if (IProfileRegistry.SELF.equals(profileId)) {
-					File location = getDefaultLocation();
-					if (location != null) {
-						save(location);
-						return;
-					}
-				}
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
-					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
-				return;
-			}
-			IEngine engine = (IEngine) ServiceHelper.getService(EngineActivator.getContext(), IEngine.SERVICE_NAME);
-			if (engine == null) {
-				throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_save_failed, profile.getProfileId()));
-			}
-			PhaseSet set = new ProfilePreferencePhaseSet(new PreferenceFlush());
-			Exception failure;
-			try {
-				IStatus status = engine.perform(profile, set, new Operand[0], null, null);
-				// Check return status.
-				if (status.isOK())
-					return;
-				failure = (Exception) status.getException();
-			} catch (IllegalStateException e) {
-				failure = e;
-			}
-			if (failure != null && failure instanceof BackingStoreException)
-				throw (BackingStoreException) failure;
-			throw new BackingStoreException(NLS.bind(Messages.ProfilePreferences_save_failed, profile.getProfileId()), failure);
-		}
-	}
-
-	public void load(File directory) throws BackingStoreException {
-		super.load(computeLocation(new Path(directory.getAbsolutePath()), qualifier));
-	}
-
-	public void save(File directory) throws BackingStoreException {
-		super.save(computeLocation(new Path(directory.getAbsolutePath()), qualifier));
-	}
-
-	// Simple PhaseSet used when loading or saving profile preferences
-	private class ProfilePreferencePhaseSet extends PhaseSet {
-
-		public ProfilePreferencePhaseSet(Phase phase) {
-			super(new Phase[] {phase});
-		}
-	}
-
-	private class PreferenceFlush extends Phase {
-		private static final String PHASE_ID = "preferenceFlush"; //$NON-NLS-1$
-
-		public PreferenceFlush() {
-			super(PHASE_ID, 1);
-		}
-
-		protected ProvisioningAction[] getActions(Operand operand) {
-			return null;
-		}
-
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile phaseProfile, Map parameters) {
-			File dataDirectory = (File) parameters.get(PARM_PROFILE_DATA_DIRECTORY);
-			if (dataDirectory == null)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.ProfilePreferences_nullDir);
-			try {
-				save(dataDirectory);
-			} catch (BackingStoreException e) {
-				return new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e);
-			}
-			return Status.OK_STATUS;
-		}
-	}
-
-	private class PreferenceLoad extends Phase {
-		private static final String PHASE_ID = "preferenceLoad"; //$NON-NLS-1$
-
-		public PreferenceLoad() {
-			super(PHASE_ID, 1);
-		}
-
-		protected ProvisioningAction[] getActions(Operand operand) {
-			return null;
-		}
-
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile phaseProfile, Map parameters) {
-			File dataDirectory = (File) parameters.get(PARM_PROFILE_DATA_DIRECTORY);
-			if (dataDirectory == null)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.ProfilePreferences_nullDir);
-			try {
-				load(dataDirectory);
-			} catch (BackingStoreException e) {
-				return new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e);
-			}
-			return Status.OK_STATUS;
 		}
 	}
 }

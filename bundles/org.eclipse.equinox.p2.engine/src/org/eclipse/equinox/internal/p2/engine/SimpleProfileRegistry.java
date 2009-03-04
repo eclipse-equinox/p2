@@ -691,9 +691,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	public File getProfileDataDirectory(Profile profile) {
-		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
-		lock.checkLocked();
-
 		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
 		File profileDataArea = new File(profileDirectory, DATA_EXT);
 		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
