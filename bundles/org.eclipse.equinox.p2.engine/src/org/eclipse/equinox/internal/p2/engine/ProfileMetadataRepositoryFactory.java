@@ -20,6 +20,10 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Metad
 
 public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
+	/**
+	 * @throws ProvisionException
+	 * documenting to avoid warning 
+	 */
 	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
 		return null;
 	}
