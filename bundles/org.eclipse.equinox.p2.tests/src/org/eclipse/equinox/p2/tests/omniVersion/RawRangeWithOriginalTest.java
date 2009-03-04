@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 /**
@@ -147,5 +148,73 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertNotIncludedInRange("1.0", lowerBound, "raw:2.0.9");
 		assertIncludedInRange("1.1", lowerBound, "raw:2.2");
 		assertIncludedInRange("1.3", lowerBound, "raw:999.999.999.'foo'");
+	}
+
+	public void testMinBoundary() {
+		String rangeString = "raw:[-M,2.1.0.M]/format(n[.n=0;[.n=0;]][d?S=M;]):-M,2.1";
+		VersionRange range = new VersionRange(rangeString);
+		assertEquals(rangeString, range.toString());
+
+		VersionRange range1 = new VersionRange(range.getMinimum(), range.getIncludeMinimum(), range.getMaximum(), range.getIncludeMaximum());
+		assertEquals(range1, range);
+
+		VersionRange range2 = new VersionRange(null, true, range.getMaximum(), range.getIncludeMaximum());
+		assertEquals(range2, range);
+	}
+
+	public void testOSGiMinBoundary() {
+		String rangeString = "raw:[-M,2.1.0]/format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):-M,2.1.0";
+		VersionRange range = new VersionRange(rangeString);
+
+		VersionRange range1 = new VersionRange("[0.0.0,2.1.0]");
+		assertEquals(range1, range);
+
+		assertEquals("[0.0.0,2.1.0]", range.toString());
+
+		VersionRange range2 = new VersionRange(null, true, range.getMaximum(), range.getIncludeMaximum());
+		assertEquals(range2, range);
+	}
+
+	public void testMaxBoundary() {
+		String rangeString = "raw:[2.1.0.M,MpM]/format(n[.n=0;[.n=0;]][d?S=M;]):2.1,MpM";
+		VersionRange range = new VersionRange(rangeString);
+		assertEquals("raw:2.1.0.M/format(n[.n=0;[.n=0;]][d?S=M;]):2.1", range.toString());
+
+		VersionRange range1 = new VersionRange(range.getMinimum(), range.getIncludeMinimum(), range.getMaximum(), range.getIncludeMaximum());
+		assertEquals(range1, range);
+
+		VersionRange range2 = new VersionRange(range.getMinimum(), true, null, true);
+		assertEquals(range2, range);
+	}
+
+	public void testRecreateUsingMaxUpper() {
+		Version v = new Version("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
+		VersionRange range = new VersionRange(v, true, null, true);
+		Version min = range.getMinimum();
+		Version max = range.getMaximum();
+		VersionRange range2 = new VersionRange(min, true, max, true);
+		assertEquals(range2, range);
+	}
+
+	public void testRecreateUsingMinLower() {
+		Version v = new Version("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
+		VersionRange range = new VersionRange(null, true, v, true);
+		Version min = range.getMinimum();
+		Version max = range.getMaximum();
+		VersionRange range2 = new VersionRange(min, true, max, true);
+		assertEquals(range2, range);
+	}
+
+	public void testOSGiMaxBoundary() {
+		String rangeString = "raw:[2.1.0,MpM]/format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):2.1.0,MpM";
+		VersionRange range = new VersionRange(rangeString);
+
+		VersionRange range1 = new VersionRange("2.1.0");
+		assertEquals(range1, range);
+
+		assertEquals("2.1.0", range.toString());
+
+		VersionRange range2 = new VersionRange(range.getMinimum(), true, null, true);
+		assertEquals(range2, range);
 	}
 }

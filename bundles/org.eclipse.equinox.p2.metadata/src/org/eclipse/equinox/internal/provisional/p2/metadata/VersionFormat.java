@@ -1032,7 +1032,7 @@ public class VersionFormat implements Serializable {
 	 * @return A created version
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
-	public static Version parseRaw(String version, VersionFormat originalFormat, String original) {
+	static Version parseRaw(String version, VersionFormat originalFormat, String original) {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
 		return new Version(vector, padReturn[0], originalFormat, original);
