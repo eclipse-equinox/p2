@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -62,7 +63,8 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		pcr.addInstallableUnits(new IInstallableUnit[] {jdt1, jdt2});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
-		System.out.println(plan.getRequestStatus().getExplanations());
+		LogHelper.log(plan.getStatus());
+		//		System.out.println(plan.getRequestStatus().getExplanations());
 		long eTime = System.currentTimeMillis();
 		System.out.println("Time to compute conflict: " + (eTime - sTime));
 	}
@@ -76,7 +78,8 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		pcr3.addInstallableUnits(new IInstallableUnit[] {otherIU2});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(pcr3, null, null);
 		assertNotOK(plan3.getStatus());
-		System.out.println(plan3.getRequestStatus().getExplanations());
+		LogHelper.log(plan3.getStatus());
+		//		System.out.println(plan3.getRequestStatus().getExplanations());
 		long eTime = System.currentTimeMillis();
 		System.out.println("Time to compute conflict: " + (eTime - sTime));
 	}
@@ -89,7 +92,8 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		pcr2.addInstallableUnits(new IInstallableUnit[] {otherIU});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(pcr2, null, null);
 		assertNotOK(plan2.getStatus());
-		System.out.println(plan2.getRequestStatus().getExplanations());
+		LogHelper.log(plan2.getStatus());
+		//		System.out.println(plan2.getRequestStatus().getExplanations());
 		long eTime = System.currentTimeMillis();
 		System.out.println("Time to compute conflict: " + (eTime - sTime));
 	}
@@ -105,7 +109,8 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		pcr.addInstallableUnits(new IInstallableUnit[] {cvs});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
-		System.out.println(plan.getRequestStatus().getExplanations());
+		LogHelper.log(plan.getStatus());
+		//		System.out.println(plan.getRequestStatus().getExplanations());
 		long eTime = System.currentTimeMillis();
 		System.out.println("Time to compute conflict: " + (eTime - sTime));
 	}
