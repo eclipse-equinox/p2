@@ -15,7 +15,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.director.app.messages"; //$NON-NLS-1$
 	public static String destination_commandline;
-	public static String Inconsistent_flavor;
 
 	public static String Operation_complete;
 	public static String Operation_failed;

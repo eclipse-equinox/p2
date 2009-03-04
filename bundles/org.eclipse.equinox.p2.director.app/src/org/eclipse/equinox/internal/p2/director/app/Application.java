@@ -156,7 +156,7 @@ public class Application implements IApplication {
 			profile = ProvisioningHelper.addProfile(profileId, props);
 			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
 			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-				throw new RuntimeException(Messages.Inconsistent_flavor);
+				throw new RuntimeException(NLS.bind("Install flavor {0} not consistent with profile flavor {1}", flavor, currentFlavor)); //$NON-NLS-1$
 		}
 		return profile;
 	}
