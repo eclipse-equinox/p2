@@ -12,29 +12,37 @@ package org.eclipse.equinox.p2.tests;
 
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 
 /**
- * A repository factory that always throws exceptions.
+ * A repository factory that always throws exceptions. The "fail" flag must be set to
+ * cause this factory to start throwing exceptions.
  */
 public class FailingMetadataRepositoryFactory extends MetadataRepositoryFactory {
+	public static boolean FAIL = false;
 
 	@Override
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
-		throw new RuntimeException("Exception thrown deliberately as part of test");
+	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
+		if (FAIL)
+			throw new RuntimeException("Exception thrown deliberately as part of test");
+		throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null));
 	}
 
 	@Override
-	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) {
-		throw new RuntimeException("Exception thrown deliberately as part of test");
+	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		if (FAIL)
+			throw new RuntimeException("Exception thrown deliberately as part of test");
+		throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null));
 	}
 
 	@Override
 	public IStatus validate(URI location, IProgressMonitor monitor) {
-		throw new RuntimeException("Exception thrown deliberately as part of test");
+		if (FAIL)
+			throw new RuntimeException("Exception thrown deliberately as part of test");
+		return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null);
 	}
 
 }

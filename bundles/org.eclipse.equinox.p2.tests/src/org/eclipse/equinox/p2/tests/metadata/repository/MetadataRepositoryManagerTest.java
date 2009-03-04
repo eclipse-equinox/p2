@@ -51,6 +51,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());
+		//only enable the failing repository factory for this test to avoid noise in other tests.
+		FailingMetadataRepositoryFactory.FAIL = true;
 	}
 
 	protected void tearDown() throws Exception {
@@ -58,6 +60,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		for (Iterator it = toDelete.iterator(); it.hasNext();)
 			delete((File) it.next());
 		toDelete.clear();
+		FailingMetadataRepositoryFactory.FAIL = false;
 	}
 
 	public void testBasicAddRemove() {
