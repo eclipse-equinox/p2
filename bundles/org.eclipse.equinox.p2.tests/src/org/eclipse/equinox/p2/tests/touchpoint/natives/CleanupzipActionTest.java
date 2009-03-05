@@ -62,12 +62,69 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		File aTxt = new File(installFolder, "a.txt");
 		new UnzipAction().execute(parameters);
 		assertTrue(aTxt.exists());
+		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
 
 		CleanupzipAction action = new CleanupzipAction();
 		action.execute(parameters);
 		assertFalse(aTxt.exists());
+		assertEquals(0, profile.getInstallableUnitProperties(iu).size());
+
 		// does nothing so should not alter parameters
 		action.undo(parameters);
 		assertTrue(aTxt.exists());
+		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
+
+	}
+
+	public void testExecuteUndoWhereInstallFolderIsDifferent() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
+		File zipTarget = new File(installFolder, "a.zip");
+		copy("2.0", zipSource, zipTarget);
+
+		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
+		iuDesc.setId("test");
+		iuDesc.setVersion(DEFAULT_VERSION);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("test", DEFAULT_VERSION);
+		iuDesc.setArtifacts(new IArtifactKey[] {key});
+		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
+		parameters.put("iu", operand.second());
+		parameters.put(ActionConstants.PARM_OPERAND, operand);
+		NativeTouchpoint touchpoint = new NativeTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+
+		parameters.put(ActionConstants.PARM_SOURCE, zipTarget.getAbsolutePath());
+		parameters.put(ActionConstants.PARM_TARGET, installFolder.getAbsolutePath());
+
+		File aTxt = new File(installFolder, "a.txt");
+		new UnzipAction().execute(parameters);
+		assertTrue(aTxt.exists());
+		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
+
+		File installFolder2 = getTempFolder();
+		copy("", installFolder, installFolder2);
+		parameters.put(ActionConstants.PARM_TARGET, installFolder2.getAbsolutePath());
+
+		CleanupzipAction action = new CleanupzipAction();
+		action.execute(parameters);
+		File aTxt2 = new File(installFolder2, "a.txt");
+		assertFalse(aTxt2.exists());
+		assertEquals(0, profile.getInstallableUnitProperties(iu).size());
+
+		// does nothing so should not alter parameters
+		action.undo(parameters);
+		assertTrue(aTxt2.exists());
+		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
+
 	}
 }

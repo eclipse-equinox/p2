@@ -14,15 +14,16 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class CleanupzipAction extends ProvisioningAction {
 
+	private static final String UNZIPPED = "unzipped"; //$NON-NLS-1$
 	public static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
@@ -42,12 +43,31 @@ public class CleanupzipAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET, ACTION_CLEANUPZIP));
 
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
-		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
+		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 
-		String unzipped = profile.getInstallableUnitProperty(iu, "unzipped" + ActionConstants.PIPE + source + ActionConstants.PIPE + target); //$NON-NLS-1$
+		String iuPropertyKey = UNZIPPED + ActionConstants.PIPE + source + ActionConstants.PIPE + target;
 
-		if (unzipped == null)
-			return Status.OK_STATUS;
+		String unzipped = profile.getInstallableUnitProperty(iu, iuPropertyKey);
+		if (unzipped == null) {
+			// best effort
+			// we try to substitute the current target with what was written.
+			Map iuProperties = profile.getInstallableUnitProperties(iu);
+			String sourcePrefix = UNZIPPED + ActionConstants.PIPE + source + ActionConstants.PIPE;
+			for (Iterator iterator = iuProperties.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				if (key.startsWith(sourcePrefix)) {
+					if (unzipped == null) {
+						iuPropertyKey = key;
+						String storedTarget = key.substring(sourcePrefix.length());
+						unzipped = substituteTarget(storedTarget, target, (String) iuProperties.get(key));
+					} else
+						return Status.OK_STATUS; // possible two unzips of this source - give up on best effort
+				}
+			}
+			// no match
+			if (unzipped == null)
+				return Status.OK_STATUS;
+		}
 
 		StringTokenizer tokenizer = new StringTokenizer(unzipped, ActionConstants.PIPE);
 		List directories = new ArrayList();
@@ -68,7 +88,23 @@ public class CleanupzipAction extends ProvisioningAction {
 			directory.delete();
 		}
 
+		profile.removeInstallableUnitProperty(iu, iuPropertyKey);
 		return Status.OK_STATUS;
+	}
+
+	private static String substituteTarget(String oldTarget, String newTarget, String value) {
+		StringBuffer buffer = new StringBuffer();
+		StringTokenizer tokenizer = new StringTokenizer(value, ActionConstants.PIPE);
+		while (tokenizer.hasMoreTokens()) {
+			String fileName = tokenizer.nextToken().trim();
+			if (fileName.length() == 0)
+				continue;
+			if (fileName.startsWith(oldTarget))
+				fileName = newTarget + fileName.substring(oldTarget.length());
+
+			buffer.append(fileName).append(ActionConstants.PIPE);
+		}
+		return buffer.toString();
 	}
 
 }
