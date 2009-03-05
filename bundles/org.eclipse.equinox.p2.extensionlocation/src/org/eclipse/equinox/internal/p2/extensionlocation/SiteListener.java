@@ -274,9 +274,9 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Iterate over the feature directory and return a map of 
 	 * File to Feature objects (from the generator bundle)
 	 */
-	private Map getFeatures(File siteLocation) {
+	private Map getFeatures(File location) {
 		Map result = new HashMap();
-		File featureDir = new File(siteLocation, FEATURES);
+		File featureDir = new File(location, FEATURES);
 		File[] children = featureDir.listFiles();
 		for (int i = 0; i < children.length; i++) {
 			File featureLocation = children[i];
@@ -294,8 +294,8 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Iterate over the plugins directory and return a map of
 	 * plug-in id/version to File locations.
 	 */
-	private Map getPlugins(File siteLocation) {
-		File[] plugins = new File(siteLocation, PLUGINS).listFiles();
+	private Map getPlugins(File location) {
+		File[] plugins = new File(location, PLUGINS).listFiles();
 		Map result = new HashMap();
 		for (int i = 0; plugins != null && i < plugins.length; i++) {
 			File bundleLocation = plugins[i];
