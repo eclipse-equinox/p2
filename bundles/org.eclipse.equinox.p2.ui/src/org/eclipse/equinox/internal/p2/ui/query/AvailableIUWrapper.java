@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
@@ -20,19 +21,19 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 
 /**
- * Collector that examines available IU's and wraps them in an
- * element representing either a category an IU.
+ * A wrapper that examines available IU's and wraps them in an
+ * element representing either a category or a regular IU.
  *  
  * @since 3.4
  */
-public class AvailableIUCollector extends QueriedElementCollector {
+public class AvailableIUWrapper extends QueriedElementWrapper {
 
 	private boolean makeCategories;
 	private IProfile profile;
 	private boolean hideInstalledIUs = false;
 	private boolean drillDownChild = false;
 
-	public AvailableIUCollector(IQueryable queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
+	public AvailableIUWrapper(IQueryable queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
 		super(queryable, parent);
 		this.makeCategories = makeCategories;
 		this.drillDownChild = makeDrillDownChild;
@@ -43,15 +44,36 @@ public class AvailableIUCollector extends QueriedElementCollector {
 		hideInstalledIUs = hideInstalled;
 	}
 
-	/**
-	 * Accepts a result that matches the query criteria.
-	 * 
-	 * @param match an object matching the query
-	 * @return <code>true</code> if the query should continue,
-	 * or <code>false</code> to indicate the query should stop.
-	 */
-	public boolean accept(Object match) {
+	class InformationCache {
+		Object item = null;
+		boolean isUpdate = false;
+		boolean isInstalled = false;
+
+		public InformationCache(Object item, boolean isUpdate, boolean isInstalled) {
+			this.item = item;
+			this.isUpdate = isUpdate;
+			this.isInstalled = isInstalled;
+		}
+	}
+
+	InformationCache cache = null;
+
+	protected boolean shouldWrap(Object match) {
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(match, IInstallableUnit.class);
+		cache = computeIUInformation(iu); // Cache the result
+
+		// if we are hiding, hide anything that is the same iu or older
+		if (hideInstalledIUs && cache.isInstalled && !cache.isUpdate) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Compute information about this IU. This computes whether or
+	 * not this IU is installed and / or updated.
+	 */
+	private InformationCache computeIUInformation(IInstallableUnit iu) {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
 		if (profile != null && iu != null) {
@@ -68,25 +90,37 @@ public class AvailableIUCollector extends QueriedElementCollector {
 				}
 			}
 		}
-		// if we are hiding, hide anything that is the same iu or older
-		if (hideInstalledIUs && isInstalled && !isUpdate) {
-			return true;
-		}
+		return new InformationCache(iu, isUpdate, isInstalled);
 
+	}
+
+	protected Object wrap(Object item) {
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(item, IInstallableUnit.class);
+		boolean isUpdate = false;
+		boolean isInstalled = false;
+		if (cache != null && cache.item == item) {
+			// This cache should always be valide, since accept is called before transformItem
+			isUpdate = cache.isUpdate;
+			isInstalled = cache.isInstalled;
+		} else {
+			InformationCache iuInformation = computeIUInformation(iu);
+			isUpdate = iuInformation.isUpdate;
+			isInstalled = iuInformation.isInstalled;
+		}
 		// subclass already made this an element, just set the install flag
-		if (match instanceof AvailableIUElement) {
-			AvailableIUElement element = (AvailableIUElement) match;
+		if (item instanceof AvailableIUElement) {
+			AvailableIUElement element = (AvailableIUElement) item;
 			element.setIsInstalled(isInstalled);
 			element.setIsUpdate(isUpdate);
-			return super.accept(match);
+			return super.wrap(item);
 		}
 		// If it's not an IU or element, we have nothing to do here
-		if (!(match instanceof IInstallableUnit))
-			return super.accept(match);
+		if (!(item instanceof IInstallableUnit))
+			return super.wrap(item);
 
 		// We need to make an element
 		if (makeCategories && isCategory(iu))
-			return super.accept(new CategoryElement(parent, iu));
+			return super.wrap(new CategoryElement(parent, iu));
 
 		IIUElement element = makeDefaultElement(iu);
 		if (element instanceof AvailableIUElement) {
@@ -94,7 +128,7 @@ public class AvailableIUCollector extends QueriedElementCollector {
 			availableElement.setIsInstalled(isInstalled);
 			availableElement.setIsUpdate(isUpdate);
 		}
-		return super.accept(element);
+		return super.wrap(element);
 	}
 
 	protected IIUElement makeDefaultElement(IInstallableUnit iu) {

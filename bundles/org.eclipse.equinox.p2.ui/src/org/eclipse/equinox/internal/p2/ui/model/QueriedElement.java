@@ -91,11 +91,11 @@ public abstract class QueriedElement extends ProvElement {
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this);
 		if (queryDescriptor == null || !isSufficientForQuery(queryDescriptor))
 			return new Object[0];
-		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, monitor);
-		cachedChildren = queryDescriptor.collector.toCollection();
-		if (queryDescriptor.collector.size() > 0) {
+		Collection results = queryDescriptor.performQuery(monitor);
+		cachedChildren = Collections.unmodifiableCollection(results);
+		if (results.size() > 0) {
 			Collection returnedChildren = new HashSet();
-			returnedChildren.addAll(queryDescriptor.collector.toCollection());
+			returnedChildren.addAll(results);
 			Object[] siblings = getSiblings();
 			for (int i = 0; i < siblings.length; i++) {
 				returnedChildren.remove(siblings[i]);

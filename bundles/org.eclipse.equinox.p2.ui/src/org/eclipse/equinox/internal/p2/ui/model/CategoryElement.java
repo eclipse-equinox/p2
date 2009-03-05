@@ -14,6 +14,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
@@ -83,6 +84,21 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	public void mergeIU(IInstallableUnit iu) {
 		ius.add(iu);
+	}
+
+	public boolean shouldMerge(IInstallableUnit iu) {
+		IInstallableUnit myIU = getIU();
+		if (myIU == null)
+			return false;
+		return getMergeKey(myIU).equals(getMergeKey(iu));
+	}
+
+	private String getMergeKey(IInstallableUnit iu) {
+		String mergeKey = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		if (mergeKey == null || mergeKey.length() == 0) {
+			mergeKey = iu.getId();
+		}
+		return mergeKey;
 	}
 
 	public IRequiredCapability[] getRequirements() {

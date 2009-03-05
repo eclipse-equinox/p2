@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,43 +7,40 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
 
 /**
- * Collector that assigns a query provider and the queryable
- * who was performing the query to the elements
+ * A wrapper that assigns a query provider and the queryable
+ * who was performing the query to the wrapped elements
  * as they are accepted.
  * 
  * @since 3.4
  */
-public class QueriedElementCollector extends Collector {
+public abstract class QueriedElementWrapper extends ElementWrapper {
 
 	protected IQueryable queryable;
 	protected Object parent;
 
-	public QueriedElementCollector(IQueryable queryable, Object parent) {
+	public QueriedElementWrapper(IQueryable queryable, Object parent) {
 		this.queryable = queryable;
 		this.parent = parent;
 	}
 
 	/**
-	 * Accepts a result that matches the query criteria.
-	 * 
-	 * @param match an object matching the query
-	 * @return <code>true</code> if the query should continue,
-	 * or <code>false</code> to indicate the query should stop.
+	 * Sets an item as Queryable if it is a QueriedElement
 	 */
-	public boolean accept(Object match) {
-		if (match instanceof QueriedElement) {
-			QueriedElement element = (QueriedElement) match;
+	protected Object wrap(Object item) {
+		if (item instanceof QueriedElement) {
+			QueriedElement element = (QueriedElement) item;
 			if (!element.knowsQueryable()) {
 				element.setQueryable(queryable);
 			}
 		}
-		return super.accept(match);
+		return item;
 	}
 }

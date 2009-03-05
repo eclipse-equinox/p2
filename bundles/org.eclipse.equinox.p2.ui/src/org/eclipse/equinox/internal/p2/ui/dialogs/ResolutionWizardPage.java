@@ -296,9 +296,13 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		// We tried to resolve and it failed.  The specific error was already reported, so description
 		// text can be used for the selected IU.
 		if (couldNotResolve) {
-			if (iu != null)
+			if (iu != null) {
 				detail = getIUDescription(iu);
-			iuDetailsGroup.enablePropertyLink(true);
+				iuDetailsGroup.enablePropertyLink(true);
+			} else {
+				detail = ""; //$NON-NLS-1$
+				iuDetailsGroup.enablePropertyLink(false);
+			}
 			return detail;
 		}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,26 +7,25 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
- * Collector that accepts the matched repo URLs and
+ * ElementWrapper that accepts the matched repo URLs and
  * wraps them in a MetadataRepositoryElement.
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElementCollector extends QueriedElementCollector {
+public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 
-	public MetadataRepositoryElementCollector(IQueryable queryable, Object parent) {
+	public MetadataRepositoryElementWrapper(IQueryable queryable, Object parent) {
 		super(queryable, parent);
 	}
 
@@ -37,17 +36,16 @@ public class MetadataRepositoryElementCollector extends QueriedElementCollector 
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.
 	 */
-	public boolean accept(Object match) {
-		if (!(match instanceof URI))
+	protected boolean shouldWrap(Object match) {
+		if ((match instanceof URI))
 			return true;
-		MetadataRepositoryElement element = new MetadataRepositoryElement(parent, (URI) match, ProvisioningUtil.getMetadataRepositoryEnablement((URI) match));
-		try {
-			String nickname = ProvisioningUtil.getMetadataRepositoryProperty((URI) match, IRepository.PROP_NICKNAME);
-			if (nickname != null && nickname.length() > 0)
-				element.setNickname(nickname);
-		} catch (ProvisionException e) {
-			// swallow
-		}
-		return super.accept(element);
+		return false;
+	}
+
+	/**
+	 * Transforms the item to a UI element
+	 */
+	protected Object wrap(Object item) {
+		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUtil.getMetadataRepositoryEnablement((URI) item)));
 	}
 }

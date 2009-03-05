@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,24 +7,25 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 
 /**
- * Collectors that accepts the matched IU's and
+ * ElementWrapper that accepts the matched IU's and
  * wraps them in an InstalledIUElement.
  * 
  * @since 3.4
  */
-public class InstalledIUCollector extends QueriedElementCollector {
+public class InstalledIUElementWrapper extends QueriedElementWrapper {
 
-	public InstalledIUCollector(IQueryable queryable, Object parent) {
+	public InstalledIUElementWrapper(IQueryable queryable, Object parent) {
 		super(queryable, parent);
 	}
 
@@ -35,13 +36,20 @@ public class InstalledIUCollector extends QueriedElementCollector {
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.
 	 */
-	public boolean accept(Object match) {
-		if (!(match instanceof IInstallableUnit))
+	protected boolean shouldWrap(Object match) {
+		if (match instanceof IInstallableUnit)
 			return true;
+		return false;
+	}
+
+	/**
+	 * Transforms the item to a UI element
+	 */
+	protected Object wrap(Object item) {
 		if (queryable instanceof IProfile)
-			return super.accept(new InstalledIUElement(parent, ((IProfile) queryable).getProfileId(), (IInstallableUnit) match));
+			return super.wrap(new InstalledIUElement(parent, ((IProfile) queryable).getProfileId(), (IInstallableUnit) item));
 		// Shouldn't happen, the queryable should typically be a profile
-		return super.accept(match);
+		return super.wrap(item);
 	}
 
 }
