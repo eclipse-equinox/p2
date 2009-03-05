@@ -22,6 +22,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
@@ -106,6 +108,16 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
 		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), profile, getMonitor());
+	}
+
+	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setId(id);
+		iu.setVersion(version);
+		iu.setProperty(IInstallableUnit.PROP_NAME, name);
+		if (isCategory)
+			iu.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+		return MetadataFactory.createInstallableUnit(iu);
 	}
 
 	protected ProfileModificationOperation getLongTestOperation() {

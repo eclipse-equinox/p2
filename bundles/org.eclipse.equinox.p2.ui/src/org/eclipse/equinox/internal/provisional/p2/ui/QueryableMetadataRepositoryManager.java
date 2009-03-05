@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -20,10 +21,8 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -61,28 +60,34 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
-	protected Collector query(URI uri, Query query, Collector collector, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, uri.toString()), 200);
+	protected Collector query(URI uris[], Query query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof RepositoryLocationQuery) {
-			query.perform(Arrays.asList(new URI[] {uri}).iterator(), collector);
-			sub.worked(2);
+			query.perform(Arrays.asList(uris).iterator(), collector);
+			monitor.done();
 		} else {
-			IRepository repo = null;
-			try {
-				repo = loadRepository(getRepositoryManager(), uri, sub.newChild(100));
-			} catch (ProvisionException e) {
-				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-					handleNotFound(e, uri);
-				else
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, uri), StatusManager.LOG);
-			} catch (OperationCanceledException e) {
-				// user has canceled
-				repo = null;
+			SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
+			ArrayList loadedRepos = new ArrayList(uris.length);
+			for (int i = 0; i < uris.length; i++) {
+				IRepository repo = null;
+				try {
+					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
+				} catch (ProvisionException e) {
+					if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+						handleNotFound(e, uris[i]);
+					else
+						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, uris[i]), StatusManager.LOG);
+				} catch (OperationCanceledException e) {
+					// user has canceled
+					repo = null;
+				}
+				if (repo != null)
+					loadedRepos.add(repo);
 			}
-			if (repo instanceof IMetadataRepository)
-				((IMetadataRepository) repo).query(query, collector, sub.newChild(100));
+			if (loadedRepos.size() > 0) {
+				IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
+				collector = new CompoundQueryable(queryables).query(query, collector, sub.newChild(100));
+			}
 		}
-		monitor.done();
 		return collector;
 	}
 }

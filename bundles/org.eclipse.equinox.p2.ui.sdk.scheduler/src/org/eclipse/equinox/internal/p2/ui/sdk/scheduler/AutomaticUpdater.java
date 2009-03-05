@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
@@ -89,9 +90,8 @@ public class AutomaticUpdater implements IUpdateListener {
 						.getQueryProvider().getQueryDescriptor(
 								new Updates(event.getProfileId(), event
 										.getIUs()));
-				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable
-						.query(descriptor.query, descriptor.collector, null)
-						.toArray(IInstallableUnit.class);
+				Collection results = descriptor.performQuery(null);
+				IInstallableUnit[] replacements = (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 				if (replacements.length > 0) {
 					ProfileChangeRequest request = ProfileChangeRequest
 							.createByProfileId(event.getProfileId());

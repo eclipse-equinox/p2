@@ -76,15 +76,9 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		Collection repoLocations = getRepoLocations(manager);
-		Iterator iterator = repoLocations.iterator();
-		SubMonitor sub = SubMonitor.convert(monitor, repoLocations.size() * 100);
-		while (iterator.hasNext()) {
-			if (sub.isCanceled())
-				return result;
-			URI location = (URI) iterator.next();
-			query(location, query, result, sub.newChild(100));
-		}
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		query(getRepoLocations(manager), query, result, monitor);
 		reportAccumulatedStatus();
 		return result;
 	}
@@ -102,37 +96,35 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
-		Collection repoLocations = getRepoLocations(manager);
-		Iterator iter = repoLocations.iterator();
-		SubMonitor sub = SubMonitor.convert(monitor, repoLocations.size() * 100);
+		URI[] repoLocations = getRepoLocations(manager);
+		SubMonitor sub = SubMonitor.convert(monitor, repoLocations.length * 100);
 		if (sub.isCanceled())
 			return;
-		while (iter.hasNext()) {
+		for (int i = 0; i < repoLocations.length; i++) {
 			if (sub.isCanceled())
 				return;
-			URI location = (URI) iter.next();
 			try {
-				loadRepository(manager, location, sub.newChild(100));
+				loadRepository(manager, repoLocations[i], sub.newChild(100));
 			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-					handleNotFound(e, location);
+					handleNotFound(e, repoLocations[i]);
 				else
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location), StatusManager.LOG);
+					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations[i]), StatusManager.LOG);
 			}
 		}
 	}
 
 	/**
-	 * Returns a Collection<URI> of repository locations.
+	 * Returns an array of repository locations.
 	 */
-	private Collection getRepoLocations(IRepositoryManager manager) {
+	private URI[] getRepoLocations(IRepositoryManager manager) {
 		Set locations = new HashSet();
 		int flags = queryContext.getMetadataRepositoryFlags();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(flags)));
 		if (includeDisabledRepos) {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | flags)));
 		}
-		return locations;
+		return (URI[]) locations.toArray(new URI[locations.size()]);
 	}
 
 	protected void handleNotFound(ProvisionException e, URI missingRepo) {
@@ -187,14 +179,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		IRepositoryManager mgr = getRepositoryManager();
 		if (mgr == null)
 			return false;
-		Iterator repoURIs = getRepoLocations(mgr).iterator();
-		while (repoURIs.hasNext()) {
-			Object location = repoURIs.next();
-			if (location instanceof URI) {
-				IRepository repo = getRepository(mgr, (URI) location);
-				if (repo == null)
-					return false;
-			}
+		URI[] repoURIs = getRepoLocations(mgr);
+		for (int i = 0; i < repoURIs.length; i++) {
+			IRepository repo = getRepository(mgr, repoURIs[i]);
+			if (repo == null)
+				return false;
 		}
 		return true;
 	}
@@ -241,7 +230,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected abstract Collector query(URI uri, Query query, Collector collector, IProgressMonitor monitor);
+	protected abstract Collector query(URI[] uris, Query query, Collector collector, IProgressMonitor monitor);
 
 	public void setQueryContext(IUViewQueryContext queryContext) {
 		this.queryContext = queryContext;

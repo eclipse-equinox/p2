@@ -20,10 +20,11 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(AnyRequiredCapabilityTest.class);
-		suite.addTestSuite(AvailableIUCollectorTest.class);
-		suite.addTestSuite(CategoryElementCollectorTest.class);
+		suite.addTestSuite(AvailableIUWrapperTest.class);
+		suite.addTestSuite(CategoryElementWrapperTest.class);
 		suite.addTestSuite(IUPropertyUtilsTest.class);
-		suite.addTestSuite(LatestIUVersionElementCollectorTest.class);
+		suite.addTestSuite(LatestIUVersionElementWrapperTest.class);
+		suite.addTestSuite(QueryDescriptorTest.class);
 		suite.addTestSuite(QueryableMetadataRepositoryManagerTest.class);
 		return suite;
 	}

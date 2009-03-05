@@ -67,7 +67,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, ius.length);
 		for (int i = 0; i < ius.length; i++) {
 			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(new Updates(targetProfileId, new IInstallableUnit[] {ius[i]}));
-			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, sub).iterator();
+			Iterator iter = descriptor.performQuery(sub).iterator();
 			if (iter.hasNext())
 				toBeUpdated.add(ius[i]);
 			ArrayList currentReplacements = new ArrayList();

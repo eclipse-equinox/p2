@@ -27,7 +27,7 @@ public class ElementQueryDescriptor {
 	private Query query;
 	private Collector collector;
 	private IQueryable queryable;
-	private ElementWrapper transformer;
+	private ElementWrapper wrapper;
 
 	/**
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
@@ -41,11 +41,11 @@ public class ElementQueryDescriptor {
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
 	 * on which it will run, and the transformer used to transform the results.
 	 */
-	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector collector, ElementWrapper transformer) {
+	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector collector, ElementWrapper wrapper) {
 		this.query = query;
 		this.collector = collector;
 		this.queryable = queryable;
-		this.transformer = transformer;
+		this.wrapper = wrapper;
 	}
 
 	public boolean isComplete() {
@@ -58,8 +58,8 @@ public class ElementQueryDescriptor {
 	 */
 	public Collection performQuery(IProgressMonitor monitor) {
 		Collector results = this.queryable.query(this.query, this.collector, monitor);
-		if (transformer != null)
-			return transformer.getElements(results);
+		if (wrapper != null)
+			return wrapper.getElements(results);
 		return results.toCollection();
 	}
 

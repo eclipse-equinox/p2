@@ -14,14 +14,17 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.DefaultQueryProvider;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.RepositoryLocationQuery;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.TestData;
 
@@ -174,6 +177,57 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		int iuCount = result.size();
 		result = manager.query(new IUPropertyQuery(null, null), new Collector(), getMonitor());
 		assertEquals("2.2", iuCount, result.size());
+	}
+
+	public void testNonLatestInMultipleRepositories() {
+		URI multipleVersion1, multipleVersion2;
+		try {
+			multipleVersion1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+			multipleVersion2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(multipleVersion1);
+		metadataRepositoryManager.addRepository(multipleVersion2);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
+
+		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		context.setShowLatestVersionsOnly(false);
+
+		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
+		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
+		Collection collection = queryDescriptor.performQuery(null);
+		assertEquals("1.0", 5, collection.size());
+	}
+
+	public void testLatestInMultipleRepositories() {
+		URI multipleVersion1, multipleVersion2;
+		try {
+			multipleVersion1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+			multipleVersion2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.addRepository(multipleVersion1);
+		metadataRepositoryManager.addRepository(multipleVersion2);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
+
+		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		context.setShowLatestVersionsOnly(true);
+
+		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
+		manager.setQueryContext(context);
+		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
+		Collection collection = queryDescriptor.performQuery(null);
+		assertEquals("1.0", 1, collection.size());
+		AvailableIUElement next = (AvailableIUElement) collection.iterator().next();
+		assertEquals("1.1", new Version(3, 0, 0), next.getIU().getVersion());
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {

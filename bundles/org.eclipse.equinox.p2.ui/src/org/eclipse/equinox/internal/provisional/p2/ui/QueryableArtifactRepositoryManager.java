@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 import java.net.URI;
 import java.util.Arrays;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -48,9 +49,14 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
-	protected Collector query(URI uri, Query query, Collector collector, IProgressMonitor monitor) {
-		// artifact repositories do not support querying, so we always use the location.
-		query.perform(Arrays.asList(new URI[] {uri}).iterator(), collector);
+	protected Collector query(URI[] uris, Query query, Collector collector, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, uris.length * 100);
+		for (int i = 0; i < uris.length; i++) {
+			if (sub.isCanceled())
+				return collector;
+			// artifact repositories do not support querying, so we always use the location.
+			query.perform(Arrays.asList(uris).iterator(), collector);
+		}
 		return collector;
 	}
 }
