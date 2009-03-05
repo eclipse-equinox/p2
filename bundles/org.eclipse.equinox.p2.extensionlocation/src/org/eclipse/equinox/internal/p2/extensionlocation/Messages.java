@@ -20,6 +20,7 @@ public class Messages extends NLS {
 	public static String not_eclipse_extension;
 	public static String not_file_protocol;
 	public static String repo_already_exists;
+	public static String error_p2_repository;
 
 	static {
 		// initialize resource bundle

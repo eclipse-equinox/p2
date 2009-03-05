@@ -12,8 +12,9 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URI;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -28,6 +29,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
+	public static final List STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList(new Object[] {"artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	IMetadataRepository metadataRepository;
 	private File base;
@@ -108,12 +110,25 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {
 		File base = getBaseDirectory(location);
-		if (new File(base, EXTENSION_LOCATION).exists())
+		if (new File(base, EXTENSION_LOCATION).exists() || location.getPath().endsWith(EXTENSION_LOCATION))
 			return;
 		if (containsUpdateSiteFile(base)) {
 			String message = NLS.bind(Messages.error_update_site, location.toString());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
 		}
+		if (containsStandardP2Repository(base)) {
+			String message = NLS.bind(Messages.error_p2_repository, location.toString());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
+		}
+	}
+
+	private static boolean containsStandardP2Repository(File base) {
+		File[] foundRepos = base.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return (STANDARD_P2_REPOSITORY_FILE_NAMES.contains(name));
+			}
+		});
+		return foundRepos.length > 0;
 	}
 
 	private static boolean containsUpdateSiteFile(File base) {
@@ -164,7 +179,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		return metadataRepository.getProperties();
 	}
 
-	public void initialize(RepositoryState state) {
+	public void initialize(RepositoryState repositoryState) {
 		//nothing to do
 	}
 

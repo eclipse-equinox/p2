@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.extensionlocation;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
@@ -244,6 +245,92 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		try {
 			factory.load(site.toURI(), 0, getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		}
+		fail("1.0");
+	}
+
+	public void testArtifactsXMLFeaturesandPluginsDirectory() throws IOException {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File artifactsXML = new File(directory, "artifacts.xml");
+		artifactsXML.createNewFile();
+
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		URI location = directory.toURI();
+		try {
+			factory.load(location, 0, getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		}
+		fail("1.0");
+	}
+
+	public void testArtifactsXMLFeaturesandPluginsDirectoryWithExtensionLocation() throws IOException {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File artifactsXML = new File(directory, "artifacts.xml");
+		artifactsXML.createNewFile();
+
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		File extensionLocation = new File(tempDirectory.getAbsolutePath() + Constants.EXTENSION_LOCATION);
+		URI location = extensionLocation.toURI();
+		try {
+			factory.load(location, 0, getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		}
+		fail("1.0");
+	}
+
+	public void testContentXMLFeaturesandPluginsDirectory() throws IOException {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File contentXML = new File(directory, "content.xml");
+		contentXML.createNewFile();
+
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		URI location = directory.toURI();
+		try {
+			factory.load(location, 0, getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		}
+		fail("1.0");
+	}
+
+	public void testCompositeArtifactsXMLFeaturesandPluginsDirectory() throws IOException {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File compositeArtifactsXML = new File(directory, "compositeArtifacts.xml");
+		compositeArtifactsXML.createNewFile();
+
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		URI location = directory.toURI();
+		try {
+			factory.load(location, 0, getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		}
+		fail("1.0");
+	}
+
+	public void testCompositeContentXMLFeaturesandPluginsDirectory() throws IOException {
+		File directory = new File(tempDirectory, "exists");
+		directory.mkdirs();
+		File compositeContentXML = new File(directory, "compositeContent.xml");
+		compositeContentXML.createNewFile();
+
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		URI location = directory.toURI();
+		try {
+			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
 			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
 				return;

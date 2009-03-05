@@ -53,9 +53,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		suite.addTest(new BasicTests("testSingleton"));
 		suite.addTest(new BasicTests("testDirectoryBasedPlugin"));
 		suite.addTest(new BasicTests("testSimpleRepoWithSiteXMLPlaceHolder"));
-		// NOTE: Enable this tests when we can handle a simple repo without the site.xml placeholder
-		// see bug 252752
-		//suite.addTest(new BasicTests("testSimpleRepo"));
+		suite.addTest(new BasicTests("testSimpleRepo"));
 
 		// suite.addTest(new BasicTests("test_251167"));
 		// suite.addTest(new BasicTests("test_p2Repo"));
