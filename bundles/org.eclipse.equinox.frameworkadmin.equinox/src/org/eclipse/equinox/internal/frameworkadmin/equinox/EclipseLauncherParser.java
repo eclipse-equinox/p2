@@ -45,7 +45,7 @@ public class EclipseLauncherParser {
 			launcherFolder = launcherFolder.getParentFile().getParentFile().getParentFile();
 		}
 		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getParentFile().getAbsolutePath()).equals(launcherFolder)) {
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath(), lines);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class EclipseLauncherParser {
 			return;
 		}
 		URI VMRelativePath = URIUtil.makeRelative(vm.toURI(), launcherFolder);
-		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath), lines);
+		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath).replace('\\', '/'), lines);
 	}
 
 	private void getJVMArgs(List lines, LauncherData launcherData) {
@@ -169,7 +169,7 @@ public class EclipseLauncherParser {
 
 		try {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(launcherLibrary), launcherFolder);
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, FileUtils.toPath(result), lines);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, FileUtils.toPath(result).replace('\\', '/'), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + launcherLibrary);
 			return;
@@ -207,7 +207,7 @@ public class EclipseLauncherParser {
 		}
 
 		if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines) == null) {
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result, lines);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result.replace('\\', '/'), lines);
 		}
 		return;
 	}
@@ -235,7 +235,7 @@ public class EclipseLauncherParser {
 
 		try {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(startup), launcherFolder);
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, FileUtils.toPath(result), lines);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, FileUtils.toPath(result).replace('\\', '/'), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make relative of:" + startup);
 			return;
