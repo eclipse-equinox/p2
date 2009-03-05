@@ -627,7 +627,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
 					return;
-				String repoToSelect = selection == null ? repoCombo.getItem(repoCombo.getSelectionIndex()) : selection;
+				int selIndex = repoCombo.getSelectionIndex();
+				if (selIndex < 0)
+					selIndex = 0;
+				String repoToSelect = selection == null ? repoCombo.getItem(selIndex) : selection;
 				repoCombo.setItems(items);
 				boolean selected = false;
 				for (int i = 0; i < items.length; i++)
