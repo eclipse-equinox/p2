@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -88,7 +90,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		try {
 			SubMonitor mon = SubMonitor.convert(monitor, 100);
 			ProvisioningPlan plan = getSizingPlan(mon.newChild(50));
-			size = ProvisioningUtil.getSize(plan, profileID, mon.newChild(50));
+			size = ProvisioningUtil.getSize(plan, profileID, getProvisioningContext(), mon.newChild(50));
 		} catch (ProvisionException e) {
 			handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
 			size = IIUElement.SIZE_UNAVAILABLE;
@@ -102,7 +104,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) throws ProvisionException {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
-		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}
 
 	public IInstallableUnit getIU() {
@@ -176,5 +178,11 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	public boolean isUpdate() {
 		return isUpdate;
+	}
+
+	private ProvisioningContext getProvisioningContext() {
+		if (hasQueryable() && getQueryable() instanceof IRepository)
+			return new ProvisioningContext(new URI[] {((IRepository) getQueryable()).getLocation()});
+		return new ProvisioningContext();
 	}
 }

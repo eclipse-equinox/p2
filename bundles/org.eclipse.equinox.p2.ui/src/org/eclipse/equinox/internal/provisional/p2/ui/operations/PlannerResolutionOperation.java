@@ -34,13 +34,18 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 	MultiStatus additionalStatus;
 	ResolutionResult report;
 	IInstallableUnit[] iusInvolved;
+	ProvisioningContext provisioningContext;
 
-	public PlannerResolutionOperation(String label, IInstallableUnit[] iusInvolved, String profileId, ProfileChangeRequest request, MultiStatus additionalStatus, boolean isUser) {
+	public PlannerResolutionOperation(String label, IInstallableUnit[] iusInvolved, String profileId, ProfileChangeRequest request, ProvisioningContext provisioningContext, MultiStatus additionalStatus, boolean isUser) {
 		super(label);
 		this.request = request;
 		this.profileId = profileId;
 		this.isUser = isUser;
 		this.iusInvolved = iusInvolved;
+		if (provisioningContext == null)
+			this.provisioningContext = new ProvisioningContext();
+		else
+			this.provisioningContext = provisioningContext;
 		Assert.isNotNull(additionalStatus);
 		this.additionalStatus = additionalStatus;
 	}
@@ -53,8 +58,12 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 		return request;
 	}
 
+	public ProvisioningContext getProvisioningContext() {
+		return provisioningContext;
+	}
+
 	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
-		plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		plan = ProvisioningUtil.getProvisioningPlan(request, provisioningContext, monitor);
 		if (plan == null)
 			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlannerResolutionOperation_UnexpectedError, null);
 		// We are reporting on our ability to get a plan, not on the status of the plan itself.

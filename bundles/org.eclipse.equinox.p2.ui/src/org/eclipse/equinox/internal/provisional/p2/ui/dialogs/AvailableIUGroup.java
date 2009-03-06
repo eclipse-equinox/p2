@@ -44,7 +44,8 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * An AvailableIUGroup is a reusable UI component that displays the
- * IU's available for installation.
+ * IU's available for installation.  By default, content from all available
+ * repositories is shown.
  * 
  * @since 3.4
  */
@@ -74,13 +75,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	Job lastRequestedLoadJob;
 
 	/**
-	 * Create a group that represents the available IU's but does not use any of the
-	 * view menu or check box capabilities.
+	 * Create a group that represents the available IU's from all available
+	 * repositories.  The default policy controls the visibility flags for
+	 * repositories and IU's.
 	 * 
 	 * @param parent the parent composite for the group
 	 */
 	public AvailableIUGroup(final Composite parent) {
-		this(Policy.getDefault(), parent, parent.getFont(), null, null, ProvUI.getIUColumnConfig());
+		this(Policy.getDefault(), parent, parent.getFont(), null, null, ProvUI.getIUColumnConfig(), AVAILABLE_ALL);
 	}
 
 	/**
@@ -96,8 +98,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * information about what is shown, such as the visible repositories
 	 * @param columnConfig the description of the columns that should be shown.  If <code>null</code>, a default
 	 * will be used.
+	 * @param filterConstant a constant specifying which repositories are used when showing content
 	 */
-	public AvailableIUGroup(Policy policy, final Composite parent, Font font, QueryableMetadataRepositoryManager queryable, IUViewQueryContext queryContext, IUColumnConfig[] columnConfig) {
+	public AvailableIUGroup(Policy policy, final Composite parent, Font font, QueryableMetadataRepositoryManager queryable, IUViewQueryContext queryContext, IUColumnConfig[] columnConfig, int filterConstant) {
 		super(policy, parent, font, columnConfig);
 		this.display = parent.getDisplay();
 		if (queryContext == null)
@@ -108,6 +111,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			this.queryableManager = new QueryableMetadataRepositoryManager(this.queryContext, false);
 		else
 			this.queryableManager = queryable;
+		this.filterConstant = filterConstant;
 		this.filter = new AvailableIUPatternFilter(getColumnConfig());
 		createGroupComposite(parent);
 	}
@@ -407,6 +411,15 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	public void setRepositoryFilter(int filterFlag, URI repoLocation) {
+		// If there has been no change, don't do anything.  We will be
+		// clearing out selection caches in this method and should not do
+		// so if there's really no change.
+		if (filterConstant == filterFlag) {
+			if (filterConstant != AVAILABLE_SPECIFIED)
+				return;
+			if (repoLocation != null && repoLocation.equals(repositoryFilter))
+				return;
+		}
 		filterConstant = filterFlag;
 
 		switch (filterFlag) {

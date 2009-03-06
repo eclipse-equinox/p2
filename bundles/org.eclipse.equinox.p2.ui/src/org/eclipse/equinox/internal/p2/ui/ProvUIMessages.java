@@ -147,6 +147,7 @@ public class ProvUIMessages extends NLS {
 	public static String ResolutionReport_SummaryStatus;
 	public static String ResolutionWizardPage_Canceled;
 	public static String ResolutionWizardPage_ErrorStatus;
+	public static String ResolutionWizardPage_NoSelections;
 	public static String ResolutionWizardPage_WarningInfoStatus;
 
 	public static String AddColocatedRepositoryAction_Label;
@@ -171,6 +172,7 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_NoSites;
 	public static String AvailableIUsPage_RepoFilterInstructions;
 	public static String AvailableIUsPage_RepoFilterLabel;
+	public static String AvailableIUsPage_ResolveAllCheckbox;
 	public static String AvailableIUsPage_ShowLatestVersions;
 	public static String AvailableIUsPage_Title;
 	public static String DefaultQueryProvider_ErrorRetrievingProfile;

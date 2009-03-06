@@ -12,8 +12,10 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -34,6 +36,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	private Object[] planSelections;
 	protected ISelectableIUsPage mainPage;
 	protected ResolutionWizardPage resolutionPage;
+	private ProvisioningContext provisioningContext;
 	private PlannerResolutionOperation resolutionOperation;
 	boolean waitingForOtherJobs = false;
 
@@ -104,26 +107,41 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				if (shouldRecomputePlan()) {
 					// any initial plan that was passed in is no longer valid, no need to hang on to it
 					resolutionOperation = null;
+					// record the provisioning context so we'll know if it's different next time
+					provisioningContext = getProvisioningContext();
 					planSelections = mainPage.getCheckedIUElements();
-					resolutionPage.recomputePlan(makeResolutionElementRoot(planSelections));
+					root = makeResolutionElementRoot(planSelections);
+					resolutionPage.recomputePlan(root, provisioningContext, getContainer());
 					planChanged();
 				}
 			} else {
 				if (resolutionOperation != null && shouldRecomputePlan())
 					resolutionOperation = null;
-				resolutionPage = createResolutionPage(makeResolutionElementRoot(mainPage.getCheckedIUElements()), resolutionOperation);
+				provisioningContext = getProvisioningContext();
+				root = makeResolutionElementRoot(mainPage.getCheckedIUElements());
+				resolutionPage = createResolutionPage(root, resolutionOperation);
+				if (resolutionOperation == null)
+					resolutionPage.recomputePlan(root, provisioningContext, getContainer());
 				planChanged();
 				addPage(resolutionPage);
 			}
-			return resolutionPage;
+			IStatus status = resolutionPage.getCurrentStatus();
+			// Normally, resolution errors are reported on the next page.
+			// But if the user canceled the resolution, we don't want to move
+			// to the next page.  In the future we may have other reasons not to
+			// move to the next page (providing selection quick fixes on the first
+			// page, etc.)
+			if (status.getSeverity() != IStatus.CANCEL)
+				return resolutionPage;
 		}
 		return null;
 	}
 
 	private boolean shouldRecomputePlan() {
 		boolean previouslyWaiting = waitingForOtherJobs;
+		boolean previouslyCanceled = resolutionPage != null && resolutionPage.getCurrentStatus().getSeverity() == IStatus.CANCEL;
 		waitingForOtherJobs = ProvisioningOperationRunner.hasScheduledOperationsFor(profileId);
-		return waitingForOtherJobs || previouslyWaiting || mainPageSelectionsHaveChanged();
+		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || mainPageSelectionsHaveChanged() || provisioningContextChanged();
 	}
 
 	private boolean mainPageSelectionsHaveChanged() {
@@ -134,9 +152,23 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return !(selectedIUs.equals(lastIUSelections));
 	}
 
+	private boolean provisioningContextChanged() {
+		ProvisioningContext currentProvisioningContext = getProvisioningContext();
+		if (currentProvisioningContext == null && provisioningContext == null)
+			return false;
+		if (currentProvisioningContext != null && provisioningContext != null)
+			return provisioningContext.getMetadataRepositories() != getProvisioningContext().getMetadataRepositories();
+		// One is null and the other is not
+		return true;
+	}
+
 	protected void planChanged() {
 		// hook for subclasses.  Default is to do nothing
 	}
 
 	protected abstract IUElementListRoot makeResolutionElementRoot(Object[] selectedElements);
+
+	protected ProvisioningContext getProvisioningContext() {
+		return null;
+	}
 }

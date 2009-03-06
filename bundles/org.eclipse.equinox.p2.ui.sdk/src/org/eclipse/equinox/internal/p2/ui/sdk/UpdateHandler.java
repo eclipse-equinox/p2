@@ -47,10 +47,9 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		}
 		// get the profile roots
 		ElementQueryDescriptor queryDescriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new ProfileElement(null, profileId));
-		//		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
-		Collection collector = queryDescriptor.performQuery(null);
-		final IInstallableUnit[] roots = new IInstallableUnit[collector.size()];
-		Iterator iter = collector.iterator();
+		Collection collection = queryDescriptor.performQuery(null);
+		final IInstallableUnit[] roots = new IInstallableUnit[collection.size()];
+		Iterator iter = collection.iterator();
 		int i = 0;
 		while (iter.hasNext()) {
 			roots[i] = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);

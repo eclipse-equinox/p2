@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
@@ -78,5 +79,9 @@ public class InstallWizard extends WizardWithLicenses {
 	public boolean performFinish() {
 		mainPage.performFinish();
 		return super.performFinish();
+	}
+
+	protected ProvisioningContext getProvisioningContext() {
+		return mainPage.getProvisioningContext();
 	}
 }

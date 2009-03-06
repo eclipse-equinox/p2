@@ -107,7 +107,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), profile, getMonitor());
+		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), profile, new ProvisioningContext(), getMonitor());
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {

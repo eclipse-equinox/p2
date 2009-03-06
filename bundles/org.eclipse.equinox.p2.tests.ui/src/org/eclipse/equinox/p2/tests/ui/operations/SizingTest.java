@@ -37,7 +37,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		}
 		long size = IIUElement.SIZE_NOTAPPLICABLE;
 		try {
-			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
+			size = ProvisioningUtil.getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
@@ -62,7 +62,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		}
 		long size = IIUElement.SIZE_NOTAPPLICABLE;
 		try {
-			size = ProvisioningUtil.getSize(plan, profileId, getMonitor());
+			size = ProvisioningUtil.getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}

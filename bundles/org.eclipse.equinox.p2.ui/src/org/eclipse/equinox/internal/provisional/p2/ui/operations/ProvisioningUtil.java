@@ -268,7 +268,11 @@ public class ProvisioningUtil {
 	 * Get the plan for the specified install operation
 	 */
 	public static ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
-		return getPlanner().getProvisioningPlan(request, context, monitor);
+		try {
+			return getPlanner().getProvisioningPlan(request, context, monitor);
+		} catch (OperationCanceledException e) {
+			return null;
+		}
 	}
 
 	/*
@@ -277,32 +281,53 @@ public class ProvisioningUtil {
 	public static ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(currentProfile);
 		Assert.isNotNull(snapshot);
-		return getPlanner().getRevertPlan(currentProfile, snapshot, new ProvisioningContext(), monitor);
+		return getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
 	}
 
 	/*
 	 * Get sizing info for the specified plan
 	 */
-	public static long getSize(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
+	public static long getSize(ProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		// If there is nothing to size, return 0
 		if (plan == null)
 			return IIUElement.SIZE_NOTAPPLICABLE;
 		if (plan.getOperands().length == 0)
 			return 0;
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), null, monitor);
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, monitor);
 		if (status.isOK())
 			return set.getSizing().getDiskSize();
 		return IIUElement.SIZE_UNAVAILABLE;
 	}
 
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
+		PhaseSet set;
+		if (phaseSet == null)
+			set = new DefaultPhaseSet();
+		else
+			set = phaseSet;
+		return getEngine().perform(profile, set, plan.getOperands(), context, monitor);
+	}
+
+	/**
+	 * Perform the provisioning plan using a default context that contacts all repositories.
+	 * @param plan the plan to perform
+	 * @param phaseSet the phase set to use
+	 * @param profile the profile to be changed
+	 * @param monitor the progress monitor 
+	 * @return a status indicating the success of the plan
+	 * @throws ProvisionException
+	 * 
+	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, IProfile, ProvisioningContext, IProgressMonitor)} 
+	 * to explicitly establish a provisioning context.  Otherwise all repositories will be contacted
+	 */
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();
 		else
 			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), null, monitor);
+		return getEngine().perform(profile, set, plan.getOperands(), new ProvisioningContext(), monitor);
 	}
 
 	private static IEngine getEngine() throws ProvisionException {

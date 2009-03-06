@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -251,7 +251,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		boolean reverted = false;
 		if (plan[0] != null) {
 			if (plan[0].getStatus().isOK()) {
-				ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
+				// We use a default provisioning context (all repos) because we have no other
+				// way currently to figure out which sites the user wants to contact
+				ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0], new ProvisioningContext(), new DefaultPhaseSet(), true);
 				ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 				ProvisioningOperationRunner.requestRestart(true);
 				reverted = true;

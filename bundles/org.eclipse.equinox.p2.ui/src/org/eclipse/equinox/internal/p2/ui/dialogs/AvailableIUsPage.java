@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
@@ -50,6 +51,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
 	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
+	private static final String RESOLVE_ALL = "ResolveInstallWithAllSites"; //$NON-NLS-1$
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
 	private static final int DEFAULT_WIDTH = 300;
 	private static final String SITE_NONE = ProvUIMessages.AvailableIUsPage_NoSites;
@@ -68,7 +70,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Composite availableIUButtonBar;
 	Combo repoCombo;
 	Link repoLink, installLink;
-	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox;
+	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox;
 	Text detailsArea;
 	StructuredViewerProvisioningListener profileListener;
 	ProvUIProvisioningListener comboRepoListener;
@@ -110,7 +112,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		createRepoArea(composite);
 
 		// Now the available group 
-		availableIUGroup = new AvailableIUGroup(policy, composite, JFaceResources.getDialogFont(), manager, queryContext, ProvUI.getIUColumnConfig());
+		// If we have a repository manipulator, we want to default to showing no repos.  Otherwise all.
+		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
+		if (policy.getRepositoryManipulator() == null)
+			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
+		availableIUGroup = new AvailableIUGroup(policy, composite, JFaceResources.getDialogFont(), manager, queryContext, ProvUI.getIUColumnConfig(), filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons 
@@ -213,6 +219,15 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 		}, ProvUIMessages.AvailableIUsPage_GotoInstallInfo);
 		installLink.setLayoutData(gd);
+
+		if (policy.getRepositoryManipulator() != null) {
+			// Checkbox
+			resolveAllCheckbox = new Button(parent, SWT.CHECK);
+			resolveAllCheckbox.setText(ProvUIMessages.AvailableIUsPage_ResolveAllCheckbox);
+			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+			gd.horizontalSpan = 2;
+			resolveAllCheckbox.setLayoutData(gd);
+		}
 	}
 
 	private void createRepoArea(Composite parent) {
@@ -398,8 +413,24 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		updateDetails();
 		iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 		validateNextButton();
-		fillRepoCombo(SITE_NONE);
-		setRepoComboDecoration(null);
+
+		if (repoCombo != null) {
+			fillRepoCombo(SITE_NONE);
+			setRepoComboDecoration(null);
+		}
+
+		if (resolveAllCheckbox != null) {
+			IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+			IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+			String value = null;
+			if (section != null)
+				value = section.get(RESOLVE_ALL);
+			// no section or no value in the section
+			if (value == null)
+				resolveAllCheckbox.setSelection(true);
+			else
+				resolveAllCheckbox.setSelection(section.getBoolean(RESOLVE_ALL));
+		}
 	}
 
 	public boolean performFinish() {
@@ -455,6 +486,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		section.put(AVAILABLE_VIEW_TYPE, queryContext.getViewType());
 		section.put(SHOW_LATEST_VERSIONS_ONLY, showLatestVersionsCheckbox.getSelection());
 		section.put(HIDE_INSTALLED_IUS, hideInstalledCheckbox.getSelection());
+		if (resolveAllCheckbox != null)
+			section.put(RESOLVE_ALL, resolveAllCheckbox.getSelection());
 	}
 
 	void updateDetails() {
@@ -608,22 +641,27 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	void fillRepoCombo(final String selection) {
 		if (repoCombo == null || policy.getRepositoryManipulator() == null)
 			return;
-		comboRepos = policy.getRepositoryManipulator().getKnownRepositories();
-		boolean hasLocalSites = localSitesAvailable();
+		URI[] sites = policy.getRepositoryManipulator().getKnownRepositories();
+		boolean hasLocalSites = getLocalSites().length > 0;
 		final String[] items;
-		if (hasLocalSites)
+		if (hasLocalSites) {
 			// None, All, repo1, repo2....repo n, Local
-			items = new String[comboRepos.length + 3];
-		else
+			comboRepos = new URI[sites.length + 3];
+			items = new String[sites.length + 3];
+		} else {
 			// None, All, repo1, repo2....repo n
-			items = new String[comboRepos.length + 2];
+			comboRepos = new URI[sites.length + 2];
+			items = new String[sites.length + 2];
+		}
 		items[INDEX_SITE_NONE] = SITE_NONE;
 		items[INDEX_SITE_ALL] = SITE_ALL;
-		for (int i = 0; i < comboRepos.length; i++)
-			items[i + 2] = comboRepos[i].toString();
+		for (int i = 0; i < sites.length; i++) {
+			items[i + 2] = sites[i].toString();
+			comboRepos[i + 2] = sites[i];
+		}
 		if (hasLocalSites)
 			items[items.length - 1] = SITE_LOCAL;
-		display.asyncExec(new Runnable() {
+		Runnable runnable = new Runnable() {
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
 					return;
@@ -643,17 +681,23 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					repoCombo.select(INDEX_SITE_NONE);
 				repoComboSelectionChanged();
 			}
-		});
+		};
+		// Only run the UI code async if we have to.  If we always async the code,
+		// the automated tests (which are in the UI thread) can get out of sync
+		if (Display.getCurrent() == null)
+			display.asyncExec(runnable);
+		else
+			runnable.run();
 
 	}
 
-	private boolean localSitesAvailable() {
+	private URI[] getLocalSites() {
 		// use our current visibility flags plus the local filter
 		int flags = queryContext.getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
 		try {
-			return ProvisioningUtil.getMetadataRepositories(flags).length > 0;
+			return ProvisioningUtil.getMetadataRepositories(flags);
 		} catch (ProvisionException e) {
-			return false;
+			return null;
 		}
 	}
 
@@ -672,17 +716,19 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	void repoComboSelectionChanged() {
 		int selection = repoCombo.getSelectionIndex();
+		int localIndex = getLocalSites().length == 0 ? repoCombo.getItemCount() : repoCombo.getItemCount() - 1;
 		if (comboRepos == null || selection < 0)
 			selection = INDEX_SITE_NONE;
 		if (selection == INDEX_SITE_NONE) {
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_NONE, null);
 		} else if (selection == INDEX_SITE_ALL) {
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
-		} else if (selection - 2 >= comboRepos.length) {
+		} else if (selection >= localIndex) {
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_LOCAL, null);
 		} else {
-			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_SPECIFIED, comboRepos[selection - 2]);
+			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_SPECIFIED, comboRepos[selection]);
 		}
+		validateNextButton();
 	}
 
 	void addViewerProvisioningListeners() {
@@ -771,6 +817,23 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// since we passed the default column config to the available iu group,
 		// we know that this label provider matches the one used there.
 		return CopyUtils.getIndentedClipboardText(getSelectedIUElements(), new IUDetailsLabelProvider());
+	}
 
+	public ProvisioningContext getProvisioningContext() {
+		// If the user can't manipulate repos, always resolve against everything
+		if (policy.getRepositoryManipulator() == null)
+			return new ProvisioningContext();
+		// Consult the checkbox to see if we should resolve against everything,
+		// or use the combo to determine what to do.
+		if (resolveAllCheckbox.getSelection())
+			return new ProvisioningContext();
+		int siteSel = repoCombo.getSelectionIndex();
+		if (siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
+			return new ProvisioningContext();
+		URI[] locals = getLocalSites();
+		// If there are local sites, the last item in the combo is "Local Sites"
+		if (locals.length > 0 && siteSel == repoCombo.getItemCount() - 1)
+			return new ProvisioningContext(locals);
+		return new ProvisioningContext(new URI[] {comboRepos[siteSel]});
 	}
 }

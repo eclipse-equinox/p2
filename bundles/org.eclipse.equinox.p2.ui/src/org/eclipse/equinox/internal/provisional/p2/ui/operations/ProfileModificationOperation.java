@@ -27,15 +27,17 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	String profileId;
 	PhaseSet phaseSet;
 	boolean isUser = true;
+	ProvisioningContext provisioningContext;
 
 	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan) {
-		this(label, profileId, plan, null, true);
+		this(label, profileId, plan, null, null, true);
 	}
 
-	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, PhaseSet set, boolean isUser) {
+	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, ProvisioningContext context, PhaseSet set, boolean isUser) {
 		super(label);
 		this.plan = plan;
 		this.profileId = profileId;
+		this.provisioningContext = context;
 		this.isUser = isUser;
 		if (set == null)
 			phaseSet = new DefaultPhaseSet();
@@ -56,7 +58,7 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
-		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, getProfile(), monitor);
+		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, getProfile(), provisioningContext, monitor);
 	}
 
 	public boolean runInBackground() {

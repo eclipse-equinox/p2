@@ -91,15 +91,17 @@ public class AutomaticUpdater implements IUpdateListener {
 								new Updates(event.getProfileId(), event
 										.getIUs()));
 				Collection results = descriptor.performQuery(null);
-				IInstallableUnit[] replacements = (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
+				IInstallableUnit[] replacements = (IInstallableUnit[]) results
+						.toArray(new IInstallableUnit[results.size()]);
 				if (replacements.length > 0) {
 					ProfileChangeRequest request = ProfileChangeRequest
 							.createByProfileId(event.getProfileId());
 					request.removeInstallableUnits(iusWithUpdates);
 					request.addInstallableUnits(replacements);
 					final PlannerResolutionOperation operation = new PlannerResolutionOperation(
-							AutomaticUpdateMessages.AutomaticUpdater_ResolutionOperationLabel, iusWithUpdates,
-							event.getProfileId(), request, new MultiStatus(
+							AutomaticUpdateMessages.AutomaticUpdater_ResolutionOperationLabel,
+							iusWithUpdates, event.getProfileId(), request,
+							null, new MultiStatus(
 									AutomaticUpdatePlugin.PLUGIN_ID, 0, null,
 									null), false);
 					if ((operation.execute(new NullProgressMonitor())).isOK()) {
@@ -109,6 +111,7 @@ public class AutomaticUpdater implements IUpdateListener {
 												AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName,
 												event.getProfileId(), operation
 														.getProvisioningPlan(),
+												new ProvisioningContext(),
 												new DownloadPhaseSet(), false),
 										StatusManager.LOG);
 						job.addJobChangeListener(new JobChangeAdapter() {

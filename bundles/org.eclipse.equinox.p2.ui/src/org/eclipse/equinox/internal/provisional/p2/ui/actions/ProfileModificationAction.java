@@ -97,12 +97,12 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 				// No explanation for failure was provided.  It shouldn't happen, but...
 				failureStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NoExplanationProvided);
 			}
-			ProvUI.reportStatus(failureStatus, StatusManager.SHOW);
+			ProvUI.reportStatus(failureStatus, StatusManager.SHOW | StatusManager.LOG);
 			runCanceled();
 			return;
 		}
 		// We have a profile change request, let's get a plan for it.  This could take awhile.
-		final PlannerResolutionOperation operation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationAction_ResolutionOperationLabel, ius, id, request[0], additionalStatus, isResolveUserVisible());
+		final PlannerResolutionOperation operation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationAction_ResolutionOperationLabel, ius, id, request[0], null, additionalStatus, isResolveUserVisible());
 		// Since we are resolving asynchronously, our job is done.  Setting this allows
 		// callers to decide to close the launching window.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495

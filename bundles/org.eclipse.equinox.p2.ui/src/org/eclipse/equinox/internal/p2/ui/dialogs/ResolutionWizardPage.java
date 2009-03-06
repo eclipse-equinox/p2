@@ -29,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
@@ -112,12 +113,12 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
 		treeViewer.setLabelProvider(labelProvider);
 
-		if (resolvedOperation == null)
-			// this will also set the input on the viewer
-			recomputePlan(input);
-		else {
+		if (resolvedOperation != null) {
 			treeViewer.setInput(input);
 			resolutionResult = resolvedOperation.getResolutionResult();
+		} else {
+			// Just record the fact that we haven't resolved yet
+			couldNotResolve(null);
 		}
 
 		// Optional area to show the size
@@ -183,28 +184,36 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 
 	}
 
-	public void recomputePlan(IUElementListRoot root) {
+	/**
+	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
+	 * Report progress using the specified runnable context.  This method may be called before the page is created.
+	 * 
+	 * @param root
+	 * @param provisioningContext
+	 * @param runnableContext
+	 */
+	public void recomputePlan(IUElementListRoot root, final ProvisioningContext provisioningContext, IRunnableContext runnableContext) {
 		this.input = root;
 		final Object[] elements = root.getChildren(root);
 		final IInstallableUnit[] ius = ElementUtils.elementsToIUs(elements);
 		couldNotResolve = false;
 		try {
 			if (elements.length == 0) {
-				couldNotResolve();
+				couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 			} else
-				getContainer().run(true, true, new IRunnableWithProgress() {
+				runnableContext.run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
 						resolvedOperation = null;
 						resolutionResult = null;
 						MultiStatus status = PlanAnalyzer.getProfileChangeAlteredStatus();
 						ProfileChangeRequest request = computeProfileChangeRequest(elements, status, monitor);
 						if (request != null) {
-							resolvedOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, getProfileId(), request, status, false);
+							resolvedOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, getProfileId(), request, provisioningContext, status, false);
 							try {
 								resolvedOperation.execute(monitor);
 							} catch (ProvisionException e) {
 								ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
-								couldNotResolve();
+								couldNotResolve(null);
 							}
 							if (resolvedOperation.getProvisioningPlan() != null) {
 								resolutionResult = resolvedOperation.getResolutionResult();
@@ -224,16 +233,23 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
 			ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-			couldNotResolve();
+			couldNotResolve(null);
 		}
-		treeViewer.setInput(input);
-		updateStatus();
+		// If we've already been created (and not disposed), update the widgets.  If not, nothing to do.
+		if (treeViewer != null && !treeViewer.getTree().isDisposed()) {
+			treeViewer.setInput(input);
+			updateStatus();
+		}
 	}
 
-	private void couldNotResolve() {
+	void couldNotResolve(String message) {
 		resolvedOperation = null;
 		resolutionResult = null;
 		couldNotResolve = true;
+		if (message != null) {
+			IStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);
+			StatusManager.getManager().handle(status, StatusManager.LOG);
+		}
 	}
 
 	private ProfileModificationOperation createProfileModificationOperation(ProvisioningPlan plan) {
@@ -287,6 +303,13 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		setPageComplete(pageComplete);
 		setMessage(getMessageText(currentStatus), messageType);
 		detailsArea.setText(getDetailText());
+	}
+
+	public IStatus getCurrentStatus() {
+		if (couldNotResolve || resolutionResult == null) {
+			return PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null);
+		}
+		return resolutionResult.getSummaryStatus();
 	}
 
 	String getDetailText() {

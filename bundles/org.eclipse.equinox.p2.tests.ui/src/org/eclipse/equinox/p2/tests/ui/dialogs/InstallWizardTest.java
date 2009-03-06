@@ -61,10 +61,12 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 
 			// Start reaching in...
 			AvailableIUGroup group = page1.testGetAvailableIUGroup();
+			group.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
 			// Now manipulate the tree itself.  we are reaching way in.
 			DeferredQueryContentProvider provider = (DeferredQueryContentProvider) group.getCheckboxTreeViewer().getContentProvider();
 			provider.setSynchronous(true);
 			group.getCheckboxTreeViewer().refresh();
+			group.getCheckboxTreeViewer().expandAll();
 			Tree tree = (Tree) group.getCheckboxTreeViewer().getControl();
 			TreeItem[] items = tree.getItems();
 			HashSet ids = new HashSet();

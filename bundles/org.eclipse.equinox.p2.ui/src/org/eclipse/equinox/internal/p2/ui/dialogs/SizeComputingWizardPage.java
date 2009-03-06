@@ -18,10 +18,12 @@ import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -39,7 +41,7 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
 		if (initialResolution != null)
-			computeSizing(initialResolution.getProvisioningPlan(), profileID);
+			computeSizing(initialResolution.getProvisioningPlan(), profileID, initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
 			size = IIUElement.SIZE_NOTAPPLICABLE;
@@ -49,14 +51,14 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 	protected long size;
 	Job sizingJob;
 
-	protected void computeSizing(final ProvisioningPlan plan, final String profileId) {
+	protected void computeSizing(final ProvisioningPlan plan, final String profileId, final ProvisioningContext provisioningContext) {
 		size = IIUElement.SIZE_UNKNOWN;
 		if (sizingJob != null)
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					size = ProvisioningUtil.getSize(plan, profileId, monitor);
+					size = ProvisioningUtil.getSize(plan, profileId, provisioningContext, monitor);
 				} catch (ProvisionException e) {
 					return e.getStatus();
 				}
@@ -118,10 +120,10 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 		}
 	}
 
-	public void recomputePlan(IUElementListRoot root) {
-		super.recomputePlan(root);
+	public void recomputePlan(IUElementListRoot root, ProvisioningContext provisioningContext, IRunnableContext runnableContext) {
+		super.recomputePlan(root, provisioningContext, runnableContext);
 		if (getCurrentPlan() != null)
-			computeSizing(getCurrentPlan(), getProfileId());
+			computeSizing(getCurrentPlan(), getProfileId(), provisioningContext);
 	}
 
 	protected IQueryable getQueryable(ProvisioningPlan plan) {
