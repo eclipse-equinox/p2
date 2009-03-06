@@ -43,7 +43,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		metadataRepository = new TestMetadataRepository(new IInstallableUnit[0]);
 		info.setMetadataRepository(metadataRepository);
 		siteLocation = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml").toURI();
-		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updateSite", "SiteXMLActionTest")});
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "SiteXMLActionTest")});
 		featuresAction.perform(info, actionResult, new NullProgressMonitor());
 
 		SiteXMLAction action = new SiteXMLAction(siteLocation, null);
