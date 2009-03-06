@@ -108,12 +108,13 @@ public class ProductFileAdviceTest extends TestCase {
 	 */
 	public void testGetProperties() {
 		Properties properties = productFileAdviceWin32.getProperties();
-		assertEquals("1.0", 6, properties.size());
+		assertEquals("1.0", 7, properties.size());
 		assertEquals("1.2", "bar", properties.get("foo"));
 		assertEquals("1.3", "", properties.get("foo1"));
 		assertEquals("1.4", "true", properties.get("osgi.sharedConfiguration.area.readOnly"));
 		assertEquals("1.5", "/d/sw/java64/jdk1.6.0_03/bin/java", properties.get("eclipse.vm"));
 		assertEquals("1.6", "test.product", properties.get("eclipse.product"));
+		assertEquals("1.7", "test.app", properties.get("eclipse.application"));
 		assertEquals("1.1", "platform:/base/plugins/org.eclipse.equinox.p2.tests", properties.get("osgi.splashPath"));
 
 		properties = productFileAdvice2.getProperties();

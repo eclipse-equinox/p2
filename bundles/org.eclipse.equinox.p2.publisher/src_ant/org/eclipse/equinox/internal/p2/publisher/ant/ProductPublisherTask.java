@@ -9,21 +9,45 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
-import org.eclipse.equinox.p2.publisher.Publisher;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 
 public class ProductPublisherTask extends AbstractPublishTask {
+
+	public static class ConfigElement {
+		public String os;
+		public String ws;
+		public String arch;
+
+		public void setOs(String os) {
+			this.os = os;
+		}
+
+		public void setWs(String ws) {
+			this.ws = ws;
+		}
+
+		public void setArch(String arch) {
+			this.arch = arch;
+		}
+
+		public String toString() {
+			return ws + '.' + os + '.' + arch;
+		}
+	}
 
 	private String flavor;
 	private String productFile;
 	private String executables;
 	private String source;
+	private List configurations = new ArrayList(3);
 
 	public void execute() throws BuildException {
 		try {
@@ -47,6 +71,17 @@ public class ProductPublisherTask extends AbstractPublishTask {
 		new Publisher(getInfo()).publish(new IPublisherAction[] {action}, new NullProgressMonitor());
 	}
 
+	protected PublisherInfo getInfo() {
+		String[] configStrings = new String[configurations.size()];
+		for (int i = 0; i < configurations.size(); i++) {
+			configStrings[i] = configurations.get(i).toString();
+		}
+
+		PublisherInfo info = super.getInfo();
+		info.setConfigurations(configStrings);
+		return info;
+	}
+
 	public void setFlavor(String flavor) {
 		this.flavor = flavor;
 	}
@@ -62,4 +97,9 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	public void setSource(String source) {
 		this.source = source;
 	}
+
+	public void addConfiguredConfig(ConfigElement config) {
+		this.configurations.add(config);
+	}
+
 }

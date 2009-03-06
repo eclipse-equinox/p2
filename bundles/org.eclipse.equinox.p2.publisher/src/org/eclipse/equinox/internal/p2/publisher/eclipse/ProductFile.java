@@ -39,6 +39,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
 
+	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
+	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
+
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$
@@ -185,7 +188,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * are located in the <configurations> block of the file
 	 */
 	public Properties getConfigurationProperties() {
-		return properties == null ? new Properties() : properties;
+		Properties result = properties != null ? properties : new Properties();
+		if (application != null && !result.contains(PROPERTY_ECLIPSE_APPLICATION))
+			result.put(PROPERTY_ECLIPSE_APPLICATION, application);
+		if (id != null && !result.contains(PROPERTY_ECLIPSE_PRODUCT))
+			result.put(PROPERTY_ECLIPSE_PRODUCT, id);
+
+		return result;
 	}
 
 	/**

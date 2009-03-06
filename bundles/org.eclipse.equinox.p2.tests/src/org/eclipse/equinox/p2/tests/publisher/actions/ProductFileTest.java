@@ -52,9 +52,11 @@ public class ProductFileTest extends TestCase {
 	 */
 	public void testGetConfigurationProperties() {
 		Properties properties = productFile.getConfigurationProperties();
-		assertEquals("1.0", 2, properties.size());
+		assertEquals("1.0", 4, properties.size());
 		assertEquals("1.1", "bar", properties.get("foo"));
 		assertEquals("1.2", "", properties.get("foo1"));
+		assertEquals("1.3", "test.product", properties.get("eclipse.product"));
+		assertEquals("1.4", "test.app", properties.get("eclipse.application"));
 	}
 
 	/**
