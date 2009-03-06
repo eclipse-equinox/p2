@@ -788,9 +788,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			profileRegistry.removeProfile(toRemove);
 		}
 		profilesToRemove.clear();
-		//See bug 209069 - currently no way to persist install registry changes or clear the metadata cache
-		//		IMetadataRepository cache = MetadataCache.getCacheInstance((MetadataRepositoryManager) repoMan);
-		//		cache.removeAll();
 	}
 
 	/*

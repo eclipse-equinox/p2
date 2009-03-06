@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.exemplarysetup;
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.director.SimpleDirector;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
-import org.eclipse.equinox.internal.p2.engine.MetadataCache;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
@@ -54,7 +53,6 @@ public class Activator implements BundleActivator {
 		//create the profile registry
 		registerProfileRegistry();
 		registerMetadataRepositoryManager();
-		registerMetadataCache();
 
 		//create the director and planner.  The planner must be
 		//registered first because the director finds it in its constructor.
@@ -139,10 +137,6 @@ public class Activator implements BundleActivator {
 			registrationDefaultManager.unregister();
 			registrationDefaultManager = null;
 		}
-	}
-
-	private void registerMetadataCache() {
-		new MetadataCache(((IMetadataRepositoryManager) context.getService(metadataRepositoryReference)));
 	}
 
 	private void registerEventBus() {
