@@ -176,14 +176,16 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		//remove the repository so  event is broadcast and repositories can clear their caches
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		boolean loaded = false;
 		try {
 			IRepository result = loadRepository(location, monitor, null, 0);
+			loaded = true;
 			setEnabled(location, wasEnabled);
 			return result;
-		} catch (ProvisionException e) {
+		} finally {
 			//if we failed to load, make sure the repository is not lost
-			addRepository(location, wasEnabled, true);
-			throw e;
+			if (!loaded)
+				addRepository(location, wasEnabled, true);
 		}
 	}
 
