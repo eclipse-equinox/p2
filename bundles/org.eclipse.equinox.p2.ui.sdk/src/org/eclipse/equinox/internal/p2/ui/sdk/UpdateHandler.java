@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
@@ -47,7 +47,8 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		}
 		// get the profile roots
 		ElementQueryDescriptor queryDescriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new ProfileElement(null, profileId));
-		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
+		//		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
+		Collection collector = queryDescriptor.performQuery(null);
 		final IInstallableUnit[] roots = new IInstallableUnit[collector.size()];
 		Iterator iter = collector.iterator();
 		int i = 0;
