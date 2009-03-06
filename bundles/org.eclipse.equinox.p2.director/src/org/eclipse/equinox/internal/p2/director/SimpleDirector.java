@@ -33,7 +33,7 @@ public class SimpleDirector implements IDirector {
 	public IStatus revert(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
-			ProvisioningPlan plan = planner.getRevertPlan(currentProfile, revertProfile, context, sub.newChild(PlanWork));
+			ProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
 

@@ -170,17 +170,15 @@ public class SimplePlanner implements IPlanner {
 		return new OperationGenerator().generateOperation(fromState, toState);
 	}
 
-	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
+	public ProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
-			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile, revertProfile);
-			if (context == null)
-				context = new ProvisioningContext();
-
+			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile, targetProfile);
+			ProvisioningContext context = new ProvisioningContext(new URI[0]);
 			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-			context.setExtraIUs(new ArrayList(revertProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()));
+			context.setExtraIUs(new ArrayList(targetProfile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection()));
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 		} finally {
 			sub.done();
