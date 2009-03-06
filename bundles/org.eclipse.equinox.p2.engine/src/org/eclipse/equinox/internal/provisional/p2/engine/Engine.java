@@ -54,7 +54,7 @@ public class Engine implements IEngine {
 
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
-				IStatus status = session.rollback(monitor);
+				IStatus status = session.rollback(monitor, result.getSeverity());
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 			} else {

@@ -104,8 +104,13 @@ public class EngineSession {
 		return status;
 	}
 
-	IStatus rollback(IProgressMonitor monitor) {
-		monitor.subTask(Messages.rollingback);
+	IStatus rollback(IProgressMonitor monitor, int severity) {
+		if (severity == IStatus.CANCEL)
+			monitor.subTask(Messages.rollingback_cancel);
+
+		if (severity == IStatus.ERROR)
+			monitor.subTask(Messages.rollingback_error);
+
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (currentPhase != null) {

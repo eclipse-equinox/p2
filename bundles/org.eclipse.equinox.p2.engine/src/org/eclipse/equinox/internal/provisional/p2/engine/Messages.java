@@ -51,7 +51,8 @@ public class Messages extends NLS {
 	public static String actions_not_found;
 	public static String preparing;
 	public static String committing;
-	public static String rollingback;
+	public static String rollingback_cancel;
+	public static String rollingback_error;
 
 	static {
 		// initialize resource bundle
