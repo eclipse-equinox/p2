@@ -28,6 +28,10 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	 * @param location the location of the mapping file
 	 */
 	public void load(String namespace, String location) {
+		load(namespace, location, null);
+	}
+
+	public void load(String namespace, String location, String idSuffix) {
 		if (namespace == null)
 			namespace = "null"; //$NON-NLS-1$
 		Properties properties = new Properties();
@@ -52,6 +56,8 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 			Enumeration enumeration = properties.keys();
 			while (enumeration.hasMoreElements()) {
 				String key = (String) enumeration.nextElement();
+				if (idSuffix != null)
+					key += idSuffix;
 				String value = properties.getProperty(key);
 				setVersion(namespace, key, new Version(value));
 			}

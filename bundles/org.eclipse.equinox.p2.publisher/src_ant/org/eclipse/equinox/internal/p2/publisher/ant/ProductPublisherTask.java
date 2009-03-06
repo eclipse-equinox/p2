@@ -9,14 +9,15 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 
 public class ProductPublisherTask extends AbstractPublishTask {
@@ -43,11 +44,25 @@ public class ProductPublisherTask extends AbstractPublishTask {
 		}
 	}
 
+	public static class AdviceElement {
+		public String kind;
+		public String file;
+
+		public void setKind(String kind) {
+			this.kind = kind;
+		}
+
+		public void setFile(String file) {
+			this.file = file;
+		}
+	}
+
 	private String flavor;
 	private String productFile;
 	private String executables;
 	private String source;
 	private List configurations = new ArrayList(3);
+	private List advice = new ArrayList(3);
 
 	public void execute() throws BuildException {
 		try {
@@ -79,7 +94,22 @@ public class ProductPublisherTask extends AbstractPublishTask {
 
 		PublisherInfo info = super.getInfo();
 		info.setConfigurations(configStrings);
+		processAdvice(info);
 		return info;
+	}
+
+	protected void processAdvice(PublisherInfo info) {
+		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
+			AdviceElement element = (AdviceElement) iterator.next();
+			if (element.kind == null || element.file == null)
+				continue;
+
+			if (element.kind.equals("featureVersions") || element.kind.equals("pluginVersions")) { //$NON-NLS-1$ //$NON-NLS-2$
+				VersionAdvice versionAdvice = new VersionAdvice();
+				versionAdvice.load(IInstallableUnit.NAMESPACE_IU_ID, element.file, element.kind.startsWith("features") ? ".feature.group" : null); //$NON-NLS-1$ //$NON-NLS-2$
+				info.addAdvice(versionAdvice);
+			}
+		}
 	}
 
 	public void setFlavor(String flavor) {
@@ -100,6 +130,10 @@ public class ProductPublisherTask extends AbstractPublishTask {
 
 	public void addConfiguredConfig(ConfigElement config) {
 		this.configurations.add(config);
+	}
+
+	public void addConfiguredAdvice(AdviceElement element) {
+		this.advice.add(element);
 	}
 
 }
