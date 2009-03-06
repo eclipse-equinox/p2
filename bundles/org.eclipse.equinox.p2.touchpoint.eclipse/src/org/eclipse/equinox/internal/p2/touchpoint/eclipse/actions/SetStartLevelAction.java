@@ -49,6 +49,9 @@ public class SetStartLevelAction extends ProvisioningAction {
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 
+		if (bundleInfo.isFragment())
+			return Status.OK_STATUS;
+
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].equals(bundleInfo)) {
@@ -65,6 +68,10 @@ public class SetStartLevelAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map parameters) {
+		Integer previousStartLevel = (Integer) getMemento().get(ActionConstants.PARM_PREVIOUS_START_LEVEL);
+		if (previousStartLevel == null)
+			return Status.OK_STATUS;
+
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
@@ -88,9 +95,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].equals(bundleInfo)) {
-				Integer previousStartLevel = (Integer) getMemento().get(ActionConstants.PARM_PREVIOUS_START_LEVEL);
-				if (previousStartLevel != null)
-					bundles[i].setStartLevel(previousStartLevel.intValue());
+				bundles[i].setStartLevel(previousStartLevel.intValue());
 				break;
 			}
 		}

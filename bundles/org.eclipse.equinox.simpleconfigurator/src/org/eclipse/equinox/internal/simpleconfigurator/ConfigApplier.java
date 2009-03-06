@@ -195,7 +195,7 @@ class ConfigApplier {
 				}
 			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !bundleLocation.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
 				// We do not do this for the system bundle (id==0), the manipulating bundle or any bundle installed from the osgi.bundles list (locations starting with "@initial"
-				// The bundle exists; but the location is different.  Unintall the current and install the new one (bug 229700)
+				// The bundle exists; but the location is different. Uninstall the current and install the new one (bug 229700)
 				try {
 					current.uninstall();
 					toRefresh.add(current);
@@ -219,20 +219,27 @@ class ConfigApplier {
 					continue;
 				}
 			}
-			int startLevel = finalList[i].getStartLevel();
-			if (startLevel != BundleInfo.NO_LEVEL)
-				if (current.getBundleId() != 0) {
-					String name = current.getSymbolicName();
-					try {
-						if (startLevel > 0)
-							if (!SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(name))
-								startLevelService.setBundleStartLevel(current, startLevel);
-					} catch (IllegalArgumentException ex) {
-						Utils.log(4, null, null, "Failed to set start level of Bundle:" + finalList[i], ex); //$NON-NLS-1$
-					}
-				}
+
+			// Mark Started
 			if (finalList[i].isMarkedAsStarted()) {
 				toStart.add(current);
+			}
+
+			// Set Start Level
+			int startLevel = finalList[i].getStartLevel();
+			if (startLevel < 1)
+				continue;
+			if (current.getBundleId() == 0)
+				continue;
+			if (current.getHeaders().get(Constants.FRAGMENT_HOST) != null)
+				continue;
+			if (SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(current.getSymbolicName()))
+				continue;
+
+			try {
+				startLevelService.setBundleStartLevel(current, startLevel);
+			} catch (IllegalArgumentException ex) {
+				Utils.log(4, null, null, "Failed to set start level of Bundle:" + finalList[i], ex); //$NON-NLS-1$
 			}
 		}
 		return toRefresh;
@@ -276,6 +283,8 @@ class ConfigApplier {
 		for (int i = 0; i < bundles.length; i++) {
 			Bundle bundle = bundles[i];
 			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
+				continue;
+			if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null)
 				continue;
 
 			try {

@@ -50,6 +50,9 @@ public class MarkStartedAction extends ProvisioningAction {
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 
+		if (bundleInfo.isFragment())
+			return Status.OK_STATUS;
+
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].equals(bundleInfo)) {
@@ -62,6 +65,10 @@ public class MarkStartedAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map parameters) {
+		Boolean previousStarted = (Boolean) getMemento().get(ActionConstants.PARM_PREVIOUS_STARTED);
+		if (previousStarted == null)
+			return Status.OK_STATUS;
+
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
@@ -85,9 +92,7 @@ public class MarkStartedAction extends ProvisioningAction {
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].equals(bundleInfo)) {
-				Boolean previousStarted = (Boolean) getMemento().get(ActionConstants.PARM_PREVIOUS_STARTED);
-				if (previousStarted != null)
-					bundles[i].setMarkedAsStarted(previousStarted.booleanValue());
+				bundles[i].setMarkedAsStarted(previousStarted.booleanValue());
 				break;
 			}
 		}

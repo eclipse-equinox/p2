@@ -182,6 +182,11 @@ public class Util {
 			if (version == null)
 				return null;
 			bundleInfo.setVersion(version);
+
+			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
+			if (fragmentHost != null)
+				bundleInfo.setFragment(true);
+
 		} catch (BundleException e) {
 			// unexpected
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));

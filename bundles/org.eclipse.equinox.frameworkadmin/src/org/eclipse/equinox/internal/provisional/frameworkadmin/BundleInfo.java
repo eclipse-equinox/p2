@@ -24,6 +24,7 @@ public class BundleInfo {
 
 	private String symbolicName = null;
 	private String version = null;
+	private boolean fragment = false;
 	private URI baseLocation;
 	private URI location;
 	private long bundleId = NO_BUNDLEID;
@@ -108,6 +109,10 @@ public class BundleInfo {
 		return resolved;
 	}
 
+	public boolean isFragment() {
+		return fragment;
+	}
+
 	public void setBundleId(long bundleId) {
 		this.bundleId = bundleId;
 	}
@@ -144,6 +149,10 @@ public class BundleInfo {
 		this.version = value;
 	}
 
+	public void setFragment(boolean fragment) {
+		this.fragment = fragment;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -155,6 +164,9 @@ public class BundleInfo {
 		buffer.append(", "); //$NON-NLS-1$
 		if (version != null)
 			buffer.append(version);
+
+		buffer.append(", fragment="); //$NON-NLA-1$
+		buffer.append(fragment);
 
 		if (baseLocation != null) {
 			buffer.append(", baseLocation="); //$NON-NLS-1$
