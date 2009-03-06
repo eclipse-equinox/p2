@@ -26,7 +26,6 @@ public class ProfileLock {
 	private final Location location;
 	private final Object lock;
 	private Thread lockHolder;
-	private int lockedCount;
 	private int waiting;
 
 	public ProfileLock(Object lock, File profileDirectory) {
@@ -64,33 +63,33 @@ public class ProfileLock {
 	public boolean lock() {
 		synchronized (lock) {
 			Thread current = Thread.currentThread();
-			if (lockHolder != current) {
-				boolean locationLocked = false;
-				while (lockHolder != null) {
-					locationLocked = true;
-					waiting++;
-					boolean interrupted = false;
-					try {
-						lock.wait();
-					} catch (InterruptedException e) {
-						interrupted = true;
-					} finally {
-						waiting--;
-						// if interrupted restore interrupt to thread state
-						if (interrupted)
-							current.interrupt();
-					}
-				}
-				try {
-					if (!locationLocked && !location.lock())
-						return false;
+			if (lockHolder == current)
+				throw new IllegalStateException(Messages.profile_lock_not_reentrant);
 
-					lockHolder = current;
-				} catch (IOException e) {
-					throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
+			boolean locationLocked = false;
+			while (lockHolder != null) {
+				locationLocked = true;
+				waiting++;
+				boolean interrupted = false;
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					interrupted = true;
+				} finally {
+					waiting--;
+					// if interrupted restore interrupt to thread state
+					if (interrupted)
+						current.interrupt();
 				}
 			}
-			lockedCount++;
+			try {
+				if (!locationLocked && !location.lock())
+					return false;
+
+				lockHolder = current;
+			} catch (IOException e) {
+				throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
+			}
 			return true;
 		}
 	}
@@ -104,14 +103,11 @@ public class ProfileLock {
 			if (lockHolder != current)
 				throw new IllegalStateException(Messages.thread_not_owner);
 
-			lockedCount--;
-			if (lockedCount == 0) {
-				lockHolder = null;
-				if (waiting == 0)
-					location.release();
-				else
-					lock.notify();
-			}
+			lockHolder = null;
+			if (waiting == 0)
+				location.release();
+			else
+				lock.notify();
 		}
 	}
 }

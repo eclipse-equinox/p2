@@ -57,6 +57,7 @@ class Messages extends NLS {
 	public static String SimpleProfileRegistry_Bad_profile_location;
 
 	public static String thread_not_owner;
+	public static String profile_lock_not_reentrant;
 
 	public static String TouchpointManager_Attribute_Not_Specified;
 	public static String TouchpointManager_Conflicting_Touchpoint_Types;

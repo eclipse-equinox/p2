@@ -246,8 +246,12 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		// Try lock, lock, unlock, unlock should pass
 		simpleRgy.lockProfile(simpleProfile);
-		simpleRgy.lockProfile(simpleProfile);
-		simpleRgy.unlockProfile(simpleProfile);
+		try {
+			simpleRgy.lockProfile(simpleProfile);
+			fail("Profile does not permit reentrant locking");
+		} catch (IllegalStateException e) {
+			// expected
+		}
 		simpleRgy.unlockProfile(simpleProfile);
 
 		// NOTE: remaining nested tests are commented out for now
