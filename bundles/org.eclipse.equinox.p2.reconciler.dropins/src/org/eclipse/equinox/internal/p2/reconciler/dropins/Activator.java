@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -34,6 +34,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Activator implements BundleActivator {
 
+	static final String PROP_APPLICATION_STATUS = "org.eclipse.equinox.p2.reconciler.application.status"; //$NON-NLS-1$
 	public static final String ID = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
@@ -400,6 +401,9 @@ public class Activator implements BundleActivator {
 		// create the profile synchronizer on all available repositories
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
+		if (ProfileSynchronizer.isReconciliationApplicationRunning()) {
+			System.getProperties().put(PROP_APPLICATION_STATUS, result);
+		}
 		if (!result.isOK() && !(result.getSeverity() == IStatus.CANCEL))
 			LogHelper.log(result);
 	}
