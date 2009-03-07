@@ -468,7 +468,7 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private boolean isReconciliationApplicationRunning() {
+	static boolean isReconciliationApplicationRunning() {
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 		if (info == null)
 			return false;

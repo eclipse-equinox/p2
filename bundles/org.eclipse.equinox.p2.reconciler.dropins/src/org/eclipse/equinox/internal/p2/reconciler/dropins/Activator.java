@@ -34,6 +34,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Activator implements BundleActivator {
 
+	static final String PROP_APPLICATION_STATUS = "org.eclipse.equinox.p2.reconciler.application.status"; //$NON-NLS-1$
 	public static final String ID = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
@@ -367,6 +368,9 @@ public class Activator implements BundleActivator {
 		// create the profile synchronizer on all available repositories
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
+		if (ProfileSynchronizer.isReconciliationApplicationRunning()) {
+			System.getProperties().put(PROP_APPLICATION_STATUS, result);
+		}
 		if (!result.isOK() && !(result.getSeverity() == IStatus.CANCEL))
 			LogHelper.log(result);
 	}
