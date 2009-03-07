@@ -439,4 +439,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	public abstract IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor);
 
+	public void setPublisherInfo(IPublisherInfo info) {
+		this.info = info;
+	}
 }

@@ -207,6 +207,8 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	protected void insertPublisherInfoBehavior() {
+		//super sets publisherInfo.getMetadataRepository and publisherInfo.getContextMetadataRepository
+		super.insertPublisherInfoBehavior();
 		Properties sarProperties = new Properties();
 		sarProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sarProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$

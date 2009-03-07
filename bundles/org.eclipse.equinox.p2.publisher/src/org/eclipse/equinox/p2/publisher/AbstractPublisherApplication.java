@@ -59,6 +59,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected String metadataRepoName;
 	protected URI artifactLocation;
 	protected String artifactRepoName;
+	protected URI[] contextMetadataRepositories;
+	protected URI[] contextArtifactRepositories;
 	//whether repository xml files should be compressed
 	protected boolean compress = false;
 	protected boolean inplace = false;
@@ -99,6 +101,26 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
 		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
+
+		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
+			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
+			if (contextMetadata != null) {
+				for (int i = 0; i < contextMetadataRepositories.length; i++)
+					contextMetadata.addChild(contextMetadataRepositories[i]);
+				if (contextMetadata.getChildren().size() > 0)
+					info.setContextMetadataRepository(contextMetadata);
+			}
+		}
+		if (contextArtifactRepositories != null && contextArtifactRepositories.length > 0) {
+			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite();
+			if (contextArtifact != null) {
+				for (int i = 0; i < contextArtifactRepositories.length; i++)
+					contextArtifact.addChild(contextArtifactRepositories[i]);
+
+				if (contextArtifact.getChildren().size() > 0)
+					info.setContextArtifactRepository(contextArtifact);
+			}
+		}
 	}
 
 	protected void processCommandLineArguments(String[] args, PublisherInfo info) throws Exception {
@@ -318,4 +340,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		reusePackedFiles = value;
 	}
 
+	public void setContextRepositories(URI[] metadata, URI[] artifacts) {
+		this.contextMetadataRepositories = metadata;
+		this.contextArtifactRepositories = artifacts;
+	}
 }

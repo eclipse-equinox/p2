@@ -244,12 +244,12 @@ public class BundlesAction extends AbstractPublisherAction {
 		return updateRange;
 	}
 
-	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
+	private IInstallableUnitFragment createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues) {
 		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
 		if (hostLocalizations != null) {
-			IInstallableUnitFragment localizationFragment = createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
-			localizationIUs.add(localizationFragment);
+			return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
 		}
+		return null;
 	}
 
 	/*
@@ -565,13 +565,16 @@ public class BundlesAction extends AbstractPublisherAction {
 		this.bundles = bundles;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (bundles == null && locations == null)
 			throw new IllegalStateException(Messages.exception_noBundlesOrLocations);
+
+		setPublisherInfo(publisherInfo);
+
 		try {
 			if (bundles == null)
 				bundles = getBundleDescriptions(expandLocations(locations), monitor);
-			generateBundleIUs(bundles, results, info, monitor);
+			generateBundleIUs(bundles, results, monitor);
 			bundles = null;
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
@@ -622,21 +625,22 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IPublisherInfo info, IProgressMonitor monitor) {
+	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result, IProgressMonitor monitor) {
 		// Computing the path for localized property files in a NL fragment bundle
 		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
 		// so a first pass is done over all the bundles to cache this value as well as the tags
 		// from the manifest for the localizable properties.
 		final int CACHE_PHASE = 0;
 		final int GENERATE_PHASE = 1;
-		Map bundleLocalizationMap = new HashMap(bundles.length);
-		Set localizationIUs = new HashSet(32);
+		Map bundleLocalizationMap = new HashMap(bundleDescriptions.length);
+		//		Set localizationIUs = new HashSet(32);
 		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {
-			for (int i = 0; i < bundles.length; i++) {
+			for (int i = 0; i < bundleDescriptions.length; i++) {
 				if (monitor.isCanceled())
 					throw new OperationCanceledException();
 
-				BundleDescription bd = bundles[i];
+				BundleDescription bd = bundleDescriptions[i];
+				//Version bundleVersion = bd.getVersion().toString())
 				// A bundle may be null if the associated plug-in does not have a manifest file -
 				// for example, org.eclipse.jdt.launching.j9
 				if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
@@ -648,11 +652,14 @@ public class BundlesAction extends AbstractPublisherAction {
 							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
 						}
 					} else {
-						createAdviceFileAdvice(bundles[i], info);
+						//First check to see if there is already an IU around for this
+						IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()));
 						IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-
-						// Create the bundle IU according to any shape advice we have
-						IInstallableUnit bundleIU = createBundleIU(bd, key, info);
+						if (bundleIU == null) {
+							createAdviceFileAdvice(bundleDescriptions[i], info);
+							// Create the bundle IU according to any shape advice we have
+							bundleIU = createBundleIU(bd, key, info);
+						}
 
 						File location = new File(bd.getLocation());
 						IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
@@ -665,6 +672,7 @@ public class BundlesAction extends AbstractPublisherAction {
 						else
 							publishArtifact(ad, new File(bd.getLocation()), info);
 
+						IInstallableUnit fragment = null;
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
 							//		 is required for multi-host fragments in general?
@@ -673,13 +681,18 @@ public class BundlesAction extends AbstractPublisherAction {
 							String[] cachedValues = (String[]) bundleLocalizationMap.get(hostKey);
 
 							if (cachedValues != null) {
-								createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues, localizationIUs);
+								String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
+								fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
+								if (fragment == null)
+									fragment = createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues);
 							}
+
 						}
 
 						result.addIU(bundleIU, IPublisherResult.ROOT);
-						result.addIUs(localizationIUs, IPublisherResult.NON_ROOT);
-						localizationIUs.clear();
+						if (fragment != null)
+							result.addIU(fragment, IPublisherResult.NON_ROOT);
+
 						InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
 						for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
 							result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);

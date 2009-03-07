@@ -167,6 +167,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * Do not call this method, it is called by <code>setupPublisherInfo</code>.
 	 */
 	protected void insertPublisherInfoBehavior() {
+		expect(publisherInfo.getMetadataRepository()).andReturn(null).anyTimes();
 		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 	}
 
