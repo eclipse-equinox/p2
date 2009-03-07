@@ -364,9 +364,19 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					} else
 						tok.nextToken(); // ,
 					try {
+						// handle the case where we have an absolute path on Windows
+						// with a device and it may or may not have an extra slash at
+						// the beginning. e.g. this should handle both file:c:/foo and file:/c:/foo,
+						// returning file:/c:/foo for both.
+						if (urlSt.startsWith(FILE_PROTOCOL)) {
+							urlSt = urlSt.substring(5);
+							if (urlSt.charAt(0) != '/') {
+								if (new Path(urlSt).getDevice() != null)
+									urlSt = '/' + urlSt;
+							}
+							urlSt = FILE_PROTOCOL + urlSt;
+						}
 						new URL(urlSt);
-						//						if (DEBUG)
-						//							System.out.println("1 urlSt=" + urlSt);
 					} catch (MalformedURLException e) {
 						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
 						//						if (DEBUG)
