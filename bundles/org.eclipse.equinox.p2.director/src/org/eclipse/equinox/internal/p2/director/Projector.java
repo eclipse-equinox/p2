@@ -224,14 +224,20 @@ public class Projector {
 
 		maxWeight = maxWeight.multiply(POWER);
 
-		BigInteger patchWeight = maxWeight.negate();
+		BigInteger optionalWeight = maxWeight.negate();
+		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(POWER).negate();
 		if (patches != null) {
 			IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
 			for (int j = 0; j < reqs.length; j++) {
-				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+				if (!reqs[j].isOptional())
+					continue;
+				Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
 				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-					IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
-					weightedObjects.add(WeightedObject.newWO(match, patchWeight));
+					IInstallableUnit match = (IInstallableUnit) iterator.next();
+					if (match instanceof IInstallableUnitPatch)
+						weightedObjects.add(WeightedObject.newWO(match, patchWeight));
+					else
+						weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
 				}
 			}
 
