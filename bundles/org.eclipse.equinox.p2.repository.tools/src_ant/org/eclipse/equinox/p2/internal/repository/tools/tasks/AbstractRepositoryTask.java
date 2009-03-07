@@ -17,6 +17,7 @@ import java.util.*;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
@@ -71,13 +72,13 @@ public abstract class AbstractRepositoryTask extends Task {
 	 */
 	public void setDestination(String location) {
 		DestinationRepository metadata = new DestinationRepository();
-		metadata.setLocation(new Path(location).toFile().toURI().toString());
+		metadata.setLocation(URIUtil.toUnencodedString(new Path(location).toFile().toURI()));
 		metadata.setKind("metadata"); //$NON-NLS-1$
 		application.addDestination(metadata.getDescriptor());
 		destinations.add(metadata);
 
 		DestinationRepository artifact = new DestinationRepository();
-		artifact.setLocation(new Path(location).toFile().toURI().toString());
+		artifact.setLocation(URIUtil.toUnencodedString(new Path(location).toFile().toURI()));
 		metadata.setKind("artifact"); //$NON-NLS-1$
 		application.addDestination(artifact.getDescriptor());
 		destinations.add(artifact);
