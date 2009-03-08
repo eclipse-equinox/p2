@@ -64,7 +64,7 @@ public class ProfileLock {
 		synchronized (lock) {
 			Thread current = Thread.currentThread();
 			if (lockHolder == current)
-				throw new IllegalStateException(Messages.profile_lock_not_reentrant);
+				return false;
 
 			boolean locationLocked = false;
 			while (lockHolder != null) {
