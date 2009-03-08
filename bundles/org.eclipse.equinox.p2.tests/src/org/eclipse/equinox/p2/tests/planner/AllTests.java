@@ -24,6 +24,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AllOrbit.class);
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
+		suite.addTestSuite(Bug254481dataSet1.class);
+		suite.addTestSuite(Bug254481dataSet2.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DropinsScenario.class);
 		suite.addTestSuite(GreedyRequirement.class);

@@ -765,4 +765,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}
+
+	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+	}
 }
