@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersio
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
- * Tests for {@link LatestIUVersionElementCollector}. This has all the tests of the superclass,
+ * Tests for {@link LatestIUVersionQuery}. This has all the tests of the superclass,
  * plus some extras for testing the latest IU capabilities.
  */
 public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
