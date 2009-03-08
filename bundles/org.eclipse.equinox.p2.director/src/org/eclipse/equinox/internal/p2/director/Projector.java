@@ -225,24 +225,27 @@ public class Projector {
 		maxWeight = maxWeight.multiply(POWER);
 
 		BigInteger optionalWeight = maxWeight.negate();
-		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(POWER).negate();
-		if (patches != null) {
-			IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
-			for (int j = 0; j < reqs.length; j++) {
-				if (!reqs[j].isOptional())
-					continue;
-				Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-					IInstallableUnit match = (IInstallableUnit) iterator.next();
-					if (match instanceof IInstallableUnitPatch)
-						weightedObjects.add(WeightedObject.newWO(match, patchWeight));
-					else
-						weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
-				}
+		long countOptional = 1;
+		List requestedPatches = new ArrayList();
+		IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
+		for (int j = 0; j < reqs.length; j++) {
+			if (!reqs[j].isOptional())
+				continue;
+			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+				IInstallableUnit match = (IInstallableUnit) iterator.next();
+				if (match instanceof IInstallableUnitPatch) {
+					requestedPatches.add(match);
+					countOptional = countOptional + 1;
+				} else
+					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
 			}
-
 		}
 
+		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
+		for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
+			weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));
+		}
 		if (!weightedObjects.isEmpty()) {
 			createObjectiveFunction(weightedObjects);
 		}
