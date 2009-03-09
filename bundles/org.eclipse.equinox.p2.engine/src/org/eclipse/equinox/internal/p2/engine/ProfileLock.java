@@ -49,6 +49,10 @@ public class ProfileLock {
 		}
 	}
 
+	/**
+	 * Asserts that this thread currently holds the profile lock.
+	 * @throws IllegalStateException If this thread does not currently hold the profile lock
+	 */
 	public void checkLocked() {
 		synchronized (lock) {
 			if (lockHolder == null)
@@ -60,6 +64,17 @@ public class ProfileLock {
 		}
 	}
 
+	/**
+	 * Attempts to obtain an exclusive write lock on a profile. The profile lock must be
+	 * owned by any process and thread that wants to modify a profile. If the lock
+	 * is currently held by another thread in this process, this method will  block until
+	 * the lock becomes available. If the lock is currently held by another process,
+	 * this method returns <code>false</code>. Re-entrant attempts to acquire the
+	 * same profile lock multiple times in the same thread is not allowed.
+	 * 
+	 * @return <code>true</code> if the lock was successfully obtained by this thread,
+	 * and <code>false</code> if another process is currently holding the lock.
+	 */
 	public boolean lock() {
 		synchronized (lock) {
 			Thread current = Thread.currentThread();
@@ -94,6 +109,10 @@ public class ProfileLock {
 		}
 	}
 
+	/**
+	 * Releases the exclusive write lock on a profile. This method must only be called
+	 * by a thread that currently owns the lock.
+	 */
 	public void unlock() {
 		synchronized (lock) {
 			if (lockHolder == null)
@@ -111,6 +130,12 @@ public class ProfileLock {
 		}
 	}
 
+	/**
+	 * Returns whether a thread in this process currently holds the profile lock.
+	 * 
+	 * @return <code>true</code> if a thread in this process owns the profile lock,
+	 * and <code>false</code> otherwise
+	 */
 	public boolean processHoldsLock() {
 		synchronized (lock) {
 			return lockHolder != null;
