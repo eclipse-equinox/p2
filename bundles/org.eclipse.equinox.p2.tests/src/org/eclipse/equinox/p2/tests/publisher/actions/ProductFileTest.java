@@ -27,10 +27,14 @@ public class ProductFileTest extends TestCase {
 	ProductFile productFile = null;
 
 	String configFile = "/org.eclipse.equinox.p2.tests/testData/ProductActionTest/productWithConfig/config.ini";
+	private String uidProductFileLocation;
+	private ProductFile uidProductFile;
 
 	protected void setUp() throws Exception {
 		productFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "sample.product").toString();
 		productFile = new ProductFile(productFileLocation);
+		uidProductFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "uidproduct.product").toString();
+		uidProductFile = new ProductFile(uidProductFileLocation);
 	}
 
 	/**
@@ -125,6 +129,11 @@ public class ProductFileTest extends TestCase {
 	public void testGetId() {
 		String id = productFile.getId();
 		assertEquals("1.0", "test.product", id);
+	}
+
+	public void testGetUID() {
+		String id = uidProductFile.getId();
+		assertEquals("1.0", "UID.test.product", id);
 	}
 
 	/**

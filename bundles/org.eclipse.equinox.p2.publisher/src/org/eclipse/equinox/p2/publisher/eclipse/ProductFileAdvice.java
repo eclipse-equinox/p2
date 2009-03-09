@@ -142,10 +142,13 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 
 		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
 		addProductFileConfigBundles(result); // these are the bundles specified in the <configurations> tag in the product file
-		result.setProperty("eclipse.product", product.getId()); //$NON-NLS-1$
+		if (product.getProductId() != null)
+			result.setProperty("eclipse.product", product.getProductId()); //$NON-NLS-1$
+		if (product.getApplication() != null)
+			result.setProperty("eclipse.application", product.getApplication()); //$NON-NLS-1$
 		String location = getSplashLocation();
 		if (location != null)
-			result.setProperty(OSGI_SPLASH_PATH, SPLASH_PREFIX + location); //$NON-NLS-1$
+			result.setProperty(OSGI_SPLASH_PATH, SPLASH_PREFIX + location);
 		return result;
 	}
 

@@ -38,6 +38,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_START_LEVEL = "startLevel"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_UID = "uid"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -116,6 +117,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String configPlatform = null;
 	private String platformConfigPath = null;
 	private String id = null;
+	private String uid = null;
 	private boolean useFeatures = false;
 	private List plugins = null;
 	private List fragments = null;
@@ -265,6 +267,12 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Returns the ID for this product.
 	 */
 	public String getId() {
+		if (uid != null)
+			return uid;
+		return id;
+	}
+
+	public String getProductId() {
 		return id;
 	}
 
@@ -607,6 +615,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	private void processProduct(Attributes attributes) {
 		id = attributes.getValue(ATTRIBUTE_ID);
+		uid = attributes.getValue(ATTRIBUTE_UID);
 		productName = attributes.getValue(ATTRIBUTE_NAME);
 		application = attributes.getValue(ATTRIBUTE_APPLICATION);
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$

@@ -56,6 +56,16 @@ public interface IProductDescriptor {
 	public String getId();
 
 	/**
+	 * Returns the Product extension point ID
+	 */
+	public String getProductId();
+
+	/**
+	 * Returns the Applicaiton extension point ID
+	 */
+	public String getApplication();
+
+	/**
 	 * Returns the ID of the bundle in which the splash screen resides.
 	 */
 	public String getSplashLocation();

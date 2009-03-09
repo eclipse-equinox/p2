@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,6 +92,7 @@ public class ProductFile extends DefaultHandler {
 	private String platformConfigPath = null;
 	private String launcherName = null;
 	private String id = null;
+	private String uid = null;
 	private boolean useFeatures = false;
 	private List plugins = null;
 	private List fragments = null;
@@ -154,6 +155,12 @@ public class ProductFile extends DefaultHandler {
 	}
 
 	public String getId() {
+		if (uid != null)
+			return uid;
+		return id;
+	}
+
+	public String getProductId() {
 		return id;
 	}
 
@@ -415,6 +422,7 @@ public class ProductFile extends DefaultHandler {
 
 	private void processProduct(Attributes attributes) {
 		id = attributes.getValue("id"); //$NON-NLS-1$
+		uid = attributes.getValue("uid"); //$NON-NLS-1$
 		productName = attributes.getValue("name"); //$NON-NLS-1$
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
