@@ -105,12 +105,25 @@ public class SimplePlanner implements IPlanner {
 		if (explanations == null)
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
 		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
+		//try to find a more specific root message if possible
+		String specificMessage = null;
 		for (Iterator it = explanations.iterator(); it.hasNext();) {
 			final Object next = it.next();
-			if (next instanceof Explanation)
+			if (next instanceof Explanation) {
 				root.add(((Explanation) next).toStatus());
-			else
+				if (specificMessage == null && next instanceof Explanation.MissingIU)
+					specificMessage = Messages.Explanation_rootMissing;
+				else if (specificMessage == null && next instanceof Explanation.Singleton) {
+					specificMessage = Messages.Explanation_rootSingleton;
+				}
+			} else
 				root.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, next.toString()));
+		}
+		//use a more specific root message if available
+		if (specificMessage != null) {
+			MultiStatus newRoot = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, specificMessage, null);
+			newRoot.merge(root);
+			root = newRoot;
 		}
 		return root;
 	}
@@ -299,12 +312,11 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(s);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
-				LogHelper.log(s);
 				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
 					return new ProvisioningPlan(s);
 
 				boolean newExplanation = true;
-				if (System.getProperty("p2.new.explanation") != null && Boolean.getBoolean("p2.new.explanation") == false)
+				if (System.getProperty("p2.new.explanation") != null && Boolean.getBoolean("p2.new.explanation") == false) //$NON-NLS-1$ //$NON-NLS-2$
 					newExplanation = false;
 				if (!newExplanation) {
 					//We invoke the old resolver to get explanations for now
