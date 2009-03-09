@@ -355,7 +355,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				profileLocks.put(profileId, lock);
 			}
 
-			if (lock.lock()) {
+			boolean locked = false;
+			if (lock.processHoldsLock() || (locked = lock.lock())) {
 				try {
 					File profileFile = findLatestProfileFile(profileDirectories[i]);
 					if (profileFile != null) {
@@ -366,7 +367,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 						}
 					}
 				} finally {
-					lock.unlock();
+					if (locked)
+						lock.unlock();
 				}
 			} else {
 				// could not lock the profile, so add a place holder
