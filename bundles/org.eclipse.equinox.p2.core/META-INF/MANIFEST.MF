@@ -161,7 +161,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.extensionlocation,
-   org.eclipse.equinox.p2.updatesite"
+   org.eclipse.equinox.p2.updatesite,
+   org.eclipse.equinox.p2.engine"
 Eclipse-LazyStart: true
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,

@@ -20,6 +20,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
+	private static final String ARTIFACTS_XML = "artifacts.xml"; //$NON-NLS-1$
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static final String DOT_PROFILE = ".profile"; //$NON-NLS-1$
 	public static final String TYPE = "org.eclipse.equinox.p2.engine.repo.metadataRepository"; //$NON-NLS-1$
@@ -38,10 +39,33 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private void publishArtifactRepos() {
+		List artifactRepos = findArtifactRepos();
+
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (Iterator it = artifactRepos.iterator(); it.hasNext();) {
+			URI repo = (URI) it.next();
+			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
+		}
+	}
+
+	private List findArtifactRepos() {
 		List artifactRepos = new ArrayList();
 		String bundlePool = profile.getProperty(IProfile.PROP_CACHE);
-		if (bundlePool != null)
-			artifactRepos.add(new File(bundlePool).toURI());
+		if (bundlePool != null) {
+			File bundlePoolFile = new File(bundlePool);
+			if (bundlePoolFile.exists())
+				artifactRepos.add(bundlePoolFile.toURI());
+			else if (Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
+				// the profile has not been used yet but is a roaming profile
+				// best effort to add "just" the default bundle pool
+				bundlePoolFile = findDefaultBundlePool();
+				if (bundlePoolFile != null)
+					artifactRepos.add(bundlePoolFile.toURI());
+				return artifactRepos;
+			}
+		}
 
 		String sharedBundlePool = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 		if (sharedBundlePool != null)
@@ -60,14 +84,33 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 				}
 			}
 		}
+		return artifactRepos;
+	}
 
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		if (bus == null)
-			return;
-		for (Iterator it = artifactRepos.iterator(); it.hasNext();) {
-			URI repo = (URI) it.next();
-			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
-		}
+	private File findDefaultBundlePool() {
+		File target = new File(location);
+		if (target.isFile())
+			target = target.getParentFile();
+
+		// by default the profile registry is in {product}/p2/org.eclipse.equinox.p2.engine/profileRegistry
+		// the default bundle pool is in the {product} folder
+		File profileRegistryDirectory = target.getParentFile();
+		if (profileRegistryDirectory == null)
+			return null;
+
+		File p2EngineDirectory = profileRegistryDirectory.getParentFile();
+		if (p2EngineDirectory == null)
+			return null;
+
+		File p2Directory = p2EngineDirectory.getParentFile();
+		if (p2Directory == null)
+			return null;
+
+		File productDirectory = p2Directory.getParentFile();
+		if (productDirectory == null || !(new File(productDirectory, ARTIFACTS_XML).exists()))
+			return null;
+
+		return productDirectory;
 	}
 
 	public void initialize(RepositoryState state) {
