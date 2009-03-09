@@ -90,6 +90,7 @@ public class ProductFile extends DefaultHandler {
 	private final Map platformSpecificConfigPaths = new HashMap();
 	private String configPlatform = null;
 	private String platformConfigPath = null;
+	private String launcherName = null;
 	private String id = null;
 	private boolean useFeatures = false;
 	private List plugins = null;
@@ -166,6 +167,10 @@ public class ProductFile extends DefaultHandler {
 
 	public String getVersion() {
 		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
+	}
+
+	public String getLauncherName() {
+		return launcherName;
 	}
 
 	public String getVMArguments(String os) {
@@ -443,7 +448,7 @@ public class ProductFile extends DefaultHandler {
 	}
 
 	private void processLauncher(Attributes attributes) {
-		//
+		launcherName = attributes.getValue("name"); //$NON-NLS-1$
 	}
 
 	private boolean osMatch(String os) {

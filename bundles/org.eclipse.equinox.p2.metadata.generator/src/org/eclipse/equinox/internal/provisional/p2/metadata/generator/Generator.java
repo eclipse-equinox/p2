@@ -837,11 +837,22 @@ public class Generator {
 
 		File executableLocation = info.getExecutableLocation();
 		if (executableLocation != null) {
-			if (!executableLocation.exists() && Constants.OS_WIN32.equals(os) && !executableLocation.getName().endsWith(".exe")) //$NON-NLS-1$
-				executableLocation = new File(executableLocation.getParentFile(), executableLocation.getName() + ".exe"); //$NON-NLS-1$
+			if (!executableLocation.exists()) {
+				if (Constants.OS_WIN32.equals(os) && !executableLocation.getName().endsWith(".exe")) { //$NON-NLS-1$
+					executableLocation = new File(executableLocation.getParentFile(), executableLocation.getName() + ".exe"); //$NON-NLS-1$
+				} else if (Constants.OS_MACOSX.equals(os)) {
+					String name = executableLocation.getName();
+					File parent = executableLocation.getParentFile();
+					executableLocation = new File(parent, name + ".app/Contents/MacOS/" + name); //$NON-NLS-1$
+				}
+			}
 
 			if (executableLocation.exists() && executableLocation.isFile())
 				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(executableLocation.getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+		}
+
+		if (launcherNameIU == null && productFile != null && productFile.getLauncherName() != null) {
+			launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(productFile.getLauncherName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 		}
 
 		if (Constants.OS_MACOSX.equals(os)) {
@@ -856,7 +867,7 @@ public class Generator {
 					File[] launcherFiles = macOSFolder.listFiles();
 					for (int j = 0; j < launcherFiles.length; j++) {
 						configurationData += " chmod(targetDir:${installFolder}/" + appFolders[i].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[j].getName()).getFileExtension() == null)
+						if (launcherNameIU == null && launcherFiles[i].isFile() && new Path(launcherFiles[j].getName()).getFileExtension() == null)
 							launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 					}
 				}
@@ -865,7 +876,7 @@ public class Generator {
 			File[] launcherFiles = root.listFiles();
 			for (int i = 0; launcherFiles != null && i < launcherFiles.length; i++) {
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
-				if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[i].getName()).getFileExtension() == null)
+				if (launcherNameIU == null && launcherFiles[i].isFile() && new Path(launcherFiles[i].getName()).getFileExtension() == null)
 					launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 			}
 		} else if (launcherNameIU == null) {
@@ -875,7 +886,7 @@ public class Generator {
 					return name.endsWith(".exe"); //$NON-NLS-1$
 				}
 			});
-			if (launcherFiles != null && launcherFiles.length > 0)
+			if (launcherNameIU != null && launcherFiles != null && launcherFiles.length > 0)
 				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[0].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
