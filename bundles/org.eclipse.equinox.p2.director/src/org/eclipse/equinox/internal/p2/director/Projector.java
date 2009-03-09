@@ -165,21 +165,33 @@ public class Projector {
 		}
 	}
 
-	protected StringBuffer getPatchesWeight(IInstallableUnit ius[], long weight) {
-		StringBuffer patchesWeight = new StringBuffer();
-		if (patches == null)
-			return patchesWeight;
+	protected StringBuffer getPatchesWeight(IInstallableUnit ius[], long optionalWeight) {
+		StringBuffer weights = new StringBuffer();
+		List requestedPatches = new ArrayList(ius.length);
+		int optionalCount = 1;
 		for (int i = 0; i < ius.length; i++) {
 			RequiredCapability[] reqs = ius[i].getRequiredCapabilities();
 			for (int j = 0; j < reqs.length; j++) {
-				Collector matches = patches.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+				if (!reqs[j].isOptional())
+					continue;
+
+				Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
 				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-					IInstallableUnitPatch match = (IInstallableUnitPatch) iterator.next();
-					patchesWeight.append('-').append(weight).append(' ').append(getVariable(match)).append(' ');
+					IInstallableUnit match = (IInstallableUnit) iterator.next();
+					if (match instanceof IInstallableUnitPatch)
+						requestedPatches.add(match);
+					else {
+						weights.append('-').append(optionalWeight).append(' ').append(getVariable(match)).append(' ');
+						optionalCount++;
+					}
 				}
 			}
 		}
-		return patchesWeight;
+		long patchesWeight = optionalWeight * 2 * optionalCount;
+		for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
+			weights.append('-').append(patchesWeight).append(' ').append(getVariable((IInstallableUnit) iterator.next())).append(' ');
+		}
+		return weights;
 	}
 
 	private void createMustHaves(IInstallableUnit iu) {
