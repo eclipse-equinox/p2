@@ -121,7 +121,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
-					getPageContainer().closeContainer();
+					getPageContainer().closeModalContainers();
 			}
 		};
 		updateButton = createButton(parent, UPDATE_ID, action.getText());
@@ -131,7 +131,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
-					getPageContainer().closeContainer();
+					getPageContainer().closeModalContainers();
 			}
 		};
 		uninstallButton = createButton(parent, UNINSTALL_ID, action.getText());

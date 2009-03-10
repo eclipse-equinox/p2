@@ -162,7 +162,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					return;
 				boolean finish = revert();
 				if (finish) {
-					getPageContainer().closeContainer();
+					getPageContainer().closeModalContainers();
 				}
 			}
 		};
