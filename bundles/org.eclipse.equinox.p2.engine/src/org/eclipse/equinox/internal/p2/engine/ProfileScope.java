@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.core.internal.preferences.AbstractScope;
+import org.eclipse.core.internal.preferences.PreferencesService;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 
-public final class ProfileScope extends AbstractScope {
+public final class ProfileScope implements IScopeContext {
 
 	/*
 	 * String constant (value of <code>"profile"</code>) used for the 
@@ -41,6 +43,17 @@ public final class ProfileScope extends AbstractScope {
 
 	public String getName() {
 		return SCOPE;
+	}
+
+	/*
+	 * Default path hierarchy for profile nodes is /profile/<profileId>/<qualifier>.
+	 * 
+	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getNode(java.lang.String)
+	 */
+	public IEclipsePreferences getNode(String qualifier) {
+		if (qualifier == null)
+			throw new IllegalArgumentException();
+		return (IEclipsePreferences) PreferencesService.getDefault().getRootNode().node(getName()).node(profileId).node(qualifier);
 	}
 
 	/* (non-Javadoc)
