@@ -150,10 +150,9 @@ public class EclipseLauncherParser {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
 		if (launcherLibrary == null)
 			return null;
-
 		URI result = null;
 		try {
-			result = URIUtil.makeAbsolute(URIUtil.fromString(launcherLibrary), launcherFolder);
+			result = URIUtil.makeAbsolute(FileUtils.fromPath(launcherLibrary), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, result.toString(), lines);
 		} catch (URISyntaxException e) {
 			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + launcherLibrary);
