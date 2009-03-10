@@ -143,28 +143,25 @@ public class ProductAction extends AbstractPublisherAction {
 		List result = new ArrayList();
 		for (Iterator i = elements.iterator(); i.hasNext();) {
 			VersionedName element = (VersionedName) i.next();
-			if (element.getVersion() == null || Version.emptyVersion.equals(element.getVersion())) {
+			Version elementVersion = element.getVersion();
+			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
 				Iterator advice = versionAdvice.iterator();
-				Version advisedVersion = null;
 				while (advice.hasNext()) {
-					advisedVersion = ((VersionAdvice) advice.next()).getVersion(namespace, element.getId());
+					elementVersion = ((VersionAdvice) advice.next()).getVersion(namespace, element.getId());
 					break;
-				}
-
-				if (advisedVersion != null) {
-					result.add(new VersionedName(element.getId(), advisedVersion));
-					continue;
-				}
-
-				//	no advice, find highest version
-				IInstallableUnit unit = queryForIU(publisherResults, element.getId(), null);
-				if (unit != null) {
-					result.add(unit);
-					continue;
 				}
 			}
 
-			result.add(element);
+			//	if advisedVersion is null, we get the highest version
+			IInstallableUnit unit = queryForIU(publisherResults, element.getId(), elementVersion);
+			if (unit != null) {
+				result.add(unit);
+			} else if (elementVersion != null) {
+				//best effort
+				result.add(new VersionedName(element.getId(), elementVersion));
+			}
+			//TODO we could still add a requirement on version 0.0.0 to get any version, but if the
+			//bundle is platform specific we will have broken metadata due to a missing filter
 		}
 		return result;
 	}
