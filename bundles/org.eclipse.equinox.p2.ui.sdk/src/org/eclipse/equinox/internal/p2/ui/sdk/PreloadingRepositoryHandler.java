@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
-	Job loadJob = null;
+	Object LOAD_FAMILY = new Object();
 
 	/**
 	 * The constructor.
@@ -59,23 +59,25 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	}
 
 	void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
-		if (loadJob != null)
-			loadJob.cancel();
-		loadJob = null;
+		//cancel any load that is already running
+		Job.getJobManager().cancel(LOAD_FAMILY);
 		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false);
 		if (preloadRepositories) {
-			loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
+			Job loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
 
 				protected IStatus run(IProgressMonitor monitor) {
 					queryableManager.loadAll(monitor);
 					return Status.OK_STATUS;
 				}
 
+				public boolean belongsTo(Object family) {
+					return family == LOAD_FAMILY;
+				}
+
 			};
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					public void done(IJobChangeEvent event) {
-						loadJob = null;
 						if (PlatformUI.isWorkbenchRunning())
 							if (event.getResult().isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
