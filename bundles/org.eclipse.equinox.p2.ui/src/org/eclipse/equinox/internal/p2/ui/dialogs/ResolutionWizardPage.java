@@ -114,6 +114,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		treeViewer.setLabelProvider(labelProvider);
 
 		if (resolvedOperation != null) {
+			setDrilldownElements(input, resolvedOperation.getProvisioningPlan());
 			treeViewer.setInput(input);
 			resolutionResult = resolvedOperation.getResolutionResult();
 		} else {
@@ -192,7 +193,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 	 * @param provisioningContext
 	 * @param runnableContext
 	 */
-	public void recomputePlan(IUElementListRoot root, final ProvisioningContext provisioningContext, IRunnableContext runnableContext) {
+	public void recomputePlan(final IUElementListRoot root, final ProvisioningContext provisioningContext, IRunnableContext runnableContext) {
 		this.input = root;
 		final Object[] elements = root.getChildren(root);
 		final IInstallableUnit[] ius = ElementUtils.elementsToIUs(elements);
@@ -218,13 +219,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 							if (resolvedOperation.getProvisioningPlan() != null) {
 								resolutionResult = resolvedOperation.getResolutionResult();
 								// set up the iu parents to be the plan so that drilldown query can work
-								if (resolvedOperation.getProvisioningPlan() != null)
-									for (int i = 0; i < elements.length; i++) {
-										if (elements[i] instanceof QueriedElement) {
-											((QueriedElement) elements[i]).setQueryable(getQueryable(resolvedOperation.getProvisioningPlan()));
-										}
-									}
-
+								setDrilldownElements(root, resolvedOperation.getProvisioningPlan());
 							}
 						}
 					}
@@ -249,6 +244,17 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		if (message != null) {
 			IStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);
 			StatusManager.getManager().handle(status, StatusManager.LOG);
+		}
+	}
+
+	void setDrilldownElements(IUElementListRoot root, ProvisioningPlan plan) {
+		if (plan == null)
+			return;
+		Object[] elements = root.getChildren(root);
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] instanceof QueriedElement) {
+				((QueriedElement) elements[i]).setQueryable(getQueryable(plan));
+			}
 		}
 	}
 
