@@ -417,6 +417,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (repoCombo != null) {
 			fillRepoCombo(SITE_NONE);
 			setRepoComboDecoration(null);
+			setDescription(ProvUIMessages.AvailableIUsPage_SelectASite);
 		}
 
 		if (resolveAllCheckbox != null) {
@@ -719,8 +720,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		int localIndex = getLocalSites().length == 0 ? repoCombo.getItemCount() : repoCombo.getItemCount() - 1;
 		if (comboRepos == null || selection < 0)
 			selection = INDEX_SITE_NONE;
+		String description = ProvUIMessages.AvailableIUsPage_Description;
 		if (selection == INDEX_SITE_NONE) {
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_NONE, null);
+			description = ProvUIMessages.AvailableIUsPage_SelectASite;
 		} else if (selection == INDEX_SITE_ALL) {
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
 		} else if (selection >= localIndex) {
@@ -729,6 +732,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			availableIUGroup.setRepositoryFilter(AvailableIUGroup.AVAILABLE_SPECIFIED, comboRepos[selection]);
 		}
 		validateNextButton();
+		setDescription(description);
 	}
 
 	void addViewerProvisioningListeners() {
