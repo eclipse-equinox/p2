@@ -837,9 +837,19 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
 			return new ProvisioningContext();
 		URI[] locals = getLocalSites();
-		// If there are local sites, the last item in the combo is "Local Sites"
-		if (locals.length > 0 && siteSel == repoCombo.getItemCount() - 1)
-			return new ProvisioningContext(locals);
-		return new ProvisioningContext(new URI[] {comboRepos[siteSel]});
+		// If there are local sites, the last item in the combo is "Local Sites Only"
+		// Use all local sites in this case
+		// We have to set metadata repositories and artifact repositories in the
+		// provisioning context because the artifact repositories are used for
+		// sizing.
+		if (locals.length > 0 && siteSel == repoCombo.getItemCount() - 1) {
+			ProvisioningContext context = new ProvisioningContext(locals);
+			context.setArtifactRepositories(locals);
+			return context;
+		}
+		// A single site is selected.
+		ProvisioningContext context = new ProvisioningContext(new URI[] {comboRepos[siteSel]});
+		context.setArtifactRepositories(new URI[] {comboRepos[siteSel]});
+		return context;
 	}
 }
