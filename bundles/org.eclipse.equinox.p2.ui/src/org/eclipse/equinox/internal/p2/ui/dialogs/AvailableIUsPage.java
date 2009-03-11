@@ -447,6 +447,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		queryContext.setMetadataRepositoryFlags(defaultQueryContext.getMetadataRepositoryFlags());
 		if (defaultQueryContext.getHideAlreadyInstalled()) {
 			queryContext.hideAlreadyInstalled(profileId);
+		} else {
+			queryContext.setInstalledProfileId(profileId);
 		}
 		queryContext.setShowLatestVersionsOnly(defaultQueryContext.getShowLatestVersionsOnly());
 		queryContext.setVisibleAvailableIUProperty(defaultQueryContext.getVisibleAvailableIUProperty());

@@ -101,6 +101,10 @@ public class IUViewQueryContext {
 		return profileId;
 	}
 
+	public void setInstalledProfileId(String profileId) {
+		this.profileId = profileId;
+	}
+
 	public int getArtifactRepositoryFlags() {
 		return artifactRepositoryFlags;
 	}

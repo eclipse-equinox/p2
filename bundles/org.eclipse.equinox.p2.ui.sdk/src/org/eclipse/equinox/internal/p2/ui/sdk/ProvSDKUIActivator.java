@@ -235,12 +235,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	void updateWithPreferences(IUViewQueryContext queryContext) {
 		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
-			try {
-				queryContext.hideAlreadyInstalled(getSelfProfileId());
-			} catch (ProvisionException e) {
-				// nothing to do
-			}
 		queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
 		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
 		queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
