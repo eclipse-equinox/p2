@@ -21,7 +21,7 @@ import org.osgi.framework.ServiceReference;
 
 public class RepoValidator extends AbstractProvisioningTest {
 	public void testValidate() throws ProvisionException, URISyntaxException {
-		URI repoLoc = new URI("file:d:/ganymedeM5");
+		URI repoLoc = new URI("http://fullmoon.ottawa.ibm.com/eclipse/updates/3.5-I-builds/");
 		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.class.getName());
 		if (sr == null) {
 			throw new RuntimeException("Planner service not available");
@@ -40,23 +40,16 @@ public class RepoValidator extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IInstallableUnit.NAMESPACE_FLAVOR, "tooling");
+		properties.put("osgi.os", "win32");
+		properties.put("osgi.ws", "win32");
+		properties.put("osgi.arch", "x86");
 		IProfile p = createProfile("repoValidator", null, properties);
 
 		Query q;
-		//		q = new Query() {
-		//			public boolean isMatch(Object object) {
-		//				if (!(object instanceof IInstallableUnit))
-		//					return false;
-		//				IInstallableUnit candidate = (IInstallableUnit) object;
-		//				if (candidate.getId().startsWith("org.eclipse.jst") || candidate.getId().startsWith("org.eclipse.wst"))
-		//					return true;
-		//				return false;
-		//			}
-		//		};
 
-		//		q = new InstallableUnitQuery("org.eclipse.wst.ws.parser");
+		q = new InstallableUnitQuery("org.eclipse.rcp.feature.group");
 
-		q = InstallableUnitQuery.ANY;
+		//		q = InstallableUnitQuery.ANY;
 		Collector iusToTest = validatedRepo.query(q, new Collector(), null);
 
 		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
