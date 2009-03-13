@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class EngineSession {
@@ -32,6 +33,8 @@ public class EngineSession {
 	private List phaseActionRecordsPairs = new ArrayList();
 
 	private Phase currentPhase;
+	boolean currentPhaseActive;
+
 	private List currentActionRecords;
 	private ActionsRecord currentRecord;
 
@@ -113,7 +116,7 @@ public class EngineSession {
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
-		if (currentPhase != null) {
+		if (currentPhaseActive && currentPhase != null) {
 			try {
 				status.add(rollBackPhase(currentPhase, currentActionRecords));
 			} catch (RuntimeException e) {
@@ -124,6 +127,7 @@ public class EngineSession {
 				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, currentPhase.getClass().getName()), e));
 			}
+			currentPhaseActive = false;
 			currentPhase = null;
 			currentActionRecords = null;
 			currentRecord = null;
@@ -183,7 +187,7 @@ public class EngineSession {
 		return result;
 	}
 
-	void recordPhaseStart(Phase phase) {
+	void recordPhaseEnter(Phase phase) {
 		if (phase == null)
 			throw new IllegalArgumentException(Messages.null_phase);
 
@@ -191,6 +195,16 @@ public class EngineSession {
 			throw new IllegalStateException(Messages.phase_started);
 
 		currentPhase = phase;
+	}
+
+	void recordPhaseStart(Phase phase) {
+		if (phase == null)
+			throw new IllegalArgumentException(Messages.null_phase);
+
+		if (currentPhase != phase)
+			throw new IllegalArgumentException(Messages.not_current_phase);
+
+		currentPhaseActive = true;
 		currentActionRecords = new ArrayList();
 	}
 
@@ -202,8 +216,18 @@ public class EngineSession {
 			throw new IllegalArgumentException(Messages.not_current_phase);
 
 		phaseActionRecordsPairs.add(new Object[] {currentPhase, currentActionRecords});
-		currentPhase = null;
 		currentActionRecords = null;
+		currentPhaseActive = false;
+	}
+
+	void recordPhaseExit(Phase phase) {
+		if (currentPhase == null)
+			throw new IllegalStateException(Messages.phase_not_started);
+
+		if (currentPhase != phase)
+			throw new IllegalArgumentException(Messages.not_current_phase);
+
+		currentPhase = null;
 	}
 
 	void recordOperandStart(Operand operand) {
@@ -239,7 +263,8 @@ public class EngineSession {
 	}
 
 	public String getContextString() {
-		return NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), getCurrentPhaseId(), getCurrentOperandId(), getCurrentActionId()});
+		String message = NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), getCurrentPhaseId(), getCurrentOperandId(), getCurrentActionId()});
+		return message;
 	}
 
 	private Object getCurrentActionId() {
@@ -247,6 +272,10 @@ public class EngineSession {
 			return EMPTY_STRING;
 
 		Object currentAction = currentRecord.actions.get(currentRecord.actions.size() - 1);
+		if (currentAction instanceof ParameterizedProvisioningAction) {
+			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) currentAction;
+			currentAction = parameterizedAction.getAction();
+		}
 		return currentAction.getClass().getName();
 	}
 

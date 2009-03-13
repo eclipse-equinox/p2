@@ -53,6 +53,7 @@ public abstract class Phase {
 
 	public final void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
+		session.recordPhaseEnter(this);
 		prePerform(status, session, profile, context, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
@@ -67,6 +68,7 @@ public abstract class Phase {
 		subMonitor.setWorkRemaining(postPerformWork);
 		postPerform(status, profile, context, subMonitor.newChild(postPerformWork));
 		phaseParameters.clear();
+		session.recordPhaseExit(this);
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
