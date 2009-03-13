@@ -135,6 +135,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				return file.toURI();
 			}
 
+			//TODO: Should we remove this? We only should support directly runnable repos
 			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
 				return new URI("jar:" + file.toURI() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -165,15 +166,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return linkedFile.getCanonicalFile().toURI();
 	}
 
-	public void getMetadataRepository(URI repoURL, Properties extraProperties) {
+	public void getMetadataRepository(URI repoURL, Properties properties) {
 		try {
 			IMetadataRepository repository = null;
 			try {
 				ExtensionLocationMetadataRepository.validate(repoURL, null);
-				Map properties = new HashMap();
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				if (extraProperties != null)
-					properties.putAll(extraProperties);
 				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL, properties); //$NON-NLS-1$
 			} catch (ProvisionException e) {
 				repository = Activator.loadMetadataRepository(repoURL, null);
@@ -184,15 +181,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	public void getArtifactRepository(URI repoURL, Properties extraProperties) {
+	public void getArtifactRepository(URI repoURL, Properties properties) {
 		try {
 			IArtifactRepository repository = null;
 			try {
 				ExtensionLocationArtifactRepository.validate(repoURL, null);
-				Map properties = new HashMap();
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				if (extraProperties != null)
-					properties.putAll(extraProperties);
 				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL, properties); //$NON-NLS-1$
 				// fall through here and call the load which then adds the repo to the manager's list
 			} catch (ProvisionException ex) {

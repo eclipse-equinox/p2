@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -213,7 +212,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					Feature[] listFeatures = site.getPolicy().equals(Site.POLICY_USER_INCLUDE) ? site.getFeatures() : null;
 
 					properties.put(SiteListener.SITE_LIST, toString(listFeatures, site.getList()));
-					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 
 					// deal with the metadata repository
 					IMetadataRepository metadataRepository = null;

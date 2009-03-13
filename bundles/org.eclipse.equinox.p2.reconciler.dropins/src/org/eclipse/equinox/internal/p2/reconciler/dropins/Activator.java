@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.update.PathUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -66,6 +67,7 @@ public class Activator implements BundleActivator {
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((MetadataRepositoryManager) manager).addRepository(repository);
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
 		return repository;
 	}
 
@@ -80,7 +82,9 @@ public class Activator implements BundleActivator {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
-		return manager.loadRepository(location, monitor);
+		IMetadataRepository repository = manager.loadRepository(location, monitor);
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
+		return repository;
 	}
 
 	/**
@@ -101,6 +105,7 @@ public class Activator implements BundleActivator {
 		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, properties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((ArtifactRepositoryManager) manager).addRepository(repository);
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
 		return repository;
 	}
 
@@ -115,7 +120,9 @@ public class Activator implements BundleActivator {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
-		return manager.loadRepository(location, monitor);
+		IArtifactRepository repository = manager.loadRepository(location, monitor);
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
+		return repository;
 	}
 
 	/*
