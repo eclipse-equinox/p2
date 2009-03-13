@@ -10,8 +10,8 @@ package org.eclipse.equinox.internal.simpleconfigurator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
+import java.util.List;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.Bundle;
@@ -45,7 +45,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		this.bundle = bundle;
 	}
 
-	private URL getConfigurationURL() {
+	private URL getConfigurationURL() throws IOException {
 		String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
 		if (specifiedURL == null)
 			specifiedURL = "file:" + SimpleConfiguratorConstants.CONFIGURATOR_FOLDER + "/" + SimpleConfiguratorConstants.CONFIG_LIST;
@@ -76,6 +76,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 				return url;
 
 			//if it is an relative file URL, then resolve it against the configuration area
+			// TODO Support relative file URLs when not on Equinox
 			URL[] configURL = EquinoxUtils.getConfigAreaURL(context);
 			if (configURL != null) {
 				File userConfig = new File(configURL[0].getFile(), url.getFile());
@@ -89,7 +90,15 @@ public class SimpleConfiguratorImpl implements Configurator {
 				if (!sharedConfig.exists())
 					return userConfig.toURL();
 
-				return (sharedConfig.lastModified() > userConfig.lastModified()) ? sharedConfig.toURL() : userConfig.toURL();
+				URI base = EquinoxUtils.getInstallLocationURI(context);
+
+				URL sharedConfigURL = sharedConfig.toURL();
+				List sharedBundles = SimpleConfiguratorUtils.readConfiguration(sharedConfigURL, base);
+
+				URL userConfigURL = userConfig.toURL();
+				List userBundles = SimpleConfiguratorUtils.readConfiguration(userConfigURL, base);
+
+				return (userBundles.containsAll(sharedBundles)) ? userConfigURL : sharedConfigURL;
 			}
 		} catch (MalformedURLException e) {
 			return null;
