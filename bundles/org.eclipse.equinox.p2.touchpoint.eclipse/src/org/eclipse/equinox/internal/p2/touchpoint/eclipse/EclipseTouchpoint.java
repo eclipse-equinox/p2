@@ -18,23 +18,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
-import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
 public class EclipseTouchpoint extends Touchpoint {
-
-	// TODO: phase id constants should be defined elsewhere.
-	public static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
-	public static final String UNINSTALL_PHASE_ID = "uninstall"; //$NON-NLS-1$
-	public static final String CONFIGURE_PHASE_ID = "configure"; //$NON-NLS-1$
-	public static final String UNCONFIGURE_PHASE_ID = "unconfigure"; //$NON-NLS-1$
-
 	public static final String PROFILE_PROP_LAUNCHER_NAME = "eclipse.touchpoint.launcherName"; //$NON-NLS-1$
 	public static final String PARM_MANIPULATOR = "manipulator"; //$NON-NLS-1$
 	public static final String PARM_PLATFORM_CONFIGURATION = "platformConfiguration"; //$NON-NLS-1$
@@ -160,14 +149,14 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
-
 		Class c = null;
 		try {
 			c = Class.forName("org.eclipse.equinox.p2.publisher.eclipse.BundlesAction"); //$NON-NLS-1$
 			if (c != null)
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(NLS.bind(Messages.generator_not_available, e.getMessage()));
+			LogHelper.log(Util.createError(NLS.bind(Messages.publisher_not_available, e.getMessage())));
+			return null;
 		}
 
 		if (c != null) {
@@ -184,22 +173,10 @@ public class EclipseTouchpoint extends Touchpoint {
 				LogHelper.log(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey.toString())));
 				return null;
 			}
-			return createBundleIU(artifactKey, bundleFile);
+			return PublisherUtil.createBundleIU(artifactKey, bundleFile);
 		}
 
 		// should not occur
 		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
-	}
-
-	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
-		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
-		PublisherInfo info = new PublisherInfo();
-		Version version = new Version(bundleDescription.getVersion().toString());
-		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
-		if (advice.containsAdvice())
-			info.addAdvice(advice);
-		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
-		info.addAdvice(new BundleShapeAdvice(bundleDescription.getSymbolicName(), version, shape));
-		return BundlesAction.createBundleIU(bundleDescription, artifactKey, info);
 	}
 }
