@@ -121,7 +121,7 @@ public abstract class Phase {
 
 				}
 			}
-
+			mergeStatus(status, touchpointCompleteOperand(profile, operand, operandParameters, subMonitor));
 			mergeStatus(status, completeOperand(profile, operand, operandParameters, subMonitor));
 			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 				return;
@@ -161,6 +161,7 @@ public abstract class Phase {
 	}
 
 	void postPerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
+		mergeStatus(status, touchpointCompletePhase(monitor, profile, phaseParameters));
 		mergeStatus(status, completePhase(monitor, profile, phaseParameters));
 	}
 
@@ -183,6 +184,7 @@ public abstract class Phase {
 			mergeStatus(status, action.undo(parameters));
 			// TODO: session.removeAction(...)
 		}
+		mergeStatus(status, touchpointCompleteOperand(profile, operand, operandParameters, new NullProgressMonitor()));
 		mergeStatus(status, completeOperand(profile, operand, operandParameters, new NullProgressMonitor()));
 	}
 
@@ -195,6 +197,10 @@ public abstract class Phase {
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		return Status.OK_STATUS;
+	}
+
+	IStatus touchpointCompletePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		if (touchpointToTouchpointPhaseParameters == null)
 			return Status.OK_STATUS;
 
@@ -210,6 +216,10 @@ public abstract class Phase {
 	}
 
 	protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+		return Status.OK_STATUS;
+	}
+
+	IStatus touchpointCompleteOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		if (touchpointToTouchpointOperandParameters == null)
 			return Status.OK_STATUS;
 
