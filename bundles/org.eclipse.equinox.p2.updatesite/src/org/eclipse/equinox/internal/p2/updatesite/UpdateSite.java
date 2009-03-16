@@ -40,6 +40,7 @@ public class UpdateSite {
 	private static final String SITE = "site"; //$NON-NLS-1$
 	private String checksum;
 	private URI location;
+	private URI rootLocation;
 	private SiteModel site;
 
 	/*
@@ -49,18 +50,6 @@ public class UpdateSite {
 	private static Map siteCache = new HashMap();
 	// map of String (featureID_featureVersion) to Feature
 	private Map featureCache = new HashMap();
-
-	/*
-	 * Return a new URI for the given file which is based from the specified root.
-	 */
-	public static URI getFileURI(URI root, String fileName) {
-		String segment = URIUtil.lastSegment(root);
-		if (segment != null && segment.endsWith(fileName))
-			return root;
-		if (constainsUpdateSiteFileName(segment))
-			return root.resolve(fileName);
-		return URIUtil.append(root, fileName);
-	}
 
 	/*
 	 * Return a URI based on the given URI, which points to a site.xml file.
@@ -223,6 +212,17 @@ public class UpdateSite {
 		this.site = site;
 		this.location = location;
 		this.checksum = checksum;
+		this.rootLocation = getRootLocation();
+
+	}
+
+	private URI getRootLocation() {
+		String locationString = location.toString();
+		int slashIndex = locationString.lastIndexOf('/');
+		if (slashIndex == -1 || slashIndex == (locationString.length() - 1))
+			return location;
+
+		return URI.create(locationString.substring(0, slashIndex + 1));
 	}
 
 	/*
@@ -277,7 +277,7 @@ public class UpdateSite {
 		URI url = getArchiveURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 		if (url != null)
 			return url;
-		return getFileURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+		return URIUtil.append(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 	}
 
 	/*
@@ -308,7 +308,7 @@ public class UpdateSite {
 		URI url = getArchiveURI(base, path);
 		if (url != null)
 			return url;
-		return getFileURI(base, path);
+		return URIUtil.append(base, path);
 	}
 
 	private URI getBaseURI() {
@@ -317,10 +317,10 @@ public class UpdateSite {
 		if (siteURIString != null) {
 			if (!siteURIString.endsWith("/")) //$NON-NLS-1$
 				siteURIString += "/"; //$NON-NLS-1$
-			base = internalGetURI(location, siteURIString);
+			base = internalGetURI(rootLocation, siteURIString);
 		}
 		if (base == null)
-			base = location;
+			base = rootLocation;
 		return base;
 	}
 
@@ -339,7 +339,7 @@ public class UpdateSite {
 	private URI internalGetURI(URI base, String trailing) {
 		if (trailing == null)
 			return null;
-		return base.resolve(trailing);
+		return URIUtil.makeAbsolute(URI.create(trailing), base);
 	}
 
 	/*
@@ -388,9 +388,6 @@ public class UpdateSite {
 		} catch (FileNotFoundException fnfe) {
 			// we do not track FNF exceptions as we will fall back to the 
 			// standard feature parsing from the site itself, see bug 225587.
-		} catch (URISyntaxException e) {
-			String msg = NLS.bind(Messages.InvalidRepositoryLocation, location);
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} finally {
@@ -400,16 +397,19 @@ public class UpdateSite {
 		return null;
 	}
 
-	private URI getDigestURI() throws URISyntaxException {
-		URI digestBase = location;
+	private URI getDigestURI() {
+		URI digestBase = null;
 		String digestURIString = site.getDigestURIString();
 		if (digestURIString != null) {
 			if (!digestURIString.endsWith("/")) //$NON-NLS-1$
 				digestURIString += "/"; //$NON-NLS-1$
-			digestBase = internalGetURI(location, digestURIString);
+			digestBase = internalGetURI(rootLocation, digestURIString);
 		}
 
-		return getFileURI(digestBase, "digest.zip"); //$NON-NLS-1$
+		if (digestBase == null)
+			digestBase = rootLocation;
+
+		return URIUtil.append(digestBase, "digest.zip"); //$NON-NLS-1$
 	}
 
 	/*

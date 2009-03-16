@@ -104,6 +104,24 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testZippedDefaultDigestURL() throws URISyntaxException {
+		File site = getTestData("0.1", "/testData/updatesite/digest/site.zip");
+		URI siteURI = new URI("jar:" + site.toURI() + "!/");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(siteURI, getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		}
+
+		try {
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
 	public void testRelativeDigestURL() {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl");
 		UpdateSite updatesite = null;
@@ -327,18 +345,23 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testGetFileURI() throws URISyntaxException {
-		URI rootNoSlash = new URI("http://eclipse.org/eclipse/updates");
-		URI rootSlash = new URI("http://eclipse.org/eclipse/updates/");
-		URI rootSiteXML = new URI("http://eclipse.org/eclipse/updates/site.xml");
-		URI rootSiteXML2 = new URI("http://eclipse.org/eclipse/updates/site_old.xml");
-		URI[] allURIs = new URI[] {rootNoSlash, rootSlash, rootSiteXML, rootSiteXML2};
-		for (URI uri : allURIs) {
-			assertEquals("1." + uri, new URI("http://eclipse.org/eclipse/updates/digest.zip"), UpdateSite.getFileURI(uri, "digest.zip"));
+	public void testZippedGoodFeatureURL() throws URISyntaxException {
+
+		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl/site.zip");
+		URI siteURI = new URI("jar:" + site.toURI() + "!/");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(siteURI, getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
 		}
 
-		URI rootEmpty = new URI("http://update.eclemma.org");
-		assertEquals("2.1", new URI("http://update.eclemma.org/digest.zip"), UpdateSite.getFileURI(rootEmpty, "digest.zip"));
+		try {
+			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
+		}
 	}
 
 	public void testIncludedFeature() {
