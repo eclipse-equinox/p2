@@ -28,9 +28,6 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
-	// The update site used for this product
-	private static final String CLOUD_UPDATE_SITE = "http://www.eclipse.org/equinox/p2/testing/updateSite";
-	
 	/**
 	 * The constructor
 	 */
@@ -46,7 +43,6 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		/// XXX initialize the p2 UI policy
 		initializeP2Policies();
-		initializeP2Repositories();
 	}
 
 	/*
@@ -88,18 +84,5 @@ public class Activator extends AbstractUIPlugin {
 		});
 		// XXX User has no access to manipulate repositories
 		policy.setRepositoryManipulator(null);
-	}
-	
-	// This should really be done at product build time
-	private void initializeP2Repositories() {
-		try {
-			URI uri = URIUtil.fromString(CLOUD_UPDATE_SITE);
-			ProvisioningUtil.addMetadataRepository(uri, false);
-			ProvisioningUtil.addArtifactRepository(uri, false);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
-		} catch (URISyntaxException e) {
-			ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
-		}
 	}
 }
