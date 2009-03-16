@@ -184,7 +184,7 @@ public class MirrorRequest extends ArtifactRequest {
 			if (status != null && status.getSeverity() == IStatus.ERROR) {
 				IStatus root = extractRootCause(status);
 				if (root != null && FileNotFoundException.class == root.getException().getClass())
-					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
+					return new Status(IStatus.ERROR, Activator.ID, status.getCode(), NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
 			}
 		}
 		return status;
