@@ -30,6 +30,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     private IWorkbenchAction exitAction;
     private IWorkbenchAction aboutAction;
     private IWorkbenchAction newWindowAction;
+    // XXX we want to show preferences
     private IWorkbenchAction preferencesAction;
     private OpenViewAction openViewAction;
     private Action messagePopupAction;
@@ -54,6 +55,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         aboutAction = ActionFactory.ABOUT.create(window);
         register(aboutAction);
         
+        // XXX we want to show auto update preferences
         preferencesAction = ActionFactory.PREFERENCES.create(window);
         register(preferencesAction);
         
@@ -69,6 +71,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     
     protected void fillMenuBar(IMenuManager menuBar) {
         MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
+        // XXX add a tools menu
         MenuManager toolsMenu = new MenuManager("&Tools", M_TOOLS);            
         MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);
         
@@ -86,10 +89,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         fileMenu.add(new Separator());
         fileMenu.add(exitAction);
         
-        // Tools
+        // XXX add preferences to tools
         toolsMenu.add(preferencesAction);
         toolsMenu.add(new Separator());
         toolsMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+        
         // Help
         helpMenu.add(aboutAction);
     }

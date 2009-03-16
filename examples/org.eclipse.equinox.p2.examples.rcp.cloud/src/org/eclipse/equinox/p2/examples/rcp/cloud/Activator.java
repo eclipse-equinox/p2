@@ -44,6 +44,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		/// XXX initialize the p2 UI policy
 		initializeP2Policies();
 		initializeP2Repositories();
 	}
@@ -79,13 +80,13 @@ public class Activator extends AbstractUIPlugin {
 	
 	private void initializeP2Policies() {
 		Policy policy = Policy.getDefault();
-		// Where a profile must be chosen, use the running profile
+		// XXX Where a profile must be chosen, use the running profile
 		policy.setProfileChooser(new IProfileChooser() {
 			public String getProfileId(Shell shell) {
 				return ProfileFactory.makeProfile("Canned").getProfileId();
 			}
 		});
-		// User has no access to manipulate repositories
+		// XXX User has no access to manipulate repositories
 		policy.setRepositoryManipulator(null);
 	}
 	
