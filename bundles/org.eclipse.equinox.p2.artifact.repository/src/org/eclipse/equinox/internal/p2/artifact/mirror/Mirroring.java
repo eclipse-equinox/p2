@@ -137,7 +137,7 @@ public class Mirroring {
 				if (compare)
 					return compareToDestination(descriptor, e);
 				String message = NLS.bind(Messages.mirror_alreadyExists, descriptor, destination);
-				return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, e);
+				return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, null);
 			}
 			return e.getStatus();
 		}

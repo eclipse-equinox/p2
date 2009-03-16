@@ -67,7 +67,10 @@ public class MirrorApplication implements IApplication {
 		IStatus result = mirroring.run(failOnError, verbose);
 		if (!result.isOK()) {
 			//only noteworthy statuses should be resulted from mirroring.run
-			System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
+			if (result.matches(IStatus.INFO))
+				System.err.println("Mirroring completed. Please check log file for more information."); //$NON-NLS-1$
+			else
+				System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
 			FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
 			if (log != null)
 				System.err.println("Log file location: " + log.getFile()); //$NON-NLS-1$
