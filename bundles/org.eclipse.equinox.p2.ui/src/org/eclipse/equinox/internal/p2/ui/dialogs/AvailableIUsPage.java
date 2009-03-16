@@ -388,9 +388,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	private void setDropTarget(Control control) {
-		DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
-		target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), control));
+		if (policy.getRepositoryManipulator() != null) {
+			DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+			target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), control));
+		}
 	}
 
 	private void initializeWidgetState() {

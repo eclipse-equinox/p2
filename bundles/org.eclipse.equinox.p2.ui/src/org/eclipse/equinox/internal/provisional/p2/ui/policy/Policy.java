@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -192,9 +193,6 @@ public class Policy {
 	 * @return the repository manipulator
 	 */
 	public RepositoryManipulator getRepositoryManipulator() {
-		if (repositoryManipulator == null) {
-			repositoryManipulator = getDefaultRepositoryManipulator();
-		}
 		return repositoryManipulator;
 	}
 
@@ -221,10 +219,6 @@ public class Policy {
 		repositoryManipulator = null;
 	}
 
-	private RepositoryManipulator getDefaultRepositoryManipulator() {
-		return new ColocatedRepositoryManipulator(this, null);
-	}
-
 	/*
 	 * Returns the plan validator to use if none has been set.  This
 	 * validator approves every plan.
@@ -232,6 +226,17 @@ public class Policy {
 	private PlanValidator getDefaultPlanValidator() {
 		return new PlanValidator() {
 			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+				if (plan == null)
+					return false;
+				if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+					return false;
+
+				// Special case those statuses where we would never want to open a wizard
+				if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
+					ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
+					return false;
+				}
+				// Allow the wizard to open otherwise.
 				return true;
 			}
 		};
