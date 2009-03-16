@@ -98,12 +98,12 @@
           <page
             name="%installedSoftwarePage"
             class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage"
-            id="10.org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
+            id="10.org.eclipse.equinox.p2.examples.rcp.cloud.InstalledSoftwarePage">
           </page>
           <page
             name="%installHistoryPage"
             class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertProfilePage"
-            id="11.org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
+            id="11.org.eclipse.equinox.p2.examples.rcp.cloud.RevertProfilePage">
           </page>
           
       </extension>
@@ -111,43 +111,42 @@
          point="org.eclipse.ui.commands">
       <command
             name="%Update.command"
-            id="org.eclipse.equinox.p2.ui.sdk.update">
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.command.update">
       </command>
       <command
             name="%Install.command"
-            id="org.eclipse.equinox.p2.ui.sdk.install">
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.command.install">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            commandId="org.eclipse.equinox.p2.ui.sdk.update"
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.update"
             class="org.eclipse.equinox.p2.examples.rcp.cloud.p2.UpdateHandler">
       </handler>
       <handler
-            commandId="org.eclipse.equinox.p2.ui.sdk.install"
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.install"
             class="org.eclipse.equinox.p2.examples.rcp.cloud.p2.InstallNewSoftwareHandler">
       </handler>
    </extension>
      <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:help?after=additions">
+            locationURI="menu:tools?after=additions">
             <command
-                  commandId="org.eclipse.equinox.p2.ui.sdk.update"
+                  commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.update"
             	  mnemonic="%Update.command.mnemonic"
-                  id="org.eclipse.equinox.p2.ui.sdk.update">
+                  id="org.eclipse.equinox.p2.examples.rcp.cloud.menu.update">
             </command>
                         
       </menuContribution>
       <menuContribution
-            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.update">
+            locationURI="menu:tools?after=org.eclipse.equinox.p2.examples.rcp.cloud.menu.update">
             <command
-                  commandId="org.eclipse.equinox.p2.ui.sdk.install"
+                  commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.install"
             	  mnemonic="%Install.command.mnemonic"
-                  id="org.eclipse.equinox.p2.ui.sdk.install">
+                  id="org.eclipse.equinox.p2.examples.rcp.cloud.menu.install">
             </command>
-                        
       </menuContribution>
    </extension>
 
