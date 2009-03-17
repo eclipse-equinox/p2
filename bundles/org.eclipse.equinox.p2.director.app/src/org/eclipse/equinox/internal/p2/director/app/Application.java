@@ -74,6 +74,7 @@ public class Application implements IApplication {
 	private boolean roamingProfile = false;
 	private IPlanner planner;
 	private IEngine engine;
+	private boolean noProfileId = false;
 
 	private int command = -1;
 
@@ -127,8 +128,10 @@ public class Application implements IApplication {
 	}
 
 	private IProfile initializeProfile() throws CoreException {
-		if (profileId == null)
+		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
+			noProfileId = true;
+		}
 		IProfile profile = ProvisioningHelper.getProfile(profileId);
 		if (profile == null) {
 			if (destination == null)
@@ -400,9 +403,14 @@ public class Application implements IApplication {
 						System.out.println(NLS.bind(Messages.Missing_IU, root));
 						return EXIT_ERROR;
 					}
-					if (!updateRoamingProperties(profile).isOK()) {
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
-						System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
+					// keep this result status in case there is a problem so we can report it to the user
+					IStatus updateRoamStatus = updateRoamingProperties(profile);
+					if (!updateRoamStatus.isOK()) {
+						MultiStatus multi = new MultiStatus(Activator.ID, IStatus.ERROR, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null);
+						multi.add(updateRoamStatus);
+						LogHelper.log(multi);
+						System.out.println(multi.getMessage());
+						System.out.println(updateRoamStatus.getMessage());
 						return EXIT_ERROR;
 					}
 					ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
@@ -528,9 +536,22 @@ public class Application implements IApplication {
 	}
 
 	private IStatus updateRoamingProperties(IProfile profile) {
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		// if the user didn't specify a destination path on the command-line
+		// then we assume they are installing into the currently running
+		// instance and we don't have anything to update
+		if (destination == null)
+			return Status.OK_STATUS;
+
+		// if the user didn't set a profile id on the command-line this is ok if they
+		// also didn't set the destination path. (handled in the case above) otherwise throw an error.
+		if (noProfileId) // && destination != null
+			return new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profileid);
+
+		// make sure that we are set to be roaming before we update the values
 		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			return Status.OK_STATUS;
+
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		File destinationFile = destination.toFile();
 		if (!destinationFile.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
 			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
