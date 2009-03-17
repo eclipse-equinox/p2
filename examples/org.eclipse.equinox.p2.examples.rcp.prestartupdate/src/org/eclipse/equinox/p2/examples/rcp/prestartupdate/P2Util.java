@@ -13,12 +13,14 @@ package org.eclipse.equinox.p2.examples.rcp.prestartupdate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -94,7 +96,7 @@ public class P2Util {
 				SubMonitor sub = SubMonitor.convert(monitor,
 						"Checking for application updates...", 400);
 				// 1.  Load repos
-				SubMonitor loadMonitor = sub.newChild(100);
+				SubMonitor loadMonitor = sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS);
 				for (int i=0; i<reposToSearch.length; i++)
 					try {
 						if (loadMonitor.isCanceled())
@@ -112,7 +114,7 @@ public class P2Util {
 				ArrayList replacementIUs = new ArrayList();
 				Iterator iter = collector.iterator();
 				ProvisioningContext pc = new ProvisioningContext(reposToSearch);
-				SubMonitor updateSearchMonitor = sub.newChild(100);
+				SubMonitor updateSearchMonitor = sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS);
 				while (iter.hasNext()) {
 					if (updateSearchMonitor.isCanceled())
 						throw new InterruptedException();
@@ -151,7 +153,7 @@ public class P2Util {
 									.toArray(new IInstallableUnit[iusWithUpdates
 											.size()]));
 					ProvisioningPlan plan = planner.getProvisioningPlan(
-							changeRequest, pc, sub.newChild(100));
+							changeRequest, pc, sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS));
 					if (plan.getStatus().getSeverity() == IStatus.CANCEL)
 						throw new InterruptedException();
 					if (plan.getStatus().getSeverity() != IStatus.ERROR) {
@@ -169,7 +171,7 @@ public class P2Util {
 											.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
 							IStatus status = engine.perform(profile,
 									new DefaultPhaseSet(), plan.getOperands(),
-									pc, sub.newChild(100));
+									pc, sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS));
 							if (status.getSeverity() == IStatus.CANCEL)
 								throw new InterruptedException();
 							if (status.getSeverity() != IStatus.ERROR) {
