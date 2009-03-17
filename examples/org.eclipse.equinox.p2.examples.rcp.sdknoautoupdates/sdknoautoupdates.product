@@ -28,10 +28,8 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
       <plugin id="com.ibm.icu"/>
@@ -64,7 +62,7 @@
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
-      <plugin id="org.eclipse.equinox.p2.examples.rcp.cloud"/>
+      <plugin id="org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates"/>
       <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
       <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
