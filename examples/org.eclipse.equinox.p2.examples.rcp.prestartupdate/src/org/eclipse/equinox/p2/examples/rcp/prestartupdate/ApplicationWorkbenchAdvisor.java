@@ -20,6 +20,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
      * @see org.eclipse.ui.application.WorkbenchAdvisor#preStartup()
      */
     public void preStartup() {
+    	// XXX check for updates before starting up.
+    	// If an update is performed, restart.
     	if (P2Util.checkForUpdates())
     		PlatformUI.getWorkbench().restart();
     }
