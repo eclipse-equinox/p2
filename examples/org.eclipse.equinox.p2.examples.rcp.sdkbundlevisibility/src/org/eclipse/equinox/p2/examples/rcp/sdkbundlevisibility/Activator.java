@@ -40,20 +40,15 @@ public class Activator extends AbstractUIPlugin {
 	
 	private void initializeP2Policies() {
 		Policy policy = Policy.getDefault();
-		// XXX Where a profile must be chosen, use the running profile
-		policy.setProfileChooser(new IProfileChooser() {
-			public String getProfileId(Shell shell) {
-				return ProfileFactory.makeProfile("Canned").getProfileId();
-			}
-		});
 		// XXX Use the pref-based repository manipulator
 		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES));
 		
-		// XXX Change the visibility of the IUs shown in the UI
+		// XXX Change the visibility of the IUs shown in the UI.
+        // Using a null property for visibility means everything will be shown, not just
+        // groups (features).
 		IUViewQueryContext context = policy.getQueryContext();
 		context.setVisibleAvailableIUProperty(null);
 		context.setVisibleInstalledIUProperty(null);
-
 	}
 
 	/*

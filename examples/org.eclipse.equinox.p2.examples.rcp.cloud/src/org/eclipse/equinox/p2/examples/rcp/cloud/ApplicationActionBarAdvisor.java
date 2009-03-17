@@ -91,6 +91,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         
         // XXX add preferences to tools
         toolsMenu.add(preferencesAction);
+        // XXX add a group for new other tools contributions
         toolsMenu.add(new Separator());
         toolsMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
         

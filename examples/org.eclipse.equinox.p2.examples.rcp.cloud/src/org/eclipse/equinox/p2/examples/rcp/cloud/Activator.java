@@ -1,20 +1,8 @@
 package org.eclipse.equinox.p2.examples.rcp.cloud;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProfileFactory;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -76,12 +64,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	private void initializeP2Policies() {
 		Policy policy = Policy.getDefault();
-		// XXX Where a profile must be chosen, use the running profile
-		policy.setProfileChooser(new IProfileChooser() {
-			public String getProfileId(Shell shell) {
-				return ProfileFactory.makeProfile("Canned").getProfileId();
-			}
-		});
+		
 		// XXX User has no access to manipulate repositories
 		policy.setRepositoryManipulator(null);
 	}

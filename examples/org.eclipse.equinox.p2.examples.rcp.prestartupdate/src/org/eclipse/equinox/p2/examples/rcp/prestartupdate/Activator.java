@@ -2,7 +2,10 @@ package org.eclipse.equinox.p2.examples.rcp.prestartupdate;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -18,6 +21,10 @@ public class Activator extends AbstractUIPlugin {
 	// XXX Shared instance of bundle context
 	static BundleContext bundleContext;
 	
+	// XXX services for starting bundles
+	private static PackageAdmin packageAdmin = null;
+	private static ServiceReference packageAdminRef = null;
+
 	/**
 	 * The constructor
 	 */
@@ -32,6 +39,31 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		bundleContext = context;
+		
+		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
+		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
+
+		// XXX start up the p2 infrastructure.  Normally the p2 UI does
+		// this, but we are running without UI.
+		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+
+	}
+	
+	private static Bundle getBundle(String symbolicName) {
+		if (packageAdmin == null)
+			return null;
+		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
+		if (bundles == null)
+			return null;
+		// Return the first bundle that is not installed or uninstalled
+		for (int i = 0; i < bundles.length; i++) {
+			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return bundles[i];
+			}
+		}
+		return null;
 	}
 
 	/*

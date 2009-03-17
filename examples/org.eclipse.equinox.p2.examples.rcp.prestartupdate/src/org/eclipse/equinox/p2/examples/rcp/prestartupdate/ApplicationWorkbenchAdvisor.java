@@ -1,5 +1,6 @@
 package org.eclipse.equinox.p2.examples.rcp.prestartupdate;
 
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
@@ -9,11 +10,20 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
  * the perspective id for the initial window.
  */
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
-	
+
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
         return new ApplicationWorkbenchWindowAdvisor(configurer);
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.ui.application.WorkbenchAdvisor#preStartup()
+     */
+    public void preStartup() {
+    	if (P2Util.checkForUpdates())
+    		PlatformUI.getWorkbench().restart();
+    }
+    
 	public String getInitialWindowPerspectiveId() {
 		return Perspective.ID;
 	} 
