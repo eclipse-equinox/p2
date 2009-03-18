@@ -95,7 +95,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 				if (text != null && wordMatches(text))
 					return true;
 			}
-			if (checkId) {
+			if (checkId || (checkName && text == null)) {
 				text = iu.getId();
 				if (wordMatches(text)) {
 					return true;

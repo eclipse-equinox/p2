@@ -140,7 +140,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigContentsLabel);
 		configContentsViewer = new TreeViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		configContentsViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
+		comparator.useColumnConfig(ProvUI.getIUColumnConfig());
+		configContentsViewer.setComparator(comparator);
 		configContentsViewer.setComparer(new ProvElementComparer());
 		configContentsViewer.setContentProvider(new DeferredQueryContentProvider());
 

@@ -105,7 +105,9 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		treeViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
+		comparator.useColumnConfig(getColumnConfig());
+		treeViewer.setComparator(comparator);
 		treeViewer.setComparer(new ProvElementComparer());
 
 		contentProvider = new ProvElementContentProvider();

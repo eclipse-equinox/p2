@@ -20,9 +20,26 @@ public class IUComparator extends ViewerComparator {
 	public static final int IU_NAME = 0;
 	public static final int IU_ID = 1;
 	private int key;
+	private boolean showingId = false;
 
 	public IUComparator(int sortKey) {
 		this.key = sortKey;
+		showingId = sortKey == IU_ID;
+	}
+
+	/**
+	 * Use the specified column config to determine
+	 * whether the id should be used in lieu of an empty name
+	 * when sorting.
+	 * 
+	 * @param columnConfig
+	 */
+	public void useColumnConfig(IUColumnConfig[] columnConfig) {
+		for (int i = 0; i < columnConfig.length; i++)
+			if (columnConfig[i].columnField == IUColumnConfig.COLUMN_ID) {
+				showingId = true;
+				break;
+			}
 	}
 
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
@@ -34,13 +51,22 @@ public class IUComparator extends ViewerComparator {
 
 		String key1, key2;
 		if (key == IU_NAME) {
-			// Compare the iu names in the default locale
+			// Compare the iu names in the default locale.
+			// If a name is not defined, we use blank if we know the id is shown in another
+			// column.  If the id is not shown elsewhere, then we are displaying it, so use
+			// the id instead.
 			key1 = IUPropertyUtils.getIUProperty(iu1, IInstallableUnit.PROP_NAME);
 			if (key1 == null)
-				key1 = ""; //$NON-NLS-1$
+				if (showingId)
+					key1 = ""; //$NON-NLS-1$
+				else
+					key1 = iu1.getId();
 			key2 = IUPropertyUtils.getIUProperty(iu2, IInstallableUnit.PROP_NAME);
 			if (key2 == null)
-				key2 = ""; //$NON-NLS-1$
+				if (showingId)
+					key2 = ""; //$NON-NLS-1$
+				else
+					key2 = iu2.getId();
 		} else {
 			key1 = iu1.getId();
 			key2 = iu2.getId();

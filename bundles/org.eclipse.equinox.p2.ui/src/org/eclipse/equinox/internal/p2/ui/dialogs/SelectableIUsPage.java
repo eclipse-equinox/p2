@@ -109,7 +109,9 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		tableViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
+		comparator.useColumnConfig(ProvUI.getIUColumnConfig());
+		tableViewer.setComparator(comparator);
 		tableViewer.setComparer(new ProvElementComparer());
 
 		contentProvider = new ProvElementContentProvider();

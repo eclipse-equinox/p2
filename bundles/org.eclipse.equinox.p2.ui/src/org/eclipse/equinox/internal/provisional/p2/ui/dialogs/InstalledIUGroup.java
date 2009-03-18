@@ -59,7 +59,9 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		TreeViewer installedIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		installedIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
+		comparator.useColumnConfig(getColumnConfig());
+		installedIUViewer.setComparator(comparator);
 		installedIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
