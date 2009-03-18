@@ -38,6 +38,8 @@ public class PlanAnalyzer {
 				return new MultiStatus(ProvUIActivator.PLUGIN_ID, statusCode, ProvUIMessages.PlanStatusHelper_RequestAltered, null);
 			case IStatusCodes.ALTERED_IMPLIED_UPDATE :
 				return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, statusCode, NLS.bind(ProvUIMessages.PlanStatusHelper_ImpliedUpdate, getIUString(affectedIU)), null);
+			case IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE :
+				return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, statusCode, NLS.bind(ProvUIMessages.PlanAnalyzer_LockedImpliedUpdate0, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE :
 				return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, statusCode, NLS.bind(ProvUIMessages.PlanStatusHelper_IgnoringImpliedDowngrade, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED :

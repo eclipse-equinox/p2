@@ -55,19 +55,29 @@ public class InstallAction extends ProfileModificationAction {
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878
-			if (alreadyInstalled.size() > 0) { //  && ius[i].isSingleton()
+			if (alreadyInstalled.size() > 0) { //  && installedIU.isSingleton()
 				IInstallableUnit installedIU = (IInstallableUnit) alreadyInstalled.iterator().next();
 				int compareTo = ius[i].getVersion().compareTo(installedIU.getVersion());
 				// If the iu is a newer version of something already installed, consider this an
 				// update request
 				if (compareTo > 0) {
-					request.addInstallableUnits(new IInstallableUnit[] {ius[i]});
-					request.removeInstallableUnits(new IInstallableUnit[] {installedIU});
-					// Mark it as a root if it hasn't been already
-					if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
-						request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-					// Add a status informing the user that the update has been inferred
-					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, ius[i]));
+					boolean lockedForUpdate = false;
+					String value = profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+					if (value != null)
+						lockedForUpdate = (Integer.parseInt(value) & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
+					if (lockedForUpdate) {
+						// Add a status telling the user that this implies an update, but the
+						// iu should not be updated
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, ius[i]));
+					} else {
+						request.addInstallableUnits(new IInstallableUnit[] {ius[i]});
+						request.removeInstallableUnits(new IInstallableUnit[] {installedIU});
+						// Add a status informing the user that the update has been inferred
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, ius[i]));
+						// Mark it as a root if it hasn't been already
+						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
+							request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, ius[i]));

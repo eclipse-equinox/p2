@@ -187,6 +187,7 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateAction_UpdatesAvailableTitle;
 	public static String PlanAnalyzer_IgnoringInstall;
 	public static String PlanAnalyzer_IgnoringUninstall;
+	public static String PlanAnalyzer_LockedImpliedUpdate0;
 	public static String PlanAnalyzer_PartialInstall;
 	public static String PlanAnalyzer_PartialUninstall;
 	public static String PlanAnalyzer_SideEffectInstall;

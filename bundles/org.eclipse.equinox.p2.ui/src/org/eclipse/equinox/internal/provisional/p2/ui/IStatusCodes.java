@@ -38,6 +38,7 @@ public interface IStatusCodes {
 	public static final int ALTERED_SIDE_EFFECT_INSTALL = 10010;
 	public static final int ALTERED_IGNORED_INSTALL_REQUEST = 10011;
 	public static final int ALTERED_IGNORED_UNINSTALL_REQUEST = 10012;
+	public static final int ALTERED_IGNORED_IMPLIED_UPDATE = 10013;
 
 	// Status codes associated with inability to perform an operation
 	public static final int UNEXPECTED_NOTHING_TO_DO = 10050;
