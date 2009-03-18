@@ -11,9 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import com.ibm.icu.text.Collator;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -666,6 +668,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 		if (hasLocalSites)
 			items[items.length - 1] = SITE_LOCAL;
+		sortRepoItems(items, comboRepos, hasLocalSites);
 		Runnable runnable = new Runnable() {
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
@@ -704,6 +707,25 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			// No error, just use the location string
 		}
 		return URIUtil.toUnencodedString(uri);
+	}
+
+	private void sortRepoItems(String[] strings, URI[] locations, boolean hasLocalSites) {
+		int sortStart = 2;
+		int sortEnd = hasLocalSites ? strings.length - 2 : strings.length - 1;
+		final Collator collator = Collator.getInstance(Locale.getDefault());
+		Comparator stringComparator = new Comparator() {
+			public int compare(Object a, Object b) {
+				return collator.compare(a, b);
+			}
+		};
+		Comparator uriComparator = new Comparator() {
+			public int compare(Object a, Object b) {
+				return collator.compare(getSiteString((URI) a), getSiteString((URI) b));
+			}
+		};
+
+		Arrays.sort(strings, sortStart, sortEnd, stringComparator);
+		Arrays.sort(locations, sortStart, sortEnd, uriComparator);
 	}
 
 	private URI[] getLocalSites() {
