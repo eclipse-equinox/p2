@@ -18,8 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
@@ -37,6 +36,7 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -661,7 +661,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		items[INDEX_SITE_NONE] = SITE_NONE;
 		items[INDEX_SITE_ALL] = SITE_ALL;
 		for (int i = 0; i < sites.length; i++) {
-			items[i + 2] = sites[i].toString();
+			items[i + 2] = getSiteString(sites[i]);
 			comboRepos[i + 2] = sites[i];
 		}
 		if (hasLocalSites)
@@ -693,7 +693,17 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			display.asyncExec(runnable);
 		else
 			runnable.run();
+	}
 
+	private String getSiteString(URI uri) {
+		try {
+			String nickname = ProvisioningUtil.getMetadataRepositoryProperty(uri, IRepository.PROP_NICKNAME);
+			if (nickname != null && nickname.length() > 0)
+				return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, nickname, URIUtil.toUnencodedString(uri));
+		} catch (ProvisionException e) {
+			// No error, just use the location string
+		}
+		return URIUtil.toUnencodedString(uri);
 	}
 
 	private URI[] getLocalSites() {
