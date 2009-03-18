@@ -72,7 +72,7 @@ public class Activator implements BundleActivator {
 	/*
 	 * Return the artifact repository manager. Throw an exception if it cannot be obtained.
 	 */
-	static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
+	public static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(getBundleContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException("Unable to acquire artifact repository manager service.");
