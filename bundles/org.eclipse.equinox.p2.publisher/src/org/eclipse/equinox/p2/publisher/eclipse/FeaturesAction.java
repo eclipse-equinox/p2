@@ -14,6 +14,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -412,16 +414,35 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo info) {
-		Object[] iuAndFiles = createFeatureRootFileIU(featureId, featureVersion, location, rootFile);
-		IInstallableUnit iuResult = (IInstallableUnit) iuAndFiles[0];
-		File[] fileResult = (File[]) iuAndFiles[1];
-		if (fileResult != null && fileResult.length > 0) {
-			IArtifactKey artifact = iuResult.getArtifacts()[0];
-			ArtifactDescriptor descriptor = new ArtifactDescriptor(artifact);
-			publishArtifact(descriptor, fileResult, null, info, FileUtils.createDynamicPathComputer(1));
+		File tempLocation = null;
+		try {
+			if (location.isFile()) {
+				// We cannot copy from a jar file. It must be expanded into a temporary folder
+				try {
+					tempLocation = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					tempLocation.delete();
+					tempLocation.mkdirs();
+					FileUtils.unzipFile(location, tempLocation);
+				} catch (IOException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
+					return null;
+				}
+				location = tempLocation;
+			}
+			Object[] iuAndFiles = createFeatureRootFileIU(featureId, featureVersion, location, rootFile);
+			IInstallableUnit iuResult = (IInstallableUnit) iuAndFiles[0];
+			File[] fileResult = (File[]) iuAndFiles[1];
+			if (fileResult != null && fileResult.length > 0) {
+				IArtifactKey artifact = iuResult.getArtifacts()[0];
+				ArtifactDescriptor descriptor = new ArtifactDescriptor(artifact);
+				publishArtifact(descriptor, fileResult, null, info, FileUtils.createDynamicPathComputer(1));
+			}
+			result.addIU(iuResult, IPublisherResult.NON_ROOT);
+			return iuResult;
+		} finally {
+			if (tempLocation != null)
+				FileUtils.deleteAll(tempLocation);
 		}
-		result.addIU(iuResult, IPublisherResult.NON_ROOT);
-		return iuResult;
 	}
 
 	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo info) {
@@ -431,7 +452,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		FileSetDescriptor[] rootFileDescriptors = getRootFileDescriptors(props);
 		for (int i = 0; i < rootFileDescriptors.length; i++) {
 			IInstallableUnit iu = generateRootFileIU(feature.getId(), feature.getVersion(), location, rootFileDescriptors[i], result, info);
-			ius.add(iu);
+			if (iu != null)
+				ius.add(iu);
 		}
 		return ius;
 	}
@@ -504,7 +526,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (Iterator i = props.keySet().iterator(); i.hasNext();) {
 			String property = (String) i.next();
 			// we only care about root properties
-			if (!property.startsWith("root.")) //$NON-NLS-1$
+			if (!(property.startsWith("root") && (property.length() == 4 || property.charAt(4) == '.'))) //$NON-NLS-1$
 				continue;
 			String[] spec = getArrayFromString(property, "."); //$NON-NLS-1$
 			String descriptorKey = spec[0];
@@ -520,8 +542,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 				descriptor = new FileSetDescriptor(descriptorKey, configSpec);
 				result.put(descriptorKey, descriptor);
 			}
+
+			// if the property was simply 'root'
+			if (spec.length == 1)
+				// it must be a straight file copy (without a config)
+				descriptor.setFiles(props.getProperty(property));
 			// if the last segment in the spec is "link"
-			if (spec[spec.length - 1] == "link") //$NON-NLS-1$
+			else if (spec[spec.length - 1] == "link") //$NON-NLS-1$
 				descriptor.setLinks(props.getProperty(property));
 			else {
 				// if the second last segment is "permissions"
@@ -574,38 +601,47 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return false;
 	}
 
-	private Properties loadProperties(File location, String file) {
+	private static Properties loadProperties(File location, String file) {
 		Properties props = new Properties();
-		File tempFile = null;
 		try {
-			// if the feature is a dir then just return the location
 			if (!location.isDirectory()) {
-				// otherwise extract the JAR into a temp location and return that location
-				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				FileUtils.unzipFile(location, tempFile);
-				location = tempFile;
-			}
-			try {
-				InputStream in = null;
+				JarFile jar = null;
 				try {
-					in = new BufferedInputStream(new FileInputStream(new File(location, file)));
-					props.load(in);
+					jar = new JarFile(location);
+					JarEntry entry = jar.getJarEntry(file);
+					if (entry != null)
+						parseProperties(jar.getInputStream(entry), props, location.toString() + '#' + file);
 				} finally {
-					if (in != null)
-						in.close();
+					if (jar != null)
+						jar.close();
 				}
-			} catch (FileNotFoundException e) {
-				// ignore if it is just a file not found.
-			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing " + file, e)); //$NON-NLS-1$
+			} else {
+				try {
+					InputStream in = null;
+					try {
+						File propsFile = new File(location, file);
+						in = new FileInputStream(propsFile);
+						parseProperties(in, props, propsFile.toString());
+					} finally {
+						if (in != null)
+							in.close();
+					}
+				} catch (FileNotFoundException e) {
+					// ignore if it is just a file not found.
+				}
 			}
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
-		} finally {
-			if (tempFile != null)
-				tempFile.delete();
 		}
 		return props;
+	}
+
+	private static void parseProperties(InputStream in, Properties props, String file) {
+		try {
+			props.load(new BufferedInputStream(in));
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing " + file, e)); //$NON-NLS-1$
+		}
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
