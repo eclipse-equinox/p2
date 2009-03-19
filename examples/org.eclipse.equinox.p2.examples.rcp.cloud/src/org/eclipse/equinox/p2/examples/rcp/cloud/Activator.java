@@ -29,8 +29,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		/// XXX initialize the p2 UI policy
-		initializeP2Policies();
 	}
 
 	/*
@@ -60,12 +58,5 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
-	
-	private void initializeP2Policies() {
-		Policy policy = Policy.getDefault();
-		
-		// XXX User has no access to manipulate repositories
-		policy.setRepositoryManipulator(null);
 	}
 }
