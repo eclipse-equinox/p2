@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public class AvailableIUsPage extends ProvisioningWizardPage implements ISelectableIUsPage {
+
 	private static final String DIALOG_SETTINGS_SECTION = "AvailableIUsPage"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
@@ -81,6 +82,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Image info, warning, error;
 	int batchCount = 0;
 	URI[] comboRepos;
+	ComboAutoCompleteField repoAutoComplete;
 	IUDetailsGroup iuDetailsGroup;
 
 	public AvailableIUsPage(Policy policy, String profileId, QueryableMetadataRepositoryManager manager) {
@@ -266,6 +268,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				}
 
 			});
+			// Auto complete - install before our own key listeners, so that auto complete gets first shot.
+			repoAutoComplete = new ComboAutoCompleteField(repoCombo);
+
 			repoCombo.addKeyListener(new KeyAdapter() {
 
 				public void keyPressed(KeyEvent e) {
@@ -283,6 +288,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					}
 				}
 			});
+
 			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 			// breathing room for info dec
 			gd.horizontalIndent = DEC_MARGIN_WIDTH * 2;
@@ -293,11 +299,16 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					IStatus status = null;
 					try {
 						String text = repoCombo.getText();
+						int index = getComboIndex(text);
 						// only validate text that doesn't match existing text in combo
-						if (getComboIndex(text) < 0) {
+						if (index < 0) {
 							location = URIUtil.fromString(repoCombo.getText());
 							RepositoryLocationValidator validator = repoMan.getRepositoryLocationValidator(getShell());
 							status = validator.validateRepositoryLocation(location, false, new NullProgressMonitor());
+						} else {
+							// user typed or pasted an existing location.  Select it.
+							repoCombo.select(index);
+							repoComboSelectionChanged();
 						}
 					} catch (URISyntaxException e) {
 						status = RepositoryLocationValidator.getInvalidLocationStatus(repoCombo.getText());
@@ -589,7 +600,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// select that item.
 		if (!alwaysPrompt && !isNewText && selectionIndex != repoCombo.getSelectionIndex()) {
 			repoCombo.select(selectionIndex);
-
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy) {
 				protected AddRepositoryOperation getOperation(URI repositoryLocation) {
@@ -609,7 +619,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			dialog.open();
 			URI location = dialog.getAddedLocation();
 			if (location != null)
-				fillRepoCombo(location.toString());
+				fillRepoCombo(getSiteString(location));
 		} else if (isNewText) {
 			try {
 				getContainer().run(false, false, new IRunnableWithProgress() {
@@ -628,7 +638,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 								RepositoryOperation op = repoMan.getAddOperation(location);
 								op.setNotify(false);
 								op.execute(monitor);
-								fillRepoCombo(location.toString());
+								fillRepoCombo(getSiteString(location));
 							} catch (ProvisionException e) {
 								// TODO Auto-generated catch block
 								ProvUI.handleException(e, null, StatusManager.SHOW);
@@ -699,7 +709,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			runnable.run();
 	}
 
-	private String getSiteString(URI uri) {
+	String getSiteString(URI uri) {
 		try {
 			String nickname = ProvisioningUtil.getMetadataRepositoryProperty(uri, IRepository.PROP_NICKNAME);
 			if (nickname != null && nickname.length() > 0)
@@ -802,7 +812,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		comboRepoListener = new ProvUIProvisioningListener(ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(RepositoryEvent e) {
 				if (e instanceof UIRepositoryEvent) {
-					fillRepoCombo(e.getRepositoryLocation().toString());
+					fillRepoCombo(getSiteString(e.getRepositoryLocation()));
 				}
 			}
 
