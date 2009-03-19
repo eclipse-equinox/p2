@@ -140,8 +140,8 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 		else
 			result = generateConfigData();
 
-		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
 		addProductFileConfigBundles(result); // these are the bundles specified in the <configurations> tag in the product file
+		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
 		if (product.getProductId() != null)
 			result.setProperty("eclipse.product", product.getProductId()); //$NON-NLS-1$
 		if (product.getApplication() != null)
