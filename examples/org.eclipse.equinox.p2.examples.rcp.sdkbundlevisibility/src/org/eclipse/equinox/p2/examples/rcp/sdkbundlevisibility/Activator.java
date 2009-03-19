@@ -1,13 +1,6 @@
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.ProfileFactory;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.ColocatedRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2.PreferenceConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -34,23 +27,9 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		initializeP2Policies();
 		plugin = this;
 	}
 	
-	private void initializeP2Policies() {
-		Policy policy = Policy.getDefault();
-		// XXX Use the pref-based repository manipulator
-		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES));
-		
-		// XXX Change the visibility of the IUs shown in the UI.
-        // Using a null property for visibility means everything will be shown, not just
-        // groups (features).
-		IUViewQueryContext context = policy.getQueryContext();
-		context.setVisibleAvailableIUProperty(null);
-		context.setVisibleInstalledIUProperty(null);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)

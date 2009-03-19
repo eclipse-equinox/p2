@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.equinox.p2.ui.sdk">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.equinox.p2.examples.rcp.cloud.p2">
    <implementation class="org.eclipse.equinox.p2.examples.rcp.cloud.p2.CloudPolicy"/>
    <service>
       <provide interface="org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy"/>
