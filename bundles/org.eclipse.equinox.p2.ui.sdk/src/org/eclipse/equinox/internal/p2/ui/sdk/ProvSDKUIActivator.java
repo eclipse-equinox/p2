@@ -17,19 +17,16 @@ import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
@@ -88,7 +85,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
-		initializePolicies();
 		readLicenseRegistry();
 		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
@@ -174,63 +170,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	static IStatus getNoSelfProfileStatus() {
 		return new Status(IStatus.WARNING, PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
-	}
-
-	private void initializePolicies() {
-		Policy policy = new Policy();
-		policy.setProfileChooser(new IProfileChooser() {
-			public String getProfileId(Shell shell) {
-				try {
-					return getSelfProfileId();
-				} catch (ProvisionException e) {
-					return IProfileRegistry.SELF;
-				}
-			}
-		});
-		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, PreferenceConstants.PREF_PAGE_SITES) {
-			public String getManipulatorLinkLabel() {
-				return ProvSDKMessages.ProvSDKUIActivator_SitePrefLink;
-			}
-		});
-		policy.setPlanValidator(new PlanValidator() {
-			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-				if (plan == null)
-					return false;
-				if (plan.getStatus().getSeverity() == IStatus.CANCEL)
-					return false;
-
-				// Special case those statuses where we would never want to open a wizard
-				if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
-					ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
-					return false;
-				}
-
-				// Allow the wizard to open if there is no error
-				if (plan.getStatus().getSeverity() != IStatus.ERROR)
-					return true;
-
-				// There is an error.  Check the preference to see whether to continue.
-				String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
-				if (MessageDialogWithToggle.ALWAYS.equals(openPlan)) {
-					return true;
-				}
-				if (MessageDialogWithToggle.NEVER.equals(openPlan)) {
-					ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
-					return false;
-				}
-				MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
-
-				// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
-				if (dialog.getReturnCode() == IDialogConstants.NO_ID)
-					ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
-				return dialog.getReturnCode() == IDialogConstants.YES_ID;
-			}
-		});
-		// Start with the default query context and configure some settings
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		policy.setQueryContext(queryContext);
-		updateWithPreferences(queryContext);
-		Policy.setDefaultPolicy(policy);
 	}
 
 	void updateWithPreferences(IUViewQueryContext queryContext) {

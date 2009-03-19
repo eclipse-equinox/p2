@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -49,22 +49,12 @@ public class Policy {
 	private RepositoryManipulator repositoryManipulator;
 
 	public static Policy getDefault() {
-		if (defaultInstance == null)
-			defaultInstance = new Policy();
-		return defaultInstance;
-	}
-
-	private static IStatus getDefaultPolicyAlreadySetStatus() {
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.Policy_CannotResetDefaultPolicy);
-
-	}
-
-	public static void setDefaultPolicy(Policy policy) {
-		if (defaultInstance != null) {
-			ProvUI.reportStatus(getDefaultPolicyAlreadySetStatus(), StatusManager.LOG);
-			return;
+		if (defaultInstance == null) {
+			defaultInstance = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
+			if (defaultInstance == null)
+				defaultInstance = new Policy();
 		}
-		defaultInstance = policy;
+		return defaultInstance;
 	}
 
 	/**
