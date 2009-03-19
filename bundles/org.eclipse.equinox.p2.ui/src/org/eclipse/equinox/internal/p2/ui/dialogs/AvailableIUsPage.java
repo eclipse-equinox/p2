@@ -668,7 +668,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 		if (hasLocalSites)
 			items[items.length - 1] = SITE_LOCAL;
-		sortRepoItems(items, comboRepos, hasLocalSites);
+		if (sites.length > 0)
+			sortRepoItems(items, comboRepos, hasLocalSites);
 		Runnable runnable = new Runnable() {
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
@@ -712,6 +713,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private void sortRepoItems(String[] strings, URI[] locations, boolean hasLocalSites) {
 		int sortStart = 2;
 		int sortEnd = hasLocalSites ? strings.length - 2 : strings.length - 1;
+		if (sortStart >= sortEnd)
+			return;
 		final Collator collator = Collator.getInstance(Locale.getDefault());
 		Comparator stringComparator = new Comparator() {
 			public int compare(Object a, Object b) {
