@@ -309,12 +309,18 @@ public class Application implements IApplication {
 				profileProperties = arg;
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (opt.equalsIgnoreCase("-destination") || opt.equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-destination") || opt.equalsIgnoreCase("-dest")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (arg.startsWith("file:")) //$NON-NLS-1$
+					arg = arg.substring(5);
 				destination = new Path(arg);
+			}
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (opt.equalsIgnoreCase("-bundlepool") || opt.equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-bundlepool") || opt.equalsIgnoreCase("-bp")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (arg.startsWith("file:")) //$NON-NLS-1$
+					arg = arg.substring(5);
 				bundlePool = new Path(arg).toOSString();
+			}
 
 			if (opt.equalsIgnoreCase("-metadataRepository") || opt.equalsIgnoreCase("-metadataRepositories") || opt.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				metadataRepositoryLocations = getURIs(arg);
