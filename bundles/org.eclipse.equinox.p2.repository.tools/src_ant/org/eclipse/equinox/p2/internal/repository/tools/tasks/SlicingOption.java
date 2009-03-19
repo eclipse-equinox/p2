@@ -55,6 +55,7 @@ public class SlicingOption extends Task {
 		filter.put("osgi.os", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.ws", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.arch", tok.nextToken().trim()); //$NON-NLS-1$
+		options.setFilter(filter);
 	}
 
 	public void setIncludeNonGreedy(boolean greed) {
