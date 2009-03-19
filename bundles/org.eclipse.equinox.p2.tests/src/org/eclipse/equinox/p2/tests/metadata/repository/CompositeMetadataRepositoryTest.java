@@ -161,7 +161,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
 		} catch (ProvisionException e) {
-			fail("Cannot create repository: ", e);;
+			fail("Cannot create repository: ", e);
 		}
 		Map properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
@@ -310,14 +310,14 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Verifying repository's status is OK", Status.OK_STATUS, (new CompositeMetadataRepositoryFactory()).validate(repoLocation.toURI(), null));
 	}
 
-	public void testLoadingRepository() {
-		File knownGoodRepoLocation = getTestData("1", "/testData/metadataRepo/composite/Good");
+	public void testLoadingRepositoryRemote() {
+		File knownGoodRepoLocation = getTestData("0.1", "/testData/metadataRepo/composite/good.remote");
 
 		CompositeMetadataRepository compRepo = null;
 		try {
 			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Error Loading repository", e);
+			fail("0.99", e);
 		}
 
 		List children = compRepo.getChildren();
@@ -325,24 +325,56 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			//ensure children are correct
 			URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
-			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child1));
+			assertTrue("1.0", children.contains(child1));
 			URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
-			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child2));
-			assertEquals("Ensure correct number of children", 2, children.size());
+			assertTrue("1.1", children.contains(child2));
+			assertEquals("1.2", 2, children.size());
 		} catch (URISyntaxException e) {
-			fail("Error creating URIs for verifiaction", e);
+			fail("1.99", e);
 		}
 
 		//ensure correct properties
-		assertEquals("Ensure correct name", "metadata name", compRepo.getName());
+		assertEquals("2.0", "metadata name", compRepo.getName());
 		Map properties = compRepo.getProperties();
-		assertEquals("Ensure correct number of properties", 2, properties.size());
+		assertEquals("2.1", 2, properties.size());
 		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
-		assertTrue("Ensure timestamp value is not null", timestamp != null);
-		assertEquals("Ensure correct timestamp value", "1226685461796", timestamp);
+		assertNotNull("2.2", timestamp);
+		assertEquals("2.3", "1234", timestamp);
 		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
-		assertTrue("Ensure timestamp value is not null", compressed != null);
-		assertEquals("Ensure correct timestamp value", "false", compressed);
+		assertNotNull("2.4", compressed);
+		assertFalse("2.5", Boolean.parseBoolean(compressed));
+	}
+
+	public void testLoadingRepositoryLocal() {
+		File testData = getTestData("0.5", "/testData/metadataRepo/composite/good.local");
+		copy("0.6", testData, repoLocation);
+
+		CompositeMetadataRepository compRepo = null;
+		try {
+			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("0.9", e);
+		}
+
+		List children = compRepo.getChildren();
+
+		//ensure children are correct
+		URI child1 = URIUtil.append(compRepo.getLocation(), "one");
+		assertTrue("1.0", children.contains(child1));
+		URI child2 = URIUtil.append(compRepo.getLocation(), "two");
+		assertTrue("1.1", children.contains(child2));
+		assertEquals("1.2", 2, children.size());
+
+		//ensure correct properties
+		assertEquals("2.0", "metadata name", compRepo.getName());
+		Map properties = compRepo.getProperties();
+		assertEquals("2.1", 2, properties.size());
+		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		assertNotNull("2.2", timestamp);
+		assertEquals("2.3", "1234", timestamp);
+		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		assertNotNull("2.4", compressed);
+		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
 
 	public void testCompressedPersistence() {
@@ -367,14 +399,16 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testMissingRequireattributeWhileParsing() {
-		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/missingRequiredAttribute");
+		File badCompositeContent = getTestData("0.1", "/testData/metadataRepo/composite/Bad/missingRequiredAttribute");
+		copy("0.2", badCompositeContent, repoLocation);
+
 		CompositeMetadataRepository compRepo = null;
 		try {
-			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(badCompositeContent.toURI(), null);
+			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Error loading repository", e);
+			fail("1.99", e);
 		}
-		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
+		assertEquals("2.0", 1, compRepo.getChildren().size());
 	}
 
 	public void testEnabledAndSystemValues() {
@@ -546,13 +580,15 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	/*
 	 * Ensure that we can create a non-local composite repository.
+	 * Note that we had to change this test method when we changed the 
+	 * behaviour of the composite repos to aggressively load the children.
 	 */
 	public void testNonLocalRepo() {
 		try {
 			URI location = new URI("memory:/in/memory");
-			URI childOne = new URI("memory:/one/child");
-			URI childTwo = new URI("memory:/two/child");
-			URI childThree = new URI("memory:/three/child");
+			URI childOne = new URI("memory:/in/memory/one");
+			URI childTwo = new URI("memory:/in/memory/two");
+			URI childThree = new URI("memory:/in/memory/three");
 			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
@@ -560,6 +596,12 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.0", 3, repository.getChildren().size());
 			repository.removeChild(childTwo);
 			assertEquals("1.1", 2, repository.getChildren().size());
+			// add a child which already exists... should do nothing
+			repository.addChild(childOne);
+			assertEquals("1.2", 2, repository.getChildren().size());
+			// add the same child but with a relative URI. again it should do nothing
+			repository.addChild(new URI("one"));
+			assertEquals("1.3", 2, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
 		}

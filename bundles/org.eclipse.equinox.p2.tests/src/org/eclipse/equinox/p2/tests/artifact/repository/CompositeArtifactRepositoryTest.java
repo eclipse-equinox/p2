@@ -564,14 +564,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(repo2File.length() == destFile2.length());
 	}
 
-	public void testLoadingRepository() {
-		File knownGoodRepoLocation = getTestData("1", "/testData/artifactRepo/composite/Good");
+	public void testLoadingRepositoryRemote() {
+		File knownGoodRepoLocation = getTestData("0.1", "/testData/artifactRepo/composite/good.remote");
 
 		CompositeArtifactRepository compRepo = null;
 		try {
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Error Loading repository", e);
+			fail("0.99", e);
 		}
 
 		List children = compRepo.getChildren();
@@ -579,24 +579,53 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		try {
 			//ensure children are correct
 			URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
-			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child1));
+			assertTrue("1.0", children.contains(child1));
 			URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
-			assertTrue("Ensure child 'http://www.eclipse.org/foo' exists", children.contains(child2));
-			assertEquals("Ensure correct number of children", 2, children.size());
+			assertTrue("1.1", children.contains(child2));
+			assertEquals("1.2", 2, children.size());
 		} catch (URISyntaxException e) {
-			fail("Error creating URIs for verifiaction", e);
+			fail("1.99", e);
 		}
 
 		//ensure correct properties
-		assertEquals("Ensure correct name", "artifact name", compRepo.getName());
+		assertEquals("2.0", "artifact name", compRepo.getName());
 		Map properties = compRepo.getProperties();
-		assertEquals("Ensure correct number of properties", 2, properties.size());
+		assertEquals("2.1", 2, properties.size());
 		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
-		assertTrue("Ensure timestamp value is not null", timestamp != null);
-		assertEquals("Ensure correct timestamp value", "1226685461796", timestamp);
+		assertNotNull("2.2", timestamp);
+		assertEquals("2.3", "1234", timestamp);
 		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
-		assertTrue("Ensure timestamp value is not null", compressed != null);
-		assertEquals("Ensure correct timestamp value", "false", compressed);
+		assertNotNull("2.4", compressed);
+		assertFalse("2.4", Boolean.parseBoolean(compressed));
+	}
+
+	public void testLoadingRepositoryLocal() {
+		File knownGoodRepoLocation = getTestData("0.1", "/testData/artifactRepo/composite/good.local");
+
+		CompositeArtifactRepository compRepo = null;
+		try {
+			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("0.99", e);
+		}
+
+		List children = compRepo.getChildren();
+
+		//ensure children are correct
+		assertTrue("1.0", children.contains(URIUtil.append(compRepo.getLocation(), "one")));
+		assertTrue("1.1", children.contains(URIUtil.append(compRepo.getLocation(), "two")));
+		assertEquals("1.2", 2, children.size());
+
+		//ensure correct properties
+		assertEquals("2.0", "artifact name", compRepo.getName());
+		Map properties = compRepo.getProperties();
+		assertEquals("2.1", 2, properties.size());
+		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		assertNotNull("2.2", timestamp);
+		assertEquals("2.3", "1234", timestamp);
+		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		assertNotNull("2.4", compressed);
+		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
 
 	public void testCompressedPersistence() {
@@ -808,9 +837,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	public void testNonLocalRepo() {
 		try {
 			URI location = new URI("memory:/in/memory");
-			URI childOne = new URI("memory:/one/child");
-			URI childTwo = new URI("memory:/two/child");
-			URI childThree = new URI("memory:/three/child");
+			URI childOne = new URI("memory:/in/memory/one");
+			URI childTwo = new URI("memory:/in/memory/two");
+			URI childThree = new URI("memory:/in/memory/three");
 			CompositeArtifactRepository repository = new CompositeArtifactRepository(location, "in memory test", null);
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
@@ -818,6 +847,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.0", 3, repository.getChildren().size());
 			repository.removeChild(childTwo);
 			assertEquals("1.1", 2, repository.getChildren().size());
+			// add a child which already exists... should do nothing
+			repository.addChild(childOne);
+			assertEquals("1.2", 2, repository.getChildren().size());
+			// add the same child but with a relative URI. again it should do nothing
+			repository.addChild(new URI("one"));
+			assertEquals("1.3", 2, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
 		}

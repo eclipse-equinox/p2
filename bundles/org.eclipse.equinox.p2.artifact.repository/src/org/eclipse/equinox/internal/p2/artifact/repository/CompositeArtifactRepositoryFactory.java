@@ -90,10 +90,9 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				}
 				CompositeRepositoryIO io = new CompositeRepositoryIO();
 				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
-
+				if (resultState.getLocation() == null)
+					resultState.setLocation(location);
 				CompositeArtifactRepository result = new CompositeArtifactRepository(resultState);
-
-				result.initializeAfterLoad(location);
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
 					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 

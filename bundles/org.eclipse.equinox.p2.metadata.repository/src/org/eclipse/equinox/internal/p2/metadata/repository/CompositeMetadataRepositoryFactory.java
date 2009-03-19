@@ -121,10 +121,9 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 					InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 					CompositeRepositoryIO io = new CompositeRepositoryIO();
 					CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeMetadataRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
-
+					if (resultState.getLocation() == null)
+						resultState.setLocation(location);
 					CompositeMetadataRepository result = new CompositeMetadataRepository(resultState);
-
-					result.initializeAfterLoad(location);
 					if (Tracing.DEBUG_METADATA_PARSING) {
 						time += System.currentTimeMillis();
 						Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
