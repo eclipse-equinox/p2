@@ -91,7 +91,7 @@ public class InstallApplication implements IApplication {
 		String site = System.getProperty(SYS_PROP_INSTALL_DESCRIPTION);
 		try {
 			return InstallDescriptionParser.createDescription(site, monitor);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw fail(Messages.App_InvalidSite + site, e);
 		}
 	}
@@ -211,6 +211,11 @@ public class InstallApplication implements IApplication {
 		}
 		//start up p2
 		try {
+			if (agentLocation != null) {
+				// reset the agent location
+				InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.core").stop(Bundle.STOP_TRANSIENT); //$NON-NLS-1$
+				InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.core").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+			}
 			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		} catch (BundleException e) {
 			throw fail(Messages.App_FailedStart, e);
