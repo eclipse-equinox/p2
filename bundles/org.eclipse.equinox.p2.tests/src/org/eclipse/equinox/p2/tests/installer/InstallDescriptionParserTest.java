@@ -50,7 +50,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		InstallDescription description = null;
 		try {
 			description = InstallDescriptionParser.createDescription(location.toExternalForm(), SubMonitor.convert(getMonitor()));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail("1.99", e);
 		}
 		return description;
@@ -78,7 +78,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 			InstallDescription description = InstallDescriptionParser.createDescription(null, SubMonitor.convert(getMonitor()));
 			//shouldn't find anything, so equal to default description
 			assertEquals("1.0", new InstallDescription(), description);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail("0.99", e);
 		}
 	}
@@ -126,8 +126,12 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 			fail("1.0");//should have failed
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
+		} catch (URISyntaxException e) {
+			fail("0.98", e);
 		} catch (IOException e) {
 			//expected
+		} catch (Exception e) {
+			fail("0.97", e);
 		}
 	}
 

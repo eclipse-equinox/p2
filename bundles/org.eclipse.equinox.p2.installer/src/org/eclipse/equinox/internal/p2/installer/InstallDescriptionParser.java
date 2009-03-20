@@ -38,14 +38,21 @@ public class InstallDescriptionParser {
 	 * Loads and returns an install description that is stored in a properties file.
 	 * @param site The URL of the install properties file.
 	 */
-	public static InstallDescription createDescription(String site, SubMonitor monitor) throws IOException {
+	public static InstallDescription createDescription(String site, SubMonitor monitor) throws Exception {
 		// if no description URL was given from the outside, look for an "install.properties" file 
 		// in relative to where the installer is running.  This allows the installer to be self-contained
+		if (site == null)
+			site = "installer.properties"; //$NON-NLS-1$
+
+		URI base = URIUtil.fromString(site);
 		InputStream in = null;
-		if (site == null) {
-			File file = new File("installer.properties").getAbsoluteFile(); //$NON-NLS-1$
-			if (file.exists())
+		if (!base.isAbsolute()) {
+			File file = new File(site).getAbsoluteFile(); //$NON-NLS-1$
+			if (file.exists()) {
+				base = file.toURI();
 				in = new FileInputStream(file);
+			} else
+				base = null;
 		} else
 			in = new URL(site).openStream();
 
@@ -57,22 +64,22 @@ public class InstallDescriptionParser {
 			safeClose(in);
 		}
 		InstallDescription result = new InstallDescription();
-		result = initiailize(result, properties);
+		result = initialize(result, properties, base);
 		initializeProfileProperties(result, properties);
 
 		// now override the properties from anything interesting in system properties
-		result = initiailize(result, System.getProperties());
+		result = initialize(result, System.getProperties(), base);
 		return result;
 	}
 
-	private static InstallDescription initiailize(InstallDescription description, Properties properties) {
+	private static InstallDescription initialize(InstallDescription description, Properties properties, URI base) {
 		String property = properties.getProperty(PROP_ARTIFACT_REPOSITORY);
 		if (property != null)
-			description.setArtifactRepositories(getURIs(property));
+			description.setArtifactRepositories(getURIs(property, base));
 
 		property = properties.getProperty(PROP_METADATA_REPOSITORY);
 		if (property != null)
-			description.setMetadataRepositories(getURIs(property));
+			description.setMetadataRepositories(getURIs(property, base));
 
 		property = properties.getProperty(PROP_IS_AUTO_START);
 		if (property != null)
@@ -152,14 +159,17 @@ public class InstallDescriptionParser {
 	/**
 	 * Returns an array of URIs from the given comma-separated list
 	 * of URLs. Returns null if the given spec does not contain any URLs.
+	 * @param base 
 	 * @return An array of URIs in the given spec, or <code>null</code>
 	 */
-	private static URI[] getURIs(String spec) {
+	private static URI[] getURIs(String spec, URI base) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
-				result.add(new URI(urlSpecs[i]));
+				URI uri = URIUtil.fromString(urlSpecs[i]);
+				uri = URIUtil.makeAbsolute(uri, base);
+				result.add(uri);
 			} catch (URISyntaxException e) {
 				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpecs[i], e)); //$NON-NLS-1$
 			}
