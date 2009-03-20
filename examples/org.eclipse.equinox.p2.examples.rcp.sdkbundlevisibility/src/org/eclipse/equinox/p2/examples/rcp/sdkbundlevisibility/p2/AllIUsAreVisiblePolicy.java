@@ -15,8 +15,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 /**
- * CloudPolicy defines the RCP Cloud Example policies for the p2 UI. The policy
- * is declared as an OSGi service in the policy_component.xml file.
+ * AllIUsAreVisiblePolicy redefines the IU visibility.  In this
+ * example, the policy is declared using OSGi declarative services.
+ * The declaration is in the policy_component.xml file.
  * 
  * @since 3.5
  */

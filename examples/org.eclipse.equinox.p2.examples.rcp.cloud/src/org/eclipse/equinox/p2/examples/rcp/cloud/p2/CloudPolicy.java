@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 /**
  * CloudPolicy defines the RCP Cloud Example policies for the p2 UI. The policy
- * is declared as an OSGi service in the policy_component.xml file.
+ * is registered as an OSGi service when the example bundle starts.
  * 
  * @since 3.5
  */
