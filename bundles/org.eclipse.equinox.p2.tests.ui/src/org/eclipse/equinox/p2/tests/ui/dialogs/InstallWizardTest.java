@@ -36,10 +36,14 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
 	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
 
+	public void testWizard() {
+		// Temporary
+	}
+
 	/**
 	 * Tests the wizard
 	 */
-	public void testWizard() {
+	public void disabled_testWizard() {
 		Policy policy = Policy.getDefault();
 		IUViewQueryContext context = policy.getQueryContext();
 		context.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
