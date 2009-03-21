@@ -12,7 +12,8 @@
 package org.eclipse.equinox.internal.p2.installer;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -44,17 +45,17 @@ public class InstallDescriptionParser {
 		if (site == null)
 			site = "installer.properties"; //$NON-NLS-1$
 
-		URI base = URIUtil.fromString(site);
+		URI propsURI = URIUtil.fromString(site);
 		InputStream in = null;
-		if (!base.isAbsolute()) {
+		if (!propsURI.isAbsolute()) {
 			File file = new File(site).getAbsoluteFile(); //$NON-NLS-1$
 			if (file.exists()) {
-				base = file.toURI();
+				propsURI = file.toURI();
 				in = new FileInputStream(file);
 			} else
-				base = null;
+				propsURI = null;
 		} else
-			in = new URL(site).openStream();
+			in = propsURI.toURL().openStream();
 
 		Properties properties = new Properties();
 		try {
@@ -63,6 +64,8 @@ public class InstallDescriptionParser {
 		} finally {
 			safeClose(in);
 		}
+
+		URI base = getBase(propsURI);
 		InstallDescription result = new InstallDescription();
 		result = initialize(result, properties, base);
 		initializeProfileProperties(result, properties);
@@ -70,6 +73,18 @@ public class InstallDescriptionParser {
 		// now override the properties from anything interesting in system properties
 		result = initialize(result, System.getProperties(), base);
 		return result;
+	}
+
+	private static URI getBase(URI uri) {
+		if (uri == null)
+			return null;
+
+		String uriString = uri.toString();
+		int slashIndex = uriString.lastIndexOf('/');
+		if (slashIndex == -1 || slashIndex == (uriString.length() - 1))
+			return uri;
+
+		return URI.create(uriString.substring(0, slashIndex + 1));
 	}
 
 	private static InstallDescription initialize(InstallDescription description, Properties properties, URI base) {
