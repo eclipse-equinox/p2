@@ -604,7 +604,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// If we are adding something already in the combo, just
 		// select that item.
 		if (!alwaysPrompt && !isNewText && selectionIndex != repoCombo.getSelectionIndex()) {
-			repoCombo.select(selectionIndex);
+			repoComboSelectionChanged();
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), policy) {
 				protected AddRepositoryOperation getOperation(URI repositoryLocation) {
@@ -897,8 +897,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// or use the combo to determine what to do.
 		if (resolveAllCheckbox.getSelection())
 			return new ProvisioningContext();
-		int siteSel = repoCombo.getSelectionIndex();
-		if (siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
+		int siteSel = getComboIndex(repoCombo.getText());
+		if (siteSel < 0 || siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
 			return new ProvisioningContext();
 		URI[] locals = getLocalSites();
 		// If there are local sites, the last item in the combo is "Local Sites Only"
