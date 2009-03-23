@@ -48,7 +48,7 @@ public class InstallDescriptionParser {
 		URI propsURI = URIUtil.fromString(site);
 		InputStream in = null;
 		if (!propsURI.isAbsolute()) {
-			File file = new File(site).getAbsoluteFile(); //$NON-NLS-1$
+			File file = new File(site).getAbsoluteFile();
 			if (file.exists()) {
 				propsURI = file.toURI();
 				in = new FileInputStream(file);
