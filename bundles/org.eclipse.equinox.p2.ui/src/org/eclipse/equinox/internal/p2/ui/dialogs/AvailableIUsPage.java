@@ -478,6 +478,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}
+			// We no longer (in 3.5) show a view by site, so ignore any older dialog setting that
+			// instructs us to do this.
+			if (queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)
+				queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 
 			// Show latest versions
 			if (section.get(SHOW_LATEST_VERSIONS_ONLY) != null)
@@ -487,8 +491,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			boolean hideContent = section.getBoolean(HIDE_INSTALLED_IUS);
 			if (hideContent)
 				queryContext.hideAlreadyInstalled(profileId);
-			else
+			else {
+				queryContext.setInstalledProfileId(profileId);
 				queryContext.showAlreadyInstalled();
+			}
 		}
 	}
 
