@@ -452,10 +452,9 @@ public class ComboAutoCompleteField {
 		 * 
 		 * @return boolean
 		 * @param text a String to match
-		 * @param tstart int that indicates the starting index of match, inclusive
+		 * @param tStart int that indicates the starting index of match, inclusive
 		 * @param p String,  String, a simple regular expression that may contain '?'
 		 * @param plen length of string
-		 * @param ignoreCase boolean indicating whether code>p</code> is case sensitive
 		 */
 		protected boolean regExpRegionMatches(String text, int tStart, String p, int pStart, int plen) {
 			while (plen-- > 0) {
