@@ -208,6 +208,7 @@ public class ProvUIMessages extends NLS {
 	public static String PlanStatusHelper_PromptForUpdateManagerUI;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
+	public static String Policy_MultiplePolicyRegistrationsWarning;
 	public static String ProvUI_ErrorDuringApplyConfig;
 	public static String ProvUI_InformationTitle;
 	public static String ProvUI_InstallDialogError;

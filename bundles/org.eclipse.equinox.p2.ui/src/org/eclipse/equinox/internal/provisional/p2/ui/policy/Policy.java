@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -19,6 +22,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 /**
  * The Policy class is used to locate application specific policies that
@@ -28,11 +33,11 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * are manipulated in the standard wizards and dialogs, and how the repositories
  * or the installation itself should be traversed when displaying content.
  * 
- * In some cases, Policy defines a default policy that is overridden
- * by user choice and subsequently stored in dialog settings.
+ * In some cases, the Policy is used only to define a default value that can
+ * be overridden by user choice and subsequently stored in dialog settings.
  * 
- * Client applications should generally configure the Policy when their
- * application's bundle is started.  
+ * Client applications should ensure that the Policy is registered before
+ * any of the p2 UI objects access the default Policy.
  * 
  * @since 3.5
  */
@@ -50,11 +55,30 @@ public class Policy {
 
 	public static Policy getDefault() {
 		if (defaultInstance == null) {
-			defaultInstance = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
+			defaultInstance = findRegisteredPolicy();
 			if (defaultInstance == null)
 				defaultInstance = new Policy();
 		}
 		return defaultInstance;
+	}
+
+	private static Policy findRegisteredPolicy() {
+		ServiceReference[] references;
+		try {
+			references = ProvUIActivator.getContext().getServiceReferences(Policy.class.getName(), null);
+		} catch (InvalidSyntaxException e) {
+			// Shouldn't happen, we don't use a filter
+			return null;
+		}
+		if (references == null || references.length == 0)
+			return null;
+		if (references.length > 1) {
+			IStatus multiplePolicyStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, ProvUIMessages.Policy_MultiplePolicyRegistrationsWarning);
+			LogHelper.log(multiplePolicyStatus);
+		}
+		Object result = ProvUIActivator.getContext().getService(references[0]);
+		ProvUIActivator.getContext().ungetService(references[0]);
+		return (Policy) result;
 	}
 
 	/**
