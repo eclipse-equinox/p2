@@ -191,7 +191,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	protected IRepository loadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		Object repo = loaded.get(location);
 		if (repo == null) {
-			monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, location.toString()));
+			monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, URIUtil.toUnencodedString(location)));
 			repo = doLoadRepository(manager, location, monitor);
 			if (repo != null)
 				loaded.put(location, repo);

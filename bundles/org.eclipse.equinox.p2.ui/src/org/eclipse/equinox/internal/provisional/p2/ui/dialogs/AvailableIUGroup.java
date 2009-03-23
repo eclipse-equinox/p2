@@ -311,7 +311,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// We don't know if loading will be a fast or slow operation.
 		// We do it in a job to be safe, and when it's done, we update
 		// the UI.
-		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, location.toString())) {
+		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, URIUtil.toUnencodedString(location))) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					ProvisioningUtil.loadMetadataRepository(location, monitor);

@@ -125,7 +125,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				cachedElements = new Hashtable(children.length);
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof MetadataRepositoryElement)
-						cachedElements.put(((MetadataRepositoryElement) children[i]).getLocation().toString(), children[i]);
+						cachedElements.put(URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation()), children[i]);
 				}
 			}
 			return cachedElements.values().toArray();
@@ -249,7 +249,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			}
 
 			public void modify(Object element, String property, Object value) {
-				if (value != null && value.toString().length() > 0) {
+				if (value != null && value.toString().length() >= 0) {
 					MetadataRepositoryElement repo;
 					if (element instanceof Item) {
 						repo = (MetadataRepositoryElement) ((Item) element).getData();
@@ -598,7 +598,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					Hashtable repos = getInput().cachedElements;
 					changed = true;
 					for (int i = 0; i < imported.length; i++)
-						repos.put(imported[i].getLocation().toString(), imported[i]);
+						repos.put(URIUtil.toUnencodedString(imported[i].getLocation()), imported[i]);
 					asyncRefresh();
 				}
 			}
@@ -695,12 +695,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (selections.length > 0) {
 			String message = ProvUIMessages.RepositoryManipulationPage_RemoveConfirmMessage;
 			if (selections.length == 1)
-				message = NLS.bind(ProvUIMessages.RepositoryManipulationPage_RemoveConfirmSingleMessage, selections[0].getLocation().toString());
+				message = NLS.bind(ProvUIMessages.RepositoryManipulationPage_RemoveConfirmSingleMessage, URIUtil.toUnencodedString(selections[0].getLocation()));
 			if (MessageDialog.openQuestion(getShell(), ProvUIMessages.RepositoryManipulationPage_RemoveConfirmTitle, message)) {
 
 				changed = true;
 				for (int i = 0; i < selections.length; i++) {
-					getInput().cachedElements.remove(selections[i].getLocation().toString());
+					getInput().cachedElements.remove(URIUtil.toUnencodedString(selections[i].getLocation()));
 				}
 				asyncRefresh();
 			}
@@ -719,7 +719,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 								MetadataRepositoryElement element = new MetadataRepositoryElement(getInput(), locations[i], true);
 								if (nicknames != null)
 									element.setNickname(nicknames[i]);
-								getInput().cachedElements.put(locations[i].toString(), element);
+								getInput().cachedElements.put(URIUtil.toUnencodedString(locations[i]), element);
 
 							}
 							changed = true;

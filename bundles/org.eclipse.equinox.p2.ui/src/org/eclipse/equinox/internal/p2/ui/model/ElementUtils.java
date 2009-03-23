@@ -68,15 +68,15 @@ public class ElementUtils {
 					// and remove any elements that weren't in the elements we were given
 					Set nowKnown = new HashSet();
 					for (int i = 0; i < elements.length; i++)
-						nowKnown.add(elements[i].getLocation().toString());
+						nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
 					for (int i = 0; i < currentlyEnabled.length; i++) {
-						if (!nowKnown.contains(currentlyEnabled[i].toString())) {
+						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyEnabled[i]))) {
 							ProvisioningUtil.removeMetadataRepository(currentlyEnabled[i]);
 							ProvisioningUtil.removeArtifactRepository(currentlyEnabled[i]);
 						}
 					}
 					for (int i = 0; i < currentlyDisabled.length; i++) {
-						if (!nowKnown.contains(currentlyDisabled[i].toString())) {
+						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyDisabled[i]))) {
 							ProvisioningUtil.removeMetadataRepository(currentlyDisabled[i]);
 							ProvisioningUtil.removeArtifactRepository(currentlyDisabled[i]);
 						}

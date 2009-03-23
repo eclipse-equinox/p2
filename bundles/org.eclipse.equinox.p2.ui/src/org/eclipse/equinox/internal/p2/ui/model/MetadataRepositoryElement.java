@@ -77,11 +77,11 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	}
 
 	public String getLabel(Object o) {
-		String name = getName();
-		if (name != null && name.length() > 0) {
-			return name;
+		String n = getName();
+		if (n != null && n.length() > 0) {
+			return n;
 		}
-		return getLocation().toString();
+		return URIUtil.toUnencodedString(getLocation());
 	}
 
 	/*

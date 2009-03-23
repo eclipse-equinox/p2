@@ -166,7 +166,7 @@ public class UpdateManagerCompatibility {
 			MetadataRepositoryElement element = (MetadataRepositoryElement) obj;
 			String sel = element.isEnabled() ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
 			String name = element.getName();
-			writer.print(indent + "<site url=\"" + element.getLocation() + "\" selected=\"" + sel + "\" name=\"" + getWritableXMLString(name) + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			writer.print(indent + "<site url=\"" + URIUtil.toUnencodedString(element.getLocation()) + "\" selected=\"" + sel + "\" name=\"" + getWritableXMLString(name) + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			writer.println("/>"); //$NON-NLS-1$
 		}
 	}

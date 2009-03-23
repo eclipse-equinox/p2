@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.MalformedURLException;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ICopyright;
@@ -56,7 +57,7 @@ public class IUCopyrightPropertyPage extends IUPropertyPage {
 				label.setText(ProvUIMessages.IUCopyrightPropertyPage_ViewLinkLabel);
 				// Create a link to the copyright URL
 				Link link = new Link(composite, SWT.LEFT | SWT.WRAP);
-				link.setText(NLS.bind("<a>{0}</a>", copyright.getLocation().toString())); //$NON-NLS-1$
+				link.setText(NLS.bind("<a>{0}</a>", URIUtil.toUnencodedString(copyright.getLocation()))); //$NON-NLS-1$
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);

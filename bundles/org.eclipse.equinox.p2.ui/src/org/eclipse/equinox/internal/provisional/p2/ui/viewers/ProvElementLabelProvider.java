@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -54,14 +55,14 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return ((IRepository) obj).getLocation().toString();
+			return URIUtil.toUnencodedString(((IRepository) obj).getLocation());
 		}
 		if (obj instanceof IRepositoryElement) {
 			String name = ((IRepositoryElement) obj).getName();
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return ((IRepositoryElement) obj).getLocation().toString();
+			return URIUtil.toUnencodedString(((IRepositoryElement) obj).getLocation());
 		}
 		if (obj instanceof IArtifactKey) {
 			IArtifactKey key = (IArtifactKey) obj;
@@ -127,10 +128,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					return iu.getVersion().toString();
 				}
 				if (element instanceof IRepository) {
-					return ((IRepository) element).getLocation().toString();
+					return URIUtil.toUnencodedString(((IRepository) element).getLocation());
 				}
 				if (element instanceof IRepositoryElement) {
-					return ((IRepositoryElement) element).getLocation().toString();
+					return URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation());
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -77,7 +76,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return getLocation().toString();
+		return URIUtil.toUnencodedString(getLocation());
 	}
 
 	public IRepository getRepository(IProgressMonitor monitor) {

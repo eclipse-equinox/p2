@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
@@ -55,8 +56,8 @@ public class MetadataRepositoryElementComparator extends ViewerComparator {
 			key1 = repo1.getName();
 			key2 = repo2.getName();
 		} else if (sortKey == RepositoryDetailsLabelProvider.COL_LOCATION) {
-			key1 = repo1.getLocation().toString();
-			key2 = repo2.getLocation().toString();
+			key1 = URIUtil.toUnencodedString(repo1.getLocation());
+			key2 = URIUtil.toUnencodedString(repo2.getLocation());
 		} else { // COL_ENABLEMENT
 			key1 = repo1.isEnabled() ? ENABLED : BLANK;
 			key2 = repo2.isEnabled() ? ENABLED : BLANK;

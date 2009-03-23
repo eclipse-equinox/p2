@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
@@ -65,10 +66,10 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 				return ""; //$NON-NLS-1$
 			case COL_LOCATION :
 				if (element instanceof IRepository) {
-					return ((IRepository) element).getLocation().toString();
+					return URIUtil.toUnencodedString(((IRepository) element).getLocation());
 				}
 				if (element instanceof IRepositoryElement) {
-					return ((IRepositoryElement) element).getLocation().toString();
+					return URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation());
 				}
 				break;
 			case COL_ENABLEMENT :
