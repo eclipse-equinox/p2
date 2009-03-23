@@ -307,7 +307,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 							status = validator.validateRepositoryLocation(location, false, new NullProgressMonitor());
 						} else {
 							// user typed or pasted an existing location.  Select it.
-							repoCombo.select(index);
 							repoComboSelectionChanged();
 						}
 					} catch (URISyntaxException e) {
@@ -684,6 +683,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
 					return;
+				// If the combo is open and something is selected, use that index if we
+				// weren't given a string to select.
 				int selIndex = repoCombo.getSelectionIndex();
 				if (selIndex < 0)
 					selIndex = 0;
@@ -693,11 +694,16 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				for (int i = 0; i < items.length; i++)
 					if (items[i].equals(repoToSelect)) {
 						selected = true;
-						repoCombo.select(i);
+						if (repoCombo.getListVisible())
+							repoCombo.select(i);
+						repoCombo.setText(repoToSelect);
 						break;
 					}
-				if (!selected)
-					repoCombo.select(INDEX_SITE_NONE);
+				if (!selected) {
+					if (repoCombo.getListVisible())
+						repoCombo.select(INDEX_SITE_NONE);
+					repoCombo.setText(SITE_NONE);
+				}
 				repoComboSelectionChanged();
 			}
 		};
@@ -765,7 +771,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	void repoComboSelectionChanged() {
-		int selection = repoCombo.getSelectionIndex();
+		int selection = -1;
+		if (repoCombo.getListVisible())
+			selection = repoCombo.getSelectionIndex();
+		else {
+			selection = getComboIndex(repoCombo.getText());
+		}
 		int localIndex = getLocalSites().length == 0 ? repoCombo.getItemCount() : repoCombo.getItemCount() - 1;
 		if (comboRepos == null || selection < 0)
 			selection = INDEX_SITE_NONE;
