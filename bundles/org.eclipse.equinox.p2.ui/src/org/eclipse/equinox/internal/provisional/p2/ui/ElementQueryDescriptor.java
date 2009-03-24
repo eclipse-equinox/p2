@@ -48,16 +48,19 @@ public class ElementQueryDescriptor {
 		this.wrapper = wrapper;
 	}
 
-	public boolean isComplete() {
-		return query != null && collector != null && queryable != null;
-	}
-
 	/**
 	 * Performs the query returning a collection of results.
 	 * @param monitor
 	 */
 	public Collection performQuery(IProgressMonitor monitor) {
-		Collector results = this.queryable.query(this.query, this.collector, monitor);
+		Collector results = this.collector;
+		// If the query is completely described, perform it
+		if (query != null && collector != null && queryable != null)
+			results = this.queryable.query(this.query, this.collector, monitor);
+		else if (results == null)
+			results = new Collector();
+		// Let the wrapper analyze the results, even if we didn't perform the query.
+		// This allows the wrapper to modify the results with explanations.
 		if (wrapper != null)
 			return wrapper.getElements(results);
 		return results.toCollection();

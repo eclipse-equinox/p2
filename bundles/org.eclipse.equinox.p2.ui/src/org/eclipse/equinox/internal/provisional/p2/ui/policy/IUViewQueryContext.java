@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
@@ -54,6 +55,9 @@ public class IUViewQueryContext {
 
 	// Installed view settings
 	private String visibleInstalledIUProperty = IInstallableUnit.PROP_PROFILE_ROOT_IU;
+
+	private String hidingInstalledDescription = ProvUIMessages.IUViewQueryContext_AllAreInstalledDescription;
+	private String groupingCategoriesDescription = ProvUIMessages.IUViewQueryContext_NoCategorizedItemsDescription;
 
 	public IUViewQueryContext(int viewType) {
 		this.view = viewType;
@@ -167,5 +171,21 @@ public class IUViewQueryContext {
 
 	public void setShowProvisioningPlanChildren(boolean showChildren) {
 		showProvisioningPlanChildren = showChildren;
+	}
+
+	public String getHidingInstalledDescription() {
+		return hidingInstalledDescription;
+	}
+
+	public void setHidingInstalledDescription(String description) {
+		hidingInstalledDescription = description;
+	}
+
+	public String getUsingCategoriesDescription() {
+		return groupingCategoriesDescription;
+	}
+
+	public void setUsingCategoriesDescription(String description) {
+		groupingCategoriesDescription = description;
 	}
 }

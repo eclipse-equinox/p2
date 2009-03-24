@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+
 import java.util.Iterator;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -64,6 +67,9 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 
 		// if we are hiding, hide anything that is the same iu or older
 		if (hideInstalledIUs && cache.isInstalled && !cache.isUpdate) {
+			emptyExplanationString = ProvUIMessages.AvailableIUWrapper_AllAreInstalled;
+			emptyExplanationSeverity = IStatus.INFO;
+			emptyExplanationDescription = ProvUIMessages.IUViewQueryContext_AllAreInstalledDescription;
 			return false;
 		}
 		return true;

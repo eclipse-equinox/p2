@@ -81,4 +81,20 @@ public abstract class RepositoryManipulator {
 	 */
 
 	public abstract RepositoryLocationValidator getRepositoryLocationValidator(Shell shell);
+
+	/**
+	 * Return a string giving the user further instruction when a site was found.  This
+	 * is a textual description that can tell the user why a site might be empty, or
+	 * telling the user to use the manipulator (ie, go to the preferences page).
+	 */
+	public abstract String getRepositoryNotFoundInstructionString();
+
+	/**
+	 * Return a string giving the user further instruction about how to manipulate
+	 * repositories.  The {@link #getManipulatorLinkLabel()} and {@link #getManipulatorButtonLabel()}
+	 * are used to label the link and/or button used to launch the UI for adding and removing
+	 * repositories.  This string is a textual description (without a link) suggesting ways
+	 * that a user might manipulate repositories.
+	 */
+	public abstract String getManipulatorInstructionString();
 }

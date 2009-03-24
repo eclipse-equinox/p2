@@ -25,6 +25,7 @@ public class ProvAdminUIMessages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, ProvAdminUIMessages.class);
 	}
 	public static String AddArtifactRepositoryDialog_DuplicateURL;
+	public static String AddArtifactRepositoryDialog_ManipulateRepositoryInstruction;
 	public static String AddArtifactRepositoryDialog_OperationLabel;
 	public static String AddProfileDialog_Title;
 	public static String AddMetadataRepositoryDialog_OperationLabel;

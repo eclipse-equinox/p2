@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
@@ -66,7 +67,10 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		if (id == null) {
 			return null;
 		}
-		return ProvUIImages.getImageDescriptor(id);
+		ImageDescriptor desc = ProvUIImages.getImageDescriptor(id);
+		if (desc == null)
+			desc = JFaceResources.getImageRegistry().getDescriptor(id);
+		return desc;
 	}
 
 	/**
@@ -83,7 +87,10 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		if (id == null) {
 			return null;
 		}
-		return ProvUIImages.getImage(id);
+		Image img = ProvUIImages.getImage(id);
+		if (img == null)
+			img = JFaceResources.getImageRegistry().get(id);
+		return img;
 	}
 
 	protected void handleException(Exception e, String message) {

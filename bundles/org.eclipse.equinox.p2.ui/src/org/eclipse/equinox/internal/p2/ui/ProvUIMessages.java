@@ -161,6 +161,10 @@ public class ProvUIMessages extends NLS {
 	public static String AddRepositoryDialog_Title;
 	public static String AvailableIUElement_ProfileNotFound;
 	public static String AvailableIUGroup_LoadingRepository;
+	public static String AvailableIUGroup_NoSitesConfiguredDescription;
+	public static String AvailableIUGroup_NoSitesConfiguredExplanation;
+	public static String ColocatedRepositoryManipulator_NoContentExplanation;
+	public static String AvailableIUGroup_NoSitesExplanation;
 	public static String AvailableIUsPage_AddButton;
 	public static String AvailableIUsPage_AllSites;
 	public static String AvailableIUsPage_Description;
@@ -177,6 +181,8 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_SelectASite;
 	public static String AvailableIUsPage_ShowLatestVersions;
 	public static String AvailableIUsPage_Title;
+	public static String AvailableIUWrapper_AllAreInstalled;
+	public static String IUViewQueryContext_AllAreInstalledDescription;
 	public static String DefaultQueryProvider_ErrorRetrievingProfile;
 	public static String DeferredFetchFilteredTree_RetrievingList;
 	public static String ElementUtils_UpdateJobTitle;
@@ -219,6 +225,11 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUIActivator_ExceptionDuringProfileChange;
 	public static String ProvUILicenseManager_ParsingError;
 	public static String OptionalPlatformRestartMessage;
+	public static String IUViewQueryContext_NoCategorizedItemsDescription;
+	public static String QueriedElementWrapper_NoCategorizedItemsExplanation;
+	public static String QueriedElementWrapper_NoItemsExplanation;
+	public static String QueriedElementWrapper_SiteNotFound;
+	public static String ColocatedRepositoryManipulator_SiteNotFoundDescription;
 	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableMetadataRepositoryManager_LoadRepositoryProgress;
 	public static String QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound;

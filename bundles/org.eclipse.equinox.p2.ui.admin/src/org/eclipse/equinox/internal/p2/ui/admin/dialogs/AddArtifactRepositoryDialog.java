@@ -94,6 +94,21 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorInstructionString()
+		 */
+		public String getManipulatorInstructionString() {
+			// We don't have a manipulator
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getSiteNotFoundCorrectionString()
+		 */
+		public String getRepositoryNotFoundInstructionString() {
+			return ProvAdminUIMessages.AddArtifactRepositoryDialog_ManipulateRepositoryInstruction;
+		}
+
 	}
 
 	RepositoryManipulator manipulator;

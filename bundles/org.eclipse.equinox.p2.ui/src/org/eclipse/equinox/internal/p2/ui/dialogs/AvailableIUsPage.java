@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.*;
@@ -366,8 +367,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
 		if (hideInstalledCheckbox.getSelection())
 			queryContext.hideAlreadyInstalled(profileId);
-		else
+		else {
 			queryContext.showAlreadyInstalled();
+			queryContext.setInstalledProfileId(profileId);
+		}
 		if (useCategoriesCheckbox.getSelection())
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		else
@@ -412,7 +415,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		hideInstalledCheckbox.setSelection(queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
 		useCategoriesCheckbox.setSelection(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		availableIUGroup.updateTreeColumns();
+		availableIUGroup.updateAvailableViewState();
 		if (initialSelections != null)
 			availableIUGroup.setChecked(initialSelections);
 
@@ -514,6 +517,17 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	void updateDetails() {
+		// First look for an empty explanation.
+		Object[] elements = ((IStructuredSelection) availableIUGroup.getStructuredViewer().getSelection()).toArray();
+		if (elements.length == 1 && elements[0] instanceof EmptyElementExplanation) {
+			String description = ((EmptyElementExplanation) elements[0]).getDescription();
+			if (description != null) {
+				detailsArea.setText(description);
+				return;
+			}
+		}
+
+		// Now look for IU's
 		IInstallableUnit[] selected = getSelectedIUs();
 		if (selected.length == 1) {
 			StringBuffer result = new StringBuffer();

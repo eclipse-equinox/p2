@@ -780,6 +780,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					return true;
 				}
 
+				public String getManipulatorInstructionString() {
+					// we are the manipulator
+					return null;
+				}
+
+				public String getRepositoryNotFoundInstructionString() {
+					// we are in the manipulator, no further instructions
+					return null;
+				}
+
 			};
 		return localCacheRepoManipulator;
 	}

@@ -149,4 +149,18 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getSiteNotFoundCorrectionString()
+	 */
+	public String getRepositoryNotFoundInstructionString() {
+		return ProvUIMessages.ColocatedRepositoryManipulator_SiteNotFoundDescription;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorInstructionString()
+	 */
+	public String getManipulatorInstructionString() {
+		return ProvUIMessages.ColocatedRepositoryManipulator_NoContentExplanation;
+	}
+
 }

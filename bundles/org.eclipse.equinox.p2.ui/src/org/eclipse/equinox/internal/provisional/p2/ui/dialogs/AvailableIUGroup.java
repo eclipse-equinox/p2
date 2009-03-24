@@ -11,12 +11,13 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -158,9 +159,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// after content has been retrieved.
 		filteredTree.contentProviderSet(contentProvider);
 
-		// Input last.
-		availableIUViewer.setInput(getNewInput());
-
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
 				// Only make the repo visible if the UI triggered this event.
@@ -181,7 +179,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				if (workbench.isClosing())
 					return;
 				if (tree != null && !tree.isDisposed()) {
-					treeViewer.setInput(getNewInput());
+					updateAvailableViewState();
 				}
 
 			}
@@ -193,6 +191,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				ProvUIActivator.getDefault().removeProvisioningListener(listener);
 			}
 		});
+		updateAvailableViewState();
 		return availableIUViewer;
 	}
 
@@ -211,9 +210,32 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	Object getNewInput() {
 		if (repositoryFilter != null) {
 			return new MetadataRepositoryElement(queryContext, getPolicy(), repositoryFilter, true);
-		} else if (filterConstant == AVAILABLE_NONE)
-			return new Object();
-		else {
+		} else if (filterConstant == AVAILABLE_NONE) {
+			// Dummy object that explains empty site list
+			return new ProvElement(null) {
+				public Object[] getChildren(Object o) {
+					String description;
+					String name;
+					int severity;
+					if (getPolicy().getRepositoryManipulator() == null) {
+						// shouldn't get here ideally.  No sites and no way to add.
+						severity = IStatus.ERROR;
+						name = ProvUIMessages.AvailableIUGroup_NoSitesConfiguredExplanation;
+						description = ProvUIMessages.AvailableIUGroup_NoSitesConfiguredDescription;
+					} else {
+						severity = IStatus.INFO;
+						name = ProvUIMessages.AvailableIUGroup_NoSitesExplanation;
+						description = ProvUIMessages.ColocatedRepositoryManipulator_NoContentExplanation;
+					}
+					return new Object[] {new EmptyElementExplanation(null, severity, name, description)};
+				}
+
+				public String getLabel(Object o) {
+					// Label not needed for input
+					return null;
+				}
+			};
+		} else {
 			queryableManager.setQueryContext(queryContext);
 			return new MetadataRepositories(queryContext, getPolicy(), queryableManager);
 		}
@@ -255,9 +277,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		return super.getSelectedIUs();
 	}
 
-	// overridden for visibility
+	// overridden to weed out non-IU elements, such as repositories or empty explanations
 	public Object[] getSelectedIUElements() {
-		return super.getSelectedIUElements();
+		Object[] elements = ((IStructuredSelection) viewer.getSelection()).toArray();
+		ArrayList list = new ArrayList(elements.length);
+		for (int i = 0; i < elements.length; i++)
+			if (ElementUtils.getIU(elements[i]) != null)
+				list.add(elements[i]);
+		return list.toArray();
 	}
 
 	public CheckboxTreeViewer getCheckboxTreeViewer() {
@@ -294,6 +321,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Make the repository with the specified location visible in the viewer.
 	 */
 	void makeRepositoryVisible(final URI location) {
+		// If we are viewing by anything other than site, there is no specific way
+		// to make a repo visible. 
+		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO))
+			return;
 		// First reset the input so that the new repo shows up
 		display.asyncExec(new Runnable() {
 			public void run() {
@@ -303,7 +334,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				if (workbench.isClosing())
 					return;
 				if (tree != null && !tree.isDisposed()) {
-					treeViewer.setInput(getNewInput());
+					updateAvailableViewState();
 				}
 			}
 		});
@@ -377,7 +408,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		});
 	}
 
-	public void updateTreeColumns() {
+	void updateTreeColumns() {
 		if (getTree() == null || getTree().isDisposed())
 			return;
 		TreeColumn[] columns = getTree().getColumns();

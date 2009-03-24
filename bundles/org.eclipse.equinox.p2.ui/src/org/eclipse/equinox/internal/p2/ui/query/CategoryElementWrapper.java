@@ -60,9 +60,11 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 	}
 
 	public Collection getElements(Collector collector) {
-		super.getElements(collector);
+		if (collector.isEmpty())
+			return super.getElements(collector);
+		Collection results = super.getElements(collector);
 		cleanList();
-		return getCollection();
+		return results;
 	}
 
 	protected Object wrap(Object item) {

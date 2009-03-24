@@ -89,7 +89,7 @@ public abstract class QueriedElement extends ProvElement {
 		if (getQueryProvider() == null)
 			return new Object[0];
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this);
-		if (queryDescriptor == null || !isSufficientForQuery(queryDescriptor))
+		if (queryDescriptor == null)
 			return new Object[0];
 		Collection results = queryDescriptor.performQuery(monitor);
 		cachedChildren = Collections.unmodifiableCollection(results);
@@ -146,17 +146,6 @@ public abstract class QueriedElement extends ProvElement {
 	 */
 	public boolean hasQueryable() {
 		return queryable != null;
-	}
-
-	/**
-	 * Return whether the query descriptor is sufficient for this element to complete the query.
-	 * The default implementation requires the descriptor to be complete.  Subclasses may override.
-	 * 
-	 * @param queryDescriptor the query descriptor in question
-	 * @return <code>true</code> if the descriptor is sufficient, <code>false</code> if it is not.
-	 */
-	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
-		return queryDescriptor.isComplete();
 	}
 
 	public Object[] getCachedChildren() {

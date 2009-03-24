@@ -40,7 +40,6 @@ public class ProvUIImages {
 	public final static String IMG_UPDATED_IU = "obj/iu_update_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_WARNING = "obj/element_warning_obj.gif"; //$NON-NLS-1$
 	// tools
 	public final static String IMG_TOOL_UPDATE = "tool/update.gif"; //$NON-NLS-1$
 	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.gif"; //$NON-NLS-1$

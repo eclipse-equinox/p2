@@ -11,8 +11,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * A wrapper that assigns a query provider and the queryable
@@ -25,6 +35,9 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 
 	protected IQueryable queryable;
 	protected Object parent;
+	protected String emptyExplanationString;
+	protected int emptyExplanationSeverity;
+	protected String emptyExplanationDescription;
 
 	public QueriedElementWrapper(IQueryable queryable, Object parent) {
 		this.queryable = queryable;
@@ -42,5 +55,52 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			}
 		}
 		return item;
+	}
+
+	public Collection getElements(Collector collector) {
+		// Any previously stored explanations are not valid.
+		emptyExplanationString = null;
+		emptyExplanationSeverity = IStatus.INFO;
+		emptyExplanationDescription = null;
+		if (collector.isEmpty()) {
+			// Before we are even filtering out items, there is nothing in the collection.
+			// All we can do is look for the most common reasons and guess.
+			if (parent instanceof MetadataRepositoryElement) {
+				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
+				if (ProvUI.hasNotFoundStatusBeenReported(repo.getLocation())) {
+					String description = null;
+					if (Policy.getDefault().getRepositoryManipulator() != null)
+						description = Policy.getDefault().getRepositoryManipulator().getRepositoryNotFoundInstructionString();
+					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), description);
+				}
+			}
+			if (parent instanceof QueriedElement) {
+				QueriedElement element = (QueriedElement) parent;
+				IUViewQueryContext context = element.getQueryContext();
+				if (context == null)
+					context = element.getPolicy().getQueryContext();
+				if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
+					return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());
+				}
+				return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoItemsExplanation, null);
+			}
+		}
+		Collection elements = super.getElements(collector);
+		// We had elements but now they have been filtered out.  Hopefully
+		// we can explain this.
+		if (elements.isEmpty()) {
+			if (emptyExplanationString != null)
+				return emptyExplanation(emptyExplanationSeverity, emptyExplanationString, emptyExplanationDescription);
+			// We filtered out content but never explained it.  Ideally this doesn't happen if
+			// all wrappers explain any filtering.
+			return emptyExplanation(emptyExplanationSeverity, ProvUIMessages.QueriedElementWrapper_NoItemsExplanation, null);
+		}
+		return elements;
+	}
+
+	Collection emptyExplanation(int severity, String explanationString, String explanationDescription) {
+		ArrayList collection = new ArrayList(1);
+		collection.add(new EmptyElementExplanation(parent, severity, explanationString, explanationDescription));
+		return collection;
 	}
 }
