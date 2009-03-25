@@ -189,7 +189,11 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (!selection.isEmpty()) {
 			final Object selected = selection.getFirstElement();
 			if (selected instanceof RollbackProfileElement) {
+				Object[] elements = configContentsViewer.getExpandedElements();
+				configContentsViewer.getTree().setRedraw(false);
 				configContentsViewer.setInput(selected);
+				configContentsViewer.setExpandedElements(elements);
+				configContentsViewer.getTree().setRedraw(true);
 				revertAction.setEnabled(true);
 				return;
 			}

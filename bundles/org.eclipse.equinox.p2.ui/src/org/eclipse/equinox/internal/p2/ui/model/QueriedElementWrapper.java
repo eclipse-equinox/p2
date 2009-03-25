@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.osgi.util.NLS;
@@ -80,7 +81,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 				IUViewQueryContext context = element.getQueryContext();
 				if (context == null)
 					context = element.getPolicy().getQueryContext();
-				if (!(parent instanceof IIUElement)) {
+				if (parent instanceof MetadataRepositoryElement || parent instanceof MetadataRepositories) {
 					if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
 						return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());
 					}
