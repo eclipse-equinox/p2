@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.NLS;
 public class MirrorRequest extends ArtifactRequest {
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
-	private final IArtifactRepository target;
+	protected final IArtifactRepository target;
 
 	private final Properties targetDescriptorProperties;
 	private final Properties targetRepositoryProperties;
@@ -145,7 +145,7 @@ public class MirrorRequest extends ArtifactRequest {
 	 * @param monitor
 	 * @return the status of the transfer operation
 	 */
-	private IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
+	protected IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
 		IStatus status = Status.OK_STATUS;
 		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
 		// TODO this needs to be redone with a much better mirror management scheme.
@@ -166,7 +166,7 @@ public class MirrorRequest extends ArtifactRequest {
 		IStatus status = null;
 		// Do the actual transfer
 		try {
-			status = getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
+			status = getArtifact(sourceDescriptor, destination, monitor);
 			if (destination instanceof IStateful && status != null && !status.isOK()) {
 				IStatus destStatus = ((IStateful) destination).getStatus();
 				IStatus root = extractRootCause(status);
@@ -188,6 +188,10 @@ public class MirrorRequest extends ArtifactRequest {
 			}
 		}
 		return status;
+	}
+
+	protected IStatus getArtifact(IArtifactDescriptor sourceDescriptor, OutputStream destination, IProgressMonitor monitor) {
+		return getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
 	}
 
 	/**

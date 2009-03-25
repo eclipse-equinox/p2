@@ -1309,6 +1309,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 				return source.getRawArtifact(descriptor, destination, monitor);
 			}
+
+			public synchronized boolean contains(IArtifactDescriptor descriptor) {
+				return source.contains(descriptor);
+			}
 		}
 
 		//set up test repository

@@ -54,6 +54,11 @@ public class Messages extends NLS {
 	public static String exception_unsupportedRemoveFromComposite;
 
 	public static String Mirroring_NO_MATCHING_DESCRIPTOR;
+	public static String Mirroring_MISSING_DESCRIPTOR;
+	public static String Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY;
+
+	public static String Mirroring_ValidationError;
+	public static String Mirroring_compareAndDownload;
 
 	static {
 		// initialize resource bundles

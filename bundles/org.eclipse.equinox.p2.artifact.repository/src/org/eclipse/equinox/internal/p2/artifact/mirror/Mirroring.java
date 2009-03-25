@@ -11,11 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.mirror;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -30,6 +28,7 @@ public class Mirroring {
 	private IArtifactRepository baseline;
 	private boolean raw;
 	private boolean compare = false;
+	private boolean validate = false;
 	private IArtifactComparator comparator;
 	private String comparatorID;
 	private IArtifactKey[] keysToMirror;
@@ -58,6 +57,10 @@ public class Mirroring {
 		this.baseline = baseline;
 	}
 
+	public void setValidate(boolean validate) {
+		this.validate = validate;
+	}
+
 	public MultiStatus run(boolean failOnError, boolean verbose) {
 		if (!destination.isModifiable())
 			throw new IllegalStateException(NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
@@ -78,69 +81,50 @@ public class Mirroring {
 					return multiStatus;
 			}
 		}
+		if (validate) {
+			// Simple validation of the mirror
+			IStatus validation = validateMirror(verbose);
+			if (!validation.isOK() && (verbose || validation.getSeverity() == IStatus.ERROR))
+				multiStatus.add(validation);
+		}
 		return multiStatus;
 	}
 
 	private IStatus mirror(IArtifactDescriptor descriptor, boolean verbose) {
 		IArtifactDescriptor newDescriptor = raw ? descriptor : new ArtifactDescriptor(descriptor);
-		try {
-			OutputStream output = null;
-			try {
-				if (verbose)
-					System.out.println("Mirroring: " + descriptor.getArtifactKey() + " (Descriptor: " + descriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-				if (compare && baseline != null)
-					if (baseline.contains(descriptor)) {
-						// we have to create an output stream based on the descriptor found in the baseline otherwise all
-						// the properties will be copied over from the wrong descriptor and our repository will be inconsistent.
-						IArtifactDescriptor baselineDescriptor = null;
-						IArtifactDescriptor[] baselineDescriptors = baseline.getArtifactDescriptors(descriptor.getArtifactKey());
-						for (int i = 0; baselineDescriptor == null && i < baselineDescriptors.length; i++) {
-							if (baselineDescriptors[i].equals(descriptor))
-								baselineDescriptor = baselineDescriptors[i];
-						}
+		if (verbose)
+			System.out.println("Mirroring: " + descriptor.getArtifactKey() + " (Descriptor: " + descriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-						// if we found a descriptor in the baseline then we'll use it to copy the artifact
-						if (baselineDescriptor != null) {
-							MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, "Compare and download of " + descriptor + " from baseline", null);
-							//Compare source against baseline
-							status.add(getComparator().compare(baseline, baselineDescriptor, source, descriptor));
-							try {
-								output = destination.getOutputStream(baselineDescriptor);
-								//download artifact from baseline
-								status.add(downloadArtifact(baseline, baselineDescriptor, output));
-								return status;
-							} catch (ProvisionException e) {
-								if (e.getStatus().getCode() == ProvisionException.ARTIFACT_EXISTS)
-									return compareToDestination(baselineDescriptor, e);
-								//if exception is unexpected, propagate it.
-								throw e;
-							}
-						}
-					}
+		if (compare && baseline != null)
+			if (baseline.contains(descriptor)) {
+				// we have to create an output stream based on the descriptor found in the baseline otherwise all
+				// the properties will be copied over from the wrong descriptor and our repository will be inconsistent.
+				IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(descriptor);
 
-				output = destination.getOutputStream(newDescriptor);
-				return downloadArtifact(source, descriptor, output);
+				// if we found a descriptor in the baseline then we'll use it to copy the artifact
+				if (baselineDescriptor != null) {
+					MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.Mirroring_compareAndDownload, descriptor), null);
+					//Compare source against baseline
+					status.add(getComparator().compare(baseline, baselineDescriptor, source, descriptor));
+					if (destination.contains(baselineDescriptor))
+						return compareToDestination(baselineDescriptor);
 
-			} finally {
-				if (output != null) {
-					try {
-						output.close();
-					} catch (IOException e) {
-						// ignore
-					}
+					//download artifact from baseline
+					status.add(downloadArtifact(baseline, baselineDescriptor, baselineDescriptor));
+					return status;
 				}
 			}
-		} catch (ProvisionException e) {
-			//This code means the artifact already exists in the target. This is expected.
-			if (e.getStatus().getCode() == ProvisionException.ARTIFACT_EXISTS) {
-				if (compare)
-					return compareToDestination(descriptor, e);
-				String message = NLS.bind(Messages.mirror_alreadyExists, descriptor, destination);
-				return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, null);
-			}
-			return e.getStatus();
+
+		// Check if the destination already contains the file. 
+		if (destination.contains(newDescriptor)) {
+			if (compare)
+				return compareToDestination(descriptor);
+			String message = NLS.bind(Messages.mirror_alreadyExists, descriptor, destination);
+			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, null);
 		}
+
+		return downloadArtifact(source, newDescriptor, descriptor);
 	}
 
 	/**
@@ -149,10 +133,9 @@ public class Mirroring {
 	 * 
 	 * Callers should verify the ProvisionException was thrown due to the artifact existing in the destination before invoking this method.
 	 * @param descriptor
-	 * @param e
 	 * @return the status of the compare
 	 */
-	private IStatus compareToDestination(IArtifactDescriptor descriptor, ProvisionException e) {
+	private IStatus compareToDestination(IArtifactDescriptor descriptor) {
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor.getArtifactKey());
 		IArtifactDescriptor destDescriptor = null;
 		for (int i = 0; destDescriptor == null && i < destDescriptors.length; i++) {
@@ -160,21 +143,116 @@ public class Mirroring {
 				destDescriptor = destDescriptors[i];
 		}
 		if (destDescriptor == null)
-			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, e);
+			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, null);
 		return getComparator().compare(source, descriptor, destination, destDescriptor);
 	}
 
-	private IStatus downloadArtifact(IArtifactRepository repo, IArtifactDescriptor descriptor, OutputStream output) {
-		IStatus status = Status.OK_STATUS;
-		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
-		// TODO this needs to be redone with a much better mirror management scheme.
-		do {
-			status = repo.getRawArtifact(descriptor, output, new NullProgressMonitor());
-		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
-		return status;
+	/*
+	 * Create, and execute a MirrorRequest for a given descriptor.
+	 */
+	private IStatus downloadArtifact(IArtifactRepository sourceRepo, IArtifactDescriptor destDescriptor, IArtifactDescriptor srcDescriptor) {
+		RawMirrorRequest request = new RawMirrorRequest(srcDescriptor, destDescriptor, destination);
+		request.setSourceRepository(sourceRepo);
+
+		request.perform(new NullProgressMonitor());
+
+		return request.getResult();
 	}
 
 	public void setArtifactKeys(IArtifactKey[] keys) {
 		this.keysToMirror = keys;
+	}
+
+	/*
+	 *  Get the equivalent descriptor from the baseline repository
+	 */
+	private IArtifactDescriptor getBaselineDescriptor(IArtifactDescriptor descriptor) {
+		IArtifactDescriptor[] baselineDescriptors = baseline.getArtifactDescriptors(descriptor.getArtifactKey());
+		for (int i = 0; i < baselineDescriptors.length; i++) {
+			if (baselineDescriptors[i].equals(descriptor))
+				return baselineDescriptors[i];
+		}
+		return null;
+	}
+
+	/* 
+	 * Simple validation of a mirror to see if all source descriptors are present in the destination
+	 */
+	private IStatus validateMirror(boolean verbose) {
+		MultiStatus status = new MultiStatus(Activator.ID, 0, Messages.Mirroring_ValidationError, null);
+
+		// The keys that were mirrored in this session
+		IArtifactKey[] keys = keysToMirror == null ? source.getArtifactKeys() : keysToMirror;
+
+		for (int i = 0; i < keys.length; i++) {
+			IArtifactDescriptor[] srcDescriptors = source.getArtifactDescriptors(keys[i]);
+			IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(keys[i]);
+
+			Arrays.sort(srcDescriptors, new ArtifactDescriptorComparator());
+			Arrays.sort(destDescriptors, new ArtifactDescriptorComparator());
+
+			int src = 0;
+			int dest = 0;
+			while (src < srcDescriptors.length && dest < destDescriptors.length) {
+				if (!destDescriptors[dest].equals(srcDescriptors[src])) {
+					if (destDescriptors[dest].toString().compareTo((srcDescriptors[src].toString())) > 0) {
+						// Missing an artifact
+						if (verbose)
+							System.out.println(NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src]));
+						status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src++])));
+					} else {
+						// Its okay if there are extra descriptors in the destination
+						dest++;
+					}
+				} else {
+					// check properties for differences
+					Map destMap = destDescriptors[dest].getProperties();
+					Map srcProperties = null;
+					if (baseline != null) {
+						IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(destDescriptors[dest]);
+						if (baselineDescriptor != null)
+							srcProperties = baselineDescriptor.getProperties();
+					}
+					// Baseline not set, or could not find descriptor so we'll use the source descriptor
+					if (srcProperties == null)
+						srcProperties = srcDescriptors[src].getProperties();
+
+					// Cycle through properties of the originating descriptor & compare
+					for (Iterator iter = srcProperties.keySet().iterator(); iter.hasNext();) {
+						String key = (String) iter.next();
+						if (!srcProperties.get(key).equals(destMap.get(key))) {
+							if (verbose)
+								System.out.println(NLS.bind(Messages.Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));
+							status.add(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)})));
+						}
+					}
+					src++;
+					dest++;
+				}
+			}
+
+			// If there are still source descriptors they're missing from the destination repository 
+			while (src < srcDescriptors.length) {
+				if (verbose)
+					System.out.println(NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src]));
+				status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src++])));
+			}
+		}
+
+		return status;
+	}
+
+	// Simple comparator for ArtifactDescriptors
+	protected class ArtifactDescriptorComparator implements Comparator {
+
+		public int compare(Object arg0, Object arg1) {
+			if (arg0 != null && arg1 != null)
+				return arg0.toString().compareTo(arg1.toString());
+			else if (arg1 == null && arg0 == null)
+				return 0;
+			else if (arg1 == null)
+				return 1;
+			return -1;
+		}
 	}
 }
