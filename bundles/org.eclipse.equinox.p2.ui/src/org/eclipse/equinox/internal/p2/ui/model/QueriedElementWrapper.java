@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -64,7 +63,9 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 		emptyExplanationDescription = null;
 		if (collector.isEmpty()) {
 			// Before we are even filtering out items, there is nothing in the collection.
-			// All we can do is look for the most common reasons and guess.
+			// All we can do is look for the most common reasons and guess.  If the collection
+			// is empty and the parent is an IU, then being empty is not a big deal, it means
+			// we are in drilldown.
 			if (parent instanceof MetadataRepositoryElement) {
 				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
 				if (ProvUI.hasNotFoundStatusBeenReported(repo.getLocation())) {
@@ -79,11 +80,15 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 				IUViewQueryContext context = element.getQueryContext();
 				if (context == null)
 					context = element.getPolicy().getQueryContext();
-				if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
-					return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());
+				if (!(parent instanceof IIUElement)) {
+					if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
+						return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());
+					}
+					return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoItemsExplanation, null);
 				}
-				return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoItemsExplanation, null);
 			}
+			// It is empty, but the parent is an IU, so this could be a drilldown.
+			return Collections.EMPTY_LIST;
 		}
 		Collection elements = super.getElements(collector);
 		// We had elements but now they have been filtered out.  Hopefully
