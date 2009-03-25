@@ -11,7 +11,9 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.query.CategoryElementWrapper;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -41,8 +43,10 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		CategoryElementWrapper wrapper = createWrapper();
 		Collector collector = new Collector();
 		collector.accept("AnObjectThatIsNotAnIU");
-		Collection results = wrapper.getElements(collector);
-		assertTrue("1.0", results.isEmpty());
+		Iterator results = wrapper.getElements(collector).iterator();
+		// Collection should either be empty or explain its emptiness.
+		while (results.hasNext())
+			assertTrue("1.0", results.next() instanceof EmptyElementExplanation);
 	}
 
 	/**
