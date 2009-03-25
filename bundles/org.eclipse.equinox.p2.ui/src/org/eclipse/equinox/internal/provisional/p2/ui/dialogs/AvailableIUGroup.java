@@ -467,6 +467,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				break;
 			default :
 				repositoryFilter = repoLocation;
+				break;
 		}
 		updateAvailableViewState();
 		filteredTree.clearCheckStateCache();

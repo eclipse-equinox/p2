@@ -135,12 +135,15 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(existing);
 		metadataRepositoryManager.addRepository(nonExisting);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
-		assertTrue("1.0", !manager.areRepositoriesLoaded());
+		// not loaded yet
+		assertFalse("1.0", manager.areRepositoriesLoaded());
 
 		manager.loadAll(getMonitor());
 
-		//false because the non-existent repository is not loaded
-		assertTrue("1.1", !manager.areRepositoriesLoaded());
+		// the repositories have been loaded.  Because the non-existent 
+		// repository has been noticed and recorded as missing, it
+		// does not count "not loaded."
+		assertTrue("1.1", manager.areRepositoriesLoaded());
 	}
 
 	public void testQuery() {

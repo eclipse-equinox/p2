@@ -127,4 +127,39 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return true;
 	}
 
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof CategoryElement))
+			return false;
+		IInstallableUnit myIU = getIU();
+		IInstallableUnit objIU = ((CategoryElement) obj).getIU();
+		if (myIU == null || objIU == null)
+			return false;
+		return getMergeKey(myIU).equals(getMergeKey(objIU));
+	}
+
+	public int hashCode() {
+		IInstallableUnit iu = getIU();
+		final int prime = 23;
+		int result = 1;
+		result = prime * result + ((iu == null) ? 0 : getMergeKey(iu).hashCode());
+		return result;
+	}
+
+	public String toString() {
+		IInstallableUnit iu = getIU();
+		if (iu == null)
+			return "NULL"; //$NON-NLS-1$
+		StringBuffer result = new StringBuffer();
+		result.append("Category Element - "); //$NON-NLS-1$
+		result.append(getMergeKey(iu));
+		result.append(" (merging IUs: "); //$NON-NLS-1$
+		result.append(ius.toString());
+		result.append(")"); //$NON-NLS-1$
+		return result.toString();
+	}
+
 }

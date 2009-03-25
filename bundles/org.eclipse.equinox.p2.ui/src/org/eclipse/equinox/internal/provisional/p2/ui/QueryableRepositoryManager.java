@@ -168,8 +168,10 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	}
 
 	/**
-	 * Return a boolean indicating whether the repositories to be queried
-	 * are already loaded.
+	 * Return a boolean indicating whether all the repositories that
+	 * can be queried by the receiver are already loaded.  If a repository
+	 * is not loaded because it was not found, this will not return false,
+	 * because this repository cannot be queried.
 	 * 
 	 * @return <code>true</code> if all repositories to be queried by the
 	 * receiver are loaded, <code>false</code> if they
@@ -182,7 +184,8 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		URI[] repoURIs = getRepoLocations(mgr);
 		for (int i = 0; i < repoURIs.length; i++) {
 			IRepository repo = getRepository(mgr, repoURIs[i]);
-			if (repo == null)
+			// A not-loaded repo doesn't count if it's considered missing (not found)
+			if (repo == null && !ProvUI.hasNotFoundStatusBeenReported(repoURIs[i]))
 				return false;
 		}
 		return true;

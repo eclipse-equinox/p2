@@ -1,7 +1,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -22,7 +21,8 @@ import org.eclipse.ui.progress.WorkbenchJob;
  * FilteredTree extension that creates a ContainerCheckedTreeViewer, manages the
  * check state across filtering (working around bugs in ContainerCheckedTreeViewer),
  * and preloads all metadata repositories before allowing filtering, in order to 
- * coordinate background fetch and filtering.
+ * coordinate background fetch and filtering.  It also manages a cache of expanded
+ * elements that can survive a change of input.
  * 
  * @since 3.4
  *
@@ -42,6 +42,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	boolean ignoreFiltering = true;
 	Object viewerInput;
 	ArrayList checkState = new ArrayList();
+	Set expanded = new HashSet();
 	ContainerCheckedTreeViewer checkboxViewer;
 
 	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter) {
@@ -103,12 +104,15 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// Cancel any filtering
 				cancelAndResetFilterJob();
 				contentProvider.setSynchronous(false);
+				// Remember any previous expansions
+				rememberExpansions();
 				// If there are remembered check states, try to restore them.
 				// Must be done in an async because we are in the middle of a buggy
 				// selection preserving viewer refresh.
 				display.asyncExec(new Runnable() {
 					public void run() {
 						restoreLeafCheckState();
+						restoreExpansions();
 					}
 				});
 			}
@@ -177,7 +181,12 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				if (event.getResult().isOK()) {
 					display.asyncExec(new Runnable() {
 						public void run() {
+							// remember things expanded by the filter
+							rememberExpansions();
 							restoreLeafCheckState();
+							// now restore expansions because we may have
+							// had others
+							restoreExpansions();
 						}
 					});
 				}
@@ -244,7 +253,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		if (checkState == null)
 			checkState = new ArrayList(checked.length);
 		for (int i = 0; i < checked.length; i++)
-			if (!v.getGrayed(checked[i]))
+			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0)
 				if (!checkState.contains(checked[i]))
 					checkState.add(checked[i]);
 	}
@@ -270,6 +279,18 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		// We are only firing one event, knowing that this is enough for our listeners.
 		if (element != null)
 			checkboxViewer.fireCheckStateChanged(element, true);
+	}
+
+	void rememberExpansions() {
+		// The expansions are additive, but we are using a set to keep out
+		// duplicates.  In practice, this means expanded items from different
+		// inputs will remain expanded, such as categories with the same name
+		// in different repos.
+		expanded.addAll(Arrays.asList(getViewer().getExpandedElements()));
+	}
+
+	void restoreExpansions() {
+		getViewer().setExpandedElements(expanded.toArray());
 	}
 
 	public ContainerCheckedTreeViewer getCheckboxTreeViewer() {

@@ -228,4 +228,15 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return ((QueriedElement) parent).getPolicy();
 		return Policy.getDefault();
 	}
+
+	public String toString() {
+		StringBuffer result = new StringBuffer();
+		result.append("Metadata Repository Element - "); //$NON-NLS-1$
+		result.append(URIUtil.toUnencodedString(location));
+		if (hasQueryable())
+			result.append(" (loaded)"); //$NON-NLS-1$
+		else
+			result.append(" (not loaded)"); //$NON-NLS-1$
+		return result.toString();
+	}
 }
