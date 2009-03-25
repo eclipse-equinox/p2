@@ -109,10 +109,14 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// If there are remembered check states, try to restore them.
 				// Must be done in an async because we are in the middle of a buggy
 				// selection preserving viewer refresh.
+				checkboxViewer.getTree().setRedraw(false);
 				display.asyncExec(new Runnable() {
 					public void run() {
+						rememberExpansions();
 						restoreLeafCheckState();
+						rememberExpansions();
 						restoreExpansions();
+						checkboxViewer.getTree().setRedraw(true);
 					}
 				});
 			}
@@ -181,12 +185,14 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				if (event.getResult().isOK()) {
 					display.asyncExec(new Runnable() {
 						public void run() {
+							checkboxViewer.getTree().setRedraw(false);
 							// remember things expanded by the filter
 							rememberExpansions();
 							restoreLeafCheckState();
 							// now restore expansions because we may have
 							// had others
 							restoreExpansions();
+							checkboxViewer.getTree().setRedraw(true);
 						}
 					});
 				}
