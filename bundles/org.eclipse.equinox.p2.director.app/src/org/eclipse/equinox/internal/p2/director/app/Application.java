@@ -410,20 +410,27 @@ public class Application implements IApplication {
 						return EXIT_ERROR;
 					}
 					// keep this result status in case there is a problem so we can report it to the user
-					IStatus updateRoamStatus = updateRoamingProperties(profile);
-					if (!updateRoamStatus.isOK()) {
-						MultiStatus multi = new MultiStatus(Activator.ID, IStatus.ERROR, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null);
-						multi.add(updateRoamStatus);
-						LogHelper.log(multi);
-						System.out.println(multi.getMessage());
-						System.out.println(updateRoamStatus.getMessage());
-						return EXIT_ERROR;
+					boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();
+					try {
+						IStatus updateRoamStatus = updateRoamingProperties(profile);
+						if (!updateRoamStatus.isOK()) {
+							MultiStatus multi = new MultiStatus(Activator.ID, IStatus.ERROR, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null);
+							multi.add(updateRoamStatus);
+							LogHelper.log(multi);
+							System.out.println(multi.getMessage());
+							System.out.println(updateRoamStatus.getMessage());
+							return EXIT_ERROR;
+						}
+						ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
+						context.setArtifactRepositories(artifactRepositoryLocations);
+						ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
+						printRequest(request);
+						operationStatus = planAndExecute(profile, context, request);
+					} finally {
+						// if we were originally were set to be roaming and we changed it, change it back before we return
+						if (wasRoaming && !Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+							setRoaming(profile);
 					}
-					ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
-					context.setArtifactRepositories(artifactRepositoryLocations);
-					ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
-					printRequest(request);
-					operationStatus = planAndExecute(profile, context, request);
 					break;
 				case COMMAND_LIST :
 					query = new InstallableUnitQuery(null, VersionRange.emptyRange);
@@ -566,12 +573,31 @@ public class Application implements IApplication {
 		if (request.getProfileProperties().size() == 0)
 			return Status.OK_STATUS;
 
+		// otherwise we have to make a change so set the profile to be non-roaming so the 
+		// values don't get recalculated to the wrong thing if we are flushed from memory - we
+		// will set it back later (see bug 269468)
+		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
+
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
+		return engine.perform(profile, new PhaseSet(new Phase[] {new Property(1)}) {}, result.getOperands(), context, new NullProgressMonitor());
+	}
+
+	/*
+	 * Set the roaming property on the given profile.
+	 */
+	private IStatus setRoaming(IProfile profile) {
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
+		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		context.setArtifactRepositories(new URI[0]);
+		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		if (!result.getStatus().isOK())
+			return result.getStatus();
 		return engine.perform(profile, new PhaseSet(new Phase[] {new Property(1)}) {}, result.getOperands(), context, new NullProgressMonitor());
 	}
 

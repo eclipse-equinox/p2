@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.InputSource;
@@ -34,6 +35,8 @@ import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry {
 
+	private static boolean DEBUG = isDebugging();
+	private static final String OPTION_DEBUG = EngineActivator.ID + "/profileregistry/debug"; //$NON-NLS-1$
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
@@ -63,6 +66,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		this.updateSelfProfile = updateSelfProfile;
 	}
 
+	private static boolean isDebugging() {
+		DebugOptions service = (DebugOptions) ServiceHelper.getService(EngineActivator.getContext(), DebugOptions.class.getName());
+		if (service == null)
+			return false;
+		return service.getBooleanOption(OPTION_DEBUG, false);
+	}
+
 	private static File getDefaultRegistryDirectory() {
 		File registryDirectory = null;
 		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
@@ -90,6 +100,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (selfProfile == null)
 			return;
 
+		debug("SimpleProfileRegistry.updateSelfProfile", false); //$NON-NLS-1$
 		boolean changed = false;
 		//only update if self is a roaming profile
 		if (Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
@@ -103,6 +114,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private boolean updateRoamingProfile(Profile selfProfile) {
+		debug("SimpleProfileRegistry.updateRoamingProfile", false); //$NON-NLS-1$
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
@@ -114,6 +126,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
+		debug("SimpleProfileRegistry.updateRoamingProfile(changed=" + changed + ')', false); //$NON-NLS-1$
 		return changed;
 	}
 
@@ -402,6 +415,19 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return latest;
 	}
 
+	private void debug(String message, boolean includeStack) {
+		if (!DEBUG)
+			return;
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("[SimpleProfileRegistry] "); //$NON-NLS-1$
+		buffer.append(new Date(System.currentTimeMillis()));
+		buffer.append(" - ["); //$NON-NLS-1$
+		buffer.append(Thread.currentThread().getName());
+		buffer.append("] "); //$NON-NLS-1$
+		buffer.append(message);
+		LogHelper.log(new Status(IStatus.INFO, EngineActivator.ID, buffer.toString(), includeStack ? new RuntimeException("[SimpleProfileRegistry] This exception is expected.") : null)); //$NON-NLS-1$
+	}
+
 	private void saveProfile(Profile profile) {
 		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
 		profileDirectory.mkdir();
@@ -411,6 +437,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (currentTimestamp <= previousTimestamp)
 			currentTimestamp = previousTimestamp + 1;
 		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
+
+		// Log a stack trace to see who is writing the profile.
+		debug("Saving profile to: " + profileFile.getAbsolutePath(), false); //$NON-NLS-1$
 
 		profile.setTimestamp(currentTimestamp);
 		profile.setChanged(false);
@@ -617,8 +646,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		boolean isCurrent = false;
 		try {
-			if (profile.isChanged() || !checkTimestamps(profile, internalProfile))
+			if (profile.isChanged()) {
+				debug("Profile is marked as changed.", false); //$NON-NLS-1$
 				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
+			}
+			if (!checkTimestamps(profile, internalProfile)) {
+				debug("Unexpected timestamp difference in profile.", false); //$NON-NLS-1$
+				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
+			}
 			isCurrent = true;
 		} finally {
 			// this check is done here to ensure we unlock even if a runtime exception is thrown
@@ -651,11 +686,16 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
-		if (profile.getTimestamp() != internalProfile.getTimestamp())
+		if (profile.getTimestamp() != internalProfile.getTimestamp()) {
+			debug("check timestamp: expected.1 " + profile.getTimestamp() + " but was " + internalProfile.getTimestamp(), false); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
+		}
 
 		long[] timestamps = listProfileTimestamps(profile.getProfileId());
 		if (timestamps.length == 0 || profile.getTimestamp() != timestamps[timestamps.length - 1]) {
+			if (timestamps.length != 0) {
+				debug("check timestamp: expected.2 " + profile.getTimestamp() + " but was " + timestamps[timestamps.length - 1], false); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			resetProfiles();
 			return false;
 		}
