@@ -304,7 +304,13 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		}
 		setPageComplete(pageComplete);
 		setMessage(getMessageText(currentStatus), messageType);
-		detailsArea.setText(getDetailText());
+		// We usually want a generic top level message and resolution details in
+		// the details.  But when we have an operation in progress, there are no
+		// resolution details.
+		if (currentStatus.getCode() == IStatusCodes.OPERATION_ALREADY_IN_PROGRESS)
+			detailsArea.setText(currentStatus.getMessage());
+		else
+			detailsArea.setText(getDetailText());
 	}
 
 	public IStatus getCurrentStatus() {
@@ -321,6 +327,7 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		// We tried to resolve and it failed.  The specific error was already reported, so description
 		// text can be used for the selected IU.
 		if (couldNotResolve) {
+
 			if (iu != null) {
 				detail = getIUDescription(iu);
 				iuDetailsGroup.enablePropertyLink(true);
