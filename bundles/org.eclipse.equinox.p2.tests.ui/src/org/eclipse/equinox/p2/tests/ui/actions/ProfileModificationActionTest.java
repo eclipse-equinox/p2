@@ -28,6 +28,13 @@ public abstract class ProfileModificationActionTest extends ActionTest {
 		return new Object[] {element, child};
 	}
 
+	protected Object[] getNestedCategoriesAndChildIUElements() {
+		CategoryElement element = new CategoryElement(null, category);
+		CategoryElement nested = new CategoryElement(element, category);
+		AvailableIUElement child = new AvailableIUElement(nested, uninstalled, TESTPROFILE, true);
+		return new Object[] {element, nested, child};
+	}
+
 	protected IInstallableUnit[] getTopLevelIUs() {
 		return new IInstallableUnit[] {top1, top2};
 	}
