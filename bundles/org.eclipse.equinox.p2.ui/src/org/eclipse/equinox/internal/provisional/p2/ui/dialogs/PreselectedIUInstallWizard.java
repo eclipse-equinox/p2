@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,46 +14,50 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.swt.widgets.Composite;
 
 /**
- * An install wizard that allows the users to browse all of the repositories
- * and search/select for items to install.
+ * An Install wizard that is invoked when the user has already selected which
+ * IUs should be installed and does not need to browse the available software.
  * 
- * @since 3.4
+ * @since 3.5
  */
-public class InstallWizard extends WizardWithLicenses {
+public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
+	ISelectableIUsPage mainPage;
 	QueryableMetadataRepositoryManager manager;
-	AvailableIUsPage mainPage;
 
-	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
-		super(policy, profileId, null, initialSelections, initialResolution);
+	static IUElementListRoot makeElementRoot(IInstallableUnit[] ius, String profileId) {
+		IUElementListRoot elementRoot = new IUElementListRoot();
+		Object[] elements = new Object[ius.length];
+		for (int i = 0; i < ius.length; i++) {
+			if (ius[i] != null)
+				elements[i] = new AvailableIUElement(elementRoot, ius[i], profileId, false);
+		}
+		elementRoot.setChildren(elements);
+		return elementRoot;
+	}
+
+	public PreselectedIUInstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
+		super(policy, profileId, makeElementRoot(initialSelections, profileId), initialSelections, initialResolution);
 		this.manager = manager;
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
 	}
 
-	public InstallWizard(Policy policy, String profileId) {
-		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy.getQueryContext(), false));
+	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
+		mainPage = new SelectableIUsPage(policy, input, selections, profileId);
+		mainPage.setTitle(ProvUIMessages.PreselectedIUInstallWizard_Title);
+		mainPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
+		return mainPage;
 	}
 
 	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
 		return new InstallWizardPage(policy, profileId, input, initialResolution);
-	}
-
-	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new AvailableIUsPage(policy, profileId, manager);
-		if (selections != null && selections.length > 0)
-			mainPage.setInitialSelections(selections);
-		return mainPage;
-
 	}
 
 	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
@@ -66,25 +70,5 @@ public class InstallWizard extends WizardWithLicenses {
 		}
 		elementRoot.setChildren(list.toArray());
 		return elementRoot;
-	}
-
-	public void createPageControls(Composite pageContainer) {
-		super.createPageControls(pageContainer);
-		if (manager != null)
-			// async exec since we are in the middle of opening
-			pageContainer.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					manager.reportAccumulatedStatus();
-				}
-			});
-	}
-
-	public boolean performFinish() {
-		mainPage.performFinish();
-		return super.performFinish();
-	}
-
-	protected ProvisioningContext getProvisioningContext() {
-		return mainPage.getProvisioningContext();
 	}
 }

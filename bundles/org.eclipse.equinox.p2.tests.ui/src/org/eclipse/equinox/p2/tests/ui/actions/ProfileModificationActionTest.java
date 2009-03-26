@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 
@@ -20,6 +20,12 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 public abstract class ProfileModificationActionTest extends ActionTest {
 	protected IInstallableUnit[] getMixedIUs() {
 		return new IInstallableUnit[] {top1, top2, nested};
+	}
+
+	protected Object[] getCategoryAndChildIUElements() {
+		CategoryElement element = new CategoryElement(null, category);
+		AvailableIUElement child = new AvailableIUElement(element, uninstalled, TESTPROFILE, true);
+		return new Object[] {element, child};
 	}
 
 	protected IInstallableUnit[] getTopLevelIUs() {

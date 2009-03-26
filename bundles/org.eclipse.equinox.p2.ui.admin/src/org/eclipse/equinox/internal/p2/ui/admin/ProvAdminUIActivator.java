@@ -173,6 +173,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 				return null;
 			}
 		});
+		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, null));
 	}
 
 	public Policy getPolicy() {

@@ -94,6 +94,8 @@ public class ProvUIMessages extends NLS {
 	public static String InstallIUProgress;
 	public static String InstallWizardPage_NoCheckboxDescription;
 	public static String InstallWizardPage_Title;
+	public static String PreselectedIUInstallWizard_Title;
+	public static String PreselectedIUInstallWizard_Description;
 	public static String UninstallDialog_UninstallMessage;
 	public static String UninstallIUOperationLabel;
 	public static String UninstallIUCommandLabel;

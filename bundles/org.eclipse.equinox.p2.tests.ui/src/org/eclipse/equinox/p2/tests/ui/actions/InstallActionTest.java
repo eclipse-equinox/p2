@@ -63,6 +63,13 @@ public class InstallActionTest extends ProfileModificationActionTest {
 		assertEquals(2, action.getSelectedIUs().length);
 	}
 
+	public void testParentIsCategory() {
+		TestInstallAction action = new TestInstallAction(getCategoryAndChildIUElements());
+		assertTrue("Should be enabled", action.isEnabled());
+		// Only the non-category should be considered a selection
+		assertEquals(1, action.getSelectedIUs().length);
+	}
+
 	protected IIUElement element(IInstallableUnit iu) {
 		return new AvailableIUElement(null, iu, profile.getProfileId(), true);
 	}

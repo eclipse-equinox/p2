@@ -45,6 +45,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected static final String NESTEDIU = "NestedIU";
 	protected static final String LOCKEDIU = "LockedIU";
 	protected static final String UNINSTALLEDIU = "UninstalledIU";
+	protected static final String CATEGORYIU = "CategoryIU";
 	protected IMetadataRepositoryManager metaManager;
 	protected IArtifactRepositoryManager artifactManager;
 	protected URI testRepoLocation;
@@ -56,6 +57,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit locked;
 	protected IInstallableUnit upgrade;
 	protected IInstallableUnit uninstalled;
+	protected IInstallableUnit category;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -68,6 +70,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		install((locked = createIU(LOCKEDIU)), true, true);
 		uninstalled = createIU(UNINSTALLEDIU);
 		upgrade = createIU(TOPLEVELIU, new Version("2.0.0"));
+		category = createNamedIU(CATEGORYIU, CATEGORYIU, new Version("1.0.0"), true);
 
 		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());
 		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());

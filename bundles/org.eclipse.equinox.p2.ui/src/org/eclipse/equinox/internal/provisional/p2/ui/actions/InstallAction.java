@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
@@ -22,12 +23,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.PreselectedIUInstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
 
@@ -129,12 +131,12 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	/*
-	 * Overridden to reject nested IU's
+	 * Overridden to reject categories and nested IU's (parent is a non-category IU)
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isSelectable(org.eclipse.equinox.internal.p2.ui.model.IUElement)
 	 */
 	protected boolean isSelectable(IIUElement element) {
-		return super.isSelectable(element) && !(element.getParent(element) instanceof IIUElement);
+		return super.isSelectable(element) && !(element.getParent(element) instanceof AvailableIUElement);
 	}
 
 	protected String getTaskName() {
@@ -142,7 +144,7 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
-		InstallWizard wizard = new InstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy().getQueryContext(), false));
+		IWizard wizard = new PreselectedIUInstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy().getQueryContext(), false));
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
