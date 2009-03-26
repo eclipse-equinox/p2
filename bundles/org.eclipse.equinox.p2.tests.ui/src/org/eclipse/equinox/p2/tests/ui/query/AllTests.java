@@ -26,6 +26,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(LatestIUVersionElementWrapperTest.class);
 		suite.addTestSuite(QueryDescriptorTest.class);
 		suite.addTestSuite(QueryableMetadataRepositoryManagerTest.class);
+		// This must come after QueryableMetadataRepositoryManager or it causes side-effects in those tests.
+		suite.addTestSuite(QueryableArtifactRepositoryManagerTest.class);
 		return suite;
 	}
 }

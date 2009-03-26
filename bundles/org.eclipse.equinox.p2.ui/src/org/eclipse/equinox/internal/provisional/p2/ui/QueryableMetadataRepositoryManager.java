@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
@@ -89,5 +88,15 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 			}
 		}
 		return collector;
+	}
+
+	protected URI[] getRepoLocations(IRepositoryManager manager) {
+		Set locations = new HashSet();
+		int flags = queryContext.getMetadataRepositoryFlags();
+		locations.addAll(Arrays.asList(manager.getKnownRepositories(flags)));
+		if (includeDisabledRepos) {
+			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | flags)));
+		}
+		return (URI[]) locations.toArray(new URI[locations.size()]);
 	}
 }

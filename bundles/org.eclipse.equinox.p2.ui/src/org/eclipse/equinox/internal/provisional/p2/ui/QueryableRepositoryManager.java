@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -44,8 +45,8 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	private HashMap loaded = new HashMap();
 
 	private MultiStatus accumulatedNotFound = null;
-	private boolean includeDisabledRepos;
-	private IUViewQueryContext queryContext;
+	protected boolean includeDisabledRepos;
+	protected IUViewQueryContext queryContext;
 
 	public QueryableRepositoryManager(IUViewQueryContext queryContext, boolean includeDisabledRepos) {
 		this.includeDisabledRepos = includeDisabledRepos;
@@ -117,15 +118,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	/**
 	 * Returns an array of repository locations.
 	 */
-	private URI[] getRepoLocations(IRepositoryManager manager) {
-		Set locations = new HashSet();
-		int flags = queryContext.getMetadataRepositoryFlags();
-		locations.addAll(Arrays.asList(manager.getKnownRepositories(flags)));
-		if (includeDisabledRepos) {
-			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | flags)));
-		}
-		return (URI[]) locations.toArray(new URI[locations.size()]);
-	}
+	protected abstract URI[] getRepoLocations(IRepositoryManager manager);
 
 	protected void handleNotFound(ProvisionException e, URI missingRepo) {
 		// If we thought we had loaded it, get rid of the reference
