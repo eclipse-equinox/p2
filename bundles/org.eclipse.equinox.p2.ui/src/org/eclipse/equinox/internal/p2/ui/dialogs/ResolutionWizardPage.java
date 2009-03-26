@@ -281,7 +281,12 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
 		if (couldNotResolve) {
-			currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
+			// Check to see if another operation is in progress
+			if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
+				currentStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
+			} else {
+				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
+			}
 		} else {
 			currentStatus = resolvedOperation.getResolutionResult().getSummaryStatus();
 		}
@@ -291,21 +296,13 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 			if (severity == IStatus.ERROR) {
 				messageType = IMessageProvider.ERROR;
 				pageComplete = false;
-				// Log errors for later support, but not if these are 
-				// simple UI validation errors.
-				if (currentStatus.getCode() != IStatusCodes.EXPECTED_NOTHING_TO_DO)
+				// Log errors for later support, but not if these are UI level errors
+				if (currentStatus.getCode() != IStatusCodes.EXPECTED_NOTHING_TO_DO && currentStatus.getCode() != IStatusCodes.OPERATION_ALREADY_IN_PROGRESS)
 					ProvUI.reportStatus(currentStatus, StatusManager.LOG);
 			} else if (severity == IStatus.WARNING) {
 				messageType = IMessageProvider.WARNING;
 				// Log warnings for later support
 				ProvUI.reportStatus(currentStatus, StatusManager.LOG);
-			}
-		} else {
-			// Check to see if another operation is in progress
-			if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
-				messageType = IMessageProvider.ERROR;
-				currentStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
-				pageComplete = false;
 			}
 		}
 		setPageComplete(pageComplete);
