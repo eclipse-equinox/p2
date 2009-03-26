@@ -280,13 +280,10 @@ public abstract class ResolutionWizardPage extends ProvisioningWizardPage {
 			return;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
-		if (couldNotResolve) {
-			// Check to see if another operation is in progress
-			if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
-				currentStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
-			} else {
-				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
-			}
+		if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
+			currentStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
+		} else if (couldNotResolve) {
+			currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
 		} else {
 			currentStatus = resolvedOperation.getResolutionResult().getSummaryStatus();
 		}
