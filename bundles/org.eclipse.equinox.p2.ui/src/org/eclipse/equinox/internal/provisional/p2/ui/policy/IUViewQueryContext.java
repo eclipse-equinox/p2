@@ -141,10 +141,25 @@ public class IUViewQueryContext {
 		visibleInstalledIUProperty = propertyName;
 	}
 
+	/**
+	 * Set a boolean that indicates whether categories should be used when
+	 * viewing by repository.
+	 * 
+	 * useCategories <code>true</code> if a site in a sites view should expand into categories,
+	 * <code>false</code> if it should expand into IU's.
+	 */
+
 	public void setUseCategories(boolean useCategories) {
 		this.useCategories = useCategories;
 	}
 
+	/**
+	 * Return a boolean that indicates whether categories should be used when
+	 * viewing by repository.
+	 * 
+	 * @return <code>true</code> if a site in a sites view should expand into categories,
+	 * <code>false</code> if it should expand into IU's.
+	 */
 	public boolean getUseCategories() {
 		return useCategories;
 	}
@@ -187,5 +202,9 @@ public class IUViewQueryContext {
 
 	public void setUsingCategoriesDescription(String description) {
 		groupingCategoriesDescription = description;
+	}
+
+	public boolean shouldGroupByCategories() {
+		return view == AVAILABLE_VIEW_BY_CATEGORY || (view == AVAILABLE_VIEW_BY_REPO && useCategories);
 	}
 }

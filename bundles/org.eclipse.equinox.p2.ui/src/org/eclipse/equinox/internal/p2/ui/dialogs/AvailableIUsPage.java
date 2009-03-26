@@ -414,7 +414,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Set widgets according to query context
 		hideInstalledCheckbox.setSelection(queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
-		useCategoriesCheckbox.setSelection(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
+		useCategoriesCheckbox.setSelection(queryContext.shouldGroupByCategories());
 		availableIUGroup.updateAvailableViewState();
 		if (initialSelections != null)
 			availableIUGroup.setChecked(initialSelections);
