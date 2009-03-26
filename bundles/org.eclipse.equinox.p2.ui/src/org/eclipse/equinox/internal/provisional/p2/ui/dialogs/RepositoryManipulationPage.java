@@ -112,7 +112,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		CachedMetadataRepositories() {
 			super(policy);
-			setIncludeDisabledRepositories(true);
+			setIncludeDisabledRepositories(manipulator != null);
 		}
 
 		public int getQueryType() {
@@ -153,13 +153,15 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	protected Control createContents(Composite parent) {
 		display = parent.getDisplay();
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
+		// The help refers to the full-blown dialog.  No help if it's read only.
+		if (manipulator != null)
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
+		layout.numColumns = manipulator == null ? 1 : 2;
 		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
 		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
@@ -210,7 +212,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		pattern.setLayoutData(gd);
 
 		// spacer to fill other column
-		new Label(composite, SWT.NONE);
+		if (manipulator != null)
+			new Label(composite, SWT.NONE);
 
 		// Table of available repositories
 		repositoryViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -273,17 +276,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				validateButtons();
+				if (manipulator != null)
+					validateButtons();
 				setDetails();
 			}
 		});
 
 		// Input last
 		repositoryViewer.setInput(getInput());
-
-		DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
-		target.addDropListener(new RepositoryManipulatorDropTarget(getRepositoryManipulator(), table));
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
@@ -292,13 +292,29 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		data.heightHint = convertVerticalDLUsToPixels(HEIGHT_IN_DLUS);
 		table.setLayoutData(data);
 
-		// Vertical buttons
-		Composite verticalButtonBar = createVerticalButtonBar(composite);
-		data = new GridData(SWT.FILL, SWT.FILL, false, false);
-		data.verticalAlignment = SWT.TOP;
-		data.verticalIndent = 0;
-		verticalButtonBar.setLayoutData(data);
-		listener = getViewerProvisioningListener();
+		// Drop targets and vertical buttons only if repository manipulation is provided.
+		if (manipulator != null) {
+			DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+			target.addDropListener(new RepositoryManipulatorDropTarget(getRepositoryManipulator(), table));
+
+			// Vertical buttons
+			Composite verticalButtonBar = createVerticalButtonBar(composite);
+			data = new GridData(SWT.FILL, SWT.FILL, false, false);
+			data.verticalAlignment = SWT.TOP;
+			data.verticalIndent = 0;
+			verticalButtonBar.setLayoutData(data);
+			listener = getViewerProvisioningListener();
+
+			ProvUI.addProvisioningListener(listener);
+			composite.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent event) {
+					ProvUI.removeProvisioningListener(listener);
+				}
+			});
+
+			validateButtons();
+		}
 
 		// Details area
 		details = new Text(composite, SWT.READ_ONLY | SWT.WRAP);
@@ -307,14 +323,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		details.setLayoutData(data);
 
-		ProvUI.addProvisioningListener(listener);
-		composite.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent event) {
-				ProvUI.removeProvisioningListener(listener);
-			}
-		});
 		Dialog.applyDialogFont(composite);
-		validateButtons();
 		return composite;
 	}
 
@@ -346,7 +355,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	private void setTableColumns() {
 		table.setHeaderVisible(true);
-		String[] columnHeaders = {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle, ProvUIMessages.RepositoryManipulationPage_EnabledColumnTitle};
+		String[] columnHeaders;
+		if (manipulator != null)
+			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle, ProvUIMessages.RepositoryManipulationPage_EnabledColumnTitle};
+		else
+			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle};
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
