@@ -250,6 +250,8 @@ public class ProvUIMessages extends NLS {
 	public static String RevertDialog_Title;
 	public static String RevertProfileWizardPage_ErrorRetrievingHistory;
 	public static String RollbackProfileElement_InvalidSnapshot;
+	public static String SelectableIUsPage_Select_All;
+	public static String SelectableIUsPage_Deselect_All;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;

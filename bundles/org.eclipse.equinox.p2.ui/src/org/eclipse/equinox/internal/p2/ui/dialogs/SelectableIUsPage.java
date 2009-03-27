@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -20,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -105,7 +107,6 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				setPageComplete(tableViewer.getCheckedElements().length > 0);
 			}
-
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
@@ -121,13 +122,59 @@ public class SelectableIUsPage extends ProvisioningWizardPage implements ISelect
 		tableViewer.setLabelProvider(labelProvider);
 		setInitialCheckState();
 
+		// Select and Deselect All buttons
+		createSelectButtons(composite);
+
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), false);
+
 		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		setControl(sashForm);
 		sashForm.setWeights(new int[] {80, 20});
 		Dialog.applyDialogFont(sashForm);
+	}
+
+	private void createSelectButtons(Composite parent) {
+		Composite buttonParent = new Composite(parent, SWT.NONE);
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 3;
+		gridLayout.marginWidth = 0;
+		gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		buttonParent.setLayout(gridLayout);
+		GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+		buttonParent.setLayoutData(data);
+
+		Button selectAll = new Button(buttonParent, SWT.PUSH);
+		selectAll.setText(ProvUIMessages.SelectableIUsPage_Select_All);
+		setButtonLayoutData(selectAll);
+		selectAll.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				tableViewer.setAllChecked(true);
+				setPageComplete(tableViewer.getCheckedElements().length > 0);
+			}
+		});
+
+		Button deselectAll = new Button(buttonParent, SWT.PUSH);
+		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
+		setButtonLayoutData(deselectAll);
+		deselectAll.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				tableViewer.setAllChecked(false);
+				setPageComplete(tableViewer.getCheckedElements().length > 0);
+			}
+		});
+
+		// dummy to take extra space
+		Label dummy = new Label(buttonParent, SWT.NONE);
+		data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		dummy.setLayoutData(data);
+
+		// separator underneath
+		Label sep = new Label(buttonParent, SWT.HORIZONTAL | SWT.SEPARATOR);
+		data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+		data.horizontalSpan = 3;
+		sep.setLayoutData(data);
 	}
 
 	protected CheckboxTableViewer createTableViewer(Composite parent) {
