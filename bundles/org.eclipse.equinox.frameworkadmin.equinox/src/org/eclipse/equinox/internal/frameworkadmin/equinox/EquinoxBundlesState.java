@@ -703,7 +703,7 @@ public class EquinoxBundlesState implements BundlesState {
 	private BundleDescription getBundleByLocation(URI location) {
 		if (location == null)
 			return null;
-		return (BundleDescription) locationStateIndex.get(location.toString());
+		return (BundleDescription) locationStateIndex.get(location);
 	}
 
 	private BundleDescription getBundleByNameVersion(String bundleSymbolicName, String bundleVersion) {
