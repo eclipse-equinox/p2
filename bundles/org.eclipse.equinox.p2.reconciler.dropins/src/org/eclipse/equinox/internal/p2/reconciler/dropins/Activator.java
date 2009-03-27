@@ -43,11 +43,16 @@ public class Activator implements BundleActivator {
 	private static final String CONFIG_INI = "config.ini"; //$NON-NLS-1$
 	private static final String PLATFORM_CFG = "org.eclipse.update/platform.xml"; //$NON-NLS-1$
 	private static final String CACHE_FILENAME = "cache.timestamps"; //$NON-NLS-1$
+	private static final String DIR_ECLIPSE = "eclipse"; //$NON-NLS-1$
+	private static final String DIR_PLUGINS = "plugins"; //$NON-NLS-1$
+	private static final String DIR_FEATURES = "features"; //$NON-NLS-1$
+	private static final String EXT_LINK = ".link"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
 	private final static Set repositories = new HashSet();
+	private Collection filesToCheck = null;
 
 	/**
 	 * Helper method to create an extension location metadata repository at the given URI. 
@@ -143,8 +148,11 @@ public class Activator implements BundleActivator {
 
 		// check to see if there is really any work to do. Do this after setting the context, and
 		// doing other initialization in case others call our public methods later.
-		if (isUpToDate())
+		if (isUpToDate()) {
+			// clear the cache
+			filesToCheck = null;
 			return;
+		}
 
 		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
 			return;
@@ -167,6 +175,7 @@ public class Activator implements BundleActivator {
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
 		repositories.clear();
+		filesToCheck = null;
 	}
 
 	private void checkConfigIni() {
@@ -215,55 +224,22 @@ public class Activator implements BundleActivator {
 		if (timestamps.isEmpty())
 			return false;
 
-		// check platform.xml
-		File configuration = getConfigurationLocation();
-		if (configuration != null) {
-			File platformXML = new File(configuration, PLATFORM_CFG);
-			if (!Long.toString(platformXML.lastModified()).equals(timestamps.getProperty(platformXML.getAbsolutePath())))
+		// gather the list of files/folders that we need to check
+		Collection files = getFilesToCheck();
+		for (Iterator iter = files.iterator(); iter.hasNext();) {
+			File file = (File) iter.next();
+			String key = file.getAbsolutePath();
+			String timestamp = timestamps.getProperty(key);
+			if (timestamp == null)
 				return false;
-			// the plugins and features directories are always siblings to the configuration directory
-			File parent = configuration.getParentFile();
-			if (parent != null) {
-				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
-				if (!Long.toString(plugins.lastModified()).equals(timestamps.getProperty(plugins.getAbsolutePath())))
-					return false;
-				File features = new File(parent, "features"); //$NON-NLS-1$
-				if (!Long.toString(features.lastModified()).equals(timestamps.getProperty(features.getAbsolutePath())))
-					return false;
-			}
+			if (!Long.toString(file.lastModified()).equals(timestamp))
+				return false;
+			timestamps.remove(key);
 		}
 
-		// if we are in shared mode then check the timestamps of the parent configuration
-		File parentConfiguration = getParentConfigurationLocation();
-		if (parentConfiguration != null) {
-			File platformXML = new File(parentConfiguration, PLATFORM_CFG);
-			if (!Long.toString(platformXML.lastModified()).equals(timestamps.getProperty(platformXML.getAbsolutePath())))
-				return false;
-			// the plugins and features directories are always siblings to the configuration directory
-			File parent = parentConfiguration.getParentFile();
-			if (parent != null) {
-				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
-				if (!Long.toString(plugins.lastModified()).equals(timestamps.getProperty(plugins.getAbsolutePath())))
-					return false;
-				File features = new File(parent, "features"); //$NON-NLS-1$
-				if (!Long.toString(features.lastModified()).equals(timestamps.getProperty(features.getAbsolutePath())))
-					return false;
-			}
-		}
-
-		// check dropins folders
-		File[] dropins = getDropinsDirectories();
-		for (int i = 0; i < dropins.length; i++) {
-			if (!Long.toString(dropins[i].lastModified()).equals(timestamps.getProperty(dropins[i].getAbsolutePath())))
-				return false;
-		}
-		// check links folder
-		File[] links = getLinksDirectories();
-		for (int i = 0; i < links.length; i++) {
-			if (!Long.toString(links[i].lastModified()).equals(timestamps.getProperty(links[i].getAbsolutePath())))
-				return false;
-		}
-		return true;
+		// if we had some extra timestamps in the file, then signal that something has
+		// changed and we need to reconcile
+		return timestamps.isEmpty();
 	}
 
 	/*
@@ -292,50 +268,119 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
+	 * Return a collection of files which are interesting to us when we want to record timestamps
+	 * to figure out if something has changed and perhaps avoid an unnecessary reconcilation.
+	 */
+	private Collection getFilesToCheck() {
+		if (filesToCheck != null)
+			return filesToCheck;
+
+		Set result = new HashSet();
+
+		// configuration/org.eclipse.update/platform.xml, configuration/../plugins, configuration/../features
+		File configuration = getConfigurationLocation();
+		if (configuration != null) {
+			result.add(new File(configuration, PLATFORM_CFG));
+			File parent = configuration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
+				result.add(plugins);
+				File features = new File(parent, "features"); //$NON-NLS-1$
+				result.add(features);
+			}
+		}
+
+		// if we are in shared mode then record the same files for the parent configuration
+		File parentConfiguration = getParentConfigurationLocation();
+		if (parentConfiguration != null) {
+			result.add(new File(parentConfiguration, PLATFORM_CFG));
+			File parent = parentConfiguration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
+				result.add(plugins);
+				File features = new File(parent, "features"); //$NON-NLS-1$
+				result.add(features);
+			}
+		}
+
+		// dropins folders
+		File[] dropins = getDropinsDirectories();
+		result.addAll(getDropinsToCheck(dropins));
+
+		// links folders
+		File[] links = getLinksDirectories();
+		result.addAll(getDropinsToCheck(links));
+
+		filesToCheck = result;
+		return filesToCheck;
+	}
+
+	/*
+	 * Iterate over the given collection of files (could be dropins or links folders) and 
+	 * return a collection of files that might be interesting to check the timestamps of.
+	 */
+	private Collection getDropinsToCheck(File[] files) {
+		Collection result = new HashSet();
+		for (int outer = 0; outer < files.length; outer++) {
+			// add top-level file/folder
+			result.add(files[outer]);
+
+			File[] children = files[outer].listFiles();
+			for (int inner = 0; children != null && inner < children.length; inner++) {
+				File child = children[inner];
+				if (child.isFile() && child.getName().toLowerCase().endsWith(EXT_LINK)) {
+					// if we have a link file then add the link file and its target
+					File target = DropinsRepositoryListener.getLinkedFile(child);
+					if (target == null || !target.exists())
+						continue;
+					result.add(child);
+					result.add(target);
+					File eclipse = new File(target, DIR_ECLIPSE);
+					result.add(eclipse);
+					result.add(new File(eclipse, DIR_PLUGINS));
+					result.add(new File(eclipse, DIR_FEATURES));
+
+				} else if (child.getName().equalsIgnoreCase(DIR_ECLIPSE)) {
+					// if it is an "eclipse" dir then add it as well as "plugins" and "features"
+					result.add(child);
+					result.add(new File(child, DIR_PLUGINS));
+					result.add(new File(child, DIR_FEATURES));
+
+				} else if (child.isDirectory()) {
+					// look for "dropins/foo/plugins" (and "features") and
+					// "dropins/foo/eclipse/plugins" (and "features")
+					// Note: we could have a directory-based bundle here but we 
+					// will still add it since it won't hurt anything (one extra timestamp check)
+					result.add(child);
+					File parent;
+					File eclipse = new File(child, DIR_ECLIPSE);
+					if (eclipse.exists()) {
+						result.add(eclipse);
+						parent = eclipse;
+					} else {
+						parent = child;
+					}
+					File plugins = new File(parent, DIR_PLUGINS);
+					if (plugins.exists())
+						result.add(plugins);
+					File features = new File(parent, DIR_FEATURES);
+					if (features.exists())
+						result.add(features);
+				}
+			}
+		}
+		return result;
+	}
+
+	/*
 	 * Persist the cache timestamp values.
 	 */
 	private void writeTimestamps() {
 		Properties timestamps = new Properties();
-		// cache the platform.xml file timestamp
-		File configuration = getConfigurationLocation();
-		if (configuration != null) {
-			File platformXML = new File(configuration, PLATFORM_CFG);
-			// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-			timestamps.put(platformXML.getAbsolutePath(), Long.toString(platformXML.lastModified()));
-			File parent = configuration.getParentFile();
-			if (parent != null) {
-				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
-				timestamps.put(plugins.getAbsolutePath(), Long.toString(plugins.lastModified()));
-				File features = new File(parent, "features"); //$NON-NLS-1$
-				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
-			}
-		}
-		// if we are in shared mode then write out the information for the parent configuration
-		File parentConfiguration = getParentConfigurationLocation();
-		if (parentConfiguration != null) {
-			File platformXML = new File(parentConfiguration, PLATFORM_CFG);
-			// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-			timestamps.put(platformXML.getAbsolutePath(), Long.toString(platformXML.lastModified()));
-			File parent = parentConfiguration.getParentFile();
-			if (parent != null) {
-				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
-				timestamps.put(plugins.getAbsolutePath(), Long.toString(plugins.lastModified()));
-				File features = new File(parent, "features"); //$NON-NLS-1$
-				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
-			}
-		}
-
-		// cache the dropins folders timestamp
-		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-		File[] dropins = getDropinsDirectories();
-		for (int i = 0; i < dropins.length; i++) {
-			timestamps.put(dropins[i].getAbsolutePath(), Long.toString(dropins[i].lastModified()));
-		}
-		// cache links folders timestamps
-		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-		File[] links = getLinksDirectories();
-		for (int i = 0; i < links.length; i++) {
-			timestamps.put(links[i].getAbsolutePath(), Long.toString(links[i].lastModified()));
+		Collection files = getFilesToCheck();
+		for (Iterator iter = files.iterator(); iter.hasNext();) {
+			File file = (File) iter.next();
+			timestamps.put(file.getAbsolutePath(), Long.toString(file.lastModified()));
 		}
 
 		// write out the file

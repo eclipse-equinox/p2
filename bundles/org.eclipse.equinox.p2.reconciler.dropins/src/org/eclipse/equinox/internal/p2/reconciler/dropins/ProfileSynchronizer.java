@@ -152,7 +152,7 @@ public class ProfileSynchronizer {
 			File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 			try {
-				timestamps.save(os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
+				timestamps.store(os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
 			} finally {
 				if (os != null)
 					os.close();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.util.NLS;
 
 public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
@@ -67,22 +68,22 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private void addRepository(File file) {
 		URI repoLocation = createRepositoryLocation(file);
 		Properties properties = new Properties();
-		try {
-			// if the file pointed to a link file, keep track of the attribute
-			// so we can add it to the repo later
-			URI linkLocation = getLinkRepository(file, false);
-			if (linkLocation != null)
-				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
-		} catch (IOException e) {
-			// ignore
-		}
+		// if the file pointed to a link file, keep track of the attribute
+		// so we can add it to the repo later
+		URI linkLocation = getLinkRepository(file, false);
+		if (linkLocation != null)
+			properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
 		if (repoLocation != null) {
 			getMetadataRepository(repoLocation, properties);
 			getArtifactRepository(repoLocation, properties);
 		}
 	}
 
-	private String getLinkPath(File file) {
+	/*
+	 * Return the file pointed to by the given link file. Return null if there is a problem
+	 * reading the file or resolving the location.
+	 */
+	static File getLinkedFile(File file) {
 		Properties links = new Properties();
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
@@ -92,11 +93,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				input.close();
 			}
 		} catch (IOException e) {
-			// ignore
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_reading_link, file.getAbsolutePath()), e));
+			return null;
 		}
 		String path = links.getProperty(LINKS_PATH);
 		if (path == null) {
-			// log
 			return null;
 		}
 
@@ -108,7 +109,19 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		} else {
 			path = path.trim();
 		}
-		return path;
+		File linkedFile = new File(path);
+		if (!linkedFile.isAbsolute()) {
+			// link support is relative to the install root
+			File root = Activator.getEclipseHome();
+			if (root != null)
+				linkedFile = new File(root, path);
+		}
+		try {
+			return linkedFile.getCanonicalFile();
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_resolving_link, linkedFile.getAbsolutePath(), file.getAbsolutePath()), e));
+			return null;
+		}
 	}
 
 	private URI createRepositoryLocation(File file) {
@@ -149,21 +162,14 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return null;
 	}
 
-	private URI getLinkRepository(File file, boolean logMissingLink) throws IOException {
-		String path = getLinkPath(file);
-		if (path == null) {
+	private URI getLinkRepository(File file, boolean logMissingLink) {
+		File repo = getLinkedFile(file);
+		if (repo == null) {
 			if (logMissingLink)
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
 			return null;
 		}
-		File linkedFile = new File(path);
-		if (!linkedFile.isAbsolute()) {
-			// link support is relative to the install root
-			File root = Activator.getEclipseHome();
-			if (root != null)
-				linkedFile = new File(root, path);
-		}
-		return linkedFile.getCanonicalFile().toURI();
+		return repo.toURI();
 	}
 
 	public void getMetadataRepository(URI repoURL, Properties properties) {

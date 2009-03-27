@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,9 @@ public class Messages extends NLS {
 	public static String errorLoadingRepository;
 	public static String errorProcessingConfg;
 	public static String metadata_repo_manager_not_registered;
+	public static String error_reading_link;
+	public static String error_resolving_link;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
