@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
@@ -83,14 +84,22 @@ public class EquinoxFwConfigFileParser {
 		return BundleInfo.NO_LEVEL;
 	}
 
-	private void readBundlesList(Manipulator manipulator, URI osgiInstallArea, String value) throws NumberFormatException {
-		BundleInfo[] bundles = parseBundleList(manipulator, value);
-		if (bundles == null)
-			return;
-
+	private void readBundlesList(Manipulator manipulator, URI osgiInstallArea, Properties props) throws NumberFormatException {
 		ConfigData configData = manipulator.getConfigData();
-		for (int i = 0; i < bundles.length; i++) {
-			configData.addBundle(bundles[i]);
+
+		BundleInfo[] fwExtensions = parseBundleList(manipulator, props.getProperty(EquinoxConstants.PROP_FW_EXTENSIONS));
+		if (fwExtensions != null) {
+			for (int i = 0; i < fwExtensions.length; i++) {
+				fwExtensions[i].setFragmentHost(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+				configData.addBundle(fwExtensions[i]);
+			}
+		}
+
+		BundleInfo[] bundles = parseBundleList(manipulator, props.getProperty(EquinoxConstants.PROP_BUNDLES));
+		if (bundles != null) {
+			for (int i = 0; i < bundles.length; i++) {
+				configData.addBundle(bundles[i]);
+			}
 		}
 	}
 
@@ -139,21 +148,39 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void writeBundlesList(File fwJar, Properties props, URI base, BundleInfo[] bundles) {
-		//framework jar does not get stored on the bundle list, figure out who that is.
-
 		StringBuffer osgiBundlesList = new StringBuffer();
+		StringBuffer osgiFrameworkExtensionsList = new StringBuffer();
 		for (int j = 0; j < bundles.length; j++) {
+			BundleInfo bundle = bundles[j];
+
+			//framework jar does not get stored on the bundle list, figure out who that is.
 			if (fwJar != null) {
-				if (URIUtil.sameURI(fwJar.toURI(), bundles[j].getLocation()))
+				if (URIUtil.sameURI(fwJar.toURI(), bundle.getLocation()))
 					continue;
-			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[j].getSymbolicName()))
+			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundle.getSymbolicName()))
 				continue;
 
-			URI location = fwJar != null ? URIUtil.makeRelative(bundles[j].getLocation(), fwJar.getParentFile().toURI()) : bundles[j].getLocation();
-			osgiBundlesList.append(toOSGiBundleListForm(bundles[j], location));
-			if (j < bundles.length - 1) //If it is not the last entry add a comma to separate the entries
+			URI location = fwJar != null ? URIUtil.makeRelative(bundle.getLocation(), fwJar.getParentFile().toURI()) : bundle.getLocation();
+
+			String fragmentHost = bundle.getFragmentHost();
+			boolean isFrameworkExtension = fragmentHost != null && (fragmentHost.startsWith(EquinoxConstants.FW_SYMBOLIC_NAME) || fragmentHost.startsWith(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
+
+			if (isFrameworkExtension) {
+				bundle.setStartLevel(BundleInfo.NO_LEVEL);
+				bundle.setMarkedAsStarted(false);
+				osgiFrameworkExtensionsList.append(toOSGiBundleListForm(bundle, location));
+				osgiFrameworkExtensionsList.append(',');
+			} else {
+				osgiBundlesList.append(toOSGiBundleListForm(bundle, location));
 				osgiBundlesList.append(',');
+			}
 		}
+		if (osgiFrameworkExtensionsList.length() > 0)
+			osgiFrameworkExtensionsList.deleteCharAt(osgiFrameworkExtensionsList.length() - 1);
+		props.setProperty(EquinoxConstants.PROP_FW_EXTENSIONS, osgiFrameworkExtensionsList.toString());
+
+		if (osgiBundlesList.length() > 0)
+			osgiBundlesList.deleteCharAt(osgiBundlesList.length() - 1);
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
 	}
 
@@ -195,7 +222,7 @@ public class EquinoxFwConfigFileParser {
 		readLauncherPath(props, rootURI);
 		readp2DataArea(props, configArea);
 		readSimpleConfiguratorURL(props, configArea);
-		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props.getProperty(EquinoxConstants.PROP_BUNDLES));
+		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props);
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
 		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
@@ -204,7 +231,7 @@ public class EquinoxFwConfigFileParser {
 		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_PATH))
 		//			if (launcherData.getLauncher() == null)
 		//				launcherPath = value;
-		String[] KNOWN_PROPERTIES = {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL};
+		String[] KNOWN_PROPERTIES = {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL};
 		top: for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			for (int i = 0; i < KNOWN_PROPERTIES.length; i++) {
@@ -494,6 +521,11 @@ public class EquinoxFwConfigFileParser {
 			}
 
 			if (key.equals(EquinoxConstants.PROP_BUNDLES) && equalBundleLists(manipulator, value, sharedValue)) {
+				configProps.remove(key);
+				continue;
+			}
+
+			if (key.equals(EquinoxConstants.PROP_FW_EXTENSIONS) && equalBundleLists(manipulator, value, sharedValue)) {
 				configProps.remove(key);
 				continue;
 			}

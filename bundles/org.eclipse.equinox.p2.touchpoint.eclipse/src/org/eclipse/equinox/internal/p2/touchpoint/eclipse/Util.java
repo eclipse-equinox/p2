@@ -185,7 +185,7 @@ public class Util {
 
 			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
 			if (fragmentHost != null)
-				bundleInfo.setFragment(true);
+				bundleInfo.setFragmentHost(fragmentHost.trim());
 
 		} catch (BundleException e) {
 			// unexpected

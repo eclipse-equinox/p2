@@ -50,7 +50,7 @@ public class MarkStartedAction extends ProvisioningAction {
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 
-		if (bundleInfo.isFragment())
+		if (bundleInfo.getFragmentHost() != null)
 			return Status.OK_STATUS;
 
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();

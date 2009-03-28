@@ -45,6 +45,7 @@ public class EquinoxConstants {
 	public static final String PROP_INITIAL_STARTLEVEL = "osgi.startLevel"; //$NON-NLS-1$ //The start level when the fwl start
 	public static final String PROP_INSTALL = "osgi.install"; //$NON-NLS-1$
 	public static final String PROP_ECLIPSE_COMMANDS = "eclipse.commands"; //$NON-NLS-1$
+	public static final String PROP_FW_EXTENSIONS = "osgi.framework.extensions"; //$NON-NLS-1$
 	public static final String PROP_OSGI_FW = "osgi.framework"; //$NON-NLS-1$
 	public static final String PROP_OSGI_SYSPATH = "osgi.syspath"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$

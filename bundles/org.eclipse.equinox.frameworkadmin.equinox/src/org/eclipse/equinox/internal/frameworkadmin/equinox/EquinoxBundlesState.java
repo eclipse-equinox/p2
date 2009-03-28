@@ -388,10 +388,10 @@ public class EquinoxBundlesState implements BundlesState {
 		} catch (FrameworkAdminRuntimeException e1) {
 			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
 		}
-		return createBundleInfo(toConvert, markedAsStarted, sl, location);
+		return createBundleInfo(toConvert, markedAsStarted, sl, location, null);
 	}
 
-	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, URI location) {
+	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, URI location, String fragmentHost) {
 		BundleInfo result = new BundleInfo();
 		result.setSymbolicName(toConvert.getSymbolicName());
 		result.setVersion(toConvert.getVersion().toString());
@@ -400,6 +400,7 @@ public class EquinoxBundlesState implements BundlesState {
 		result.setMarkedAsStarted(markedAsStarted);
 		result.setStartLevel(sl);
 		result.setBundleId(toConvert.getBundleId());
+		result.setFragmentHost(fragmentHost);
 		return result;
 	}
 
@@ -429,12 +430,14 @@ public class EquinoxBundlesState implements BundlesState {
 				e.printStackTrace();
 				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage()); //$NON-NLS-1$ //TODO path_fun
 			}
+			String fragmentHost = null;
 			BundleInfo original = (BundleInfo) bundleInfoMap.get(location);
 			if (original != null) {
 				markedAsStarted = original.isMarkedAsStarted();
 				sl = getStartLevel(original.getStartLevel());
+				fragmentHost = original.getFragmentHost();
 			}
-			result[i] = createBundleInfo(bundles[i], markedAsStarted, sl, location);
+			result[i] = createBundleInfo(bundles[i], markedAsStarted, sl, location, fragmentHost);
 		}
 		return result;
 	}

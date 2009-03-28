@@ -24,7 +24,6 @@ public class BundleInfo {
 
 	private String symbolicName = null;
 	private String version = null;
-	private boolean fragment = false;
 	private URI baseLocation;
 	private URI location;
 	private long bundleId = NO_BUNDLEID;
@@ -34,6 +33,7 @@ public class BundleInfo {
 	private boolean resolved = false;
 
 	private String manifest;
+	private String fragmentHost;
 
 	public BundleInfo() {
 	}
@@ -101,16 +101,16 @@ public class BundleInfo {
 		return version;
 	}
 
+	public String getFragmentHost() {
+		return fragmentHost;
+	}
+
 	public boolean isMarkedAsStarted() {
 		return markedAsStarted;
 	}
 
 	public boolean isResolved() {
 		return resolved;
-	}
-
-	public boolean isFragment() {
-		return fragment;
 	}
 
 	public void setBundleId(long bundleId) {
@@ -149,8 +149,8 @@ public class BundleInfo {
 		this.version = value;
 	}
 
-	public void setFragment(boolean fragment) {
-		this.fragment = fragment;
+	public void setFragmentHost(String fragmentHost) {
+		this.fragmentHost = fragmentHost;
 	}
 
 	/* (non-Javadoc)
@@ -165,8 +165,10 @@ public class BundleInfo {
 		if (version != null)
 			buffer.append(version);
 
-		buffer.append(", fragment="); //$NON-NLA-1$
-		buffer.append(fragment);
+		if (fragmentHost != null) {
+			buffer.append(", fragmentHost="); //$NON-NLA-1$
+			buffer.append(fragmentHost);
+		}
 
 		if (baseLocation != null) {
 			buffer.append(", baseLocation="); //$NON-NLS-1$
