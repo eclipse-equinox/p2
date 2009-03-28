@@ -48,14 +48,17 @@ public class InstallDescriptionParser {
 		URI propsURI = URIUtil.fromString(site);
 		InputStream in = null;
 		if (!propsURI.isAbsolute()) {
-			File file = new File(site).getAbsoluteFile();
-			if (file.exists()) {
-				propsURI = file.toURI();
-				in = new FileInputStream(file);
-			} else
-				propsURI = null;
-		} else
-			in = propsURI.toURL().openStream();
+			String installerInstallArea = System.getProperty("osgi.install.area");
+			if (installerInstallArea == null)
+				throw new IllegalStateException("Install area is not specified.");
+
+			propsURI = URIUtil.append(URIUtil.fromString(installerInstallArea), site);
+			File installerDescription = URIUtil.toFile(propsURI);
+			if (!installerDescription.exists()) {
+				throw new IllegalStateException("Can't find install description file: " + installerDescription);
+			}
+		}
+		in = propsURI.toURL().openStream();
 
 		Properties properties = new Properties();
 		try {
