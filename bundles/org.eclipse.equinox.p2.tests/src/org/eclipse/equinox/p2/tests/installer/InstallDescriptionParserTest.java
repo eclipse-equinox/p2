@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.tests.installer;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
 import org.eclipse.equinox.internal.p2.installer.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
@@ -73,13 +72,27 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 	/**
 	 * Tests loading an install description file relative to the running instance.
 	 */
-	public void testLoadRelativeDescription() {
+	public void testLoadRelativeDescription() throws IOException, URISyntaxException {
+		boolean existed = true;
+		String installerInstallArea = System.getProperty("osgi.install.area");
+		if (installerInstallArea == null)
+			throw new IllegalStateException("Install area is not specified.");
+
+		URI installerDescriptionURI = URIUtil.append(URIUtil.fromString(installerInstallArea), "installer.properties");
+		File installerDescription = URIUtil.toFile(installerDescriptionURI);
+		if (!installerDescription.exists()) {
+			existed = false;
+			installerDescription.createNewFile();
+		}
 		try {
 			InstallDescription description = InstallDescriptionParser.createDescription(null, SubMonitor.convert(getMonitor()));
-			//shouldn't find anything, so equal to default description
+			//should find empty file at default location
 			assertEquals("1.0", new InstallDescription(), description);
 		} catch (Exception e) {
 			fail("0.99", e);
+		} finally {
+			if (!existed)
+				installerDescription.delete();
 		}
 	}
 
@@ -133,6 +146,20 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("0.97", e);
 		}
+	}
+
+	/**
+	 * Tests loading an install description file relative to the running instance.
+	 */
+	public void testLoadMissingRelative() {
+		try {
+			InstallDescriptionParser.createDescription(null, SubMonitor.convert(getMonitor()));
+		} catch (RuntimeException expected) {
+			return;
+		} catch (Exception e) {
+			fail("0.9");
+		}
+		fail("1.0");//should have failed
 	}
 
 	/**
