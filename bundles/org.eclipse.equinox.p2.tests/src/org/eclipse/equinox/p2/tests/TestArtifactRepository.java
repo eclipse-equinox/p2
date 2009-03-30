@@ -17,11 +17,11 @@ import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
-import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
 /**
@@ -51,6 +51,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	Set artifactDescriptors = new HashSet();
 
 	Transport testhandler = new Transport() {
+		@Deprecated
 		public IStatus download(String toDownload, OutputStream target, IProgressMonitor pm) {
 			byte[] contents = (byte[]) locationsToContents.get(toDownload);
 			if (contents == null)
@@ -62,6 +63,10 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 				Assert.fail("Unexpected exception in TestArtifactRepository" + e.getMessage());
 			}
 			return Status.OK_STATUS;
+		}
+
+		public IStatus download(URI toDownload, OutputStream target, IProgressMonitor pm) {
+			return download(toDownload.toString(), target, pm);
 		}
 	};
 

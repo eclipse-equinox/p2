@@ -172,7 +172,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository#getProperties()
 	 */
 	public Map getProperties() {
 		ensureInitialized();

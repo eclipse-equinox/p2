@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 
 /**
  * UIMetadataRepositoryEvent is used to distinguish those metadata repository

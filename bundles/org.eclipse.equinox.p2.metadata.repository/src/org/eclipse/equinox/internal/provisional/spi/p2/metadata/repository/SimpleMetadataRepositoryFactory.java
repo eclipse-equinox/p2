@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -19,7 +21,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -60,6 +61,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 		localFile = Activator.getCacheManager().createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			//there is no remote file in either form
+			// TODO HENRIK: Cause of problem is unknown (can be Unknown Host, etc.) - this must be communicated.
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}

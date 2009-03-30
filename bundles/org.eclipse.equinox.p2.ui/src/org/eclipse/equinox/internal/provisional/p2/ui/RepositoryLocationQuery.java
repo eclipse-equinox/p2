@@ -14,9 +14,9 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 import java.net.URI;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 
 /**
  * RepositoryLocationQuery is a query that gathers repository

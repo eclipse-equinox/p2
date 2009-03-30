@@ -11,14 +11,13 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.ui.BatchChangeBeginningEvent;
 import org.eclipse.equinox.internal.p2.ui.BatchChangeCompleteEvent;
-
-import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 
 /**
  * ProvisioningListener which handles event batching and other

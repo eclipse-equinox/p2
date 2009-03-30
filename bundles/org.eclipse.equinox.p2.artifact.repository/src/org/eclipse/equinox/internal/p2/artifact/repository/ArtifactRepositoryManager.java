@@ -13,12 +13,14 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 
 /**
@@ -82,9 +84,6 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return IRepository.TYPE_ARTIFACT;
 	}
 
-	/**
-	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
-	 */
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return loadRepository(location, 0, monitor);
 	}

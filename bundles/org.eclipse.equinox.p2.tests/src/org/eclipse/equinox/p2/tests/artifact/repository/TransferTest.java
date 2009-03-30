@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.*;
 import java.net.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.ECFTransport;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -32,7 +32,7 @@ public class TransferTest extends AbstractProvisioningTest {
 		} catch (BundleException e) {
 			fail("1.5", e);
 		}
-		IStatus s = ECFTransport.getInstance().download("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz", fos, new NullProgressMonitor());
+		IStatus s = RepositoryTransport.getInstance().download("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz", fos, new NullProgressMonitor());
 		assertOK("2.0", s);
 		int httpSize = -1;
 		URL u;

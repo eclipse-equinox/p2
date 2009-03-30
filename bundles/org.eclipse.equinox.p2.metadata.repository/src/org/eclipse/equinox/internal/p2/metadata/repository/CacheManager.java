@@ -15,13 +15,17 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -38,22 +42,6 @@ public class CacheManager {
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	/**
-	 * Could not find a remote file corresponding to the cache.
-	 */
-	private static final int CACHE_MISSING_REMOTE = 0;
-	/**
-	 * The local cache is stale or missing.
-	 */
-	private static final int CACHE_STALE = 1;
-	/**
-	 * A remote JAR file exists, and is newer than the cache.
-	 */
-	private static final int CACHE_STALE_REMOTE_JAR = 2;
-	/**
-	 * The remote file exists, and the local cache is up to date.
-	 */
-	private static final int CACHE_OK = 3;
 	private final HashSet knownPrefixes = new HashSet(5);
 
 	/**
@@ -72,60 +60,107 @@ public class CacheManager {
 	 * @param monitor a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
 	 * if the location is not a repository.
-	 * @throws IOException
-	 * @throws ProvisionException
+	 * @throws FileNotFound exception if neither jar nor xml index file exists at given location 
+	 * @throws AuthenticationFailedException if jar not available and xml causes authentication fail
+	 * @throws IOException on general IO errors
+	 * @throws ProvisionException on any error (e.g. user cancellation, unknown host, malformed address, connection refused, etc.)
 	 */
 	public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException, ProvisionException {
-		knownPrefixes.add(prefix);
-		File cacheFile = getCache(repositoryLocation, prefix);
-		URI jarLocation = URIUtil.append(repositoryLocation, prefix + JAR_EXTENSION);
-		URI xmlLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
-		File dataAreaFile = URLUtil.toFile(dataArea);
-		int hashCode = computeHash(repositoryLocation);
-		int state = getCacheState(repositoryLocation, prefix, cacheFile);
-		URI remoteFile;
-		switch (state) {
-			case CACHE_OK :
-				return cacheFile;
-			case CACHE_MISSING_REMOTE :
-				return null;
-			case CACHE_STALE_REMOTE_JAR :
-				//we know there is a remote jar at this point
-				cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
-				remoteFile = jarLocation;
-				break;
-			case CACHE_STALE :
-			default :
-				//find the best available remote file
-				long lastModifiedRemote = getTransport().getLastModified(jarLocation);
-				if (lastModifiedRemote > 0) {
-					cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
-					remoteFile = jarLocation;
-				} else {
-					lastModifiedRemote = getTransport().getLastModified(xmlLocation);
-					if (lastModifiedRemote <= 0)
-						// no jar or xml file found
-						return null;
-					cacheFile = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
-					remoteFile = xmlLocation;
-				}
-		}
-		cacheFile.getParentFile().mkdirs();
-		OutputStream metadata = new BufferedOutputStream(new FileOutputStream(cacheFile));
-		IStatus result;
+
+		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
-			result = getTransport().download(remoteFile.toString(), metadata, monitor);
+			knownPrefixes.add(prefix);
+			File cacheFile = getCache(repositoryLocation, prefix);
+			URI jarLocation = URIUtil.append(repositoryLocation, prefix + JAR_EXTENSION);
+			URI xmlLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
+			AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+			URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
+			File dataAreaFile = URLUtil.toFile(dataArea);
+			int hashCode = computeHash(repositoryLocation);
+
+			// Knowing if cache is stale is complicated by the fact that a jar could have been 
+			// produced after an xml index (and vice versa), and by the need to capture any
+			// errors, as these needs to be reported to the user as something meaningful - instead of
+			// just a general "can't read repository".
+			// (Previous impl of stale checking ignored errors, and caused multiple round-trips)
+			boolean stale = true;
+			long lastModified = 0L;
+			String name = null;
+			String useExtension = JAR_EXTENSION;
+			URI remoteFile = jarLocation;
+
+			if (cacheFile != null) {
+				cacheFile.lastModified();
+				name = cacheFile.getName();
+			}
+			// get last modified on jar
+			long lastModifiedRemote = 0L;
+			try {
+				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
+			} catch (Exception e) {
+				// just set to 0 and test if xml exists, report general error for the xml file
+				lastModifiedRemote = 0;
+			}
+			if (monitor.isCanceled())
+				throw new ProvisionException(Status.CANCEL_STATUS);
+
+			if (lastModifiedRemote != 0) {
+				// There is a jar, and it should be used - cache is stale if it is xml based or
+				// if older (irrespective of jar or xml).
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION));
+			} else {
+				// Also need to check remote XML file, and handle cancel, and errors
+				// (Status is reported based on finding the XML file as giving up on certain errors
+				// when checking for the jar may not be correct).
+				try {
+					lastModifiedRemote = getTransport().getLastModified(xmlLocation, submonitor.newChild(1));
+					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as 
+					// a FileNotFound exception should have been thrown.
+					if (lastModifiedRemote == 0)
+						throw new FileNotFoundException();
+				} catch (UserCancelledException e) {
+					throw new ProvisionException(Status.CANCEL_STATUS);
+				} catch (FileNotFoundException e) {
+					throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Neither_0_nor_1_found, jarLocation, xmlLocation));
+				} catch (AuthenticationFailedException e) {
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), e));
+				} catch (CoreException e) {
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, repositoryLocation), e));
+
+				}
+				// There is an xml, and it should be used - cache is stale if it is jar based or
+				// if older (irrespective of jar or xml).
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION));
+				useExtension = XML_EXTENSION;
+				remoteFile = xmlLocation;
+			}
+
+			if (!stale)
+				return cacheFile;
+
+			// Need to update cache
+			cacheFile = new File(dataAreaFile, prefix + hashCode + useExtension);
+			cacheFile.getParentFile().mkdirs();
+			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(cacheFile));
+			IStatus result;
+			try {
+				submonitor.setWorkRemaining(1000);
+				result = getTransport().download(remoteFile, metadata, submonitor.newChild(1000));
+			} finally {
+				metadata.close();
+			}
+			if (!result.isOK()) {
+				//don't leave a partial cache file lying around
+				// TODO: HENRIK Handle resume
+				cacheFile.delete();
+				throw new ProvisionException(result);
+			}
+			return cacheFile;
+
 		} finally {
-			metadata.close();
+			if (monitor != null)
+				monitor.done();
 		}
-		if (!result.isOK()) {
-			//don't leave a partial cache file lying around
-			cacheFile.delete();
-			throw new ProvisionException(result);
-		}
-		return cacheFile;
 	}
 
 	/**
@@ -171,43 +206,8 @@ public class CacheManager {
 		return result;
 	}
 
-	private ECFMetadataTransport getTransport() {
-		return ECFMetadataTransport.getInstance();
-	}
-
-	/**
-	 * Checks if the repository's local cache file is out of date.
-	 * @param repositoryLocation The remote location of the file
-	 * @param prefix The prefix to use when creating the cache file
-	 * @param cacheFile The current local cache of the remote location
-	 * @return One of the CACHE_* constants
-	 */
-	private int getCacheState(URI repositoryLocation, String prefix, File cacheFile) {
-		if (cacheFile == null)
-			return CACHE_STALE;
-		long lastModified = cacheFile.lastModified();
-		String name = cacheFile.getName();
-		URI metadataLocation = null;
-
-		if (name.endsWith(XML_EXTENSION)) {
-			metadataLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
-		} else if (name.endsWith(JAR_EXTENSION)) {
-			metadataLocation = URIUtil.append(repositoryLocation, prefix + JAR_EXTENSION);
-		} else {
-			return CACHE_STALE;
-		}
-		long lastModifiedRemote = 0;
-		try {
-			lastModifiedRemote = getTransport().getLastModified(metadataLocation);
-		} catch (ProvisionException e) {
-			// cache is stale
-			return CACHE_MISSING_REMOTE;
-		}
-		if (lastModifiedRemote <= 0)
-			return CACHE_MISSING_REMOTE;
-		if (lastModifiedRemote > lastModified)
-			return name.endsWith(XML_EXTENSION) ? CACHE_STALE : CACHE_STALE_REMOTE_JAR;
-		return CACHE_OK;
+	private RepositoryTransport getTransport() {
+		return RepositoryTransport.getInstance();
 	}
 
 	/**

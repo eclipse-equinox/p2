@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 
 public class RepositoryDescriptor {
 

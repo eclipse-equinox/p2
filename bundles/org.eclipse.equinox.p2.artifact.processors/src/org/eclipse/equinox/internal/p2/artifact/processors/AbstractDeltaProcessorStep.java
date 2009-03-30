@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;

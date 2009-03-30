@@ -25,14 +25,6 @@ class Messages extends NLS {
 		// Do not instantiate
 	}
 
-	public static String repoMan_adding;
-	public static String repoMan_exists;
-	public static String repoMan_failedRead;
-	public static String repoMan_internalError;
-	public static String repoMan_notExists;
-	public static String repoMan_save;
-	public static String repoMan_unknownType;
-
 	public static String Util_Invalid_Zip_File_Format;
 	public static String Util_Error_Unzipping;
 

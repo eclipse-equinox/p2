@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 /**
  * IUViewQueryContext defines the different ways 

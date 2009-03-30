@@ -22,11 +22,14 @@ import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -460,7 +463,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private IStatus downloadArtifact(IArtifactDescriptor descriptor, URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
-		IStatus result = getTransport().download(mirrorLocation.toString(), destination, monitor);
+		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation.toString(), result);
 		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
@@ -755,7 +758,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private Transport getTransport() {
-		return ECFTransport.getInstance();
+		return RepositoryTransport.getInstance();
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream

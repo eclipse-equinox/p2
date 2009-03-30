@@ -16,8 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.util.NLS;
@@ -110,48 +113,70 @@ public class UpdateSite {
 	 * Returns a local file containing the contents of the update site at the given location.
 	 */
 	private static File loadSiteFile(URI location, IProgressMonitor monitor) throws ProvisionException {
-		Throwable failure;
-		File siteFile = null;
-		IStatus transferResult;
-		boolean deleteSiteFile = false;
+		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
-			URI actualLocation = getSiteURI(location);
-			if (PROTOCOL_FILE.equals(actualLocation.getScheme())) {
-				siteFile = URIUtil.toFile(actualLocation);
-				if (siteFile.exists())
-					transferResult = Status.OK_STATUS;
-				else {
-					String msg = NLS.bind(Messages.ErrorReadingSite, location);
-					transferResult = new Status(IStatus.ERROR, Activator.ID, msg, new FileNotFoundException(siteFile.getAbsolutePath()));
+			File siteFile = null;
+			IStatus transferResult = null;
+			boolean deleteSiteFile = false;
+			try {
+				URI actualLocation = getSiteURI(location);
+				if (PROTOCOL_FILE.equals(actualLocation.getScheme())) {
+					siteFile = URIUtil.toFile(actualLocation);
+					if (siteFile.exists())
+						transferResult = Status.OK_STATUS;
+					else {
+						String msg = NLS.bind(Messages.ErrorReadingSite, location);
+						transferResult = new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, msg, new FileNotFoundException(siteFile.getAbsolutePath()));
+					}
+				} else {
+					// creating a temp file. In the event of an error we want to delete it.
+					deleteSiteFile = true;
+					OutputStream destination = null;
+					try {
+						siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
+						destination = new BufferedOutputStream(new FileOutputStream(siteFile));
+					} catch (IOException e) {
+						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Can not create tempfile for site.xml", e)); //$NON-NLS-1$
+					}
+					transferResult = getTransport().download(actualLocation, destination, submonitor.newChild(999));
+					try {
+						destination.close();
+					} catch (IOException e) {
+						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Failing to close tempfile for site.xml", e)); //$NON-NLS-1$
+					}
 				}
-			} else {
-				// creating a temp file. In the event of an error we want to delete it.
-				deleteSiteFile = true;
-				siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
-				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
-				transferResult = getTransport().download(actualLocation.toString(), destination, monitor);
-			}
-			if (monitor.isCanceled())
-				throw new OperationCanceledException();
-			if (transferResult.isOK()) {
-				// successful. If the siteFile is the download of a remote site.xml it will get cleaned up later
-				deleteSiteFile = false;
-				return siteFile;
-			}
-			// The transfer failed. Check if the file is not present
-			if (0 == getTransport().getLastModified(actualLocation))
-				throw new FileNotFoundException(actualLocation.toString());
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
+				if (transferResult.isOK()) {
+					// successful. If the siteFile is the download of a remote site.xml it will get cleaned up later
+					deleteSiteFile = false;
+					return siteFile;
+				}
 
-			failure = transferResult.getException();
-		} catch (IOException e) {
-			failure = e;
+				// The transferStatus from download has a well formatted message that should
+				// be used as it contains useful feedback to the user.
+				// The only thing needed is to translate the error code ARTIFACT_NOT_FOUND to
+				// REPOSITORY_NOT_FOUND as the download does not know what the file represents.
+				//
+				// TODO: ? Tests dictate that REPOSITORY_NOT_FOUND is the correct response to 
+				// issues like "unknown host", "malformed url" - it is almost impossible to differentiate
+				// between "not found" and "error while reading something found" at this point.
+				int code = transferResult.getCode();
+				MultiStatus ms = new MultiStatus(Activator.ID, //
+						ProvisionException.REPOSITORY_NOT_FOUND,
+						// (code == ProvisionException.ARTIFACT_NOT_FOUND || code == ProvisionException.REPOSITORY_NOT_FOUND ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ), //
+						new IStatus[] {transferResult}, //
+						NLS.bind(Messages.ErrorReadingSite, location), null);
+				throw new ProvisionException(ms);
+
+			} finally {
+				if (deleteSiteFile && siteFile != null)
+					siteFile.delete();
+			}
 		} finally {
-			if (deleteSiteFile && siteFile != null)
-				siteFile.delete();
+			if (monitor != null)
+				monitor.done();
 		}
-		int code = (failure instanceof FileNotFoundException) ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ;
-		String msg = NLS.bind(Messages.ErrorReadingSite, location);
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, failure));
 	}
 
 	/*
@@ -172,7 +197,13 @@ public class UpdateSite {
 				if (monitor.isCanceled())
 					throw new OperationCanceledException();
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
-				transferResult = getTransport().download(featureURI.toString(), destination, monitor);
+				transferResult = getTransport().download(featureURI, destination, monitor);
+				try {
+					destination.close();
+				} catch (IOException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI), e));
+					return null;
+				}
 				if (transferResult.isOK())
 					break;
 			}
@@ -192,15 +223,22 @@ public class UpdateSite {
 		return null;
 	}
 
-	/*
+	/**
 	 * Throw an exception if the site pointed to by the given URI is not valid.
+	 * @param url the site file to check
+	 * @param monitor a monitor
+	 * @throws UserCancelledException if user canceled during authentication
+	 * @throws AuthenticationFailedException if too many attempts made to login
+	 * @throws FileNotFoundException if the remote file does not exist
+	 * @throws CoreException on errors in communication (unknown host, connection refused, etc.)
 	 */
-	public static void validate(URI url, IProgressMonitor monitor) throws ProvisionException {
+	public static void validate(URI url, IProgressMonitor monitor) throws UserCancelledException, AuthenticationFailedException, FileNotFoundException, CoreException {
 		URI siteURI = getSiteURI(url);
-		long lastModified = getTransport().getLastModified(siteURI);
+		long lastModified = getTransport().getLastModified(siteURI, monitor);
 		if (lastModified == 0) {
-			String msg = NLS.bind(Messages.ErrorReadingSite, url);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
+			throw new FileNotFoundException(url.toString());
+			//			String msg = NLS.bind(Messages.ErrorReadingSite, url);
+			//			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
 		}
 	}
 
@@ -369,7 +407,13 @@ public class UpdateSite {
 			} else {
 				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-				IStatus result = getTransport().download(digestURI.toString(), destination, monitor);
+				IStatus result = getTransport().download(digestURI, destination, monitor);
+				try {
+					destination.close();
+				} catch (IOException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
+					return null;
+				}
 				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
 					throw new OperationCanceledException();
 				if (!result.isOK())
@@ -476,7 +520,7 @@ public class UpdateSite {
 		}
 	}
 
-	private static ECFTransport getTransport() {
-		return ECFTransport.getInstance();
+	private static RepositoryTransport getTransport() {
+		return RepositoryTransport.getInstance();
 	}
 }

@@ -22,6 +22,9 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
+	public static String CacheManager_AuthenticationFaileFor_0;
+	public static String CacheManager_FailedCommunicationWithRepo_0;
+	public static String CacheManager_Neither_0_nor_1_found;
 	public static String io_failedRead;
 	public static String io_failedWrite;
 	public static String ecf_configuration_error;

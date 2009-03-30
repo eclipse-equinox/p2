@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 
 /**
  * Creates processing step instances from extensions and executes them.
@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful
 public class ProcessingStepHandler {
 
 	private static final String PROCESSING_STEPS_EXTENSION_ID = "org.eclipse.equinox.p2.artifact.repository.processingSteps"; //$NON-NLS-1$
+
 	//TODO This method can go
 	public static IStatus checkStatus(OutputStream output) {
 		return getStatus(output, true);

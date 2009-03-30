@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 
 /**
  * ProcessingSteps process the data written to them and pass the resultant data on

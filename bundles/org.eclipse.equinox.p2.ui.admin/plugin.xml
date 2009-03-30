@@ -92,7 +92,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage">
             <enabledWhen>
-             <adapt type="org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository"/>
+             <adapt type="org.eclipse.equinox.internal.provisional.p2.repository.IRepository"/>
            </enabledWhen>
       </page>
       
