@@ -120,13 +120,15 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
 
-	public void testDefaultBundlePoolFromProfileRepo() {
+	public void testDefaultAgentRepoAndBundlePoolFromProfileRepo() {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
-
 		new SimpleArtifactRepositoryFactory().create(tempFolder.toURI(), "", "", null);
+
+		File defaultAgenRepositoryDirectory = new File(tempFolder, "p2/org.eclipse.equinox.p2.core");
+		new SimpleArtifactRepositoryFactory().create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
 
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);
@@ -159,5 +161,6 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 
 		assertTrue(manager.contains(tempFolder.toURI()));
+		assertTrue(manager.contains(defaultAgenRepositoryDirectory.toURI()));
 	}
 }

@@ -1,8 +1,5 @@
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,11 +13,14 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
+	private static final String DEFAULT_ARTIFACT_REPO_DIRECTORY = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 	private static final String ARTIFACTS_XML = "artifacts.xml"; //$NON-NLS-1$
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static final String DOT_PROFILE = ".profile"; //$NON-NLS-1$
@@ -53,6 +53,16 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
 	private List findArtifactRepos() {
 		List artifactRepos = new ArrayList();
+		File p2Directory = findP2Directory();
+
+		// Add the profile registry's default agent artifact repository.
+		// Currently this is used by the Native Touchpoint to store artifacts however
+		// other touchpoints might use this as well.
+		File agentArtifactRepository = findAgentArtifactRepositoryDirectory(p2Directory);
+		if (agentArtifactRepository != null)
+			artifactRepos.add(agentArtifactRepository.toURI());
+
+		// bundle pool
 		String bundlePool = profile.getProperty(IProfile.PROP_CACHE);
 		if (bundlePool != null) {
 			File bundlePoolFile = new File(bundlePool);
@@ -61,17 +71,20 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 			else if (Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
 				// the profile has not been used yet but is a roaming profile
 				// best effort to add "just" the default bundle pool
-				bundlePoolFile = findDefaultBundlePool();
+				bundlePoolFile = findDefaultBundlePool(p2Directory);
 				if (bundlePoolFile != null)
 					artifactRepos.add(bundlePoolFile.toURI());
 				return artifactRepos;
 			}
 		}
 
+		// shared bundle pool
 		String sharedBundlePool = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 		if (sharedBundlePool != null)
 			artifactRepos.add(new File(sharedBundlePool).toURI());
 
+		// cache extensions
+		// Currently set exclusively by dropins
 		String dropinRepositories = profile.getProperty("org.eclipse.equinox.p2.cache.extensions"); //$NON-NLS-1$
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, "|"); //$NON-NLS-1$
@@ -88,7 +101,29 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		return artifactRepos;
 	}
 
-	private File findDefaultBundlePool() {
+	private File findAgentArtifactRepositoryDirectory(File p2Directory) {
+		if (p2Directory == null)
+			return null;
+
+		File agentArtifactRepositoryDirectory = new File(p2Directory, DEFAULT_ARTIFACT_REPO_DIRECTORY);
+		if (!agentArtifactRepositoryDirectory.isDirectory())
+			return null;
+
+		return agentArtifactRepositoryDirectory;
+	}
+
+	private File findDefaultBundlePool(File p2Directory) {
+		if (p2Directory == null)
+			return null;
+
+		File productDirectory = p2Directory.getParentFile();
+		if (productDirectory == null || !(new File(productDirectory, ARTIFACTS_XML).exists()))
+			return null;
+
+		return productDirectory;
+	}
+
+	private File findP2Directory() {
 		File target = new File(location);
 		if (target.isFile())
 			target = target.getParentFile();
@@ -103,15 +138,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		if (p2EngineDirectory == null)
 			return null;
 
-		File p2Directory = p2EngineDirectory.getParentFile();
-		if (p2Directory == null)
-			return null;
-
-		File productDirectory = p2Directory.getParentFile();
-		if (productDirectory == null || !(new File(productDirectory, ARTIFACTS_XML).exists()))
-			return null;
-
-		return productDirectory;
+		return p2EngineDirectory.getParentFile();
 	}
 
 	public void initialize(RepositoryState state) {
