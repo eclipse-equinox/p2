@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -39,8 +38,7 @@ import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 /**
  * Publish IUs for all of the bundles in a given set of locations or described by a set of
@@ -775,11 +773,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (addSimpleConfigurator) {
 			// Add simple configurator to the list of bundles
 			try {
-				URL configuratorURL = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")); //$NON-NLS-1$
-				if (configuratorURL == null)
+				Bundle simpleConfigBundle = Platform.getBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
+				if (simpleConfigBundle == null)
 					LogHelper.log(new Status(IStatus.INFO, Activator.ID, Messages.message_noSimpleconfigurator));
 				else {
-					File location = new File(configuratorURL.getFile());
+					File location = FileLocator.getBundleFile(simpleConfigBundle);
 					result[result.length - 1] = createBundleDescription(location);
 				}
 			} catch (IOException e) {
