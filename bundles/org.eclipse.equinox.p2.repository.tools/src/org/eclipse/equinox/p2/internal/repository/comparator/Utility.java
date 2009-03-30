@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.comparator;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -44,13 +43,22 @@ public class Utility {
 				throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
 			return getInputStreamAsByteArray(stream, (int) ze.getSize());
 		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
+			close(stream);
+		}
+	}
+
+	public static void close(Object object) {
+		if (object == null)
+			return;
+		try {
+			if (object instanceof InputStream)
+				((InputStream) object).close();
+			else if (object instanceof OutputStream)
+				((OutputStream) object).close();
+			else if (object instanceof ZipFile)
+				((ZipFile) object).close();
+		} catch (IOException e) {
+			//ignore
 		}
 	}
 

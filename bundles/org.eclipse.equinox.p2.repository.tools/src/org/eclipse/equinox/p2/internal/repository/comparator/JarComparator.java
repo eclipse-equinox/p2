@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.internal.repository.comparator;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.*;
+import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
@@ -29,6 +29,11 @@ public class JarComparator implements IArtifactComparator {
 	private static final String SUFFIX_JAR = ".jar"; //$NON-NLS-1$
 	private static final String SOURCE_ARTIFACT_PREFIX = "sourceartifact"; //$NON-NLS-1$
 	private static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
+
+	private static final String META_INF = "meta-inf/"; //$NON-NLS-1$
+	private static final String DSA_EXT = ".dsa"; //$NON-NLS-1$
+	private static final String RSA_EXT = ".rsa"; //$NON-NLS-1$
+	private static final String SF_EXT = ".sf"; //$NON-NLS-1$
 
 	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor, IArtifactRepository destination, IArtifactDescriptor destinationDescriptor) {
 		String classifier = sourceDescriptor.getArtifactKey().getClassifier();
@@ -97,10 +102,16 @@ public class JarComparator implements IArtifactComparator {
 		}
 	}
 
+	private boolean isSigningEntry(String entry) {
+		return (entry.startsWith(META_INF) && (entry.endsWith(SF_EXT) || entry.endsWith(RSA_EXT) || entry.endsWith(DSA_EXT)));
+	}
+
 	public IStatus compare(File sourceFile, File destinationFile) {
+		ZipFile firstFile = null;
+		ZipFile secondFile = null;
 		try {
-			ZipFile firstFile = new ZipFile(sourceFile);
-			ZipFile secondFile = new ZipFile(destinationFile);
+			firstFile = new ZipFile(sourceFile);
+			secondFile = new ZipFile(destinationFile);
 			final int firstFileSize = firstFile.size();
 			final int secondFileSize = secondFile.size();
 			if (firstFileSize != secondFileSize) {
@@ -111,10 +122,14 @@ public class JarComparator implements IArtifactComparator {
 				String entryName = entry.getName();
 				final ZipEntry entry2 = secondFile.getEntry(entryName);
 				if (!entry.isDirectory() && entry2 != null) {
+					String lowerCase = entryName.toLowerCase();
+					if (isSigningEntry(lowerCase)) {
+						continue;
+					}
+
 					Disassembler disassembler = new Disassembler();
 					byte[] firstEntryClassFileBytes = Utility.getZipEntryByteContent(entry, firstFile);
 					byte[] secondEntryClassFileBytes = Utility.getZipEntryByteContent(entry2, secondFile);
-					String lowerCase = entryName.toLowerCase();
 					if (lowerCase.endsWith(CLASS_EXTENSION)) {
 						String contentsFile1 = null;
 						String contentsFile2 = null;
@@ -140,13 +155,7 @@ public class JarComparator implements IArtifactComparator {
 						} catch (IOException e) {
 							return newErrorStatus(NLS.bind(Messages.ioexceptioninentry, entryName, sourceFile.getAbsolutePath()), e);
 						} finally {
-							try {
-								if (stream != null) {
-									stream.close();
-								}
-							} catch (IOException e) {
-								// ignore
-							}
+							Utility.close(stream);
 						}
 						File secondTempFile = null;
 						stream = null;
@@ -160,13 +169,7 @@ public class JarComparator implements IArtifactComparator {
 						} catch (IOException e) {
 							return newErrorStatus(NLS.bind(Messages.ioexceptioninentry, entryName, sourceFile.getAbsolutePath()), e);
 						} finally {
-							try {
-								if (stream != null) {
-									stream.close();
-								}
-							} catch (IOException e) {
-								// ignore
-							}
+							Utility.close(stream);
 						}
 
 						try {
@@ -180,6 +183,11 @@ public class JarComparator implements IArtifactComparator {
 							}
 							secondTempFile.delete();
 						}
+					} else if (entryName.equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
+						// MANIFEST.MF file
+						if (!compareManifest(firstEntryClassFileBytes, secondEntryClassFileBytes)) {
+							return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
+						}
 					} else if (!Arrays.equals(firstEntryClassFileBytes, secondEntryClassFileBytes)) {
 						// do a binary compare byte per byte
 						return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
@@ -189,13 +197,57 @@ public class JarComparator implements IArtifactComparator {
 					return newErrorStatus(NLS.bind(Messages.missingEntry, entryName, sourceFile.getAbsolutePath()));
 				}
 			}
-			firstFile.close();
-			secondFile.close();
 		} catch (IOException e) {
 			// missing entry
 			return newErrorStatus(NLS.bind(Messages.ioexception, new String[] {sourceFile.getAbsolutePath(), destinationFile.getAbsolutePath()}), e);
+		} finally {
+			Utility.close(firstFile);
+			Utility.close(secondFile);
 		}
 		return Status.OK_STATUS;
+	}
+
+	private boolean compareManifest(byte[] firstEntryClassFileBytes, byte[] secondEntryClassFileBytes) {
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(firstEntryClassFileBytes);
+		Manifest manifest = null;
+		try {
+			manifest = new Manifest(inputStream);
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			Utility.close(inputStream);
+		}
+		if (manifest == null) {
+			return true;
+		}
+
+		inputStream = new ByteArrayInputStream(secondEntryClassFileBytes);
+		Manifest manifest2 = null;
+		try {
+			manifest2 = new Manifest(inputStream);
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			Utility.close(inputStream);
+		}
+		if (manifest2 == null) {
+			return true;
+		}
+		Attributes attributes = manifest.getMainAttributes();
+		Attributes attributes2 = manifest2.getMainAttributes();
+		if (attributes.size() != attributes2.size())
+			return false;
+		for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			Object value2 = attributes2.get(entry.getKey());
+			if (value2 == null) {
+				return false;
+			}
+			if (!value2.equals(entry.getValue())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private String normalize(String entryName) {
