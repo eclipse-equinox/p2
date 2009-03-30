@@ -32,6 +32,7 @@ public class Mirroring {
 	private IArtifactComparator comparator;
 	private String comparatorID;
 	private IArtifactKey[] keysToMirror;
+	private IArtifactMirrorLog comparatorLog;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
@@ -51,6 +52,10 @@ public class Mirroring {
 
 	public void setComparatorId(String id) {
 		this.comparatorID = id;
+	}
+
+	public void setComparatorLog(IArtifactMirrorLog comparatorLog) {
+		this.comparatorLog = comparatorLog;
 	}
 
 	public void setBaseline(IArtifactRepository baseline) {
@@ -106,7 +111,10 @@ public class Mirroring {
 				if (baselineDescriptor != null) {
 					MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.Mirroring_compareAndDownload, descriptor), null);
 					//Compare source against baseline
-					status.add(getComparator().compare(baseline, baselineDescriptor, source, descriptor));
+					IStatus comparison = getComparator().compare(baseline, baselineDescriptor, source, descriptor);
+					if (comparatorLog != null)
+						comparatorLog.log(baselineDescriptor, comparison);
+					status.add(comparison);
 					if (destination.contains(baselineDescriptor))
 						return compareToDestination(baselineDescriptor);
 
@@ -144,7 +152,14 @@ public class Mirroring {
 		}
 		if (destDescriptor == null)
 			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, null);
-		return getComparator().compare(source, descriptor, destination, destDescriptor);
+		return compare(source, descriptor, destination, destDescriptor);
+	}
+
+	private IStatus compare(IArtifactRepository sourceRepository, IArtifactDescriptor sourceDescriptor, IArtifactRepository destRepository, IArtifactDescriptor destDescriptor) {
+		IStatus comparison = getComparator().compare(sourceRepository, sourceDescriptor, destRepository, destDescriptor);
+		if (comparatorLog != null)
+			comparatorLog.log(sourceDescriptor, comparison);
+		return comparison;
 	}
 
 	/*

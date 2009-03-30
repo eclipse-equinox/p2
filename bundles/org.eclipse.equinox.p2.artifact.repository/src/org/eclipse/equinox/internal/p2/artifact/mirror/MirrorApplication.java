@@ -42,6 +42,7 @@ public class MirrorApplication implements IApplication {
 	private boolean append = true;
 	private boolean raw = false;
 	private boolean failOnError = true;
+	private boolean validate = false;
 	private boolean verbose = false;
 	private IArtifactRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
@@ -50,6 +51,8 @@ public class MirrorApplication implements IApplication {
 	private boolean compare = false;
 	private String comparatorID = MD5ArtifactComparator.MD5_COMPARATOR_ID; //use MD5 as default
 	private String destinationName;
+	private IArtifactMirrorLog mirrorLog;
+	private IArtifactMirrorLog comparatorLog;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
@@ -63,6 +66,9 @@ public class MirrorApplication implements IApplication {
 		mirroring.setCompare(compare);
 		mirroring.setComparatorId(comparatorID);
 		mirroring.setBaseline(baseline);
+		mirroring.setValidate(validate);
+		if (comparatorLog != null)
+			mirroring.setComparatorLog(comparatorLog);
 
 		IStatus result = mirroring.run(failOnError, verbose);
 		if (!result.isOK()) {
@@ -71,18 +77,10 @@ public class MirrorApplication implements IApplication {
 				System.err.println("Mirroring completed. Please check log file for more information."); //$NON-NLS-1$
 			else
 				System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
-			FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
-			if (log != null)
-				System.err.println("Log file location: " + log.getFile()); //$NON-NLS-1$
-			LogHelper.log(result);
+			log(result);
 		}
-		//if the repository was not already loaded before the mirror application started, close it.
-		if (!sourceLoaded)
-			getManager().removeRepository(sourceLocation);
-		if (!destinationLoaded)
-			getManager().removeRepository(destinationLocation);
-		if (baselineLocation != null && !baselineLoaded)
-			getManager().removeRepository(baselineLocation);
+
+		cleanup();
 
 		return IApplication.EXIT_OK;
 	}
@@ -157,6 +155,10 @@ public class MirrorApplication implements IApplication {
 	public void initializeFromArguments(String[] args) throws Exception {
 		if (args == null)
 			return;
+
+		String comparatorLogLocation = null;
+		String mirrorLogLocation = null;
+
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
@@ -167,6 +169,8 @@ public class MirrorApplication implements IApplication {
 				verbose = true;
 			if (args[i].equalsIgnoreCase("-compare")) //$NON-NLS-1$
 				compare = true;
+			if (args[i].equalsIgnoreCase("-validate")) //$NON-NLS-1$
+				validate = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -177,11 +181,15 @@ public class MirrorApplication implements IApplication {
 
 			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
 				comparatorID = arg;
+			if (args[i - 1].equalsIgnoreCase("-comparatorLog")) //$NON-NLS-1$
+				comparatorLogLocation = arg;
 			if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
 				destinationName = arg;
 			if (args[i - 1].equalsIgnoreCase("-writeMode")) //$NON-NLS-1$
 				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
 					append = false;
+			if (args[i - 1].equalsIgnoreCase("-log")) //$NON-NLS-1$
+				mirrorLogLocation = arg;
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
@@ -196,5 +204,55 @@ public class MirrorApplication implements IApplication {
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_malformedRepoURI, arg));
 			}
 		}
+		// Create logs
+		if (mirrorLogLocation != null)
+			mirrorLog = getLog(mirrorLogLocation, "p2.artifact.mirror"); //$NON-NLS-1$
+		if (comparatorLogLocation != null && comparatorID != null)
+			comparatorLog = getLog(comparatorLogLocation, comparatorID);
+	}
+
+	public void setLog(IArtifactMirrorLog log) {
+		mirrorLog = log;
+	}
+
+	/*
+	 * Create a MirrorLog based on a filename
+	 */
+	private IArtifactMirrorLog getLog(String location, String root) {
+		if (location.toLowerCase().endsWith(".xml")) //$NON-NLS-1$
+			return new XMLMirrorLog(location, verbose ? IStatus.INFO : IStatus.ERROR, root);
+		return new FileMirrorLog(location, verbose ? IStatus.INFO : IStatus.ERROR, root);
+	}
+
+	/*
+	 * Log the result of mirroring
+	 */
+	private void log(IStatus status) {
+		if (mirrorLog == null) {
+			FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+			if (log != null)
+				System.err.println("Log file location: " + log.getFile()); //$NON-NLS-1$
+			LogHelper.log(status);
+		} else
+			mirrorLog.log(status);
+	}
+
+	/*
+	 * Cleanup
+	 */
+	private void cleanup() {
+		//if the repository was not already loaded before the mirror application started, close it.
+		if (!sourceLoaded)
+			getManager().removeRepository(sourceLocation);
+		if (!destinationLoaded)
+			getManager().removeRepository(destinationLocation);
+		if (baselineLocation != null && !baselineLoaded)
+			getManager().removeRepository(baselineLocation);
+
+		// Close logs
+		if (mirrorLog != null)
+			mirrorLog.close();
+		if (comparatorLog != null)
+			comparatorLog.close();
 	}
 }

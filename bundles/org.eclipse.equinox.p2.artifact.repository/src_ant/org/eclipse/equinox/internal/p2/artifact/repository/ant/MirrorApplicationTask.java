@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.ant;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -29,8 +30,10 @@ public class MirrorApplicationTask extends Task {
 	private static final String ARG_COMPARATOR = "-comparator"; //$NON-NLS-1$
 	private static final String ARG_COMPARE = "-compare"; //$NON-NLS-1$
 	private static final String ARG_COMPARE_AGAINST = "-compareAgainst"; //$NON-NLS-1$
+	private static final String ARG_COMPARATOR_LOG = "-comparatorLog"; //$NON-NLS-1$
 	private static final String ARG_DESTINATION = "-destination"; //$NON-NLS-1$
 	private static final String ARG_IGNORE_ERRORS = "-ignoreErrors"; //$NON-NLS-1$
+	private static final String ARG_LOG = "-log"; //$NON-NLS-1$
 	private static final String ARG_RAW = "-raw"; //$NON-NLS-1$
 	private static final String ARG_SOURCE = "-source"; //$NON-NLS-1$
 	private static final String ARG_VERBOSE = "-verbose"; //$NON-NLS-1$
@@ -39,6 +42,8 @@ public class MirrorApplicationTask extends Task {
 	URL source;
 	URL destination;
 	URL baseline; // location of known good repository for compare against (optional)
+	File mirrorLog; // file to log mirror output to (optional)
+	File comparatorLog; // file to comparator output to (optional)
 	String comparatorID; // specifies a comparator (optional)
 	String writeMode;
 	boolean compare = false;
@@ -50,7 +55,10 @@ public class MirrorApplicationTask extends Task {
 	 * Runs the mirror application with the given arguments.
 	 */
 	private void runMirrorApplication(final String[] args) throws Exception {
-		new MirrorApplication().start(new IApplicationContext() {
+		MirrorApplication app = new MirrorApplication();
+		if (mirrorLog == null)
+			app.setLog(new AntMirrorLog(this));
+		app.start(new IApplicationContext() {
 
 			public void applicationRunning() {
 				// nothing to do
@@ -108,7 +116,11 @@ public class MirrorApplicationTask extends Task {
 				compareAgainst ? ARG_COMPARE_AGAINST : EMPTY_STRING, //
 				compareAgainst ? baseline.toExternalForm() : EMPTY_STRING, //
 				comparator ? ARG_COMPARATOR : EMPTY_STRING, //
-				comparator ? comparatorID : EMPTY_STRING};
+				comparator ? comparatorID : EMPTY_STRING, //
+				mirrorLog != null ? ARG_LOG : EMPTY_STRING, //
+				mirrorLog != null ? mirrorLog.getAbsolutePath() : EMPTY_STRING, //
+				comparatorLog != null ? ARG_COMPARATOR_LOG : EMPTY_STRING, //
+				comparatorLog != null ? comparatorLog.getAbsolutePath() : EMPTY_STRING,};
 
 		try {
 			runMirrorApplication(args);
@@ -148,10 +160,24 @@ public class MirrorApplicationTask extends Task {
 	}
 
 	/*
+	 * Set the location of the comparator log
+	 */
+	public void setComparatorLog(String value) {
+		comparatorLog = new File(value);
+	}
+
+	/*
 	 * Set the write mode. (e.g. clean or append)
 	 */
 	public void setWriteMode(String value) {
 		writeMode = value;
+	}
+
+	/*
+	 * Set the log location if applicable
+	 */
+	public void setLog(String value) {
+		mirrorLog = new File(value);
 	}
 
 	/*

@@ -60,6 +60,11 @@ public class Messages extends NLS {
 	public static String Mirroring_ValidationError;
 	public static String Mirroring_compareAndDownload;
 
+	public static String MirrorLog_Console_Log;
+	public static String MirrorLog_Exception_Occurred;
+
+	public static String exception_unableToCreateParentDir;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
