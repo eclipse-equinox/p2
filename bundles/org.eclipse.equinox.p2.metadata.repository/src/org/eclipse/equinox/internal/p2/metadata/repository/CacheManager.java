@@ -100,7 +100,7 @@ public class CacheManager {
 			try {
 				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified == 0 for " + jarLocation)); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
 
 			} catch (Exception e) {
 				// not ideal, just skip the jar on error, and try the xml instead - report errors for
@@ -114,7 +114,7 @@ public class CacheManager {
 				// There is a jar, and it should be used - cache is stale if it is xml based or
 				// if older (irrespective of jar or xml).
 				// Bug 269588 - also stale if remote reports 0
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION) || lastModifiedRemote == 0);
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION) || lastModifiedRemote <= 0);
 			} else {
 				// Also need to check remote XML file, and handle cancel, and errors
 				// (Status is reported based on finding the XML file as giving up on certain errors
@@ -125,7 +125,8 @@ public class CacheManager {
 					// a FileNotFound exception should have been thrown.
 					// bug 269588 - server may return 0 when file exists - site is not correctly configured
 					if (lastModifiedRemote <= 0)
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified == 0 for " + xmlLocation)); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + xmlLocation)); //$NON-NLS-1$
+
 				} catch (UserCancelledException e) {
 					throw new ProvisionException(Status.CANCEL_STATUS);
 				} catch (FileNotFoundException e) {
@@ -139,7 +140,7 @@ public class CacheManager {
 				// There is an xml, and it should be used - cache is stale if it is jar based or
 				// if older (irrespective of jar or xml).
 				// bug 269588 - server may return 0 when file exists - assume it is stale
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION) || lastModifiedRemote == 0);
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION) || lastModifiedRemote <= 0);
 				useExtension = XML_EXTENSION;
 				remoteFile = xmlLocation;
 			}
