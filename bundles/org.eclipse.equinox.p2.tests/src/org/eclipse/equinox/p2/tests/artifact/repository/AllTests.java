@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		suite.addTestSuite(ArtifactRepositoryManagerTest.class);
+		suite.addTestSuite(ArtifactRepositoryMissingSizeData.class);
 		suite.addTestSuite(ArtifactRepositoryWithReferenceDescriptors.class);
 		suite.addTestSuite(Bug252308.class);
 		suite.addTestSuite(CompositeArtifactRepositoryTest.class);

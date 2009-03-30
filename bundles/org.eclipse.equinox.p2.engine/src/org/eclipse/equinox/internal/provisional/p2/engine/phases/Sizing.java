@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 public class Sizing extends InstallableUnitPhase {
 	private static final String PHASE_ID = "sizing"; //$NON-NLS-1$
@@ -71,6 +70,7 @@ public class Sizing extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
+		int statusCode = 0;
 
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
 
@@ -95,6 +95,7 @@ public class Sizing extends InstallableUnitPhase {
 
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
+			boolean found = false;
 			for (int i = 0; i < repositories.length; i++) {
 				IArtifactRepository repo;
 				try {
@@ -108,12 +109,22 @@ public class Sizing extends InstallableUnitPhase {
 				if (descriptors.length > 0) {
 					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
 						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+					else
+						statusCode = ProvisionException.ARTIFACT_INCOMPLETE_SIZING;
 					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
 						dlSize += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
+					else
+						statusCode = ProvisionException.ARTIFACT_INCOMPLETE_SIZING;
+					found = true;
 					break;
 				}
 			}
+			if (!found)
+				// The artifact wasn't present in any repository
+				return new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.ARTIFACT_NOT_FOUND, Messages.Phase_Sizing_Error, null);
 		}
+		if (statusCode != 0)
+			return new Status(IStatus.WARNING, EngineActivator.ID, statusCode, Messages.Phase_Sizing_Warning, null);
 		return null;
 	}
 

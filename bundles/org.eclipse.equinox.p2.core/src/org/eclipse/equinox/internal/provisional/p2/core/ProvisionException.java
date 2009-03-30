@@ -95,6 +95,12 @@ public class ProvisionException extends CoreException {
 	public static final int ARTIFACT_EXISTS = 1201;
 
 	/**
+	 * Status code constant (value 1202) indicating an artifact's size
+	 * could not be found.
+	 */
+	public static final int ARTIFACT_INCOMPLETE_SIZING = 1202;
+
+	/**
 	 * Creates a new exception with the given status object.  The message
 	 * of the given status is used as the exception message.
 	 *
