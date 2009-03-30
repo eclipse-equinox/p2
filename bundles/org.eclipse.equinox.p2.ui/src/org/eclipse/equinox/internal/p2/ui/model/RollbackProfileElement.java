@@ -32,6 +32,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	private String profileId;
 	private long timestamp;
 	private IProfile snapshot;
+	private boolean isCurrent = false;
 
 	public RollbackProfileElement(Object parent, String profileId, long timestamp) {
 		super(parent);
@@ -49,6 +50,8 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	}
 
 	public String getLabel(Object o) {
+		if (isCurrent)
+			return ProvUIMessages.RollbackProfileElement_CurrentInstallation;
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG).format(new Date(timestamp));
 	}
 
@@ -72,6 +75,14 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	public void setIsCurrentProfile(boolean current) {
+		this.isCurrent = current;
+	}
+
+	public boolean isCurrentProfile() {
+		return isCurrent;
 	}
 
 	/* (non-Javadoc)

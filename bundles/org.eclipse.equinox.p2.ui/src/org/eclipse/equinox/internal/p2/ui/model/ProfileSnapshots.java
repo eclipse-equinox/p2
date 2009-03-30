@@ -38,17 +38,17 @@ public class ProfileSnapshots extends ProvElement {
 	public Object[] getChildren(Object o) {
 		try {
 			long[] timestamps = ProvisioningUtil.getProfileTimestamps(profileId);
-			// eliminate the last in the list (latest) because that is the current
-			// profile.  
-			RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length - 1];
+			RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length];
 			boolean skipFirst = false;
-			for (int i = 0; i < timestamps.length - 1; i++) {
+			for (int i = 0; i < timestamps.length; i++) {
 				elements[i] = new RollbackProfileElement(this, profileId, timestamps[i]);
 				// Eliminate the first in the list (earliest) if there was no content at all.
 				// This doesn't always happen, but can, and we don't want to offer the user an empty profile to
 				// revert to.
 				if (i == 0) {
 					skipFirst = elements[0].getChildren(elements[0]).length == 0;
+				} else if (i == timestamps.length - 1) {
+					elements[i].setIsCurrentProfile(true);
 				}
 			}
 			if (skipFirst) {

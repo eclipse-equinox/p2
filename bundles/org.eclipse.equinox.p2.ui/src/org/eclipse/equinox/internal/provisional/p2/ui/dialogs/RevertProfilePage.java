@@ -53,13 +53,15 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	TreeViewer configContentsViewer;
 	IUDetailsLabelProvider labelProvider;
 	IAction revertAction;
+	Button revertButton;
 	String profileId;
 	AbstractContributionFactory factory;
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
 
 	public void createPageButtons(Composite parent) {
-		createButton(parent, REVERT_ID, revertAction.getText());
+		revertButton = createButton(parent, REVERT_ID, revertAction.getText());
+		revertButton.setEnabled(revertAction.isEnabled());
 	}
 
 	public void createControl(Composite parent) {
@@ -194,12 +196,16 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				configContentsViewer.setInput(selected);
 				configContentsViewer.setExpandedElements(elements);
 				configContentsViewer.getTree().setRedraw(true);
-				revertAction.setEnabled(true);
+				revertAction.setEnabled(!((RollbackProfileElement) selected).isCurrentProfile());
+				if (revertButton != null)
+					revertButton.setEnabled(revertAction.isEnabled());
 				return;
 			}
 		}
 		configContentsViewer.setInput(null);
 		revertAction.setEnabled(false);
+		if (revertButton != null)
+			revertButton.setEnabled(false);
 	}
 
 	private void setTreeColumns(Tree tree) {
