@@ -112,11 +112,11 @@ public class RepositoryTransport extends Transport {
 	}
 
 	/**
-	 * Returns the last modified date for a URI, or 0 on any error.
-	 * (If more control over errors is needed, use {@link FileInfoReader#getRemoteFiles(URI, IProgressMonitor)}).
+	 * Returns the last modified date for a URI. A last modified of 0 typically indicates that
+	 * the server response is wrong, but should not be interpreted as a file not found.
 	 * @param toDownload
 	 * @param monitor
-	 * @return last modified date or 0 on any error
+	 * @return last modified date (possibly 0)
 	 */
 	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws UserCancelledException, CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
@@ -125,23 +125,17 @@ public class RepositoryTransport extends Transport {
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
 				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
-
 				// get the remote info
 				FileInfoReader reader = new FileInfoReader(context);
 				return reader.getLastModified(toDownload, monitor);
-				//			} catch (UserCancelledException e) {
-				//				return 0;
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a user
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
-				//			} catch (FileNotFoundException e) {
-				//				return 0;
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			}
 		}
 		// reached maximum number of authentication retries without success
-		// return 0;
 		throw new AuthenticationFailedException();
 	}
 

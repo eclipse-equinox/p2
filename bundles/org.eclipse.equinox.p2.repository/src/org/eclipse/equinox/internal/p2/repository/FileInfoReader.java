@@ -120,7 +120,9 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 
 	public long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException {
 		IRemoteFile file = getRemoteFile(location, monitor);
-		return file == null ? 0L : file.getInfo().getLastModified();
+		if (file == null)
+			throw new FileNotFoundException(location.toString());
+		return file.getInfo().getLastModified();
 	}
 
 	public void handleRemoteFileEvent(IRemoteFileSystemEvent event) {

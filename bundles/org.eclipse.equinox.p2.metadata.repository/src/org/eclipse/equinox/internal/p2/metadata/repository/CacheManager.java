@@ -60,7 +60,7 @@ public class CacheManager {
 	 * @param monitor a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
 	 * if the location is not a repository.
-	 * @throws FileNotFound exception if neither jar nor xml index file exists at given location 
+	 * @throws FileNotFoundException if neither jar nor xml index file exists at given location 
 	 * @throws AuthenticationFailedException if jar not available and xml causes authentication fail
 	 * @throws IOException on general IO errors
 	 * @throws ProvisionException on any error (e.g. user cancellation, unknown host, malformed address, connection refused, etc.)
@@ -90,24 +90,31 @@ public class CacheManager {
 			URI remoteFile = jarLocation;
 
 			if (cacheFile != null) {
-				cacheFile.lastModified();
+				lastModified = cacheFile.lastModified();
 				name = cacheFile.getName();
 			}
 			// get last modified on jar
 			long lastModifiedRemote = 0L;
+			// bug 269588 - server may return 0 when file exists, so extra flag is needed
+			boolean useJar = true;
 			try {
 				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
+				if (lastModifiedRemote <= 0)
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified == 0 for " + jarLocation)); //$NON-NLS-1$
+
 			} catch (Exception e) {
-				// just set to 0 and test if xml exists, report general error for the xml file
-				lastModifiedRemote = 0;
+				// not ideal, just skip the jar on error, and try the xml instead - report errors for
+				// the xml.
+				useJar = false;
 			}
 			if (monitor.isCanceled())
 				throw new ProvisionException(Status.CANCEL_STATUS);
 
-			if (lastModifiedRemote != 0) {
+			if (useJar) {
 				// There is a jar, and it should be used - cache is stale if it is xml based or
 				// if older (irrespective of jar or xml).
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION));
+				// Bug 269588 - also stale if remote reports 0
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION) || lastModifiedRemote == 0);
 			} else {
 				// Also need to check remote XML file, and handle cancel, and errors
 				// (Status is reported based on finding the XML file as giving up on certain errors
@@ -116,8 +123,9 @@ public class CacheManager {
 					lastModifiedRemote = getTransport().getLastModified(xmlLocation, submonitor.newChild(1));
 					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as 
 					// a FileNotFound exception should have been thrown.
-					if (lastModifiedRemote == 0)
-						throw new FileNotFoundException();
+					// bug 269588 - server may return 0 when file exists - site is not correctly configured
+					if (lastModifiedRemote <= 0)
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified == 0 for " + xmlLocation)); //$NON-NLS-1$
 				} catch (UserCancelledException e) {
 					throw new ProvisionException(Status.CANCEL_STATUS);
 				} catch (FileNotFoundException e) {
@@ -130,7 +138,8 @@ public class CacheManager {
 				}
 				// There is an xml, and it should be used - cache is stale if it is jar based or
 				// if older (irrespective of jar or xml).
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION));
+				// bug 269588 - server may return 0 when file exists - assume it is stale
+				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION) || lastModifiedRemote == 0);
 				useExtension = XML_EXTENSION;
 				remoteFile = xmlLocation;
 			}
