@@ -161,7 +161,7 @@ public class UpdateSite {
 				// TODO: ? Tests dictate that REPOSITORY_NOT_FOUND is the correct response to 
 				// issues like "unknown host", "malformed url" - it is almost impossible to differentiate
 				// between "not found" and "error while reading something found" at this point.
-				int code = transferResult.getCode();
+				// int code = transferResult.getCode();
 				MultiStatus ms = new MultiStatus(Activator.ID, //
 						ProvisionException.REPOSITORY_NOT_FOUND,
 						// (code == ProvisionException.ARTIFACT_NOT_FOUND || code == ProvisionException.REPOSITORY_NOT_FOUND ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ), //
