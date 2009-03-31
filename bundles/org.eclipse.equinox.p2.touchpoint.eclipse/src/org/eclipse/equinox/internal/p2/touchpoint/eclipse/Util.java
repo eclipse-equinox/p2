@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -181,7 +182,9 @@ public class Util {
 			String version = (String) headers.get(Constants.BUNDLE_VERSION);
 			if (version == null)
 				return null;
-			bundleInfo.setVersion(version);
+			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
+			// padding zeros at the end
+			bundleInfo.setVersion(new Version(version).toString());
 
 			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
 			if (fragmentHost != null)
