@@ -294,18 +294,16 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 	}
 
 	/**
-	 * Flushes a Flushable, and Closes a Closeable - errors are ignored.
-	 * @param stream
+	 * Closes input and output streams
+	 * @param aStream
 	 */
-	public static void hardClose(Closeable stream) {
-		if (stream != null) {
+	public static void hardClose(Object aStream) {
+		if (aStream != null) {
 			try {
-				if (stream instanceof Flushable)
-					((Flushable) stream).flush();
-			} catch (IOException e) { /* ignore */
-			}
-			try {
-				stream.close();
+				if (aStream instanceof OutputStream)
+					((OutputStream) aStream).close();
+				else if (aStream instanceof InputStream)
+					((InputStream) aStream).close();
 			} catch (IOException e) { /* ignore */
 			}
 		}

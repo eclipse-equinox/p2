@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.osgi.util.NLS;
@@ -17,6 +18,7 @@ import org.eclipse.osgi.util.NLS;
  * in progress monitoring is provided.
  * 
  * @author thomas.hallgren@cloudsmith.com
+ * @author henrik.lindberg@cloudsmith.com (adaption to java 1.4)
  */
 public class ProgressStatistics {
 	private static final int DEFAULT_REPORT_INTERVAL = 1000;
@@ -26,13 +28,15 @@ public class ProgressStatistics {
 	private static final int SPEED_RESOLUTION = 1000;
 
 	private static String convert(long amount) {
+		NumberFormat fmt = NumberFormat.getInstance();
 		if (amount < 1024)
-			return String.format(Locale.US, "%dB", new Object[] {Long.valueOf(amount)}); //$NON-NLS-1$
+			return fmt.format(amount) + "B"; //$NON-NLS-1$
 
+		fmt.setMaximumFractionDigits(2);
 		if (amount < 1024 * 1024)
-			return String.format(Locale.US, "%.2fkB", new Object[] {Double.valueOf(((double) amount) / 1024)}); //$NON-NLS-1$
+			return fmt.format(((double) amount) / 1024) + "kB"; //$NON-NLS-1$
 
-		return String.format(Locale.US, "%.2fMB", new Object[] {Double.valueOf(((double) amount) / (1024 * 1024))}); //$NON-NLS-1$
+		return fmt.format(((double) amount) / (1024 * 1024)) + "MB"; //$NON-NLS-1$
 	}
 
 	private final String m_fileName;
@@ -88,7 +92,7 @@ public class ProgressStatistics {
 		removeObsoleteRecentSpeedData(getDuration() / SPEED_RESOLUTION);
 		long dur = 0L;
 		long amount = 0L;
-		SortedMap relevantData = m_recentSpeedMap.headMap(Long.valueOf(m_recentSpeedMapKey));
+		SortedMap relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
 
 		Iterator itor = relevantData.entrySet().iterator();
 		while (itor.hasNext()) {
@@ -138,13 +142,13 @@ public class ProgressStatistics {
 	}
 
 	synchronized private void registerRecentSpeed(long key, long inc) {
-		Long keyL = Long.valueOf(key);
+		Long keyL = new Long(key);
 		Long currentValueL = (Long) m_recentSpeedMap.get(keyL);
 		long currentValue = 0L;
 		if (currentValueL != null)
 			currentValue = currentValueL.longValue();
 
-		m_recentSpeedMap.put(keyL, Long.valueOf(inc + currentValue));
+		m_recentSpeedMap.put(keyL, new Long(inc + currentValue));
 
 		if (m_recentSpeedMapKey != key) {
 			m_recentSpeedMapKey = key;
@@ -154,6 +158,6 @@ public class ProgressStatistics {
 
 	synchronized private void removeObsoleteRecentSpeedData(long lastKey) {
 		long threshold = lastKey - SPEED_INTERVAL / SPEED_RESOLUTION;
-		m_recentSpeedMap.headMap(Long.valueOf(threshold)).clear();
+		m_recentSpeedMap.headMap(new Long(threshold)).clear();
 	}
 }
