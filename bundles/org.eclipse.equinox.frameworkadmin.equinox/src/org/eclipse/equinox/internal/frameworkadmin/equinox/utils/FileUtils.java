@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.osgi.framework.Version;
 
 public class FileUtils {
+	private static String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static String REFERENCE_PROTOCOL = "reference:"; //$NON-NLS-1$
 	private static String INITIAL_PREFIX = "initial@"; //$NON-NLS-1$
@@ -173,7 +174,7 @@ public class FileUtils {
 	}
 
 	public static String toPath(URI uri) {
-		if (!FILE_PROTOCOL.equalsIgnoreCase(uri.getScheme()))
+		if (!FILE_SCHEME.equalsIgnoreCase(uri.getScheme()))
 			return new File(URIUtil.toUnencodedString(uri)).getPath();
 		return URIUtil.toFile(uri).getAbsolutePath();
 	}

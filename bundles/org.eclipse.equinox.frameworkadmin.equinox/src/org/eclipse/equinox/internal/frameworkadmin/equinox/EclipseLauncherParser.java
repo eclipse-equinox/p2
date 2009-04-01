@@ -102,7 +102,7 @@ public class EclipseLauncherParser {
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_VM, lines);
 			return;
 		}
-		URI VMRelativePath = URIUtil.makeRelative(vm.toURI(), launcherFolder);
+		URI VMRelativePath = launcherFolder.relativize(vm.toURI());
 		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath).replace('\\', '/'), lines);
 	}
 
