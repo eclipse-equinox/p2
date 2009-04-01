@@ -11,9 +11,6 @@
 
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -24,22 +21,32 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication {
 
 	private RepositoryDescriptor descriptor;
 	private String repoName = null;
+	boolean removeArtifactRepo = true;
 	private Map repoProperties = null;
 	private Map repoMap = null;
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException, IOException {
 
-		IArtifactRepository repository = initialize(monitor);
-		removeRepository(repository, monitor);
-		recreateRepository(monitor);
+		try {
+			IArtifactRepository repository = initialize(monitor);
+			removeRepository(repository, monitor);
+			recreateRepository(monitor);
+		} finally {
+			if (removeArtifactRepo) {
+				IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+				repositoryManager.removeRepository(descriptor.getRepoLocation());
+			}
+		}
 
-		return null;
+		return Status.OK_STATUS;
 	}
 
 	public void setArtifactRepository(RepositoryDescriptor descriptor) {
@@ -48,6 +55,7 @@ public class RecreateRepositoryApplication {
 
 	private IArtifactRepository initialize(IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+		removeArtifactRepo = !repositoryManager.contains(descriptor.getRepoLocation());
 
 		IArtifactRepository repository = repositoryManager.loadRepository(descriptor.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
 
