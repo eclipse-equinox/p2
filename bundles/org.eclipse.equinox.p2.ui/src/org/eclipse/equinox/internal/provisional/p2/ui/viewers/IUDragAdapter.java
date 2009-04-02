@@ -19,7 +19,7 @@ import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * *Implements drag behaviour when IU items are dragged from a repository view.
+ * Implements drag behaviour when IU items are dragged from a repository view.
  * 
  * @since 3.4
  */

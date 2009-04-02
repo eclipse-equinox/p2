@@ -14,7 +14,11 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4,
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.p2.core,
- org.eclipse.equinox.security.storage
+ org.eclipse.equinox.security.storage,
+ javax.xml.parsers,
+ org.w3c.dom,
+ org.xml.sax,
+ org.xml.sax.helpers
 Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata.repository",
  org.eclipse.equinox.internal.p2.repository;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,

@@ -27,6 +27,8 @@ import org.eclipse.swt.graphics.Image;
  * This class is not intended to be subclassed or instantiated by clients
  * 
  * @since 3.4
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class ProvUIImages {
 

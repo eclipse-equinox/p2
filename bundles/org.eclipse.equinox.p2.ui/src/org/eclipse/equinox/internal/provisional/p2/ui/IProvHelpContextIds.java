@@ -9,6 +9,8 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
  * or extended.
  * </p>
  * @since 3.4
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 
 public interface IProvHelpContextIds {

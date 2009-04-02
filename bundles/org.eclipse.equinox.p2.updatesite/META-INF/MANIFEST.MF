@@ -36,7 +36,8 @@ Import-Package: javax.xml.parsers,
  org.osgi.framework;version="1.3.0",
  org.osgi.util.tracker;version="1.3.0",
  org.xml.sax,
- org.xml.sax.helpers
+ org.xml.sax.helpers,
+ org.w3c.dom
 Require-Bundle: org.eclipse.ecf.filetransfer,
  org.eclipse.ecf,
  org.eclipse.equinox.common;bundle-version="[3.3.0,4.0.0)",
