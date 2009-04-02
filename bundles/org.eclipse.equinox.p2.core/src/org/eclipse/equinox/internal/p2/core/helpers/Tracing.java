@@ -23,34 +23,36 @@ public class Tracing {
 	public static boolean DEBUG = false;
 
 	//debug constants
-	public static boolean DEBUG_PARSE_PROBLEMS = false;
 	public static boolean DEBUG_GENERATOR_PARSING = false;
 	public static boolean DEBUG_INSTALL_REGISTRY = false;
 	public static boolean DEBUG_METADATA_PARSING = false;
 	public static boolean DEBUG_MIRRORS = false;
-	public static boolean DEBUG_REMOVE_REPO = false;
-	public static boolean DEBUG_UPDATE_CHECK = false;
+	public static boolean DEBUG_PARSE_PROBLEMS = false;
 	public static boolean DEBUG_PLANNER_OPERANDS = false;
 	public static boolean DEBUG_PLANNER_PROJECTOR = false;
-	public static boolean DEBUG_RECONCILER = false;
 	public static boolean DEBUG_PROFILE_PREFERENCES = false;
+	public static boolean DEBUG_PUBLISHING = false;
+	public static boolean DEBUG_RECONCILER = false;
+	public static boolean DEBUG_REMOVE_REPO = false;
+	public static boolean DEBUG_UPDATE_CHECK = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
 		if (options != null) {
 			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
 			if (DEBUG) {
-				DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
-				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
-				DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", false); //$NON-NLS-1$
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
 				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
-				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
+				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_PLANNER_OPERANDS = options.getBooleanOption(Activator.ID + "/planner/operands", false); //$NON-NLS-1$
 				DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
+				DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", false); //$NON-NLS-1$
+				DEBUG_PUBLISHING = options.getBooleanOption(Activator.ID + "/publisher", false); //$NON-NLS-1$
 				DEBUG_RECONCILER = options.getBooleanOption(Activator.ID + "/reconciler", false); //$NON-NLS-1$
+				DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
+				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
 			}
 		}
 	}

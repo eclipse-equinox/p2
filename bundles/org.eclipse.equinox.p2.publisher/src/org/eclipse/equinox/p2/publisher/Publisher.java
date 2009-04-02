@@ -10,13 +10,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -24,6 +22,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 public class Publisher {
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
@@ -160,8 +160,9 @@ public class Publisher {
 	public IStatus publish(IPublisherAction[] actions, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-
 		SubMonitor sub = SubMonitor.convert(monitor, actions.length);
+		if (Tracing.DEBUG_PUBLISHING)
+			Tracing.debug("Invoking publisher"); //$NON-NLS-1$
 		try {
 			// run all the actions
 			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
@@ -172,6 +173,8 @@ public class Publisher {
 				finalStatus.merge(status);
 				sub.worked(1);
 			}
+			if (Tracing.DEBUG_PUBLISHING)
+				Tracing.debug("Publishing complete. Result=" + finalStatus); //$NON-NLS-1$
 			if (!finalStatus.isOK())
 				return finalStatus;
 		} finally {

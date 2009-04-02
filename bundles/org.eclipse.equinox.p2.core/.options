@@ -33,3 +33,6 @@ org.eclipse.equinox.p2.core/planner/projector=false
 
 #Detailed debugging information about the reconciler 
 org.eclipse.equinox.p2.core/reconciler=false
+
+#Detailed debugging information about the publisher
+org.eclipse.equinox.p2.core/publisher=false

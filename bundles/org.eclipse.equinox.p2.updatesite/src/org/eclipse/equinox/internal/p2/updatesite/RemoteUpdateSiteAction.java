@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -37,6 +38,8 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+		if (Tracing.DEBUG_PUBLISHING)
+			Tracing.debug("Generating metadata for update site: " + updateSite.getLocation()); //$NON-NLS-1$
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(this.getClass().getName(), 0, NLS.bind(Messages.Error_Generation, updateSite != null ? updateSite.getLocation().toString() : "Unknown"), null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
@@ -44,6 +47,8 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 				return Status.CANCEL_STATUS;
 			finalStatus.merge(actions[i].perform(info, results, monitor));
 		}
+		if (Tracing.DEBUG_PUBLISHING)
+			Tracing.debug("Generation for update site complete: " + updateSite.getLocation()); //$NON-NLS-1$
 		if (!finalStatus.isOK())
 			return finalStatus;
 		return Status.OK_STATUS;
