@@ -15,7 +15,6 @@ package org.eclipse.equinox.internal.p2.repository;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
@@ -47,24 +46,6 @@ public class RepositoryTransport extends Transport {
 	}
 
 	/**
-	 * @deprecated - use {@link #download(URI, OutputStream, IProgressMonitor) }
-	 * @returns status with {@link URISyntaxException} on malformed <code>toDownload</code>
-	 */
-	public IStatus download(String toDownload, OutputStream target, IProgressMonitor monitor) {
-		// It is not meaningful to continue if the toDownload string is not a valid URI
-		// so deal with this here immediately instead of getting deep exceptions
-		//
-		URI uri = null;
-		try {
-			uri = new URI(toDownload); // URIUtil.fromString(toDownload);
-
-		} catch (URISyntaxException e1) {
-			return RepositoryStatusHelper.malformedAddressStatus(toDownload, e1);
-		}
-		return download(uri, target, monitor);
-	}
-
-	/**
 	 * Perform a download, writing into the target output stream. Progress is reported on the
 	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
 	 * is also set on the target.
@@ -90,7 +71,8 @@ public class RepositoryTransport extends Transport {
 				status.setTransferRate(reader.getLastFileInfo().getAverageSpeed());
 				return statusOn(target, status);
 			} catch (UserCancelledException e) {
-				return statusOn(target, Status.CANCEL_STATUS);
+				statusOn(target, Status.CANCEL_STATUS);
+				throw new OperationCanceledException();
 			} catch (CoreException e) {
 				return statusOn(target, RepositoryStatus.forStatus(e.getStatus(), toDownload));
 			} catch (FileNotFoundException e) {

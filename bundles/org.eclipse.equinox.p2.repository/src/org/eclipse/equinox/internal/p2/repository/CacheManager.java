@@ -108,7 +108,7 @@ public class CacheManager {
 				useJar = false;
 			}
 			if (monitor.isCanceled())
-				throw new ProvisionException(Status.CANCEL_STATUS);
+				throw new OperationCanceledException();
 
 			if (useJar) {
 				// There is a jar, and it should be used - cache is stale if it is xml based or
