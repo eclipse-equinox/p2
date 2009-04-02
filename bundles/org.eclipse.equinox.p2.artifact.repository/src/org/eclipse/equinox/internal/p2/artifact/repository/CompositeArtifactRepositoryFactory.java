@@ -61,11 +61,11 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				localFile = File.createTempFile(CompositeArtifactRepository.CONTENT_FILENAME, CompositeArtifactRepository.XML_EXTENSION);
 				try {
 					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
-					IStatus status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
+					IStatus status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));
 					if (!status.isOK()) {
 						// retry uncompressed
 						compress = false;
-						status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
+						status = getTransport().download(CompositeArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));
 						if (!status.isOK())
 							throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), null));
 					}

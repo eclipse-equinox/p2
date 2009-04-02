@@ -20,7 +20,7 @@ import org.osgi.framework.BundleException;
 
 public class TransferTest extends AbstractProvisioningTest {
 
-	public void testGZFileAreNotUnzipped() {
+	public void testGZFileAreNotUnzipped() throws URISyntaxException {
 		FileOutputStream fos = null;
 		File f = null;
 		try {
@@ -32,12 +32,13 @@ public class TransferTest extends AbstractProvisioningTest {
 		} catch (BundleException e) {
 			fail("1.5", e);
 		}
-		IStatus s = RepositoryTransport.getInstance().download("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz", fos, new NullProgressMonitor());
+		final URI toDownload = new URI("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
+		IStatus s = RepositoryTransport.getInstance().download(toDownload, fos, new NullProgressMonitor());
 		assertOK("2.0", s);
 		int httpSize = -1;
 		URL u;
 		try {
-			u = new URL("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
+			u = toDownload.toURL();
 			HttpURLConnection c = (HttpURLConnection) u.openConnection();
 			httpSize = c.getContentLength();
 		} catch (MalformedURLException e1) {

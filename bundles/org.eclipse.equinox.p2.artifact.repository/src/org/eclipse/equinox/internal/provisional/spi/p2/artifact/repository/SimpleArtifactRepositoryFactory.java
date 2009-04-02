@@ -62,11 +62,11 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 				localFile = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
-					IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
+					IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));
 					if (!status.isOK()) {
 						// retry uncompressed
 						compress = false;
-						status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toString(), artifacts, sub.newChild(100));
+						status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));
 						if (!status.isOK())
 							throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), null));
 					}

@@ -37,23 +37,22 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	private static final String DESCRIPTION = "A Test Artifact Repository"; //$NON-NLS-1$
 
 	/**
-	 * Map of IArtifactKey -> String (location)
+	 * Map of IArtifactKey -> URI (location)
 	 */
-	Map keysToLocations = new HashMap();
+	Map<IArtifactKey, URI> keysToLocations = new HashMap<IArtifactKey, URI>();
 	/**
-	 * Map of String (location) -> byte[] (contents)
+	 * Map of URI (location) -> byte[] (contents)
 	 */
-	Map locationsToContents = new HashMap();
+	Map<URI, byte[]> locationsToContents = new HashMap<URI, byte[]>();
 
 	/**
 	 * 	Set of artifact descriptors
 	 */
-	Set artifactDescriptors = new HashSet();
+	Set<IArtifactDescriptor> artifactDescriptors = new HashSet<IArtifactDescriptor>();
 
 	Transport testhandler = new Transport() {
-		@Deprecated
-		public IStatus download(String toDownload, OutputStream target, IProgressMonitor pm) {
-			byte[] contents = (byte[]) locationsToContents.get(toDownload);
+		public IStatus download(URI toDownload, OutputStream target, IProgressMonitor pm) {
+			byte[] contents = locationsToContents.get(toDownload);
 			if (contents == null)
 				Assert.fail("Attempt to download missing artifact in TestArtifactRepository: " + toDownload);
 			try {
@@ -64,10 +63,6 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 			}
 			return Status.OK_STATUS;
 		}
-
-		public IStatus download(URI toDownload, OutputStream target, IProgressMonitor pm) {
-			return download(toDownload.toString(), target, pm);
-		}
 	};
 
 	public TestArtifactRepository() {
@@ -75,25 +70,26 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	}
 
 	public void addArtifact(IArtifactKey key, byte[] contents) {
-		String location = key.toString();
-		keysToLocations.put(key, location);
-		locationsToContents.put(location, contents);
+		URI keyLocation = locationFor(key);
+		keysToLocations.put(key, keyLocation);
+		locationsToContents.put(keyLocation, contents);
 	}
 
-	public URI getArtifact(IArtifactKey key) {
-		String location = (String) keysToLocations.get(key);
-		if (location == null)
-			return null;
+	private URI locationFor(IArtifactKey key) {
 		try {
-			return new URI(SCHEME, location, null);
+			return new URI(SCHEME, key.toString(), null);
 		} catch (URISyntaxException e) {
 			Assert.fail("Invalid URI in TestArtifactRepository: " + e.getMessage());
 			return null;
 		}
 	}
 
+	public URI getArtifact(IArtifactKey key) {
+		return keysToLocations.get(key);
+	}
+
 	public IArtifactKey[] getArtifactKeys() {
-		return (IArtifactKey[]) keysToLocations.keySet().toArray(new IArtifactKey[keysToLocations.keySet().size()]);
+		return keysToLocations.keySet().toArray(new IArtifactKey[keysToLocations.keySet().size()]);
 	}
 
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
@@ -130,12 +126,12 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
 		destination = handler.createAndLink(descriptor.getProcessingSteps(), null, destination, monitor);
-		testhandler.download((String) keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
+		testhandler.download(keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
 		return Status.OK_STATUS;
 	}
 
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		return testhandler.download((String) keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
+		return testhandler.download(keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
@@ -155,14 +151,12 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	}
 
 	public void removeDescriptor(IArtifactKey key) {
-		for (Iterator iter = artifactDescriptors.iterator(); iter.hasNext();) {
-			IArtifactDescriptor nextDescriptor = (IArtifactDescriptor) iter.next();
-			if (key.equals(nextDescriptor.getArtifactKey())) {
+		for (IArtifactDescriptor nextDescriptor : artifactDescriptors) {
+			if (key.equals(nextDescriptor.getArtifactKey()))
 				artifactDescriptors.remove(nextDescriptor);
-			}
 		}
 		if (keysToLocations.containsKey(key)) {
-			String theLocation = (String) keysToLocations.get(key);
+			URI theLocation = keysToLocations.get(key);
 			locationsToContents.remove(theLocation);
 			keysToLocations.remove(key);
 		}

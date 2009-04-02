@@ -16,14 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 public abstract class Transport {
-	/**
-	 * @deprecated Use {@link #download(URI, OutputStream, IProgressMonitor)} instead
-	 * @param toDownload
-	 * @param target
-	 * @param pm
-	 * @return IStatus describing outcome of the download
-	 */
-	public abstract IStatus download(String toDownload, OutputStream target, IProgressMonitor pm);
 
 	/**
 	 * @param toDownload
