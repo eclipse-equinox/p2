@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
  * progress monitoring and cancelation.
  * <p>
  * This interface is not intended to be implemented by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IInstallOperation {
 	/**

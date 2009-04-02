@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
 /**
@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
  * implementations must subclass {@link AbstractArtifactRepository} rather than 
  * implementing this interface directly.
  * </p>
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IArtifactRepository extends IRepository {
 

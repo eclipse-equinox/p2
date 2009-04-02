@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
- * This interface is not intended to be implemented by clients
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IArtifactRequest {
 

@@ -16,9 +16,8 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 /**
  * A checked exception indicating a recoverable error occurred while provisioning.
  * The status provides a further description of the problem.
- * <p>
- * This exception class is not intended to be subclassed by clients.
- * </p>
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ProvisionException extends CoreException {
 	private static final long serialVersionUID = 1L;

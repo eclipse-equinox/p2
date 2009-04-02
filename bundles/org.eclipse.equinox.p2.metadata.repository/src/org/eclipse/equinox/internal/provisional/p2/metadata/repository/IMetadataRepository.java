@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 
 /**
@@ -26,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
  * implementations must subclass {@link AbstractMetadataRepository} rather than 
  * implementing this interface directly.
  * </p>
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMetadataRepository extends IRepository, IQueryable {
 
