@@ -19,7 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(JarURLMetadataRepositoryTest.class);
 		suite.addTestSuite(LocalMetadataRepositoryTest.class);
 		suite.addTestSuite(SPIMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);

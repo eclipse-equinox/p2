@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,20 +27,22 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
-public class JarURLRepositoryTest extends TestCase {
+public class JarURLMetadataRepositoryTest extends TestCase {
 
 	private ServiceReference managerRef;
 	private IMetadataRepositoryManager manager;
 	private File testRepoJar;
 
-	public JarURLRepositoryTest(String name) {
+	public JarURLMetadataRepositoryTest(String name) {
 		super(name);
 	}
 
-	public JarURLRepositoryTest() {
+	public JarURLMetadataRepositoryTest() {
 		this("");
 	}
 
@@ -82,8 +82,16 @@ public class JarURLRepositoryTest extends TestCase {
 		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
+
 		IMetadataRepository repo = manager.loadRepository(jarRepoLocation, null);
 		assertTrue(!repo.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+
+		URI[] local = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
+		boolean found = false;
+		for (int i = 0; i < local.length; i++)
+			if (local[i].equals(jarRepoLocation))
+				found = true;
+		assertTrue(found);
 		manager.removeRepository(jarRepoLocation);
 	}
 }

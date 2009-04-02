@@ -27,7 +27,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(CompositeArtifactRepositoryTest.class);
 		suite.addTestSuite(CorruptedJar.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
-		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(JarURLArtifactRepositoryTest.class);
 		suite.addTestSuite(MD5Tests.class);
 		suite.addTestSuite(MirrorSelectorTest.class);
 		suite.addTestSuite(MirrorRequestTest.class);
