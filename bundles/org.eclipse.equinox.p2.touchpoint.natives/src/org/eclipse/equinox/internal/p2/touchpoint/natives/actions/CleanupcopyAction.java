@@ -64,8 +64,10 @@ public class CleanupcopyAction extends ProvisioningAction {
 			if (!file.exists())
 				continue;
 
+			//directories need to be deleted from the bottom-up, but directories are listed 
+			//in traversal order during copy, so we need to reverse the directory list
 			if (file.isDirectory())
-				directories.add(file);
+				directories.add(0, file);
 			else {
 				if (restoreable)
 					try {
