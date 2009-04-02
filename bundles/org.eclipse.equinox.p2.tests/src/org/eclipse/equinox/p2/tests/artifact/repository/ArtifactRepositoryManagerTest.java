@@ -75,6 +75,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} finally {
+			tempFile.delete();
 		}
 	}
 
