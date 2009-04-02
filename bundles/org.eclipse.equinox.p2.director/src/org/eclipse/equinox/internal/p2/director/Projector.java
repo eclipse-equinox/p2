@@ -58,7 +58,7 @@ public class Projector {
 
 	static class AbstractVariable {
 		public String toString() {
-			return "AbstractVariable: " + hashCode();
+			return "AbstractVariable: " + hashCode(); //$NON-NLS-1$
 		}
 	}
 
@@ -356,21 +356,21 @@ public class Projector {
 			return;
 		}
 
-		Collector patches = getApplicablePatches(iu);
+		Collector applicablePatches = getApplicablePatches(iu);
 		expandLifeCycle(iu, isRootIU);
 		//No patches apply, normal code path
-		if (patches.size() == 0) {
+		if (applicablePatches.size() == 0) {
 			expandRequirements(iu.getRequiredCapabilities(), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
-			expandRequirementsWithPatches(iu, patches, isRootIU);
+			expandRequirementsWithPatches(iu, applicablePatches, isRootIU);
 		}
 	}
 
-	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector patches, boolean isRootIu) throws ContradictionException {
+	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
-		for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
 			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
 			if (reqs.length == 0)
@@ -454,7 +454,7 @@ public class Projector {
 					} else {
 						if (!matches.isEmpty()) {
 							AbstractVariable abs = getAbstractVariable();
-							optionalAbstractRequirements.add(patch);
+							matches.add(patch);
 							createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
 							optionalAbstractRequirements.add(abs);
 						}
@@ -467,7 +467,7 @@ public class Projector {
 		for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
 			Entry entry = (Entry) iterator.next();
 			List patchesApplied = (List) entry.getValue();
-			List allPatches = new ArrayList(patches.toCollection());
+			List allPatches = new ArrayList(applicablePatches.toCollection());
 			allPatches.removeAll(patchesApplied);
 			List requiredPatches = new ArrayList();
 			for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
