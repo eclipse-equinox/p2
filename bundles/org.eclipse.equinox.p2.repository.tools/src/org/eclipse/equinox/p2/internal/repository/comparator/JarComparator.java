@@ -24,6 +24,7 @@ public class JarComparator implements IArtifactComparator {
 	private static final String LINE_SEPARATOR = "\n"; //$NON-NLS-1$
 	private static final String CLASS_EXTENSION = ".class"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	private static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
 	private static final String PLUGIN_ID = "org.eclipse.equinox.p2.repository.tools"; //$NON-NLS-1$
 	private static final String DESTINATION_ARTIFACT_PREFIX = "destinationartifact"; //$NON-NLS-1$
 	private static final String SUFFIX_JAR = ".jar"; //$NON-NLS-1$
@@ -44,66 +45,21 @@ public class JarComparator implements IArtifactComparator {
 		if (!OSGI_BUNDLE_CLASSIFIER.equals(classifier)) {
 			return Status.OK_STATUS;
 		}
+
 		File firstTempFile = null;
-		BufferedOutputStream stream = null;
-		try {
-			firstTempFile = File.createTempFile(SOURCE_ARTIFACT_PREFIX, SUFFIX_JAR);
-			stream = new BufferedOutputStream(new FileOutputStream(firstTempFile));
-			IStatus status = source.getArtifact(sourceDescriptor, stream, new NullProgressMonitor());
-			if (!status.isOK()) {
-				return status;
-			}
-			stream.flush();
-		} catch (FileNotFoundException e) {
-			return newErrorStatus("FileNotFoundException", e); //$NON-NLS-1$
-		} catch (IOException e) {
-			return newErrorStatus("IOException", e); //$NON-NLS-1$
-		} finally {
-			try {
-				if (stream != null) {
-					stream.close();
-				}
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-
 		File secondTempFile = null;
-		stream = null;
 		try {
-			secondTempFile = File.createTempFile(DESTINATION_ARTIFACT_PREFIX, SUFFIX_JAR);
-			stream = new BufferedOutputStream(new FileOutputStream(secondTempFile));
-			IStatus status = destination.getArtifact(destinationDescriptor, stream, null);
-			if (!status.isOK()) {
-				return status;
-			}
-			stream.flush();
-		} catch (FileNotFoundException e) {
-			return newErrorStatus("FileNotFoundException", e); //$NON-NLS-1$
-		} catch (IOException e) {
-			return newErrorStatus("IOException", e); //$NON-NLS-1$
-		} finally {
-			try {
-				if (stream != null) {
-					stream.close();
-				}
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-
-		try {
+			firstTempFile = getLocalJarFile(source, sourceDescriptor, SOURCE_ARTIFACT_PREFIX);
+			secondTempFile = getLocalJarFile(destination, destinationDescriptor, DESTINATION_ARTIFACT_PREFIX);
 			return compare(firstTempFile, secondTempFile);
+		} catch (CoreException e) {
+			return e.getStatus();
 		} finally {
-			if (firstTempFile != null) {
+			if (firstTempFile != null)
 				firstTempFile.delete();
-			}
-			secondTempFile.delete();
+			if (secondTempFile != null)
+				secondTempFile.delete();
 		}
-	}
-
-	private boolean isSigningEntry(String entry) {
-		return (entry.startsWith(META_INF) && (entry.endsWith(SF_EXT) || entry.endsWith(RSA_EXT) || entry.endsWith(DSA_EXT)));
 	}
 
 	public IStatus compare(File sourceFile, File destinationFile) {
@@ -127,76 +83,40 @@ public class JarComparator implements IArtifactComparator {
 						continue;
 					}
 
-					Disassembler disassembler = new Disassembler();
-					byte[] firstEntryClassFileBytes = Utility.getZipEntryByteContent(entry, firstFile);
-					byte[] secondEntryClassFileBytes = Utility.getZipEntryByteContent(entry2, secondFile);
-					if (lowerCase.endsWith(CLASS_EXTENSION)) {
-						String contentsFile1 = null;
-						String contentsFile2 = null;
-						try {
-							contentsFile1 = disassembler.disassemble(firstEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
-							contentsFile2 = disassembler.disassemble(secondEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
-						} catch (ClassFormatException e) {
-							return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()), e);
-						}
-						if (!contentsFile1.equals(contentsFile2)) {
-							return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
-						}
-					} else if (lowerCase.endsWith(JAR_EXTENSION)) {
-						File firstTempFile = null;
-						BufferedOutputStream stream = null;
-						try {
-							firstTempFile = File.createTempFile(SOURCE_ARTIFACT_PREFIX + normalize(entryName), SUFFIX_JAR);
-							stream = new BufferedOutputStream(new FileOutputStream(firstTempFile));
-							stream.write(firstEntryClassFileBytes);
-							stream.flush();
-						} catch (FileNotFoundException e) {
-							return newErrorStatus(NLS.bind(Messages.filenotfoundexception, entryName, sourceFile.getAbsolutePath()), e);
-						} catch (IOException e) {
-							return newErrorStatus(NLS.bind(Messages.ioexceptioninentry, entryName, sourceFile.getAbsolutePath()), e);
-						} finally {
-							Utility.close(stream);
-						}
-						File secondTempFile = null;
-						stream = null;
-						try {
-							secondTempFile = File.createTempFile(DESTINATION_ARTIFACT_PREFIX + normalize(entryName), SUFFIX_JAR);
-							stream = new BufferedOutputStream(new FileOutputStream(secondTempFile));
-							stream.write(secondEntryClassFileBytes);
-							stream.flush();
-						} catch (FileNotFoundException e) {
-							return newErrorStatus(NLS.bind(Messages.filenotfoundexception, entryName, sourceFile.getAbsolutePath()), e);
-						} catch (IOException e) {
-							return newErrorStatus(NLS.bind(Messages.ioexceptioninentry, entryName, sourceFile.getAbsolutePath()), e);
-						} finally {
-							Utility.close(stream);
-						}
-
-						try {
-							IStatus status = compare(firstTempFile, secondTempFile);
-							if (!status.isOK()) {
-								return status;
+					InputStream firstStream = null;
+					InputStream secondStream = null;
+					try {
+						firstStream = new BufferedInputStream(firstFile.getInputStream(entry));
+						secondStream = new BufferedInputStream(secondFile.getInputStream(entry2));
+						boolean result = false;
+						if (lowerCase.endsWith(CLASS_EXTENSION)) {
+							try {
+								result = compareClasses(firstStream, entry.getSize(), secondStream, entry2.getSize());
+							} catch (ClassFormatException e) {
+								return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()), e);
 							}
-						} finally {
-							if (firstTempFile != null) {
-								firstTempFile.delete();
-							}
-							secondTempFile.delete();
+						} else if (lowerCase.endsWith(JAR_EXTENSION)) {
+							result = compareNestedJars(firstStream, entry.getSize(), secondStream, entry2.getSize(), entryName);
+						} else if (lowerCase.endsWith(PROPERTIES_EXTENSION)) {
+							result = compareProperties(firstStream, secondStream);
+						} else if (entryName.equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
+							result = compareManifest(firstStream, secondStream); //MANIFEST.MF file
+						} else {
+							result = compareBytes(firstStream, entry.getSize(), secondStream, entry2.getSize());
 						}
-					} else if (entryName.equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
-						// MANIFEST.MF file
-						if (!compareManifest(firstEntryClassFileBytes, secondEntryClassFileBytes)) {
+						if (!result)
 							return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
-						}
-					} else if (!Arrays.equals(firstEntryClassFileBytes, secondEntryClassFileBytes)) {
-						// do a binary compare byte per byte
-						return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
+					} finally {
+						Utility.close(firstStream);
+						Utility.close(secondStream);
 					}
 				} else if (!entry.isDirectory()) {
-					// missing entry
+					// missing entry, entry2 == null
 					return newErrorStatus(NLS.bind(Messages.missingEntry, entryName, sourceFile.getAbsolutePath()));
 				}
 			}
+		} catch (CoreException e) {
+			return e.getStatus();
 		} catch (IOException e) {
 			// missing entry
 			return newErrorStatus(NLS.bind(Messages.ioexception, new String[] {sourceFile.getAbsolutePath(), destinationFile.getAbsolutePath()}), e);
@@ -207,32 +127,13 @@ public class JarComparator implements IArtifactComparator {
 		return Status.OK_STATUS;
 	}
 
-	private boolean compareManifest(byte[] firstEntryClassFileBytes, byte[] secondEntryClassFileBytes) {
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(firstEntryClassFileBytes);
-		Manifest manifest = null;
-		try {
-			manifest = new Manifest(inputStream);
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			Utility.close(inputStream);
-		}
-		if (manifest == null) {
-			return true;
-		}
+	private boolean compareManifest(InputStream firstStream, InputStream secondStream) throws IOException {
+		Manifest manifest = new Manifest(firstStream);
+		Manifest manifest2 = new Manifest(secondStream);
 
-		inputStream = new ByteArrayInputStream(secondEntryClassFileBytes);
-		Manifest manifest2 = null;
-		try {
-			manifest2 = new Manifest(inputStream);
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			Utility.close(inputStream);
-		}
-		if (manifest2 == null) {
+		if (manifest == null || manifest2 == null)
 			return true;
-		}
+
 		Attributes attributes = manifest.getMainAttributes();
 		Attributes attributes2 = manifest2.getMainAttributes();
 		if (attributes.size() != attributes2.size())
@@ -248,6 +149,67 @@ public class JarComparator implements IArtifactComparator {
 			}
 		}
 		return true;
+	}
+
+	private boolean compareClasses(InputStream stream1, long size1, InputStream stream2, long size2) throws ClassFormatException, IOException {
+		Disassembler disassembler = new Disassembler();
+		byte[] firstEntryClassFileBytes = Utility.getInputStreamAsByteArray(stream1, (int) size1);
+		byte[] secondEntryClassFileBytes = Utility.getInputStreamAsByteArray(stream2, (int) size2);
+
+		String contentsFile1 = disassembler.disassemble(firstEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
+		String contentsFile2 = disassembler.disassemble(secondEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
+		return contentsFile1.equals(contentsFile2);
+	}
+
+	private boolean compareNestedJars(InputStream stream1, long size1, InputStream stream2, long size2, String entry) throws CoreException, IOException {
+		File firstTempFile = getLocalJarFile(stream1, entry, size1);
+		File secondTempFile = getLocalJarFile(stream2, entry, size2);
+
+		try {
+			IStatus status = compare(firstTempFile, secondTempFile);
+			if (!status.isOK())
+				throw new CoreException(status);
+		} finally {
+			if (firstTempFile != null)
+				firstTempFile.delete();
+			if (secondTempFile != null)
+				secondTempFile.delete();
+		}
+		return true;
+	}
+
+	private boolean compareProperties(InputStream stream1, InputStream stream2) {
+		Properties props1 = loadProperties(stream1);
+		Properties props2 = loadProperties(stream2);
+		if (props1.size() != props2.size())
+			return false;
+
+		props1.keys();
+		for (Iterator iterator = props1.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			if (!props2.containsKey(key))
+				return false;
+			if (!props1.getProperty(key).equals(props2.getProperty(key)))
+				return false;
+
+		}
+		return true;
+	}
+
+	private boolean compareBytes(InputStream firstStream, long size1, InputStream secondStream, long size2) throws IOException {
+		byte[] firstBytes = Utility.getInputStreamAsByteArray(firstStream, (int) size1);
+		byte[] secondBytes = Utility.getInputStreamAsByteArray(secondStream, (int) size2);
+		return Arrays.equals(firstBytes, secondBytes);
+	}
+
+	private Properties loadProperties(InputStream input) {
+		Properties result = new Properties();
+		try {
+			result.load(input);
+		} catch (IOException e) {
+			//ignore
+		}
+		return result;
 	}
 
 	private String normalize(String entryName) {
@@ -270,5 +232,45 @@ public class JarComparator implements IArtifactComparator {
 
 	private IStatus newErrorStatus(String message) {
 		return newErrorStatus(message, null);
+	}
+
+	private File getLocalJarFile(IArtifactRepository repository, IArtifactDescriptor descriptor, String prefix) throws CoreException {
+		File file = null;
+		BufferedOutputStream stream = null;
+		try {
+			file = File.createTempFile(prefix, SUFFIX_JAR);
+			stream = new BufferedOutputStream(new FileOutputStream(file));
+			IStatus status = repository.getArtifact(descriptor, stream, new NullProgressMonitor());
+			if (!status.isOK())
+				throw new CoreException(status);
+			stream.flush();
+		} catch (FileNotFoundException e) {
+			throw new CoreException(newErrorStatus("FileNotFoundException", e)); //$NON-NLS-1$
+		} catch (IOException e) {
+			throw new CoreException(newErrorStatus("IOException", e)); //$NON-NLS-1$
+		} finally {
+			Utility.close(stream);
+		}
+		return file;
+	}
+
+	private File getLocalJarFile(InputStream inputStream, String entry, long size) throws IOException {
+		byte[] firstEntryClassFileBytes = Utility.getInputStreamAsByteArray(inputStream, (int) size);
+
+		File tempFile = null;
+		BufferedOutputStream stream = null;
+		try {
+			tempFile = File.createTempFile(SOURCE_ARTIFACT_PREFIX + normalize(entry), SUFFIX_JAR);
+			stream = new BufferedOutputStream(new FileOutputStream(tempFile));
+			stream.write(firstEntryClassFileBytes);
+			stream.flush();
+		} finally {
+			Utility.close(stream);
+		}
+		return tempFile;
+	}
+
+	private boolean isSigningEntry(String entry) {
+		return (entry.startsWith(META_INF) && (entry.endsWith(SF_EXT) || entry.endsWith(RSA_EXT) || entry.endsWith(DSA_EXT)));
 	}
 }
