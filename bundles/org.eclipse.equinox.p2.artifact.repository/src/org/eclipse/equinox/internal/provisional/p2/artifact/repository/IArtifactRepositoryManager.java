@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 /**
  * A metadata repository manager is used to create, access, and manipulate
@@ -61,7 +61,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * load attempts.
 	 * </p>
 	 * 
-	 * @param location the location for the new repository
+	 * @param location the absolute location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
 	 * @param properties the properties to set on the repository
@@ -86,7 +86,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * load attempts.
 	 * </p>
 	 * 
-	 * @param location the location in which to look for a repository description
+	 * @param location the absolute location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return a repository object for the given location
@@ -112,7 +112,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * The flags passed in should be taken as a hint for the type of repository to load.  If
 	 * the manager cannot load a repository that satisfies these hints, it can fail fast.
 	 * </p>
-	 * @param location the location in which to look for a repository description
+	 * @param location the absolute location in which to look for a repository description
 	 * @param flags - bit-wise or of flags to consider when loading the repository
 	 *  (currently only {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE} is supported)
 	 * @param monitor a progress monitor, or <code>null</code> if progress
@@ -133,7 +133,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * contents. The provided repository location must already be known to the repository
 	 * manager.
 	 * 
-	 * @param location The location of the repository to refresh
+	 * @param location The absolute location of the repository to refresh
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The refreshed metadata repository

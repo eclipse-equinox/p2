@@ -19,6 +19,10 @@ import java.net.URI;
  * caching of these known repositories to avoid unnecessary loading of repositories 
  * from the disk or network.  The manager fires {@link RepositoryEvent}s when the 
  * set of known repositories changes.
+ * </p>
+ * <p>
+ * All {@link URI} instances provided to a repository manager must be absolute.
+ * </p>
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
@@ -69,7 +73,7 @@ public interface IRepositoryManager {
 	 * enabled as a result of this method. Thus the caller can be guaranteed that
 	 * there is a known, enabled repository at the given location when this method returns.
 	 * 
-	 * @param location The location of the repository to add
+	 * @param location The absolute location of the repository to add
 	 * @see #isEnabled(URI)
 	 */
 	public void addRepository(URI location);
@@ -78,7 +82,7 @@ public interface IRepositoryManager {
 	 * Returns whether a repository at the given location is in the list of repositories
 	 * tracked by this repository manager.
 	 * 
-	 * @param location The location of the repository to look for
+	 * @param location The absolute location of the repository to look for
 	 * @return <code>true</code> if the repository is known to this manager,
 	 * and <code>false</code> otherwise
 	 */
@@ -118,7 +122,7 @@ public interface IRepositoryManager {
 	 * regardless of the cost of retrieving it, the client should load the 
 	 * repository and then retrieve the property from the repository itself.
 	 * 
-	 * @param location the URI of the repository in question
+	 * @param location the absolute URI of the repository in question
 	 * @param key the String key of the property desired
 	 * @return the value of the property, or <code>null</code> if the repository
 	 * does not exist, the value does not exist, or the property value 
@@ -144,7 +148,7 @@ public interface IRepositoryManager {
 	 * the repository and call {@link IRepository#setProperty(String, String)}.
 	 * </p>
 	 * 
-	 * @param location the URI of the repository in question
+	 * @param location the absolute URI of the repository in question
 	 * @param key the String key of the property desired
 	 * @param value the value to set the property to
 	 * @see #getRepositoryProperty(URI, String)
@@ -162,7 +166,7 @@ public interface IRepositoryManager {
 	 * of the affected repository. The enablement of the repository is discarded when 
 	 * a repository is removed from the repository manager.
 	 * 
-	 * @param location The location of the repository whose enablement is requested
+	 * @param location The absolute location of the repository whose enablement is requested
 	 * @return <code>true</code> if the repository is enabled, and
 	 * <code>false</code> if it is not enabled, or if the repository location 
 	 * is not known to the repository manager.
@@ -177,7 +181,7 @@ public interface IRepositoryManager {
 	 * repository is not deleted. This method has no effect if the given
 	 * repository is not already known to this repository manager.
 	 * 
-	 * @param location The location of the repository to remove
+	 * @param location The absolute location of the repository to remove
 	 * @return <code>true</code> if a repository was removed, and 
 	 * <code>false</code> otherwise.
 	 */
@@ -196,7 +200,7 @@ public interface IRepositoryManager {
 	 * This method has no effect if the given repository location is not known to the
 	 * repository manager.
 	 * 
-	 * @param location The location of the repository to enable or disable
+	 * @param location The absolute location of the repository to enable or disable
 	 * @param enablement <code>true</code>to enable the repository, and
 	 * <code>false</code> to disable the repository
 	 * @see #REPOSITORIES_DISABLED

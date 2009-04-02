@@ -124,6 +124,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#addRepository(java.net.URI)
 	 */
 	public void addRepository(URI location) {
+		checkValidLocation(location);
 		//add the repository, or enable it if already known
 		if (!addRepository(location, true, true))
 			setEnabled(location, true);
@@ -157,6 +158,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	protected IRepository basicGetRepository(URI location) {
+		checkValidLocation(location);
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -172,6 +174,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	public IRepository basicRefreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		checkValidLocation(location);
 		clearNotFound(location);
 		boolean wasEnabled = isEnabled(location);
 		//remove the repository so  event is broadcast and repositories can clear their caches
@@ -213,7 +216,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	/**
 	 * Clear the fact that we tried to load a repository at this location and did not find anything.
 	 */
-	protected void clearNotFound(URI location) {
+	private void clearNotFound(URI location) {
 		List badRepos;
 		if (unavailableRepositories != null) {
 			badRepos = (List) unavailableRepositories.get();
@@ -228,6 +231,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#contains(java.net.URI)
 	 */
 	public boolean contains(URI location) {
+		checkValidLocation(location);
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -239,6 +243,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	protected IRepository doCreateRepository(URI location, String name, String type, Map properties) throws ProvisionException {
+		checkValidLocation(location);
 		Assert.isNotNull(name);
 		Assert.isNotNull(type);
 		IRepository result = null;
@@ -346,7 +351,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 */
 	protected abstract IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException;
 
-	protected void fail(URI location, int code) throws ProvisionException {
+	private void fail(URI location, int code) throws ProvisionException {
 		String msg = null;
 		switch (code) {
 			case ProvisionException.REPOSITORY_EXISTS :
@@ -494,6 +499,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
 	 */
 	public String getRepositoryProperty(URI location, String key) {
+		checkValidLocation(location);
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -517,6 +523,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
 	 */
 	public void setRepositoryProperty(URI location, String key, String value) {
+		checkValidLocation(location);
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -568,6 +575,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type, int flags) throws ProvisionException {
+		checkValidLocation(location);
 		boolean added = false;
 		IRepository result = null;
 
@@ -621,6 +629,17 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		if (added)
 			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
 		return result;
+	}
+
+	/**
+	 * Basic sanity checking on location argument
+	 */
+	private URI checkValidLocation(URI location) {
+		if (location == null)
+			throw new IllegalArgumentException("Location cannot be null"); //$NON-NLS-1$
+		if (!location.isAbsolute())
+			throw new IllegalArgumentException("Location must be absolute: " + location); //$NON-NLS-1$
+		return location;
 	}
 
 	private IRepository loadRepository(URI location, String suffix, String type, int flags, SubMonitor monitor) throws ProvisionException {
@@ -776,7 +795,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	public boolean removeRepository(URI toRemove) {
-		return removeRepository(toRemove, true);
+		return removeRepository(checkValidLocation(toRemove), true);
 	}
 
 	private boolean removeRepository(URI toRemove, boolean signalRemove) {
@@ -894,6 +913,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#setEnabled(java.net.URI, boolean)
 	 */
 	public void setEnabled(URI location, boolean enablement) {
+		checkValidLocation(location);
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();

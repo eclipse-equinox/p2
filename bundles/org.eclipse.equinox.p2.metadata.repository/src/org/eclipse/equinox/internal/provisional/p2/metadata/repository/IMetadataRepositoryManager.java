@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 /**
  * A metadata repository manager is used to create, access, and manipulate
@@ -48,7 +47,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * load attempts.
 	 * </p>
 	 * 
-	 * @param location the location for the new repository
+	 * @param location the absolute location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
 	 * @param properties the properties to set on the repository
@@ -73,7 +72,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * load attempts.
 	 * </p>
 	 * 
-	 * @param location The location of the repository to load
+	 * @param location The absolute location of the repository to load
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The loaded metadata repository
@@ -99,7 +98,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * The flags passed in should be taken as a hint for the type of repository to load.  If
 	 * the manager cannot load a repository that satisfies these hints, it can fail fast.
 	 * </p>
-	 * @param location The location of the repository to load
+	 * @param location The absolute location of the repository to load
 	 * @param flags - bit-wise or of flags to consider when loading the repository
 	 *  (currently only {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE} is supported)
 	 * @param monitor a progress monitor, or <code>null</code> if progress
@@ -120,7 +119,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 	 * contents. The provided repository location must already be known to the repository
 	 * manager.
 	 * 
-	 * @param location The location of the repository to refresh
+	 * @param location The absolute location of the repository to refresh
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The refreshed metadata repository
@@ -135,11 +134,11 @@ public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryab
 
 	/**
 	 * Validates a given URL and returns a status indicating whether a valid repository is likely
-	 * to be found at the given URL.  Callers must assume that the validity of a 
+	 * to be found at the given URL. Callers must assume that the validity of a 
 	 * repository location cannot be completely determined until an attempt to load 
 	 * the repository is made.  
 	 * 
-	 * @param location The location of the repository to validate
+	 * @param location The absolute location of the repository to validate
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return A status indicating whether a valid repository is likely located at the

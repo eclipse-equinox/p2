@@ -352,8 +352,11 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = new URI("test");
 		try {
 			manager.loadRepository(location, getMonitor());
-		} catch (ProvisionException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
 			//expected
+		} catch (ProvisionException e) {
+			fail("4.99", e);
 		}
 	}
 
