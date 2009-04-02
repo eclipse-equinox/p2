@@ -635,6 +635,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
 					throw e;
+			} catch (OperationCanceledException e) {
+				//always propagate cancelation
+				throw e;
 			} catch (Exception e) {
 				//catch and log unexpected errors and move onto the next factory
 				log("Unexpected error loading extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
