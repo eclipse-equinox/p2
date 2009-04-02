@@ -27,6 +27,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(NativeTouchpointTest.class);
 		suite.addTestSuite(RmdirActionTest.class);
 		suite.addTestSuite(UnzipActionTest.class);
+		suite.addTestSuite(CopyActionTest.class);
+		suite.addTestSuite(RemoveActionTest.class);
 		return suite;
 	}
 }

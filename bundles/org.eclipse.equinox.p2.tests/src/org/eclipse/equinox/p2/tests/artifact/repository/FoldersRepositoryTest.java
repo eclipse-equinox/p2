@@ -27,6 +27,7 @@ public class FoldersRepositoryTest extends TestCase {
 
 	private ServiceReference managerRef;
 	private IArtifactRepositoryManager manager;
+	private File testRepo;
 
 	public FoldersRepositoryTest(String name) {
 		super(name);
@@ -44,11 +45,13 @@ public class FoldersRepositoryTest extends TestCase {
 	protected void tearDown() throws Exception {
 		manager = null;
 		TestActivator.getContext().ungetService(managerRef);
+		if (testRepo != null)
+			AbstractProvisioningTest.delete(testRepo);
 	}
 
 	public void testFolderRepository() throws Exception {
 		String tempDir = System.getProperty("java.io.tmpdir");
-		File testRepo = new File(tempDir, "testRepo");
+		testRepo = new File(tempDir, "testRepo");
 		AbstractProvisioningTest.delete(testRepo);
 		testRepo.mkdir();
 

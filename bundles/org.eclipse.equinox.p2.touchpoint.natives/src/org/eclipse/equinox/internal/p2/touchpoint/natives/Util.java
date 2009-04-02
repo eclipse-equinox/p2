@@ -1,18 +1,28 @@
+/*******************************************************************************
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
+import java.io.*;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class Util {
@@ -64,5 +74,93 @@ public class Util {
 	static private URI getDownloadCacheLocation() {
 		AgentLocation location = getAgentLocation();
 		return (location != null ? location.getArtifactRepositoryURI() : null);
+	}
+
+	/**
+	 * Unzip from a File to an output directory, with progress indication and backup.
+	 * monitor and backup store may be null.
+	 */
+	public static File[] unzipFile(File zipFile, File outputDir, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
+		InputStream in = new FileInputStream(zipFile);
+		try {
+			return unzipStream(in, zipFile.length(), outputDir, store, taskName, monitor);
+		} catch (IOException e) {
+			// add the file name to the message
+			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+		} finally {
+			in.close();
+		}
+	}
+
+	/**
+	 * Unzip from an InputStream to an output directory using backup of overwritten files
+	 * if backup store is not null.
+	 */
+	public static File[] unzipStream(InputStream stream, long size, File outputDir, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
+		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
+		ZipInputStream in = new ZipInputStream(new BufferedInputStream(is));
+		ZipEntry ze = in.getNextEntry();
+		if (ze == null) {
+			// There must be at least one entry in a zip file.
+			// When there isn't getNextEntry returns null.
+			in.close();
+			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
+		}
+		ArrayList unzippedFiles = new ArrayList();
+		do {
+			File outFile = new File(outputDir, ze.getName());
+			unzippedFiles.add(outFile);
+			if (ze.isDirectory()) {
+				outFile.mkdirs();
+			} else {
+				if (outFile.exists()) {
+					if (store != null)
+						store.backup(outFile);
+					else
+						outFile.delete();
+				} else {
+					outFile.getParentFile().mkdirs();
+				}
+				try {
+					copyStream(in, false, new FileOutputStream(outFile), true);
+				} catch (FileNotFoundException e) {
+					// TEMP: ignore this for now in case we're trying to replace
+					// a running eclipse.exe
+				}
+				outFile.setLastModified(ze.getTime());
+			}
+			in.closeEntry();
+		} while ((ze = in.getNextEntry()) != null);
+		in.close();
+
+		return (File[]) unzippedFiles.toArray(new File[unzippedFiles.size()]);
+	}
+
+	/**
+	 * Copy an input stream to an output stream.
+	 * Optionally close the streams when done.
+	 * Return the number of bytes written.
+	 */
+	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut) throws IOException {
+		try {
+			int written = 0;
+			byte[] buffer = new byte[16 * 1024];
+			int len;
+			while ((len = in.read(buffer)) != -1) {
+				out.write(buffer, 0, len);
+				written += len;
+			}
+			return written;
+		} finally {
+			try {
+				if (closeIn) {
+					in.close();
+				}
+			} finally {
+				if (closeOut) {
+					out.close();
+				}
+			}
+		}
 	}
 }

@@ -8,12 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
@@ -24,15 +26,33 @@ public class RmdirAction extends ProvisioningAction {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
-		new File(path).delete();
+
+		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
+
+		File dir = new File(path);
+		if (!dir.isDirectory())
+			return Util.createError(NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID));
+		if (store != null)
+			try {
+				store.backupDirectory(dir);
+			} catch (IOException e) {
+				return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID), e);
+			} catch (IllegalArgumentException e) {
+				return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID), e);
+			}
+		else
+			dir.delete();
 		return Status.OK_STATUS;
 	}
 
 	public IStatus undo(Map parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
+		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
-		new File(path).mkdir();
+		// only need to create a dir if backup was not used
+		if (store == null)
+			new File(path).mkdir();
 		return Status.OK_STATUS;
 	}
 }

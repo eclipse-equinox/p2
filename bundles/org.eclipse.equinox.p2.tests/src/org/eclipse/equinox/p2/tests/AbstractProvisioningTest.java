@@ -907,6 +907,31 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				assertTrue(message + ".3." + i, false);
 	}
 
+	/**
+	 * Asserts that the first line of text in f equals the content.
+	 * @param f
+	 * @param content
+	 */
+	public static void assertFileContent(String message, File f, String content) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+			String line = reader.readLine();
+			assertEquals(message, content, line);
+		} catch (FileNotFoundException e) {
+			fail("Getting copy target", e);
+		} catch (IOException e) {
+			fail("reading copy target", e);
+		} finally {
+			try {
+				if (reader != null)
+					reader.close();
+			} catch (IOException e) {
+				//ignore
+			}
+		}
+	}
+
 	protected IProvisioningEventBus getEventBus() {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		assertNotNull(bus);

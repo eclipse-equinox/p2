@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -30,11 +31,20 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
+	IBackupStore store;
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		if (store != null)
+			store.discard();
+	}
+
 	public void testExecuteUndo() {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
@@ -43,7 +53,7 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
 		iuDesc.setId("test");
 		iuDesc.setVersion(DEFAULT_VERSION);
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("test", DEFAULT_VERSION);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testExecuteUndo", DEFAULT_VERSION);
 		iuDesc.setArtifacts(new IArtifactKey[] {key});
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
@@ -55,7 +65,8 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		parameters.put("iu", operand.second());
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
-		touchpoint.initializePhase(null, profile, "test", parameters);
+		touchpoint.initializePhase(null, profile, "testExecuteUndo", parameters);
+		store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 
 		parameters.put(ActionConstants.PARM_SOURCE, zipTarget.getAbsolutePath());
 		parameters.put(ActionConstants.PARM_TARGET, installFolder.getAbsolutePath());
@@ -75,14 +86,13 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		action.undo(parameters);
 		assertTrue(aTxt.exists());
 		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
-
 	}
 
 	public void testExecuteUndoWhereInstallFolderIsDifferent() {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndoWhereInstallFolderIsDifferent", null, profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
@@ -104,6 +114,7 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
+		store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 
 		parameters.put(ActionConstants.PARM_SOURCE, zipTarget.getAbsolutePath());
 		parameters.put(ActionConstants.PARM_TARGET, installFolder.getAbsolutePath());

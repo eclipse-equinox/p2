@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
@@ -30,14 +30,21 @@ public class UnzipAction extends ProvisioningAction {
 	public static final String ACTION_UNZIP = "unzip"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
-		return unzip(parameters);
+		return unzip(parameters, true);
 	}
 
 	public IStatus undo(Map parameters) {
-		return CleanupzipAction.cleanupzip(parameters);
+		return CleanupzipAction.cleanupzip(parameters, false);
 	}
 
-	public static IStatus unzip(Map parameters) {
+	/**
+	 * Unzip as directed by parameters.
+	 * Record what was zipped in the profile.
+	 * @param parameters
+	 * @param restoreable - if the unzip should be backed up
+	 * @return status
+	 */
+	public static IStatus unzip(Map parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_UNZIP));
@@ -68,8 +75,8 @@ public class UnzipAction extends ProvisioningAction {
 				return Util.createError(NLS.bind(Messages.artifact_not_available, artifactKey));
 			source = fileLocation.getAbsolutePath();
 		}
-
-		File[] unzippedFiles = unzip(source, target, null);
+		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
+		File[] unzippedFiles = unzip(source, target, store);
 		StringBuffer unzippedFileNameBuffer = new StringBuffer();
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append(ActionConstants.PIPE);
@@ -81,7 +88,7 @@ public class UnzipAction extends ProvisioningAction {
 
 	// this is a drastically simplified version of the code that was in org.eclipse.equinox.internal.p2.touchpoint.natives (Zip, BackupFiles)
 	// In particular backing up files might be useful to look at 
-	private static File[] unzip(String source, String destination, String backupDir) {
+	private static File[] unzip(String source, String destination, IBackupStore store) {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
 			Util.log(UnzipAction.class.getName() + " the files to be unzipped is not here"); //$NON-NLS-1$
@@ -89,7 +96,7 @@ public class UnzipAction extends ProvisioningAction {
 
 		try {
 			String taskName = NLS.bind(Messages.unzipping, source);
-			return FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
+			return Util.unzipFile(zipFile, new File(destination), store, taskName, new NullProgressMonitor());
 		} catch (IOException e) {
 			Util.log(UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() + "destination: " + destination); //$NON-NLS-1$ //$NON-NLS-2$
 		}

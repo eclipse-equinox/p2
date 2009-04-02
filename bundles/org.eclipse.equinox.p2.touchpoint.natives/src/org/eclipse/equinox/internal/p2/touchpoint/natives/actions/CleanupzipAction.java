@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
@@ -27,14 +27,14 @@ public class CleanupzipAction extends ProvisioningAction {
 	public static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
-		return cleanupzip(parameters);
+		return cleanupzip(parameters, true);
 	}
 
 	public IStatus undo(Map parameters) {
-		return UnzipAction.unzip(parameters);
+		return UnzipAction.unzip(parameters, false);
 	}
 
-	public static IStatus cleanupzip(Map parameters) {
+	public static IStatus cleanupzip(Map parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_CLEANUPZIP));
@@ -69,6 +69,7 @@ public class CleanupzipAction extends ProvisioningAction {
 				return Status.OK_STATUS;
 		}
 
+		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
 		StringTokenizer tokenizer = new StringTokenizer(unzipped, ActionConstants.PIPE);
 		List directories = new ArrayList();
 		while (tokenizer.hasMoreTokens()) {
@@ -79,13 +80,34 @@ public class CleanupzipAction extends ProvisioningAction {
 
 			if (file.isDirectory())
 				directories.add(file);
-			else
-				file.delete();
+			else {
+				if (store != null)
+					try {
+						store.backup(file);
+					} catch (IOException e) {
+						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.backup_file_failed, file.getPath()), e);
+					}
+				else
+					file.delete();
+			}
 		}
-
+		// TODO: this will most likely leave garbage behind as directories must
+		// be empty to be deleted - there is not guarantee that this structure has
+		// the leafs first in the list of directories.
+		// Since backup will deny backup of non empty directory a check must be made
+		// 
 		for (Iterator it = directories.iterator(); it.hasNext();) {
 			File directory = (File) it.next();
-			directory.delete();
+			if (store != null) {
+				File[] children = directory.listFiles();
+				if (children == null || children.length == 0)
+					try {
+						store.backupDirectory(directory);
+					} catch (IOException e) {
+						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.backup_file_failed, directory.getPath()), e);
+					}
+			} else
+				directory.delete();
 		}
 
 		profile.removeInstallableUnitProperty(iu, iuPropertyKey);
@@ -106,5 +128,4 @@ public class CleanupzipAction extends ProvisioningAction {
 		}
 		return buffer.toString();
 	}
-
 }

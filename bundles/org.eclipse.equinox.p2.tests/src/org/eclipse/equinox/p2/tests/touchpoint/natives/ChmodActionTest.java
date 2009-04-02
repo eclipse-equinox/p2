@@ -33,7 +33,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
@@ -47,7 +47,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
-		touchpoint.initializePhase(null, profile, "test", parameters);
+		touchpoint.initializePhase(null, profile, "testExecuteUndo", parameters);
 
 		parameters.put(ActionConstants.PARM_TARGET_DIR, installFolder.getAbsolutePath());
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "a.zip");

@@ -462,6 +462,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		File tempFile = new File(tempDir, "MetadataRepositoryManagerTest");
 		delete(tempFile);
 		assertTrue(!tempFile.exists());
+		toDelete.add(tempFile);
 		return tempFile;
 	}
 

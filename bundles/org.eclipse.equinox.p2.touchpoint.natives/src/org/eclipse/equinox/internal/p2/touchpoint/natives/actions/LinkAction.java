@@ -8,11 +8,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
+
 import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Activator;
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Messages;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
@@ -34,7 +35,13 @@ public class LinkAction extends ProvisioningAction {
 
 		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
 
-		ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue());
+		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
+
+		try {
+			ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue(), store);
+		} catch (IOException e) {
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.link_failed, ActionConstants.PARM_LINK_NAME, ID), e);
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -44,12 +51,29 @@ public class LinkAction extends ProvisioningAction {
 
 		if (linkTarget != null && linkName != null) {
 			File linkFile = new File(linkTarget, linkName);
-			linkFile.delete();
+			linkFile.delete(); // ok since if something was overwritten - it is restored from backup
 		}
 		return null;
 	}
 
-	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
+	/**
+	 * Creates a link to the source file linkTarget - the created link is targetDir/linkName. 
+	 * TODO: Only runs on systems with a "ln -s" command supported.
+	 * TODO: Does not report errors if the "ln -s" fails
+	 * @param targetDir the directory where the link is created
+	 * @param linkTarget the source
+	 * @param linkName the name of the created link
+	 * @param force if overwrite of existing file should be performed.
+	 * @param store an (optional - set to null) backup store to use
+	 * @throws IOException if backup of existing file fails
+	 */
+	private void ln(String targetDir, String linkTarget, String linkName, boolean force, IBackupStore store) throws IOException {
+		// backup a file that would be overwritten using "force == true"
+		if (force && store != null) {
+			File xFile = new File(targetDir, linkName);
+			if (xFile.exists())
+				store.backup(xFile);
+		}
 		Runtime r = Runtime.getRuntime();
 		try {
 			Process process = r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

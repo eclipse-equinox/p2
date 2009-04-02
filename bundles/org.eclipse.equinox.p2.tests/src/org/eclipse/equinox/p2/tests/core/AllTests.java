@@ -26,6 +26,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AggregateQueryTest.class);
 		suite.addTestSuite(CompoundQueryableTest.class);
 		suite.addTestSuite(URLUtilTest.class);
+		suite.addTestSuite(BackupTest.class);
 		return suite;
 	}
 
