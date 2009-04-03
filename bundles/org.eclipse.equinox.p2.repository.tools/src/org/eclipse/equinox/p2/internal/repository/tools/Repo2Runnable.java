@@ -181,9 +181,11 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 				RepositoryDescriptor artifact = new RepositoryDescriptor();
 				artifact.setLocation(URIUtil.fromString(arg));
 				artifact.setKind("A"); //$NON-NLS-1$
+				addDestination(artifact);
 				RepositoryDescriptor metadata = new RepositoryDescriptor();
 				metadata.setLocation(URIUtil.fromString(arg));
 				metadata.setKind("M"); //$NON-NLS-1$
+				addDestination(metadata);
 			}
 		}
 	}
