@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,6 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -85,7 +84,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// TODO its not clear when this would ever be false reasonably.  Features are always
 		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
 		// Anyway, in the future it seems reasonable that features be installed as JARs...
-		if (feature.getLocation() == null || !feature.getLocation().endsWith(".jar")) {
+		if (feature.getLocation() == null || !feature.getLocation().endsWith(".jar")) { //$NON-NLS-1$
 			Map touchpointData = new HashMap();
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -129,7 +128,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (fileSpecs.length > 0) {
 			for (int i = 0; i < fileSpecs.length; i++) {
 				String spec = fileSpecs[i];
-				if (spec.startsWith("file:"))
+				if (spec.startsWith("file:")) //$NON-NLS-1$
 					spec = spec.substring(5);
 				files[i] = new File(location, spec);
 			}
@@ -152,14 +151,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 	/**
 	 * Looks for advice in a p2.inf file inside the feature location.
 	 */
-	private void createAdviceFileAdvice(Feature feature, IPublisherInfo info) {
+	private void createAdviceFileAdvice(Feature feature, IPublisherInfo publisherInfo) {
 		//assume p2.inf is co-located with feature.xml
 		String location = feature.getLocation();
 		if (location != null) {
 			String groupId = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 			AdviceFileAdvice advice = new AdviceFileAdvice(groupId, new Version(feature.getVersion()), new Path(location), new Path("p2.inf")); //$NON-NLS-1$
 			if (advice.containsAdvice())
-				info.addAdvice(advice);
+				publisherInfo.addAdvice(advice);
 		}
 	}
 
@@ -168,14 +167,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * information about the shape of the bundles it includes.  The discovered advice is
 	 * added to the given result.
 	 * @param feature the feature to process
-	 * @param info the publishing info to update
+	 * @param publisherInfo the publishing info to update
 	 */
-	private void createBundleShapeAdvice(Feature feature, IPublisherInfo info) {
+	private void createBundleShapeAdvice(Feature feature, IPublisherInfo publisherInfo) {
 		FeatureEntry entries[] = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
 			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
-				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
+				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
 	}
 
@@ -200,11 +199,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return new Object[] {iuResult, fileResult};
 	}
 
-	protected IInstallableUnit createGroupIU(Feature feature, List childIUs, IPublisherInfo info) {
+	protected IInstallableUnit createGroupIU(Feature feature, List childIUs, IPublisherInfo publisherInfo) {
 		if (isPatch(feature))
-			return createPatchIU(feature, childIUs, info);
+			return createPatchIU(feature, childIUs, publisherInfo);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+		String id = getGroupId(feature.getId());
 		iu.setId(id);
 		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
@@ -240,8 +239,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
-		processTouchpointAdvice(iu, null, info);
-		processInstallableUnitPropertiesAdvice(iu, info);
+		processTouchpointAdvice(iu, null, publisherInfo);
+		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
@@ -266,11 +265,15 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
-		processCapabilityAdvice(iu, info);
+		processCapabilityAdvice(iu, publisherInfo);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	private IInstallableUnit createPatchIU(Feature feature, List childIUs, IPublisherInfo info) {
+	protected String getGroupId(String featureId) {
+		return getTransformedId(featureId, /*isPlugin*/false, /*isGroup*/true);
+	}
+
+	private IInstallableUnit createPatchIU(Feature feature, List childIUs, IPublisherInfo publisherInfo) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -328,8 +331,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setTouchpointType(ITouchpointType.NONE);
-		processTouchpointAdvice(iu, null, info);
-		processInstallableUnitPropertiesAdvice(iu, info);
+		processTouchpointAdvice(iu, null, publisherInfo);
+		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
@@ -355,7 +358,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
-		processCapabilityAdvice(iu, info);
+		processCapabilityAdvice(iu, publisherInfo);
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
@@ -372,7 +375,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			File location = list[i];
 			if (location.isDirectory()) {
 				// if the location is itself a feature, just add it.  Otherwise r down
-				if (new File(location, "feature.xml").exists())
+				if (new File(location, "feature.xml").exists()) //$NON-NLS-1$
 					result.add(location);
 				else
 					expandLocations(location.listFiles(), result);
@@ -382,39 +385,39 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected void generateFeatureIUs(Feature[] features, IPublisherResult result, IPublisherInfo info) {
+	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result, IPublisherInfo publisherInfo) {
 		// Build Feature IUs, and add them to any corresponding categories
-		for (int i = 0; i < features.length; i++) {
-			Feature feature = features[i];
+		for (int i = 0; i < featureList.length; i++) {
+			Feature feature = featureList[i];
 			//first gather any advice that might help us
-			createBundleShapeAdvice(feature, info);
-			createAdviceFileAdvice(feature, info);
+			createBundleShapeAdvice(feature, publisherInfo);
+			createAdviceFileAdvice(feature, publisherInfo);
 
-			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-			IInstallableUnit featureJarIU = generateFeatureJarIU(feature, info);
+			ArrayList childIUs = generateRootFileIUs(feature, result, publisherInfo);
+			IInstallableUnit featureJarIU = generateFeatureJarIU(feature, publisherInfo);
 			if (featureJarIU != null) {
-				publishFeatureArtifacts(feature, featureJarIU, info);
+				publishFeatureArtifacts(feature, featureJarIU, publisherInfo);
 				result.addIU(featureJarIU, IPublisherResult.NON_ROOT);
 				childIUs.add(featureJarIU);
 			}
 
-			IInstallableUnit groupIU = createGroupIU(feature, childIUs, info);
+			IInstallableUnit groupIU = createGroupIU(feature, childIUs, publisherInfo);
 			if (groupIU != null) {
 				result.addIU(groupIU, IPublisherResult.ROOT);
-				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(groupIU, info);
+				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(groupIU, publisherInfo);
 				for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
 					result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
 				}
 			}
-			generateSiteReferences(feature, result, info);
+			generateSiteReferences(feature, result, publisherInfo);
 		}
 	}
 
-	protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo info) {
-		return createFeatureJarIU(feature, info);
+	protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
+		return createFeatureJarIU(feature, publisherInfo);
 	}
 
-	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo info) {
+	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo publisherInfo) {
 		File tempLocation = null;
 		try {
 			if (location.isFile()) {
@@ -436,7 +439,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			if (fileResult != null && fileResult.length > 0) {
 				IArtifactKey artifact = iuResult.getArtifacts()[0];
 				ArtifactDescriptor descriptor = new ArtifactDescriptor(artifact);
-				publishArtifact(descriptor, fileResult, null, info, FileUtils.createDynamicPathComputer(1));
+				publishArtifact(descriptor, fileResult, null, publisherInfo, FileUtils.createDynamicPathComputer(1));
 			}
 			result.addIU(iuResult, IPublisherResult.NON_ROOT);
 			return iuResult;
@@ -446,13 +449,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo info) {
+	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
 		File location = new File(feature.getLocation());
 		Properties props = loadProperties(location, "build.properties"); //$NON-NLS-1$
 		ArrayList ius = new ArrayList();
 		FileSetDescriptor[] rootFileDescriptors = getRootFileDescriptors(props);
 		for (int i = 0; i < rootFileDescriptors.length; i++) {
-			IInstallableUnit iu = generateRootFileIU(feature.getId(), feature.getVersion(), location, rootFileDescriptors[i], result, info);
+			IInstallableUnit iu = generateRootFileIU(feature.getId(), feature.getVersion(), location, rootFileDescriptors[i], result, publisherInfo);
 			if (iu != null)
 				ius.add(iu);
 		}
@@ -479,24 +482,24 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo info) {
+	protected void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
 		//publish feature site references
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
 		//extra sites being loaded and searched (Bug 234177)
 		if (updateURL != null)
-			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), info.getMetadataRepository());
+			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), publisherInfo.getMetadataRepository());
 		URLEntry[] discoverySites = feature.getDiscoverySites();
 		for (int i = 0; i < discoverySites.length; i++)
-			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), info.getMetadataRepository());
+			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), publisherInfo.getMetadataRepository());
 	}
 
-	protected Feature[] getFeatures(File[] locations) {
-		ArrayList result = new ArrayList(locations.length);
-		for (int i = 0; i < locations.length; i++) {
-			Feature feature = new FeatureParser().parse(locations[i]);
+	protected Feature[] getFeatures(File[] featureLocations) {
+		ArrayList result = new ArrayList(featureLocations.length);
+		for (int i = 0; i < featureLocations.length; i++) {
+			Feature feature = new FeatureParser().parse(featureLocations[i]);
 			if (feature != null) {
-				feature.setLocation(locations[i].getAbsolutePath());
+				feature.setLocation(featureLocations[i].getAbsolutePath());
 				result.add(feature);
 			}
 		}
@@ -645,12 +648,12 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (features == null && locations == null)
 			throw new IllegalStateException("No features or locations provided");
 		if (features == null)
 			features = getFeatures(expandLocations(locations));
-		generateFeatureIUs(features, results, info);
+		generateFeatureIUs(features, results, publisherInfo);
 		return Status.OK_STATUS;
 	}
 
