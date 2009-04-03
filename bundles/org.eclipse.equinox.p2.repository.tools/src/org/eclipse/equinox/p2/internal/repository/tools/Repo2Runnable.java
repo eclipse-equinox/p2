@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
  * 
  * @since 1.0
  */
-public class Repo2Runnable extends AbstractApplication {
+public class Repo2Runnable extends AbstractApplication implements IApplication {
 	// the list of IUs that we actually transformed... could have come from the repo 
 	// or have been user-specified.
 	private Collection processedIUs = new ArrayList();
