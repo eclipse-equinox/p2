@@ -736,7 +736,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			changed |= putValue(node, KEY_PROVIDER, repository.getProvider());
 			changed |= putValue(node, KEY_TYPE, repository.getType());
 			changed |= putValue(node, KEY_VERSION, repository.getVersion());
-			changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+			//allow repository manager to define system property if it is undefined in the repository itself
+			String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
+			if (value != null)
+				changed |= putValue(node, KEY_SYSTEM, value);
 			changed |= putValue(node, KEY_SUFFIX, suffix);
 			if (changed)
 				saveToPreferences();

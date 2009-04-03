@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
 import junit.framework.Test;
@@ -20,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -223,6 +225,30 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		}
+	}
+
+	/**
+	 * Tests that loading a disabled system repository does not damage its properties.
+	 * This is a regression test for bug 267707.
+	 */
+	public void testLoadDisabledSystemRepository() throws ProvisionException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/goodNonSystem/");
+		URI location = site.toURI();
+		manager.removeRepository(location);
+		manager.addRepository(location);
+		manager.setEnabled(location, false);
+		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
+		manager.loadRepository(location, getMonitor());
+
+		//simulate shutdown/restart by bashing repository manager field
+		Field field = AbstractRepositoryManager.class.getDeclaredField("repositories");
+		field.setAccessible(true);
+		field.set(manager, null);
+
+		String system = manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM);
+		assertEquals("true", system);
+		assertFalse(manager.isEnabled(location));
+
 	}
 
 	/**
