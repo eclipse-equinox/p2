@@ -43,7 +43,7 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), "../../jre").getCanonicalFile();
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
-		assertContent(new File(getInstallFolder(), "eclipse.ini"), jreLocation.getAbsolutePath());
+		assertContent(new File(getInstallFolder(), "eclipse.ini"), jreLocation.getAbsolutePath().replace('\\','/'));
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
@@ -53,7 +53,7 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 	
 	public void test269502() throws FrameworkAdminRuntimeException, IOException {
 		//Test VM path in the install folder
-		String winPath = "c:/ibm5sr3/bin/";
+		String winPath = "c:/ibm5sr3/bin";
 		String linuxPath = "/Users/Pascal/ibm5sr3/bin";
 		String chosenPath = Platform.getOS().equals("win32") ? winPath : linuxPath; 
 		File jreLocation =  new File(chosenPath);
