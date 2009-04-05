@@ -46,6 +46,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ManipulatorTests.class);
 		suite.addTestSuite(UtilsTest.class);
 		suite.addTestSuite(LauncherDataTest.class);
+		suite.addTestSuite(FrameworkExtensionTest.class);
 		return suite;
 	}
 

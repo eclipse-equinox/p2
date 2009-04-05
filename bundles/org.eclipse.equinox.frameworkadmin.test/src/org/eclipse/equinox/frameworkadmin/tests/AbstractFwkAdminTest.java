@@ -185,12 +185,12 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		assertTrue(tmp.indexOf(value) == -1);
 	}
 
-	public void assertPropertyNotContain(File file, String property, String search) {
+	private String getProperty(File file, String property) {
 		Properties p = new Properties();
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(file);
-			p.load(fis);
+			p.load(fis);			
 		} catch (FileNotFoundException e) {
 			fail("Can't find file " + file);
 		} catch (IOException e) {
@@ -203,6 +203,27 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 					//ignore
 				}
 		}
+		return p.getProperty(property);
+	}
+	
+	public void assertPropertyContains(File file, String property, String text) {
+		String value = getProperty(file, property);
+		if (value == null)
+			fail("property: " + property + " not found in: " +file);
+		
+		int index = value.indexOf(text);
+		if (index == -1)
+			fail(text + " not found in property:" + property + " for file: " +file);
+	}
+
+	public void assertNotPropertyContains(File file, String property, String text) {
+		String value = getProperty(file, property);
+		if (value == null)
+			return;
+		
+		int index = value.indexOf(text);
+		if (index != -1)
+			fail(text + " found in property:" + property + " for file: " +file);
 	}
 
 	public void assertEquals(String[] array1, String[] array2) {

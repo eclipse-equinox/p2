@@ -42,7 +42,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		assertEquals(true, defaultManipulator.getConfigData().removeBundle(osgi));
 		defaultManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
+		assertNotPropertyContains(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
 	public void testRemovalUsingOtherManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -58,7 +58,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		newManipulator.getConfigData().removeBundle(osgi);
 		newManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
+		assertNotPropertyContains(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
 	public void testAdditionUsingOtherManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
@@ -78,7 +78,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		newManipulator.getConfigData().addBundle(osgi);
 		newManipulator.save(false);
 		assertContent(getBundleTxt(), "org.eclipse.osgi");
-		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
+		assertNotPropertyContains(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 	}
 
 	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, URISyntaxException {
@@ -116,7 +116,7 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		defaultManipulator.getConfigData().removeBundle(osgi);
 		defaultManipulator.save(false);
 		assertNotContent(getBundleTxt(), "org.eclipse.osgi");
-		assertPropertyNotContain(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
+		assertNotPropertyContains(getConfigIni(),"osgi.bundles", "org.eclipse.osgi");
 
 		Manipulator newManipulator = getNewManipulator(workArea);
 		assertEquals(1, newManipulator.getConfigData().getBundles().length);
