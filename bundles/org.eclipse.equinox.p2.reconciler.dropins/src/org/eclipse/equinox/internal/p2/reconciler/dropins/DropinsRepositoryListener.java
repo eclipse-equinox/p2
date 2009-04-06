@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class DropinsRepositoryListener extends RepositoryListener {
@@ -71,9 +70,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		Properties properties = new Properties();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
-		URI linkLocation = getLinkRepository(file, false);
-		if (linkLocation != null)
-			properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
+		if (file.isFile() && file.getName().endsWith(LINK)) {
+			URI linkLocation = getLinkRepository(file, false);
+			if (linkLocation != null)
+				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
+		}
 		if (repoLocation != null) {
 			getMetadataRepository(repoLocation, properties);
 			getArtifactRepository(repoLocation, properties);
