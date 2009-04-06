@@ -27,7 +27,7 @@ public class ComboAutoCompleteField {
 	ContentProposalAdapter adapter;
 	Combo combo;
 
-	ComboAutoCompleteField(Combo c) {
+	public ComboAutoCompleteField(Combo c) {
 		this.combo = c;
 		adapter = new ContentProposalAdapter(combo, new ComboContentAdapter(), getProposalProvider(), null, null);
 		adapter.setPropagateKeys(true);

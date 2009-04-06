@@ -54,9 +54,24 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
 	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 350;
 
+	/**
+	 * Show contents from all repositories
+	 */
 	public static final int AVAILABLE_ALL = 1;
+
+	/**
+	 * Don't show any repository content
+	 */
 	public static final int AVAILABLE_NONE = 2;
+
+	/**
+	 * Show local repository content
+	 */
 	public static final int AVAILABLE_LOCAL = 3;
+
+	/**
+	 * Show content for a specific repository
+	 */
 	public static final int AVAILABLE_SPECIFIED = 4;
 
 	QueryableMetadataRepositoryManager queryableManager;
