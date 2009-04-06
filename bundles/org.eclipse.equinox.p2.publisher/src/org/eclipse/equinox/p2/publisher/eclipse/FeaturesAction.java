@@ -80,15 +80,15 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version), PublisherHelper.FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
-		// if the feature has a location and it is not a JAR then setup the touchpoint data
 		// TODO its not clear when this would ever be false reasonably.  Features are always
 		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
 		// Anyway, in the future it seems reasonable that features be installed as JARs...
-		if (feature.getLocation() == null || !feature.getLocation().endsWith(".jar")) { //$NON-NLS-1$
-			Map touchpointData = new HashMap();
-			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		}
+		// Note: We have decided to always unzip features when they are installed (regardless of whether they
+		//were zipped when we found them). https://bugs.eclipse.org/bugs/show_bug.cgi?id=267282
+		Map touchpointData = new HashMap();
+		touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
 		processInstallableUnitPropertiesAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
