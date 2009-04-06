@@ -23,7 +23,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -34,7 +33,7 @@ import org.eclipse.swt.widgets.Label;
  * 
  * @since 3.5
  */
-public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
+public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPage {
 
 	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, PlannerResolutionOperation initialResolution) {
 		super(policy, root, profileID, initialResolution);
@@ -120,10 +119,10 @@ public abstract class SizeComputingWizardPage extends ResolutionWizardPage {
 		}
 	}
 
-	public void recomputePlan(IUElementListRoot root, ProvisioningContext provisioningContext, IRunnableContext runnableContext) {
-		super.recomputePlan(root, provisioningContext, runnableContext);
-		if (getCurrentPlan() != null)
-			computeSizing(getCurrentPlan(), getProfileId(), provisioningContext);
+	public void updateStatus(IUElementListRoot root, PlannerResolutionOperation op) {
+		super.updateStatus(root, op);
+		if (op.getProvisioningPlan() != null)
+			computeSizing(op.getProvisioningPlan(), getProfileId(), op.getProvisioningContext());
 	}
 
 	protected IQueryable getQueryable(ProvisioningPlan plan) {

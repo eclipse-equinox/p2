@@ -11,20 +11,26 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.wizard.IWizardPage;
 
 /**
  * @since 3.4
  */
 public class UninstallWizard extends ProvisioningOperationWizard {
+
+	SelectableIUsPage mainPage;
 
 	static IUElementListRoot makeElementRoot(Object[] selectedElements, String profileId) {
 		IUElementListRoot elementRoot = new IUElementListRoot();
@@ -45,17 +51,47 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		ISelectableIUsPage page = new SelectableIUsPage(policy, input, selections, profileId);
-		page.setTitle(ProvUIMessages.UninstallIUOperationLabel);
-		page.setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
-		return page;
+		mainPage = new SelectableIUsPage(policy, input, selections, profileId);
+		mainPage.setTitle(ProvUIMessages.UninstallIUOperationLabel);
+		mainPage.setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
+		mainPage.updateStatus(input, resolutionOperation);
+		return mainPage;
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
-		return new UninstallWizardPage(policy, input, profileId, initialResolution);
+	protected ResolutionResultsWizardPage createResolutionPage() {
+		return new UninstallWizardPage(policy, root, profileId, resolutionOperation);
 	}
 
 	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
 		return makeElementRoot(selectedElements, profileId);
+	}
+
+	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileId);
+		request.removeInstallableUnits(ElementUtils.elementsToIUs(selectedElements));
+		return request;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
+	 */
+	protected IResolutionErrorReportingPage getErrorReportingPage() {
+		return mainPage;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.Wizard#getStartingPage()
+	 */
+	public IWizardPage getStartingPage() {
+		if (getCurrentStatus().isOK()) {
+			if (resolutionPage == null) {
+				resolutionPage = createResolutionPage();
+				addPage(resolutionPage);
+			}
+			mainPage.setPageComplete(true);
+			return resolutionPage;
+		}
+		return super.getStartingPage();
 	}
 }

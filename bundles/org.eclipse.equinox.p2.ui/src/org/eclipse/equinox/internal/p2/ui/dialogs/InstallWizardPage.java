@@ -10,14 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
@@ -31,10 +25,5 @@ public class InstallWizardPage extends SizeComputingWizardPage {
 
 	protected String getOperationLabel() {
 		return ProvUIMessages.InstallIUOperationLabel;
-	}
-
-	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
-		IInstallableUnit[] selected = ElementUtils.elementsToIUs(selectedElements);
-		return InstallAction.computeProfileChangeRequest(selected, getProfileId(), additionalStatus, monitor);
 	}
 }

@@ -11,12 +11,16 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
@@ -28,7 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  */
 public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
-	ISelectableIUsPage mainPage;
+	SelectableIUsPage mainPage;
 	QueryableMetadataRepositoryManager manager;
 
 	static IUElementListRoot makeElementRoot(IInstallableUnit[] ius, String profileId) {
@@ -56,8 +60,8 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
-		return new InstallWizardPage(policy, profileId, input, initialResolution);
+	protected ResolutionResultsWizardPage createResolutionPage() {
+		return new InstallWizardPage(policy, profileId, root, resolutionOperation);
 	}
 
 	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
@@ -70,5 +74,17 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		}
 		elementRoot.setChildren(list.toArray());
 		return elementRoot;
+	}
+
+	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
+		IInstallableUnit[] selected = ElementUtils.elementsToIUs(selectedElements);
+		return InstallAction.computeProfileChangeRequest(selected, profileId, additionalStatus, monitor);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
+	 */
+	protected IResolutionErrorReportingPage getErrorReportingPage() {
+		return mainPage;
 	}
 }

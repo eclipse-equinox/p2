@@ -11,15 +11,20 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.widgets.Composite;
 
 /**
@@ -32,6 +37,7 @@ public class InstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
 	AvailableIUsPage mainPage;
+	SelectableIUsPage errorReportingPage;
 
 	public InstallWizard(Policy policy, String profileId, IInstallableUnit[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
 		super(policy, profileId, null, initialSelections, initialResolution);
@@ -44,14 +50,14 @@ public class InstallWizard extends WizardWithLicenses {
 		this(policy, profileId, null, null, new QueryableMetadataRepositoryManager(policy.getQueryContext(), false));
 	}
 
-	protected ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution) {
-		return new InstallWizardPage(policy, profileId, input, initialResolution);
+	protected ResolutionResultsWizardPage createResolutionPage() {
+		return new InstallWizardPage(policy, profileId, root, resolutionOperation);
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new AvailableIUsPage(policy, profileId, manager);
 		if (selections != null && selections.length > 0)
-			mainPage.setInitialSelections(selections);
+			mainPage.setCheckedElements(selections);
 		return mainPage;
 
 	}
@@ -86,5 +92,49 @@ public class InstallWizard extends WizardWithLicenses {
 
 	protected ProvisioningContext getProvisioningContext() {
 		return mainPage.getProvisioningContext();
+	}
+
+	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
+		IInstallableUnit[] selected = ElementUtils.elementsToIUs(selectedElements);
+		return InstallAction.computeProfileChangeRequest(selected, profileId, additionalStatus, monitor);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
+	 */
+	protected IResolutionErrorReportingPage getErrorReportingPage() {
+		if (errorReportingPage == null) {
+			originalRoot = root;
+			errorReportingPage = new SelectableIUsPage(policy, root, root.getChildren(root), profileId);
+			errorReportingPage.setTitle(ProvUIMessages.InstallWizardPage_Title);
+			errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
+			errorReportingPage.updateStatus(root, resolutionOperation);
+			errorReportingPage.setCheckedElements(root.getChildren(root));
+			addPage(errorReportingPage);
+		}
+		return errorReportingPage;
+	}
+
+	protected void showingErrorPage() {
+		// If we did a new resolution and are showing the error page,
+		// update the root.  We don't do this when the page is not the main
+		// page, or we might be updating the root of the showing page.
+		if (getContainer().getCurrentPage() == mainPage) {
+			originalRoot = root;
+			errorReportingPage.updateStatus(originalRoot, resolutionOperation);
+			errorReportingPage.setCheckedElements(root.getChildren(root));
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.Wizard#getPreviousPage(org.eclipse.jface.wizard.IWizardPage)
+	 */
+	public IWizardPage getPreviousPage(IWizardPage page) {
+		if (page == errorReportingPage) {
+			mainPage.setCheckedElements(errorReportingPage.getCheckedIUElements());
+			return mainPage;
+		}
+		return super.getPreviousPage(page);
 	}
 }

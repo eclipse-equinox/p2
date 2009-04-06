@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,20 +11,17 @@
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 
 /**
  * 
- * ISelectableIUsPage is used to get the selected or checked IUs in a
- * wizard page.
+ * IErrorReportingPage is used to report resolution
+ * errors on a wizard page.
  *
  * @since 3.5
  *
  */
-public interface ISelectableIUsPage extends IWizardPage {
-	public Object[] getCheckedIUElements();
-
-	public Object[] getSelectedIUElements();
-
-	public void setCheckedElements(Object[] elements);
+public interface IResolutionErrorReportingPage extends ISelectableIUsPage {
+	public void updateStatus(IUElementListRoot root, PlannerResolutionOperation resolvedOperation);
 }

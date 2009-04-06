@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWizardPage;
-
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWizardPage;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -49,16 +48,20 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 			if (licensePage.hasLicensesToAccept()) {
 				return licensePage;
 			}
+			return null;
 		}
 		return super.getNextPage(page);
 	}
 
 	protected void planChanged() {
+		super.planChanged();
+		if (resolutionOperation == null)
+			return;
 		if (licensePage == null) {
-			licensePage = createLicensesPage(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionPage.getCurrentPlan());
+			licensePage = createLicensesPage(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionOperation.getProvisioningPlan());
 			addPage(licensePage);
 		} else
-			licensePage.update(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionPage.getCurrentPlan());
+			licensePage.update(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionOperation.getProvisioningPlan());
 		// Status of license page could change status of wizard next button
 		// If no current page has been set yet (ie, we are still being created)
 		// then the updateButtons() method will NPE.  This check is needed in

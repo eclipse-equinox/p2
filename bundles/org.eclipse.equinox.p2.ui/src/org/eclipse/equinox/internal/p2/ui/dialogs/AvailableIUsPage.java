@@ -592,13 +592,17 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	/**
-	 * Set the initial selections to be used in this page.  This method has no effect
-	 * once the page has been created.
+	 * Set the selections to be used in this page.  This method only changes the 
+	 * selections of items that are already visible.  It does not expand items
+	 * or change the repository elements in order to make the selections valid.
 	 * 
 	 * @param elements
 	 */
-	public void setInitialSelections(Object[] elements) {
-		initialSelections = elements;
+	public void setCheckedElements(Object[] elements) {
+		if (availableIUGroup == null)
+			initialSelections = elements;
+		else
+			availableIUGroup.setChecked(elements);
 	}
 
 	/*

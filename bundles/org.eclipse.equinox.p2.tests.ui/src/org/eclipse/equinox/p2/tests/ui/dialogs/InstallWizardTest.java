@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.ui.dialogs;
 import java.util.HashSet;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.dialogs.AvailableIUsPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -84,7 +84,7 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			// must be done this way to force notification of listeners
 			group.setChecked(group.getCheckboxTreeViewer().getCheckedElements());
 
-			ResolutionWizardPage page2 = (ResolutionWizardPage) wizard.getNextPage(page1);
+			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			assertTrue(group.getCheckedLeafIUs().length > 0);
 			dialog.showPage(page2);
 			assertNotNull(page2.getCurrentPlan());

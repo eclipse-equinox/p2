@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -44,7 +44,7 @@ public class UninstallWizardTest extends AbstractProvisioningUITest {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			assertTrue(page1.isPageComplete());
 			assertTrue(page1.canFlipToNextPage());
-			ResolutionWizardPage page2 = (ResolutionWizardPage) wizard.getNextPage(page1);
+			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			dialog.showPage(page2);
 			assertTrue(page2.isPageComplete());
 

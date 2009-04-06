@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -299,12 +298,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Object[] selections = filteredTree.getCheckboxTreeViewer().getCheckedElements();
 		if (selections.length == 0)
 			return new IInstallableUnit[0];
-		// Use a set to eliminate any duplicate selections
-		HashSet leaves = new HashSet(selections.length);
+		ArrayList leaves = new ArrayList(selections.length);
 		for (int i = 0; i < selections.length; i++) {
 			if (!getCheckboxTreeViewer().getGrayed(selections[i])) {
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selections[i], IInstallableUnit.class);
-				if (iu != null && !ProvisioningUtil.isCategory(iu))
+				if (iu != null && !ProvisioningUtil.isCategory(iu) && !leaves.contains(iu))
 					leaves.add(iu);
 			}
 		}
@@ -429,18 +427,17 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		return data;
 	}
 
-	// TODO this is potentially very expensive if used indiscriminately, need to doc the
-	// expected preconditions
+	/**
+	 * Set the checked elements to the specified selections.  This method
+	 * does not force visibility/expansion of the checked elements.  If they are not
+	 * visible, they will not be checked.
+	 * @param selections
+	 */
 	public void setChecked(Object[] selections) {
-		ContainerCheckedTreeViewer checkViewer = filteredTree.getCheckboxTreeViewer();
-		Object element = new Object();
-		for (int i = 0; i < selections.length; i++) {
-			element = selections[i];
-			checkViewer.expandToLevel(selections[i], AbstractTreeViewer.ALL_LEVELS);
-			checkViewer.setSubtreeChecked(selections[i], true);
-		}
+		filteredTree.getCheckboxTreeViewer().setCheckedElements(selections);
 		// Relying on knowledge that DelayedFilterCheckbox doesn't care which element is in the listener
-		checkViewer.fireCheckStateChanged(element, true);
+		Object element = selections.length > 0 ? selections[0] : new Object();
+		filteredTree.getCheckboxTreeViewer().fireCheckStateChanged(element, true);
 	}
 
 	public void setRepositoryFilter(int filterFlag, URI repoLocation) {

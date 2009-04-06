@@ -10,17 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.operation.IRunnableContext;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Common superclass for a wizard that performs a provisioning
@@ -32,12 +40,15 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	protected Policy policy;
 	protected String profileId;
-	private IUElementListRoot root;
+	protected IUElementListRoot root, originalRoot;
+	protected PlannerResolutionOperation resolutionOperation;
 	private Object[] planSelections;
 	protected ISelectableIUsPage mainPage;
-	protected ResolutionWizardPage resolutionPage;
+	protected IResolutionErrorReportingPage errorPage;
+	protected ResolutionResultsWizardPage resolutionPage;
 	private ProvisioningContext provisioningContext;
-	private PlannerResolutionOperation resolutionOperation;
+	boolean couldNotResolve;
+
 	boolean waitingForOtherJobs = false;
 
 	public ProvisioningOperationWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution) {
@@ -45,6 +56,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		this.policy = policy;
 		this.profileId = profileId;
 		this.root = root;
+		this.originalRoot = root;
 		this.resolutionOperation = initialResolution;
 		if (initialSelections == null)
 			planSelections = new Object[0];
@@ -61,27 +73,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void addPages() {
 		mainPage = createMainPage(root, planSelections);
 		addPage(mainPage);
-		if (resolutionOperation != null && planSelections != null) {
-			resolutionPage = createResolutionPage(makeResolutionElementRoot(planSelections), resolutionOperation);
-			addPage(resolutionPage);
-		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getStartingPage()
-	 */
-	public IWizardPage getStartingPage() {
-		// If we already had initial selections and a plan, then there is no reason to get
-		// additional information on the selection page.
-		if (resolutionPage != null)
-			return resolutionPage;
-		return super.getStartingPage();
-	}
+	protected abstract IResolutionErrorReportingPage getErrorReportingPage();
 
 	protected abstract ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections);
 
-	protected abstract ResolutionWizardPage createResolutionPage(IUElementListRoot input, PlannerResolutionOperation initialResolution);
+	protected abstract ResolutionResultsWizardPage createResolutionPage();
 
 	public boolean performFinish() {
 		return resolutionPage.performFinish();
@@ -94,7 +92,16 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public boolean canFinish() {
 		if (resolutionPage == null)
 			return false;
-		return super.canFinish();
+		if (!super.canFinish())
+			return false;
+		// Special case.  The error reporting page has to be complete in
+		// order to press next and perform a resolution.  But that doesn't
+		// mean the wizard can finish.
+		if (resolutionOperation != null) {
+			int severity = resolutionOperation.getResolutionResult().getSummaryStatus().getSeverity();
+			return severity != IStatus.ERROR && severity != IStatus.CANCEL;
+		}
+		return false;
 	}
 
 	/*
@@ -102,51 +109,63 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
 	 */
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page == mainPage) {
-			if (resolutionPage != null) {
-				if (shouldRecomputePlan()) {
-					// any initial plan that was passed in is no longer valid, no need to hang on to it
-					resolutionOperation = null;
-					// record the provisioning context so we'll know if it's different next time
-					provisioningContext = getProvisioningContext();
-					planSelections = mainPage.getCheckedIUElements();
-					root = makeResolutionElementRoot(planSelections);
-					resolutionPage.recomputePlan(root, provisioningContext, getContainer());
-					planChanged();
-				}
-			} else {
-				if (resolutionOperation != null && shouldRecomputePlan())
-					resolutionOperation = null;
+		if (page == mainPage || page == errorPage) {
+			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
+			// Do we need to resolve?
+			if (resolutionOperation == null || (resolutionOperation != null && shouldRecomputePlan(currentPage))) {
+				resolutionOperation = null;
 				provisioningContext = getProvisioningContext();
-				root = makeResolutionElementRoot(mainPage.getCheckedIUElements());
-				resolutionPage = createResolutionPage(root, resolutionOperation);
-				if (resolutionOperation == null)
-					resolutionPage.recomputePlan(root, provisioningContext, getContainer());
+				planSelections = currentPage.getCheckedIUElements();
+				root = makeResolutionElementRoot(planSelections);
+				recomputePlan(getContainer());
 				planChanged();
+			}
+			return selectNextPage(page, getCurrentStatus());
+		}
+		return super.getNextPage(page);
+	}
+
+	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status) {
+		if (status.getSeverity() == IStatus.CANCEL)
+			return currentPage;
+		else if (status.getSeverity() == IStatus.ERROR) {
+			if (errorPage == null)
+				errorPage = getErrorReportingPage();
+			showingErrorPage();
+			return errorPage;
+		} else {
+			if (resolutionPage == null) {
+				resolutionPage = createResolutionPage();
 				addPage(resolutionPage);
 			}
-			IStatus status = resolutionPage.getCurrentStatus();
-			// Normally, resolution errors are reported on the next page.
-			// But if the user canceled the resolution, we don't want to move
-			// to the next page.  In the future we may have other reasons not to
-			// move to the next page (providing selection quick fixes on the first
-			// page, etc.)
-			if (status.getSeverity() != IStatus.CANCEL)
-				return resolutionPage;
+			// need to clear any previous error status reported so that traversing
+			// back to the error page will not show the error
+			if (currentPage instanceof IResolutionErrorReportingPage)
+				updateErrorPageStatus((IResolutionErrorReportingPage) currentPage);
+			return resolutionPage;
 		}
-		return null;
 	}
 
-	private boolean shouldRecomputePlan() {
+	/**
+	 * The error page is being shown for the first time given the
+	 * current plan.  Update any information needed before showing
+	 * the page.
+	 */
+	protected void showingErrorPage() {
+		// default is to do nothing
+	}
+
+	private boolean shouldRecomputePlan(ISelectableIUsPage page) {
 		boolean previouslyWaiting = waitingForOtherJobs;
-		boolean previouslyCanceled = resolutionPage != null && resolutionPage.getCurrentStatus().getSeverity() == IStatus.CANCEL;
+		boolean previouslyCanceled = resolutionPage != null && getCurrentStatus().getSeverity() == IStatus.CANCEL;
 		waitingForOtherJobs = ProvisioningOperationRunner.hasScheduledOperationsFor(profileId);
-		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || mainPageSelectionsHaveChanged() || provisioningContextChanged();
+		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || pageSelectionsHaveChanged(page) || provisioningContextChanged();
 	}
 
-	private boolean mainPageSelectionsHaveChanged() {
+	private boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
 		HashSet selectedIUs = new HashSet();
-		selectedIUs.addAll(Arrays.asList(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements())));
+		Object[] currentSelections = page.getCheckedIUElements();
+		selectedIUs.addAll(Arrays.asList(ElementUtils.elementsToIUs(currentSelections)));
 		HashSet lastIUSelections = new HashSet();
 		lastIUSelections.addAll(Arrays.asList(ElementUtils.elementsToIUs(planSelections)));
 		return !(selectedIUs.equals(lastIUSelections));
@@ -157,13 +176,23 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (currentProvisioningContext == null && provisioningContext == null)
 			return false;
 		if (currentProvisioningContext != null && provisioningContext != null)
-			return provisioningContext.getMetadataRepositories() != getProvisioningContext().getMetadataRepositories();
+			return !Arrays.equals(provisioningContext.getMetadataRepositories(), currentProvisioningContext.getMetadataRepositories());
 		// One is null and the other is not
 		return true;
 	}
 
 	protected void planChanged() {
-		// hook for subclasses.  Default is to do nothing
+		if (resolutionOperation != null) {
+			IStatus status = resolutionOperation.getResolutionResult().getSummaryStatus();
+			if (status.getSeverity() != IStatus.ERROR && status.getSeverity() != IStatus.CANCEL) {
+				if (resolutionPage != null)
+					resolutionPage.updateStatus(root, resolutionOperation);
+				else {
+					resolutionPage = createResolutionPage();
+					addPage(resolutionPage);
+				}
+			}
+		}
 	}
 
 	protected abstract IUElementListRoot makeResolutionElementRoot(Object[] selectedElements);
@@ -171,4 +200,70 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected ProvisioningContext getProvisioningContext() {
 		return null;
 	}
+
+	/**
+	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
+	 * Report progress using the specified runnable context.  This method may be called before the page is created.
+	 * 
+	 * @param root
+	 * @param provisioningContext
+	 * @param runnableContext
+	 */
+	public void recomputePlan(IRunnableContext runnableContext) {
+		final Object[] elements = root.getChildren(root);
+		final IInstallableUnit[] ius = ElementUtils.elementsToIUs(elements);
+		couldNotResolve = false;
+		try {
+			if (elements.length == 0) {
+				couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
+			} else
+				runnableContext.run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						resolutionOperation = null;
+						MultiStatus status = PlanAnalyzer.getProfileChangeAlteredStatus();
+						ProfileChangeRequest request = computeProfileChangeRequest(elements, status, monitor);
+						if (request != null) {
+							resolutionOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, profileId, request, provisioningContext, status, false);
+							try {
+								resolutionOperation.execute(monitor);
+							} catch (ProvisionException e) {
+								ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+								couldNotResolve(null);
+							}
+						}
+					}
+				});
+		} catch (InterruptedException e) {
+			// Nothing to report if thread was interrupted
+		} catch (InvocationTargetException e) {
+			ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
+			couldNotResolve(null);
+		}
+		if (errorPage == null)
+			errorPage = getErrorReportingPage();
+		updateErrorPageStatus(errorPage);
+	}
+
+	void updateErrorPageStatus(IResolutionErrorReportingPage page) {
+		page.updateStatus(originalRoot, resolutionOperation);
+	}
+
+	void couldNotResolve(String message) {
+		resolutionOperation = null;
+		couldNotResolve = true;
+		if (message != null) {
+			IStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);
+			StatusManager.getManager().handle(status, StatusManager.LOG);
+		}
+	}
+
+	public IStatus getCurrentStatus() {
+		if (couldNotResolve || resolutionOperation == null) {
+			return PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null);
+		}
+		return resolutionOperation.getResolutionResult().getSummaryStatus();
+	}
+
+	protected abstract ProfileChangeRequest computeProfileChangeRequest(Object[] checkedElements, MultiStatus additionalStatus, IProgressMonitor monitor);
+
 }

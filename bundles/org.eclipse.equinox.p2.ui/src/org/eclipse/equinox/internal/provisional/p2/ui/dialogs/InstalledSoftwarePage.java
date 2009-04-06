@@ -95,7 +95,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		// if we successfully try to resolve.  This is done to ensure that progress
 		// is shown properly.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
-		Action action = new UpdateAction(Policy.getDefault(), new ISelectionProvider() {
+		UpdateAction updateAction = new UpdateAction(Policy.getDefault(), new ISelectionProvider() {
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
 			}
@@ -124,21 +124,22 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 					getPageContainer().closeModalContainers();
 			}
 		};
-		updateButton = createButton(parent, UPDATE_ID, action.getText());
-		updateButton.setData(BUTTON_ACTION, action);
+		updateAction.setSkipSelectionPage(true);
+		updateButton = createButton(parent, UPDATE_ID, updateAction.getText());
+		updateButton.setData(BUTTON_ACTION, updateAction);
 		// Uninstall action
-		action = new UninstallAction(Policy.getDefault(), installedIUGroup.getStructuredViewer(), profileId) {
+		Action uninstallAction = new UninstallAction(Policy.getDefault(), installedIUGroup.getStructuredViewer(), profileId) {
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
 					getPageContainer().closeModalContainers();
 			}
 		};
-		uninstallButton = createButton(parent, UNINSTALL_ID, action.getText());
-		uninstallButton.setData(BUTTON_ACTION, action);
+		uninstallButton = createButton(parent, UNINSTALL_ID, uninstallAction.getText());
+		uninstallButton.setData(BUTTON_ACTION, uninstallAction);
 
 		// Properties action
-		action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
+		PropertyDialogAction action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
 		propertiesButton = createButton(parent, PROPERTIES_ID, action.getText());
 		propertiesButton.setData(BUTTON_ACTION, action);
 
