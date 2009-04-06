@@ -34,6 +34,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	HashMap latestReplacements;
 	boolean resolveIsVisible = true;
 	QueryableMetadataRepositoryManager manager;
+	boolean skipSelectionPage = false;
 
 	public UpdateAction(Policy policy, ISelectionProvider selectionProvider, String profileId, boolean resolveIsVisible) {
 		super(ProvUI.UPDATE_COMMAND_LABEL, policy, selectionProvider, profileId);
@@ -45,6 +46,10 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		this.manager = manager;
 	}
 
+	public void setSkipSelectionPage(boolean skipSelectionPage) {
+		this.skipSelectionPage = skipSelectionPage;
+	}
+
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		// Caches should have been created while formulating the plan
 		Assert.isNotNull(latestReplacements);
@@ -52,6 +57,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		Assert.isNotNull(resolution);
 
 		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), resolution, manager);
+		wizard.setSkipSelectionsPage(skipSelectionPage);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);

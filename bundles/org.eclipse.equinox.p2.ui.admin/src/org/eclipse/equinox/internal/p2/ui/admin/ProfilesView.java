@@ -42,7 +42,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.4
  */
 public class ProfilesView extends ProvView {
-	private Action addProfileAction, removeProfileAction, uninstallAction, updateAction;
+	private Action addProfileAction, removeProfileAction, uninstallAction;
+	UpdateAction updateAction;
 	private PropertyDialogAction propertiesAction;
 	private StructuredViewerProvisioningListener listener;
 
@@ -139,6 +140,7 @@ public class ProfilesView extends ProvView {
 		uninstallAction = new UninstallAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null);
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
 		updateAction = new UpdateAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null, true);
+		updateAction.setSkipSelectionPage(true);
 
 		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), propertiesAction);
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
