@@ -29,6 +29,46 @@ import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
+	static final class CapabilityKey {
+		private String namespace;
+		private String name;
+
+		public CapabilityKey(String namespace, String name) {
+			this.namespace = namespace;
+			this.name = name;
+		}
+
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
+			return result;
+		}
+
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CapabilityKey other = (CapabilityKey) obj;
+			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))
+				return false;
+			if (namespace == null) {
+				if (other.namespace != null)
+					return false;
+			} else if (!namespace.equals(other.namespace))
+				return false;
+			return true;
+		}
+
+	}
+
 	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
@@ -259,25 +299,44 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected static void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
 		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
+		if (advice.isEmpty())
+			return;
+
+		Map requiredMap = new HashMap();
+		IRequiredCapability[] required = iu.getRequiredCapabilities();
+		for (int i = 0; i < required.length; i++) {
+			requiredMap.put(new CapabilityKey(required[i].getNamespace(), required[i].getName()), required[i]);
+		}
+
+		Map providedMap = new HashMap();
+		IProvidedCapability[] provided = iu.getProvidedCapabilities();
+		for (int i = 0; i < provided.length; i++) {
+			providedMap.put(new CapabilityKey(provided[i].getNamespace(), provided[i].getName()), provided[i]);
+		}
+
+		for (Iterator it = advice.iterator(); it.hasNext();) {
+			ICapabilityAdvice entry = (ICapabilityAdvice) it.next();
+
 			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
-				IRequiredCapability[] current = iu.getRequiredCapabilities();
-				IRequiredCapability[] result = new IRequiredCapability[requiredAdvice.length + current.length];
-				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
-				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
-				iu.setRequiredCapabilities(result);
+				for (int i = 0; i < requiredAdvice.length; i++) {
+					requiredMap.put(new CapabilityKey(requiredAdvice[i].getNamespace(), requiredAdvice[i].getName()), requiredAdvice[i]);
+				}
 			}
+
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				IProvidedCapability[] current = iu.getProvidedCapabilities();
-				IProvidedCapability[] result = new IProvidedCapability[providedAdvice.length + current.length];
-				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
-				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
-				iu.setCapabilities(result);
+				for (int i = 0; i < providedAdvice.length; i++) {
+					providedMap.put(new CapabilityKey(providedAdvice[i].getNamespace(), providedAdvice[i].getName()), providedAdvice[i]);
+				}
 			}
 		}
+
+		IRequiredCapability[] resultRequired = (IRequiredCapability[]) requiredMap.values().toArray(new IRequiredCapability[requiredMap.size()]);
+		iu.setRequiredCapabilities(resultRequired);
+
+		IProvidedCapability[] resultProvided = (IProvidedCapability[]) providedMap.values().toArray(new IProvidedCapability[providedMap.size()]);
+		iu.setCapabilities(resultProvided);
 	}
 
 	/**

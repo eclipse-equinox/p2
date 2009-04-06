@@ -17,6 +17,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(AbstractPublisherActionTest.class);
 		suite.addTestSuite(AccumulateConfigDataActionTest.class);
 		suite.addTestSuite(AdviceFileParserTest.class);
 		suite.addTestSuite(BundlesActionTest.class);
