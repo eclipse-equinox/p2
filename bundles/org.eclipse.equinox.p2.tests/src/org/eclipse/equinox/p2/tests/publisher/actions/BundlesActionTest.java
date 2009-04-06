@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
@@ -24,8 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
@@ -53,6 +51,7 @@ public class BundlesActionTest extends ActionTest {
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
 	private static final File TEST_FILE2 = new File(TEST_BASE, TEST2_PROVBUNDLE_NAME + ".jar");//$NON-NLS-1$
+	private static final File TEST_FILE3 = new File(TEST_BASE, TEST2_PROVBUNDLE_NAME + ".jar.pack.gz");//$NON-NLS-1$
 
 	private static final String PROVBUNDLE_NAMESPACE = "org.eclipse.equinox.p2.iu";//$NON-NLS-1$
 	private static final String TEST2_IUA_NAMESPACE = OSGI;
@@ -91,6 +90,7 @@ public class BundlesActionTest extends ActionTest {
 		testAction = new BundlesAction(files);
 		setupPublisherResult();
 		setupPublisherInfo();
+		artifactRepository.setProperty(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS, "true");//$NON-NLS-1$
 
 		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor()));
 		verifyBundlesAction();
@@ -108,9 +108,32 @@ public class BundlesActionTest extends ActionTest {
 
 	private void verifyArtifactRepository() throws Exception {
 		IArtifactKey key2 = ArtifactKey.parse("osgi.bundle,test2,1.0.0.qualifier");//$NON-NLS-1$
-		ZipInputStream actual = artifactRepository.getZipInputStream(key2);
+		IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key2);
+
+		// Should have one canonical and one packed
+		assertTrue("1.0", descriptors.length == 2);
+
+		int packedIdx;
+		int canonicalIdx;
+		if ("packed".equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT))) {
+			packedIdx = 0;
+			canonicalIdx = 1;
+		} else {
+			packedIdx = 1;
+			canonicalIdx = 0;
+		}
+
+		ZipInputStream actual = artifactRepository.getZipInputStream(descriptors[canonicalIdx]);
 		ZipInputStream expected = new ZipInputStream(new FileInputStream(TEST_FILE2));
 		TestData.assertEquals(expected, actual);
+		actual.close();
+		expected.close();
+
+		InputStream packedActual = artifactRepository.getRawInputStream(descriptors[packedIdx]);
+		InputStream packedExpected = new BufferedInputStream(new FileInputStream(TEST_FILE3));
+		TestData.assertEquals(packedExpected, packedActual);
+		actual.close();
+		expected.close();
 
 		IArtifactKey key1 = ArtifactKey.parse("osgi.bundle,test1,0.1.0");//$NON-NLS-1$
 		ZipInputStream zis = artifactRepository.getZipInputStream(key1);

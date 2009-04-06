@@ -587,12 +587,25 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// publish the given files
 		publishArtifact(descriptor, inclusions, null, info, createRootPrefixComputer(base));
+	}
+
+	protected void publishArtifact(IArtifactDescriptor descriptor, File jarFile, IPublisherInfo info) {
+		// no files to publish so this is done.
+		if (jarFile == null || info == null)
+			return;
+
+		// if the destination already contains the descriptor, there is nothing to do.
+		IArtifactRepository destination = info.getArtifactRepository();
+		if (destination == null || destination.contains(descriptor))
+			return;
+
+		super.publishArtifact(descriptor, jarFile, info);
 
 		// if we are assimilating pack200 files then add the packed descriptor
 		// into the repo assuming it does not already exist.
 		boolean reuse = "true".equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS)); //$NON-NLS-1$
-		if (base != null && reuse && (info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
-			File packFile = new Path(base.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
+		if (reuse && (info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
+			File packFile = new Path(jarFile.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 			if (packFile.exists()) {
 				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 				publishArtifact(ad200, packFile, info);
@@ -666,9 +679,9 @@ public class BundlesAction extends AbstractPublisherAction {
 						// Publish according to the shape on disk
 						File bundleLocation = new File(bd.getLocation());
 						if (bundleLocation.isDirectory())
-							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info);
+							publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
 						else
-							publishArtifact(ad, new File(bd.getLocation()), info);
+							publishArtifact(ad, bundleLocation, info);
 
 						IInstallableUnit fragment = null;
 						if (isFragment(bd)) {

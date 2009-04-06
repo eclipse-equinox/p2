@@ -274,11 +274,15 @@ public class TestArtifactRepository implements IArtifactRepository {
 		IArtifactDescriptor[] descriptor = getArtifactDescriptors(key);
 		if (descriptor == null || descriptor.length == 0 || descriptor[0] == null)
 			return null;
-		return new ZipInputStream(new ByteArrayInputStream((byte[]) repo.get(descriptor[0]), 0, ((byte[]) repo.get(descriptor[0])).length));
+		return new ZipInputStream(getRawInputStream(descriptor[0]));
+	}
+
+	public InputStream getRawInputStream(IArtifactDescriptor descriptor) {
+		return new ByteArrayInputStream((byte[]) repo.get(descriptor), 0, ((byte[]) repo.get(descriptor)).length);
 	}
 
 	public ZipInputStream getZipInputStream(IArtifactDescriptor descriptor) {
-		return new ZipInputStream(new ByteArrayInputStream((byte[]) repo.get(descriptor), 0, ((byte[]) repo.get(descriptor)).length));
+		return new ZipInputStream(getRawInputStream(descriptor));
 	}
 
 	public byte[] getBytes(IArtifactDescriptor artifactDescriptor) {
