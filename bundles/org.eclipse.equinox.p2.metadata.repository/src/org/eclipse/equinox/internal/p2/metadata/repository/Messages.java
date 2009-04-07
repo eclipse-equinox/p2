@@ -27,7 +27,6 @@ public class Messages extends NLS {
 	public static String CacheManager_Neither_0_nor_1_found;
 	public static String io_failedRead;
 	public static String io_failedWrite;
-	public static String ecf_configuration_error;
 
 	public static String io_IncompatibleVersion;
 	public static String io_parseError;
