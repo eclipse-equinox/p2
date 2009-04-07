@@ -272,6 +272,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		} else {
 			updateCaches(newRoot, op);
 			setPageComplete(false);
+			if (!isCreated())
+				return;
 			getDetailsGroup().getDetailsArea().setText(specialStatus.getMessage());
 			setMessage(getMessageText(specialStatus), IMessageProvider.ERROR);
 

@@ -42,8 +42,8 @@ public class UninstallWizardTest extends AbstractProvisioningUITest {
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
-			assertTrue(page1.isPageComplete());
-			assertTrue(page1.canFlipToNextPage());
+			assertFalse(page1.isPageComplete());
+			// Will cause computation of a plan.
 			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			dialog.showPage(page2);
 			assertTrue(page2.isPageComplete());
@@ -53,7 +53,8 @@ public class UninstallWizardTest extends AbstractProvisioningUITest {
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
-			assertFalse(page2.isPageComplete());
+			// can't move to next page while op is running
+			assertFalse(page1.isPageComplete());
 			job.cancel();
 
 		} finally {
