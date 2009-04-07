@@ -78,6 +78,10 @@ public class MetadataFactory {
 			return unit().getRequiredCapabilities();
 		}
 
+		public IRequiredCapability[] getMetaRequiredCapabilities() {
+			return unit().getMetaRequiredCapabilities();
+		}
+
 		/**
 		 * Returns the current touchpoint data on this installable unit description. The
 		 * touchpoint data may change if further data is added to the description.
@@ -121,8 +125,12 @@ public class MetadataFactory {
 			unit().setProperty(key, value);
 		}
 
-		public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
-			unit().setRequiredCapabilities(capabilities);
+		public void setRequiredCapabilities(IRequiredCapability[] requirements) {
+			unit().setRequiredCapabilities(requirements);
+		}
+
+		public void setMetaRequiredCapabilities(IRequiredCapability[] metaRequirements) {
+			unit().setMetaRequiredCapabilitues(metaRequirements);
 		}
 
 		public void setSingleton(boolean singleton) {

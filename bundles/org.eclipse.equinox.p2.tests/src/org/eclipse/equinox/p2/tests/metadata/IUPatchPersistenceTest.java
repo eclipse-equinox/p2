@@ -59,6 +59,9 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 			new String[] {PackagesNS, "javax.servlet.http", "0.0.0", "true"}, //
 			new String[] {PackagesNS, "org.osgi.framework", "1.2.0", "false"}}; //
 
+	private static String[][] metaRequires = new String[][] {new String[] {PackagesNS, "some.actions1", "0.0.0", "true"}, //
+			new String[] {PackagesNS, "some.actions2", "1.2.0", "false"}}; //
+
 	private static String[][] instructions = new String[][] {new String[] {"manifest", "Manifest-Version: 1.0\\Bundle-Vendor: Eclipse.org\\Bundle-ContactAddress: www.eclipse.org\\...a whole bunch of other manifest content..."}, new String[] {"zipped", "true"}, //
 			new String[] {"configure", "addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"}}; //
 
@@ -66,10 +69,11 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Map propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
+		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update);
+		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, metaRequirements);
 		return iu;
 	}
 
@@ -274,6 +278,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Map propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
+		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
@@ -282,7 +287,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
 		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
 		IRequiredCapability lifeCycle = MetadataFactory.createRequiredCapability("zoo", "x", null, null, false, false, false);
-		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, lifeCycle);
+		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, lifeCycle, metaRequirements);
 		return iu;
 	}
 
@@ -305,10 +310,10 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Installable unit id is not correct", id.equals(iu.getId()));
 		assertTrue("Installable unit version is not correct", version.equals(iu.getVersion()));
 		assertTrue("Installable unit filter is not correct", filter.equals(iu.getFilter()));
-		// assertTrue("Installable unit properties are not correct", Arrays.equals(properties, extractProperties(iu)));
 		assertTrue("Installable unit properties are not correct", equal(properties, extractProperties(iu)));
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
-		//		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));	 The lifecycle is added as a requirement for now to make things easier
+		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu))); // The lifecycle is added as a requirement for now to make things easier
+		assertTrue("Installable unit meta required capabilities are not correct", equal(metaRequires, extractMetaRequires(iu)));
 		assertTrue("Installable unit update descriptor are not correct", id.equals(iu.getUpdateDescriptor().getId()));
 		assertTrue("Installable unit update descriptor are not correct", IUpdateDescriptor.HIGH == iu.getUpdateDescriptor().getSeverity());
 		assertTrue("Installable unit update descriptor are not correct", "desc".equals(iu.getUpdateDescriptor().getDescription()));
@@ -349,14 +354,24 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return tuples;
 	}
 
-	//	private static String[][] extractRequires(IInstallableUnit iu) {
-	//		RequiredCapability[] requyres = iu.getRequiredCapabilities();
-	//		String[][] tuples = new String[requyres.length][4];
-	//		for (int i = 0; i < requyres.length; i++) {
-	//			RequiredCapability next = requyres[i];
-	//			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
-	//		}
-	//		return tuples;
-	//	}
+	private static String[][] extractRequires(IInstallableUnit iu) {
+		IRequiredCapability[] requyres = iu.getRequiredCapabilities();
+		String[][] tuples = new String[requyres.length][4];
+		for (int i = 0; i < requyres.length; i++) {
+			IRequiredCapability next = requyres[i];
+			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		}
+		return tuples;
+	}
+
+	private static String[][] extractMetaRequires(IInstallableUnit iu) {
+		IRequiredCapability[] requyres = iu.getMetaRequiredCapabilities();
+		String[][] tuples = new String[requyres.length][4];
+		for (int i = 0; i < requyres.length; i++) {
+			IRequiredCapability next = requyres[i];
+			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		}
+		return tuples;
+	}
 
 }

@@ -66,6 +66,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
 		writeUpdateDescriptor(resolvedIU, resolvedIU.getUpdateDescriptor());
 		writeProperties(iu.getProperties());
+		writeMetaRequiredCapabilities(iu.getMetaRequiredCapabilities());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter());
@@ -110,6 +111,17 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 				end(PROVIDED_CAPABILITY_ELEMENT);
 			}
 			end(PROVIDED_CAPABILITIES_ELEMENT);
+		}
+	}
+
+	protected void writeMetaRequiredCapabilities(IRequiredCapability[] capabilities) {
+		if (capabilities != null && capabilities.length > 0) {
+			start(META_REQUIRED_CAPABILITIES_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
+			for (int i = 0; i < capabilities.length; i++) {
+				writeRequiredCapability(capabilities[i]);
+			}
+			end(META_REQUIRED_CAPABILITIES_ELEMENT);
 		}
 	}
 

@@ -206,6 +206,10 @@ public class NewDependencyExpander {
 		public boolean satisfies(IRequiredCapability candidate) {
 			return wrapped.satisfies(candidate);
 		}
+
+		public IRequiredCapability[] getMetaRequiredCapabilities() {
+			return wrapped.getMetaRequiredCapabilities();
+		}
 	}
 
 	static final int OperationWork = 100;

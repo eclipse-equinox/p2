@@ -34,6 +34,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private OrderedProperties localizedProperties;
 	IProvidedCapability[] providedCapabilities = NO_PROVIDES;
 	private IRequiredCapability[] requires = NO_REQUIRES;
+	private IRequiredCapability[] metaRequires = NO_REQUIRES;
 
 	private boolean singleton;
 
@@ -279,5 +280,18 @@ public class InstallableUnit implements IInstallableUnit {
 			if (provides[i].satisfies(candidate))
 				return true;
 		return false;
+	}
+
+	public IRequiredCapability[] getMetaRequiredCapabilities() {
+		return metaRequires;
+	}
+
+	public void setMetaRequiredCapabilitues(IRequiredCapability[] metaReqs) {
+		if (metaReqs.length == 0) {
+			this.metaRequires = NO_REQUIRES;
+		} else {
+			//copy array for safety
+			this.metaRequires = (IRequiredCapability[]) metaReqs.clone();
+		}
 	}
 }

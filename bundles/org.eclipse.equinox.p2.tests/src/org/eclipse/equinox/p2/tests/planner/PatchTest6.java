@@ -45,7 +45,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		IRequirementChange changeA = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequiredCapability[][] scopeP1 = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, false)}};
 		IRequiredCapability[] reqOnPP = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "PP", new VersionRange("[1.0.0, 2.0.0)"), null, false, false, true)};
-		p1 = createIUPatch("P", new Version("1.0.0"), null, reqOnPP, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeA}, scopeP1, null);
+		p1 = createIUPatch("P", new Version("1.0.0"), null, reqOnPP, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeA}, scopeP1, null, new IRequiredCapability[0]);
 
 		IRequirementChange changeC = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequiredCapability[][] scopePP1 = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, false)}};

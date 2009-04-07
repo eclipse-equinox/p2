@@ -45,7 +45,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 		String id = "toInstall." + getName();
 		toInstallIU = createIU(id, new Version(1, 0, 0));
 		IUpdateDescriptor updateDescriptor = createUpdateDescriptor(id, new Version(2, 0, 0));
-		update = createIU(id, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, updateDescriptor);
+		update = createIU(id, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, updateDescriptor, null);
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU, update};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};

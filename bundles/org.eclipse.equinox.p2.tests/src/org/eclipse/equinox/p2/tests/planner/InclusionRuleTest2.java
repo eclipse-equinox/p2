@@ -30,7 +30,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
-		createIU("A", new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, MetadataFactory.createUpdateDescriptor("A", VersionRange.emptyRange, 0, "foo bar"));
+		createIU("A", new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, MetadataFactory.createUpdateDescriptor("A", VersionRange.emptyRange, 0, "foo bar"), null);
 		a2 = createIU("A", new Version("2.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});

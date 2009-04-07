@@ -164,7 +164,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
-		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version));
+		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {iu});
@@ -211,7 +211,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
-		IInstallableUnit newIU = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version));
+		IInstallableUnit newIU = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);
 
 		//perform the update and install an ordinary bundle
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());

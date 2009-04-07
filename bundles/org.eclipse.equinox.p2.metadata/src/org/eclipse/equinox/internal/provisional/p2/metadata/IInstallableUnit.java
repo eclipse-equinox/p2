@@ -201,6 +201,8 @@ public interface IInstallableUnit extends Comparable {
 
 	public IRequiredCapability[] getRequiredCapabilities();
 
+	public IRequiredCapability[] getMetaRequiredCapabilities();
+
 	public ITouchpointData[] getTouchpointData();
 
 	public ITouchpointType getTouchpointType();

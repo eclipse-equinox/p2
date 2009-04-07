@@ -37,7 +37,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		f1 = createIU("F", new Version(1, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.1.0]"), null, false, false, true)});
 		f2 = createIU("F", new Version(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 4.0.0)"), null, false, false, true)});
 		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("foo", "bar", new Version(1, 0, 0))};
-		a1 = createIU("A", new Version("1.0.0"), null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, false)}, cap, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		a1 = createIU("A", new Version("1.0.0"), null, new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, false)}, cap, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		a3 = createIU("A", new Version(3, 0, 0), true);
 		b1 = createIU("B", new Version(1, 0, 0), true);
 		b2 = createIU("B", new Version(2, 0, 0), true);

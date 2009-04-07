@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -115,6 +113,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private ProvidedCapabilitiesHandler providedCapabilitiesHandler = null;
 		private RequiredCapabilitiesHandler requiredCapabilitiesHandler = null;
 		private HostRequiredCapabilitiesHandler hostRequiredCapabilitiesHandler = null;
+		private MetaRequiredCapabilitiesHandler metaRequiredCapabilitiesHandler = null;
 		private TextHandler filterHandler = null;
 		private ArtifactsHandler artifactsHandler = null;
 		private TouchpointTypeHandler touchpointTypeHandler = null;
@@ -172,6 +171,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			} else if (HOST_REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
 				if (hostRequiredCapabilitiesHandler == null) {
 					hostRequiredCapabilitiesHandler = new HostRequiredCapabilitiesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (META_REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+				if (metaRequiredCapabilitiesHandler == null) {
+					metaRequiredCapabilitiesHandler = new MetaRequiredCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -295,6 +300,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				currentUnit.setCapabilities(providedCapabilities);
 				IRequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
 				currentUnit.setRequiredCapabilities(requiredCapabilities);
+				IRequiredCapability[] metaRequiredCapabilities = (metaRequiredCapabilitiesHandler == null ? new IRequiredCapability[0] : metaRequiredCapabilitiesHandler.getMetaRequiredCapabilities());
+				currentUnit.setMetaRequiredCapabilities(metaRequiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
 				}
@@ -501,6 +508,28 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public IRequiredCapability[] getHostRequiredCapabilities() {
+			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
+				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+	}
+
+	protected class MetaRequiredCapabilitiesHandler extends AbstractHandler {
+		private List requiredCapabilities;
+
+		public MetaRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, META_REQUIRED_CAPABILITIES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+		}
+
+		public IRequiredCapability[] getMetaRequiredCapabilities() {
 			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
 		}
 

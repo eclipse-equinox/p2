@@ -172,6 +172,9 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			new String[] {PackagesNS, "javax.servlet.http", "0.0.0", "true"}, //
 			new String[] {PackagesNS, "org.osgi.framework", "1.2.0", "false"}}; //
 
+	private static String[][] metaRequires = new String[][] {new String[] {PackagesNS, "some.actions1", "0.0.0", "true"}, //
+			new String[] {PackagesNS, "some.actions2", "1.2.0", "false"}}; //
+
 	private static Version version = new Version("3.1.200.v20070605");
 
 	private Map propertyMap;
@@ -247,11 +250,22 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		return tuples;
 	}
 
+	private static String[][] extractMetaRequires(IInstallableUnit iu) {
+		IRequiredCapability[] requyres = iu.getMetaRequiredCapabilities();
+		String[][] tuples = new String[requyres.length][4];
+		for (int i = 0; i < requyres.length; i++) {
+			IRequiredCapability next = requyres[i];
+			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		}
+		return tuples;
+	}
+
 	private IInstallableUnitPatch createPatchIU() {
 		propertyMap = createProperties(properties);
 		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
+		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
@@ -259,7 +273,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
 		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
-		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null);
+		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null, metaRequirements);
 		return iu;
 	}
 
@@ -268,6 +282,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
+		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
@@ -275,7 +290,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
 		IRequiredCapability[][] scope = new IRequiredCapability[][] {{}};
-		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null);
+		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null, metaRequirements);
 		return iu;
 	}
 
@@ -283,10 +298,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
+		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update);
+		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, metaRequirements);
 		return iu;
 	}
 
@@ -368,6 +384,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertEquals("Installable unit properties are not correct", propertyMap, iu.getProperties());
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
 		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));
+		assertTrue("Installable unit meta required capabilities are not correct", equal(metaRequires, extractMetaRequires(iu)));
 		assertTrue("Installable unit update descriptor are not correct", id.equals(iu.getUpdateDescriptor().getId()));
 		assertTrue("Installable unit update descriptor are not correct", IUpdateDescriptor.HIGH == iu.getUpdateDescriptor().getSeverity());
 		assertTrue("Installable unit update descriptor are not correct", "desc".equals(iu.getUpdateDescriptor().getDescription()));

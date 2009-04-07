@@ -312,6 +312,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return getId().compareTo(other.getId());
 		}
 
+		public IRequiredCapability[] getMetaRequiredCapabilities() {
+			return null;
+		}
+
 	}
 
 	class SPITouchpointData implements ITouchpointData {

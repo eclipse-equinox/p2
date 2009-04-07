@@ -233,12 +233,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468b() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 		IUpdateDescriptor update2 = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update2);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update2, null);
 
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU(id, new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU(id, new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -265,12 +265,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468d() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -298,13 +298,13 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468c() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 
 		IUpdateDescriptor update3 = MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(2, 0, 0), true, new Version(3, 0, 0), false), IUpdateDescriptor.HIGH, "desc");
 		//		IUpdateDescriptor update3 = createUpdateDescriptor(id, new Version("3.0.0"));
-		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3);
+		IInstallableUnit three = createIU("anotherBundle", new Version("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -334,9 +334,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void test248468() {
 		String id = "myBundle";
 		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
-		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 		update = createUpdateDescriptor(id, new Version("2.0.0"));
-		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update);
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 
 		Collection from = new ArrayList();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
@@ -356,9 +356,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange1() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
-		IInstallableUnit anotherIU = createIU("misc", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
-		IInstallableUnit anotherIU2 = createIU("misc2", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
+		IInstallableUnit anotherIU = createIU("misc", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
+		IInstallableUnit anotherIU2 = createIU("misc2", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 
@@ -392,7 +392,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange2() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 
 		Collection from = new ArrayList();
@@ -414,7 +414,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange3() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 
 		Collection from = new ArrayList();
@@ -436,7 +436,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange4() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 
 		Collection from = new ArrayList();
@@ -457,7 +457,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange5() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
 
@@ -479,7 +479,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testConfigurationChange6() {
 		String id = "myBundle";
 		String cuId = "cu";
-		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null);
+		IInstallableUnit anIU = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, new Version("2.0.0"));
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, new Version("1.0.0"));
 		IInstallableUnitFragment cu3 = createIUFragment(anIU, cuId, new Version("3.0.0"));

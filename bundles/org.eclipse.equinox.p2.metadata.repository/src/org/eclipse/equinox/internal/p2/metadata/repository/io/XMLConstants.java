@@ -38,6 +38,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String ARTIFACT_KEY_ELEMENT = "artifact"; //$NON-NLS-1$
 	public static final String REQUIRED_CAPABILITIES_ELEMENT = "requires"; //$NON-NLS-1$
 	public static final String HOST_REQUIRED_CAPABILITIES_ELEMENT = "hostRequirements"; //$NON-NLS-1$
+	public static final String META_REQUIRED_CAPABILITIES_ELEMENT = "metaRequirements"; //$NON-NLS-1$
 	public static final String REQUIRED_CAPABILITY_ELEMENT = "required"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITIES_ELEMENT = "provides"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITY_ELEMENT = "provided"; //$NON-NLS-1$

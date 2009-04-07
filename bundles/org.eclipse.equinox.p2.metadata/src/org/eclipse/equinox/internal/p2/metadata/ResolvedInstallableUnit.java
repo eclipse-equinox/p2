@@ -78,7 +78,15 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
 		}
 		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
+	}
 
+	public IRequiredCapability[] getMetaRequiredCapabilities() {
+		ArrayList result = new ArrayList();
+		result.addAll(Arrays.asList(original.getMetaRequiredCapabilities()));
+		for (int i = 0; i < fragments.length; i++) {
+			result.addAll(Arrays.asList(fragments[i].getMetaRequiredCapabilities()));
+		}
+		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
 	}
 
 	public ITouchpointData[] getTouchpointData() {
