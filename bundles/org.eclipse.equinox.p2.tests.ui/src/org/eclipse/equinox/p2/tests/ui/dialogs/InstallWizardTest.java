@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.ui.dialogs;
 import java.util.HashSet;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.dialogs.AvailableIUsPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.IResolutionErrorReportingPage;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -84,10 +85,11 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 			// must be done this way to force notification of listeners
 			group.setChecked(group.getCheckboxTreeViewer().getCheckedElements());
 
-			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
+			IWizardPage page = wizard.getNextPage(page1);
+			assertTrue(page instanceof IResolutionErrorReportingPage);
+			IResolutionErrorReportingPage page2 = (IResolutionErrorReportingPage) page;
 			assertTrue(group.getCheckedLeafIUs().length > 0);
 			dialog.showPage(page2);
-			assertNotNull(page2.getCurrentPlan());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
 			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
