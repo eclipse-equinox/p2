@@ -316,8 +316,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * or an existing update site's location is used.
 	 */
 	private String buildCategoryId(String categoryName) {
-		if (categoryQualifier != null)
-			return categoryQualifier + "." + categoryName; //$NON-NLS-1$
+		if (categoryQualifier != null) {
+			if (categoryQualifier.length() > 0)
+				return categoryQualifier + "." + categoryName; //$NON-NLS-1$
+			return categoryName;
+		}
 		if (updateSite != null)
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
 		return categoryName;

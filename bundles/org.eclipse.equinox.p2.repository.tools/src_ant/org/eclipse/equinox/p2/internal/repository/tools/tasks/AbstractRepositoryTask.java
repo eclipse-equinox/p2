@@ -18,11 +18,9 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 
 public abstract class AbstractRepositoryTask extends Task {
@@ -154,22 +152,14 @@ public abstract class AbstractRepositoryTask extends Task {
 		List result = new ArrayList();
 		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 			IUDescription iu = (IUDescription) iter.next();
-			String id = iu.getId();
-			Version version = null;
+			Query iuQuery = iu.createQuery();
 			Collector collector = new Collector();
 
-			if (iu.getVersion() == null || iu.getVersion().length() == 0 || iu.getVersion().startsWith("${")) {//$NON-NLS-1$
-				// Get the latest version of the iu
-				Query query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
-				repository.query(query, collector, null);
-			} else {
-				version = new Version(iu.getVersion());
-				repository.query(new InstallableUnitQuery(id, version), collector, null);
-			}
+			repository.query(iuQuery, collector, null);
 
-			if (collector.isEmpty())
-				throw new BuildException("Unable to find: " + id + (version != null ? " " + version : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			result.add(collector.iterator().next());
+			if (iu.isRequired() && collector.isEmpty())
+				throw new BuildException("Unable to find: " + iu.toString()); //$NON-NLS-1$ 
+			result.addAll(collector.toCollection());
 		}
 		return result;
 	}
