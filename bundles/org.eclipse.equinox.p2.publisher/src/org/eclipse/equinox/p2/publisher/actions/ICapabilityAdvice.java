@@ -10,4 +10,6 @@ public interface ICapabilityAdvice extends IPublisherAdvice {
 	public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu);
 
 	public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu);
+
+	public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu);
 }

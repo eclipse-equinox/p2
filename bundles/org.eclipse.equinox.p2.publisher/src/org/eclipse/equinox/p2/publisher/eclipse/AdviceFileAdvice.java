@@ -40,6 +40,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private Map touchpointInstructions;
 	private IProvidedCapability[] providedCapabilities;
 	private IRequiredCapability[] requiredCapabilities;
+	private IRequiredCapability[] metaRequiredCapabilities;
 	private Properties iuProperties;
 	private InstallableUnitDescription[] additionalIUs;
 	private boolean containsAdvice = false;
@@ -81,6 +82,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		touchpointInstructions = parser.getTouchpointInstructions();
 		providedCapabilities = parser.getProvidedCapabilities();
 		requiredCapabilities = parser.getRequiredCapabilities();
+		requiredCapabilities = parser.getMetaRequiredCapabilities();
 		iuProperties = parser.getProperties();
 		additionalIUs = parser.getAdditionalInstallableUnitDescriptions();
 		containsAdvice = true;
@@ -187,6 +189,10 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 
 	public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
 		return requiredCapabilities;
+	}
+
+	public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
+		return metaRequiredCapabilities;
 	}
 
 	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions(IInstallableUnit iu) {

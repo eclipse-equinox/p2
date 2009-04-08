@@ -28,10 +28,12 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 	static class TestCapabilityAdvice implements ICapabilityAdvice {
 		private final IProvidedCapability providedCapability;
 		private final IRequiredCapability requiredCapability;
+		private final IRequiredCapability metaRequiredCapability;
 
-		public TestCapabilityAdvice(IProvidedCapability providedCapability, IRequiredCapability requiredCapability) {
+		public TestCapabilityAdvice(IProvidedCapability providedCapability, IRequiredCapability requiredCapability, IRequiredCapability metaRequiredCapability) {
 			this.providedCapability = providedCapability;
 			this.requiredCapability = requiredCapability;
+			this.metaRequiredCapability = metaRequiredCapability;
 		}
 
 		public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
@@ -40,6 +42,10 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 
 		public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
 			return new IRequiredCapability[] {requiredCapability};
+		}
+
+		public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
+			return new IRequiredCapability[] {metaRequiredCapability};
 		}
 
 		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
@@ -53,19 +59,23 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		iu.setId("test");
 		iu.setRequiredCapabilities(createRequiredCapabilities("ns1", "name1", null, ""));
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("ns2", "name2", null)});
+		iu.setMetaRequiredCapabilities(createRequiredCapabilities("ns3", "name3", null, ""));
 
 		assertNotSame(9, iu.getProvidedCapabilities()[0].getVersion().getMajor());
 		assertTrue(iu.getRequiredCapabilities()[0].isGreedy());
+		assertTrue(iu.getMetaRequiredCapabilities()[0].isGreedy());
 
 		IPublisherInfo info = new PublisherInfo();
-		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ns2", "name2", new Version(9, 0, 0));
 		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("ns1", "name1", null, null, false, false, false);
+		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ns2", "name2", new Version(9, 0, 0));
+		IRequiredCapability testMetaRequiredCapability = MetadataFactory.createRequiredCapability("ns3", "name3", null, null, false, false, false);
 
-		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability));
+		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability, testMetaRequiredCapability));
 		TestAction action = new TestAction();
 		action.testProcessCapabilityAdvice(iu, info);
 
 		assertEquals(9, iu.getProvidedCapabilities()[0].getVersion().getMajor());
 		assertFalse(iu.getRequiredCapabilities()[0].isGreedy());
+		assertFalse(iu.getMetaRequiredCapabilities()[0].isGreedy());
 	}
 }

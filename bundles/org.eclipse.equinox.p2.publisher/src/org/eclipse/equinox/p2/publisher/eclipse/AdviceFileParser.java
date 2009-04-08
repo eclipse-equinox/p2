@@ -52,6 +52,7 @@ public class AdviceFileParser {
 	private static final String UNITS_PREFIX = "units."; //$NON-NLS-1$
 	private static final String INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
 	private static final String REQUIRES_PREFIX = "requires."; //$NON-NLS-1$
+	private static final String META_REQUIREMENTS_PREFIX = "metaRequirements."; //$NON-NLS-1$
 	private static final String PROVIDES_PREFIX = "provides."; //$NON-NLS-1$
 	private static final String PROPERTIES_PREFIX = "properties."; //$NON-NLS-1$
 	private static final String LICENSES_PREFIX = "licenses."; //$NON-NLS-1$
@@ -64,6 +65,7 @@ public class AdviceFileParser {
 	private Properties adviceProperties = new Properties();
 	private List adviceProvides = new ArrayList();
 	private List adviceRequires = new ArrayList();
+	private List adviceMetaRequires = new ArrayList();
 	private Map adviceInstructions = new HashMap();
 	private List adviceOtherIUs = new ArrayList();
 
@@ -97,6 +99,8 @@ public class AdviceFileParser {
 				parseProvides(PROVIDES_PREFIX, adviceProvides);
 			else if (current.startsWith(REQUIRES_PREFIX))
 				parseRequires(REQUIRES_PREFIX, adviceRequires);
+			else if (current.startsWith(META_REQUIREMENTS_PREFIX))
+				parseRequires(META_REQUIREMENTS_PREFIX, adviceMetaRequires);
 			else if (current.startsWith(INSTRUCTIONS_PREFIX))
 				parseInstructions(INSTRUCTIONS_PREFIX, adviceInstructions);
 			else if (current.startsWith(UNITS_PREFIX))
@@ -288,6 +292,7 @@ public class AdviceFileParser {
 		List unitHostRequirements = new ArrayList();
 		List unitProvides = new ArrayList();
 		List unitRequires = new ArrayList();
+		List unitMetaRequirements = new ArrayList();
 		List unitLicenses = new ArrayList();
 		Map unitInstructions = new HashMap();
 		//		updatedescriptor ??
@@ -331,7 +336,7 @@ public class AdviceFileParser {
 				unitUpdateDescription = currentValue();
 				next();
 			} else if (token.startsWith(HOST_REQUIREMENTS_PREFIX))
-				parseHostRequirements(prefix + HOST_REQUIREMENTS_PREFIX, unitHostRequirements);
+				parseRequires(prefix + HOST_REQUIREMENTS_PREFIX, unitHostRequirements);
 			else if (token.startsWith(ARTIFACTS_PREFIX))
 				parseArtifacts(prefix + ARTIFACTS_PREFIX, unitArtifacts);
 			else if (token.startsWith(LICENSES_PREFIX))
@@ -342,6 +347,8 @@ public class AdviceFileParser {
 				parseProvides(prefix + PROVIDES_PREFIX, unitProvides);
 			else if (token.startsWith(REQUIRES_PREFIX))
 				parseRequires(prefix + REQUIRES_PREFIX, unitRequires);
+			else if (token.startsWith(META_REQUIREMENTS_PREFIX))
+				parseRequires(prefix + META_REQUIREMENTS_PREFIX, unitMetaRequirements);
 			else if (token.startsWith(INSTRUCTIONS_PREFIX))
 				parseInstructions(prefix + INSTRUCTIONS_PREFIX, unitInstructions);
 			else {
@@ -390,6 +397,9 @@ public class AdviceFileParser {
 
 		if (!unitRequires.isEmpty())
 			description.setRequiredCapabilities((IRequiredCapability[]) unitRequires.toArray(new IRequiredCapability[unitRequires.size()]));
+
+		if (!unitMetaRequirements.isEmpty())
+			description.setMetaRequiredCapabilities((IRequiredCapability[]) unitMetaRequirements.toArray(new IRequiredCapability[unitMetaRequirements.size()]));
 
 		if (!unitInstructions.isEmpty())
 			description.addTouchpointData(MetadataFactory.createTouchpointData(unitInstructions));
@@ -463,16 +473,6 @@ public class AdviceFileParser {
 		artifacts.add(artifactKey);
 	}
 
-	private void parseHostRequirements(String prefix, List hostRequirements) {
-		while (current != null && current.startsWith(prefix)) {
-			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
-				throw new IllegalStateException("bad token: " + current + " = " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
-
-			parseRequired(current.substring(0, dotIndex + 1), hostRequirements);
-		}
-	}
-
 	private String substituteVersionAndQualifier(String version) {
 		if (version.indexOf(VERSION_SUBSTITUTION) != -1) {
 			version = replace(version, VERSION_SUBSTITUTION, hostVersion.toString());
@@ -544,5 +544,12 @@ public class AdviceFileParser {
 			return null;
 
 		return (InstallableUnitDescription[]) adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
+	}
+
+	public IRequiredCapability[] getMetaRequiredCapabilities() {
+		if (adviceMetaRequires.isEmpty())
+			return null;
+
+		return (IRequiredCapability[]) adviceMetaRequires.toArray(new IRequiredCapability[adviceMetaRequires.size()]);
 	}
 }

@@ -131,6 +131,49 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(false, capabilities[1].isMultiple());
 	}
 
+	public void testMetaRequiresAdvice() {
+		Map map = new HashMap();
+		map.put("metaRequirements.0.namespace", "testNamespace1");
+		map.put("metaRequirements.0.name", "testName1");
+		map.put("metaRequirements.0.range", "[1.2.3.$qualifier$, 2)");
+		map.put("metaRequirements.0.greedy", Boolean.TRUE.toString());
+		map.put("metaRequirements.0.optional", Boolean.TRUE.toString());
+		map.put("metaRequirements.0.multiple", Boolean.TRUE.toString());
+
+		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
+		parser.parse();
+		IRequiredCapability[] capabilities = parser.getMetaRequiredCapabilities();
+		assertEquals(1, capabilities.length);
+		assertEquals("testNamespace1", capabilities[0].getNamespace());
+		assertEquals("testName1", capabilities[0].getName());
+		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), capabilities[0].getRange());
+
+		map.put("metaRequirements.1.namespace", "testNamespace2");
+		map.put("metaRequirements.1.name", "testName2");
+		map.put("metaRequirements.1.range", "$version$");
+		map.put("metaRequirements.1.greedy", Boolean.FALSE.toString());
+		map.put("metaRequirements.1.optional", Boolean.FALSE.toString());
+		//default 
+		//		map.put("requires.1.multiple", Boolean.FALSE.toString());
+
+		parser = new AdviceFileParser("id", Version.MIN_VERSION, map);
+		parser.parse();
+		capabilities = parser.getMetaRequiredCapabilities();
+		assertEquals(2, capabilities.length);
+		assertEquals("testNamespace1", capabilities[0].getNamespace());
+		assertEquals("testName1", capabilities[0].getName());
+		assertEquals(new VersionRange("[1.2.3, 2)"), capabilities[0].getRange());
+		assertEquals(true, capabilities[0].isGreedy());
+		assertEquals(true, capabilities[0].isOptional());
+		assertEquals(true, capabilities[0].isMultiple());
+		assertEquals("testNamespace2", capabilities[1].getNamespace());
+		assertEquals("testName2", capabilities[1].getName());
+		assertEquals(new VersionRange(Version.MIN_VERSION.toString()), capabilities[1].getRange());
+		assertEquals(false, capabilities[1].isGreedy());
+		assertEquals(false, capabilities[1].isOptional());
+		assertEquals(false, capabilities[1].isMultiple());
+	}
+
 	public void testInstructionsAdvice() {
 		Map map = new HashMap();
 		map.put("instructions.configure", "addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);");
@@ -189,6 +232,17 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("units.1.requires.1.range", "$version$");
 		map.put("units.1.requires.1.greedy", Boolean.FALSE.toString());
 		map.put("units.1.requires.1.optional", Boolean.FALSE.toString());
+		map.put("units.1.metaRequirements.0.namespace", "testNamespace1");
+		map.put("units.1.metaRequirements.0.name", "testName1");
+		map.put("units.1.metaRequirements.0.range", "[1.2.3.$qualifier$, 2)");
+		map.put("units.1.metaRequirements.0.greedy", Boolean.TRUE.toString());
+		map.put("units.1.metaRequirements.0.optional", Boolean.TRUE.toString());
+		map.put("units.1.metaRequirements.0.multiple", Boolean.TRUE.toString());
+		map.put("units.1.metaRequirements.1.namespace", "testNamespace2");
+		map.put("units.1.metaRequirements.1.name", "testName2");
+		map.put("units.1.metaRequirements.1.range", "$version$");
+		map.put("units.1.metaRequirements.1.greedy", Boolean.FALSE.toString());
+		map.put("units.1.metaRequirements.1.optional", Boolean.FALSE.toString());
 		map.put("units.1.provides.0.namespace", "testNamespace1");
 		map.put("units.1.provides.0.name", "testName1");
 		map.put("units.1.provides.0.version", "1.2.3.$qualifier$");
@@ -226,6 +280,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(0, iu0.getProperties().size());
 		assertEquals(0, iu0.getRequiredCapabilities().length);
 		assertEquals(0, iu0.getProvidedCapabilities().length);
+		assertEquals(0, iu0.getMetaRequiredCapabilities().length);
 		assertEquals(0, iu0.getTouchpointData().length);
 		assertEquals(ITouchpointType.NONE, iu0.getTouchpointType());
 		assertEquals(null, iu0.getUpdateDescriptor());
@@ -272,6 +327,21 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testNamespace2", provided[1].getNamespace());
 		assertEquals("testName2", provided[1].getName());
 		assertEquals(Version.MIN_VERSION, provided[1].getVersion());
+
+		IRequiredCapability[] metarequirements = iu1.getMetaRequiredCapabilities();
+		assertEquals(2, metarequirements.length);
+		assertEquals("testNamespace1", metarequirements[0].getNamespace());
+		assertEquals("testName1", metarequirements[0].getName());
+		assertEquals(new VersionRange("[1.2.3, 2)"), metarequirements[0].getRange());
+		assertEquals(true, metarequirements[0].isGreedy());
+		assertEquals(true, metarequirements[0].isOptional());
+		assertEquals(true, metarequirements[0].isMultiple());
+		assertEquals("testNamespace2", metarequirements[1].getNamespace());
+		assertEquals("testName2", metarequirements[1].getName());
+		assertEquals(new VersionRange(Version.MIN_VERSION.toString()), metarequirements[1].getRange());
+		assertEquals(false, metarequirements[1].isGreedy());
+		assertEquals(false, metarequirements[1].isOptional());
+		assertEquals(false, metarequirements[1].isMultiple());
 
 		assertEquals(1, iu1.getTouchpointData().length);
 		ITouchpointInstruction configure = iu1.getTouchpointData()[0].getInstruction("configure");

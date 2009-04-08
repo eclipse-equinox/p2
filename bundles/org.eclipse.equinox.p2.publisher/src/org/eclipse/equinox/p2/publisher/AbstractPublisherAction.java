@@ -308,6 +308,12 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			requiredMap.put(new CapabilityKey(required[i].getNamespace(), required[i].getName()), required[i]);
 		}
 
+		Map metaRequiredMap = new HashMap();
+		IRequiredCapability[] metaRequired = iu.getMetaRequiredCapabilities();
+		for (int i = 0; i < metaRequired.length; i++) {
+			metaRequiredMap.put(new CapabilityKey(metaRequired[i].getNamespace(), metaRequired[i].getName()), metaRequired[i]);
+		}
+
 		Map providedMap = new HashMap();
 		IProvidedCapability[] provided = iu.getProvidedCapabilities();
 		for (int i = 0; i < provided.length; i++) {
@@ -324,6 +330,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 			}
 
+			IRequiredCapability[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
+			if (metaRequiredAdvice != null) {
+				for (int i = 0; i < metaRequiredAdvice.length; i++) {
+					metaRequiredMap.put(new CapabilityKey(metaRequiredAdvice[i].getNamespace(), metaRequiredAdvice[i].getName()), metaRequiredAdvice[i]);
+				}
+			}
+
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
 				for (int i = 0; i < providedAdvice.length; i++) {
@@ -334,6 +347,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		IRequiredCapability[] resultRequired = (IRequiredCapability[]) requiredMap.values().toArray(new IRequiredCapability[requiredMap.size()]);
 		iu.setRequiredCapabilities(resultRequired);
+
+		IRequiredCapability[] resultMetaRequired = (IRequiredCapability[]) metaRequiredMap.values().toArray(new IRequiredCapability[metaRequiredMap.size()]);
+		iu.setMetaRequiredCapabilities(resultMetaRequired);
 
 		IProvidedCapability[] resultProvided = (IProvidedCapability[]) providedMap.values().toArray(new IProvidedCapability[providedMap.size()]);
 		iu.setCapabilities(resultProvided);
