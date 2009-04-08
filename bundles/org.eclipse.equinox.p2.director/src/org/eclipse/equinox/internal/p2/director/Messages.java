@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ public class Messages extends NLS {
 	}
 
 	public static String Director_Revert_Problems;
+	public static String Director_Task_installer_plan;
 	public static String Director_Unexpected_IU;
 	public static String Director_Task_Installing;
 	public static String Director_Task_Updating;
@@ -52,6 +53,11 @@ public class Messages extends NLS {
 	public static String Planner_Unsatisfied_dependency;
 	public static String Planner_NoSolution;
 	public static String Planner_Unexpected_problem;
+	public static String Planner_actions_and_software_incompatible;
+	public static String Planner_can_not_install_preq;
+	public static String Planner_no_profile_registry;
+	public static String Planner_no_self_profile;
+	public static String Planner_profile_out_of_sync;
 
 	public static String Old_Resolver_Several_Versions;
 	public static String Old_Resolver_Incompatible_Versions;

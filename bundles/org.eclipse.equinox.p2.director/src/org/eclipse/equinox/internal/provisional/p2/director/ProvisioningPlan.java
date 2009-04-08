@@ -23,13 +23,15 @@ public class ProvisioningPlan {
 	Operand[] operands;
 	Map actualChangeRequest;
 	Map sideEffectChanges;
+	ProvisioningPlan installerPlan;
 	RequestStatus globalRequestStatus;
+	ProfileChangeRequest originalChangeRequest;
 
-	public ProvisioningPlan(IStatus status) {
-		this(status, new Operand[0], null, null);
+	public ProvisioningPlan(IStatus status, ProfileChangeRequest originalRequest, ProvisioningPlan installerPlan) {
+		this(status, new Operand[0], null, null, installerPlan, originalRequest);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus, ProvisioningPlan installerPlan, ProfileChangeRequest originalRequest) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
@@ -37,10 +39,16 @@ public class ProvisioningPlan {
 			this.sideEffectChanges = actualChangeRequest[1];
 		}
 		this.globalRequestStatus = globalStatus;
+		this.installerPlan = installerPlan;
+		originalChangeRequest = originalRequest;
 	}
 
 	public IStatus getStatus() {
 		return status;
+	}
+
+	public ProfileChangeRequest getProfileChangeRequest() {
+		return originalChangeRequest;
 	}
 
 	/**
@@ -97,5 +105,13 @@ public class ProvisioningPlan {
 			}
 			return query.perform(list.iterator(), collector);
 		}
+	}
+
+	public ProvisioningPlan getInstallerPlan() {
+		return installerPlan;
+	}
+
+	public void setInstallerPlan(ProvisioningPlan p) {
+		installerPlan = p;
 	}
 }

@@ -21,7 +21,7 @@ public class PermissiveSlicer extends Slicer {
 	private boolean evalFilterTo;
 
 	public PermissiveSlicer(IQueryable input, Dictionary context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency) {
-		super(input, context);
+		super(input, context, true);
 		this.considerFilter = (context == null || context.size() == 0) ? false : true;
 		this.includeOptionalDependencies = includeOptionalDependencies;
 		this.everythingGreedy = everythingGreedy;

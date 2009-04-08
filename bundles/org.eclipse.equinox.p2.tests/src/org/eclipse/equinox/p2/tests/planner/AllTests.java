@@ -21,13 +21,16 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ActualChangeRequestTest.class);
 		suite.addTestSuite(ActualChangeRequestTest2.class);
+		suite.addTestSuite(AdditionalConstraints.class);
 		suite.addTestSuite(AddIUProperty.class);
+		suite.addTestSuite(AgentPlanTestInRunningInstance.class);
+		suite.addTestSuite(AgentPlanTestInExternalInstance.class);
+		suite.addTestSuite(AgentPlanTestInExternalInstanceForCohostedMode.class);
 		suite.addTestSuite(AllOptional.class);
 		suite.addTestSuite(AllOrbit.class);
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
 		suite.addTestSuite(Bug249605.class);
-		suite.addTestSuite(Bug270656.class);
 		//		suite.addTestSuite(Bug252682.class);
 		suite.addTestSuite(Bug254481dataSet1.class);
 		suite.addTestSuite(Bug254481dataSet2.class);

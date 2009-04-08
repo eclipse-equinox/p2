@@ -30,11 +30,14 @@ public class Slicer {
 	protected Dictionary selectionContext;
 	private MultiStatus result;
 
-	public Slicer(IQueryable input, Dictionary context) {
+	private boolean considerMetaRequirements = false;
+
+	public Slicer(IQueryable input, Dictionary context, boolean considerMetaRequirements) {
 		possibilites = input;
 		slice = new TwoTierMap();
 		selectionContext = context;
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
+		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
 	public IQueryable slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -134,7 +137,12 @@ public class Slicer {
 
 	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
 		if (!(iu instanceof IInstallableUnitPatch)) {
-			return iu.getRequiredCapabilities();
+			if (iu.getMetaRequiredCapabilities().length == 0 || considerMetaRequirements == false)
+				return iu.getRequiredCapabilities();
+			IRequiredCapability[] aggregatedCapabilities = new IRequiredCapability[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
+			System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
+			System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
+			return aggregatedCapabilities;
 		}
 		IRequiredCapability[] aggregatedCapabilities;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;

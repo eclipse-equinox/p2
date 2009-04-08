@@ -16,15 +16,15 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
-public class ProfileChangeRequest {
+public class ProfileChangeRequest implements Cloneable {
 
 	private final IProfile profile;
 	private ArrayList iusToRemove = null; // list of ius to remove
 	private ArrayList iusToAdd = null; // list of ius to add
 	private ArrayList propertiesToRemove = null; // list of keys for properties to be removed
 	private HashMap propertiesToAdd = null; // map of key->value for properties to be added
-	private Map iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
-	private Map iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
+	private HashMap iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
+	private HashMap iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
 
 	public static ProfileChangeRequest createByProfileId(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
@@ -57,10 +57,6 @@ public class ProfileChangeRequest {
 			result.putAll(propertiesToAdd);
 
 		return result;
-	}
-
-	public String getProfileProperty(String key) {
-		return (String) getProfileProperties().get(key);
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] toInstall) {
@@ -172,5 +168,16 @@ public class ProfileChangeRequest {
 			iuPropertiesToRemove.put(iu, keys);
 		}
 		keys.add(SimplePlanner.INCLUSION_RULES);
+	}
+
+	public Object clone() {
+		ProfileChangeRequest result = new ProfileChangeRequest(profile);
+		result.iusToRemove = iusToRemove == null ? null : (ArrayList) iusToRemove.clone();
+		result.iusToAdd = iusToAdd == null ? null : (ArrayList) iusToAdd.clone();
+		result.propertiesToRemove = propertiesToRemove == null ? null : (ArrayList) propertiesToRemove.clone();
+		result.propertiesToAdd = propertiesToAdd == null ? null : (HashMap) propertiesToAdd.clone();
+		result.iuPropertiesToAdd = iuPropertiesToAdd == null ? null : (HashMap) iuPropertiesToAdd.clone();
+		result.iuPropertiesToRemove = iuPropertiesToRemove == null ? null : (HashMap) iuPropertiesToRemove.clone();
+		return result;
 	}
 }

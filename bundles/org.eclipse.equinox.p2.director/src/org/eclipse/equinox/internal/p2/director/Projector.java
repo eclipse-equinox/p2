@@ -55,6 +55,7 @@ public class Projector {
 	private MultiStatus result;
 
 	private Collection alreadyInstalledIUs;
+	private boolean considerMetaRequirements;
 
 	static class AbstractVariable {
 		public String toString() {
@@ -114,7 +115,7 @@ public class Projector {
 
 	}
 
-	public Projector(IQueryable q, Dictionary context) {
+	public Projector(IQueryable q, Dictionary context, boolean considerMetaRequirements) {
 		picker = q;
 		noopVariables = new HashMap();
 		slice = new TwoTierMap();
@@ -122,6 +123,7 @@ public class Projector {
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
+		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
 	public void encode(IInstallableUnit metaIu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
@@ -360,11 +362,20 @@ public class Projector {
 		expandLifeCycle(iu, isRootIU);
 		//No patches apply, normal code path
 		if (applicablePatches.size() == 0) {
-			expandRequirements(iu.getRequiredCapabilities(), iu, isRootIU);
+			expandRequirements(getRequiredCapabilities(iu), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
 			expandRequirementsWithPatches(iu, applicablePatches, isRootIU);
 		}
+	}
+
+	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
+		if (considerMetaRequirements == false || iu.getMetaRequiredCapabilities().length == 0)
+			return iu.getRequiredCapabilities();
+		IRequiredCapability[] aggregatedCapabilities = new IRequiredCapability[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
+		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
+		System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
+		return aggregatedCapabilities;
 	}
 
 	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
