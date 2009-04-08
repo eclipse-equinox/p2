@@ -12,7 +12,10 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
+import org.eclipse.equinox.internal.p2.engine.ActionManager;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
@@ -21,34 +24,34 @@ import org.osgi.framework.BundleException;
 /**
  * Simple test of the engine API.
  */
-public class TouchpointManagerTest extends AbstractProvisioningTest {
+public class ActionManagerTest extends AbstractProvisioningTest {
 
-	public TouchpointManagerTest(String name) {
+	public ActionManagerTest(String name) {
 		super(name);
 	}
 
-	public TouchpointManagerTest() {
+	public ActionManagerTest() {
 		super("");
 	}
 
-	public void testGetTouchpointByType() {
-		TouchpointManager manager = new TouchpointManager();
-		assertNotNull(manager.getTouchpoint(InstructionParserTest.TOUCHPOINT_TYPE));
+	public void testGetTouchpointQualifiedActionId() {
+		ActionManager manager = new ActionManager();
+		assertNotNull(manager.getTouchpointQualifiedActionId("test", MetadataFactory.createTouchpointType("phaseTest", new Version("1"))));
 	}
 
-	public void testGetTouchpointByIdWithVersion() {
-		TouchpointManager manager = new TouchpointManager();
-		assertNotNull(manager.getTouchpoint("phaseTest", "1.0.0"));
+	public void testGetActionWithVersion() {
+		ActionManager manager = new ActionManager();
+		assertNotNull(manager.getAction("test1.test", new VersionRange("1.0.0")));
 	}
 
-	public void testGetTouchpointByIdWithNullVersion() {
-		TouchpointManager manager = new TouchpointManager();
-		assertNotNull(manager.getTouchpoint("phaseTest", null));
+	public void testGetActionWithNullVersion() {
+		ActionManager manager = new ActionManager();
+		assertNotNull(manager.getAction("test1.test", null));
 	}
 
 	public void testDynamicTouchpoint() throws MalformedURLException, BundleException, InterruptedException {
-		TouchpointManager manager = new TouchpointManager();
-		assertNull(manager.getTouchpoint("dummy", "1.0.0"));
+		ActionManager manager = new ActionManager();
+		assertNull(manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")));
 		File dummy = getTestData("0.1", "/testData/engineTest/dummy.touchpointAndAction_1.0.0.jar");
 		Bundle bundle = TestActivator.getContext().installBundle(dummy.toURL().toString());
 		bundle.start(); //force resolve
@@ -56,19 +59,19 @@ public class TouchpointManagerTest extends AbstractProvisioningTest {
 		int maxTries = 20;
 		int current = 0;
 		while (true) {
-			if (null != manager.getTouchpoint("dummy", "1.0.0"))
+			if (null != manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")))
 				break;
 			if (++current == maxTries)
-				fail("dummy touchpoint not added");
+				fail("dummy action not added");
 			Thread.sleep(100);
 		}
 		bundle.uninstall();
 		current = 0;
 		while (true) {
-			if (null == manager.getTouchpoint("dummy", "1.0.0"))
+			if (null == manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")))
 				break;
 			if (++current == maxTries)
-				fail("dummy touchpoint not removed");
+				fail("dummy action not removed");
 			Thread.sleep(100);
 		}
 	}
