@@ -78,7 +78,7 @@ public class ProfileSynchronizer {
 		if (request == null) {
 			if (updatedCacheExtensions != null) {
 				Operand operand = new PropertyOperand(CACHE_EXTENSIONS, null, updatedCacheExtensions);
-				IStatus engineResult = executeOperands(new Operand[] {operand}, context, null);
+				IStatus engineResult = executeOperands(null, new Operand[] {operand}, context, null);
 				if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
 					writeTimestamps();
 				return engineResult;
@@ -103,7 +103,7 @@ public class ProfileSynchronizer {
 			}
 
 			//invoke the engine to perform installs/uninstalls
-			IStatus engineResult = executeOperands(operands, context, sub.newChild(50));
+			IStatus engineResult = executeOperands(plan, operands, context, sub.newChild(50));
 			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 				return engineResult;
 
@@ -437,14 +437,15 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+	private IStatus executeOperands(ProvisioningPlan plan, Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
 			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
-			IStatus engineResult = engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
-			return engineResult;
+			if (plan == null)
+				return engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
+			return PlanExecutionHelper.executePlan(plan, engine, phaseSet, provisioningContext, monitor);
 		} finally {
 			context.ungetService(reference);
 		}

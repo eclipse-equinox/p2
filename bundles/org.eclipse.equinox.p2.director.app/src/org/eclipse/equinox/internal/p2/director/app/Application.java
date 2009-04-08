@@ -27,7 +27,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Property;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
@@ -257,7 +256,7 @@ public class Application implements IApplication {
 		if (!result.getStatus().isOK())
 			operationStatus = result.getStatus();
 		else {
-			operationStatus = engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), context, new NullProgressMonitor());
+			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		}
 		return operationStatus;
 	}
@@ -581,10 +580,7 @@ public class Application implements IApplication {
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
-		if (!result.getStatus().isOK())
-			return result.getStatus();
-
-		return engine.perform(profile, new PhaseSet(new Phase[] {new Property(1)}) {}, result.getOperands(), context, new NullProgressMonitor());
+		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
 	/*
@@ -596,9 +592,7 @@ public class Application implements IApplication {
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
-		if (!result.getStatus().isOK())
-			return result.getStatus();
-		return engine.perform(profile, new PhaseSet(new Phase[] {new Property(1)}) {}, result.getOperands(), context, new NullProgressMonitor());
+		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
 	private static URI[] getURIs(String spec) {
