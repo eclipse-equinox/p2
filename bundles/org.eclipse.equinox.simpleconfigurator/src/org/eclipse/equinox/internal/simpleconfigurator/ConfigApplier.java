@@ -231,7 +231,7 @@ class ConfigApplier {
 				continue;
 			if (current.getBundleId() == 0)
 				continue;
-			if (current.getHeaders().get(Constants.FRAGMENT_HOST) != null)
+			if (packageAdminService.getBundleType(current) == PackageAdmin.BUNDLE_TYPE_FRAGMENT)
 				continue;
 			if (SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(current.getSymbolicName()))
 				continue;
