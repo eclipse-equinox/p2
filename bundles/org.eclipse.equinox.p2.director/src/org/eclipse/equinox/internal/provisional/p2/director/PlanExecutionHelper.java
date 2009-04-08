@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
 import java.io.IOException;
@@ -10,11 +20,15 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 public class PlanExecutionHelper {
 	public static IStatus executePlan(ProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {
+		return executePlan(result, engine, new DefaultPhaseSet(), context, progress);
+	}
+
+	public static IStatus executePlan(ProvisioningPlan result, IEngine engine, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
 		if (result.getInstallerPlan() != null) {
-			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan().getProfileChangeRequest().getProfile(), new DefaultPhaseSet(), result.getInstallerPlan().getOperands(), context, progress);
+			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan().getProfileChangeRequest().getProfile(), phaseSet, result.getInstallerPlan().getOperands(), context, progress);
 			if (!installerPlanStatus.isOK())
 				return installerPlanStatus;
 			Configurator configChanger = (Configurator) ServiceHelper.getService(DirectorActivator.context, Configurator.class.getName());

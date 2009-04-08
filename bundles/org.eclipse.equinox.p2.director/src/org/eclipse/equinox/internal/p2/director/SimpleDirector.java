@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -34,10 +34,7 @@ public class SimpleDirector implements IDirector {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, sub.newChild(PlanWork));
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
-
-			return engine.perform(currentProfile, new DefaultPhaseSet(), plan.getOperands(), context, sub.newChild(EngineWork));
+			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
@@ -53,11 +50,7 @@ public class SimpleDirector implements IDirector {
 				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
-
-			IStatus engineResult = engine.perform(request.getProfile(), new DefaultPhaseSet(), plan.getOperands(), context, sub.newChild(EngineWork));
-			return engineResult;
+			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
