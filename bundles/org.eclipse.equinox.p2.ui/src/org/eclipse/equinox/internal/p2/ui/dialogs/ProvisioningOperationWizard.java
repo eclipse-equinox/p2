@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -205,8 +205,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
 	 * Report progress using the specified runnable context.  This method may be called before the page is created.
 	 * 
-	 * @param root
-	 * @param provisioningContext
 	 * @param runnableContext
 	 */
 	public void recomputePlan(IRunnableContext runnableContext) {
