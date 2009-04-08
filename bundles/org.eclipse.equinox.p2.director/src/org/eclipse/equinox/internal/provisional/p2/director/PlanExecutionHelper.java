@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
@@ -20,7 +21,7 @@ public class PlanExecutionHelper {
 			try {
 				configChanger.applyConfiguration();
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Unexpected failure applying configuration", e);
+				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_error_applying_configuration, e);
 			}
 		}
 		return engine.perform(result.getProfileChangeRequest().getProfile(), new DefaultPhaseSet(), result.getOperands(), context, progress);

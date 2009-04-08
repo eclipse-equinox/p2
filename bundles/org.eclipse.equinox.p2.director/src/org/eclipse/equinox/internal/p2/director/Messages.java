@@ -32,6 +32,8 @@ public class Messages extends NLS {
 	public static String Director_Task_Resolving_Dependencies;
 	public static String Director_Unsatisfied_Dependencies;
 	public static String Director_Unsatisfied_Dependency;
+	public static String Director_error_applying_configuration;
+
 	public static String Explanation_alreadyInstalled;
 	public static String Explanation_from;
 	public static String Explanation_hardDependency;
