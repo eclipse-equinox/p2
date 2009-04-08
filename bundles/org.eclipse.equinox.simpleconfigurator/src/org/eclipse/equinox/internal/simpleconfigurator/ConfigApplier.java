@@ -284,7 +284,7 @@ class ConfigApplier {
 			Bundle bundle = bundles[i];
 			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
 				continue;
-			if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null)
+			if (packageAdminService.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT)
 				continue;
 
 			try {
