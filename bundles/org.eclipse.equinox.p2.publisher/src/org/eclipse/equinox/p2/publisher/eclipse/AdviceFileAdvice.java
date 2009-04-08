@@ -82,7 +82,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		touchpointInstructions = parser.getTouchpointInstructions();
 		providedCapabilities = parser.getProvidedCapabilities();
 		requiredCapabilities = parser.getRequiredCapabilities();
-		requiredCapabilities = parser.getMetaRequiredCapabilities();
+		metaRequiredCapabilities = parser.getMetaRequiredCapabilities();
 		iuProperties = parser.getProperties();
 		additionalIUs = parser.getAdditionalInstallableUnitDescriptions();
 		containsAdvice = true;
