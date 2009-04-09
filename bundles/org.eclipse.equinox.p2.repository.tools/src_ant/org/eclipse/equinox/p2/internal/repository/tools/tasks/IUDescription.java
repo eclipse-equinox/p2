@@ -70,7 +70,7 @@ public class IUDescription extends DataType {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer("IU["); //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer("Installable Unit ["); //$NON-NLS-1$
 		if (id != null) {
 			buffer.append(" id="); //$NON-NLS-1$
 			buffer.append(id);
@@ -83,7 +83,8 @@ public class IUDescription extends DataType {
 			buffer.append(" query="); //$NON-NLS-1$
 			buffer.append(queryString);
 		}
-		return super.toString();
+		buffer.append(" ]"); //$NON-NLS-1$
+		return buffer.toString();
 	}
 
 	public Query createQuery() {
