@@ -11,20 +11,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
-import java.io.File;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -166,5 +168,71 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("2.0", e);
 		}
+	}
+
+	public void testErrorStatus() {
+		class TestStep extends ProcessingStep {
+			IStatus myStatus;
+
+			public TestStep(IStatus status) {
+				this.myStatus = status;
+			}
+
+			public void close() throws IOException {
+				setStatus(myStatus);
+				super.close();
+			}
+		}
+		repositoryURI = getTestData("Loading test data", "testData/artifactRepo/simple").toURI();
+		repositoryFile = new File(getTempFolder(), getUniqueString());
+
+		IArtifactRepository repo = null;
+		try {
+			repo = getArtifactRepositoryManager().loadRepository(repositoryURI, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			fail("Failed to create repository", e);
+		}
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", new Version("1.0.0")));
+
+		OutputStream out = null;
+		try {
+			TestStep errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
+			TestStep warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
+			TestStep okStep = new TestStep(Status.OK_STATUS);
+			out = new FileOutputStream(repositoryFile);
+			(new ProcessingStepHandler()).link(new ProcessingStep[] {okStep, errStep, warnStep}, out, new NullProgressMonitor());
+			IStatus status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
+			out.close();
+
+			// Only the error step should be collected
+			assertFalse(status.isOK());
+			assertTrue("Unexpected Severity", status.matches(IStatus.ERROR));
+			assertEquals(1, status.getChildren().length);
+
+			errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
+			warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
+			TestStep warnStep2 = new TestStep(new Status(IStatus.WARNING, "plugin", "2 - Warning Step Message"));
+			okStep = new TestStep(Status.OK_STATUS);
+			out = new FileOutputStream(repositoryFile);
+			(new ProcessingStepHandler()).link(new ProcessingStep[] {okStep, warnStep, errStep, warnStep2}, out, new NullProgressMonitor());
+			status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
+			out.close();
+
+			// The first warning step and the error step should be collected 
+			assertFalse(status.isOK());
+			assertTrue("Unexpected Severity", status.matches(IStatus.ERROR));
+			assertEquals(2, status.getChildren().length);
+
+		} catch (IOException e) {
+			fail("Failed to create ouptut stream", e);
+		} finally {
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+					// don't care
+				}
+		}
+
 	}
 }
