@@ -14,7 +14,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.UnzipAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -59,12 +60,10 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 
@@ -103,12 +102,10 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "testExecuteUndoBackup", parameters);
 

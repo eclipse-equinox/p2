@@ -37,7 +37,7 @@ public class CheckTrustAction extends ProvisioningAction {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		if (iu == null)
 			return null;
-		Collection bundleFiles = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
+		Collection bundleFiles = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null)

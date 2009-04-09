@@ -14,7 +14,9 @@ import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CollectAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -50,7 +52,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
@@ -59,7 +61,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		List requests = (List) parameters.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS);
+		List requests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		assertFalse(hasRequest(requests, key));
 		CollectAction action = new CollectAction();
 		action.execute(parameters);

@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
  */
 public class Collect extends InstallableUnitPhase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 
 	public Collect(int weight) {
 		super(PHASE_ID, weight);

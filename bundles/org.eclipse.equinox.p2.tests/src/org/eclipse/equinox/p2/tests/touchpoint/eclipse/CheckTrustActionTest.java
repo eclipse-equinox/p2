@@ -18,7 +18,9 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstant
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CheckTrustAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.CheckTrust;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -58,7 +60,7 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList());
+		parameters.put(CheckTrust.PARM_ARTIFACT_FILES, new ArrayList());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
@@ -66,13 +68,13 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		touchpoint.initializeOperand(profile, operand, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		assertFalse(((List) parameters.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS)).contains(osgiTarget));
+		assertFalse(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 		CheckTrustAction action = new CheckTrustAction();
 		action.execute(parameters);
-		assertTrue(((List) parameters.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS)).contains(osgiTarget));
+		assertTrue(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 		// does nothing so should not alter parameters
 		action.undo(parameters);
-		assertTrue(((List) parameters.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS)).contains(osgiTarget));
+		assertTrue(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 	}
 
 }

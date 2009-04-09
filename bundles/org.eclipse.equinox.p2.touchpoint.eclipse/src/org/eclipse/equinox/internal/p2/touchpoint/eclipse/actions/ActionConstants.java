@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 public class ActionConstants {
 
 	public static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	public static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
 	public static final String PARM_FEATURE = "feature"; //$NON-NLS-1$
@@ -44,5 +45,4 @@ public class ActionConstants {
 	public static final String PARM_REPOSITORY_TYPE = "type"; //$NON-NLS-1$
 	public static final String PARM_REPOSITORY_ENABLEMENT = "enabled"; //$NON-NLS-1$
 	public static final String PARM_REPOSITORY_NICKNAME = "name"; //$NON-NLS-1$
-
 }

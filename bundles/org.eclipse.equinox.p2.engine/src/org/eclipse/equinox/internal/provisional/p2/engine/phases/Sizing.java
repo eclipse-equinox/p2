@@ -68,7 +68,7 @@ public class Sizing extends InstallableUnitPhase {
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
+		List artifactRequests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		int statusCode = 0;
 
@@ -129,7 +129,7 @@ public class Sizing extends InstallableUnitPhase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}
 }

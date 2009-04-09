@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 public class CheckTrust extends InstallableUnitPhase {
 
 	private static final String PHASE_ID = "checkTrust"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 
 	public CheckTrust(int weight) {
 		super(PHASE_ID, weight);
@@ -34,7 +35,7 @@ public class CheckTrust extends InstallableUnitPhase {
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);
+		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_FILES);
 
 		// Instantiate a check trust manager
 		CertificateChecker certificateChecker = new CertificateChecker();
@@ -70,7 +71,7 @@ public class CheckTrust extends InstallableUnitPhase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
+		parameters.put(PARM_ARTIFACT_FILES, new ArrayList());
 		return super.initializePhase(monitor, profile, parameters);
 	}
 
