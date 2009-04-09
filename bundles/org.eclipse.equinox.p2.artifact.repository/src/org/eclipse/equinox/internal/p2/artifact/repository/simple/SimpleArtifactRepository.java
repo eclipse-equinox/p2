@@ -423,8 +423,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		if (isFolderBased(descriptor)) {
 			File artifactFolder = getArtifactFile(descriptor);
-			if (artifactFolder == null)
+			if (artifactFolder == null) {
+				if (getLocation(descriptor) != null && !URIUtil.isFileURI(getLocation(descriptor)))
+					return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.folder_artifact_not_file_repo, descriptor.getArtifactKey())));
 				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor.getArtifactKey())));
+			}
 			// TODO: optimize and ensure manifest is written first
 			File zipFile = null;
 			try {

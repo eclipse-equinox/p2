@@ -24,6 +24,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ArtifactRepositoryMissingSizeData.class);
 		suite.addTestSuite(ArtifactRepositoryWithReferenceDescriptors.class);
 		suite.addTestSuite(Bug252308.class);
+		suite.addTestSuite(Bug265577.class);
 		suite.addTestSuite(CompositeArtifactRepositoryTest.class);
 		suite.addTestSuite(CorruptedJar.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);

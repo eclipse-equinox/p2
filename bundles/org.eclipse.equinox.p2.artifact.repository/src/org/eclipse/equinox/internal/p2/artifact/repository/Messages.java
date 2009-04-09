@@ -21,7 +21,6 @@ public class Messages extends NLS {
 	public static String error_closing_stream;
 	public static String io_failedRead;
 	public static String io_failedWrite;
-	public static String ecf_configuration_error;
 	public static String io_incompatibleVersion;
 	public static String io_invalidLocation;
 	public static String SignatureVerification_failedRead;
@@ -64,6 +63,8 @@ public class Messages extends NLS {
 	public static String MirrorLog_Exception_Occurred;
 
 	public static String exception_unableToCreateParentDir;
+
+	public static String folder_artifact_not_file_repo;
 
 	static {
 		// initialize resource bundles
