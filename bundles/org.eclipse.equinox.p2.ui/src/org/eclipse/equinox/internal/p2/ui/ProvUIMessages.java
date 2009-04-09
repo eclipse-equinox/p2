@@ -62,6 +62,7 @@ public class ProvUIMessages extends NLS {
 	public static String IULicensePropertyPage_ViewLicenseLabel;
 	public static String ProfileChangeRequestBuildingRequest;
 	public static String ProfileElement_InvalidProfile;
+	public static String ProfileModificationAction_InvalidSelections;
 	public static String ProfileModificationAction_NoChangeRequestProvided;
 	public static String ProfileModificationAction_NoExplanationProvided;
 	public static String ProfileModificationAction_ResolutionOperationLabel;

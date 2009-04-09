@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,11 @@ import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.operation.IRunnableContext;
@@ -119,6 +118,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				root = makeResolutionElementRoot(planSelections);
 				recomputePlan(getContainer());
 				planChanged();
+			} else {
+				planSelections = currentPage.getCheckedIUElements();
+				root = makeResolutionElementRoot(planSelections);
 			}
 			return selectNextPage(page, getCurrentStatus());
 		}
@@ -209,7 +211,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 */
 	public void recomputePlan(IRunnableContext runnableContext) {
 		final Object[] elements = root.getChildren(root);
-		final IInstallableUnit[] ius = ElementUtils.elementsToIUs(elements);
 		couldNotResolve = false;
 		try {
 			if (elements.length == 0) {
@@ -221,7 +222,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 						MultiStatus status = PlanAnalyzer.getProfileChangeAlteredStatus();
 						ProfileChangeRequest request = computeProfileChangeRequest(elements, status, monitor);
 						if (request != null) {
-							resolutionOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, ius, profileId, request, provisioningContext, status, false);
+							resolutionOperation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationWizardPage_ResolutionOperationLabel, profileId, request, provisioningContext, status, false);
 							try {
 								resolutionOperation.execute(monitor);
 							} catch (ProvisionException e) {

@@ -11,17 +11,15 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import java.util.*;
+import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.PlanAnalyzer;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -30,8 +28,8 @@ import org.eclipse.ui.PlatformUI;
 
 public class UpdateAction extends ExistingIUInProfileAction {
 
-	IUElementListRoot root; // root that will be used to seed the wizard
-	HashMap latestReplacements;
+	protected IUElementListRoot root; // root that will be used to seed the wizard
+	protected ArrayList initialSelections; // the elements that should be selected in the wizard
 	boolean resolveIsVisible = true;
 	QueryableMetadataRepositoryManager manager;
 	boolean skipSelectionPage = false;
@@ -52,11 +50,11 @@ public class UpdateAction extends ExistingIUInProfileAction {
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		// Caches should have been created while formulating the plan
-		Assert.isNotNull(latestReplacements);
+		Assert.isNotNull(initialSelections);
 		Assert.isNotNull(root);
 		Assert.isNotNull(resolution);
 
-		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, latestReplacements.values().toArray(), resolution, manager);
+		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, initialSelections.toArray(), resolution, manager);
 		wizard.setSkipSelectionsPage(skipSelectionPage);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
@@ -66,50 +64,14 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	}
 
 	protected ProfileChangeRequest getProfileChangeRequest(IInstallableUnit[] ius, String targetProfileId, MultiStatus status, IProgressMonitor monitor) {
-		// Here we create a profile change request by finding the latest version available for any replacement.
-		ArrayList toBeUpdated = new ArrayList();
-		latestReplacements = new HashMap();
-		ArrayList allReplacements = new ArrayList();
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, ius.length);
-		for (int i = 0; i < ius.length; i++) {
-			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(new Updates(targetProfileId, new IInstallableUnit[] {ius[i]}));
-			Iterator iter = descriptor.performQuery(sub).iterator();
-			if (iter.hasNext())
-				toBeUpdated.add(ius[i]);
-			ArrayList currentReplacements = new ArrayList();
-			root = new IUElementListRoot();
-			while (iter.hasNext()) {
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
-				if (iu != null) {
-					AvailableUpdateElement element = new AvailableUpdateElement(root, iu, ius[i], targetProfileId, true);
-					currentReplacements.add(element);
-					allReplacements.add(element);
-				}
-			}
-			root.setChildren(allReplacements.toArray());
-			for (int j = 0; j < currentReplacements.size(); j++) {
-				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
-				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
-				IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
-				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
-					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
-			}
-			sub.worked(1);
-		}
-		if (toBeUpdated.size() <= 0) {
+		initialSelections = new ArrayList();
+		root = new IUElementListRoot();
+		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(ius, targetProfileId, root, initialSelections, monitor);
+		if (request == null) {
 			status.add(PlanAnalyzer.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null));
-			sub.done();
 			return null;
 		}
 
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
-		Iterator iter = toBeUpdated.iterator();
-		while (iter.hasNext())
-			request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
-		iter = latestReplacements.values().iterator();
-		while (iter.hasNext())
-			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
-		sub.done();
 		return request;
 	}
 

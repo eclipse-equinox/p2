@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
@@ -62,7 +64,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {
-		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind("Problem determining user request.  Profile id: {0}, Selection count: {1}", id, new Integer(ius.length)));
+		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.ProfileModificationAction_InvalidSelections, id, new Integer(ius.length)));
 	}
 
 	protected void run(final IInstallableUnit[] ius, final String id) {
@@ -102,7 +104,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 			return;
 		}
 		// We have a profile change request, let's get a plan for it.  This could take awhile.
-		final PlannerResolutionOperation operation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationAction_ResolutionOperationLabel, ius, id, request[0], null, additionalStatus, isResolveUserVisible());
+		final PlannerResolutionOperation operation = new PlannerResolutionOperation(ProvUIMessages.ProfileModificationAction_ResolutionOperationLabel, id, request[0], null, additionalStatus, isResolveUserVisible());
 		// Since we are resolving asynchronously, our job is done.  Setting this allows
 		// callers to decide to close the launching window.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495

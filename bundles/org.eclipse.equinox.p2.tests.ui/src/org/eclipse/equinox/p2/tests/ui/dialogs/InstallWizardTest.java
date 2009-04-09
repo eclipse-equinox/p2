@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Tree;
@@ -32,7 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * Tests for the install wizard
  */
-public class InstallWizardTest extends AbstractProvisioningUITest {
+public class InstallWizardTest extends WizardTest {
 
 	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
 	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
@@ -40,7 +39,7 @@ public class InstallWizardTest extends AbstractProvisioningUITest {
 	/**
 	 * Tests the wizard
 	 */
-	public void testWizard() {
+	public void testInstallWizardUnresolved() {
 		Policy policy = Policy.getDefault();
 		IUViewQueryContext context = policy.getQueryContext();
 		context.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);

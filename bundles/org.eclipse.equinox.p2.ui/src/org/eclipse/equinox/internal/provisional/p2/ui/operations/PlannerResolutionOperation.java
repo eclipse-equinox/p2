@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 import org.eclipse.equinox.internal.provisional.p2.ui.ResolutionResult;
 
@@ -33,15 +32,13 @@ public class PlannerResolutionOperation extends ProvisioningOperation {
 	ProvisioningPlan plan;
 	MultiStatus additionalStatus;
 	ResolutionResult report;
-	IInstallableUnit[] iusInvolved;
 	ProvisioningContext provisioningContext;
 
-	public PlannerResolutionOperation(String label, IInstallableUnit[] iusInvolved, String profileId, ProfileChangeRequest request, ProvisioningContext provisioningContext, MultiStatus additionalStatus, boolean isUser) {
+	public PlannerResolutionOperation(String label, String profileId, ProfileChangeRequest request, ProvisioningContext provisioningContext, MultiStatus additionalStatus, boolean isUser) {
 		super(label);
 		this.request = request;
 		this.profileId = profileId;
 		this.isUser = isUser;
-		this.iusInvolved = iusInvolved;
 		if (provisioningContext == null)
 			this.provisioningContext = new ProvisioningContext();
 		else

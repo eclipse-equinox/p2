@@ -12,16 +12,15 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -54,6 +53,69 @@ public class UpdateWizard extends WizardWithLicenses {
 			}
 		}
 		return (IInstallableUnit[]) replacements.toArray(new IInstallableUnit[replacements.size()]);
+	}
+
+	/**
+	 * Create a profile change request that represents an update of the specified IUs to their latest versions.
+	 * If an element root and selection container are provided, update those elements so that a wizard could
+	 * be opened on them to reflect the profile change request.
+	 * 
+	 * @param iusToUpdate
+	 * @param profileId
+	 * @param root
+	 * @param initialSelections
+	 * @param monitor
+	 * @return the profile change request describing an update, or null if there is nothing to update.
+	 */
+	public static ProfileChangeRequest createProfileChangeRequest(IInstallableUnit[] iusToUpdate, String profileId, IUElementListRoot root, Collection initialSelections, IProgressMonitor monitor) {
+		// Here we create a profile change request by finding the latest version available for any replacement.
+		ArrayList toBeUpdated = new ArrayList();
+		HashMap latestReplacements = new HashMap();
+		ArrayList allReplacements = new ArrayList();
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, 100 * iusToUpdate.length);
+		for (int i = 0; i < iusToUpdate.length; i++) {
+			ElementQueryDescriptor descriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new Updates(profileId, new IInstallableUnit[] {iusToUpdate[i]}));
+			Iterator iter = descriptor.performQuery(sub).iterator();
+			if (iter.hasNext())
+				toBeUpdated.add(iusToUpdate[i]);
+			ArrayList currentReplacements = new ArrayList();
+			while (iter.hasNext()) {
+				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+				if (iu != null) {
+					AvailableUpdateElement element = new AvailableUpdateElement(root, iu, iusToUpdate[i], profileId, true);
+					currentReplacements.add(element);
+					allReplacements.add(element);
+				}
+			}
+			for (int j = 0; j < currentReplacements.size(); j++) {
+				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
+				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
+				IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
+				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
+					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
+			}
+			sub.worked(100);
+		}
+		if (root != null)
+			root.setChildren(allReplacements.toArray());
+
+		if (initialSelections != null)
+			initialSelections.addAll(latestReplacements.values());
+
+		if (toBeUpdated.size() <= 0) {
+			sub.done();
+			return null;
+		}
+
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileId);
+		Iterator iter = toBeUpdated.iterator();
+		while (iter.hasNext())
+			request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
+		iter = latestReplacements.values().iterator();
+		while (iter.hasNext())
+			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
+		sub.done();
+		return request;
 	}
 
 	public UpdateWizard(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution, QueryableMetadataRepositoryManager manager) {
@@ -119,8 +181,9 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	public IWizardPage getStartingPage() {
-		if (skipSelectionsPage)
-			return selectNextPage(mainPage, getCurrentStatus());
+		if (skipSelectionsPage) {
+			return getNextPage(mainPage);
+		}
 		return mainPage;
 	}
 }
