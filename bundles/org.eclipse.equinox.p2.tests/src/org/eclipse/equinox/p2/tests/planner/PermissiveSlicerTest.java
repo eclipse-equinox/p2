@@ -14,7 +14,8 @@ import java.io.File;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -108,6 +109,18 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		assertEquals(32, result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 		assertEquals(1, result.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor()).size());
 		//		assertOK("1.0", slicer.getStatus());
+	}
+
+	public void testMetaRequirements() {
+		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
+		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
+
+		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {a, act1}), new Properties(), true, false, false, false);
+		IQueryable result = slicer.slice(new IInstallableUnit[] {a}, new NullProgressMonitor());
+		assertEquals(1, result.query(new InstallableUnitQuery("Action1"), new Collector(), null).size());
 	}
 
 	public void testMissingOptionalDependency() {
