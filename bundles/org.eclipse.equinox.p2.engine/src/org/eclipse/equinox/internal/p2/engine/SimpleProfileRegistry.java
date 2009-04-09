@@ -636,6 +636,21 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	}
 
+	public synchronized boolean isCurrent(IProfile profile) {
+		Profile internalProfile = internalGetProfile(profile.getProfileId());
+		if (internalProfile == null)
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+
+		if (!internalLockProfile(internalProfile))
+			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+
+		try {
+			return (!((Profile) profile).isChanged() && checkTimestamps(profile, internalProfile));
+		} finally {
+			internalUnlockProfile(internalProfile);
+		}
+	}
+
 	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
@@ -686,17 +701,18 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
-		if (profile.getTimestamp() != internalProfile.getTimestamp()) {
-			debug("check timestamp: expected.1 " + profile.getTimestamp() + " but was " + internalProfile.getTimestamp(), false); //$NON-NLS-1$ //$NON-NLS-2$
+		long[] timestamps = listProfileTimestamps(profile.getProfileId());
+		if (timestamps.length == 0) {
+			debug("check timestamp: expected " + profile.getTimestamp() + " but no profiles were found", false); //$NON-NLS-1$ //$NON-NLS-2$
+			resetProfiles();
 			return false;
 		}
 
-		long[] timestamps = listProfileTimestamps(profile.getProfileId());
-		if (timestamps.length == 0 || profile.getTimestamp() != timestamps[timestamps.length - 1]) {
-			if (timestamps.length != 0) {
-				debug("check timestamp: expected.2 " + profile.getTimestamp() + " but was " + timestamps[timestamps.length - 1], false); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			resetProfiles();
+		long currentTimestamp = (timestamps.length == 0) ? -1 : timestamps[timestamps.length - 1];
+		if (profile.getTimestamp() != currentTimestamp) {
+			debug("check timestamp: expected " + profile.getTimestamp() + " but was " + currentTimestamp, false); //$NON-NLS-1$ //$NON-NLS-2$
+			if (internalProfile.getTimestamp() != currentTimestamp)
+				resetProfiles();
 			return false;
 		}
 

@@ -223,6 +223,52 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertEquals(0, timestamps.length);
 	}
 
+	public void testIsCurrent() throws Exception {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
+
+		assertTrue(registry.isCurrent(profile));
+		profile.setProperty("x", "1");
+		assertFalse(registry.isCurrent(profile));
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertTrue(registry.isCurrent(profile));
+
+		SimpleProfileRegistry simpleRegistry = (SimpleProfileRegistry) registry;
+		Profile profile2 = (Profile) registry.getProfile(PROFILE_NAME);
+
+		simpleRegistry.lockProfile(profile2);
+		try {
+			profile2.setProperty("x", "1");
+			simpleRegistry.updateProfile(profile2);
+		} finally {
+			simpleRegistry.unlockProfile(profile2);
+		}
+
+		assertFalse(registry.isCurrent(profile));
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertTrue(registry.isCurrent(profile));
+
+		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry();
+		profile2 = (Profile) simpleRegistry2.getProfile(PROFILE_NAME);
+		simpleRegistry2.lockProfile(profile2);
+		try {
+			profile2.setProperty("x", "2");
+			simpleRegistry2.updateProfile(profile2);
+		} finally {
+			simpleRegistry2.unlockProfile(profile2);
+		}
+
+		assertFalse(registry.isCurrent(profile));
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertTrue(registry.isCurrent(profile));
+
+	}
+
 	public void testProfileLockingNested() throws IOException {
 		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
 		File tempFolder = getTempFolder();

@@ -96,4 +96,12 @@ public interface IProfileRegistry {
 	 * @param id the profile to remove
 	 */
 	void removeProfile(String id);
+
+	/**
+	 * Check if the given profile from this profile registry is up-to-date.
+	 * 
+	 * @param the profile to check
+	 * @return boolean  true if the profile is current; false otherwise.
+	 */
+	public boolean isCurrent(IProfile profile);
 }
