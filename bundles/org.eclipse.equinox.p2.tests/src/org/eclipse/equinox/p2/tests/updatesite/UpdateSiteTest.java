@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -587,8 +586,47 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
 	}
 
+	public void testPack200() {
+		File output = new File(getTempFolder(), getUniqueString());
+		File site = getTestData("0.1", "/testData/updatesite/packedSiteWithMirror");
+		URI siteURI = site.toURI();
+
+		IArtifactRepository repo = null;
+		try {
+			repo = getArtifactRepositoryManager().loadRepository(siteURI, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		}
+		IArtifactKey[] keys = repo.getArtifactKeys();
+		assertTrue(keys.length > 0);
+		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[0]);
+
+		// Should have a packed & canonical version
+		assertEquals(2, descriptors.length);
+		IArtifactDescriptor desc = "packed".equals(descriptors[0].getProperty("format")) ? descriptors[0] : descriptors[1];
+		OutputStream out = null;
+		try {
+			out = new FileOutputStream(output);
+			IStatus status = repo.getRawArtifact(desc, out, new NullProgressMonitor());
+			out.close();
+			// Transfer should succeed
+			assertTrue(status.isOK());
+			// Length should be as expected
+			assertEquals(480, output.length());
+		} catch (IOException e) {
+			fail("Failed", e);
+		} finally {
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+					// Don't care
+				}
+		}
+	}
+
 	public void testMirrors() {
-		String testDataLocation = "/testData/updatesite/site";
+		String testDataLocation = "/testData/updatesite/packedSiteWithMirror";
 		File targetLocation = null;
 		IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
 		try {

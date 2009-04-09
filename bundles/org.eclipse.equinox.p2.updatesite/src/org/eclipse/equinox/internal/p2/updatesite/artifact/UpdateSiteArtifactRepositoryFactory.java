@@ -82,6 +82,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	}
 
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
 		Feature[] features = updateSite.loadFeatures(monitor);
 		Set allSiteArtifacts = new HashSet();
 		boolean packSupported = updateSite.getSite().isPack200Supported();
@@ -97,7 +98,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				// Update site supports pack200, create a packed descriptor
 				featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
 				featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
-				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
+				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
 				ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 				featureArtifactDescriptor.setProcessingSteps(steps);
 				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
@@ -119,7 +120,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 						key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
 						artifactDescriptor = new ArtifactDescriptor(key);
 						pluginURL = updateSite.getPluginURI(entry);
-						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
+						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
 						ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 						artifactDescriptor.setProcessingSteps(steps);
 						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
