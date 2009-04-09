@@ -32,6 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -404,8 +405,8 @@ public class Application implements IApplication {
 					if (roots.size() <= 0)
 						roots = profile.query(query, roots, new NullProgressMonitor());
 					if (roots.size() <= 0) {
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
 						System.out.println(NLS.bind(Messages.Missing_IU, root));
+						logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
 						return EXIT_ERROR;
 					}
 					// keep this result status in case there is a problem so we can report it to the user
@@ -415,9 +416,9 @@ public class Application implements IApplication {
 						if (!updateRoamStatus.isOK()) {
 							MultiStatus multi = new MultiStatus(Activator.ID, IStatus.ERROR, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null);
 							multi.add(updateRoamStatus);
-							LogHelper.log(multi);
 							System.out.println(multi.getMessage());
 							System.out.println(updateRoamStatus.getMessage());
+							logFailure(multi);
 							return EXIT_ERROR;
 						}
 						ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
@@ -453,7 +454,7 @@ public class Application implements IApplication {
 			System.out.println(NLS.bind(Messages.Operation_complete, new Long(time)));
 		else {
 			System.out.println(Messages.Operation_failed);
-			LogHelper.log(operationStatus);
+			logFailure(operationStatus);
 			return EXIT_ERROR;
 		}
 		return IApplication.EXIT_OK;
@@ -514,15 +515,15 @@ public class Application implements IApplication {
 		packageAdminRef = Activator.getContext().getServiceReference(PackageAdmin.class.getName());
 		setPackageAdmin((PackageAdmin) Activator.getContext().getService(packageAdminRef));
 		if (!startEarly(EXEMPLARY_SETUP)) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, EXEMPLARY_SETUP)));
+			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, EXEMPLARY_SETUP)));
 			return EXIT_ERROR;
 		}
 		if (!startEarly(SIMPLE_CONFIGURATOR_MANIPULATOR)) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, SIMPLE_CONFIGURATOR_MANIPULATOR)));
+			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, SIMPLE_CONFIGURATOR_MANIPULATOR)));
 			return EXIT_ERROR;
 		}
 		if (!startEarly(FRAMEWORKADMIN_EQUINOX)) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, FRAMEWORKADMIN_EQUINOX)));
+			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, FRAMEWORKADMIN_EQUINOX)));
 			return EXIT_ERROR;
 		}
 
@@ -628,4 +629,10 @@ public class Application implements IApplication {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
+	private void logFailure(IStatus status) {
+		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+		if (log != null)
+			System.err.println("Application failed, log file location: " + log.getFile()); //$NON-NLS-1$
+		LogHelper.log(status);
+	}
 }
