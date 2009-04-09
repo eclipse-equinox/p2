@@ -33,7 +33,8 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.ecli
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.exemplarysetup,
    org.eclipse.equinox.p2.metadata.repository,
-   org.eclipse.equinox.p2.updatesite";
+   org.eclipse.equinox.p2.updatesite,
+   org.eclipse.equinox.p2.repository.tools";
   uses:="org.eclipse.equinox.internal.provisional.p2.core.eventbus,
    org.eclipse.equinox.internal.provisional.p2.core.repository,
    org.osgi.service.prefs,
