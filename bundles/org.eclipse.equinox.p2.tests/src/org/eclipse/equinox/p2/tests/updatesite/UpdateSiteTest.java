@@ -10,29 +10,37 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
+import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.w3c.dom.*;
 
 /**
  * @since 1.0
@@ -580,6 +588,150 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testMirrors() {
-		// TODO test the case where the site.xml points to a mirror location
+		String testDataLocation = "/testData/updatesite/site";
+		File targetLocation = null;
+		IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
+		try {
+			URI siteURI = getTestData("0.1", testDataLocation).toURI();
+
+			// Load source repository
+			IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+			assertNotNull(artifactRepoMan);
+			IArtifactRepository sourceRepo = artifactRepoMan.loadRepository(siteURI, getMonitor());
+
+			// Hijack source repository's mirror selector
+
+			new OrderedMirrorSelector(sourceRepo, testDataLocation);
+
+			// Create target repository
+			targetLocation = File.createTempFile("target", ".repo");
+			targetLocation.delete();
+			targetLocation.mkdirs();
+			IArtifactRepository targetRepository = new SimpleArtifactRepository("TargetRepo", targetLocation.toURI(), null);
+
+			// Load the packed descriptor
+			IArtifactDescriptor[] descriptors = sourceRepo.getArtifactDescriptors(key);
+			IArtifactDescriptor descriptor = null;
+			for (int i = 0; i < descriptors.length && descriptor == null; i++)
+				if ("packed".equals(descriptors[i].getProperty("format")))
+					descriptor = descriptors[i];
+
+			if (descriptor == null)
+				fail("0.3");
+
+			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository);
+			mirror.setSourceRepository(sourceRepo);
+			mirror.perform(getMonitor());
+
+			assertTrue(mirror.getResult().isOK());
+			assertTrue(targetRepository.contains(key));
+		} catch (Exception e) {
+			fail("0.2", e);
+		} finally {
+			if (targetLocation != null)
+				delete(targetLocation);
+		}
+	}
+
+	/*
+	 * Special mirror selector for testing which chooses mirrors in order
+	 */
+	protected class OrderedMirrorSelector extends MirrorSelector {
+		private URI repoLocation;
+		int index = 0;
+		MirrorInfo[] mirrors;
+		IArtifactRepository repo;
+
+		OrderedMirrorSelector(IArtifactRepository repo, String testDataLocation) throws Exception {
+			super(repo);
+			this.repo = repo;
+			// Alternatively we could use reflect to change "location" of the repo
+			setRepoSelector();
+			getRepoLocation();
+			mirrors = computeMirrors("file:///" + getTestData("Mirror Location", testDataLocation + '/' + repo.getProperties().get(IRepository.PROP_MIRRORS_URL)).toString().replace('\\', '/'));
+		}
+
+		private void setRepoSelector() throws Exception {
+			Field delegate = UpdateSiteArtifactRepository.class.getDeclaredField("delegate");
+			delegate.setAccessible(true);
+			// Hijack the source repository's MirrorSelector with ours which provides mirrors in order.
+			Field mirrorsField = SimpleArtifactRepository.class.getDeclaredField("mirrors");
+			mirrorsField.setAccessible(true);
+			mirrorsField.set(delegate.get(repo), this);
+
+			// Setting this property forces SimpleArtifactRepository to use mirrors despite being a local repo
+			Field properties = AbstractRepository.class.getDeclaredField("properties");
+			properties.setAccessible(true);
+			((Map) properties.get(delegate.get(repo))).put(SimpleArtifactRepository.PROP_FORCE_THREADING, String.valueOf(true));
+		}
+
+		// Overridden to prevent mirror sorting
+		public synchronized void reportResult(String toDownload, IStatus result) {
+			return;
+		}
+
+		// We want to test each mirror once.
+		public synchronized boolean hasValidMirror() {
+			return mirrors != null && index < mirrors.length;
+		}
+
+		public synchronized URI getMirrorLocation(URI inputLocation) {
+			return URIUtil.append(nextMirror(), repoLocation.relativize(inputLocation).getPath());
+		}
+
+		private URI nextMirror() {
+			Field mirrorLocation = null;
+			try {
+				mirrorLocation = MirrorInfo.class.getDeclaredField("locationString");
+				mirrorLocation.setAccessible(true);
+
+				return URIUtil.makeAbsolute(new URI((String) mirrorLocation.get(mirrors[index++])), repoLocation);
+			} catch (Exception e) {
+				fail(Double.toString(0.4 + index), e);
+				return null;
+			}
+		}
+
+		private synchronized void getRepoLocation() {
+			Field locationField = null;
+			try {
+				locationField = UpdateSiteArtifactRepository.class.getDeclaredField("location");
+				locationField.setAccessible(true);
+				repoLocation = (URI) locationField.get(repo);
+			} catch (Exception e) {
+				fail("0.3", e);
+			}
+		}
+
+		private MirrorInfo[] computeMirrors(String mirrorsURL) {
+			// Copied & modified from MirrorSelector
+			try {
+				DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder builder = domFactory.newDocumentBuilder();
+				Document document = builder.parse(mirrorsURL);
+				if (document == null)
+					return null;
+				NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
+				int mirrorCount = mirrorNodes.getLength();
+				MirrorInfo[] infos = new MirrorInfo[mirrorCount + 1];
+				for (int i = 0; i < mirrorCount; i++) {
+					Element mirrorNode = (Element) mirrorNodes.item(i);
+					String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
+					infos[i] = new MirrorInfo(infoURL, i);
+				}
+				//p2: add the base site as the last resort mirror so we can track download speed and failure rate
+				infos[mirrorCount] = new MirrorInfo(repoLocation.toString(), mirrorCount);
+				return infos;
+			} catch (Exception e) {
+				// log if absolute url
+				if (mirrorsURL != null && (mirrorsURL.startsWith("http://") //$NON-NLS-1$
+						|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
+						|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
+						|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
+				|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+					fail("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+				return null;
+			}
+		}
 	}
 }

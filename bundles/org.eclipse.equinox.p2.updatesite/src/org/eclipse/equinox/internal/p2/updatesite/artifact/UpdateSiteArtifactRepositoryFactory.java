@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -36,6 +37,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	private static final String PROP_ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
+	private static final String PROP_FORMAT_PACKED = "packed"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
@@ -73,6 +75,8 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		if (!location.getScheme().equals(PROTOCOL_FILE))
 			repository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
+		if (updateSite.getSite().getMirrorsURI() != null)
+			repository.setProperty(IRepository.PROP_MIRRORS_URL, updateSite.getSite().getMirrorsURI());
 		repository.removeAll();
 		generateArtifactDescriptors(updateSite, repository, monitor);
 	}
@@ -80,6 +84,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		Feature[] features = updateSite.loadFeatures(monitor);
 		Set allSiteArtifacts = new HashSet();
+		boolean packSupported = updateSite.getSite().isPack200Supported();
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
 			IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
@@ -87,6 +92,17 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
 			allSiteArtifacts.add(featureArtifactDescriptor);
+
+			if (packSupported) {
+				// Update site supports pack200, create a packed descriptor
+				featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+				featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
+				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
+				ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+				featureArtifactDescriptor.setProcessingSteps(steps);
+				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
+				allSiteArtifacts.add(featureArtifactDescriptor);
+			}
 
 			FeatureEntry[] featureEntries = feature.getEntries();
 			for (int j = 0; j < featureEntries.length; j++) {
@@ -97,6 +113,18 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					URI pluginURL = updateSite.getPluginURI(entry);
 					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
 					allSiteArtifacts.add(artifactDescriptor);
+
+					if (packSupported) {
+						// Update site supports pack200, create a packed descriptor
+						key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
+						artifactDescriptor = new ArtifactDescriptor(key);
+						pluginURL = updateSite.getPluginURI(entry);
+						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
+						ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+						artifactDescriptor.setProcessingSteps(steps);
+						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
+						allSiteArtifacts.add(artifactDescriptor);
+					}
 				}
 			}
 		}
