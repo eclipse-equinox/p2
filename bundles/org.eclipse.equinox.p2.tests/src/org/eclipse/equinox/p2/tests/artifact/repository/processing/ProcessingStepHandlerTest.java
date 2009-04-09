@@ -211,4 +211,55 @@ public class ProcessingStepHandlerTest extends TestCase {
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
+	public void testPSHgetStatusOK() {
+		ProcessingStep ok1, ok2;
+		ok1 = new ProcessingStep() {
+			public IStatus getStatus() {
+				return Status.OK_STATUS;
+			}
+		};
+		ok2 = new ProcessingStep() {
+			public IStatus getStatus() {
+				return Status.OK_STATUS;
+			}
+		};
+
+		OutputStream testStream = handler.link(new ProcessingStep[] {ok1, ok2}, null, monitor);
+		IStatus status = ProcessingStepHandler.getStatus(testStream);
+		IStatus errStatus = ProcessingStepHandler.getStatus(testStream);
+		assertTrue(status.isOK() && errStatus.isOK());
+		assertTrue(!status.isMultiStatus());
+		assertTrue(!errStatus.isMultiStatus());
+	}
+
+	public void testPSHgetStatus() {
+		ProcessingStep ok, info, warning, error;
+		ok = new ProcessingStep() {
+			public IStatus getStatus() {
+				return Status.OK_STATUS;
+			}
+		};
+
+		info = new ProcessingStep() {
+			public IStatus getStatus() {
+				return new Status(IStatus.INFO, "ID", "INFO");
+			}
+		};
+
+		warning = new ProcessingStep() {
+			public IStatus getStatus() {
+				return new Status(IStatus.WARNING, "ID", "WARNING");
+			}
+		};
+
+		error = new ProcessingStep() {
+			public IStatus getStatus() {
+				return new Status(IStatus.ERROR, "ID", "ERROR");
+			}
+		};
+
+		OutputStream testStream = handler.link(new ProcessingStep[] {info, ok, error, warning}, null, monitor);
+		assertTrue(ProcessingStepHandler.getErrorStatus(testStream).getChildren().length == 2);
+		assertTrue(ProcessingStepHandler.getStatus(testStream, true).getChildren().length == 4);
+	}
 }

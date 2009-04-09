@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * Creates processing step instances from extensions and executes them.
@@ -64,7 +65,38 @@ public class ProcessingStepHandler {
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
 		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
-		return new MultiStatus(Activator.ID, severity, result, "Result of processing steps", null);
+		return new MultiStatus(Activator.ID, severity, result, Messages.processing_step_results, null);
+	}
+
+	/**
+	 * Return statuses from this step and any linked step, discarding OK statuses until an error status is received.
+	 * @param stream the stream representing the first step
+	 * @return the requested status
+	 */
+	public static IStatus getErrorStatus(OutputStream stream) {
+		ArrayList list = new ArrayList();
+		int severity = collectErrorStatus(stream, list);
+		if (severity == IStatus.OK)
+			return Status.OK_STATUS;
+		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
+		return new MultiStatus(Activator.ID, 0, result, Messages.processing_step_results, null);
+	}
+
+	private static int collectErrorStatus(OutputStream stream, ArrayList list) {
+		IStatus status = getStatus(stream);
+		if (!status.isOK())
+			list.add(status);
+		if (status.matches(IStatus.ERROR))
+			// Errors past this should be bogus as they rely on output from this step
+			return status.getSeverity();
+
+		OutputStream destination = getDestination(stream);
+		if (destination == null || !(destination instanceof IStateful))
+			return status.getSeverity();
+		int result = collectErrorStatus(destination, list);
+		// TODO greater than test here is a little brittle but it is very unlikely that we will add
+		// a new status severity.
+		return status.getSeverity() > result ? status.getSeverity() : result;
 	}
 
 	public static IStatus getStatus(OutputStream stream) {
@@ -115,11 +147,11 @@ public class ProcessingStepHandler {
 				error = e;
 			}
 		} else
-			error = new ProcessingStepHandlerException("Could not get extension " + PROCESSING_STEPS_EXTENSION_ID + " for desriptor id " + descriptor.getProcessorId());
+			error = new ProcessingStepHandlerException(NLS.bind(Messages.cannot_get_extension, PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId()));
 
 		int severity = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		ProcessingStep result = new EmptyProcessingStep();
-		result.setStatus(new Status(severity, Activator.ID, "Could not instantiate step:" + descriptor.getProcessorId(), error));
+		result.setStatus(new Status(severity, Activator.ID, Messages.cannot_instantiate_step + descriptor.getProcessorId(), error));
 		return result;
 	}
 

@@ -832,7 +832,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			save();
 	}
 
-	public IStatus reportStatus(IArtifactDescriptor descriptor, OutputStream destination, IStatus status) {
+	private IStatus reportStatus(IArtifactDescriptor descriptor, OutputStream destination, IStatus status) {
 		// If the destination is just a normal stream then the status is simple.  Just return
 		// it and do not close the destination
 		if (!(destination instanceof ProcessingStep))
@@ -846,13 +846,29 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), e);
 		}
 
-		IStatus stepStatus = ProcessingStepHandler.getStatus(destination, true);
+		// An error occurred obtaining the artifact, ProcessingStep errors aren't important
+		if (status.matches(IStatus.ERROR))
+			return status;
+
+		IStatus stepStatus = ProcessingStepHandler.getErrorStatus(destination);
 		// if the steps all ran ok and there is no interesting information, return the status from this method
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;
 		// else gather up the status from the steps
 		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), null);
-		result.merge(status);
+
+		if (!status.isOK()) {
+			// Transport pushes its status onto the output stream if the stream implements IStateful, to prevent
+			// duplication determine if the Status is present in the ProcessingStep status. 
+			boolean found = false;
+			IStatus[] stepStatusChildren = stepStatus.getChildren();
+			for (int i = 0; i < stepStatusChildren.length && !found; i++)
+				if (stepStatusChildren[i] == status)
+					found = true;
+			if (!found)
+				result.merge(status);
+		}
+
 		result.merge(stepStatus);
 		return result;
 	}
