@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.4"?>
+<?pde version="3.5"?>
 
-<product name="p2 bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.p2.reconciler.application" useFeatures="false">
+<product name="p2 bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.p2.reconciler.application" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
       <linux>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</linux>
@@ -57,6 +57,7 @@
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
       <plugin id="org.eclipse.equinox.p2.publisher"/>
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
       <plugin id="org.eclipse.equinox.preferences"/>
@@ -70,5 +71,6 @@
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
    </plugins>
+
 
 </product>
