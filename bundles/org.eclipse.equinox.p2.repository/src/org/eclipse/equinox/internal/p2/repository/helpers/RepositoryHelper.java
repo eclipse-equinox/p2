@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.repository.helpers;
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -51,7 +50,6 @@ public class RepositoryHelper {
 	 * Determine if the repository could be used as a valid destination (eg, it is modifiable)
 	 * @param repository the repository to test
 	 * @return the repository
-	 * @throws ProvisionException if the repository is not valid
 	 */
 	public static IRepository validDestinationRepository(IRepository repository) {
 		if (!repository.isModifiable())
