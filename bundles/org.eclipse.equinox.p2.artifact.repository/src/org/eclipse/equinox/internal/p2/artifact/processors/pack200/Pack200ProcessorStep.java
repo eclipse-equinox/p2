@@ -57,7 +57,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
 				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				setStatus(new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile)); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, Activator.ID, "Unpacking fails because intermediate file is empty: " + resultFile)); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)
