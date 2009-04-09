@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetFrameworkIndependentPropertyAction;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetProgramPropertyAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -47,7 +47,7 @@ public class SetFrameworkIndependentPropertyActionTest extends AbstractProvision
 		parameters.put(ActionConstants.PARM_PROP_VALUE, frameworkDependentPropertyValue);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		SetFrameworkIndependentPropertyAction action = new SetFrameworkIndependentPropertyAction();
+		SetProgramPropertyAction action = new SetProgramPropertyAction();
 		action.execute(parameters);
 		assertEquals("true", manipulator.getConfigData().getProperty(frameworkDependentPropertyName));
 		action.undo(parameters);

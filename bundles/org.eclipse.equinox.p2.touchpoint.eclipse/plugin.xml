@@ -138,7 +138,7 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetFrameworkDependentPropertyAction"
+          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetProgramPropertyAction"
           name="setFrameworkDependentProperty"
           touchpointType="org.eclipse.equinox.p2.osgi"
           touchpointVersion="1.0.0"
@@ -148,7 +148,7 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
-          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetFrameworkIndependentPropertyAction"
+          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetProgramPropertyAction"
           name="setFrameworkIndependentProperty"
           touchpointType="org.eclipse.equinox.p2.osgi"
           touchpointVersion="1.0.0"
