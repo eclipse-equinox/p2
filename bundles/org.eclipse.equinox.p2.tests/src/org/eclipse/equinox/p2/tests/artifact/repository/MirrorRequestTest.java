@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,11 +22,12 @@ import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.w3c.dom.*;
@@ -78,18 +79,24 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue(request.getResult().matches(IStatus.ERROR));
 	}
 
+	// Test that if MirrorRequest fails to download a packed artifact it attempts the canonical version 
+	public void testFailToCanonical() {
+		RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
+
+		IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", new Version("1.0.0"));
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
+		request.setSourceRepository(src);
+		request.perform(new NullProgressMonitor());
+
+		assertTrue(request.getResult().toString(), request.getResult().isOK());
+		assertTrue("Target does not contain artifact.", targetRepository.contains(key));
+		assertTrue("Number of downloads differs from expected attempts.", src.downloadCount == 2);
+	}
+
 	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure. 
 	public void testMirrorFailOver() {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
-		// Hijack the source repository's MirrorSelector with ours which provides mirrors in order.
-		Field mirrors = null;
-		try {
-			mirrors = SimpleArtifactRepository.class.getDeclaredField("mirrors");
-			mirrors.setAccessible(true);
-			mirrors.set(sourceRepository, selector);
-		} catch (Exception e) {
-			fail("0.2", e);
-		}
+
 		// call test
 		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", new Version("1.0.0"));
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
@@ -100,6 +107,60 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		// All available mirrors used
 		assertTrue("All mirrors utilized", selector.index == selector.mirrors.length);
+	}
+
+	// Repository which misleads about its location
+	protected class RemoteRepo extends AbstractArtifactRepository {
+		SimpleArtifactRepository delegate;
+		int downloadCount = 0;
+
+		RemoteRepo(SimpleArtifactRepository repo) {
+			super(repo.getName(), repo.getType(), repo.getVersion(), repo.getLocation(), repo.getDescription(), repo.getProvider(), repo.getProperties());
+			delegate = repo;
+		}
+
+		public synchronized URI getLocation() {
+			try {
+				return new URI("http://test/");
+			} catch (URISyntaxException e) {
+				// Should never happen, but we'll fail anyway
+				fail("URI creation failed", e);
+				return null;
+			}
+		}
+
+		public boolean contains(IArtifactDescriptor descriptor) {
+			return delegate.contains(descriptor);
+		}
+
+		public boolean contains(IArtifactKey key) {
+			return delegate.contains(key);
+		}
+
+		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+			downloadCount++;
+			return delegate.getArtifact(descriptor, destination, monitor);
+		}
+
+		public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+			return delegate.getArtifactDescriptors(key);
+		}
+
+		public IArtifactKey[] getArtifactKeys() {
+			return delegate.getArtifactKeys();
+		}
+
+		public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
+			return delegate.getArtifacts(requests, monitor);
+		}
+
+		public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+			return delegate.getOutputStream(descriptor);
+		}
+
+		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+			return delegate.getRawArtifact(descriptor, destination, monitor);
+		}
 	}
 
 	/*
@@ -117,8 +178,21 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			// Setting this property forces SimpleArtifactRepository to use mirrors despite being a local repo
 			// Alternatively we could use reflect to change "location" of the repo
 			repo.setProperty(SimpleArtifactRepository.PROP_FORCE_THREADING, String.valueOf(true));
+			setSelector();
 			getRepoLocation();
 			mirrors = computeMirrors("file:///" + getTestData("Mirror Location", testDataLocation + '/' + repo.getProperties().get(IRepository.PROP_MIRRORS_URL)).toString().replace('\\', '/'));
+		}
+
+		// Hijack the source repository's MirrorSelector 
+		private void setSelector() {
+			Field mirrorField = null;
+			try {
+				mirrorField = SimpleArtifactRepository.class.getDeclaredField("mirrors");
+				mirrorField.setAccessible(true);
+				mirrorField.set(repo, this);
+			} catch (Exception e) {
+				fail("0.2", e);
+			}
 		}
 
 		// Overridden to prevent mirror sorting
