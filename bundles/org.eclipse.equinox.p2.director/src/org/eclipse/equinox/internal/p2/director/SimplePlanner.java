@@ -308,11 +308,11 @@ public class SimplePlanner implements IPlanner {
 
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 
-			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, context == null ? false : satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
+			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus(), profileChangeRequest, null);
-			Projector projector = new Projector(slice, newSelectionContext, context == null ? false : satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
+			Projector projector = new Projector(slice, newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
