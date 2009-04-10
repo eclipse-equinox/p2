@@ -597,9 +597,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		assertTrue(keys.length > 0);
-		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[0]);
+		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", new Version("1.0.0"));
+		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 
 		// Should have a packed & canonical version
 		assertEquals(2, descriptors.length);
