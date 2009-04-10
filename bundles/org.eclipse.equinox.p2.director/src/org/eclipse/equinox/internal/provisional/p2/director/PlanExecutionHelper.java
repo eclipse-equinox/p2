@@ -38,6 +38,6 @@ public class PlanExecutionHelper {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_error_applying_configuration, e);
 			}
 		}
-		return engine.perform(result.getProfileChangeRequest().getProfile(), new DefaultPhaseSet(), result.getOperands(), context, progress);
+		return engine.perform(result.getProfileChangeRequest().getProfile(), phaseSet, result.getOperands(), context, progress);
 	}
 }
