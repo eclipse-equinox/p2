@@ -10,20 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 public abstract class AbstractApplication {
 
@@ -43,12 +43,12 @@ public abstract class AbstractApplication {
 	public void addSourceMetadataRepository(String location) {
 		URI uri = Activator.getURI(location);
 		if (uri != null)
-			sourceMetadataRepositories.add(uri);
+			sourceMetadataRepositories.add(RepositoryHelper.localRepoURIHelper(uri));
 	}
 
 	public void addSourceMetadataRepository(URI location) {
 		if (location != null)
-			sourceMetadataRepositories.add(location);
+			sourceMetadataRepositories.add(RepositoryHelper.localRepoURIHelper(location));
 	}
 
 	public List getSourceMetadataRepositories() {
@@ -58,12 +58,12 @@ public abstract class AbstractApplication {
 	public void addSourceArtifactRepository(String location) {
 		URI uri = Activator.getURI(location);
 		if (uri != null)
-			sourceArtifactRepositories.add(uri);
+			sourceArtifactRepositories.add(RepositoryHelper.localRepoURIHelper(uri));
 	}
 
 	public void addSourceArtifactRepository(URI location) {
 		if (location != null)
-			sourceArtifactRepositories.add(location);
+			sourceArtifactRepositories.add(RepositoryHelper.localRepoURIHelper(location));
 	}
 
 	public void setSourceIUs(List ius) {
@@ -144,7 +144,7 @@ public abstract class AbstractApplication {
 		IMetadataRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
 		if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 			result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
-		return result;
+		return (IMetadataRepository) RepositoryHelper.validDestinationRepository(result);
 	}
 
 	private IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
@@ -177,7 +177,7 @@ public abstract class AbstractApplication {
 		IArtifactRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
 		if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 			result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
-		return result;
+		return (IArtifactRepository) RepositoryHelper.validDestinationRepository(result);
 	}
 
 	public IMetadataRepository getCompositeMetadataRepository() {

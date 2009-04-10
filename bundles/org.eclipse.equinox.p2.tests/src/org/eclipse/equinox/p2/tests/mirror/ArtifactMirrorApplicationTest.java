@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -1462,6 +1461,20 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertLogContainsLine(log.getFile(), message);
 		} catch (Exception e) {
 			fail("Error verifying log", e);
+		}
+	}
+
+	/**
+	 * Test how the mirror application handles a repository specified as a local path
+	 */
+	public void testArtifactMirrorNonURIDest() {
+		String[] args = new String[] {"-destination", destRepoLocation.toString(), "-source", sourceRepoLocation.toString()};
+
+		try {
+			runMirrorApplication("Mirroring", args);
+			assertContentEquals("2.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		} catch (Exception e) {
+			fail("Error mirroring", e);
 		}
 	}
 }

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -21,9 +19,11 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 /**
  * An application that performs mirroring of artifacts between repositories.
@@ -66,15 +66,21 @@ public class MirrorApplication implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		initializeFromArguments((String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS));
-		setupRepositories();
-		new Mirroring().mirror(source, destination, rootSpecs, transitive);
-		//if the repository was not already loaded before the mirror application started, close it.
-		if (!sourceLoaded)
-			getManager().removeRepository(sourceLocation);
-		if (!destinationLoaded)
-			getManager().removeRepository(destinationLocation);
-		return IApplication.EXIT_OK;
+		try {
+			initializeFromArguments((String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS));
+			setupRepositories();
+			new Mirroring().mirror(source, destination, rootSpecs, transitive);
+			return IApplication.EXIT_OK;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			throw e;
+		} finally {
+			//if the repository was not already loaded before the mirror application started, close it.
+			if (!sourceLoaded && sourceLocation != null)
+				getManager().removeRepository(sourceLocation);
+			if (!destinationLoaded && destinationLocation != null)
+				getManager().removeRepository(destinationLocation);
+		}
 	}
 
 	private void setupRepositories() throws ProvisionException {
@@ -125,7 +131,7 @@ public class MirrorApplication implements IApplication {
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		return getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
+		return (IMetadataRepository) RepositoryHelper.validDestinationRepository(getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties()));
 	}
 
 	/* (non-Javadoc)
@@ -154,9 +160,9 @@ public class MirrorApplication implements IApplication {
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-					sourceLocation = URIUtil.fromString(arg);
+					sourceLocation = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 				if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
-					destinationLocation = URIUtil.fromString(arg);
+					destinationLocation = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 			} catch (URISyntaxException e) {
 				throw new IllegalArgumentException("Repository location (" + arg + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
 			}

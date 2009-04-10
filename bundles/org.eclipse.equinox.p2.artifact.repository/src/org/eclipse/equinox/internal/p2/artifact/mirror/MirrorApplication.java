@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactCompar
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -58,31 +59,35 @@ public class MirrorApplication implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
-		setupRepositories();
+		try {
+			Map args = context.getArguments();
+			initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
+			setupRepositories();
 
-		Mirroring mirroring = new Mirroring(source, destination, raw);
-		mirroring.setCompare(compare);
-		mirroring.setComparatorId(comparatorID);
-		mirroring.setBaseline(baseline);
-		mirroring.setValidate(validate);
-		if (comparatorLog != null)
-			mirroring.setComparatorLog(comparatorLog);
+			Mirroring mirroring = new Mirroring(source, destination, raw);
+			mirroring.setCompare(compare);
+			mirroring.setComparatorId(comparatorID);
+			mirroring.setBaseline(baseline);
+			mirroring.setValidate(validate);
+			if (comparatorLog != null)
+				mirroring.setComparatorLog(comparatorLog);
 
-		IStatus result = mirroring.run(failOnError, verbose);
-		if (!result.isOK()) {
-			//only noteworthy statuses should be resulted from mirroring.run
-			if (result.matches(IStatus.INFO))
-				System.err.println("Mirroring completed. Please check log file for more information."); //$NON-NLS-1$
-			else
-				System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
-			log(result);
+			IStatus result = mirroring.run(failOnError, verbose);
+			if (!result.isOK()) {
+				//only noteworthy statuses should be resulted from mirroring.run
+				if (result.matches(IStatus.INFO))
+					System.err.println("Mirroring completed. Please check log file for more information."); //$NON-NLS-1$
+				else
+					System.err.println("Mirroring completed with warnings and/or errors. Please check log file for more information."); //$NON-NLS-1$
+				log(result);
+			}
+			return IApplication.EXIT_OK;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			throw e;
+		} finally {
+			cleanup();
 		}
-
-		cleanup();
-
-		return IApplication.EXIT_OK;
 	}
 
 	/*
@@ -142,7 +147,7 @@ public class MirrorApplication implements IApplication {
 		//This code assumes source has been successfully loaded before this point
 		//No existing repository; create a new repository at destinationLocation but with source's attributes.
 		// TODO for now create a Simple repo by default.
-		return getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties());
+		return (IArtifactRepository) RepositoryHelper.validDestinationRepository(getManager().createRepository(destinationLocation, destinationName == null ? source.getName() : destinationName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source.getProperties()));
 	}
 
 	/* (non-Javadoc)
@@ -193,11 +198,11 @@ public class MirrorApplication implements IApplication {
 
 			try {
 				if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
-					sourceLocation = URIUtil.fromString(arg);
+					sourceLocation = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 				if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
-					destinationLocation = URIUtil.fromString(arg);
+					destinationLocation = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 				if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
-					baselineLocation = URIUtil.fromString(arg);
+					baselineLocation = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 					compare = true;
 				}
 			} catch (URISyntaxException e) {
@@ -242,9 +247,9 @@ public class MirrorApplication implements IApplication {
 	 */
 	private void cleanup() {
 		//if the repository was not already loaded before the mirror application started, close it.
-		if (!sourceLoaded)
+		if (!sourceLoaded && sourceLocation != null)
 			getManager().removeRepository(sourceLocation);
-		if (!destinationLoaded)
+		if (!destinationLoaded && destinationLocation != null)
 			getManager().removeRepository(destinationLocation);
 		if (baselineLocation != null && !baselineLoaded)
 			getManager().removeRepository(baselineLocation);

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.File;
 import java.net.*;
 import java.util.HashMap;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 
@@ -976,6 +975,20 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertEquals("5", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, new Collector(), null).size());
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
+		}
+	}
+
+	/**
+	 * Test how the mirror application handles a repository specified as a local path
+	 */
+	public void testMetadataMirrorNonURIDest() {
+		String[] args = new String[] {"-destination", destRepoLocation.toString(), "-source", sourceRepoLocation.toString()};
+
+		try {
+			runMirrorApplication("Mirroring", args);
+			assertContentEquals("2.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		} catch (Exception e) {
+			fail("Error mirroring", e);
 		}
 	}
 }
