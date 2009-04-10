@@ -11,9 +11,6 @@
 
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -21,8 +18,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -38,8 +38,9 @@ public class ElementUtils {
 			public IStatus run(IProgressMonitor monitor) {
 				ProvUI.startBatchOperation();
 				try {
-					URI[] currentlyEnabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_ALL);
-					URI[] currentlyDisabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
+					int visibilityFlags = Policy.getDefault().getQueryContext().getMetadataRepositoryFlags();
+					URI[] currentlyEnabled = ProvisioningUtil.getMetadataRepositories(visibilityFlags);
+					URI[] currentlyDisabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
 					for (int i = 0; i < elements.length; i++) {
 						URI location = elements[i].getLocation();
 						if (elements[i].isEnabled()) {
