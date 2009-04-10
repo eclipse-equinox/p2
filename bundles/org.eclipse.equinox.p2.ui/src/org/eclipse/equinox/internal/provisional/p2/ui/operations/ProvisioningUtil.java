@@ -11,15 +11,14 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
+import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -29,6 +28,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -307,28 +309,30 @@ public class ProvisioningUtil {
 			set = new DefaultPhaseSet();
 		else
 			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), context, monitor);
-	}
+		// 100 ticks for install plan, 200 for the actual install
+		SubMonitor mon = SubMonitor.convert(monitor, 300);
 
-	/**
-	 * Perform the provisioning plan using a default context that contacts all repositories.
-	 * @param plan the plan to perform
-	 * @param phaseSet the phase set to use
-	 * @param profile the profile to be changed
-	 * @param monitor the progress monitor 
-	 * @return a status indicating the success of the plan
-	 * @throws ProvisionException
-	 * 
-	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, IProfile, ProvisioningContext, IProgressMonitor)} 
-	 * to explicitly establish a provisioning context.  Otherwise all repositories will be contacted
-	 */
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {
-		PhaseSet set;
-		if (phaseSet == null)
-			set = new DefaultPhaseSet();
-		else
-			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), new ProvisioningContext(), monitor);
+		if (plan.getInstallerPlan() != null) {
+			IStatus installerPlanStatus = getEngine().perform(plan.getInstallerPlan().getProfileChangeRequest().getProfile(), phaseSet, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			if (!installerPlanStatus.isOK()) {
+				mon.done();
+				return installerPlanStatus;
+			}
+			Configurator configChanger = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
+			try {
+				ProvisioningOperationRunner.suppressRestart(true);
+				configChanger.applyConfiguration();
+			} catch (IOException e) {
+				mon.done();
+				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_InstallPlanConfigurationError, e);
+			} finally {
+				ProvisioningOperationRunner.suppressRestart(false);
+			}
+		} else {
+			mon.worked(100);
+		}
+
+		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(200));
 	}
 
 	private static IEngine getEngine() throws ProvisionException {
@@ -367,5 +371,26 @@ public class ProvisioningUtil {
 	public static boolean isCategory(IInstallableUnit iu) {
 		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
 		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
+	}
+
+	/**
+	 * Perform the provisioning plan using a default context that contacts all repositories.
+	 * @param plan the plan to perform
+	 * @param phaseSet the phase set to use
+	 * @param profile the profile to be changed
+	 * @param monitor the progress monitor 
+	 * @return a status indicating the success of the plan
+	 * @throws ProvisionException
+	 * 
+	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, IProfile, ProvisioningContext, IProgressMonitor)} 
+	 * to explicitly establish a provisioning context.  Otherwise all repositories will be contacted
+	 */
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {
+		PhaseSet set;
+		if (phaseSet == null)
+			set = new DefaultPhaseSet();
+		else
+			set = phaseSet;
+		return getEngine().perform(profile, set, plan.getOperands(), new ProvisioningContext(), monitor);
 	}
 }
