@@ -129,6 +129,8 @@ public class Sizing extends InstallableUnitPhase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		sizeOnDisk = 0;
+		dlSize = 0;
 		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}
