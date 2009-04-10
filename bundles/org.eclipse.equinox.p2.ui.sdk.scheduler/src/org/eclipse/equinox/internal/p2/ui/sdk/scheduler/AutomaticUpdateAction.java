@@ -13,13 +13,17 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.PlanValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -60,8 +64,19 @@ final class AutomaticUpdateAction extends UpdateAction {
 		profileListener = new ProvUIProvisioningListener(
 				ProvUIProvisioningListener.PROV_EVENT_PROFILE) {
 			protected void profileChanged(final String profileId) {
-				if (profileId.equals(getProfileId(false)))
+				String id = getProfileId(false);
+				if (id == IProfileRegistry.SELF) {
+					try {
+						IProfile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
+						id = profile.getProfileId();
+					} catch (ProvisionException e) {
+						id = null;
+					}
+				}
+				if (profileId.equals(id)) {
 					resolvedOperation = null;
+					automaticUpdater.validateUpdates();
+				}
 			}
 		};
 		return profileListener;
