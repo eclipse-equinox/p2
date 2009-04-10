@@ -15,8 +15,7 @@ import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -107,7 +106,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	private void addProfileChangeListener() {
 		if (profileChangeListener == null) {
-			profileChangeListener = new ProvisioningListener() {
+			profileChangeListener = new SynchronousProvisioningListener() {
 				public void notify(EventObject o) {
 					if (o instanceof ProfileEvent) {
 						ProfileEvent event = (ProfileEvent) o;
