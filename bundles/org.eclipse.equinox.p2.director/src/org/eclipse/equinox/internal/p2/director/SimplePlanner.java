@@ -484,7 +484,7 @@ public class SimplePlanner implements IPlanner {
 	//The expectedState represents the result of the initialRequest where the metaRequirements have been satisfied.
 	private ProvisioningPlan createInstallerPlanForCohostedCase(IProfile profile, ProfileChangeRequest initialRequest, ProvisioningPlan initialPlan, Collection expectedState, ProvisioningContext initialContext, SubMonitor monitor) {
 		Collection metaRequirements = initialRequest.getRemovedInstallableUnits().length == 0 ? areMetaRequirementsSatisfied(profile, expectedState, initialPlan) : extractMetaRequirements(expectedState, initialPlan);
-		if (metaRequirements == null)
+		if (metaRequirements == null || metaRequirements.isEmpty())
 			return initialPlan;
 
 		//Let's compute a plan that satisfy all the metaRequirements. We limit ourselves to only the IUs that were part of the previous solution.
