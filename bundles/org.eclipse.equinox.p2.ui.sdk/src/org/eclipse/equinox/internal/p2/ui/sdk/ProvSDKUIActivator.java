@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -30,6 +32,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * Activator class for the p2 UI.
@@ -46,6 +50,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private IPropertyChangeListener preferenceListener;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
+	public static final String PREFERENCE_ROOT = "/profile/_SELF_/"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
@@ -72,6 +77,22 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
+	public static Preferences getPreferences() {
+		return Platform.getPreferencesService().getRootNode().node(PREFERENCE_ROOT + PLUGIN_ID);
+	}
+
+	public static Preferences getDefaultPreferences() {
+		return new DefaultScope().getNode(PLUGIN_ID);
+	}
+
+	public static void savePreferences() {
+		try {
+			getPreferences().flush();
+		} catch (BackingStoreException e) {
+			ProvUI.handleException(e, ProvSDKMessages.Error_Saving_Preferences, StatusManager.LOG);
+		}
+	}
+
 	public ProvSDKUIActivator() {
 		// constructor
 	}
@@ -86,6 +107,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
 		readLicenseRegistry();
+		PreferenceInitializer.migratePreferences();
 		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
