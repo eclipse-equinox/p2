@@ -477,16 +477,24 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		//prefer the location stored in URI form
 		String locationString = node.get(KEY_URI, null);
 		try {
-			if (locationString != null)
-				return new URI(locationString);
+			if (locationString != null) {
+				URI result = new URI(locationString);
+				if (result.isAbsolute())
+					return result;
+				log("Invalid repository URI: " + locationString, new RuntimeException()); //$NON-NLS-1$
+			}
 		} catch (URISyntaxException e) {
 			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 		}
 		//we used to store the repository as a URL, so try old key for backwards compatibility
 		locationString = node.get(KEY_URL, null);
 		try {
-			if (locationString != null)
-				return URIUtil.toURI(new URL(locationString));
+			if (locationString != null) {
+				URI result = URIUtil.toURI(new URL(locationString));
+				if (result.isAbsolute())
+					return result;
+				log("Invalid repository URL: " + locationString, new RuntimeException()); //$NON-NLS-1$
+			}
 		} catch (MalformedURLException e) {
 			log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 		} catch (URISyntaxException e) {
@@ -850,8 +858,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		for (int i = 0; i < children.length; i++) {
 			Preferences child = node.node(children[i]);
 			URI location = getRepositoryLocation(child);
-			if (location == null)
-				continue;
+			if (location == null) {
+				try {
+					child.removeNode();
+					continue;
+				} catch (BackingStoreException e) {
+					log("Error removing invalid repository", e); //$NON-NLS-1$
+				}
+			}
 			RepositoryInfo info = new RepositoryInfo();
 			info.location = location;
 			info.name = child.get(KEY_NAME, null);
