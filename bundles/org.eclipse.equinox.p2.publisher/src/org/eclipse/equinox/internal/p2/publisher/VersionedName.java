@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     Code 9 - initial API and implementation
- *     EclipseSrouce - ongoing development
+ *     EclipseSource - ongoing development
+ *     Thomas Hallgreen - Fix for bug 268659
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
@@ -15,8 +16,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 
 public class VersionedName {
-	private String id;
-	private Version version;
+	private final String id;
+	private final Version version;
 
 	/**
 	 * Creates and returns a new versioned id from the given spec.  The spec should be
@@ -40,12 +41,27 @@ public class VersionedName {
 	 */
 	public VersionedName(String id, String version) {
 		this.id = id;
-		this.version = new Version(version == null ? "0.0.0" : version);
+		this.version = Version.parseVersion(version);
 	}
 
 	public VersionedName(String id, Version version) {
 		this.id = id;
-		this.version = version;
+		this.version = (version == null) ? Version.emptyVersion : version;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+
+		if (!(obj instanceof VersionedName))
+			return false;
+
+		VersionedName vname = (VersionedName) obj;
+		return id.equals(vname.id) && version.equals(vname.version);
+	}
+
+	public int hashCode() {
+		return id.hashCode() * 31 + version.hashCode();
 	}
 
 	public String getId() {
@@ -57,6 +73,6 @@ public class VersionedName {
 	}
 
 	public String toString() {
-		return id + "/" + (version == null ? "0.0.0" : version.toString());
+		return id + '/' + version.toString();
 	}
 }
