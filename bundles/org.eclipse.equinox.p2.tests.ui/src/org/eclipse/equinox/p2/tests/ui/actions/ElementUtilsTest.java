@@ -15,7 +15,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
@@ -91,10 +92,12 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		// We expect known2 to get added because it was in the elements
 		// We expect uri3 to get removed (as if it had been removed from a pref page)
 		// System repos shouldn't be touched
-		ElementUtils.updateRepositoryUsingElements(elements, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+		// All this happens asynchronously so we have to install a listener to know
+		// that it has completed.
+		// The repo update happens in a job, so we need to ensure it finished
 		final boolean[] done = new boolean[1];
 		done[0] = false;
-		// The repo update happens in a job, so we need to ensure it finished
+
 		Platform.getJobManager().addJobChangeListener(new IJobChangeListener() {
 
 			public void aboutToRun(IJobChangeEvent event) {
@@ -115,13 +118,10 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 
 			public void running(IJobChangeEvent event) {
 				// TODO Auto-generated method stub
-
 			}
 
 			public void scheduled(IJobChangeEvent event) {
-				if (event.getJob().getName().equals(ProvUIMessages.ElementUtils_UpdateJobTitle))
-					event.getJob().setPriority(Job.INTERACTIVE);
-
+				// TODO Auto-generated method stub
 			}
 
 			public void sleeping(IJobChangeEvent event) {
@@ -130,6 +130,8 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 			}
 
 		});
+
+		ElementUtils.updateRepositoryUsingElements(elements, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 
 		// spin event loop until job is done
 		Display display = PlatformUI.getWorkbench().getDisplay();
