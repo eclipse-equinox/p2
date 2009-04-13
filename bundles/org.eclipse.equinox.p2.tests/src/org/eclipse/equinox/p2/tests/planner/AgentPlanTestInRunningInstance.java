@@ -44,7 +44,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 				fail();
 			}
 		}
-		profile = createProfile(IProfileRegistry.SELF);
+		profile = createProfile("agent");
 	}
 
 	public void tearDown() throws Exception {
@@ -67,7 +67,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
-		IProfile profile = getProfile("agent");
+		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -86,7 +86,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1});
 
-		IProfile profile = getProfile("agent");
+		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 		ProvisioningContext ctx = new ProvisioningContext();
 
@@ -108,7 +108,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IInstallableUnit a2 = createIU("A", new Version(2, 0, 0));
 		createTestMetdataRepository(new IInstallableUnit[] {a, a2, act1});
 
-		IProfile profile = getProfile("agent");
+		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 		ProvisioningContext ctx = new ProvisioningContext();
 
@@ -132,22 +132,22 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IEngine engine = createEngine();
 		ProvisioningContext ctx = new ProvisioningContext();
 
-		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after initial install", getProfile("agent"), new IInstallableUnit[] {a, act1});
+		assertOK("install actions", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after initial install", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {a, act1});
 		assertEquals(request, plan.getProfileChangeRequest());
-		assertEquals(getProfile("agent").getProfileId(), plan.getInstallerPlan().getProfileChangeRequest().getProfile().getProfileId());
+		assertEquals(getProfile(IProfileRegistry.SELF).getProfileId(), plan.getInstallerPlan().getProfileChangeRequest().getProfile().getProfileId());
 
-		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
 		assertNull(plan2.getInstallerPlan());
-		assertOK("install b", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after initial install", getProfile("agent"), new IInstallableUnit[] {a, act1, b});
+		assertOK("install b", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after initial install", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {a, act1, b});
 
 	}
 
@@ -161,7 +161,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1, common});
 
-		IProfile profile = getProfile("agent");
+		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
 		ProvisioningContext ctx = new ProvisioningContext();
@@ -170,9 +170,9 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		request.addInstallableUnits(new IInstallableUnit[] {a});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("install actions", engine.perform(profile, new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, common});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {a, common, act1});
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, common});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {a, common, act1});
 	}
 
 	public void testTwoInstallWithActions() {
@@ -196,22 +196,22 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext();
 
 		//install A which will install Action1
-		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {a, act1});
+		assertOK("install actions", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {a, act1});
 
 		//install B which will install Action2
-		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1, a});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1, b, a});
+		assertOK("install actions", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, a});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, b, a});
 	}
 
 	public void testCompleteScenario() {
@@ -241,52 +241,52 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext();
 
 		//install A which will install Action1
-		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions for A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {a, act1});
+		assertOK("install actions for A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {a, act1});
 
 		//install B which will install Action2
-		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
-		assertOK("install actions for B", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1, a});
-		assertOK("install B", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1, b, a});
+		assertOK("install actions for B", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, a});
+		assertOK("install B", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, b, a});
 
 		//install C
-		ProfileChangeRequest requestForC = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest requestForC = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		requestForC.addInstallableUnits(new IInstallableUnit[] {c});
 		ProvisioningPlan planForC = planner.getProvisioningPlan(requestForC, ctx, new NullProgressMonitor());
 		assertNull(planForC.getInstallerPlan());
-		assertOK("install C", engine.perform(getProfile("agent"), new DefaultPhaseSet(), planForC.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after C", getProfile("agent"), new IInstallableUnit[] {act1, act2, a, b, c});
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1, b, a});
+		assertOK("install C", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), planForC.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after C", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, act2, a, b, c});
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, b, a});
 
 		//update A which will install Action1b
-		ProfileChangeRequest requestUpdateA = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest requestUpdateA = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		requestUpdateA.removeInstallableUnits(new IInstallableUnit[] {a});
 		requestUpdateA.addInstallableUnits(new IInstallableUnit[] {a111});
 		ProvisioningPlan planUpdateA = planner.getProvisioningPlan(requestUpdateA, ctx, new NullProgressMonitor());
-		assertOK("install actions for A 1.1.1", engine.perform(getProfile("agent"), new DefaultPhaseSet(), planUpdateA.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, act1b});
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), planUpdateA.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b, a111, b, c});
-		assertEquals(0, getProfile("agent").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), new Collector(), null).size());
+		assertOK("install actions for A 1.1.1", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), planUpdateA.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, act1b});
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), planUpdateA.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b, a111, b, c});
+		assertEquals(0, getProfile(IProfileRegistry.SELF).query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), new Collector(), null).size());
 
 		//uninstall A
-		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile("agent"));
+		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request3.removeInstallableUnits(new IInstallableUnit[] {a111});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
 		//		assertNull(plan3.getInstallerPlan());	//TODO
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan3.getInstallerPlan().getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b}); //At this point there is not 
-		assertOK("install A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan3.getOperands(), null, null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {c, b, act2});
+		assertOK("install actions", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan3.getInstallerPlan().getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b}); //At this point there is not 
+		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), plan3.getOperands(), null, null));
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {c, b, act2});
 	}
 
 	public void testConflictBetweenActions() {
@@ -304,7 +304,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1, d, act1v2});
 
-		IProfile profile = getProfile("agent");
+		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 		ProvisioningContext ctx = new ProvisioningContext();
 
