@@ -15,8 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -119,7 +119,8 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 			}
 
 			public void scheduled(IJobChangeEvent event) {
-				// TODO Auto-generated method stub
+				if (event.getJob().getName().equals(ProvUIMessages.ElementUtils_UpdateJobTitle))
+					event.getJob().setPriority(Job.INTERACTIVE);
 
 			}
 
@@ -130,9 +131,11 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 
 		});
 
-		// spin until job is done
+		// spin event loop until job is done
+		Display display = PlatformUI.getWorkbench().getDisplay();
 		while (!done[0]) {
-			// nothing to do
+			if (!display.readAndDispatch())
+				display.sleep();
 		}
 
 		URI[] enabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_ALL);
