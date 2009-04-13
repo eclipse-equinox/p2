@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,10 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.util.Calendar;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.IStatus;
+import org.osgi.service.prefs.Preferences;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -110,8 +113,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	public void rescheduleUpdate() {
 		removeUpdateListener();
-		Preferences pref = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
-		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
+		Preferences pref = AutomaticUpdatePlugin.getPreferences();
+		String schedule = pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, "");
 		// See if we have a scheduled check or startup only.  If it is
 		// startup only, there is nothing more to do now, a listener will
 		// be created on the next startup.
@@ -125,11 +128,11 @@ public class AutomaticUpdateScheduler implements IStartup {
 		// Nothing to do if we don't know what profile we are checking
 		if (profileId == null)
 			return;
-		Preferences pref = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
+		Preferences pref = AutomaticUpdatePlugin.getPreferences();
 		// See if automatic search is enabled at all
-		if (pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED) == false)
+		if (pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false) == false)
 			return;
-		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
+		String schedule = pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, "");
 		long delay = IUpdateChecker.ONE_TIME_CHECK;
 		long poll = IUpdateChecker.ONE_TIME_CHECK;
 		if (!schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
@@ -157,7 +160,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private int getDay(Preferences pref) {
-		String day = pref.getString(P_DAY);
+		String day = pref.get(P_DAY, "");
 		for (int d = 0; d < DAYS.length; d++)
 			if (DAYS[d].equals(day))
 				switch (d) {
@@ -182,7 +185,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private int getHour(Preferences pref) {
-		String hour = pref.getString(P_HOUR);
+		String hour = pref.get(P_HOUR, "");
 		for (int h = 0; h < HOURS.length; h++)
 			if (HOURS[h].equals(hour))
 				return h + 1;

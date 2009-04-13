@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.core.runtime.Preferences;
+import org.osgi.service.prefs.Preferences;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -18,8 +18,15 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Preference page for automated updates.
@@ -193,19 +200,19 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	private void initialize() {
-		Preferences pref = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
-		enabledCheck.setSelection(pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
-		setSchedule(pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
-
-		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, false)]);
-		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, false)]);
-
-		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED));
-		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
-		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
-
+		Preferences pref = AutomaticUpdatePlugin.getPreferences();
+		enabledCheck.setSelection(pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false));
+		setSchedule(pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, ""));
+		
+		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref)]);
+		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref)]);
+		
+		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
+		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
+		remindElapseCombo.setText(pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, ""));
+		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
+		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
+		
 		pageChanged();
 	}
 
@@ -235,21 +242,22 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 	protected void performDefaults() {
 		super.performDefaults();
-		Preferences pref = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
-		enabledCheck.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
+		Preferences defaultPref = AutomaticUpdatePlugin.getDefaultPreferences();
+		enabledCheck.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false));
 
-		setSchedule(pref.getDefaultString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
-		onScheduleRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
+		setSchedule(defaultPref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, ""));
+		onScheduleRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, false));
 
-		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, true)]);
-		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, true)]);
+		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(defaultPref)]);
+		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(defaultPref)]);
 
-		remindOnceRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindScheduleRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED));
+		remindOnceRadio.setSelection(!defaultPref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
+		remindScheduleRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
+		remindElapseCombo.setText(defaultPref.get(PreferenceConstants.PREF_REMIND_ELAPSED, ""));
 
-		searchOnlyRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
-		searchAndDownloadRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+		searchOnlyRadio.setSelection(!defaultPref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
+		searchAndDownloadRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
+
 		pageChanged();
 	}
 
@@ -258,41 +266,41 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	 * Subclasses should override
 	 */
 	public boolean performOk() {
-		Preferences pref = AutomaticUpdatePlugin.getDefault().getPluginPreferences();
-		pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enabledCheck.getSelection());
+		Preferences pref = AutomaticUpdatePlugin.getPreferences();
+		pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enabledCheck.getSelection());
 		if (onStartupRadio.getSelection())
-			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
+			pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		else
-			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
-
+			pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
+		
 		if (remindScheduleRadio.getSelection()) {
-			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
-			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
+			pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
+			pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
 		} else {
-			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
+			pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		}
+		
+		pref.put(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());
+		pref.put(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());
+		
+		pref.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, searchAndDownloadRadio.getSelection());
 
-		pref.setValue(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());
-		pref.setValue(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());
-
-		pref.setValue(PreferenceConstants.PREF_DOWNLOAD_ONLY, searchAndDownloadRadio.getSelection());
-
-		AutomaticUpdatePlugin.getDefault().savePluginPreferences();
+		AutomaticUpdatePlugin.savePreferences();
 
 		AutomaticUpdatePlugin.getDefault().getScheduler().rescheduleUpdate();
 		return true;
 	}
 
-	private int getDay(Preferences pref, boolean useDefault) {
-		String day = useDefault ? pref.getDefaultString(AutomaticUpdateScheduler.P_DAY) : pref.getString(AutomaticUpdateScheduler.P_DAY);
+	private int getDay(Preferences pref) {
+		String day = pref.get(AutomaticUpdateScheduler.P_DAY, "");
 		for (int i = 0; i < AutomaticUpdateScheduler.DAYS.length; i++)
 			if (AutomaticUpdateScheduler.DAYS[i].equals(day))
 				return i;
 		return 0;
 	}
 
-	private int getHour(Preferences pref, boolean useDefault) {
-		String hour = useDefault ? pref.getDefaultString(AutomaticUpdateScheduler.P_HOUR) : pref.getString(AutomaticUpdateScheduler.P_HOUR);
+	private int getHour(Preferences pref) {
+		String hour = pref.get(AutomaticUpdateScheduler.P_HOUR, "");
 		for (int i = 0; i < AutomaticUpdateScheduler.HOURS.length; i++)
 			if (AutomaticUpdateScheduler.HOURS[i].equals(hour))
 				return i;

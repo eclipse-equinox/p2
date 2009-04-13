@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * Activator class for the automatic updates plugin
@@ -31,6 +37,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	private AutomaticUpdater updater;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
+	public static final String PREFERENCE_ROOT = "/profile/_SELF_/"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
@@ -49,6 +56,22 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			}
 		}
 		return null;
+	}
+	
+	static Preferences getPreferences() {
+		return Platform.getPreferencesService().getRootNode().node(PREFERENCE_ROOT + PLUGIN_ID);
+	}
+	
+	static Preferences getDefaultPreferences() {
+		return new DefaultScope().getNode(PLUGIN_ID);
+	}
+	
+	static void savePreferences() {
+		try {
+			getPreferences().flush();
+		} catch (BackingStoreException e) {
+			ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG); 
+		}
 	}
 
 	/**
@@ -83,6 +106,8 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		
+		PreferenceInitializer.migratePreferences();
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
