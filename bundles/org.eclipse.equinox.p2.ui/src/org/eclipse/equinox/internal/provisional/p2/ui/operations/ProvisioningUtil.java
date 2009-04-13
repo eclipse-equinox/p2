@@ -322,6 +322,8 @@ public class ProvisioningUtil {
 			try {
 				ProvisioningOperationRunner.suppressRestart(true);
 				configChanger.applyConfiguration();
+				// The profile has changed, so we need a new snapshot.
+				profile = getProfile(profile.getProfileId());
 			} catch (IOException e) {
 				mon.done();
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_InstallPlanConfigurationError, e);
