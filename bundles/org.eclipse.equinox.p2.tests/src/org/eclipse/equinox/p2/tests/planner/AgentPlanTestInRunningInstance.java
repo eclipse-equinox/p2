@@ -24,12 +24,13 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
+	private IProfile initialProfile = null;
 
 	public void setUp() throws Exception {
 		super.setUp();
 
-		IProfile profile = getProfile(IProfileRegistry.SELF);
-		if (profile != null)
+		initialProfile = getProfile(IProfileRegistry.SELF);
+		if (initialProfile != null)
 			return;
 
 		if (System.getProperty("eclipse.p2.profile") == null) {
@@ -44,21 +45,29 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 				fail();
 			}
 		}
-		profile = createProfile("agent");
+		createProfile("agent");
 	}
 
 	public void tearDown() throws Exception {
-		if (System.getProperty("eclipse.p2.profile") == null) {
-			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-			try {
-				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-				selfField.setAccessible(true);
-				Object self = selfField.get(profileRegistry);
-				if (self.equals("agent"))
-					selfField.set(profileRegistry, null);
-			} catch (Throwable t) {
-				// ignore as we still want to continue tidying up
+		if (initialProfile == null) {
+			if (System.getProperty("eclipse.p2.profile") == null) {
+				SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+				try {
+					Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+					selfField.setAccessible(true);
+					Object self = selfField.get(profileRegistry);
+					if (self.equals("agent"))
+						selfField.set(profileRegistry, null);
+				} catch (Throwable t) {
+					// ignore as we still want to continue tidying up
+				}
 			}
+		} else {
+			//After the test we clean up the profile
+			IProfile profileAfterTestRun = getProfile(IProfileRegistry.SELF);
+			ProvisioningPlan rollbackPlan = createPlanner().getDiffPlan(profileAfterTestRun, initialProfile, new NullProgressMonitor());
+			assertOK("rollback plan", rollbackPlan.getStatus());
+			assertOK("rollback execution", PlanExecutionHelper.executePlan(rollbackPlan, createEngine(), new ProvisioningContext(), new NullProgressMonitor()));
 		}
 		super.tearDown();
 	}
