@@ -11,17 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
-
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
@@ -142,6 +140,8 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IStatus validateRepositoryLocation(URI location, IProgressMonitor monitor) {
+		if (!location.isAbsolute())
+			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.repoMan_relativeLocation, location.toString()), null);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return Status.OK_STATUS;
