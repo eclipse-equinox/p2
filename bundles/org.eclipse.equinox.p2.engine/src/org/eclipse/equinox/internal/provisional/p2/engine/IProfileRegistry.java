@@ -100,7 +100,7 @@ public interface IProfileRegistry {
 	/**
 	 * Check if the given profile from this profile registry is up-to-date.
 	 * 
-	 * @param the profile to check
+	 * @param profile the profile to check
 	 * @return boolean  true if the profile is current; false otherwise.
 	 */
 	public boolean isCurrent(IProfile profile);
