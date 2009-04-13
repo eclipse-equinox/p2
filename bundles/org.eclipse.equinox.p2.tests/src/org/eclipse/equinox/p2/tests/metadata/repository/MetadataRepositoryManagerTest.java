@@ -384,6 +384,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("4.99", e);
 		}
+		IStatus result = manager.validateRepositoryLocation(location, null);
+		assertEquals("2.0", IStatus.ERROR, result.getSeverity());
 	}
 
 	/**
