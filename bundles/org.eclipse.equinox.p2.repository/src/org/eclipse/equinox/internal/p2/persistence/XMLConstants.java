@@ -29,6 +29,7 @@ public interface XMLConstants {
 	public static final String PROPERTY_ELEMENT = "property"; //$NON-NLS-1$
 	public static final String PROPERTY_NAME_ATTRIBUTE = "name"; //$NON-NLS-1$
 	public static final String PROPERTY_VALUE_ATTRIBUTE = "value"; //$NON-NLS-1$
+	public static final String[] PROPERTY_ATTRIBUTES = new String[] {PROPERTY_NAME_ATTRIBUTE, PROPERTY_VALUE_ATTRIBUTE};
 
 	// Constants for the names of common general attributes
 	public static final String ID_ATTRIBUTE = "id"; //$NON-NLS-1$

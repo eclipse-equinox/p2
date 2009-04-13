@@ -297,13 +297,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		/**
-		 * Parse the attributes of an element with two required attributes.
-		 */
-		protected String[] parseRequiredAttributes(Attributes attributes, String name1, String name2) {
-			return parseRequiredAttributes(attributes, new String[] {name1, name2});
-		}
-
-		/**
 		 * Parse the attributes of an element with only required attributes.
 		 */
 		protected String[] parseRequiredAttributes(Attributes attributes, String[] required) {
@@ -434,7 +427,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		private String[] parseProperty(Attributes attributes) {
-			return parseRequiredAttributes(attributes, PROPERTY_NAME_ATTRIBUTE, PROPERTY_VALUE_ATTRIBUTE);
+			return parseRequiredAttributes(attributes, PROPERTY_ATTRIBUTES);
 		}
 
 		private boolean isValidProperty(String[] property) {

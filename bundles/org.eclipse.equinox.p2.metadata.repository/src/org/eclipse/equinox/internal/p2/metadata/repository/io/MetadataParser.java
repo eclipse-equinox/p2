@@ -104,8 +104,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class InstallableUnitHandler extends AbstractHandler {
-		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
-		private final String[] optional = new String[] {SINGLETON_ATTRIBUTE};
 
 		InstallableUnitDescription currentUnit = null;
 
@@ -133,7 +131,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public InstallableUnitHandler(AbstractHandler parentHandler, Attributes attributes, List units) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
-			String[] values = parseAttributes(attributes, required, optional);
+			String[] values = parseAttributes(attributes, REQUIRED_IU_ATTRIBUTES, OPTIONAL_IU_ATTRIBUTES);
 			this.units = units;
 			//skip entire IU if the id is missing
 			if (values[0] == null)
@@ -484,11 +482,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilityHandler extends AbstractHandler {
-		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 		public ProvidedCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List capabilities) {
 			super(parentHandler, PROVIDED_CAPABILITY_ELEMENT);
-			String[] values = parseRequiredAttributes(attributes, required);
+			String[] values = parseRequiredAttributes(attributes, REQUIRED_PROVIDED_CAPABILITY_ATTRIBUTES);
 			Version version = checkVersion(PROVIDED_CAPABILITY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 			capabilities.add(MetadataFactory.createProvidedCapability(values[0], values[1], version));
 		}
@@ -565,8 +562,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequiredCapabilityHandler extends AbstractHandler {
-		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
-		private final String[] optional = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
 
 		private IRequiredCapability currentCapability = null;
 
@@ -575,7 +570,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public RequiredCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List capabilities) {
 			super(parentHandler, REQUIRED_CAPABILITY_ELEMENT);
-			String[] values = parseAttributes(attributes, required, optional);
+			String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, OPTIONAL_CAPABILITY_ATTRIBUTES);
 			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
 			boolean isOptional = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
 			boolean isMultiple = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();

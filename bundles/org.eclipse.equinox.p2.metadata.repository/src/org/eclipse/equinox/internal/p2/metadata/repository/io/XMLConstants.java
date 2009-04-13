@@ -42,6 +42,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String REQUIRED_CAPABILITY_ELEMENT = "required"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITIES_ELEMENT = "provides"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITY_ELEMENT = "provided"; //$NON-NLS-1$
+	public static final String[] REQUIRED_PROVIDED_CAPABILITY_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
 	public static final String TOUCHPOINT_TYPE_ELEMENT = "touchpoint"; //$NON-NLS-1$
 	public static final String TOUCHPOINT_DATA_ELEMENT = "touchpointData"; //$NON-NLS-1$
 	public static final String IU_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
@@ -58,6 +59,8 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	// Constants for attributes of an installable unit element
 	public static final String SINGLETON_ATTRIBUTE = "singleton"; //$NON-NLS-1$
 	public static final String FRAGMENT_ATTRIBUTE = "fragment"; //$NON-NLS-1$
+	public static final String[] REQUIRED_IU_ATTRIBUTES = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
+	public static final String[] OPTIONAL_IU_ATTRIBUTES = new String[] {SINGLETON_ATTRIBUTE};
 
 	// Constants for sub-elements of a required capability element
 	public static final String CAPABILITY_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
@@ -68,6 +71,8 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$
 	public static final String CAPABILITY_MULTIPLE_ATTRIBUTE = "multiple"; //$NON-NLS-1$
 	public static final String CAPABILITY_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
+	public static final String[] REQIURED_CAPABILITY_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
+	public static final String[] OPTIONAL_CAPABILITY_ATTRIBUTES = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
 
 	// Constants for attributes of an artifact key element
 	public static final String ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE = "classifier"; //$NON-NLS-1$
@@ -82,4 +87,5 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 
 	// Constants for attributes of an update descriptor
 	public static final String UPDATE_DESCRIPTOR_SEVERITY = "severity"; //$NON-NLS-1$
+
 }
