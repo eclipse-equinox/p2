@@ -116,7 +116,7 @@ public abstract class AbstractApplication {
 
 	private IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr) throws ProvisionException {
 		try {
-			if (mgr.contains(toInit.getRepoLocation()))
+			if (!mgr.contains(toInit.getRepoLocation()))
 				metadataReposToRemove.add(toInit.getRepoLocation());
 			IMetadataRepository repository = mgr.loadRepository(toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
 			if (repository != null && repository.isModifiable()) {
@@ -149,7 +149,7 @@ public abstract class AbstractApplication {
 
 	private IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
 		try {
-			if (mgr.contains(toInit.getRepoLocation()))
+			if (!mgr.contains(toInit.getRepoLocation()))
 				artifactReposToRemove.add(toInit.getRepoLocation());
 			IArtifactRepository repository = mgr.loadRepository(toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
 			if (repository != null && repository.isModifiable()) {
