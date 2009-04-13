@@ -147,8 +147,8 @@ public class P2Util {
 									.toArray(new IInstallableUnit[iusWithUpdates
 											.size()]));
 					changeRequest
-							.addInstallableUnits((IInstallableUnit[]) iusWithUpdates
-									.toArray(new IInstallableUnit[iusWithUpdates
+							.addInstallableUnits((IInstallableUnit[]) replacementIUs
+									.toArray(new IInstallableUnit[replacementIUs
 											.size()]));
 					ProvisioningPlan plan = planner.getProvisioningPlan(
 							changeRequest, pc, sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS));
