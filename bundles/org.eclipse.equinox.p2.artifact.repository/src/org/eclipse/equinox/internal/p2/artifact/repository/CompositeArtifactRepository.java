@@ -23,9 +23,9 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -157,7 +157,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			save();
 		try {
 			IArtifactRepository repo = load(childURI);
-			loadedRepos.add(repo);
+			loadedRepos.add(new ChildInfo(repo));
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}
@@ -189,10 +189,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
-			IArtifactRepository found = null;
+			ChildInfo found = null;
 			for (Iterator iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
-				IArtifactRepository current = (IArtifactRepository) iter.next();
-				URI repoLocation = current.getLocation();
+				ChildInfo current = (ChildInfo) iter.next();
+				URI repoLocation = current.repo.getLocation();
 				if (URIUtil.sameURI(childURI, repoLocation))
 					found = current;
 				else if (URIUtil.sameURI(other, repoLocation))
@@ -263,8 +263,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public boolean contains(IArtifactKey key) {
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			if (current.contains(key))
+			ChildInfo current = (ChildInfo) repositoryIterator.next();
+			if (current.isGood() && current.repo.contains(key))
 				return true;
 		}
 		return false;
@@ -272,8 +272,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public boolean contains(IArtifactDescriptor descriptor) {
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			if (current.contains(descriptor))
+			ChildInfo current = (ChildInfo) repositoryIterator.next();
+			if (current.isGood() && current.repo.contains(descriptor))
 				return true;
 		}
 		return false;
@@ -282,10 +282,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		ArrayList result = new ArrayList();
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			IArtifactDescriptor[] tempResult = current.getArtifactDescriptors(key);
-			for (int i = 0; i < tempResult.length; i++)
-				add(result, tempResult[i]);
+			ChildInfo current = (ChildInfo) repositoryIterator.next();
+			if (current.isGood()) {
+				IArtifactDescriptor[] tempResult = current.repo.getArtifactDescriptors(key);
+				for (int i = 0; i < tempResult.length; i++)
+					add(result, tempResult[i]);
+			}
 		}
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
 	}
@@ -293,10 +295,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IArtifactKey[] getArtifactKeys() {
 		ArrayList result = new ArrayList();
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			IArtifactKey[] tempResult = current.getArtifactKeys();
-			for (int i = 0; i < tempResult.length; i++)
-				add(result, tempResult[i]);
+			ChildInfo current = (ChildInfo) repositoryIterator.next();
+			if (current.isGood()) {
+				IArtifactKey[] tempResult = current.repo.getArtifactKeys();
+				for (int i = 0; i < tempResult.length; i++)
+					add(result, tempResult[i]);
+			}
 		}
 		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
 	}
@@ -305,7 +309,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext() && requests.length > 0;) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
+			IArtifactRepository current = ((ChildInfo) repositoryIterator.next()).repo;
 			IArtifactRequest[] applicable = getRequestsForRepository(current, requests);
 			IStatus dlStatus = current.getArtifacts(applicable, subMonitor.newChild(requests.length));
 			multiStatus.add(dlStatus);
@@ -313,36 +317,46 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				return multiStatus;
 			requests = filterUnfetched(requests);
 			subMonitor.setWorkRemaining(requests.length);
+
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 		}
 		return multiStatus;
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, loadedRepos.size());
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
-		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			IStatus status = current.getArtifact(descriptor, destination, subMonitor.newChild(1));
-			if (status.isOK())
-				return status;
-			//getArtifact failed
-			multiStatus.add(status);
-		}
-		return multiStatus;
+		return getRawOrNormalArtifact(descriptor, destination, monitor, false);
 	}
 
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, loadedRepos.size());
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
-		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
-			IStatus status = current.getRawArtifact(descriptor, destination, subMonitor.newChild(1));
-			if (status.isOK())
-				return status;
-			//getRawArtifact failed
-			multiStatus.add(status);
+		return getRawOrNormalArtifact(descriptor, destination, monitor, true);
+	}
+
+	private IStatus getRawOrNormalArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor, boolean raw) {
+		for (Iterator childIterator = loadedRepos.iterator(); childIterator.hasNext();) {
+			ChildInfo current = (ChildInfo) childIterator.next();
+			if (current.isGood() && current.repo.contains(descriptor)) {
+				// Child hasn't failed & contains descriptor
+				IStatus status = raw ? current.repo.getRawArtifact(descriptor, destination, monitor) : current.repo.getArtifact(descriptor, destination, monitor);
+				if (!status.isOK()) {
+					// Download failed
+					if (status.getCode() == CODE_RETRY || status.getCode() == IStatus.CANCEL)
+						// Child has mirrors & wants to be retried, or we were canceled
+						return status;
+					// Child has failed us, mark it bad
+					current.setBad();
+					if (childIterator.hasNext())
+						// More children are available, set retry
+						return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, current.repo.getLocation(), descriptor.getArtifactKey()), null);
+					// Nothing that can be done, pass child's failure on
+					return status;
+				}
+				return Status.OK_STATUS;
+			}
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
 		}
-		return multiStatus;
+		return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor));
 	}
 
 	private IArtifactRequest[] filterUnfetched(IArtifactRequest[] requests) {
@@ -430,7 +444,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	private boolean isSane(IArtifactRepository toCheckRepo, String comparatorID) {
 		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = (IArtifactRepository) repositoryIterator.next();
+			IArtifactRepository current = ((ChildInfo) repositoryIterator.next()).repo;
 			if (!current.equals(toCheckRepo)) {
 				if (!isSane(toCheckRepo, current, comparator))
 					return false;
@@ -477,13 +491,30 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 */
 	public boolean validate(String comparatorID) {
 		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
-		IArtifactRepository[] repos = (IArtifactRepository[]) loadedRepos.toArray(new IArtifactRepository[loadedRepos.size()]);
+		ChildInfo[] repos = (ChildInfo[]) loadedRepos.toArray(new ChildInfo[loadedRepos.size()]);
 		for (int outer = 0; outer < repos.length; outer++) {
 			for (int inner = outer + 1; inner < repos.length; inner++) {
-				if (!isSane(repos[outer], repos[inner], comparator))
+				if (!isSane(repos[outer].repo, repos[inner].repo, comparator))
 					return false;
 			}
 		}
 		return true;
+	}
+
+	private static class ChildInfo {
+		IArtifactRepository repo;
+		boolean good = true;
+
+		ChildInfo(IArtifactRepository IArtifactRepository) {
+			this.repo = IArtifactRepository;
+		}
+
+		void setBad() {
+			good = false;
+		}
+
+		boolean isGood() {
+			return good;
+		}
 	}
 }

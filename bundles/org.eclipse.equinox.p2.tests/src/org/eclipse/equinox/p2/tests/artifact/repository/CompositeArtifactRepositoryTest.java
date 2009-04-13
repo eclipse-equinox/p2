@@ -10,25 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
@@ -916,4 +915,201 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	/*
+	 * Test a retry request by the composite repository
+	 */
+	public void testRetryRequest() {
+		URI childLocation = getTestData("Loading test data", "testData/artifactRepo/missingArtifact").toURI();
+		File destination = null;
+		OutputStream out = null;
+		try {
+			destination = new File(getTempFolder(), getUniqueString());
+			out = new FileOutputStream(destination);
+
+			CompositeArtifactRepository repository = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+
+			IArtifactRepository childOne = getArtifactRepositoryManager().loadRepository(childLocation, null);
+			TestArtifactRepository childTwo = new TestArtifactRepository(new URI("memory:/in/memory/two"));
+			// Add to repo manager
+			assertTrue(childTwo.addToRepositoryManager());
+
+			repository.addChild(childOne.getLocation());
+			repository.addChild(childTwo.getLocation());
+
+			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+
+			IStatus status = repository.getArtifact(descriptor, out, new NullProgressMonitor());
+			// We should have a failure
+			assertFalse(status.isOK());
+			// Failure should tell us to retry
+			assertEquals(IArtifactRepository.CODE_RETRY, status.getCode());
+
+			status = repository.getArtifact(descriptor, out, new NullProgressMonitor());
+			assertFalse(status.isOK());
+			assertFalse("Requesting retry with no available children", IArtifactRepository.CODE_RETRY == status.getCode());
+		} catch (Exception e) {
+			fail("Exception occurred", e);
+		} finally {
+			getArtifactRepositoryManager().removeRepository(childLocation);
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+					// Don't care
+				}
+			if (destination != null)
+				delete(destination.getParentFile());
+		}
+	}
+
+	/*
+	 * Test a retry request by a child composite repository 
+	 */
+	public void testChildRetryRequest() {
+		class BadMirrorSite extends TestArtifactRepository {
+			int downloadAttempts = 0;
+
+			public BadMirrorSite(URI location) {
+				super(location);
+				addToRepositoryManager();
+			}
+
+			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
+				if (++downloadAttempts == 1)
+					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {new Status(IStatus.ERROR, "Test", "Test - Download interrupted")}, "Retry another mirror", null);
+				return Status.OK_STATUS;
+			}
+
+			public boolean contains(IArtifactDescriptor desc) {
+				return true;
+			}
+
+			public boolean contains(IArtifactKey desc) {
+				return true;
+			}
+		}
+
+		IArtifactRepository destination = null;
+		BadMirrorSite child = null;
+		CompositeArtifactRepository source = null;
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+		try {
+			destination = super.createArtifactRepository(getTempFolder().toURI(), null);
+			child = new BadMirrorSite(new URI("memory:/in/memory/child"));
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory/source"), "in memory test", null);
+			source.addChild(child.getLocation());
+
+			// Create mirror request
+			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), destination, null, null);
+			request.setSourceRepository(source);
+			request.perform(new NullProgressMonitor());
+			IStatus status = request.getResult();
+			// The download should have completed 'successfully'
+			assertTrue(status.isOK());
+			// There should have been two download attempts at the child
+			assertEquals(2, child.downloadAttempts);
+		} catch (Exception e) {
+			fail("Exception", e);
+		} finally {
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (child != null)
+				getArtifactRepositoryManager().removeRepository(child.getLocation());
+			if (destination != null) {
+				getArtifactRepositoryManager().removeRepository(destination.getLocation());
+				delete(new File(destination.getLocation()));
+			}
+		}
+	}
+
+	/*
+	 * Test a child returning different bytes
+	 */
+	public void testFailedDownload() {
+		final byte[] contents = "Hello".getBytes();
+		class BadSite extends TestArtifactRepository {
+			File location = new File(getTempFolder(), getUniqueString());
+
+			public BadSite(URI location) {
+				super(location);
+			}
+
+			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
+				super.getArtifact(descriptor, out, monitor);
+				return new Status(IStatus.ERROR, "Test", "Test - Download interrupted");
+			}
+
+			public void addDescriptor(IArtifactDescriptor descriptor) {
+				super.addDescriptor(descriptor);
+				super.addArtifact(descriptor.getArtifactKey(), contents);
+			}
+
+			public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+				try {
+					return new FileOutputStream(location);
+				} catch (Exception e) {
+					fail("Failed to open stream", e);
+					return null;
+				}
+			}
+		}
+		BadSite childOne = null;
+		BadSite dest = null;
+		CompositeArtifactRepository source = null;
+		File destination = null;
+		OutputStream out = null;
+		try {
+			destination = new File(getTempFolder(), getUniqueString());
+			out = new FileOutputStream(destination);
+
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+
+			// Create 'bad' child which returns an error in transfer
+			childOne = new BadSite(new URI("memory:/in/memory/one"));
+			childOne.addDescriptor(descriptor);
+			childOne.addToRepositoryManager();
+			source.addChild(childOne.getLocation());
+
+			// Create 'good' child which downloads successfully
+			TestArtifactRepository childTwo = new TestArtifactRepository(new URI("memory:/in/memory/two"));
+			childTwo.addDescriptor(descriptor);
+			childTwo.addArtifact(descriptor.getArtifactKey(), contents);
+			childTwo.addToRepositoryManager();
+			source.addChild(childTwo.getLocation());
+
+			// Destination repository
+			dest = new BadSite(new URI("memory:/in/memory/dest"));
+
+			// Create mirror request
+			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), dest, null, null);
+			request.setSourceRepository(source);
+			request.perform(new NullProgressMonitor());
+			IStatus status = request.getResult();
+
+			// We should have OK status
+			assertTrue(status.isOK());
+			// Contents should be equal
+			assertEquals(contents.length, dest.location.length());
+		} catch (Exception e) {
+			fail("Exception occurred", e);
+		} finally {
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+					// Don't care
+				}
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (childOne != null)
+				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			if (dest != null) {
+				getArtifactRepositoryManager().removeRepository(dest.getLocation());
+				delete(dest.location.getParentFile());
+			}
+			if (destination != null)
+				delete(destination.getParentFile());
+		}
+	}
 }

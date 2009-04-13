@@ -66,6 +66,8 @@ public class Messages extends NLS {
 
 	public static String folder_artifact_not_file_repo;
 
+	public static String retryRequest;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

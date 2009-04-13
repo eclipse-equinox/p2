@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -18,9 +19,11 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
@@ -65,8 +68,24 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	};
 
+	public TestArtifactRepository(URI location) {
+		super(NAME, TYPE, VERSION, location, DESCRIPTION, PROVIDER, null);
+	}
+
 	public TestArtifactRepository() {
 		super(NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER, null);
+	}
+
+	public boolean addToRepositoryManager() {
+		try {
+			Method method = AbstractRepositoryManager.class.getDeclaredMethod("addRepository", new Class[] {IRepository.class, boolean.class, String.class});
+			method.setAccessible(true);
+			method.invoke(AbstractProvisioningTest.getArtifactRepositoryManager(), new Object[] {this, false, ""});
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+
 	}
 
 	public void addArtifact(IArtifactKey key, byte[] contents) {
