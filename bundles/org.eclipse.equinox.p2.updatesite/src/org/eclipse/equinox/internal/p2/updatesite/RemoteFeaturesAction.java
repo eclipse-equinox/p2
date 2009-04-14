@@ -34,10 +34,11 @@ public class RemoteFeaturesAction extends FeaturesAction {
 		throw new IllegalArgumentException();
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		try {
+			this.info = publisherInfo;
 			features = updateSite.loadFeatures(monitor);
-			return super.perform(info, results, monitor);
+			return super.perform(publisherInfo, results, monitor);
 		} catch (ProvisionException e) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Error_Generation, updateSite), e);
 		} catch (OperationCanceledException e) {
@@ -46,11 +47,11 @@ public class RemoteFeaturesAction extends FeaturesAction {
 
 	}
 
-	protected void generateFeatureIUs(Feature[] features, IPublisherResult result, IPublisherInfo info) {
+	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
 		Properties extraProperties = new Properties();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
-		for (int i = 0; i < features.length; i++) {
-			Feature feature = features[i];
+		for (int i = 0; i < featureList.length; i++) {
+			Feature feature = featureList[i];
 			FeatureEntry[] featureEntries = feature.getEntries();
 			for (int j = 0; j < featureEntries.length; j++) {
 				FeatureEntry entry = featureEntries[j];

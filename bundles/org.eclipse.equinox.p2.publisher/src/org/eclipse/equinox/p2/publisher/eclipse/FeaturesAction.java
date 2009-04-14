@@ -20,8 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
@@ -34,6 +33,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * Publish IUs for all of the features in the given set of locations.  The locations can
@@ -385,31 +385,39 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result, IPublisherInfo publisherInfo) {
+	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
 		// Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < featureList.length; i++) {
 			Feature feature = featureList[i];
 			//first gather any advice that might help us
-			createBundleShapeAdvice(feature, publisherInfo);
-			createAdviceFileAdvice(feature, publisherInfo);
+			createBundleShapeAdvice(feature, info);
+			createAdviceFileAdvice(feature, info);
 
-			ArrayList childIUs = generateRootFileIUs(feature, result, publisherInfo);
-			IInstallableUnit featureJarIU = generateFeatureJarIU(feature, publisherInfo);
+			ArrayList childIUs = new ArrayList();
+
+			IInstallableUnit featureJarIU = queryForIU(result, getTransformedId(feature.getId(), false, false), new Version(feature.getVersion()));
+			if (featureJarIU == null)
+				featureJarIU = generateFeatureJarIU(feature, info);
+
 			if (featureJarIU != null) {
-				publishFeatureArtifacts(feature, featureJarIU, publisherInfo);
+				publishFeatureArtifacts(feature, featureJarIU, info);
 				result.addIU(featureJarIU, IPublisherResult.NON_ROOT);
 				childIUs.add(featureJarIU);
 			}
 
-			IInstallableUnit groupIU = createGroupIU(feature, childIUs, publisherInfo);
+			IInstallableUnit groupIU = queryForIU(result, getGroupId(feature.getId()), new Version(feature.getVersion()));
+			if (groupIU == null) {
+				childIUs.addAll(generateRootFileIUs(feature, result, info));
+				groupIU = createGroupIU(feature, childIUs, info);
+			}
 			if (groupIU != null) {
 				result.addIU(groupIU, IPublisherResult.ROOT);
-				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(groupIU, publisherInfo);
+				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(groupIU, info);
 				for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
 					result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
 				}
 			}
-			generateSiteReferences(feature, result, publisherInfo);
+			generateSiteReferences(feature, result, info);
 		}
 	}
 
@@ -475,9 +483,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_METADATA, IRepository.NONE);
 			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_ARTIFACT, IRepository.NONE);
 		} catch (URISyntaxException e) {
-			String message = "Invalid site reference: " + location; //$NON-NLS-1$
-			if (featureId != null)
-				message = message + " in feature: " + featureId; //$NON-NLS-1$
+			String message = featureId != null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, featureId);
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 		}
 	}
@@ -635,7 +641,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 				}
 			}
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.exception_errorPublishingArtifacts, e));
 		}
 		return props;
 	}
@@ -644,16 +650,17 @@ public class FeaturesAction extends AbstractPublisherAction {
 		try {
 			props.load(new BufferedInputStream(in));
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing " + file, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorLoadingProperties, file), e));
 		}
 	}
 
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (features == null && locations == null)
-			throw new IllegalStateException("No features or locations provided");
+			throw new IllegalStateException(Messages.exception_noFeaturesOrLocations);
+		this.info = publisherInfo;
 		if (features == null)
 			features = getFeatures(expandLocations(locations));
-		generateFeatureIUs(features, results, publisherInfo);
+		generateFeatureIUs(features, results);
 		return Status.OK_STATUS;
 	}
 

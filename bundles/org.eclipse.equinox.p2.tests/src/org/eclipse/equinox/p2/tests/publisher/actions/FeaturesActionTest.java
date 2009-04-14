@@ -183,6 +183,7 @@ public class FeaturesActionTest extends ActionTest {
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
+		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
