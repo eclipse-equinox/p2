@@ -146,8 +146,12 @@ public class CopyAction extends ProvisioningAction {
 			for (int i = 0; i < children.length; i++)
 				xcopy(copiedFiles, children[i], new File(target, children[i].getName()), overwrite, backupStore);
 			return;
-		} else if (target.exists() && !overwrite)
+		} 
+		if (target.exists() && !overwrite)
 			throw new IOException("Target: " + target + " already exists"); //$NON-NLS-1$//$NON-NLS-2$
+
+		if (!target.getParentFile().exists() && !target.getParentFile().mkdirs())
+			throw new IOException("Target: Path " + target.getParent() + " could not be created"); //$NON-NLS-1$//$NON-NLS-2$
 
 		try {
 			Util.copyStream(new FileInputStream(source), true, new FileOutputStream(target), true);
