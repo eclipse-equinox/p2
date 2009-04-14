@@ -20,8 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * @author Thomas Hallgren
- * @author henrik.lindberg@cloudsmith.com - adaption to 1.4 and to this p2 package
+ * FileReader is an ECF FileTransferJob implementation.
  */
 public class FileReader extends FileTransferJob implements IFileTransferListener {
 	private static IFileReaderProbe testProbe;
@@ -36,7 +35,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
-	private URI uri;
+	private URI requestUri;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
@@ -77,7 +76,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 
 			if (theMonitor != null) {
 				long fileLength = source.getFileLength();
-				statistics = new ProgressStatistics(uri, source.getRemoteFileName(), fileLength);
+				statistics = new ProgressStatistics(requestUri, source.getRemoteFileName(), fileLength);
 				theMonitor.beginTask(null, 1000);
 				theMonitor.subTask(statistics.report());
 				lastStatsCount = 0;
@@ -190,18 +189,6 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		};
 	}
 
-	//	/** Only request info
-	//	 * @deprecated REMOVE THIS METHOD - SHOULD USE BROWSE INSTEAD TO ONLY GET HEAD - ALSO REMOVE PARAMTER ONLYHEAD
-	//	 * @param uri
-	//	 * @return FileInfo
-	//	 * @throws CoreException
-	//	 * @throws FileNotFoundException
-	//	 * @throws AuthenticationFailedException
-	//	 */
-	//	public FileInfo readInfo(URI uri) throws CoreException, FileNotFoundException, AuthenticationFailedException {
-	//		sendRetrieveRequest(uri, null, false, null);
-	//		return getLastFileInfo();
-	//	}
 	public void readInto(URI uri, OutputStream anOutputStream, IProgressMonitor monitor) //
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		readInto(uri, anOutputStream, -1, monitor);
@@ -216,8 +203,6 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		} catch (InterruptedException e) {
 			monitor.setCanceled(true);
 			throw new OperationCanceledException();
-			//		} catch (Throwable t) {
-			//			t.printStackTrace();
 		} finally {
 			if (monitor != null) {
 				if (statistics == null)
@@ -251,7 +236,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		this.lastStatsCount = 0L;
 		this.theMonitor = monitor;
 		this.theOutputStream = outputStream;
-		this.uri = uri;
+		this.requestUri = uri;
 
 		for (int retryCount = 0;;) {
 			if (monitor != null && monitor.isCanceled())
