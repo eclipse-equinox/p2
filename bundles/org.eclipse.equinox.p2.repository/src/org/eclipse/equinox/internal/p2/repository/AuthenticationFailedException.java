@@ -12,7 +12,6 @@ import java.net.ProtocolException;
 
 /**
  * Exception signaling that authentication failed.
- * @author henrik.lindberg@cloudsmith.com
  */
 public class AuthenticationFailedException extends ProtocolException {
 
