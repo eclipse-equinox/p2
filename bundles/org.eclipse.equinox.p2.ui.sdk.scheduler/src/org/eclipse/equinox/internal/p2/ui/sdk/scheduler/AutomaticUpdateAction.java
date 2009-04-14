@@ -47,6 +47,7 @@ final class AutomaticUpdateAction extends UpdateAction {
 	private boolean suppressWizard = false;
 	private PlannerResolutionOperation resolvedOperation;
 	private ProvUIProvisioningListener profileListener;
+	private boolean alreadyOpen = false;
 
 	AutomaticUpdateAction(AutomaticUpdater automaticUpdater,
 			ISelectionProvider selectionProvider, String profileId,
@@ -113,7 +114,12 @@ final class AutomaticUpdateAction extends UpdateAction {
 							.isOK());
 			return Window.OK;
 		}
-		return super.performAction(ius, targetProfileId, resolution);
+		if (alreadyOpen)
+			return Window.CANCEL;
+		alreadyOpen = true;
+		int retCode = super.performAction(ius, targetProfileId, resolution);
+		alreadyOpen = false;
+		return retCode;
 	}
 
 	protected PlanValidator getPlanValidator() {
