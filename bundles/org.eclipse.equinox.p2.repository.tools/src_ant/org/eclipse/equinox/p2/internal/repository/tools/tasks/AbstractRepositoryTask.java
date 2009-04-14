@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 
 public abstract class AbstractRepositoryTask extends Task {
+	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
 	protected AbstractApplication application;
 	protected List iuTasks = new ArrayList();
 	protected List sourceRepos = new ArrayList();
@@ -137,8 +138,10 @@ public abstract class AbstractRepositoryTask extends Task {
 						}
 					}
 				} else {
-					application.addSourceArtifactRepository(fileset.location);
-					application.addSourceMetadataRepository(fileset.location);
+					if (!fileset.location.startsWith(ANT_PREFIX)) {
+						application.addSourceArtifactRepository(fileset.location);
+						application.addSourceMetadataRepository(fileset.location);
+					}
 				}
 			}
 		}

@@ -17,9 +17,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.DownloadManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -35,6 +39,71 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
  * @since 1.0
  */
 public class Repo2Runnable extends AbstractApplication implements IApplication {
+	private static final String NATIVE_ARTIFACTS = "nativeArtifacts"; //$NON-NLS-1$
+	private static final String NATIVE_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
+	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
+
+	protected class CollectNativesAction extends ProvisioningAction {
+		public IStatus execute(Map parameters) {
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
+			IInstallableUnit installableUnit = operand.second();
+
+			IArtifactRepositoryManager manager = null;
+			try {
+				manager = Activator.getArtifactRepositoryManager();
+			} catch (ProvisionException e) {
+				return e.getStatus();
+			}
+
+			IArtifactKey[] toDownload = installableUnit.getArtifacts();
+			if (toDownload == null)
+				return Status.OK_STATUS;
+
+			List artifactRequests = (List) parameters.get(NATIVE_ARTIFACTS);
+
+			for (int i = 0; i < toDownload.length; i++) {
+				IArtifactRequest request = manager.createMirrorRequest(toDownload[i], destinationArtifactRepository, null, null);
+				artifactRequests.add(request);
+			}
+			return Status.OK_STATUS;
+		}
+
+		public IStatus undo(Map parameters) {
+			// nothing to do for now
+			return Status.OK_STATUS;
+		}
+	}
+
+	protected class CollectNativesPhase extends InstallableUnitPhase {
+		public CollectNativesPhase(int weight) {
+			super(NATIVE_ARTIFACTS, weight);
+		}
+
+		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+			IInstallableUnit unit = operand.second();
+			if (unit.getTouchpointType().getId().equals(NATIVE_TYPE)) {
+				return new ProvisioningAction[] {new CollectNativesAction()};
+			}
+			return null;
+		}
+
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			parameters.put(NATIVE_ARTIFACTS, new ArrayList());
+			return null;
+		}
+
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			List artifactRequests = (List) parameters.get(NATIVE_ARTIFACTS);
+			ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
+
+			DownloadManager dm = new DownloadManager(context);
+			for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
+				dm.add((IArtifactRequest) it.next());
+			}
+			return dm.start(monitor);
+		}
+	}
+
 	// the list of IUs that we actually transformed... could have come from the repo 
 	// or have been user-specified.
 	private Collection processedIUs = new ArrayList();
@@ -65,7 +134,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			PhaseSet phaseSet = getPhaseSet();
 			Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
 			if (engine == null)
-				throw new ProvisionException("Unable to acquire engine service.");
+				throw new ProvisionException(Messages.exception_noEngineService);
 			IStatus result = engine.perform(profile, phaseSet, operands, context, progress.newChild(1));
 			if (result.matches(IStatus.ERROR))
 				return result;
@@ -83,7 +152,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	}
 
 	protected PhaseSet getPhaseSet() {
-		return new PhaseSet(new Phase[] {new Collect(100)}) { /* nothing to override */};
+		return new PhaseSet(new Phase[] {new Collect(100), new CollectNativesPhase(100)}) { /* nothing to override */};
 	}
 
 	/*
@@ -97,19 +166,19 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		}
 		// get all IUs from the repos
 		if (sourceMetadataRepositories == null || sourceMetadataRepositories.isEmpty())
-			throw new ProvisionException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
+			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 		for (Iterator iter = sourceMetadataRepositories.iterator(); iter.hasNext();) {
 			processedIUs.addAll(getAllIUs((URI) iter.next(), monitor).toCollection());
 		}
 		if (processedIUs.isEmpty())
-			throw new ProvisionException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
+			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 	}
 
 	/*
 	 * If there is a destination metadata repository set, then add all our transformed
 	 * IUs to it. 
 	 */
-	private void publishMetadata(IProgressMonitor monitor) throws ProvisionException {
+	private void publishMetadata(IProgressMonitor monitor) {
 		// publishing the metadata is optional
 		if (destinationMetadataRepository == null)
 			return;
@@ -198,9 +267,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 */
 	private void validate() throws ProvisionException {
 		if (sourceMetadataRepositories == null && sourceIUs == null)
-			throw new ProvisionException("Need to set the source metadata repository location or set a list of IUs to process.");
+			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 		if (destinationArtifactRepository == null)
-			throw new ProvisionException("Need to set the destination artifact repository location.");
+			throw new ProvisionException(Messages.exception_needDestinationRepo);
 	}
 
 	/* (non-Javadoc)

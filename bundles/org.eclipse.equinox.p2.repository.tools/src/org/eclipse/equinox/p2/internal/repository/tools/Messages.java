@@ -17,6 +17,10 @@ public class Messages extends NLS {
 	public static String exception_destinationNotModifiable;
 	public static String exception_unableToRemoveRepo;
 	public static String exception_notLocalFileRepo;
+	public static String exception_noEngineService;
+	public static String exception_needIUsOrNonEmptyRepo;
+	public static String exception_needDestinationRepo;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
