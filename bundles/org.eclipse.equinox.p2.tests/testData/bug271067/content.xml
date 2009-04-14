@@ -6,7 +6,7 @@
     <property name='p2.timestamp' value='1239642015050'/>
   </properties>
   <units size='11'>
-    <unit id='hello' version='1.0.0.1'>
+    <unit id='hello' version='1.0.0.1' singleton='true'>
       <update id='hello' range='[0.0.0,1.0.0.1)' severity='0'/>
       <properties size='1'>
         <property name='org.eclipse.equinox.p2.name' value='Hello Plug-in'/>
@@ -121,7 +121,7 @@
         [Enter Copyright Description here.]
       </copyright>
     </unit>
-    <unit id='hello' version='1.0.2'>
+    <unit id='hello' version='1.0.2' singleton='true'>
       <update id='hello' range='[0.0.0,1.0.2)' severity='0'/>
       <properties size='1'>
         <property name='org.eclipse.equinox.p2.name' value='Hello Plug-in'/>
@@ -129,14 +129,13 @@
       <provides size='3'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='hello' version='1.0.2'/>
         <provided namespace='osgi.bundle' name='hello' version='1.0.2'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
       </provides>
       <requires size='2'>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
       </requires>
     </unit>
-    <unit id='hello' version='1.0.0'>
+    <unit id='hello' version='1.0.0' singleton='true'>
       <update id='hello' range='[0.0.0,1.0.0)' severity='0'/>
       <properties size='1'>
         <property name='org.eclipse.equinox.p2.name' value='Hello Plug-in'/>
@@ -210,7 +209,6 @@
       </properties>
       <provides size='3'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='hello.feature.2.feature.jar' version='1.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
       </provides>
       <filter>
         (org.eclipse.update.install.features=true)
