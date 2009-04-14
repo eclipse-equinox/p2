@@ -28,14 +28,14 @@ public class Bug271067 extends AbstractProvisioningTest {
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		//Tweak the running profile registry
-		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
-		profilesMapField.setAccessible(true);
-		profilesMapField.set(realProfileRegistry, null);
-
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
 		previousStoreValue = (File) profileStore.get(realProfileRegistry);
 		profileStore.set(realProfileRegistry, tempFolder);
+
+		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
+		profilesMapField.setAccessible(true);
+		profilesMapField.set(realProfileRegistry, null);
 		//End of tweaking the profile registry
 
 		profile = realProfileRegistry.getProfile(profileLoadedId);
@@ -53,7 +53,6 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
-		previousStoreValue = (File) profileStore.get(realProfileRegistry);
 		profileStore.set(realProfileRegistry, previousStoreValue);
 		super.tearDown();
 	}
