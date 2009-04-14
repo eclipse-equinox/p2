@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -17,6 +18,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
@@ -1269,6 +1271,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 		} finally {
 			reader.close();
+		}
+	}
+
+	public void clearProfileMap(SimpleProfileRegistry profileRegistry) {
+		try {
+			Field profilesMap = SimpleProfileRegistry.class.getDeclaredField("profiles");
+			profilesMap.setAccessible(true);
+			profilesMap.set(profileRegistry, null);
+		} catch (Throwable t) {
+			fail();
 		}
 	}
 }
