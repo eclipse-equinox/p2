@@ -10,6 +10,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -18,6 +19,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 	private IProfile profile;
 	private File previousStoreValue = null;
 	String profileLoadedId = "bootProfile";
+	IMetadataRepository repo = null;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -38,7 +40,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		profile = realProfileRegistry.getProfile(profileLoadedId);
 		assertNotNull(profile);
-		loadMetadataRepository(getTestData("Repository for 271067", "testData/bug271067/").toURI());
+		repo = loadMetadataRepository(getTestData("Repository for 271067", "testData/bug271067/").toURI());
 	}
 
 	@Override
@@ -56,26 +58,115 @@ public class Bug271067 extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	public void testInstallFeaturePatch() {
-		Collector c = getMetadataRepositoryManager().query(new InstallableUnitQuery("hello.feature.1.feature.group"), new Collector(), new NullProgressMonitor());
+	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
+		Collector c = repo.query(new InstallableUnitQuery(id, new Version(version)), new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		Collector c2 = getMetadataRepositoryManager().query(new InstallableUnitQuery("hello.patch.feature.group"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, c2.size());
-		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(profile);
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c.iterator().next(), (IInstallableUnit) c2.iterator().next()});
-		installFeature1.setInstallableUnitInclusionRules((IInstallableUnit) c.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c.iterator().next()));
-		installFeature1.setInstallableUnitInclusionRules((IInstallableUnit) c2.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c2.iterator().next()));
+		return (IInstallableUnit) c.iterator().next();
+	}
+
+	public void testInstallFeaturePatch() {
+		// hello.feature.2.feature.group 1.0.0, , hello 1.0.2, hello 1.0.0,  hello.feature.2.feature.jar 1.0.0]
+		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(getProfile(profileLoadedId));
+		IInstallableUnit featureGroup = getIU(repo, "hello.feature.1.feature.group", "1.0.0");
+		IInstallableUnit featureJar = getIU(repo, "hello.feature.1.feature.jar", "1.0.0");
+		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.0");
+		IInstallableUnit patch = getIU(repo, "hello.patch.feature.group", "1.0.0");
+		IInstallableUnit helloPatch = getIU(repo, "hello", "1.0.0.1");
+		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
+
+		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+
+		installFeature1.setInstallableUnitInclusionRules(featureGroup, PlannerHelper.createOptionalInclusionRule(featureGroup));
+		installFeature1.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
+		installFeature1.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
+		installFeature1.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
+		installFeature1.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
+		installFeature1.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
+
 		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
 		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
 
-		Collector c3 = getMetadataRepositoryManager().query(new InstallableUnitQuery("hello.feature.2.feature.group"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, c3.size());
-		ProfileChangeRequest installFeature2 = new ProfileChangeRequest(profile);
-		installFeature2.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c3.iterator().next()});
-		installFeature2.setInstallableUnitInclusionRules((IInstallableUnit) c3.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c.iterator().next()));
+		IInstallableUnit featureGroup2 = getIU(repo, "hello.feature.2.feature.group", "1.0.0");
+		IInstallableUnit helloIU2 = getIU(repo, "hello", "1.0.2");
+		IInstallableUnit featureJar2 = getIU(repo, "hello.feature.2.feature.jar", "1.0.0");
+
+		ProfileChangeRequest installFeature2 = new ProfileChangeRequest(getProfile(profileLoadedId));
+		installFeature2.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2});
+		installFeature2.setInstallableUnitInclusionRules(featureGroup2, PlannerHelper.createOptionalInclusionRule(featureGroup2));
+		installFeature2.setInstallableUnitInclusionRules(helloIU2, PlannerHelper.createOptionalInclusionRule(helloIU2));
+		installFeature2.setInstallableUnitInclusionRules(featureJar2, PlannerHelper.createOptionalInclusionRule(featureJar2));
+
 		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
-		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
+		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.2")), new Collector(), new NullProgressMonitor()).size());
+	}
+
+	public void testInstallFeaturePatchReverseOrder() {
+		IInstallableUnit featureGroup2 = getIU(repo, "hello.feature.2.feature.group", "1.0.0");
+		IInstallableUnit helloIU2 = getIU(repo, "hello", "1.0.2");
+		IInstallableUnit featureJar2 = getIU(repo, "hello.feature.2.feature.jar", "1.0.0");
+
+		ProfileChangeRequest installFeature2 = new ProfileChangeRequest(getProfile(profileLoadedId));
+		installFeature2.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2});
+		installFeature2.setInstallableUnitInclusionRules(featureGroup2, PlannerHelper.createOptionalInclusionRule(featureGroup2));
+		installFeature2.setInstallableUnitInclusionRules(helloIU2, PlannerHelper.createOptionalInclusionRule(helloIU2));
+		installFeature2.setInstallableUnitInclusionRules(featureJar2, PlannerHelper.createOptionalInclusionRule(featureJar2));
+
+		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
+		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.2")), new Collector(), new NullProgressMonitor()).size());
+
+		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(getProfile(profileLoadedId));
+		IInstallableUnit featureGroup = getIU(repo, "hello.feature.1.feature.group", "1.0.0");
+		IInstallableUnit featureJar = getIU(repo, "hello.feature.1.feature.jar", "1.0.0");
+		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.0");
+		IInstallableUnit patch = getIU(repo, "hello.patch.feature.group", "1.0.0");
+		IInstallableUnit helloPatch = getIU(repo, "hello", "1.0.0.1");
+		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
+
+		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+
+		installFeature1.setInstallableUnitInclusionRules(featureGroup, PlannerHelper.createOptionalInclusionRule(featureGroup));
+		installFeature1.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
+		installFeature1.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
+		installFeature1.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
+		installFeature1.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
+		installFeature1.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
+
+		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
 		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+	}
+
+	public void installTogether() {
+		IInstallableUnit featureGroup2 = getIU(repo, "hello.feature.2.feature.group", "1.0.0");
+		IInstallableUnit helloIU2 = getIU(repo, "hello", "1.0.2");
+		IInstallableUnit featureJar2 = getIU(repo, "hello.feature.2.feature.jar", "1.0.0");
+
+		IInstallableUnit featureGroup = getIU(repo, "hello.feature.1.feature.group", "1.0.0");
+		IInstallableUnit featureJar = getIU(repo, "hello.feature.1.feature.jar", "1.0.0");
+		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.0");
+		IInstallableUnit patch = getIU(repo, "hello.patch.feature.group", "1.0.0");
+		IInstallableUnit helloPatch = getIU(repo, "hello", "1.0.0.1");
+		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
+
+		ProfileChangeRequest installEverything = new ProfileChangeRequest(getProfile(profileLoadedId));
+		installEverything.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2, featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+		installEverything.setInstallableUnitInclusionRules(featureGroup2, PlannerHelper.createOptionalInclusionRule(featureGroup2));
+		installEverything.setInstallableUnitInclusionRules(helloIU2, PlannerHelper.createOptionalInclusionRule(helloIU2));
+		installEverything.setInstallableUnitInclusionRules(featureJar2, PlannerHelper.createOptionalInclusionRule(featureJar2));
+
+		installEverything.setInstallableUnitInclusionRules(featureGroup, PlannerHelper.createOptionalInclusionRule(featureGroup));
+		installEverything.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
+		installEverything.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
+		installEverything.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
+		installEverything.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
+		installEverything.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
+
+		ProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(), null);
+		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+
 	}
 }
