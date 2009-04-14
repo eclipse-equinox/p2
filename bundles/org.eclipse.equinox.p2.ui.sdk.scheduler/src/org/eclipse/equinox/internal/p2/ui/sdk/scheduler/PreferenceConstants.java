@@ -23,4 +23,5 @@ public class PreferenceConstants {
 	public static final String PREF_REMIND_SCHEDULE = "remindOnSchedule"; // value is true or false //$NON-NLS-1$
 	public static final String PREF_REMIND_ELAPSED = "remindElapsedTime";//$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_INIT = "autoUpdateInit"; //$NON-NLS-1$
+	public static final String PREF_MIGRATED_34 = "migrated34Prefs"; //$NON-NLS-1$
 }
