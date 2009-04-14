@@ -24,6 +24,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SPIMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
 		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
+		suite.addTestSuite(ResumeDownloadTest.class);
 		return suite;
 	}
 

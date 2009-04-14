@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
+import java.net.URI;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -55,7 +56,9 @@ public class ProgressStatistics {
 
 	private long m_recentSpeedMapKey;
 
-	public ProgressStatistics(String fileName, long total) {
+	private URI m_uri;
+
+	public ProgressStatistics(URI uri, String fileName, long total) {
 		m_startTime = System.currentTimeMillis();
 		m_fileName = fileName;
 
@@ -66,6 +69,7 @@ public class ProgressStatistics {
 		m_reportInterval = DEFAULT_REPORT_INTERVAL;
 		m_recentSpeedMap = new TreeMap();
 		m_recentSpeedMapKey = 0L;
+		m_uri = uri;
 	}
 
 	public long getAverageSpeed() {
@@ -121,7 +125,7 @@ public class ProgressStatistics {
 	}
 
 	public synchronized String report() {
-		return m_total != -1 ? NLS.bind(Messages.fetching_0_1_of_2_at_3, new String[] {m_fileName, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_1_at_2, new String[] {m_fileName, convert(m_current), convert(getRecentSpeed())});
+		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, m_uri.toString(), convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, m_uri.toString(), convert(m_current), convert(getRecentSpeed())});
 	}
 
 	public void setReportInterval(int reportInterval) {

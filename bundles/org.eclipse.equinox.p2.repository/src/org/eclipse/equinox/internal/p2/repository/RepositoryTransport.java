@@ -48,6 +48,63 @@ public class RepositoryTransport extends Transport {
 	/**
 	 * Perform a download, writing into the target output stream. Progress is reported on the
 	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
+	 * is also set on the target. An IStateful target is updated with status even if this methods
+	 * throws {@link OperationCanceledException}.
+	 * 
+	 * @returns IStatus, that is a {@link DownloadStatus} on success.
+	 * @param toDownload URI of file to download
+	 * @param target OutputStream where result is written
+	 * @param startPos the starting position of the download, or -1 for from start
+	 * @param monitor where progress should be reported
+	 * @throws OperationCanceledException if the operation was canceled.
+	 */
+	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
+
+		boolean promptUser = false;
+		AuthenticationInfo loginDetails = null;
+		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
+			FileReader reader = null;
+			try {
+				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
+				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
+
+				// perform the download
+				reader = new FileReader(context);
+				reader.readInto(toDownload, target, startPos, monitor);
+
+				// check that job ended ok - throw exceptions otherwise
+				IStatus result = reader.getResult();
+				if (result.getSeverity() == IStatus.CANCEL)
+					throw new UserCancelledException();
+				if (!result.isOK())
+					throw new CoreException(result);
+
+				// Download status is expected on success
+				DownloadStatus status = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
+				return statusOn(target, status, reader);
+			} catch (UserCancelledException e) {
+				statusOn(target, new DownloadStatus(IStatus.CANCEL, Activator.ID, 1, "", null), reader); //$NON-NLS-1$
+				throw new OperationCanceledException();
+			} catch (OperationCanceledException e) {
+				statusOn(target, new DownloadStatus(IStatus.CANCEL, Activator.ID, 1, "", null), reader); //$NON-NLS-1$
+				throw e;
+			} catch (CoreException e) {
+				return statusOn(target, RepositoryStatus.forStatus(e.getStatus(), toDownload), reader);
+			} catch (FileNotFoundException e) {
+				return statusOn(target, RepositoryStatus.forException(e, toDownload), reader);
+			} catch (AuthenticationFailedException e) {
+				promptUser = true;
+			}
+		}
+		// reached maximum number of retries without success
+		DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
+				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, toDownload), null);
+		return statusOn(target, status, null);
+	}
+
+	/**
+	 * Perform a download, writing into the target output stream. Progress is reported on the
+	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
 	 * is also set on the target.
 	 * 
 	 * @returns IStatus, that is a {@link DownloadStatus} on success.
@@ -56,38 +113,26 @@ public class RepositoryTransport extends Transport {
 	 * @param monitor where progress should be reported
 	 */
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
-		boolean promptUser = false;
-		AuthenticationInfo loginDetails = null;
-		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
-			try {
-				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
-				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
-
-				// perform the download
-				FileReader reader = new FileReader(context);
-				reader.readInto(toDownload, target, monitor);
-				// Download status is expected on success
-				DownloadStatus status = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
-				status.setTransferRate(reader.getLastFileInfo().getAverageSpeed());
-				return statusOn(target, status);
-			} catch (UserCancelledException e) {
-				statusOn(target, Status.CANCEL_STATUS);
-				throw new OperationCanceledException();
-			} catch (CoreException e) {
-				return statusOn(target, RepositoryStatus.forStatus(e.getStatus(), toDownload));
-			} catch (FileNotFoundException e) {
-				return statusOn(target, RepositoryStatus.forException(e, toDownload));
-			} catch (AuthenticationFailedException e) {
-				promptUser = true;
-			}
-		}
-		// reached maximum number of retries without success
-		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
-				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, toDownload), null);
-		return statusOn(target, status);
+		return download(toDownload, target, -1, monitor);
 	}
 
-	private static IStatus statusOn(OutputStream target, IStatus status) {
+	/**
+	 * Set the status on the output stream if it implements IStateful. 
+	 * Update the DownloadStatus with information from FileReader.
+	 * @param target an OutputStream possibly implementing IStateful
+	 * @param status a DownloadStatus configured with status message, code, etc
+	 * @param reader a FileReade that was used to download (or null if not known).
+	 * @return the configured DownloadStatus status.
+	 */
+	private static DownloadStatus statusOn(OutputStream target, DownloadStatus status, FileReader reader) {
+		if (reader != null) {
+			FileInfo fi = reader.getLastFileInfo();
+			if (fi != null) {
+				status.setFileSize(fi.getSize());
+				status.setLastModified(fi.getLastModified());
+				status.setTransferRate(fi.getAverageSpeed());
+			}
+		}
 		if (target instanceof IStateful)
 			((IStateful) target).setStatus(status);
 		return status;

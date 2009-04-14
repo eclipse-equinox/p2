@@ -23,6 +23,13 @@ public class Messages extends NLS {
 	}
 
 	public static String CacheManager_AuthenticationFaileFor_0;
+	public static String CacheManager_CanNotCreateDir_0_ForResumeOf_1;
+	public static String CacheManager_CouldNotMove_0_to_1_ForResumedDownload;
+	public static String CacheManager_CouldNotMove_0_ToCache;
+	public static String CacheManager_CouldNotSetLastModifiedOn_0_ForResume;
+	public static String CacheManager_DownloadOf_0_NotResumable_MoreReadThanSpecified;
+	public static String CacheManager_DownloadOf_0_NotResumable_NoFileSize;
+	public static String CacheManager_DownloadOf_0_NotResumable_NoLastModified;
 	public static String CacheManager_FailedCommunicationWithRepo_0;
 	public static String CacheManager_Neither_0_nor_1_found;
 	public static String io_failedRead;

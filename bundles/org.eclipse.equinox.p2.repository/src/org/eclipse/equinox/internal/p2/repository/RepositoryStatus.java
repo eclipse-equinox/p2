@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.p2.repository;
 import java.io.FileNotFoundException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -108,24 +107,24 @@ public class RepositoryStatus {
 		}
 	}
 
-	public static IStatus forStatus(IStatus original, URI toDownload) {
+	public static DownloadStatus forStatus(IStatus original, URI toDownload) {
 		Throwable t = original.getException();
 		return forException(t, toDownload);
 	}
 
-	public static IStatus forException(Throwable t, URI toDownload) {
+	public static DownloadStatus forException(Throwable t, URI toDownload) {
 		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
 		if (t instanceof ConnectException)
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
 		if (t instanceof UnknownHostException)
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
 		if (t instanceof IDCreateException) {
 			IStatus status = ((IDCreateException) t).getStatus();
 			if (status != null && status.getException() != null)
 				t = status.getException();
 
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
 		if (t instanceof IncomingFileTransferException) {
 			int code = ((IncomingFileTransferException) t).getErrorCode();
@@ -136,12 +135,12 @@ public class RepositoryStatus {
 					provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;
 				else if (code == 404)
 					provisionCode = ProvisionException.ARTIFACT_NOT_FOUND;
-				return new Status(IStatus.ERROR, Activator.ID, provisionCode, //
+				return new DownloadStatus(IStatus.ERROR, Activator.ID, provisionCode, //
 						codeToMessage(code, toDownload.toString()), t);
 			}
 		}
 		// Add more specific translation here
-		return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload), t);
+		return new DownloadStatus(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload), t);
 	}
 
 }

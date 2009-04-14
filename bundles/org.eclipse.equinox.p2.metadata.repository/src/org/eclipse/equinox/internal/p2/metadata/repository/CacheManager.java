@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     henrik.lindberg@cloudsmith.com - resume of download
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -17,14 +18,13 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.repository.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -38,6 +38,9 @@ import org.osgi.framework.ServiceReference;
  * was created for the repository.
  */
 public class CacheManager {
+	private static final String PROP_RESUMABLE = "org.eclipse.equinox.p2.metadata.repository.resumable"; //$NON-NLS-1$
+	private static final String RESUME_DEFAULT = "true"; //$NON-NLS-1$
+	private static final String DOWNLOADING = "downloading"; //$NON-NLS-1$
 	private static SynchronousProvisioningListener busListener;
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
@@ -128,7 +131,7 @@ public class CacheManager {
 						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + xmlLocation)); //$NON-NLS-1$
 
 				} catch (UserCancelledException e) {
-					throw new ProvisionException(Status.CANCEL_STATUS);
+					throw new OperationCanceledException();
 				} catch (FileNotFoundException e) {
 					throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Neither_0_nor_1_found, jarLocation, xmlLocation));
 				} catch (AuthenticationFailedException e) {
@@ -149,23 +152,53 @@ public class CacheManager {
 				return cacheFile;
 
 			// Need to update cache
+
+			// check if download is resumable
 			cacheFile = new File(dataAreaFile, prefix + hashCode + useExtension);
 			cacheFile.getParentFile().mkdirs();
-			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(cacheFile));
-			IStatus result;
+			File resumeFile = new File(new File(cacheFile.getParentFile(), DOWNLOADING), cacheFile.getName());
+			// if append should be performed or not
+			boolean append = false;
+			if (resumeFile.exists()) {
+				// the resume file can be too old
+				if (lastModifiedRemote != resumeFile.lastModified() || lastModifiedRemote <= 0)
+					safeDelete(resumeFile);
+				else {
+					if (resumeFile.renameTo(cacheFile))
+						append = true;
+					else
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManager_CouldNotMove_0_ToCache, resumeFile)));
+				}
+			}
+
+			StatefulStream metadata = new StatefulStream(new FileOutputStream(cacheFile, append));
+			IStatus result = null;
 			try {
 				submonitor.setWorkRemaining(1000);
-				result = getTransport().download(remoteFile, metadata, submonitor.newChild(1000));
+				// resume from cache file's length if in append mode
+				result = getTransport().download(remoteFile, metadata, append ? cacheFile.length() : -1, submonitor.newChild(1000));
+			} catch (OperationCanceledException e) {
+				// need to pick up the status - a new operation canceled exception is thrown at the end
+				// as status will be CANCEL.
+				result = metadata.getStatus();
 			} finally {
 				metadata.close();
+				// result is null if a runtime error (other than OperationCanceledException) 
+				// occurred, just delete the cache file (or a later attempt could fail 
+				// with "premature end of file").
+				if (result == null)
+					cacheFile.delete();
 			}
-			if (!result.isOK()) {
-				//don't leave a partial cache file lying around
-				// TODO: HENRIK Handle resume
+			if (result.isOK())
+				return cacheFile;
+
+			// if possible, keep a partial download to be resumed.
+			if (!makeResumeable(cacheFile, remoteFile, result))
 				cacheFile.delete();
-				throw new ProvisionException(result);
-			}
-			return cacheFile;
+
+			if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
+				throw new OperationCanceledException();
+			throw new ProvisionException(result);
 
 		} finally {
 			if (monitor != null)
@@ -174,15 +207,76 @@ public class CacheManager {
 	}
 
 	/**
-	 * Deletes the local cache file for the given repository
+	 * Make cacheFile resumable and return true if it was possible.
+	 * @param cacheFile - the partially downloaded file to make resumeable
+	 * @param downloadStatus - the download status reported for the partial download
+	 * @return true if the file was made resumable, false otherwise
+	 */
+	private boolean makeResumeable(File cacheFile, URI remoteFile, IStatus status) {
+		if (status == null || status.isOK() || cacheFile == null || !(status instanceof DownloadStatus))
+			return false;
+		// check if resume feature is turned off
+		if (!isResumeEnabled())
+			return false;
+		DownloadStatus downloadStatus = (DownloadStatus) status;
+		long currentLength = cacheFile.length();
+		// if cache file does not exist, or nothing was written to it, there is nothing to resume
+		if (currentLength == 0L)
+			return false;
+
+		long reportedSize = downloadStatus.getFileSize();
+		long reportedModified = downloadStatus.getLastModified();
+
+		if (reportedSize == DownloadStatus.UNKNOWN_SIZE || reportedSize == 0L) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.CacheManager_DownloadOf_0_NotResumable_NoFileSize, remoteFile)));
+			return false;
+		}
+		if (reportedModified <= 0) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.CacheManager_DownloadOf_0_NotResumable_NoLastModified, remoteFile)));
+			return false;
+		}
+
+		// if more than what was reported has been written something odd is going on, and we can't
+		// trust the reported size. 
+		// There is a small chance that user canceled in the time window after the full download is seen, and the result is returned. In this
+		// case the reported and current lengths will be equal.
+		if (reportedSize < currentLength) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.CacheManager_DownloadOf_0_NotResumable_MoreReadThanSpecified, remoteFile)));
+			return false;
+		}
+		File resumeDir = new File(cacheFile.getParentFile(), DOWNLOADING);
+		if (!resumeDir.mkdir()) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManager_CanNotCreateDir_0_ForResumeOf_1, resumeDir, remoteFile)));
+			return false;
+		}
+		// move partial cache file to "downloading" directory
+		File resumeFile = new File(resumeDir, cacheFile.getName());
+		if (!cacheFile.renameTo(resumeFile)) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManager_CouldNotMove_0_to_1_ForResumedDownload, cacheFile, resumeFile)));
+			return false;
+		}
+		// touch the file with remote modified time
+		if (!resumeFile.setLastModified(reportedModified)) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManager_CouldNotSetLastModifiedOn_0_ForResume, resumeFile)));
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Deletes the local cache file(s) for the given repository
 	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
 		for (Iterator it = knownPrefixes.iterator(); it.hasNext();) {
 			String prefix = (String) it.next();
-			File cacheFile = getCache(repositoryLocation, prefix);
-			if (cacheFile != null)
-				safeDelete(cacheFile);
+			File[] cacheFiles = getCacheFiles(repositoryLocation, prefix);
+			for (int i = 0; i < cacheFiles.length; i++) {
+				// delete the cache file if it exists
+				safeDelete(cacheFiles[i]);
+				// delete a resumable download if it exists
+				safeDelete(new File(new File(cacheFiles[i].getParentFile(), DOWNLOADING), cacheFiles[i].getName()));
+			}
 		}
 	}
 
@@ -194,17 +288,39 @@ public class CacheManager {
 	 * the cache file does not exist.
 	 */
 	private File getCache(URI repositoryLocation, String prefix) {
+		File[] files = getCacheFiles(repositoryLocation, prefix);
+		if (files[0].exists())
+			return files[0];
+		return files[1].exists() ? files[1] : null;
+
+		//		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+		//		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
+		//		File dataAreaFile = URLUtil.toFile(dataArea);
+		//		int hashCode = computeHash(repositoryLocation);
+		//		File cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
+		//		if (!cacheFile.exists()) {
+		//			cacheFile = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
+		//			if (!cacheFile.exists())
+		//				return null;
+		//		}
+		//		return cacheFile;
+	}
+
+	/**
+	 * Determines the local file paths of the repository's potential cache files.
+	 * @param repositoryLocation The location to compute the cache for
+	 * @param prefix The prefix to use for this location
+	 * @return A {@link File} array with the cache files for JAR and XML extensions.
+	 */
+	private File[] getCacheFiles(URI repositoryLocation, String prefix) {
+		File[] files = new File[2];
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
 		int hashCode = computeHash(repositoryLocation);
-		File cacheFile = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
-		if (!cacheFile.exists()) {
-			cacheFile = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
-			if (!cacheFile.exists())
-				return null;
-		}
-		return cacheFile;
+		files[0] = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
+		files[1] = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
+		return files;
 	}
 
 	private Object getService(BundleContext ctx, String name) {
@@ -265,5 +381,32 @@ public class CacheManager {
 			eventBus.removeListener(busListener);
 			busListener = null;
 		}
+	}
+
+	public boolean isResumeEnabled() {
+		String resumeProp = System.getProperty(PROP_RESUMABLE, RESUME_DEFAULT);
+		return Boolean.valueOf(resumeProp).booleanValue();
+	}
+
+	/**
+	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
+	 * a download operation.
+	 */
+	private static class StatefulStream extends BufferedOutputStream implements IStateful {
+		private IStatus status;
+
+		public StatefulStream(OutputStream stream) {
+			super(stream);
+		}
+
+		public IStatus getStatus() {
+
+			return status;
+		}
+
+		public void setStatus(IStatus aStatus) {
+			status = aStatus;
+		}
+
 	}
 }

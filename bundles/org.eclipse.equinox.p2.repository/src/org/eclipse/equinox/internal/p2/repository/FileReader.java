@@ -24,6 +24,7 @@ import org.eclipse.osgi.util.NLS;
  * @author henrik.lindberg@cloudsmith.com - adaption to 1.4 and to this p2 package
  */
 public class FileReader extends FileTransferJob implements IFileTransferListener {
+	private static IFileReaderProbe testProbe;
 	private boolean closeStreamWhenFinished = false;
 	private Exception exception;
 	private FileInfo fileInfo;
@@ -35,6 +36,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
+	private URI uri;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
@@ -75,12 +77,13 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 
 			if (theMonitor != null) {
 				long fileLength = source.getFileLength();
-				statistics = new ProgressStatistics(source.getRemoteFileName(), fileLength);
+				statistics = new ProgressStatistics(uri, source.getRemoteFileName(), fileLength);
 				theMonitor.beginTask(null, 1000);
 				theMonitor.subTask(statistics.report());
 				lastStatsCount = 0;
 				lastProgressCount = 0;
 			}
+			onStart(source);
 		} else if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 			IIncomingFileTransfer source = ((IIncomingFileTransferEvent) event).getSource();
 			if (theMonitor != null) {
@@ -101,12 +104,14 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 					theMonitor.worked((int) (1000 * count / statistics.getTotal()));
 				}
 			}
+			onData(source);
 		} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
 			if (closeStreamWhenFinished)
 				hardClose(theOutputStream);
 
 			if (exception == null)
 				exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
+			onDone(((IIncomingFileTransferReceiveDoneEvent) event).getSource());
 		}
 	}
 
@@ -121,7 +126,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		RepositoryTracing.debug("Downloading {0}", url); //$NON-NLS-1$
 
 		final IProgressMonitor cancellationMonitor = new NullProgressMonitor();
-		sendRetrieveRequest(url, output, true, cancellationMonitor);
+		sendRetrieveRequest(url, output, null, true, cancellationMonitor);
 
 		return new InputStream() {
 			public int available() throws IOException {
@@ -185,27 +190,34 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		};
 	}
 
-	/** Only request info
-	 * @deprecated REMOVE THIS METHOD - SHOULD USE BROWSE INSTEAD TO ONLY GET HEAD - ALSO REMOVE PARAMTER ONLYHEAD
-	 * @param uri
-	 * @return FileInfo
-	 * @throws CoreException
-	 * @throws FileNotFoundException
-	 * @throws AuthenticationFailedException
-	 */
-	public FileInfo readInfo(URI uri) throws CoreException, FileNotFoundException, AuthenticationFailedException {
-		sendRetrieveRequest(uri, null, false, null);
-		return getLastFileInfo();
-	}
-
+	//	/** Only request info
+	//	 * @deprecated REMOVE THIS METHOD - SHOULD USE BROWSE INSTEAD TO ONLY GET HEAD - ALSO REMOVE PARAMTER ONLYHEAD
+	//	 * @param uri
+	//	 * @return FileInfo
+	//	 * @throws CoreException
+	//	 * @throws FileNotFoundException
+	//	 * @throws AuthenticationFailedException
+	//	 */
+	//	public FileInfo readInfo(URI uri) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	//		sendRetrieveRequest(uri, null, false, null);
+	//		return getLastFileInfo();
+	//	}
 	public void readInto(URI uri, OutputStream anOutputStream, IProgressMonitor monitor) //
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
+		readInto(uri, anOutputStream, -1, monitor);
+	}
+
+	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
+			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		try {
-			sendRetrieveRequest(uri, anOutputStream, false, monitor);
+			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
+
 			join();
 		} catch (InterruptedException e) {
 			monitor.setCanceled(true);
 			throw new OperationCanceledException();
+			//		} catch (Throwable t) {
+			//			t.printStackTrace();
 		} finally {
 			if (monitor != null) {
 				if (statistics == null)
@@ -220,7 +232,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		}
 	}
 
-	protected void sendRetrieveRequest(URI uri, OutputStream outputStream, boolean closeStreamOnFinish, //
+	protected void sendRetrieveRequest(URI uri, OutputStream outputStream, DownloadRange range, boolean closeStreamOnFinish, //
 			IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 
 		IRetrieveFileTransferFactory factory = Activator.getDefault().getRetrieveFileTransferFactory();
@@ -239,6 +251,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		this.lastStatsCount = 0L;
 		this.theMonitor = monitor;
 		this.theOutputStream = outputStream;
+		this.uri = uri;
 
 		for (int retryCount = 0;;) {
 			if (monitor != null && monitor.isCanceled())
@@ -246,11 +259,17 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getRetrieveNamespace(), uri.toString());
-				adapter.sendRetrieveRequest(fileID, this, null);
+				if (range != null)
+					adapter.sendRetrieveRequest(fileID, range, this, null);
+				else
+					adapter.sendRetrieveRequest(fileID, this, null);
 			} catch (IncomingFileTransferException e) {
 				exception = e;
 			} catch (FileCreateException e) {
 				exception = e;
+			} catch (Throwable t) {
+				if (exception != null)
+					exception.printStackTrace();
 			}
 
 			// note that 'exception' could have been captured in a callback
@@ -309,4 +328,48 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		}
 	}
 
+	private static class DownloadRange implements IFileRangeSpecification {
+
+		private long startPosition;
+
+		public DownloadRange(long startPos) {
+			startPosition = startPos;
+		}
+
+		public long getEndPosition() {
+			return -1;
+		}
+
+		public long getStartPosition() {
+			return startPosition;
+		}
+
+	}
+
+	private void onDone(IIncomingFileTransfer source) {
+		if (testProbe != null)
+			testProbe.onDone(this, source, theMonitor);
+	}
+
+	private void onStart(IIncomingFileTransfer source) {
+		if (testProbe != null)
+			testProbe.onStart(this, source, theMonitor);
+	}
+
+	private void onData(IIncomingFileTransfer source) {
+		if (testProbe != null)
+			testProbe.onData(this, source, theMonitor);
+	}
+
+	public static void setTestProbe(IFileReaderProbe probe) {
+		testProbe = probe;
+	}
+
+	public interface IFileReaderProbe {
+		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor);
+
+		public void onData(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor);
+
+		public void onDone(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor);
+	}
 }

@@ -18,8 +18,11 @@ import org.eclipse.core.runtime.Status;
  */
 public class DownloadStatus extends Status {
 	public static final long UNKNOWN_RATE = -1;
+	public static final long UNKNOWN_SIZE = -1;
 
 	private long speed = UNKNOWN_RATE;
+	private long fileSize = UNKNOWN_SIZE;
+	private long lastModified = 0;
 
 	/**
 	 * Constructs a new DownloadStatus with the given attributes.
@@ -33,6 +36,10 @@ public class DownloadStatus extends Status {
 	 */
 	public DownloadStatus(int severity, String pluginId, String message, Throwable exception) {
 		super(severity, pluginId, message, exception);
+	}
+
+	public DownloadStatus(int severity, String pluginId, int code, String message, Throwable exception) {
+		super(severity, pluginId, code, message, exception);
 	}
 
 	/**
@@ -50,5 +57,21 @@ public class DownloadStatus extends Status {
 	 */
 	public void setTransferRate(long rate) {
 		this.speed = rate;
+	}
+
+	public void setFileSize(long aFileSize) {
+		fileSize = aFileSize;
+	}
+
+	public long getFileSize() {
+		return fileSize;
+	}
+
+	public void setLastModified(long timestamp) {
+		lastModified = timestamp;
+	}
+
+	public long getLastModified() {
+		return lastModified;
 	}
 }
