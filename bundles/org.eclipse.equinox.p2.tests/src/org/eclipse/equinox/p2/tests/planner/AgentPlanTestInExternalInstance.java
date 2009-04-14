@@ -25,44 +25,39 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
+	Object previousSelfValue;
 
 	public void setUp() throws Exception {
 		super.setUp();
 
-		IProfile profile = getProfile(IProfileRegistry.SELF);
-		if (profile != null)
-			return;
-
-		if (System.getProperty("eclipse.p2.profile") == null) {
-			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-			try {
-				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-				selfField.setAccessible(true);
-				Object self = selfField.get(profileRegistry);
-				if (self == null)
-					selfField.set(profileRegistry, "agent");
-			} catch (Throwable t) {
-				fail();
-			}
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		try {
+			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+			selfField.setAccessible(true);
+			previousSelfValue = selfField.get(profileRegistry);
+			if (previousSelfValue == null)
+				selfField.set(profileRegistry, "agent");
+			clearProfileMap(profileRegistry);
+		} catch (Throwable t) {
+			fail();
 		}
-		profile = createProfile(IProfileRegistry.SELF);
+		createProfile("agent");
 		Properties p = new Properties();
 		p.setProperty("org.eclipse.equinox.p2.planner.resolveMetaRequirements", "false");
 		createProfile("installation", null, p);
 	}
 
 	public void tearDown() throws Exception {
-		if (System.getProperty("eclipse.p2.profile") == null) {
-			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-			try {
-				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-				selfField.setAccessible(true);
-				Object self = selfField.get(profileRegistry);
-				if (self.equals("agent"))
-					selfField.set(profileRegistry, null);
-			} catch (Throwable t) {
-				// ignore as we still want to continue tidying up
-			}
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		try {
+			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+			selfField.setAccessible(true);
+			Object self = selfField.get(profileRegistry);
+			if (self.equals("agent"))
+				selfField.set(profileRegistry, previousSelfValue);
+			clearProfileMap(profileRegistry);
+		} catch (Throwable t) {
+			fail();
 		}
 		super.tearDown();
 	}
