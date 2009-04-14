@@ -25,6 +25,7 @@ public class SlicingOption extends Task {
 		options.considerStrictDependencyOnly(false);
 		options.everythingGreedy(true);
 		options.includeOptionalDependencies(true);
+		setIncludeFeatures(true);
 	}
 
 	/**
@@ -51,7 +52,9 @@ public class SlicingOption extends Task {
 		StringTokenizer tok = new StringTokenizer(platformFilter, ","); //$NON-NLS-1$
 		if (tok.countTokens() != 3)
 			throw new BuildException("Invalid platform filter format: " + platformFilter + ".");
-		Dictionary filter = new Properties();
+		Dictionary filter = options.getFilter();
+		if (filter == null)
+			filter = new Properties();
 		filter.put("osgi.os", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.ws", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.arch", tok.nextToken().trim()); //$NON-NLS-1$
@@ -60,6 +63,14 @@ public class SlicingOption extends Task {
 
 	public void setIncludeNonGreedy(boolean greed) {
 		options.everythingGreedy(greed);
+	}
+
+	public void setIncludeFeatures(boolean includeFeatures) {
+		Dictionary filter = options.getFilter();
+		if (filter == null)
+			filter = new Properties();
+		filter.put("org.eclipse.update.install.features", String.valueOf(includeFeatures)); //$NON-NLS-1$
+		options.setFilter(filter);
 	}
 
 	/** 
