@@ -489,7 +489,11 @@ public class Projector {
 			List matches = getApplicableMatches(req);
 			if (!req.isOptional()) {
 				if (matches.isEmpty()) {
-					missingRequirement(iu, req);
+					if (requiredPatches.isEmpty()) {
+						missingRequirement(iu, req);
+					} else {
+						createImplication(iu, requiredPatches, new Explanation.HardRequirement(iu, req));
+					}
 				} else {
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
