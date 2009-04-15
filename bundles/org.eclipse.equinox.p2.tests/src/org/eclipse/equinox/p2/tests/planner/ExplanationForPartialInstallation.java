@@ -53,7 +53,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getRequestStatus().getExplanations());
+		// System.out.println(plan.getRequestStatus().getExplanations());
 		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
 		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
@@ -80,7 +80,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getRequestStatus().getExplanations());
+		// System.out.println(plan.getRequestStatus().getExplanations());
 		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
 		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));

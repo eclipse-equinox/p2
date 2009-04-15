@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -82,9 +81,9 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();
-		System.out.println(problems);
-		System.out.println(plan3.getRequestStatus().getExplanations());
+		// Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();
+		// System.out.println(problems);
+		// System.out.println(plan3.getRequestStatus().getExplanations());
 		//		assertEquals(3, plan3.getRequestStatus().getExplanations().size());
 		//		assertTrue(plan3.getRequestStatus().getExplanations().contains(a1));
 		//		assertTrue(plan3.getRequestStatus().getExplanations().contains(p1));

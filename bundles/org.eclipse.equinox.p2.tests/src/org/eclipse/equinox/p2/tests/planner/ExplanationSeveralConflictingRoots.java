@@ -53,7 +53,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getRequestStatus().getExplanations());
+		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set conflictRoots = plan.getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 		//		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
@@ -79,7 +79,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getRequestStatus().getExplanations());
+		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set conflictRoots = plan.getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 
@@ -103,7 +103,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
-		System.out.println(plan.getRequestStatus().getExplanations());
+		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set conflictRoots = plan.getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 		//		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
