@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -296,45 +296,94 @@ public class ProvisioningUtil {
 			return IIUElement.SIZE_NOTAPPLICABLE;
 		if (plan.getOperands().length == 0)
 			return 0;
+		long installPlanSize = 0;
+		SubMonitor mon = SubMonitor.convert(monitor, 300);
+		if (plan.getInstallerPlan() != null) {
+			SizingPhaseSet set = new SizingPhaseSet();
+			IStatus status = getEngine().perform(getProfile(profileId), set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			if (status.isOK())
+				installPlanSize = set.getSizing().getDiskSize();
+		} else {
+			mon.worked(100);
+		}
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, monitor);
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, mon.newChild(200));
 		if (status.isOK())
-			return set.getSizing().getDiskSize();
+			return installPlanSize + set.getSizing().getDiskSize();
 		return IIUElement.SIZE_UNAVAILABLE;
 	}
 
+	/**
+	 * Perform the specified provisioning plan.
+	 * 
+	 * @param plan the plan to perform
+	 * @param phaseSet the phase set to use
+	 * @param profile the profile to be changed.  This parameter is now ignored.
+	 * @param context the provisioning context to be used
+	 * @param monitor the progress monitor 
+	 * @return a status indicating the success of the plan
+	 * @throws ProvisionException
+	 * 
+	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, ProvisioningContext, IProgressMonitor)} 
+	 * because the profile argument is now ignored.
+	 */
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
+		// ignore the profile, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
+		return performProvisioningPlan(plan, phaseSet, context, monitor);
+	}
+
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();
 		else
 			set = phaseSet;
-		// 100 ticks for install plan, 200 for the actual install
-		SubMonitor mon = SubMonitor.convert(monitor, 300);
+
+		// 300 ticks for download, 100 to install handlers, 100 to install the rest
+		SubMonitor mon = SubMonitor.convert(monitor, 500);
+		int ticksUsed = 0;
+
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
+		// The exact profile instance used in the profile change request and passed to the engine must be used for all
+		// of these operations, otherwise we can get profile out of synch errors.	
+		IProfile profile = plan.getProfileChangeRequest().getProfile();
 
 		if (plan.getInstallerPlan() != null) {
-			IStatus installerPlanStatus = getEngine().perform(plan.getInstallerPlan().getProfileChangeRequest().getProfile(), phaseSet, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			if (set instanceof DefaultPhaseSet) {
+				// If the phase set calls for download and install, then we want to download everything atomically before 
+				// applying the install plan.  This way, we can be sure to install the install handler only if we know 
+				// we will be able to get everything else.
+				List allOperands = new ArrayList();
+				allOperands.addAll(Arrays.asList(plan.getOperands()));
+				allOperands.addAll(Arrays.asList(plan.getInstallerPlan().getOperands()));
+				PhaseSet download = new DownloadPhaseSet();
+				IStatus downloadStatus = getEngine().perform(profile, download, (Operand[]) allOperands.toArray(new Operand[allOperands.size()]), context, mon.newChild(300));
+				if (!downloadStatus.isOK()) {
+					mon.done();
+					return downloadStatus;
+				}
+				ticksUsed = 300;
+			}
+			// we pre-downloaded if necessary.  Now perform the plan against the original phase set.
+			IStatus installerPlanStatus = getEngine().perform(profile, phaseSet, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
 			if (!installerPlanStatus.isOK()) {
 				mon.done();
 				return installerPlanStatus;
 			}
+			ticksUsed += 100;
+			// Apply the configuration
 			Configurator configChanger = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 			try {
 				ProvisioningOperationRunner.suppressRestart(true);
 				configChanger.applyConfiguration();
-				// The profile has changed, so we need a new snapshot.
-				profile = getProfile(profile.getProfileId());
 			} catch (IOException e) {
 				mon.done();
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_InstallPlanConfigurationError, e);
 			} finally {
 				ProvisioningOperationRunner.suppressRestart(false);
 			}
-		} else {
-			mon.worked(100);
 		}
-
-		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(200));
+		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
 	}
 
 	private static IEngine getEngine() throws ProvisionException {
