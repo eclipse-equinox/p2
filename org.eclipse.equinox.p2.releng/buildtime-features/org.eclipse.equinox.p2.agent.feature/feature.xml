@@ -16,6 +16,19 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="org.eclipse.ecf" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.filetransfer" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.identity" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.ssl" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.ssl" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" version="1.0.0" match="compatible"/>
+      <import plugin="org.apache.commons.codec" version="1.3.0" match="compatible"/>
+      <import plugin="org.apache.commons.httpclient" version="3.1.0" match="compatible"/>
+   </requires>
+
    <plugin
          id="org.eclipse.equinox.p2.director"
          download-size="0"
@@ -66,27 +79,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.filetransfer"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.identity"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.p2.exemplarysetup"
          download-size="0"
          install-size="0"
@@ -130,13 +122,6 @@
 
    <plugin
          id="org.eclipse.equinox.p2.console"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.provider.filetransfer"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -221,6 +206,13 @@
 
    <plugin
          id="org.eclipse.equinox.p2.publisher"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.repository.tools"
          download-size="0"
          install-size="0"
          version="0.0.0"
