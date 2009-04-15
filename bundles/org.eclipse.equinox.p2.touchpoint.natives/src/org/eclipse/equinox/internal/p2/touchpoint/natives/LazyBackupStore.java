@@ -17,7 +17,6 @@ import java.io.IOException;
  * LazyBackupStore is a BackupStore that only instantiates a real backup store
  * when needed.
  * 
- * @author henrik.lindberg@cloudsmith.com
  *
  */
 public class LazyBackupStore implements IBackupStore {
