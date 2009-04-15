@@ -11,7 +11,6 @@ import java.util.Properties;
 
 /**
  * Carries information about a file transfer.
- * @author henrik.lindberg@cloudsmith.com
  * 
  */
 public class FileInfo {

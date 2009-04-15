@@ -29,7 +29,6 @@ import org.eclipse.osgi.util.NLS;
  * from ECF (there is currently no way to wait on a BrowseRequest job, as this is internal to
  * ECF). If such support is added, this class is easily modified.
  * 
- * @author henrik.lindberg@cloudsmith.com 
  */
 public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private Exception exception;

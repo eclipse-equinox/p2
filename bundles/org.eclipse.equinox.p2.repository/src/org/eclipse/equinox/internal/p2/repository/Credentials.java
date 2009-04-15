@@ -26,10 +26,7 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * Credentials handles AuthenticationInfo that can be used to established an
  * ECF connection context. An AuthenticationInfo is obtained for a URI buy looking
- * in a store, if none is provided the user is optionally prompted for the information.
- * 
- * @author henrik.lindberg@cloudsmith.com
- *
+ * in a store, if none is provided the user is optionally prompted for the information. 
  */
 public class Credentials {
 	/**

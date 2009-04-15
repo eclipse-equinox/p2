@@ -17,9 +17,6 @@ import org.eclipse.osgi.util.NLS;
  * Converts progress of file download to average download speed and keeps track of
  * when it is suitable to update a progress monitor. A suitably scaled and formatted string for use
  * in progress monitoring is provided.
- * 
- * @author thomas.hallgren@cloudsmith.com
- * @author henrik.lindberg@cloudsmith.com (adaption to java 1.4)
  */
 public class ProgressStatistics {
 	private static final int DEFAULT_REPORT_INTERVAL = 1000;

@@ -20,8 +20,6 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * RepositoryStatusHelper is a utility class for processing of exceptions and status.
- * @author thomas.hallgren@cloudsmith.com
- * @author henrik.lindberg@cloudsmith.com - adaption to java 1.4, and Repository helper methods
  */
 public abstract class RepositoryStatusHelper {
 

@@ -19,8 +19,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleException;
 
 /**
- * Test supposed to be used interactivly to monitor the error message output.
- * @author henrik.lindberg@cloudsmith.com
+ * Test supposed to be used interactively to monitor the error message output.
  *
  */
 public class TransferExceptionsTest extends AbstractProvisioningTest {
