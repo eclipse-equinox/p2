@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -36,6 +37,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	//artifact repository to remove on tear down
 	private File repositoryFile = null;
 	private URI repositoryURI = null;
+
+	private int childCount = 0;
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -1110,6 +1113,213 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			}
 			if (destination != null)
 				delete(destination.getParentFile());
+		}
+	}
+
+	/*
+	 * Verify behaviour of contains(IArtifactDescriptor) when a child is marked bad
+	 */
+	public void testContainsDescriptorBadChild() {
+		CompositeArtifactRepository source = null;
+		IArtifactRepository childOne = null;
+		IArtifactRepository childTwo = null;
+		try {
+			IArtifactDescriptor desc = new ArtifactDescriptor(new ArtifactKey("osgi", "a", new Version("1.0.0")));
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			childOne = createChild();
+			source.addChild(childOne.getLocation());
+
+			// Should always contain
+			assertTrue("TestSetup failed", source.contains(desc));
+			markBad(source, childOne);
+			// Should not contain the descriptor of a bad child
+			assertFalse("Composite repo contains descriptor despite child marked bad", source.contains(desc));
+
+			// Add a child containing the descriptor
+			childTwo = createChild();
+			source.addChild(childTwo.getLocation());
+			// Should contain the descriptor as the 'good' child has it.
+			assertTrue("Composite repo should contain the descriptor", source.contains(desc));
+		} catch (Exception e) {
+			fail(e.getMessage(), e);
+		} finally {
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (childOne != null)
+				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			if (childTwo != null)
+				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+		}
+	}
+
+	/*
+	 * Verify behaviour of contains(IArtifactKey) when a child is marked bad
+	 */
+	public void testContainsKeyBadChild() {
+		CompositeArtifactRepository source = null;
+		IArtifactRepository childOne = null;
+		IArtifactRepository childTwo = null;
+		try {
+			IArtifactKey desc = new ArtifactKey("osgi", "a", new Version("1.0.0"));
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			childOne = createChild();
+			source.addChild(childOne.getLocation());
+
+			// Should always contain
+			assertTrue("TestSetup failed", source.contains(desc));
+			markBad(source, childOne);
+			// Should not contain the descriptor of a bad child
+			assertFalse("Composite repo contains descriptor despite child marked bad", source.contains(desc));
+
+			// Add a child containing the descriptor
+			childTwo = createChild();
+			source.addChild(childTwo.getLocation());
+			// Should contain the descriptor as the 'good' child has it.
+			assertTrue("Composite repo should contain the descriptor", source.contains(desc));
+		} catch (Exception e) {
+			fail(e.getMessage(), e);
+		} finally {
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (childOne != null)
+				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			if (childTwo != null)
+				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+		}
+	}
+
+	/*
+	 * Verify the behaviour of getAritfactKeys() when a child is marked bad
+	 */
+	public void testGetArtifactKeysBadChild() {
+		CompositeArtifactRepository source = null;
+		IArtifactRepository childOne = null;
+		IArtifactRepository childTwo = null;
+
+		try {
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			IArtifactKey key = new ArtifactKey("classifier", "name", new Version("1.0.0"));
+
+			childOne = createChild();
+			((TestArtifactRepository) childOne).addArtifact(key, new byte[] {});
+			source.addChild(childOne.getLocation());
+
+			assertTrue("Composite repo does not contain key", Arrays.asList(source.getArtifactKeys()).contains(key));
+			markBad(source, childOne);
+			assertFalse("Composite repo contains key but child is marked bad", Arrays.asList(source.getArtifactKeys()).contains(key));
+
+			childTwo = createChild();
+			((TestArtifactRepository) childTwo).addArtifact(key, new byte[] {});
+			source.addChild(childTwo.getLocation());
+
+			assertTrue("Composite repo does not contain key, but it is available", Arrays.asList(source.getArtifactKeys()).contains(key));
+		} catch (Exception e) {
+			fail(e.getMessage(), e);
+		} finally {
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (childOne != null)
+				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			if (childTwo != null)
+				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+		}
+	}
+
+	/*
+	 * Verify the behaviour of getArtifactDescriptors(IArtifactKey) when a child is marked bad
+	 */
+	public void testGetArtifactDescriptorsBadChild() {
+		CompositeArtifactRepository source = null;
+		IArtifactRepository childOne = null;
+		IArtifactRepository childTwo = null;
+
+		try {
+			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			IArtifactKey key = new ArtifactKey("classifier", "name", new Version("1.0.0"));
+			IArtifactDescriptor desc = new ArtifactDescriptor(key);
+
+			childOne = createChild();
+			childOne.addDescriptor(desc);
+			((TestArtifactRepository) childOne).addArtifact(key, new byte[] {});
+			source.addChild(childOne.getLocation());
+
+			assertTrue("Composite repo does not contain descriptor", Arrays.asList(source.getArtifactDescriptors(key)).contains(desc));
+			markBad(source, childOne);
+			assertFalse("Composite repo contains descriptor but child is marked bad", Arrays.asList(source.getArtifactDescriptors(key)).contains(desc));
+
+			childTwo = createChild();
+			childOne.addDescriptor(desc);
+			((TestArtifactRepository) childTwo).addArtifact(key, new byte[] {});
+			source.addChild(childTwo.getLocation());
+
+			assertTrue("Composite repo does not contain descriptor, but it is available", Arrays.asList(source.getArtifactDescriptors(key)).contains(desc));
+		} catch (Exception e) {
+			fail(e.getMessage(), e);
+		} finally {
+			if (source != null)
+				getArtifactRepositoryManager().removeRepository(source.getLocation());
+			if (childOne != null)
+				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			if (childTwo != null)
+				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+		}
+	}
+
+	/*
+	 * Mark a child of a Composite repository as bad
+	 */
+	protected void markBad(CompositeArtifactRepository parent, IArtifactRepository child) {
+		try {
+			Field field = CompositeArtifactRepository.class.getDeclaredField("loadedRepos");
+			field.setAccessible(true);
+
+			Class[] classes = CompositeArtifactRepository.class.getDeclaredClasses();
+
+			Class childInfo = null;
+			for (int i = 0; i < classes.length && childInfo == null; i++) {
+				if (classes[i].getName().equals("org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository$ChildInfo"))
+					childInfo = classes[i];
+			}
+			assertTrue("Unable to locate inner class ChildInfo", childInfo != null);
+
+			Field repo = childInfo.getDeclaredField("repo");
+			repo.setAccessible(true);
+			Field good = childInfo.getDeclaredField("good");
+			good.setAccessible(true);
+
+			List list = (List) field.get(parent);
+			for (Iterator listIter = list.iterator(); listIter.hasNext();) {
+				Object obj = listIter.next();
+				if (child.equals(repo.get(obj))) {
+					good.set(obj, false);
+					return;
+				}
+			}
+			fail("Unable to mark as bad:" + child);
+		} catch (Exception e) {
+			fail("Test setup failed:" + e.getMessage(), e);
+		}
+	}
+
+	/*
+	 * Create a child for a composite repository which always responds true to contains()
+	 */
+	protected IArtifactRepository createChild() {
+		try {
+			TestArtifactRepository repo = new TestArtifactRepository(new URI("memory:/in/memory/" + childCount++)) {
+				public boolean contains(IArtifactDescriptor desc) {
+					return true;
+				}
+
+				public boolean contains(IArtifactKey desc) {
+					return true;
+				}
+			};
+			repo.addToRepositoryManager();
+			return repo;
+		} catch (URISyntaxException e) {
+			fail("Failed creating child repo", e);
+			return null;
 		}
 	}
 }
