@@ -6,9 +6,7 @@
     <property name='org.eclipse.equinox.p2.flavor' value='tooling'/>
     <property name='org.eclipse.update.install.features' value='true'/>
     <property name='org.eclipse.equinox.p2.installFolder' value='C:\Program Files\IBM\Hello1'/>
-    <property name='org.eclipse.equinox.p2.cache' value='C:\Program Files\IBM\SDP70Shared/plugins'/>
     <property name='eclipse.touchpoint.launcherName' value='eclipse'/>
-    <property name='org.eclipse.equinox.p2.cache.extensions' value='file:/C:/Program Files/IBM/Hello1/.eclipseextension|file:/C:/Program Files/IBM/Hello1/configuration/org.eclipse.osgi/bundles/32/data/listener_1925729951/|file:/C:/Program Files/IBM/Hello1/configuration/org.eclipse.update/com.ibm.cic.bootstrap.repository/p2/|file:/C:/Program Files/IBM/SDP70Shared/.eclipseextension'/>
   </properties>
   <units size='165'>
     <unit id='org.eclipse.equinox.jsp.jasper' version='1.0.100.v20080427-0830' singleton='false'>
