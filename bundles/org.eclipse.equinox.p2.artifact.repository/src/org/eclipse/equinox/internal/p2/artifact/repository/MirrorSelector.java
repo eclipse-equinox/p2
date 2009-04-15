@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc - bug fixes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -19,8 +20,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 
 /**
  * Mirror support class for repositories. This class implements
@@ -133,7 +136,12 @@ public class MirrorSelector {
 
 			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
-			Document document = builder.parse(mirrorsURL);
+			Document document = null;
+			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
+			RepositoryTransport transport = RepositoryTransport.getInstance();
+			InputSource input = new InputSource(mirrorsURL);
+			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL)));
+			document = builder.parse(input);
 			if (document == null)
 				return null;
 			NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$

@@ -12,8 +12,7 @@
 
 package org.eclipse.equinox.internal.p2.repository;
 
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
@@ -28,9 +27,6 @@ import org.eclipse.osgi.util.NLS;
  * RepositoryTransport adapts p2 to ECF file download and file browsing.
  * Download is performed by {@link FileReader}, and file browsing is performed by
  * {@link FileInfoReader}.
- * 
- * @author henrik.lindberg@cloudsmith.com
- *
  */
 public class RepositoryTransport extends Transport {
 	private static RepositoryTransport instance;
@@ -114,6 +110,40 @@ public class RepositoryTransport extends Transport {
 	 */
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		return download(toDownload, target, -1, monitor);
+	}
+
+	/**
+	 * Perform a stream download, writing into an InputStream that is returned. Performs authentication if needed.
+	 * 
+	 * @returns InputStream a stream with the content from the toDownload URI, or null
+	 * @param toDownload URI of file to download
+	 * @param startPos the starting position of the download, or -1 for from start
+	 * @param monitor where progress should be reported
+	 * @throws OperationCanceledException if the operation was canceled.
+	 * @throws AuthenticationFailedException if authentication failed, or too many attempt were made
+	 * @throws FileNotFoundException if the toDownload was reported as non existing
+	 * @throws CoreException on errors
+	 */
+	public InputStream stream(URI toDownload) throws FileNotFoundException, CoreException, AuthenticationFailedException {
+
+		boolean promptUser = false;
+		AuthenticationInfo loginDetails = null;
+		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
+			FileReader reader = null;
+			try {
+				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
+				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
+
+				// perform the streamed download
+				reader = new FileReader(context);
+				return reader.read(toDownload);
+			} catch (UserCancelledException e) {
+				throw new OperationCanceledException();
+			} catch (AuthenticationFailedException e) {
+				promptUser = true;
+			}
+		}
+		throw new AuthenticationFailedException();
 	}
 
 	/**
