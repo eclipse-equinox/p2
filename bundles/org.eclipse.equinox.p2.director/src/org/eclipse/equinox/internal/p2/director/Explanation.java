@@ -17,27 +17,47 @@ import org.eclipse.osgi.util.NLS;
 
 public abstract class Explanation implements Comparable {
 
-	public static class HardRequirement extends Explanation {
+	public static class PatchedHardRequirement extends Explanation {
 		public final IInstallableUnit iu;
 		public final IInstallableUnitPatch patch;
 		public final IRequiredCapability req;
 
-		public HardRequirement(IInstallableUnit iu, IInstallableUnitPatch patch) {
+		public PatchedHardRequirement(IInstallableUnit iu, IInstallableUnitPatch patch) {
 			this.iu = iu;
 			this.req = null;
 			this.patch = patch;
 		}
 
-		public HardRequirement(IInstallableUnit iu, IRequiredCapability req) {
-			this.iu = iu;
-			this.req = req;
-			this.patch = null;
-		}
-
-		public HardRequirement(IInstallableUnit iu, IRequiredCapability req, IInstallableUnitPatch patch) {
+		public PatchedHardRequirement(IInstallableUnit iu, IRequiredCapability req, IInstallableUnitPatch patch) {
 			this.iu = iu;
 			this.req = req;
 			this.patch = patch;
+		}
+
+		public int orderValue() {
+			return 6;
+		}
+
+		public IStatus toStatus() {
+			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
+			final String fromString = "Patched " + patch.toString() + ' ' + iu;//$NON-NLS-1$
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_from, fromString)));
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_to, req)));
+			return result;
+		}
+
+		public String toString() {
+			return NLS.bind(Messages.Explanation_patchedHardDependency, new Object[] {patch, iu, req});
+		}
+	}
+
+	public static class HardRequirement extends Explanation {
+		public final IInstallableUnit iu;
+		public final IRequiredCapability req;
+
+		public HardRequirement(IInstallableUnit iu, IRequiredCapability req) {
+			this.iu = iu;
+			this.req = req;
 		}
 
 		public int orderValue() {
@@ -46,15 +66,13 @@ public abstract class Explanation implements Comparable {
 
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
-			final String fromString = (patch == null ? "" : patch.toString() + ' ') + iu;//$NON-NLS-1$
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_from, fromString)));
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_from, iu)));
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_to, req)));
 			return result;
 		}
 
 		public String toString() {
-			final String fromString = (patch == null ? "" : patch.toString() + ' ') + iu;//$NON-NLS-1$
-			return NLS.bind(Messages.Explanation_hardDependency, fromString, req);
+			return NLS.bind(Messages.Explanation_hardDependency, iu, req);
 		}
 	}
 
@@ -108,7 +126,11 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			return NLS.bind(Messages.Explanation_missingRequired, iu, req);
+			String filter = req.getFilter();
+			if (filter == null) {
+				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
+			}
+			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, iu, req});
 		}
 
 	}
@@ -146,7 +168,6 @@ public abstract class Explanation implements Comparable {
 	public static final Explanation OPTIONAL_REQUIREMENT = new Explanation() {
 
 		public int orderValue() {
-			// TODO Auto-generated method stub
 			return 6;
 		}
 

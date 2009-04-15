@@ -37,7 +37,9 @@ public class Messages extends NLS {
 	public static String Explanation_alreadyInstalled;
 	public static String Explanation_from;
 	public static String Explanation_hardDependency;
+	public static String Explanation_patchedHardDependency;
 	public static String Explanation_missingRequired;
+	public static String Explanation_missingRequiredFilter;
 	public static String Explanation_optionalDependency;
 	public static String Explanation_rootMissing;
 	public static String Explanation_rootSingleton;
