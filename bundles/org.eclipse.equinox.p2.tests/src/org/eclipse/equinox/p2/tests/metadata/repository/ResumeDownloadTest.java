@@ -53,6 +53,12 @@ public class ResumeDownloadTest extends TestCase {
 
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		FileReader.setTestProbe(null);
+	}
+
 	public void testBlockedResume() throws URISyntaxException, ProvisionException {
 		URI repoLoc = new URI(UPDATE_SITE);
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
