@@ -15,7 +15,8 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -78,7 +79,7 @@ public class ProfileSynchronizer {
 		if (request == null) {
 			if (updatedCacheExtensions != null) {
 				Operand operand = new PropertyOperand(CACHE_EXTENSIONS, null, updatedCacheExtensions);
-				IStatus engineResult = executeOperands(null, new Operand[] {operand}, context, null);
+				IStatus engineResult = executeOperands(new Operand[] {operand}, context, null);
 				if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
 					writeTimestamps();
 				return engineResult;
@@ -103,14 +104,13 @@ public class ProfileSynchronizer {
 			}
 
 			//invoke the engine to perform installs/uninstalls
-			IStatus engineResult = executeOperands(plan, operands, context, sub.newChild(50));
+			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
 			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 				return engineResult;
 
 			writeTimestamps();
-			applyConfiguration();
 
-			return status;
+			return applyConfiguration(false);
 		} finally {
 			sub.done();
 		}
@@ -437,15 +437,33 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private IStatus executeOperands(ProvisioningPlan plan, Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
 			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
-			if (plan == null)
-				return engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
-			return PlanExecutionHelper.executePlan(plan, engine, phaseSet, provisioningContext, monitor);
+			return engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
+		} finally {
+			context.ungetService(reference);
+		}
+	}
+
+	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+		BundleContext context = Activator.getContext();
+		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
+		IEngine engine = (IEngine) context.getService(reference);
+		try {
+			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
+
+			if (plan.getInstallerPlan() != null) {
+				IStatus installerPlanStatus = engine.perform(profile, phaseSet, plan.getInstallerPlan().getOperands(), provisioningContext, monitor);
+				if (!installerPlanStatus.isOK())
+					return installerPlanStatus;
+
+				applyConfiguration(true);
+			}
+			return engine.perform(profile, phaseSet, plan.getOperands(), provisioningContext, monitor);
 		} finally {
 			context.ungetService(reference);
 		}
@@ -454,19 +472,20 @@ public class ProfileSynchronizer {
 	/*
 	 * Write out the configuration file.
 	 */
-	private void applyConfiguration() {
-		if (isReconciliationApplicationRunning())
-			return;
+	private IStatus applyConfiguration(boolean isInstaller) {
+		if (!isInstaller && isReconciliationApplicationRunning())
+			return Status.OK_STATUS;
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
 		Configurator configurator = (Configurator) context.getService(reference);
 		try {
 			configurator.applyConfiguration();
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unexpected failure applying configuration", e)); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, Activator.ID, "Unexpected failure applying configuration", e); //$NON-NLS-1$
 		} finally {
 			context.ungetService(reference);
 		}
+		return Status.OK_STATUS;
 	}
 
 	static boolean isReconciliationApplicationRunning() {
