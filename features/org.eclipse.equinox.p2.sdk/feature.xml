@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.equinox.p2.sdk"
-       label="%featureName"
+      label="%featureName"
       version="3.5.0.qualifier"
       provider-name="%providerName">
 
@@ -16,7 +16,7 @@
    <license url="%licenseURL">
       %license
    </license>
-   
+
    <plugin
          id="org.eclipse.equinox.p2.artifact.repository"
          download-size="0"
@@ -250,6 +250,20 @@
 
    <plugin
          id="org.eclipse.equinox.p2.reconciler.dropins.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.repository"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.repository.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
