@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
  * @since 3.5
  */
 public class PreferenceConstants {
-	public static final String PREF_PAGE_AUTO_UPDATES = "org.eclipse.equinox.internal.p2.ui.sdk.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_AUTO_UPDATES = "org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_SCHEDULE = "schedule"; //$NON-NLS-1$
 	public static final String PREF_UPDATE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
