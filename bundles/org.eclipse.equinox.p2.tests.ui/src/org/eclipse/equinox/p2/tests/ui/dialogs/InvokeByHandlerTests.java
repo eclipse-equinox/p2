@@ -19,7 +19,10 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 
 /**
- * Tests for the install wizard
+ * Tests for invoking the p2 wizards by command id.
+ * Other plug-ins do this, this test reminds us that if the handler
+ * ids change, there are repercussions.
+ * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=263262
  */
 public class InvokeByHandlerTests extends AbstractProvisioningUITest {
 
