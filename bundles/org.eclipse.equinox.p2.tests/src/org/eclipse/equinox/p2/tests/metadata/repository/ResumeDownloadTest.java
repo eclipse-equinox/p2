@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -23,14 +22,35 @@ import org.osgi.framework.ServiceReference;
 
 public class ResumeDownloadTest extends TestCase {
 	private static String UPDATE_SITE = "http://download.eclipse.org/eclipse/updates/3.4";
+	private IMetadataRepositoryManager mgr;
+	private URI repoLoc;
+	private String originalResumeProp;
 
-	public void testResume() throws URISyntaxException, ProvisionException {
-		URI repoLoc = new URI(UPDATE_SITE);
+	protected void setUp() throws Exception {
+		super.setUp();
+		repoLoc = new URI(UPDATE_SITE);
+		originalResumeProp = System.getProperty("org.eclipse.equinox.p2.metadata.repository.resumable", "true");
+
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
+		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}
+		mgr.removeRepository(repoLoc);
+		if (mgr.contains(repoLoc))
+			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		FileReader.setTestProbe(null);
+		// reset the resume property to what it was before the test.
+		System.setProperty("org.eclipse.equinox.p2.metadata.repository.resumable", originalResumeProp);
+		mgr.removeRepository(repoLoc);
+	}
+
+	public void testResume() throws ProvisionException {
 		boolean caught = false;
 		try {
 			FileReader.setTestProbe(new CancelSimulator());
@@ -53,22 +73,10 @@ public class ResumeDownloadTest extends TestCase {
 
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		FileReader.setTestProbe(null);
-	}
-
-	public void testBlockedResume() throws URISyntaxException, ProvisionException {
-		URI repoLoc = new URI(UPDATE_SITE);
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
-		if (mgr == null) {
-			throw new RuntimeException("Repository manager could not be loaded");
-		}
+	public void testBlockedResume() throws ProvisionException {
 		// block the resume functionality
 		System.setProperty("org.eclipse.equinox.p2.metadata.repository.resumable", "false");
-		mgr.removeRepository(repoLoc);
+
 		boolean caught = false;
 		try {
 			FileReader.setTestProbe(new CancelSimulator());
@@ -82,7 +90,7 @@ public class ResumeDownloadTest extends TestCase {
 		FileReader.setTestProbe(null);
 
 		FileReader.setTestProbe(new ResumeCheck());
-		// Try again - this time it should resume
+		// Try again - this time it should NOT resume
 		mgr.loadRepository(repoLoc, null);
 
 		assertTrue("Cancelation was made before entire file was downloaded", bytesReceived < entireLength);
