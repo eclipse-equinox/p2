@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.w3c.dom.*;
 
