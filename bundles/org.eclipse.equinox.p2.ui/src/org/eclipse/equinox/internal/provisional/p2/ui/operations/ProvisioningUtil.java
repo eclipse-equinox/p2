@@ -365,7 +365,7 @@ public class ProvisioningUtil {
 				ticksUsed = 300;
 			}
 			// we pre-downloaded if necessary.  Now perform the plan against the original phase set.
-			IStatus installerPlanStatus = getEngine().perform(profile, phaseSet, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			IStatus installerPlanStatus = getEngine().perform(profile, set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
 			if (!installerPlanStatus.isOK()) {
 				mon.done();
 				return installerPlanStatus;
