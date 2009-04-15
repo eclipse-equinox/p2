@@ -48,8 +48,9 @@ public final class StringPool {
 			return (String) result;
 		}
 		//explicitly copy the string to trim excess baggage
-		map.put(string, new String(string));
-		return string;
+		String trim = new String(string.toCharArray());
+		map.put(string, trim);
+		return trim;
 	}
 
 	/**
