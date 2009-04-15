@@ -117,8 +117,6 @@ public class RepositoryTransport extends Transport {
 	 * 
 	 * @returns InputStream a stream with the content from the toDownload URI, or null
 	 * @param toDownload URI of file to download
-	 * @param startPos the starting position of the download, or -1 for from start
-	 * @param monitor where progress should be reported
 	 * @throws OperationCanceledException if the operation was canceled.
 	 * @throws AuthenticationFailedException if authentication failed, or too many attempt were made
 	 * @throws FileNotFoundException if the toDownload was reported as non existing
