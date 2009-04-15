@@ -38,6 +38,7 @@ public class SDKPolicy extends Policy {
 				try {
 					return ProvSDKUIActivator.getSelfProfileId();
 				} catch (ProvisionException e) {
+					ProvUI.handleException(e, e.getStatus().getMessage(), StatusManager.LOG);
 					return IProfileRegistry.SELF;
 				}
 			}
