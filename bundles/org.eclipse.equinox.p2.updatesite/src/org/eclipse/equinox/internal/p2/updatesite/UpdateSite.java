@@ -138,11 +138,14 @@ public class UpdateSite {
 					} catch (IOException e) {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Can not create tempfile for site.xml", e)); //$NON-NLS-1$
 					}
-					transferResult = getTransport().download(actualLocation, destination, submonitor.newChild(999));
 					try {
-						destination.close();
-					} catch (IOException e) {
-						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Failing to close tempfile for site.xml", e)); //$NON-NLS-1$
+						transferResult = getTransport().download(actualLocation, destination, submonitor.newChild(999));
+					} finally {
+						try {
+							destination.close();
+						} catch (IOException e) {
+							throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Failing to close tempfile for site.xml", e)); //$NON-NLS-1$
+						}
 					}
 				}
 				if (monitor.isCanceled())
@@ -197,12 +200,15 @@ public class UpdateSite {
 				if (monitor.isCanceled())
 					throw new OperationCanceledException();
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
-				transferResult = getTransport().download(featureURI, destination, monitor);
 				try {
-					destination.close();
-				} catch (IOException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI), e));
-					return null;
+					transferResult = getTransport().download(featureURI, destination, monitor);
+				} finally {
+					try {
+						destination.close();
+					} catch (IOException e) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI), e));
+						return null;
+					}
 				}
 				if (transferResult.isOK())
 					break;
@@ -407,12 +413,16 @@ public class UpdateSite {
 			} else {
 				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-				IStatus result = getTransport().download(digestURI, destination, monitor);
+				IStatus result = null;
 				try {
-					destination.close();
-				} catch (IOException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
-					return null;
+					result = getTransport().download(digestURI, destination, monitor);
+				} finally {
+					try {
+						destination.close();
+					} catch (IOException e) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, location), e));
+						return null;
+					}
 				}
 				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
 					throw new OperationCanceledException();
