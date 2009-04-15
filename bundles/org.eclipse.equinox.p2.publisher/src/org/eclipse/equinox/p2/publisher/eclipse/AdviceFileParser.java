@@ -206,7 +206,7 @@ public class AdviceFileParser {
 		String filter = null;
 		boolean optional = false;
 		boolean multiple = false;
-		boolean greedy = false;
+		boolean greedy = true;
 
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
