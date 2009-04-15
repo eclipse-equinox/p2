@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -57,13 +56,13 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
-		//file is not local, create a cache of the repository metadata
+		// file is not local, create a cache of the repository metadata
 		localFile = Activator.getCacheManager().createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
-			//there is no remote file in either form
-			// TODO HENRIK: Cause of problem is unknown (can be Unknown Host, etc.) - this must be communicated.
-			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+			// there is no remote file in either form - this should not really happen as
+			// createCache should bail out with exception if something is wrong. This is an internal
+			// error.
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.repoMan_internalError, null));
 		}
 		return localFile;
 	}
