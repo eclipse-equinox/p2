@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -20,12 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 
 /**
  * The Policy class is used to locate application specific policies that
- * should be used in the standard p2 UI class libraries.  
+ * should be used in the standard p2 UI class libraries.   The default policy
+ * is acquired using the OSGi service model.
  * 
  * Policy allows clients to specify things such as how repositories 
  * are manipulated in the standard wizards and dialogs, and how the repositories
@@ -34,8 +32,8 @@ import org.osgi.framework.ServiceReference;
  * In some cases, the Policy is used only to define a default value that can
  * be overridden by user choice and subsequently stored in dialog settings.
  * 
- * Client applications should ensure that the Policy is registered before
- * any of the p2 UI objects access the default Policy.
+ * Client applications should ensure that their Policy is registered before
+ * any of the p2 UI objects access the default Policy.  
  * 
  * @since 3.5
  */
@@ -51,32 +49,20 @@ public class Policy {
 	private IUViewQueryContext queryContext;
 	private RepositoryManipulator repositoryManipulator;
 
+	/**
+	 * Get the default policy that should be used for determining the behavior of the UI.
+	 * The default policy is acquired using OSGi services.  The highest ranking implementation
+	 * of the Policy service will be used, or a default policy if no policy was registered.
+	 * 
+	 * @return the Policy that should be used
+	 */
 	public static Policy getDefault() {
 		if (defaultInstance == null) {
-			defaultInstance = findRegisteredPolicy();
+			defaultInstance = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
 			if (defaultInstance == null)
 				defaultInstance = new Policy();
 		}
 		return defaultInstance;
-	}
-
-	private static Policy findRegisteredPolicy() {
-		ServiceReference[] references;
-		try {
-			references = ProvUIActivator.getContext().getServiceReferences(Policy.class.getName(), null);
-		} catch (InvalidSyntaxException e) {
-			// Shouldn't happen, we don't use a filter
-			return null;
-		}
-		if (references == null || references.length == 0)
-			return null;
-		if (references.length > 1) {
-			IStatus multiplePolicyStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, ProvUIMessages.Policy_MultiplePolicyRegistrationsWarning);
-			LogHelper.log(multiplePolicyStatus);
-		}
-		Object result = ProvUIActivator.getContext().getService(references[0]);
-		ProvUIActivator.getContext().ungetService(references[0]);
-		return (Policy) result;
 	}
 
 	/**
