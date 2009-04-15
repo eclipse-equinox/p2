@@ -346,10 +346,18 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 			testProbe.onData(this, source, theMonitor);
 	}
 
+	/**
+	 * Sets a testing probe that can intercept events on the file reader for testing purposes.
+	 * This method should only ever be called from automated test suites.
+	 */
 	public static void setTestProbe(IFileReaderProbe probe) {
 		testProbe = probe;
 	}
 
+	/**
+	 * An interface to allow automated tests to hook into file reader events
+	 * @see #setTestProbe
+	 */
 	public interface IFileReaderProbe {
 		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor);
 
