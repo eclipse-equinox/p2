@@ -87,7 +87,6 @@ import org.eclipse.osgi.util.NLS;
  * corresponding to Windows drive letters. Typically, on UN*X there will only be a "_" directory in the backup root,
  * and on windows there will typically be a single directory called "C".
  * 
- * @author henrik.lindberg@cloudsmith.com
  *
  */
 public class BackupStore implements IBackupStore {

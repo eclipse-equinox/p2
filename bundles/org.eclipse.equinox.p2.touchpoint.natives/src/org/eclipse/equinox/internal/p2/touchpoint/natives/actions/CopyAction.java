@@ -31,7 +31,6 @@ import org.eclipse.osgi.util.NLS;
  * If the source is a directory, a merge copy to the target is performed.
  * Copy will copy files and directories (recursively).
  *  
- * @author henrik.lindberg@cloudsmith.com
  */
 public class CopyAction extends ProvisioningAction {
 	public static final String ID = "cp"; //$NON-NLS-1$
@@ -146,8 +145,12 @@ public class CopyAction extends ProvisioningAction {
 			for (int i = 0; i < children.length; i++)
 				xcopy(copiedFiles, children[i], new File(target, children[i].getName()), overwrite, backupStore);
 			return;
-		} else if (target.exists() && !overwrite)
+		}
+		if (target.exists() && !overwrite)
 			throw new IOException("Target: " + target + " already exists"); //$NON-NLS-1$//$NON-NLS-2$
+
+		if (!target.getParentFile().exists() && !target.getParentFile().mkdirs())
+			throw new IOException("Target: Path " + target.getParent() + " could not be created"); //$NON-NLS-1$//$NON-NLS-2$
 
 		try {
 			Util.copyStream(new FileInputStream(source), true, new FileOutputStream(target), true);
