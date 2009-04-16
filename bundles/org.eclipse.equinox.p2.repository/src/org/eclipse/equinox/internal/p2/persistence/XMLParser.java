@@ -442,8 +442,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 		private String text = null;
 
-		private List texts = null;
-
 		// Constructor for a subclass that processes the attributes
 		public TextHandler(AbstractHandler parent, String elementName) {
 			super(parent, elementName);
@@ -458,7 +456,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		public TextHandler(AbstractHandler parent, String elementName, Attributes attributes, List texts) {
 			super(parent, elementName);
 			parseAttributes(attributes, noAttributes, noAttributes);
-			this.texts = texts;
 		}
 
 		public String getText() {
@@ -471,9 +468,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 		protected void processCharacters(String data) {
 			this.text = canonicalize(data);
-			if (texts != null) {
-				texts.add(getText());
-			}
 		}
 
 	}
