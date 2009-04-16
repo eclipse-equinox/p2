@@ -7,12 +7,14 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc - ongoing implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.io.File;
-import java.net.URI;
-import org.eclipse.core.runtime.URIUtil;
+import java.net.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -55,5 +57,25 @@ public class RepositoryHelper {
 		if (!repository.isModifiable())
 			throw new IllegalStateException(NLS.bind(Messages.DestinationNotModifiable, repository.getLocation()));
 		return repository;
+	}
+
+	/**
+	 * Determine if the location is a syntactically correct repository location. Intended to be used
+	 * from the UI when checking validity of user input.
+	 * 
+	 * @throws IllegalArgumentException if location is null
+	 */
+	public static IStatus checkRepositoryLocationSyntax(URI location) {
+		if (location == null)
+			throw new IllegalArgumentException("Location cannot be null"); //$NON-NLS-1$
+		if (!location.isAbsolute())
+			return new Status(IStatus.ERROR, Activator.ID, Messages.locationMustBeAbsolute);
+		try {
+			new URL(location.getScheme(), "dummy.com", -1, "dummy.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (MalformedURLException e) {
+			return new Status(IStatus.ERROR, Activator.ID, Messages.schemeNotSupported);
+
+		}
+		return Status.OK_STATUS;
 	}
 }

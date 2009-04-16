@@ -32,5 +32,7 @@ class Messages extends NLS {
 	public static String repoMan_notExists;
 	public static String repoMan_unknownType;
 	public static String DestinationNotModifiable;
+	public static String locationMustBeAbsolute;
+	public static String schemeNotSupported;
 
 }
