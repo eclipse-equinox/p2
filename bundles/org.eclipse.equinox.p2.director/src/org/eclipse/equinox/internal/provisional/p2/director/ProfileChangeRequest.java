@@ -129,14 +129,14 @@ public class ProfileChangeRequest implements Cloneable {
 	// map of key value pairs
 	public Map getPropertiesToAdd() {
 		if (propertiesToAdd == null)
-			return new HashMap();
+			return Collections.EMPTY_MAP;
 		return propertiesToAdd;
 	}
 
 	// map of iu->list of property keys to be removed for an iu	
 	public Map getInstallableUnitProfilePropertiesToRemove() {
 		if (iuPropertiesToRemove == null)
-			return new HashMap();
+			return Collections.EMPTY_MAP;
 		return iuPropertiesToRemove;
 	}
 
@@ -144,7 +144,7 @@ public class ProfileChangeRequest implements Cloneable {
 	// map iu->map of key->value pairs for properties to be added for an iu
 	public Map getInstallableUnitProfilePropertiesToAdd() {
 		if (iuPropertiesToAdd == null)
-			return new HashMap();
+			return Collections.EMPTY_MAP;
 		return iuPropertiesToAdd;
 	}
 

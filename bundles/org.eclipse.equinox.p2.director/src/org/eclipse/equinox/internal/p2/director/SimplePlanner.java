@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
@@ -361,6 +362,8 @@ public class SimplePlanner implements IPlanner {
 
 			//Compute the set of operands based on the solution obtained previously
 			Collection newState = (Collection) resolutionResult;
+			Collection fullState = new ArrayList();
+			fullState.addAll(newState);
 			ResolutionHelper newStateHelper = new ResolutionHelper(createSelectionContext(profileChangeRequest.getProfileProperties()), null);
 			newState = newStateHelper.attachCUs(newState);
 
@@ -370,7 +373,7 @@ public class SimplePlanner implements IPlanner {
 			ProvisioningPlan temporaryPlan = generateProvisioningPlan(oldState, newState, profileChangeRequest, null);
 
 			//Create a plan for installing necessary pieces to complete the installation (e.g touchpoint actions)
-			return createInstallerPlan(profileChangeRequest.getProfile(), profileChangeRequest, newState, temporaryPlan, context, sub.newChild(ExpandWork / 2));
+			return createInstallerPlan(profileChangeRequest.getProfile(), profileChangeRequest, fullState, newState, temporaryPlan, context, sub.newChild(ExpandWork / 2));
 		} catch (OperationCanceledException e) {
 			return new ProvisioningPlan(Status.CANCEL_STATUS, profileChangeRequest, null);
 		} finally {
@@ -410,7 +413,7 @@ public class SimplePlanner implements IPlanner {
 		return allMetaRequirements;
 	}
 
-	private ProvisioningPlan createInstallerPlan(IProfile profile, ProfileChangeRequest initialRequest, Collection expectedState, ProvisioningPlan initialPlan, ProvisioningContext initialContext, IProgressMonitor monitor) {
+	private ProvisioningPlan createInstallerPlan(IProfile profile, ProfileChangeRequest initialRequest, Collection unattachedState, Collection expectedState, ProvisioningPlan initialPlan, ProvisioningContext initialContext, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 
 		try {
@@ -426,7 +429,7 @@ public class SimplePlanner implements IPlanner {
 			if (profile.getProfileId().equals(agentProfile.getProfileId())) {
 				if (profile.getTimestamp() != agentProfile.getTimestamp())
 					return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())), initialRequest, null);
-				return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, expectedState, initialContext, sub);
+				return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState, expectedState, initialContext, sub);
 			}
 
 			if (satisfyMetaRequirements(profile) && !profile.getProfileId().equals(agentProfile.getProfileId())) {
@@ -482,24 +485,42 @@ public class SimplePlanner implements IPlanner {
 
 	//Deal with the case where the actions needs to be installed in the same profile than the one we are performing the initial request
 	//The expectedState represents the result of the initialRequest where the metaRequirements have been satisfied.
-	private ProvisioningPlan createInstallerPlanForCohostedCase(IProfile profile, ProfileChangeRequest initialRequest, ProvisioningPlan initialPlan, Collection expectedState, ProvisioningContext initialContext, SubMonitor monitor) {
+	private ProvisioningPlan createInstallerPlanForCohostedCase(IProfile profile, ProfileChangeRequest initialRequest, ProvisioningPlan initialPlan, Collection unattachedState, Collection expectedState, ProvisioningContext initialContext, SubMonitor monitor) {
 		Collection metaRequirements = initialRequest.getRemovedInstallableUnits().length == 0 ? areMetaRequirementsSatisfied(profile, expectedState, initialPlan) : extractMetaRequirements(expectedState, initialPlan);
 		if (metaRequirements == null || metaRequirements.isEmpty())
 			return initialPlan;
 
 		//Let's compute a plan that satisfy all the metaRequirements. We limit ourselves to only the IUs that were part of the previous solution.
 		IInstallableUnit metaRequirementIU = createIUForMetaRequirements(profile, metaRequirements);
-		IInstallableUnit previousActionsIU = getPreviousIUForMetaRequirements(profile, getActionGatheringIUId(profile), monitor);
+		IInstallableUnit previousMetaRequirementIU = getPreviousIUForMetaRequirements(profile, getActionGatheringIUId(profile), monitor);
 
+		//Create an agent request from the initial request
 		ProfileChangeRequest agentRequest = new ProfileChangeRequest(profile);
-		//TODO find a way to add those in
-		agentRequest.getPropertiesToAdd();
-		agentRequest.getPropertiesToRemove();
-		if (previousActionsIU != null)
-			agentRequest.removeInstallableUnits(new IInstallableUnit[] {previousActionsIU});
+		for (Iterator it = initialRequest.getPropertiesToAdd().entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			agentRequest.setProfileProperty((String) entry.getKey(), entry.getValue());
+		}
+		String[] removedProperties = initialRequest.getPropertiesToRemove();
+		for (int i = 0; i < removedProperties.length; i++) {
+			agentRequest.removeProfileProperty(removedProperties[i]);
+		}
+		Map removedIUProperties = initialRequest.getInstallableUnitProfilePropertiesToRemove();
+		for (Iterator iterator = removedIUProperties.entrySet().iterator(); iterator.hasNext();) {
+			Entry entry = (Entry) iterator.next();
+			ArrayList value = (ArrayList) entry.getValue();
+			for (Iterator iterator2 = value.iterator(); iterator2.hasNext();) {
+				agentRequest.removeInstallableUnitProfileProperty((IInstallableUnit) entry.getKey(), (String) iterator2.next());
+			}
+		}
+
+		if (previousMetaRequirementIU != null)
+			agentRequest.removeInstallableUnits(new IInstallableUnit[] {previousMetaRequirementIU});
 		agentRequest.addInstallableUnits(new IInstallableUnit[] {metaRequirementIU});
-		ProvisioningContext agentCtx = new ProvisioningContext();
-		agentCtx.setExtraIUs(new ArrayList(expectedState));
+
+		ProvisioningContext agentCtx = initialContext; //TODO I believe that we are passing too much here
+		ArrayList extraIUs = new ArrayList(unattachedState);
+		extraIUs.addAll(profile.available(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).toCollection());
+		agentCtx.setExtraIUs(extraIUs);
 		agentCtx.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
 		Object agentSolution = getSolutionFor(agentRequest, agentCtx, monitor.newChild(3));
 		if (agentSolution instanceof ProvisioningPlan && ((ProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
