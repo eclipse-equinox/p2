@@ -478,12 +478,18 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param metadataRepo The repo into which the references are added
 	 */
 	private void generateSiteReference(String location, String nickname, String featureId, IMetadataRepository metadataRepo) {
+		if (location == null) {
+			String message = featureId == null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, location, featureId);
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
+			return;
+		}
+
 		try {
 			URI associateLocation = new URI(location);
 			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_METADATA, IRepository.NONE);
 			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_ARTIFACT, IRepository.NONE);
 		} catch (URISyntaxException e) {
-			String message = featureId != null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, featureId);
+			String message = featureId == null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, location, featureId);
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 		}
 	}

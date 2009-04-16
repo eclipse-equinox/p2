@@ -436,6 +436,21 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testRepoWithFeatureWithNullUpdateURL() {
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(repoMan);
+		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
+		IMetadataRepository metadataRepo = null;
+		try {
+			metadataRepo = repoMan.loadRepository(site.toURI(), null);
+		} catch (ProvisionException e) {
+			fail("Can't load repository missingUpdateURLFeature");
+		}
+		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", new Version("1.0.0"));
+		Collector result = metadataRepo.query(query, new Collector(), null);
+		assertEquals("1.0", 1, result.size());
+	}
+
 	/**
 	 * Tests that a feature requiring a bundle with no range is converted correctly.
 	 */
