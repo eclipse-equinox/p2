@@ -132,7 +132,7 @@ public class MirrorSelector {
 			} else {
 				mirrorsURL = mirrorsURL + '?';
 			}
-			mirrorsURL = mirrorsURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&responseType=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			mirrorsURL = mirrorsURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&format=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
