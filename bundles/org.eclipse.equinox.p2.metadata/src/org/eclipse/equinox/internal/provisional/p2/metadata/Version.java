@@ -369,7 +369,9 @@ public class Version extends VersionVector {
 	void init(Comparable[] vec, Comparable pad, VersionFormat fmt, String orig) {
 		init(vec, pad);
 		format = fmt;
-		original = orig;
+		//don't need to retain original for OSGi version
+		if (fmt != VersionFormat.OSGI_FORMAT)
+			original = orig;
 	}
 
 	private int getIntElement(int i) {
