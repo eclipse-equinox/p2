@@ -141,21 +141,15 @@ public class GarbageCollector {
 			if (aProfileMarkSets[i] == null) {
 				continue;
 			}
-
-			for (int j = 0; j < aProfileMarkSets.length; j++) {
-				if (aProfileMarkSets[j] == null) {
-					continue;
+			Collection keys = (Collection) markSet.get(aProfileMarkSets[i].getRepo());
+			if (keys == null) {
+				if (addRepositories) {
+					keys = new HashSet();
+					markSet.put(aProfileMarkSets[i].getRepo(), keys);
+					addKeys(keys, aProfileMarkSets[i].getKeys());
 				}
-				Collection keys = (Collection) markSet.get(aProfileMarkSets[j].getRepo());
-				if (keys == null) {
-					if (addRepositories) {
-						keys = new HashSet();
-						markSet.put(aProfileMarkSets[j].getRepo(), keys);
-						addKeys(keys, aProfileMarkSets[j].getKeys());
-					}
-				} else {
-					addKeys(keys, aProfileMarkSets[j].getKeys());
-				}
+			} else {
+				addKeys(keys, aProfileMarkSets[i].getKeys());
 			}
 		}
 	}
