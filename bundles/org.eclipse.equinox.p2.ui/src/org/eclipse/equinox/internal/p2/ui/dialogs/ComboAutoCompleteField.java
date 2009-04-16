@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Combo;
 /**
  * ComboAutoCompleteField is an auto complete field appropriate for
  * pattern matching the text in a combo to the contents of the combo.
+ * If the proposals should include items outside of the combo, then
+ * clients can set their own proposal strings.
  * 
  * @since 3.5
  */
@@ -26,6 +28,7 @@ public class ComboAutoCompleteField {
 
 	ContentProposalAdapter adapter;
 	Combo combo;
+	String[] proposalStrings = null;
 
 	public ComboAutoCompleteField(Combo c) {
 		this.combo = c;
@@ -34,10 +37,20 @@ public class ComboAutoCompleteField {
 		adapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 	}
 
+	public void setProposalStrings(String[] proposals) {
+		proposalStrings = proposals;
+	}
+
+	String[] getStringItems() {
+		if (proposalStrings == null)
+			return combo.getItems();
+		return proposalStrings;
+	}
+
 	IContentProposalProvider getProposalProvider() {
 		return new IContentProposalProvider() {
 			public IContentProposal[] getProposals(String contents, int position) {
-				String[] items = combo.getItems();
+				String[] items = getStringItems();
 				if (contents.length() == 0 || items.length == 0)
 					return new IContentProposal[0];
 				StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$

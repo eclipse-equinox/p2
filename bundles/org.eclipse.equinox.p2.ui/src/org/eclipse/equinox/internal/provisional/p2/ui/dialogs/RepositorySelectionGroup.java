@@ -301,6 +301,7 @@ public class RepositorySelectionGroup {
 						repoToSelect = repoCombo.getText();
 				}
 				repoCombo.setItems(items);
+				repoAutoComplete.setProposalStrings(getComboProposals());
 				boolean selected = false;
 				for (int i = 0; i < items.length; i++)
 					if (items[i].equals(repoToSelect)) {
@@ -390,6 +391,25 @@ public class RepositorySelectionGroup {
 			return ProvisioningUtil.getMetadataRepositories(flags);
 		} catch (ProvisionException e) {
 			return null;
+		}
+	}
+
+	String[] getComboProposals() {
+		// Include all the combo items plus disabled sites
+		try {
+			int flags = queryContext.getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_DISABLED;
+			String[] items = repoCombo.getItems();
+			URI[] disabled = ProvisioningUtil.getMetadataRepositories(flags);
+			String[] disabledItems = new String[disabled.length];
+			for (int i = 0; i < disabledItems.length; i++) {
+				disabledItems[i] = getSiteString(disabled[i]);
+			}
+			String[] both = new String[items.length + disabledItems.length];
+			System.arraycopy(items, 0, both, 0, items.length);
+			System.arraycopy(disabledItems, 0, both, items.length, disabledItems.length);
+			return both;
+		} catch (ProvisionException e) {
+			return new String[0];
 		}
 	}
 
