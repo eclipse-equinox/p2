@@ -615,6 +615,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (IOException e) {
 			fail("Failed", e);
 		} finally {
+			getArtifactRepositoryManager().removeRepository(siteURI);
 			if (out != null)
 				try {
 					out.close();
@@ -627,17 +628,13 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void testMirrors() {
 		String testDataLocation = "/testData/updatesite/packedSiteWithMirror";
 		File targetLocation = null;
-		IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
+		URI siteURI = getTestData("0.1", testDataLocation).toURI();
 		try {
-			URI siteURI = getTestData("0.1", testDataLocation).toURI();
-
+			IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
 			// Load source repository
-			IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
-			assertNotNull(artifactRepoMan);
-			IArtifactRepository sourceRepo = artifactRepoMan.loadRepository(siteURI, getMonitor());
+			IArtifactRepository sourceRepo = getArtifactRepositoryManager().loadRepository(siteURI, getMonitor());
 
 			// Hijack source repository's mirror selector
-
 			new OrderedMirrorSelector(sourceRepo, testDataLocation);
 
 			// Create target repository
@@ -667,6 +664,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} finally {
 			if (targetLocation != null)
 				delete(targetLocation);
+			getArtifactRepositoryManager().removeRepository(siteURI);
 		}
 	}
 
@@ -722,7 +720,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				mirrorLocation = MirrorInfo.class.getDeclaredField("locationString");
 				mirrorLocation.setAccessible(true);
 
-				return URIUtil.makeAbsolute(new URI((String) mirrorLocation.get(mirrors[index++])), repoLocation);
+				if (index < mirrors.length)
+					return URIUtil.makeAbsolute(new URI((String) mirrorLocation.get(mirrors[index++])), repoLocation);
+				return repoLocation;
 			} catch (Exception e) {
 				fail(Double.toString(0.4 + index), e);
 				return null;
