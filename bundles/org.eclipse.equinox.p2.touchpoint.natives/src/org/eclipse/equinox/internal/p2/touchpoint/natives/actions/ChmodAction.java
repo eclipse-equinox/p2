@@ -8,6 +8,7 @@
  * Contributors:
  *     Red Hat Incorporated - initial API and implementation
  *     IBM Corporation - ongoing development
+ *     Cloudsmith Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
@@ -22,7 +23,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class ChmodAction extends ProvisioningAction {
 	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
-	public static final String PARM_OPTIONS = "options"; //$NON-NLS-1$   // TODO: Move this to ActionConstants
 
 	public IStatus execute(Map parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -34,7 +34,12 @@ public class ChmodAction extends ProvisioningAction {
 		String permissions = (String) parameters.get(ActionConstants.PARM_PERMISSIONS);
 		if (permissions == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PERMISSIONS, ACTION_CHMOD));
-		String optionsString = (String) parameters.get(PARM_OPTIONS);
+		String optionsString = (String) parameters.get(ActionConstants.PARM_OPTIONS);
+
+		// Check that file exist
+		File probe = new File(targetDir + IPath.SEPARATOR + targetFile);
+		if (!probe.exists())
+			return Util.createError(NLS.bind(Messages.action_0_failed_file_1_doesNotExist, ACTION_CHMOD, probe.toString()));
 
 		String options[] = null;
 		if (optionsString != null) {
