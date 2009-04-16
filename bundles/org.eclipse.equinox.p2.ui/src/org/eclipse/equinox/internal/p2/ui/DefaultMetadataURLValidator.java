@@ -11,11 +11,11 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
 
@@ -49,20 +49,26 @@ public class DefaultMetadataURLValidator extends RepositoryLocationValidator {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
 	 */
 	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
-		IStatus duplicateStatus = Status.OK_STATUS;
+		// First validate syntax issues
+		IStatus localValidationStatus = RepositoryHelper.checkRepositoryLocationSyntax(location);
+		if (!localValidationStatus.isOK()) {
+			return localValidationStatus;
+		}
 
+		// Syntax was ok, now look for duplicates
 		URI[] knownRepositories = getKnownLocations();
 		for (int i = 0; i < knownRepositories.length; i++) {
 			if (knownRepositories[i].equals(location)) {
-				duplicateStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+				localValidationStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
 				break;
 			}
 		}
-		if (!duplicateStatus.isOK())
-			return duplicateStatus;
+		if (!localValidationStatus.isOK())
+			return localValidationStatus;
 
 		if (contactRepositories)
 			return ProvisioningUtil.validateMetadataRepositoryLocation(location, monitor);
-		return duplicateStatus;
+
+		return localValidationStatus;
 	}
 }

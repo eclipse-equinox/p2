@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TextURLDropAdapter;
@@ -92,7 +93,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText(RepositoryLocationValidator.makeFileURLString(path));
+					url.setText(makeLocalURIString(path));
 					validateRepositoryURL(false);
 				}
 			}
@@ -128,7 +129,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText(RepositoryLocationValidator.makeJarURLString(path));
+					url.setText(makeLocalURIString(path));
 					validateRepositoryURL(false);
 				}
 			}
@@ -137,6 +138,15 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		comp.setTabList(new Control[] {nickname, url, localButton, archiveButton});
 		Dialog.applyDialogFont(comp);
 		return comp;
+	}
+
+	String makeLocalURIString(String path) {
+		try {
+			URI localURI = URIUtil.fromString(path);
+			return URIUtil.toUnencodedString(RepositoryHelper.localRepoURIHelper(localURI));
+		} catch (URISyntaxException e) {
+			return path;
+		}
 	}
 
 	/**
@@ -181,7 +191,8 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		} catch (URISyntaxException e) {
 			return null;
 		}
-		return userLocation;
+		// Using the local repo helper will append file scheme to something that has no scheme.
+		return RepositoryHelper.localRepoURIHelper(userLocation);
 	}
 
 	/**

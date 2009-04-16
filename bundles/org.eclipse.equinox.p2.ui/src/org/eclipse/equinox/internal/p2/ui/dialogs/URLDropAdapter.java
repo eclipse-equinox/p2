@@ -11,7 +11,10 @@
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryLocationValidator;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.swt.dnd.*;
 
 /**
@@ -60,8 +63,15 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 			return (String) URLTransfer.getInstance().nativeToJava(event.currentDataType);
 		if (convertFileToURL && FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 			String[] names = (String[]) FileTransfer.getInstance().nativeToJava(event.currentDataType);
-			if (names != null && names.length == 1)
-				return RepositoryLocationValidator.makeJarURLString(names[0]);
+			if (names != null && names.length == 1) {
+				URI potentialLocation;
+				try {
+					potentialLocation = URIUtil.fromString(names[0]);
+					return URIUtil.toUnencodedString(RepositoryHelper.localRepoURIHelper(potentialLocation));
+				} catch (URISyntaxException e) {
+					return names[0];
+				}
+			}
 		}
 		return null;
 	}

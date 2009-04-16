@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.UIRepositoryEvent;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ComboAutoCompleteField;
@@ -158,7 +159,7 @@ public class RepositorySelectionGroup {
 					int index = getComboIndex(text);
 					// only validate text that doesn't match existing text in combo
 					if (index < 0) {
-						location = URIUtil.fromString(repoCombo.getText());
+						location = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(repoCombo.getText()));
 						RepositoryLocationValidator validator = policy.getRepositoryManipulator().getRepositoryLocationValidator(repoCombo.getShell());
 						status = validator.validateRepositoryLocation(location, false, new NullProgressMonitor());
 					} else {
@@ -513,7 +514,7 @@ public class RepositorySelectionGroup {
 						URI location = null;
 						IStatus status;
 						try {
-							location = URIUtil.fromString(selectedRepo);
+							location = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(selectedRepo));
 							RepositoryLocationValidator validator = manipulator.getRepositoryLocationValidator(repoCombo.getShell());
 							status = validator.validateRepositoryLocation(location, false, monitor);
 						} catch (URISyntaxException e) {
