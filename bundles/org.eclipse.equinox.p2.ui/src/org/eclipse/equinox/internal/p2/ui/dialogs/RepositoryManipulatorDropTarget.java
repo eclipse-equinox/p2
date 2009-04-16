@@ -42,7 +42,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		event.detail = DND.DROP_NONE;
 		final URI[] location = new URI[1];
 		try {
-			location[0] = new URI(urlText);
+			location[0] = URIUtil.fromString(urlText);
 		} catch (URISyntaxException e) {
 			ProvUI.reportStatus(RepositoryLocationValidator.getInvalidLocationStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
 			return;
@@ -63,7 +63,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 				} else if (status.getSeverity() == IStatus.CANCEL) {
 					event.detail = DND.DROP_NONE;
 				} else {
-					status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] {status}, NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid, location[0]), null);
+					status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] {status}, NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid, URIUtil.toUnencodedString(location[0])), null);
 					event.detail = DND.DROP_NONE;
 				}
 				return status;
