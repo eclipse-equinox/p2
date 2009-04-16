@@ -281,6 +281,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		requestUpdateA.removeInstallableUnits(new IInstallableUnit[] {a});
 		requestUpdateA.addInstallableUnits(new IInstallableUnit[] {a111});
 		ProvisioningPlan planUpdateA = planner.getProvisioningPlan(requestUpdateA, ctx, new NullProgressMonitor());
+		assertOK("Checking planUpdateA", planUpdateA.getStatus());
 		assertOK("install actions for A 1.1.1", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), planUpdateA.getInstallerPlan().getOperands(), null, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, act1b});
 		assertOK("install A", engine.perform(getProfile(IProfileRegistry.SELF), new DefaultPhaseSet(), planUpdateA.getOperands(), null, null));
