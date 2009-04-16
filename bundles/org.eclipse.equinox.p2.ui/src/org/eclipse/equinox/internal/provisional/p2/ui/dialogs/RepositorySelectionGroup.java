@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Yury Chernikov <Yury.Chernikov@borland.com> - Bug 271447 [ui] Bad layout in 'Install available software' dialog
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
@@ -29,16 +30,18 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -142,7 +145,7 @@ public class RepositorySelectionGroup {
 			}
 		});
 
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		// breathing room for info dec
 		gd.horizontalIndent = DEC_MARGIN_WIDTH * 2;
 		repoCombo.setLayoutData(gd);
@@ -196,6 +199,7 @@ public class RepositorySelectionGroup {
 				addRepository(true);
 			}
 		});
+		setButtonLayoutData(button);
 
 		// Link to repository manipulator
 		repoManipulatorLink = createLink(comboComposite, new Action() {
@@ -214,6 +218,18 @@ public class RepositorySelectionGroup {
 			}
 
 		});
+	}
+
+	private void setButtonLayoutData(Button button) {
+		GridData data = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		GC gc = new GC(button);
+		gc.setFont(JFaceResources.getDialogFont());
+		FontMetrics fm = gc.getFontMetrics();
+		gc.dispose();
+		int widthHint = Dialog.convertHorizontalDLUsToPixels(fm, IDialogConstants.BUTTON_WIDTH);
+		Point minSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		data.widthHint = Math.max(widthHint, minSize.x);
+		button.setLayoutData(data);
 	}
 
 	public void setRepositorySelection(int scope, URI location) {
