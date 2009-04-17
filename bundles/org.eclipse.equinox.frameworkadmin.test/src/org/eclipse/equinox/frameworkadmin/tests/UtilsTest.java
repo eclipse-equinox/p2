@@ -28,15 +28,20 @@ public class UtilsTest extends AbstractFwkAdminTest {
 		File foo1 = new File(plugins, "org.foo_1.2.3.abc");
 		File foo2 = new File(plugins, "org.foo_1.2.4.xyz");
 		File foo_64 = new File(plugins, "org.foo.x86_64_1.2.3");
+		File fooWithSpaces = new File(plugins, "alotof/s p a c e s/org.foo_1.2.3.abc");
 		foo1.mkdirs();
 		foo2.mkdirs();
 		foo_64.mkdirs();
+		fooWithSpaces.mkdirs();
 
 		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "eclipse"));
 
+		
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), foo2.toURI());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo_1.2.3.abc"), foo1.toURI());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo.x86_64"), foo_64.toURI());
+			
+		assertEquals(FileUtils.getEclipseRealLocation(manipulator, plugins.toURI().toString() + "alotof/s%20p%20a%20c%20e%20s/org.foo_1.2.3.abc/"), fooWithSpaces.toURI());
 
 		File other = new File(installFolder, "other/org.foo_1.2.4");
 		other.mkdirs();

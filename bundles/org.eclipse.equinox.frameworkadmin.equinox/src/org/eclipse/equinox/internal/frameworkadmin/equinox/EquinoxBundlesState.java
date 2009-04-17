@@ -724,7 +724,7 @@ public class EquinoxBundlesState implements BundlesState {
 	private void createStateIndexes() {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			URI location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation().toString());
+			URI location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation());
 			locationStateIndex.put(location, currentInstalledBundles[i]);
 			nameVersionStateIndex.put(getKey(currentInstalledBundles[i]), currentInstalledBundles[i]);
 		}
@@ -732,13 +732,13 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void addBundleToState(BundleDescription bundleDescription) {
 		state.addBundle(bundleDescription);
-		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation().toString());
+		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation());
 		locationStateIndex.put(location, bundleDescription);
 		nameVersionStateIndex.put(getKey(bundleDescription), bundleDescription);
 	}
 
 	private void removeBundleFromState(BundleDescription bundleDescription) {
-		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation().toString());
+		URI location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation());
 		locationStateIndex.remove(location);
 		nameVersionStateIndex.remove(getKey(bundleDescription));
 		state.removeBundle(bundleDescription);
