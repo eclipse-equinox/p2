@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     henrik.lindberg@cloudsmith.com - resume of download
+ *     Cloudsmith Inc - additional implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -320,8 +320,9 @@ public class CacheManager {
 					}
 				}
 			};
-			eventBus.addListener(busListener);
 		}
+		// the bus could have disappeared and is now back again - so do this every time
+		eventBus.addListener(busListener);
 	}
 
 	private boolean safeDelete(File file) {
