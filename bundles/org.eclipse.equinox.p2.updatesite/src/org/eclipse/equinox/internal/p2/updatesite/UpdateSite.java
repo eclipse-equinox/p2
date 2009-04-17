@@ -161,15 +161,15 @@ public class UpdateSite {
 				// The only thing needed is to translate the error code ARTIFACT_NOT_FOUND to
 				// REPOSITORY_NOT_FOUND as the download does not know what the file represents.
 				//
-				// TODO: ? Tests dictate that REPOSITORY_NOT_FOUND is the correct response to 
-				// issues like "unknown host", "malformed url" - it is almost impossible to differentiate
-				// between "not found" and "error while reading something found" at this point.
-				// int code = transferResult.getCode();
-				MultiStatus ms = new MultiStatus(Activator.ID, //
-						ProvisionException.REPOSITORY_NOT_FOUND,
-						// (code == ProvisionException.ARTIFACT_NOT_FOUND || code == ProvisionException.REPOSITORY_NOT_FOUND ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ), //
-						new IStatus[] {transferResult}, //
-						NLS.bind(Messages.ErrorReadingSite, location), null);
+				IStatus ms = null;
+				if (transferResult.getException() instanceof FileNotFoundException)
+					ms = new MultiStatus(Activator.ID, //
+							ProvisionException.REPOSITORY_NOT_FOUND,
+							// (code == ProvisionException.ARTIFACT_NOT_FOUND || code == ProvisionException.REPOSITORY_NOT_FOUND ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ), //
+							new IStatus[] {transferResult}, //
+							NLS.bind(Messages.ErrorReadingSite, location), null);
+				else
+					ms = transferResult;
 				throw new ProvisionException(ms);
 
 			} finally {

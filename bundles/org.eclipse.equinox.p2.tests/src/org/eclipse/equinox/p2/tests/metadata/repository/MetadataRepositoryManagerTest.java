@@ -124,13 +124,13 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			assertEquals(ProvisionException.REPOSITORY_INVALID_LOCATION, e.getStatus().getCode());
 		}
 		factory = new UpdateSiteMetadataRepositoryFactory();
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			assertEquals(ProvisionException.REPOSITORY_INVALID_LOCATION, e.getStatus().getCode());
 		}
 	}
 

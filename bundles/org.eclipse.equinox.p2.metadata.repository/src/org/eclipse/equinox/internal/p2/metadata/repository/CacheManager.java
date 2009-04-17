@@ -121,7 +121,6 @@ public class CacheManager {
 				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
-
 			} catch (Exception e) {
 				// not ideal, just skip the jar on error, and try the xml instead - report errors for
 				// the xml.
@@ -154,7 +153,12 @@ public class CacheManager {
 				} catch (AuthenticationFailedException e) {
 					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), e));
 				} catch (CoreException e) {
-					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, repositoryLocation), e));
+					IStatus status = e.getStatus();
+					if (status == null)
+						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, repositoryLocation), e));
+					else if (status.getException() instanceof FileNotFoundException)
+						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), null));
+					throw new ProvisionException(status);
 
 				}
 				// There is an xml, and it should be used - cache is stale if it is jar based or
