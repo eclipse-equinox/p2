@@ -9,8 +9,7 @@
 
 package org.eclipse.equinox.internal.p2.artifact.processors.md5;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.osgi.util.NLS;
@@ -35,6 +34,6 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 		if (sourceMD5.equals(destMD5))
 			return Status.OK_STATUS;
 
-		return new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.warning_differentMD5, new Object[] {source, destination, sourceDescriptor}));
+		return new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()), URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), sourceDescriptor}));
 	}
 }

@@ -1189,7 +1189,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
 		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {repo1, repo2, descriptor1});
+		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(repo1.getLocation()), URIUtil.toUnencodedString(repo2.getLocation()), descriptor1});
 		try {
 			assertLogContainsLine(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
@@ -1266,7 +1266,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
 		assertEquals("Ensuring destination contains the descriptor from the baseline", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {baseline, repo, descriptor1});
+		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), descriptor1});
 		try {
 			assertLogContainsLine(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
