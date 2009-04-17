@@ -14,10 +14,8 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import com.ibm.icu.text.Collator;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.UIRepositoryEvent;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ComboAutoCompleteField;
@@ -154,20 +152,20 @@ public class RepositorySelectionGroup {
 			public void modifyText(ModifyEvent event) {
 				URI location = null;
 				IStatus status = null;
-				try {
-					String text = repoCombo.getText();
-					int index = getComboIndex(text);
-					// only validate text that doesn't match existing text in combo
-					if (index < 0) {
-						location = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(repoCombo.getText()));
+				String text = repoCombo.getText();
+				int index = getComboIndex(text);
+				// only validate text that doesn't match existing text in combo
+				if (index < 0) {
+					location = RepositoryLocationValidator.locationFromString(repoCombo.getText());
+					if (location == null) {
+						status = RepositoryLocationValidator.getInvalidLocationStatus(repoCombo.getText());
+					} else {
 						RepositoryLocationValidator validator = policy.getRepositoryManipulator().getRepositoryLocationValidator(repoCombo.getShell());
 						status = validator.validateRepositoryLocation(location, false, new NullProgressMonitor());
-					} else {
-						// user typed or pasted an existing location.  Select it.
-						repoComboSelectionChanged();
 					}
-				} catch (URISyntaxException e) {
-					status = RepositoryLocationValidator.getInvalidLocationStatus(repoCombo.getText());
+				} else {
+					// user typed or pasted an existing location.  Select it.
+					repoComboSelectionChanged();
 				}
 				setRepoComboDecoration(status);
 			}
@@ -250,7 +248,7 @@ public class RepositorySelectionGroup {
 		setRepoComboDecoration(null);
 	}
 
-	protected void setRepoComboDecoration(IStatus status) {
+	protected void setRepoComboDecoration(final IStatus status) {
 		if (status == null || status.isOK() || status.getSeverity() == IStatus.CANCEL) {
 			repoDec.setShowOnlyOnFocus(true);
 			repoDec.setDescriptionText(ProvUIMessages.AvailableIUsPage_RepoFilterInstructions);
@@ -272,7 +270,15 @@ public class RepositorySelectionGroup {
 		repoDec.setImage(image);
 		repoDec.setDescriptionText(status.getMessage());
 		repoDec.setShowOnlyOnFocus(false);
-		repoDec.showHoverText(status.getMessage());
+		// use a delay to show the validation method because the very next
+		// selection or keystroke might fix it
+		repoCombo.getDisplay().timerExec(500, new Runnable() {
+			public void run() {
+				if (repoDec != null && repoDec.getImage() != info)
+					repoDec.showHoverText(status.getMessage());
+			}
+		});
+
 	}
 
 	/*
@@ -513,12 +519,12 @@ public class RepositorySelectionGroup {
 					public void run(IProgressMonitor monitor) {
 						URI location = null;
 						IStatus status;
-						try {
-							location = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(selectedRepo));
+						location = RepositoryLocationValidator.locationFromString(selectedRepo);
+						if (location == null)
+							status = RepositoryLocationValidator.getInvalidLocationStatus(selectedRepo);
+						else {
 							RepositoryLocationValidator validator = manipulator.getRepositoryLocationValidator(repoCombo.getShell());
 							status = validator.validateRepositoryLocation(location, false, monitor);
-						} catch (URISyntaxException e) {
-							status = RepositoryLocationValidator.getInvalidLocationStatus(selectedRepo);
 						}
 						if (status.isOK() && location != null) {
 							try {

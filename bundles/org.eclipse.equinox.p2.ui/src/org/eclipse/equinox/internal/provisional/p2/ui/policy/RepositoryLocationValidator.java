@@ -11,8 +11,11 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
+import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.osgi.util.NLS;
@@ -33,6 +36,20 @@ public abstract class RepositoryLocationValidator {
 
 	public static IStatus getInvalidLocationStatus(String urlText) {
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
+	}
+
+	public static URI locationFromString(String locationString) {
+		URI userLocation;
+		try {
+			userLocation = URIUtil.fromString(locationString);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+		// If a path separator char was used, interpret as a local file URI
+		String uriString = URIUtil.toUnencodedString(userLocation);
+		if (uriString.length() > 0 && (uriString.charAt(0) == '/' || uriString.charAt(0) == File.separatorChar))
+			return RepositoryHelper.localRepoURIHelper(userLocation);
+		return userLocation;
 	}
 
 	public abstract IStatus validateRepositoryLocation(URI url, boolean contactRepositories, IProgressMonitor monitor);

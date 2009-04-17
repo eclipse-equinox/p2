@@ -185,14 +185,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	 * @return the URL currently typed in by the user.
 	 */
 	protected URI getUserLocation() {
-		URI userLocation;
-		try {
-			userLocation = URIUtil.fromString(url.getText().trim());
-		} catch (URISyntaxException e) {
-			return null;
-		}
-		// Using the local repo helper will append file scheme to something that has no scheme.
-		return RepositoryHelper.localRepoURIHelper(userLocation);
+		return RepositoryLocationValidator.locationFromString(url.getText().trim());
 	}
 
 	/**

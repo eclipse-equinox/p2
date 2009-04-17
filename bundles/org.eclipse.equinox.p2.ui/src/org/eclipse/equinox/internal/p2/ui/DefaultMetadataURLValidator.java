@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
@@ -49,11 +50,21 @@ public class DefaultMetadataURLValidator extends RepositoryLocationValidator {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
 	 */
 	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
+
 		// First validate syntax issues
 		IStatus localValidationStatus = RepositoryHelper.checkRepositoryLocationSyntax(location);
 		if (!localValidationStatus.isOK()) {
-			return localValidationStatus;
+			// bad syntax, but it could just be non-absolute.
+			// In this case, use the helper
+			String locationString = URIUtil.toUnencodedString(location);
+			if (locationString.length() > 0 && (locationString.charAt(0) == '/' || locationString.charAt(0) == File.separatorChar)) {
+				location = RepositoryHelper.localRepoURIHelper(location);
+				localValidationStatus = RepositoryHelper.checkRepositoryLocationSyntax(location);
+			}
 		}
+
+		if (!localValidationStatus.isOK())
+			return localValidationStatus;
 
 		// Syntax was ok, now look for duplicates
 		URI[] knownRepositories = getKnownLocations();
