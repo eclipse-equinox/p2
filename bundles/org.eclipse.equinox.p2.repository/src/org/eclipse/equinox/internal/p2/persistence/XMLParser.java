@@ -392,7 +392,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		public PropertiesHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROPERTIES_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			properties = (size != null ? new OrderedProperties(new Integer(size).intValue()) : new OrderedProperties());
+			properties = (size != null ? new OrderedProperties(Integer.parseInt(size)) : new OrderedProperties());
 		}
 
 		public OrderedProperties getProperties() {
@@ -670,7 +670,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 */
 	public Version checkVersion(String element, String attribute, String value) {
 		try {
-			if (value != null)
+			if (value != null && !value.equals("0.0.0")) //$NON-NLS-1$
 				return new Version(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
@@ -682,7 +682,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	public VersionRange checkVersionRange(String element, String attribute, String value) {
 		try {
-			return new VersionRange(value);
+			if (value != null && !value.equals("0.0.0")) //$NON-NLS-1$
+				return new VersionRange(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
 		} catch (NullPointerException npe) {
