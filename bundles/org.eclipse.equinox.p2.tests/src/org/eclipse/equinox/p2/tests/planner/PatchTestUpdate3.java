@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
+import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -34,7 +33,6 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 	private IInstallableUnitPatch pp2;
 	private IInstallableUnit p2b;
 	private IInstallableUnit p1b;
-	private IProfile profile1;
 	private IPlanner planner;
 	private IEngine engine;
 
@@ -59,32 +57,36 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 		p2Feature20 = createIU(P2_FEATURE, new Version(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
 		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1, pp2, p2Feature20});
 
-		profile1 = createProfile("TestProfile." + getName());
+		createProfile("TestProfile." + getName());
 		planner = createPlanner();
 		engine = createEngine();
 
-		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
 			fail("Setup failed");
 
-		if (!install(profile1, new IInstallableUnit[] {pp1}, false, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp1}, false, planner, engine).isOK())
 			fail("Setup failed");
 
-		if (!install(profile1, new IInstallableUnit[] {pp2}, false, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp2}, false, planner, engine).isOK())
 			fail("Setup failed");
 
-		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, pp1, p1b, pp2, p2b});
+		assertProfileContainsAll("Profile setup incorrectly", getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature, pp1, p1b, pp2, p2b});
 	}
 
 	public void testUpdate() {
+		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
+		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
+		assertOK("Validating the profile", planner.getProvisioningPlan(req2, ctx, null).getStatus());
+
 		//The update of the feature will cause the patch pp2 to be uninstalled because its lifecycle is no longer matched. pp1 stays because its lifecycle is still applicable
-		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
+		ProfileChangeRequest req1 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(true, IStatus.ERROR != plan.getStatus().getSeverity());
 
-		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
-		assertProfileContains("The profile contains unexpected IUs", profile1, new IInstallableUnit[] {p2Feature20, p1b, pp1, p2});
+		engine.perform(getProfile("TestProfile." + getName()), new DefaultPhaseSet(), plan.getOperands(), null, null);
+		assertProfileContains("The profile contains unexpected IUs", getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature20, p1b, pp1, p2});
 	}
 }
