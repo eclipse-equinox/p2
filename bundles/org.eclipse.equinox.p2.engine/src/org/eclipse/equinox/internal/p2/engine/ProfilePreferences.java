@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -88,12 +87,11 @@ public class ProfilePreferences extends EclipsePreferences {
 		qualifier = getSegment(path, 2);
 	}
 
-	private IProfile computeProfile(String profileId) {
+	private boolean containsProfile(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
-		IProfile result = null;
-		if (profileId != null && profileRegistry != null)
-			result = profileRegistry.getProfile(profileId);
-		return result;
+		if (profileId == null || profileRegistry == null)
+			return false;
+		return profileRegistry.containsProfile(profileId);
 	}
 
 	/*
@@ -103,8 +101,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	protected void doSave() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getSegment(absolutePath(), 1);
-			IProfile profile = computeProfile(profileId);
-			if (profile == null) {
+			if (!containsProfile(profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
 					IPath location = getDefaultLocation();
@@ -117,7 +114,7 @@ public class ProfilePreferences extends EclipsePreferences {
 					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 				return;
 			}
-			super.save(getProfileLocation(profile));
+			super.save(getProfileLocation(profileId));
 		}
 	}
 
@@ -153,9 +150,9 @@ public class ProfilePreferences extends EclipsePreferences {
 	/**
 	 * Returns the location of the preference file for the given profile.
 	 */
-	private IPath getProfileLocation(IProfile profile) {
+	private IPath getProfileLocation(String profileId) {
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
-		File profileDataDirectory = profileRegistry.getProfileDataDirectory((Profile) profile);
+		File profileDataDirectory = profileRegistry.getProfileDataDirectory(profileId);
 		return computeLocation(new Path(profileDataDirectory.getAbsolutePath()), qualifier);
 	}
 
@@ -178,8 +175,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	protected void load() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getSegment(absolutePath(), 1);
-			IProfile profile = computeProfile(profileId);
-			if (profile == null) {
+			if (!containsProfile(profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
 					IPath location = getDefaultLocation();
@@ -192,7 +188,7 @@ public class ProfilePreferences extends EclipsePreferences {
 					Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 				return;
 			}
-			load(getProfileLocation(profile));
+			load(getProfileLocation(profileId));
 		}
 	}
 

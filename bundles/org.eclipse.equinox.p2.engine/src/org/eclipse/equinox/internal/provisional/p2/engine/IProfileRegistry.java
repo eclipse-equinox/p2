@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,6 +88,15 @@ public interface IProfileRegistry {
 	 *         with the same id is already present in the registry or the parentId is not a registered Profile.
 	 */
 	IProfile addProfile(String id, Map properties, String parentId) throws ProvisionException;
+
+	/**
+	 * Returns whether this profile registry contains a profile with the given id.
+	 * 
+	 * @param profileId The id of the profile to search for
+	 * @return <code>true</code> if this registry contains a profile with the given id,
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean containsProfile(String profileId);
 
 	/**
 	 * Remove the given profile from this profile registry.  This method has no effect

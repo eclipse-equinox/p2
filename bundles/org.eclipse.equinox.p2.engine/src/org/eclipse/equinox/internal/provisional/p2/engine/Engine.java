@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public class Engine implements IEngine {
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
-			File profileDataDirectory = profileRegistry.getProfileDataDirectory(profile);
+			File profileDataDirectory = profileRegistry.getProfileDataDirectory(profile.getProfileId());
 
 			EngineSession session = new EngineSession(profile, profileDataDirectory, context);
 

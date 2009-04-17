@@ -722,6 +722,31 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry#containsProfile(java.lang.String)
+	 */
+	public boolean containsProfile(String id) {
+		if (SELF.equals(id))
+			id = self;
+		//null check done after self check, because self can be null
+		if (id == null)
+			return false;
+
+		if (profiles != null)
+			if (getProfile(id) != null)
+				return true;
+
+		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		if (!profileDirectory.isDirectory())
+			return false;
+		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
+			}
+		});
+		return profileFiles.length > 0;
+	}
+
 	public synchronized void resetProfiles() {
 		profiles = null;
 	}
@@ -748,11 +773,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
-	public File getProfileDataDirectory(Profile profile) {
-		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
+	public File getProfileDataDirectory(String id) {
+		if (SELF.equals(id))
+			id = self;
+		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
 		File profileDataArea = new File(profileDirectory, DATA_EXT);
 		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
-			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + profile.getProfileId()); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + id); //$NON-NLS-1$ //$NON-NLS-2$
 		return profileDataArea;
 	}
 }
