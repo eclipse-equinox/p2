@@ -198,8 +198,9 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		try {
 			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
-
 			join();
+			// check and throw exception if received in callback
+			checkException(uri, connectionRetryCount);
 		} catch (InterruptedException e) {
 			monitor.setCanceled(true);
 			throw new OperationCanceledException();
@@ -238,7 +239,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		this.theOutputStream = outputStream;
 		this.requestUri = uri;
 
-		for (int retryCount = 0;;) {
+		for (int retryCount = 0;; retryCount++) {
 			if (monitor != null && monitor.isCanceled())
 				throw new OperationCanceledException();
 
@@ -256,41 +257,55 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 				if (exception != null)
 					exception.printStackTrace();
 			}
-
-			// note that 'exception' could have been captured in a callback
-			if (exception != null) {
-				// if this is a authentication failure - it is not meaningful to continue
-				RepositoryStatusHelper.checkPermissionDenied(exception);
-
-				Throwable t = RepositoryStatusHelper.unwind(exception);
-				if (t instanceof CoreException)
-					throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
-
-				if (t instanceof FileNotFoundException)
-					//
-					// Connection succeeded but the target doesn't exist
-					//
-					throw (FileNotFoundException) t;
-
-				if (t instanceof IOException && retryCount < connectionRetryCount) {
-					// TODO: Retry only certain exceptions or filter out
-					// some exceptions not worth retrying
-					//
-					++retryCount;
-					exception = null;
-					try {
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {uri.toString(), t.getMessage(), String.valueOf(retryCount)}), t));
-
-						Thread.sleep(connectionRetryDelay);
-						continue;
-					} catch (InterruptedException e) {
-						/* ignore */
-					}
-				}
-				throw RepositoryStatusHelper.wrap(exception);
-			}
-			break;
+			if (checkException(uri, retryCount))
+				break;
 		}
+	}
+
+	/**
+	 * Utility method to check exception condition and determine if retry should be done.
+	 * If there was an exception it is translated into one of the specified exceptions and thrown.
+	 * 
+	 * @param uri the URI being read - used for logging purposes
+	 * @param attemptCounter - the current attempt number (start with 0)
+	 * @return true if the exception is an IOException and attemptCounter < connectionRetryCount, false otherwise
+	 * @throws CoreException
+	 * @throws FileNotFoundException
+	 * @throws AuthenticationFailedException
+	 */
+	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+		// note that 'exception' could have been captured in a callback
+		if (exception != null) {
+			// if this is a authentication failure - it is not meaningful to continue
+			RepositoryStatusHelper.checkPermissionDenied(exception);
+
+			Throwable t = RepositoryStatusHelper.unwind(exception);
+			if (t instanceof CoreException)
+				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
+
+			if (t instanceof FileNotFoundException)
+				//
+				// Connection succeeded but the target doesn't exist
+				//
+				throw (FileNotFoundException) t;
+
+			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
+				// TODO: Retry only certain exceptions or filter out
+				// some exceptions not worth retrying
+				//
+				exception = null;
+				try {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {uri.toString(), t.getMessage(), String.valueOf(attemptCounter)}), t));
+
+					Thread.sleep(connectionRetryDelay);
+					return false;
+				} catch (InterruptedException e) {
+					/* ignore */
+				}
+			}
+			throw RepositoryStatusHelper.wrap(exception);
+		}
+		return true;
 	}
 
 	protected Exception getException() {
