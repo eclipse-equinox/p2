@@ -40,6 +40,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug271067.class);
 		suite.addTestSuite(Bug271954.class);
 		suite.addTestSuite(DependencyOnSelf.class);
+		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
 		suite.addTestSuite(ExplanationDeepConflict.class);
 		suite.addTestSuite(ExplanationForOptionalDependencies.class);
