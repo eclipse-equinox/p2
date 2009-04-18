@@ -323,17 +323,7 @@ public class SimplePlanner implements IPlanner {
 				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
 					return new ProvisioningPlan(s, profileChangeRequest, null);
 
-				boolean newExplanation = true;
-				if (System.getProperty("p2.new.explanation") != null && Boolean.getBoolean("p2.new.explanation") == false) //$NON-NLS-1$ //$NON-NLS-2$
-					newExplanation = false;
-				if (!newExplanation) {
-					//We invoke the old resolver to get explanations for now
-					IStatus oldResolverStatus = new NewDependencyExpander(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-					if (!oldResolverStatus.isOK())
-						s = oldResolverStatus;
-					return new ProvisioningPlan(oldResolverStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, null), null, profileChangeRequest);
-				}
-				//Invoke the new resolver
+				//Extract the explanation
 				Set explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
 				IStatus explanationStatus = convertExplanationToStatus(explanation);
 				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profileChangeRequest);
