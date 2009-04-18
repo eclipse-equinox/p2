@@ -56,6 +56,8 @@ public class Projector {
 
 	private Collection alreadyInstalledIUs;
 	private boolean considerMetaRequirements;
+	private IInstallableUnit entryPoint;
+	private Map fragments = new HashMap();
 
 	static class AbstractVariable {
 		public String toString() {
@@ -126,8 +128,9 @@ public class Projector {
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	public void encode(IInstallableUnit metaIu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
+	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
+		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
 			if (DEBUG) {
@@ -159,15 +162,15 @@ public class Projector {
 					throw new OperationCanceledException();
 				}
 				IInstallableUnit iuToEncode = (IInstallableUnit) iusToEncode.next();
-				if (iuToEncode != metaIu) {
+				if (iuToEncode != entryPointIU) {
 					processIU(iuToEncode, false);
 				}
 			}
 			createConstraintsForSingleton();
 
-			createMustHave(metaIu, alreadyExistingRoots, newRoots);
+			createMustHave(entryPointIU, alreadyExistingRoots, newRoots);
 
-			createOptimizationFunction(metaIu);
+			createOptimizationFunction(entryPointIU);
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
@@ -312,6 +315,9 @@ public class Projector {
 		if (!isApplicable(req))
 			return;
 		List matches = getApplicableMatches(req);
+		if (isHostRequirement(iu, req)) {
+			rememberHostMatches(iu, matches);
+		}
 		if (!req.isOptional()) {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
@@ -380,7 +386,7 @@ public class Projector {
 
 	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
-		Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
+		Map unchangedRequirements = new HashMap(getRequiredCapabilities(iu).length);
 		for (Iterator iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
 			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
@@ -413,6 +419,9 @@ public class Projector {
 				if (isApplicable(reqs[i][1])) {
 					IRequiredCapability req = reqs[i][1];
 					List matches = getApplicableMatches(req);
+					if (isHostRequirement(iu, req)) {
+						rememberHostMatches(iu, matches);
+					}
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
@@ -443,6 +452,9 @@ public class Projector {
 				if (isApplicable(reqs[i][0])) {
 					IRequiredCapability req = reqs[i][0];
 					List matches = getApplicableMatches(req);
+					if (isHostRequirement(iu, req)) {
+						rememberHostMatches(iu, matches);
+					}
 					if (!req.isOptional()) {
 						if (matches.isEmpty()) {
 							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, null));
@@ -487,6 +499,9 @@ public class Projector {
 			}
 			IRequiredCapability req = (IRequiredCapability) entry.getKey();
 			List matches = getApplicableMatches(req);
+			if (isHostRequirement(iu, req)) {
+				rememberHostMatches(iu, matches);
+			}
 			if (!req.isOptional()) {
 				if (matches.isEmpty()) {
 					if (requiredPatches.isEmpty()) {
@@ -749,6 +764,8 @@ public class Projector {
 			Object var = i.next();
 			if (var instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) var;
+				if (iu == entryPoint)
+					continue;
 				solution.add(iu);
 			}
 		}
@@ -768,16 +785,6 @@ public class Projector {
 		if (DEBUG)
 			printSolution(solution);
 		return solution;
-	}
-
-	public Set getExplanationFor(IInstallableUnit iu) {
-		//TODO if the iu is resolved then return null.
-		//TODO if the iu is in an unknown state, then return a special value in the set
-		try {
-			return dependencyHelper.whyNot(iu);
-		} catch (TimeoutException e) {
-			return Collections.EMPTY_SET;
-		}
 	}
 
 	public Set getExplanation(IProgressMonitor monitor) {
@@ -807,4 +814,46 @@ public class Projector {
 		}
 		return job.getExplanationResult();
 	}
+
+	public Map getFragmentAssociation() {
+		Map resolvedFragments = new HashMap(fragments.size());
+		for (Iterator iterator = fragments.entrySet().iterator(); iterator.hasNext();) {
+			Entry fragment = (Entry) iterator.next();
+			if (!dependencyHelper.getBooleanValueFor(fragment.getKey()))
+				continue;
+			Set potentialHosts = (Set) fragment.getValue();
+			List resolvedHost = new ArrayList(potentialHosts.size());
+			for (Iterator iterator2 = potentialHosts.iterator(); iterator2.hasNext();) {
+				Object host = iterator2.next();
+				if (dependencyHelper.getBooleanValueFor(host))
+					resolvedHost.add(host);
+			}
+			if (resolvedHost.size() != 0)
+				resolvedFragments.put(fragment.getKey(), resolvedHost);
+		}
+		return resolvedFragments;
+	}
+	
+		private void rememberHostMatches(IInstallableUnit fragment, List matches) {
+		Set existingMatches = (Set) fragments.get(fragment);
+		if (existingMatches == null) {
+			existingMatches = new HashSet();
+			fragments.put(fragment, existingMatches);
+			existingMatches.addAll(matches);
+		}
+		existingMatches.retainAll(matches);
+	}
+
+	private boolean isHostRequirement(IInstallableUnit iu, IRequiredCapability req) {
+		if (!(iu instanceof IInstallableUnitFragment))
+			return false;
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
+		IRequiredCapability[] reqs = fragment.getHost();
+		for (int i = 0; i < reqs.length; i++) {
+			if (req == reqs[i])
+				return true;
+		}
+		return true;
+	}
+	
 }
