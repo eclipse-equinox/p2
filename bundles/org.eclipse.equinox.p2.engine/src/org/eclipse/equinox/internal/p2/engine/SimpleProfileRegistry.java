@@ -171,6 +171,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized long[] listProfileTimestamps(String id) {
 		if (SELF.equals(id))
 			id = self;
+		//guard against null self profile
+		if (id == null)
+			return new long[0];
 
 		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
 		if (!profileDirectory.isDirectory())
