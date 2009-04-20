@@ -8,8 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 public class UpdateQuery extends MatchQuery {
@@ -22,6 +21,13 @@ public class UpdateQuery extends MatchQuery {
 	public boolean isMatch(Object obj) {
 		if (!(obj instanceof IInstallableUnit))
 			return false;
+		if (obj instanceof IInstallableUnitPatch) {
+			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) obj;
+			IRequiredCapability lifeCycle = potentialPatch.getLifeCycle();
+			if (lifeCycle == null)
+				return false;
+			return updateFrom.satisfies(lifeCycle);
+		}
 		IInstallableUnit candidate = (IInstallableUnit) obj;
 		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
 		if (descriptor != null && descriptor.isUpdateOf(updateFrom) && updateFrom.getVersion().compareTo(candidate.getVersion()) < 0)
