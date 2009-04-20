@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -434,6 +435,80 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.5");
 		}
+	}
+
+	public void testSiteFeatureVersionEquals() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		b.setFeatureVersion("1.0.0");
+		a.setFeatureVersion("1.0.0");
+		b.setFeatureVersion("1.0.0");
+		assertEquals("1.1", a, b);
+		b.setFeatureVersion("2.0.0");
+		assertNotSame("1.2", a, b);
+		b.setFeatureVersion(null);
+		assertNotSame("1.3", a, b);
+		assertNotSame("1.4", b, a);
+	}
+
+	public void testSiteFeatureLabelEquals() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setLabel("foo");
+		b.setLabel("foo");
+		assertEquals("1.1", a, b);
+		b.setLabel("bar");
+		assertNotSame("1.2", a, b);
+		b.setLabel(null);
+		assertNotSame("1.3", a, b);
+		assertNotSame("1.4", b, a);
+	}
+
+	public void testSiteFeatureIDEquals() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setFeatureIdentifier("org.foo");
+		b.setFeatureIdentifier("org.foo");
+		assertEquals("1.1", a, b);
+		b.setFeatureIdentifier("org.bar");
+		assertNotSame("1.2", a, b);
+		b.setFeatureIdentifier(null);
+		assertNotSame("1.3", a, b);
+		assertNotSame("1.4", b, a);
+	}
+
+	public void testSiteFeatureEquals() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setURLString("http://foo");
+		assertNotSame("1.1", a, b);
+		b.setURLString("http://foo");
+		assertEquals("1.2", a, b);
+		a.setURLString("http://FOO");
+		assertEquals("1.3", a, b);
+		a.setURLString("file://FOO");
+		assertNotSame("1.4", a, b);
+		a.setURLString(null);
+		assertNotSame("1.5", a, b);
+		assertNotSame("1.6", b, a);
+	}
+
+	public void testSiteFeatureHash() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a.hashCode(), b.hashCode());
+		a.setURLString("http://foo");
+		b.setURLString("http://foo");
+		assertEquals("1.1", a.hashCode(), b.hashCode());
+		a.setURLString("http://FOO");
+		assertEquals("1.2", a.hashCode(), b.hashCode());
+		a.setURLString("foo");
+		b.setURLString("FoO");
+		assertEquals("1.3", a.hashCode(), b.hashCode());
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {

@@ -43,12 +43,14 @@ public class SiteFeature {
 
 	/*
 	 * Compares two URL for equality
-	 * Return false if one of them is null
 	 */
 	public static boolean sameURL(URL url1, URL url2) {
 
-		if (url1 == null || url2 == null)
+		if (url1 == null && url2 == null)
+			return true;
+		if (url1 == null ^ url2 == null)
 			return false;
+
 		if (url1 == url2)
 			return true;
 		if (url1.equals(url2))
@@ -114,18 +116,41 @@ public class SiteFeature {
 	 * <code>false</code> otherwise
 	 */
 	public boolean equals(Object object) {
-
 		if (object == null)
 			return false;
-		if (getURL() == null)
-			return false;
-
 		if (!(object instanceof SiteFeature))
 			return false;
+		SiteFeature that = (SiteFeature) object;
+		if (this.featureId == null) {
+			if (that.featureId != null)
+				return false;
+		} else if (!this.featureId.equals(that.featureId))
+			return false;
+		if (this.featureVersion == null) {
+			if (that.featureVersion != null)
+				return false;
+		} else if (!this.featureVersion.equals(that.featureVersion))
+			return false;
+		if (this.label == null) {
+			if (that.label != null)
+				return false;
+		} else if (!this.label.equals(that.label))
+			return false;
+		return sameURL(this.url, that.url);
+	}
 
-		SiteFeature f = (SiteFeature) object;
-
-		return sameURL(getURL(), f.getURL());
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (featureId == null ? 0 : featureId.hashCode());
+		result = prime * result + (featureVersion == null ? 0 : featureVersion.hashCode());
+		if (url != null) {
+			result = prime * result + (url.toExternalForm() == null ? 0 : url.toExternalForm().toLowerCase().hashCode());
+		}
+		return result;
 	}
 
 	/**
