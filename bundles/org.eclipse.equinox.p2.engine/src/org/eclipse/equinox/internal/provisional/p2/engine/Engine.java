@@ -49,7 +49,7 @@ public class Engine implements IEngine {
 			EngineSession session = new EngineSession(profile, profileDataDirectory, context);
 
 			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
-			if (result.matches(IStatus.OK | IStatus.WARNING))
+			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING))
 				result.merge(session.prepare(monitor));
 
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {

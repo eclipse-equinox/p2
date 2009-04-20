@@ -32,7 +32,8 @@ Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.equinox.p2.updatechecker,
-   org.eclipse.pde.ui"
+   org.eclipse.pde.ui,
+   org.eclipse.equinox.p2.touchpoint.eclipse"
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,

@@ -32,10 +32,12 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "ln", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
 
 	private static Map manipulators = new WeakHashMap();
 	private static Map wrappers = new WeakHashMap();
 	private static Map sourceManipulators = new WeakHashMap();
+	private static Map preparedIUs = new WeakHashMap();
 
 	private static synchronized LazyManipulator getManipulator(IProfile profile) {
 		LazyManipulator manipulator = (LazyManipulator) manipulators.get(profile);
@@ -84,10 +86,42 @@ public class EclipseTouchpoint extends Touchpoint {
 			sourceManipulator.save();
 	}
 
+	private static synchronized IInstallableUnit getPreparedIU(IProfile profile, IInstallableUnit iu) {
+		Map preparedProfileIUs = (Map) preparedIUs.get(profile);
+		if (preparedProfileIUs == null)
+			return null;
+
+		return (IInstallableUnit) preparedProfileIUs.get(iu);
+	}
+
+	private static synchronized void savePreparedIU(IProfile profile, IInstallableUnit iu) {
+		Map preparedProfileIUs = (Map) preparedIUs.get(profile);
+		if (preparedProfileIUs == null) {
+			preparedProfileIUs = new HashMap();
+			preparedIUs.put(profile, preparedProfileIUs);
+		}
+		preparedProfileIUs.put(iu, iu);
+	}
+
+	private static synchronized boolean hasPreparedIUs(IProfile profile) {
+		return preparedIUs.get(profile) != null;
+	}
+
 	private static synchronized void clearProfileState(IProfile profile) {
 		manipulators.remove(profile);
 		wrappers.remove(profile);
 		sourceManipulators.remove(profile);
+		preparedIUs.remove(profile);
+	}
+
+	public IStatus prepare(IProfile profile) {
+		try {
+			if (hasPreparedIUs(profile))
+				return validateProfile(profile);
+		} catch (RuntimeException e) {
+			return Util.createError(Messages.error_saving_manipulator, e);
+		}
+		return Status.OK_STATUS;
 	}
 
 	public IStatus commit(IProfile profile) {
@@ -149,6 +183,10 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
+		IInstallableUnit preparedIU = getPreparedIU(profile, iu);
+		if (preparedIU != null)
+			return preparedIU;
+
 		Class c = null;
 		try {
 			c = Class.forName("org.eclipse.equinox.p2.publisher.eclipse.BundlesAction"); //$NON-NLS-1$
@@ -173,10 +211,32 @@ public class EclipseTouchpoint extends Touchpoint {
 				LogHelper.log(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey.toString())));
 				return null;
 			}
-			return PublisherUtil.createBundleIU(artifactKey, bundleFile);
+			preparedIU = PublisherUtil.createBundleIU(artifactKey, bundleFile);
+			savePreparedIU(profile, preparedIU);
+			return preparedIU;
 		}
 
 		// should not occur
 		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
+	}
+
+	private IStatus validateProfile(IProfile profile) {
+		// by default we validate
+		if (Boolean.FALSE.toString().equals(profile.getProperty(VALIDATE_PROFILE)))
+			return Status.OK_STATUS;
+
+		Class c = null;
+		try {
+			c = Class.forName("org.eclipse.equinox.internal.provisional.p2.director.IPlanner"); //$NON-NLS-1$
+		} catch (ClassNotFoundException e) {
+			//ignore and proceed without validation
+			return null;
+		}
+
+		if (c != null) {
+			return DirectorUtil.validateProfile(profile);
+		}
+
+		return null;
 	}
 }
