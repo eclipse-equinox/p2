@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     EclipseSource - Bug 223991 - [ui] Drag n' Drop does not work on certain platforms
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
@@ -15,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.dnd.*;
 
 /**
@@ -82,7 +84,7 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	 * @return <code>true</code> if drop should proceed, <code>false</code> if it should not.
 	 */
 	protected boolean dropTargetIsValid(DropTargetEvent event) {
-		if (URLTransfer.getInstance().isSupportedType(event.currentDataType) && URLTransfer.getInstance().nativeToJava(event.currentDataType) != null)
+		if (URLTransfer.getInstance().isSupportedType(event.currentDataType) && dropTargetDataIsValid(event))
 			return true;
 		if (!convertFileToURL)
 			return false;
@@ -91,6 +93,18 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 			return names != null && names.length == 1;
 		}
 		return false;
+	}
+
+	/**
+	 * Determine whether the drop target data is valid.  On some platforms this cannot be detected, 
+	 * in which which case we return true.
+	 * @param event the drop target event
+	 * @return <code>true</code> if data is valid, (or can not be determined), <code>false</code> otherwise.
+	 */
+	protected boolean dropTargetDataIsValid(DropTargetEvent event) {
+		if (Util.isWindows())
+			return URLTransfer.getInstance().nativeToJava(event.currentDataType) != null;
+		return true;
 	}
 
 	/**
