@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import com.ibm.icu.text.Collator;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -437,16 +438,28 @@ public class RepositorySelectionGroup {
 	}
 
 	int getComboIndex(String repoText) {
-		int index = -1;
+		// First look for exact match to the combo string.
+		// This includes the name, etc.
 		if (repoText.length() > 0) {
 			String[] items = repoCombo.getItems();
 			for (int i = 0; i < items.length; i++)
 				if (repoText.equals(items[i])) {
-					index = i;
-					break;
+					return i;
 				}
 		}
-		return index;
+		// Look for URI match - the user may have pasted or dragged 
+		// in a location that matches one we already know about, even
+		// if the text does not match completely.  (slashes, no name, etc.)
+		try {
+			URI location = URIUtil.fromString(repoText);
+			for (int i = 0; i < comboRepos.length; i++)
+				if (URIUtil.sameURI(location, comboRepos[i])) {
+					return i;
+				}
+		} catch (URISyntaxException e) {
+			// never mind
+		}
+		return -1;
 	}
 
 	void addComboProvisioningListeners() {
