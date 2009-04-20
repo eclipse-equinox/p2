@@ -139,15 +139,20 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulationPage_Import;
 	public static String RepositoryManipulationPage_LocationColumnTitle;
 	public static String RepositoryManipulationPage_NameColumnTitle;
+	public static String RepositoryManipulationPage_Edit;
 	public static String RepositoryManipulationPage_RefreshConnection;
 	public static String RepositoryManipulationPage_RefreshOperationLabel;
 	public static String RepositoryManipulationPage_Remove;
 	public static String RepositoryManipulationPage_RemoveConfirmMessage;
 	public static String RepositoryManipulationPage_RemoveConfirmSingleMessage;
 	public static String RepositoryManipulationPage_RemoveConfirmTitle;
+	public static String RepositoryManipulationPage_TestConnectionSuccess;
+	public static String RepositoryManipulationPage_TestConnectionTitle;
 	public static String RepositoryManipulationPage_Title;
 	public static String RepositoryManipulatorDropTarget_DragAndDropJobLabel;
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
+	public static String RepositoryNameAndLocationDialog_Title;
+
 	public static String ResolutionReport_SummaryStatus;
 	public static String ResolutionWizardPage_Canceled;
 	public static String ResolutionWizardPage_ErrorStatus;
