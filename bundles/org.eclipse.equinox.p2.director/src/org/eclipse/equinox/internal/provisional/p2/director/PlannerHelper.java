@@ -12,10 +12,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class PlannerHelper {
 	public static String createOptionalInclusionRule(IInstallableUnit iu) {
-		return "OPTIONAL";
+		return "OPTIONAL"; //$NON-NLS-1$
 	}
 
 	public static String createStrictInclusionRule(IInstallableUnit iu) {
-		return "STRICT";
+		return "STRICT"; //$NON-NLS-1$
 	}
 }

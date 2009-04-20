@@ -10,8 +10,7 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.p2.director.SimplePlanner;
+import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -29,16 +28,16 @@ public class ProfileChangeRequest implements Cloneable {
 	public static ProfileChangeRequest createByProfileId(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
 		if (profileRegistry == null)
-			throw new IllegalStateException("ProfileRegistry unavailable");
+			throw new IllegalStateException(Messages.Planner_no_profile_registry);
 		IProfile profile = profileRegistry.getProfile(profileId);
 		if (profile == null)
-			throw new IllegalArgumentException("Profile id " + profileId + " is not registered.");
+			throw new IllegalArgumentException("Profile id " + profileId + " is not registered."); //$NON-NLS-1$//$NON-NLS-2$
 		return new ProfileChangeRequest(profile);
 	}
 
 	public ProfileChangeRequest(IProfile profile) {
 		if (profile == null)
-			throw new IllegalArgumentException("Profile cannot be null.");
+			throw new IllegalArgumentException("Profile cannot be null."); //$NON-NLS-1$
 		this.profile = profile;
 	}
 

@@ -24,14 +24,11 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
-	public static String Director_Revert_Problems;
 	public static String Director_Task_installer_plan;
-	public static String Director_Unexpected_IU;
 	public static String Director_Task_Installing;
 	public static String Director_Task_Updating;
 	public static String Director_Task_Resolving_Dependencies;
 	public static String Director_Unsatisfied_Dependencies;
-	public static String Director_Unsatisfied_Dependency;
 	public static String Director_error_applying_configuration;
 
 	public static String Explanation_alreadyInstalled;
@@ -48,9 +45,6 @@ public class Messages extends NLS {
 	public static String Explanation_toInstall;
 	public static String Explanation_unsatisfied;
 
-	public static String Planner_Error_saving_opbfile;
-	public static String Planner_Format_error;
-	public static String Planner_Missing_opb_file;
 	public static String Planner_Timeout;
 	public static String Planner_Problems_resolving_plan;
 	public static String Planner_Unsatisfiable_problem;
@@ -60,10 +54,6 @@ public class Messages extends NLS {
 	public static String Planner_actions_and_software_incompatible;
 	public static String Planner_can_not_install_preq;
 	public static String Planner_no_profile_registry;
-	public static String Planner_no_self_profile;
 	public static String Planner_profile_out_of_sync;
-
-	public static String Old_Resolver_Several_Versions;
-	public static String Old_Resolver_Incompatible_Versions;
 
 }
