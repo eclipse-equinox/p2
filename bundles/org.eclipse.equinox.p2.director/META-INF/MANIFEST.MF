@@ -21,7 +21,6 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.osgi.util;version="1.0.0",
  org.osgi.framework;version="1.3.0"
 Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.exemplarysetup",
- org.eclipse.equinox.internal.p2.resolution;x-internal:=true,
  org.eclipse.equinox.internal.p2.rollback;x-friends:="org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.director;
   x-friends:="org.eclipse.equinox.p2.console,

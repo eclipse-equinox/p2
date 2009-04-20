@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -43,8 +43,8 @@ public class FragmentMethodTest extends TestCase {
 		HashSet hash = new HashSet();
 		hash.add(iu1);
 		hash.add(iu3);
-		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
-		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
+		//		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
+		for (Iterator iterator = hash.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
 				iu1 = iu;

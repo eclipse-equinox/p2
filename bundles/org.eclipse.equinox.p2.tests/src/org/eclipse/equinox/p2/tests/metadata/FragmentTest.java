@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
 import junit.framework.AssertionFailedError;
-import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentTest extends AbstractProvisioningTest {
@@ -22,12 +25,15 @@ public class FragmentTest extends AbstractProvisioningTest {
 		String ID = "ui.test1";
 		IInstallableUnit iu1 = createEclipseIU(ID);
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
-		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
-		HashSet set = new HashSet();
-		set.add(iu1);
-		set.add(iu2);
-		Collection result = rh.attachCUs(set);
-		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
+		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		//		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
+		//		HashSet set = new HashSet();
+		//		set.add(iu1);
+		//		set.add(iu2);
+		//		Collection result = rh.attachCUs(set);
+		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID)) {
 				assertEquals(iu.getFragments().length, 1);
@@ -42,13 +48,10 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu1 = createEclipseIU(ID1);
 		IInstallableUnit iu3 = createEclipseIU(ID3);
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
-		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
-		HashSet set = new HashSet();
-		set.add(iu1);
-		set.add(iu2);
-		set.add(iu3);
-		Collection result = rh.attachCUs(set);
-		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
+		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID1)) {
 				assertEquals(iu.getFragments().length, 1);
@@ -66,12 +69,10 @@ public class FragmentTest extends AbstractProvisioningTest {
 		assertEquals(createBundleFragment("iuFragment.test1").getTouchpointData().length, 1);
 		IInstallableUnit iu1 = createIUWithTouchpointData();
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
-		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
-		HashSet set = new HashSet();
-		set.add(iu1);
-		set.add(iu2);
-		Collection result = rh.attachCUs(set);
-		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
+		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
 				assertEquals(2, iu.getTouchpointData().length);

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
 import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
-import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -38,8 +37,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(a3);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x install
 		// 1 x uninstall
@@ -62,8 +59,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a3);
 		to.add(a2);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x install
 		assertEquals(1, operands.length);
@@ -85,8 +80,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(a3);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x uninstall
 		assertEquals(1, operands.length);
@@ -108,8 +101,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to = new ArrayList();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x upgrade
 		assertEquals(1, operands.length);
@@ -133,8 +124,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to = new ArrayList();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x install
 		// 2 x uninstall
@@ -165,8 +154,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(MetadataFactory.createInstallableUnit(b));
 		to.add(MetadataFactory.createInstallableUnit(c));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 2 x update
 		assertEquals(2, operands.length);
@@ -194,8 +181,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a2);
 		to.add(MetadataFactory.createInstallableUnit(b2));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x update
 		assertEquals(1, operands.length);
@@ -222,8 +207,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(MetadataFactory.createInstallableUnit(b2));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		// 1 x update
 		// 1 x uninstall
@@ -248,8 +231,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		Collection to = new ArrayList();
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		//We are uninstalling myBundle 1.0 and 2.0. 3.0 stays unchanged.
 		for (int i = 0; i < operands.length; i++) {
@@ -279,9 +260,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		Collection to = new ArrayList();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
-
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		//Two is already in the system therefore it will not be in the operands
@@ -314,9 +292,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
-
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		//Two is already in the system therefore it will not be in the operands
 		for (int i = 0; i < operands.length; i++) {
@@ -345,8 +320,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		Collection to = new ArrayList();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 		assertEquals("1.0", 1, operands.length);
 		assertEquals("1.1", one, operands[0].first());
@@ -372,8 +345,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(toResolved);
 		to.add(MetadataFactory.createResolvedInstallableUnit(anotherIU2, new IInstallableUnitFragment[0]));
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 3, operands.length);
@@ -403,8 +374,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 1, operands.length);
@@ -425,8 +394,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
 		to.add(toResolved);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 1, operands.length);
@@ -447,8 +414,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 0, operands.length);
@@ -469,8 +434,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2, cu1});
 		to.add(toResolved);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 0, operands.length);
@@ -492,8 +455,6 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu3});
 		to.add(toResolved);
 
-		from = new ResolutionHelper(null, null).attachCUs(from);
-		to = new ResolutionHelper(null, null).attachCUs(to);
 		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
 
 		assertEquals("1.0", 1, operands.length);

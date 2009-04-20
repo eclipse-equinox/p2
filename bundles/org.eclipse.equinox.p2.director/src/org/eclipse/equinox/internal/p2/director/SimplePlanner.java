@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -351,7 +350,7 @@ public class SimplePlanner implements IPlanner {
 			Collection newState = ((Projector) resolutionResult).extractSolution();
 			Collection fullState = new ArrayList();
 			fullState.addAll(newState);
-			newState = ResolutionHelper.attachFragments(newState, ((Projector) resolutionResult).getFragmentAssociation());
+			newState = AttachmentHelper.attachFragments(newState, ((Projector) resolutionResult).getFragmentAssociation());
 
 			ProvisioningPlan temporaryPlan = generatePlan((Projector) resolutionResult, newState, profileChangeRequest);
 
@@ -425,13 +424,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private ProvisioningPlan createInstallerPlanForCohostedCaseFromExternalInstaller(IProfile profile, ProfileChangeRequest initialRequest, ProvisioningPlan initialPlan, Collection newState, ProvisioningContext initialContext, IProfile agentProfile, SubMonitor sub) {
-		ResolutionHelper newStateHelper = new ResolutionHelper(createSelectionContext(initialRequest.getProfileProperties()), null);
-		newState = newStateHelper.attachCUs(newState);
-
-		ResolutionHelper oldStateHelper = new ResolutionHelper(createSelectionContext(profile.getProperties()), null);
-		Collection oldState = oldStateHelper.attachCUs(initialRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
-		ProvisioningPlan planForProfile = generateProvisioningPlan(oldState, newState, initialRequest, null);
-
+		ProvisioningPlan planForProfile = generatePlan(null, newState, initialRequest);
 		return createInstallerPlanForExternalInstaller(profile, initialRequest, planForProfile, newState, initialContext, agentProfile, sub);
 	}
 
@@ -506,7 +499,7 @@ public class SimplePlanner implements IPlanner {
 		//Compute the installer plan. It is the difference between what is currently in the profile and the solution we just computed
 		Collection agentState = ((Projector) agentSolution).extractSolution();
 		agentState.remove(metaRequirementIU); //Remove the fake IU
-		agentState = ResolutionHelper.attachFragments(agentState, ((Projector) agentSolution).getFragmentAssociation());
+		agentState = AttachmentHelper.attachFragments(agentState, ((Projector) agentSolution).getFragmentAssociation());
 
 		ProvisioningContext NO_REPO_CONTEXT = new ProvisioningContext(new URI[0]);
 		NO_REPO_CONTEXT.setArtifactRepositories(new URI[0]);
@@ -516,7 +509,7 @@ public class SimplePlanner implements IPlanner {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		}
 		Collection initialState = ((Projector) initialSolution).extractSolution();
-		initialState = ResolutionHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
+		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
 		ProvisioningPlan agentPlan = generateProvisioningPlan(initialState, agentState, initialRequest, null);
 
@@ -529,7 +522,7 @@ public class SimplePlanner implements IPlanner {
 		//Compute the attachment of the new state if not provided
 		if (newState == null) {
 			newState = newSolution.extractSolution();
-			newState = ResolutionHelper.attachFragments(newState, newSolution.getFragmentAssociation());
+			newState = AttachmentHelper.attachFragments(newState, newSolution.getFragmentAssociation());
 		}
 		ProvisioningContext NO_REPO_CONTEXT = new ProvisioningContext(new URI[0]);
 		NO_REPO_CONTEXT.setArtifactRepositories(new URI[0]);
@@ -540,7 +533,7 @@ public class SimplePlanner implements IPlanner {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		}
 		Collection initialState = ((Projector) initialSolution).extractSolution();
-		initialState = ResolutionHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
+		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
 		//Generate the plan
 		return generateProvisioningPlan(initialState, newState, request, null);
