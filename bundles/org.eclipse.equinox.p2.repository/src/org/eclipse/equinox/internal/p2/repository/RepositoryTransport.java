@@ -107,6 +107,7 @@ public class RepositoryTransport extends Transport {
 	 * @param toDownload URI of file to download
 	 * @param target OutputStream where result is written
 	 * @param monitor where progress should be reported
+	 * @throws OperationCanceledException if the operation was canceled.
 	 */
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		return download(toDownload, target, -1, monitor);
@@ -150,6 +151,7 @@ public class RepositoryTransport extends Transport {
 	 * @param target an OutputStream possibly implementing IStateful
 	 * @param status a DownloadStatus configured with status message, code, etc
 	 * @param reader a FileReade that was used to download (or null if not known).
+	 * @throws OperationCanceledException if the operation was canceled by the user.
 	 * @return the configured DownloadStatus status.
 	 */
 	private static DownloadStatus statusOn(OutputStream target, DownloadStatus status, FileReader reader) {
@@ -171,6 +173,7 @@ public class RepositoryTransport extends Transport {
 	 * the server response is wrong, but should not be interpreted as a file not found.
 	 * @param toDownload
 	 * @param monitor
+	 * @throws OperationCanceledException if the operation was canceled by the user.
 	 * @return last modified date (possibly 0)
 	 */
 	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws UserCancelledException, CoreException, FileNotFoundException, AuthenticationFailedException {
