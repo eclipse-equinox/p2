@@ -16,15 +16,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds provides specialized/optimized queryable support 
@@ -71,10 +68,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 				try {
 					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
 				} catch (ProvisionException e) {
-					if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-						handleNotFound(e, uris[i]);
-					else
-						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, uris[i]), StatusManager.LOG);
+					handleLoadFailure(e, uris[i]);
 				} catch (OperationCanceledException e) {
 					// user has canceled
 					repo = null;

@@ -107,10 +107,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			try {
 				loadRepository(manager, repoLocations[i], sub.newChild(100));
 			} catch (ProvisionException e) {
-				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-					handleNotFound(e, repoLocations[i]);
-				else
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoLocations[i]), StatusManager.LOG);
+				handleLoadFailure(e, repoLocations[i]);
 			}
 		}
 	}
@@ -120,20 +117,26 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract URI[] getRepoLocations(IRepositoryManager manager);
 
-	protected void handleNotFound(ProvisionException e, URI missingRepo) {
-		// If we thought we had loaded it, get rid of the reference
-		loaded.remove(missingRepo);
-		// If we've already reported a URL is not found, don't report again.
-		if (notFound.contains(missingRepo))
-			return;
-		// If someone else reported a URL is not found, don't report again.
-		if (ProvUI.hasNotFoundStatusBeenReported(missingRepo)) {
-			notFound.add(missingRepo);
-			return;
+	protected void handleLoadFailure(ProvisionException e, URI problemRepo) {
+		int code = e.getStatus().getCode();
+		// special handling when the repo is bad.  We don't want to continually report it
+		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
+			// If we thought we had loaded it, get rid of the reference
+			loaded.remove(problemRepo);
+			// If we've already reported a URL is not found, don't report again.
+			if (notFound.contains(problemRepo))
+				return;
+			// If someone else reported a URL is not found, don't report again.
+			if (ProvUI.hasNotFoundStatusBeenReported(problemRepo)) {
+				notFound.add(problemRepo);
+				return;
+			}
+			notFound.add(problemRepo);
+			ProvUI.notFoundStatusReported(problemRepo);
 		}
-		notFound.add(missingRepo);
-		ProvUI.notFoundStatusReported(missingRepo);
-		// Empty multi statuses have a severity OK.  The platform status handler doesn't handle
+
+		// Some ProvisionExceptions include an empty multi status with a message.  
+		// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
 		// this well.  We correct this by recreating a status with error severity
 		// so that the platform status handler does the right thing.
 		IStatus status = e.getStatus();
@@ -144,6 +147,9 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		} else {
 			accumulatedNotFound.add(status);
 		}
+		// Always log the complete exception so the detailed stack trace is in the log.  
+		ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, problemRepo), StatusManager.LOG);
+
 	}
 
 	public void reportAccumulatedStatus() {
