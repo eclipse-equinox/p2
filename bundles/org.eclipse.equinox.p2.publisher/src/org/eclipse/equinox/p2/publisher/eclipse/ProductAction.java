@@ -131,7 +131,9 @@ public class ProductAction extends AbstractPublisherAction {
 	private void createProductAdvice() {
 		id = product.getId();
 		version = new Version(product.getVersion());
-		name = product.getId();
+		name = product.getProductName();
+		if (name == null || name.length() == 0) // If the name is not defined, use the ID
+			name = product.getId();
 
 		String[] configSpecs = info.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++)
