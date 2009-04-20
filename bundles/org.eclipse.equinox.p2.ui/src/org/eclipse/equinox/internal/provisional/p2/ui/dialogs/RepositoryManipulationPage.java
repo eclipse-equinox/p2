@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.MetadataRepositoryElementComparator;
 import org.eclipse.equinox.internal.p2.ui.viewers.RepositoryDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
@@ -35,6 +34,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.AccessibleAdapter;
@@ -106,7 +106,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	Text pattern, details;
 	PatternFilter filter;
 	WorkbenchJob filterJob;
-	Button addButton, removeButton, refreshButton, disableButton, exportButton;
+	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
 	class CachedMetadataRepositories extends MetadataRepositories {
 		Hashtable cachedElements;
@@ -418,6 +418,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			}
 		});
 
+		editButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Edit, false);
+		editButton.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				changeRepositoryProperties();
+			}
+		});
+
 		removeButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Remove, false);
 		removeButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
@@ -496,6 +503,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		MetadataRepositoryElement[] elements = getSelectedElements();
 		exportButton.setEnabled(elements.length > 0);
 		removeButton.setEnabled(elements.length > 0);
+		editButton.setEnabled(elements.length == 1);
 		refreshButton.setEnabled(elements.length == 1);
 		if (elements.length >= 1) {
 			if (toggleMeansDisable(elements))
@@ -576,6 +584,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				ProvUI.reportNotFoundStatus(location, fail[0].getStatus(), StatusManager.SHOW);
 			} else
 				ProvUI.handleException(fail[0], null, StatusManager.SHOW);
+		} else {
+			// Confirm that it was successful
+			MessageDialog.openInformation(getShell(), ProvUIMessages.RepositoryManipulationPage_TestConnectionTitle, NLS.bind(ProvUIMessages.RepositoryManipulationPage_TestConnectionSuccess, URIUtil.toUnencodedString(location)));
 		}
 		repositoryViewer.update(selected[0], null);
 		setDetails();
@@ -628,6 +639,40 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				UpdateManagerCompatibility.exportSites(getShell(), elements);
 			}
 		});
+	}
+
+	void changeRepositoryProperties() {
+		final MetadataRepositoryElement[] selected = getSelectedElements();
+		if (selected.length != 1)
+			return;
+		RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(getShell(), policy) {
+			protected String getInitialLocationText() {
+				return URIUtil.toUnencodedString(selected[0].getLocation());
+			}
+
+			protected String getInitialNameText() {
+				return selected[0].getName();
+			}
+
+			protected RepositoryLocationValidator getRepositoryLocationValidator() {
+				return new RepositoryLocationValidator() {
+					public IStatus validateRepositoryLocation(URI uri, boolean contactRepositories, IProgressMonitor monitor) {
+						if (URIUtil.sameURI(uri, selected[0].getLocation()))
+							return Status.OK_STATUS;
+						return RepositoryManipulationPage.this.getRepositoryManipulator().getRepositoryLocationValidator(getShell()).validateRepositoryLocation(uri, contactRepositories, monitor);
+					}
+				};
+			}
+
+		};
+		int retCode = dialog.open();
+		if (retCode == Window.OK) {
+			selected[0].setNickname(dialog.getName());
+			selected[0].setLocation(dialog.getLocation());
+			changed = true;
+			repositoryViewer.update(selected[0], null);
+			setDetails();
+		}
 	}
 
 	void columnSelected(TableColumn tc) {

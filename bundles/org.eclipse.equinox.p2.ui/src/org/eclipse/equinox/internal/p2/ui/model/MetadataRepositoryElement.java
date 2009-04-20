@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
@@ -108,16 +107,22 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 				// If repository could not be found, report to the user, but only once.
 				// If the user refreshes the repositories, new elements will be created and
 				// then a failure would be reported again on the next try.
-				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
-					if (!alreadyReportedNotFound) {
-						// report the status, not the exception, to the user because we
-						// do not want to show them stack trace and exception detail.
-						ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
-						alreadyReportedNotFound = true;
-					}
-				} else
-					// handle other exceptions the normal way
-					handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
+				switch (e.getStatus().getCode()) {
+					case ProvisionException.REPOSITORY_FAILED_READ :
+					case ProvisionException.REPOSITORY_FAILED_AUTHENTICATION :
+					case ProvisionException.REPOSITORY_INVALID_LOCATION :
+					case ProvisionException.REPOSITORY_NOT_FOUND :
+						if (!alreadyReportedNotFound) {
+							// report the status, not the exception, to the user because we
+							// do not want to show them stack trace and exception detail.
+							ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
+							alreadyReportedNotFound = true;
+						}
+						break;
+					default :
+						// handle other exceptions the normal way
+						handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
+				}
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}
@@ -163,6 +168,11 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	public void setNickname(String name) {
 		this.name = name;
+	}
+
+	public void setLocation(URI location) {
+		this.location = location;
+		setQueryable(null);
 	}
 
 	/*
