@@ -226,12 +226,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	protected String[] getConfigurationStrings(Collection configAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
+		Set properties = new HashSet();
 		for (Iterator i = configAdvice.iterator(); i.hasNext();) {
 			IConfigAdvice advice = (IConfigAdvice) i.next();
 			for (Iterator iterator = advice.getProperties().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
 				String key = ((String) aProperty.getKey());
-				if (shouldPublishProperty(key)) {
+				if (shouldPublishProperty(key) && !properties.contains(key)) {
+					properties.add(key);
 					configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
@@ -256,23 +258,29 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
+		Set jvmSet = new HashSet();
+		Set programSet = new HashSet();
 		for (Iterator j = launchingAdvice.iterator(); j.hasNext();) {
 			IExecutableAdvice advice = (IExecutableAdvice) j.next();
 			String[] jvmArgs = advice.getVMArguments();
 			for (int i = 0; i < jvmArgs.length; i++)
-				if (shouldPublishJvmArg(jvmArgs[i])) {
+				if (shouldPublishJvmArg(jvmArgs[i]) && !jvmSet.contains(jvmArgs[i])) {
+					jvmSet.add(jvmArgs[i]);
 					configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 					unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			String[] programArgs = advice.getProgramArguments();
 			for (int i = 0; i < programArgs.length; i++)
-				if (shouldPublishProgramArg(programArgs[i])) {
+				if (shouldPublishProgramArg(programArgs[i]) && !programSet.contains(programArgs[i])) {
+					if (programArgs[i].startsWith("-")) //$NON-NLS-1$
+						programSet.add(programArgs[i]);
 					configurationData += "addProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 					unconfigurationData += "removeProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-				} else
+				} else if (i + 1 < programArgs.length && !programArgs[i + 1].startsWith("-")) { //$NON-NLS-1$
 					// if we are not publishing then skip over the following arg as it is assumed to be a parameter
 					// to this command line arg.
 					i++;
+				}
 		}
 		return new String[] {configurationData, unconfigurationData};
 	}
