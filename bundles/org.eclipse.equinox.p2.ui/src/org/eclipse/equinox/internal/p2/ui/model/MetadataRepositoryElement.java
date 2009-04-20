@@ -108,8 +108,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 				// If the user refreshes the repositories, new elements will be created and
 				// then a failure would be reported again on the next try.
 				switch (e.getStatus().getCode()) {
-					case ProvisionException.REPOSITORY_FAILED_READ :
-					case ProvisionException.REPOSITORY_FAILED_AUTHENTICATION :
 					case ProvisionException.REPOSITORY_INVALID_LOCATION :
 					case ProvisionException.REPOSITORY_NOT_FOUND :
 						if (!alreadyReportedNotFound) {
@@ -120,7 +118,8 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 						}
 						break;
 					default :
-						// handle other exceptions the normal way
+						// handle other exceptions the normal way. Silently log as we expect this to get reported
+						// at a higher level.
 						handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 				}
 			} catch (OperationCanceledException e) {
