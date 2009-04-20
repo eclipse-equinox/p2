@@ -301,6 +301,31 @@ public class FileUtils {
 				}
 			}
 		}
+
+		// Different OSs return files in a different order.  This affects the creation
+		// the dynamic path computer.  To address this, we sort the files such that
+		// those with deeper paths appear later, and files are always before directories
+		// foo/bar.txt
+		// foo/something/bar2.txt
+		// foo/something/else/bar3.txt
+		Arrays.sort(files, new Comparator() {
+			public int compare(Object arg0, Object arg1) {
+				Path a = new Path(((File) arg0).getAbsolutePath());
+				Path b = new Path(((File) arg1).getAbsolutePath());
+				if (a.segmentCount() == b.segmentCount()) {
+					if (((File) arg0).isDirectory() && ((File) arg1).isFile())
+						return 1;
+					else if (((File) arg0).isDirectory() && ((File) arg1).isDirectory())
+						return 0;
+					else if (((File) arg0).isFile() && ((File) arg1).isDirectory())
+						return -1;
+					else
+						return 0;
+				}
+				return a.segmentCount() - b.segmentCount();
+			}
+		});
+
 		for (int i = 0; i < files.length; i++)
 			zip(output, files[i], exclusions, pathComputer);
 	}
