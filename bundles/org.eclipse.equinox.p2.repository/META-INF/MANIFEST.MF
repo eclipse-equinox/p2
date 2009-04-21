@@ -32,22 +32,13 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.ecli
  org.eclipse.equinox.internal.p2.repository;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.metadata.repository,
-   org.eclipse.equinox.p2.updatesite";
-  uses:="org.eclipse.ecf.core.security,
-   org.eclipse.ecf.filetransfer.events,
-   org.eclipse.osgi.util,
-   org.eclipse.core.runtime,
-   org.eclipse.ecf.filetransfer",
+ org.eclipse.equinox.p2.updatesite",
  org.eclipse.equinox.internal.p2.repository.helpers;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.exemplarysetup,
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.repository.tools,
-   org.eclipse.equinox.p2.ui";
-  uses:="org.eclipse.equinox.internal.provisional.p2.core.eventbus,
-   org.eclipse.equinox.internal.provisional.p2.core.repository,
-   org.osgi.service.prefs,
-   org.eclipse.core.runtime",
+   org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.repository;uses:="org.osgi.framework,org.eclipse.core.runtime",
  org.eclipse.equinox.internal.provisional.spi.p2.repository
