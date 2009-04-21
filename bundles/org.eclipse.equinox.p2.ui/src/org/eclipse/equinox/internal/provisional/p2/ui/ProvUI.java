@@ -20,10 +20,17 @@ import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryNameAndLocationDialog;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
@@ -73,9 +80,57 @@ public class ProvUI {
 		return status;
 	}
 
-	public static void reportNotFoundStatus(URI location, IStatus status, int style) {
-		if (!hasNotFoundStatusBeenReported(location)) {
-			reposNotFound.add(location);
+	public static void reportNotFoundStatus(final URI location, IStatus status, int style) {
+		int code = status.getCode();
+		// Special handling when the location is bad (not found, etc.) vs. a failure
+		// associated with a known repo.
+		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
+			if (!hasNotFoundStatusBeenReported(location)) {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						if (workbench.isClosing())
+							return;
+						Shell shell = ProvUI.getDefaultParentShell();
+						if (MessageDialog.openQuestion(shell, ProvUIMessages.ProvUI_LoadErrorTitle, NLS.bind(ProvUIMessages.ProvUI_PromptForSiteEdit, URIUtil.toUnencodedString(location)))) {
+							RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, Policy.getDefault()) {
+								protected String getInitialLocationText() {
+									return URIUtil.toUnencodedString(location);
+								}
+
+								protected String getInitialNameText() {
+									String nickname = null;
+									try {
+										nickname = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+									} catch (ProvisionException e) {
+										// nickname remains null
+									}
+									return nickname == null ? "" : nickname; //$NON-NLS-1$
+								}
+							};
+							int ret = dialog.open();
+							if (ret == Window.OK) {
+								ProvUI.startBatchOperation();
+								try {
+									ProvisioningUtil.removeMetadataRepository(location);
+									ProvisioningUtil.removeArtifactRepository(location);
+									ProvisioningUtil.addArtifactRepository(dialog.getLocation(), false);
+									ProvUI.endBatchOperation(false);
+									ProvisioningUtil.addMetadataRepository(dialog.getLocation(), true);
+									String nickname = dialog.getName();
+									if (nickname != null && nickname.length() > 0)
+										ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+								} catch (ProvisionException e) {
+									ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+									ProvUI.endBatchOperation(true);
+								}
+							}
+						}
+					}
+				});
+				reposNotFound.add(location);
+			}
+		} else {
 			reportStatus(status, style);
 		}
 	}

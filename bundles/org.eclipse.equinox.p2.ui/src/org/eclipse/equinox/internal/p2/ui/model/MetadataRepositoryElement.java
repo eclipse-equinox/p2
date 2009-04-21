@@ -26,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -41,7 +40,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	URI location;
 	boolean isEnabled;
-	boolean alreadyReportedNotFound = false;
 	String name;
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
@@ -104,24 +102,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			try {
 				queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
 			} catch (ProvisionException e) {
-				// If repository could not be found, report to the user, but only once.
-				// If the user refreshes the repositories, new elements will be created and
-				// then a failure would be reported again on the next try.
-				switch (e.getStatus().getCode()) {
-					case ProvisionException.REPOSITORY_INVALID_LOCATION :
-					case ProvisionException.REPOSITORY_NOT_FOUND :
-						if (!alreadyReportedNotFound) {
-							// report the status, not the exception, to the user because we
-							// do not want to show them stack trace and exception detail.
-							ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
-							alreadyReportedNotFound = true;
-						}
-						break;
-					default :
-						// handle other exceptions the normal way. Silently log as we expect this to get reported
-						// at a higher level.
-						handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
-				}
+				ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}
@@ -179,7 +160,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		if (alreadyReportedNotFound || ProvUI.hasNotFoundStatusBeenReported(location))
+		if (ProvUI.hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
 		try {
 			String description = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
