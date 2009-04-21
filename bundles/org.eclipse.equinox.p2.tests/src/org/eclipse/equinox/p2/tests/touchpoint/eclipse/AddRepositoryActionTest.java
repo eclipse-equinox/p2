@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -33,6 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.service.prefs.Preferences;
@@ -189,7 +188,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	 */
 	public void testBug266881() throws ProvisionException {
 		//need to install a real bundle with an artifact to check for GC bug
-		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();
+		URI site = getTestData("0.1", "/testData/testRepos/simple.1").toURI();
 		getMetadataRepositoryManager().addRepository(site);
 		getArtifactRepositoryManager().addRepository(site);
 
@@ -215,7 +214,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//perform the update and install an ordinary bundle
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor()).iterator().next();
+		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("aBundle"), new Collector(), getMonitor()).iterator().next();
 		request = new ProfileChangeRequest(profile);
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
 		request.addInstallableUnits(newIUs);
