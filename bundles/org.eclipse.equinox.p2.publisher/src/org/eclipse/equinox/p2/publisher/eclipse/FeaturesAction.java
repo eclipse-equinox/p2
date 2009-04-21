@@ -523,18 +523,29 @@ public class FeaturesAction extends AbstractPublisherAction {
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
 			result.append(entry.getFilter());
-		if (entry.getOS() != null)
-			result.append("(osgi.os=" + entry.getOS() + ')');//$NON-NLS-1$
-		if (entry.getWS() != null)
-			result.append("(osgi.ws=" + entry.getWS() + ')');//$NON-NLS-1$
-		if (entry.getArch() != null)
-			result.append("(osgi.arch=" + entry.getArch() + ')');//$NON-NLS-1$
-		if (entry.getNL() != null)
-			result.append("(osgi.nl=" + entry.getNL() + ')');//$NON-NLS-1$
+		expandFilter(entry.getOS(), "osgi.os", result); //$NON-NLS-1$
+		expandFilter(entry.getWS(), "osgi.ws", result); //$NON-NLS-1$
+		expandFilter(entry.getArch(), "osgi.arch", result);//$NON-NLS-1$
+		expandFilter(entry.getNL(), "osgi.nl", result); //$NON-NLS-1$
 		if (result.length() == 2)
 			return null;
 		result.append(')');
 		return result.toString();
+	}
+
+	private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {
+		if (filter != null) {
+			StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
+			if (token.countTokens() == 1)
+				result.append('(' + osgiFilterValue + '=' + filter + ')');
+			else {
+				result.append("(|"); //$NON-NLS-1$
+				while (token.hasMoreElements()) {
+					result.append('(' + osgiFilterValue + '=' + token.nextToken() + ')');
+				}
+				result.append(')');
+			}
+		}
 	}
 
 	protected FileSetDescriptor[] getRootFileDescriptors(Properties props) {
