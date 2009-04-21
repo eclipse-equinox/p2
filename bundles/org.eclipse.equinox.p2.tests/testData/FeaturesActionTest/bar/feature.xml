@@ -28,11 +28,11 @@
    </url>
 
    <includes
-         id="org.bar.iu"
-         version="0.0.0"/>
+         id="org.bar.feature"
+         version="0.0.0" nl="de,en,fr"/>
 
    <requires>
-      <import plugin="org.bar.iu"/>
+      <import plugin="org.bar.iu" />
    </requires>
 
    <plugin
@@ -40,6 +40,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         unpack="false"
+         nl="de,en,fr"/>
 
 </feature>
