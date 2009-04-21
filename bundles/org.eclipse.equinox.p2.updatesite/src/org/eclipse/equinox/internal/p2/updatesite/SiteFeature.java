@@ -136,7 +136,7 @@ public class SiteFeature {
 				return false;
 		} else if (!this.label.equals(that.label))
 			return false;
-		return sameURL(this.url, that.url);
+		return sameURL(this.getURL(), that.getURL());
 	}
 
 	/* (non-Javadoc)
@@ -147,8 +147,8 @@ public class SiteFeature {
 		int result = 1;
 		result = prime * result + (featureId == null ? 0 : featureId.hashCode());
 		result = prime * result + (featureVersion == null ? 0 : featureVersion.hashCode());
-		if (url != null) {
-			result = prime * result + (url.toExternalForm() == null ? 0 : url.toExternalForm().toLowerCase().hashCode());
+		if (this.getURL() != null) {
+			result = prime * result + (getURL().toExternalForm() == null ? 0 : getURL().toExternalForm().toLowerCase().hashCode());
 		}
 		return result;
 	}

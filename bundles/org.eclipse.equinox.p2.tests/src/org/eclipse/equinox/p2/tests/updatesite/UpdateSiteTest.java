@@ -446,10 +446,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		b.setFeatureVersion("1.0.0");
 		assertEquals("1.1", a, b);
 		b.setFeatureVersion("2.0.0");
-		assertNotSame("1.2", a, b);
+		assertFalse("1.2", a.equals(b));
 		b.setFeatureVersion(null);
-		assertNotSame("1.3", a, b);
-		assertNotSame("1.4", b, a);
+		assertFalse("1.3", a.equals(b));
+		assertFalse("1.4", b.equals(a));
 	}
 
 	public void testSiteFeatureLabelEquals() {
@@ -460,10 +460,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		b.setLabel("foo");
 		assertEquals("1.1", a, b);
 		b.setLabel("bar");
-		assertNotSame("1.2", a, b);
+		assertFalse("1.2", a.equals(b));
 		b.setLabel(null);
-		assertNotSame("1.3", a, b);
-		assertNotSame("1.4", b, a);
+		assertFalse("1.3", a.equals(b));
+		assertFalse("1.4", b.equals(a));
 	}
 
 	public void testSiteFeatureIDEquals() {
@@ -474,10 +474,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		b.setFeatureIdentifier("org.foo");
 		assertEquals("1.1", a, b);
 		b.setFeatureIdentifier("org.bar");
-		assertNotSame("1.2", a, b);
+		assertFalse("1.2", a.equals(b));
 		b.setFeatureIdentifier(null);
-		assertNotSame("1.3", a, b);
-		assertNotSame("1.4", b, a);
+		assertFalse("1.3", a.equals(b));
+		assertFalse("1.4", b.equals(a));
 	}
 
 	public void testSiteFeatureEquals() {
@@ -485,16 +485,16 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		SiteFeature b = new SiteFeature();
 		assertEquals("1.0", a, b);
 		a.setURLString("http://foo");
-		assertNotSame("1.1", a, b);
+		assertFalse("1.1", a.equals(b));
 		b.setURLString("http://foo");
 		assertEquals("1.2", a, b);
 		a.setURLString("http://FOO");
 		assertEquals("1.3", a, b);
 		a.setURLString("file://FOO");
-		assertNotSame("1.4", a, b);
+		assertFalse("1.4", a.equals(b));
 		a.setURLString(null);
-		assertNotSame("1.5", a, b);
-		assertNotSame("1.6", b, a);
+		assertFalse("1.5", a.equals(b));
+		assertFalse("1.6", b.equals(a));
 	}
 
 	public void testSiteFeatureHash() {
@@ -509,6 +509,17 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		a.setURLString("foo");
 		b.setURLString("FoO");
 		assertEquals("1.3", a.hashCode(), b.hashCode());
+	}
+
+	public void testSiteFeatureNotEquals() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setURLString("file:/c:/foo");
+		assertFalse("1.1", a.equals(b));
+		b.setURLString("file:/c:/bar");
+		assertFalse("1.1", a.equals(b));
+		assertFalse("1.1", b.equals(a));
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
