@@ -63,11 +63,19 @@ public class TouchpointManager implements IRegistryChangeListener {
 		}
 
 		public Version getVersion() {
-			return new Version(element.getAttribute(ATTRIBUTE_VERSION));
+			try {
+				return new Version(element.getAttribute(ATTRIBUTE_VERSION));
+			} catch (InvalidRegistryObjectException e) {
+				return null;
+			}
 		}
 
 		public String getType() {
-			return element.getAttribute(ATTRIBUTE_TYPE);
+			try {
+				return element.getAttribute(ATTRIBUTE_TYPE);
+			} catch (InvalidRegistryObjectException e) {
+				return null;
+			}
 		}
 
 		public String toString() {
@@ -130,23 +138,27 @@ public class TouchpointManager implements IRegistryChangeListener {
 		IExtension[] extensions = point.getExtensions();
 		touchpointEntries = new HashMap(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
-			IConfigurationElement[] elements = extensions[i].getConfigurationElements();
-			for (int j = 0; j < elements.length; j++) {
-				String elementName = elements[j].getName();
-				if (!ELEMENT_TOUCHPOINT.equalsIgnoreCase(elementName)) {
-					reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, elements[j].getName(), ELEMENT_TOUCHPOINT));
-					continue;
+			try {
+				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
+				for (int j = 0; j < elements.length; j++) {
+					String elementName = elements[j].getName();
+					if (!ELEMENT_TOUCHPOINT.equalsIgnoreCase(elementName)) {
+						reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, elements[j].getName(), ELEMENT_TOUCHPOINT));
+						continue;
+					}
+					String id = elements[j].getAttribute(ATTRIBUTE_TYPE);
+					if (id == null) {
+						reportError(NLS.bind(Messages.TouchpointManager_Attribute_Not_Specified, ATTRIBUTE_TYPE));
+						continue;
+					}
+					if (touchpointEntries.get(id) == null) {
+						touchpointEntries.put(id, new TouchpointEntry(elements[j]));
+					} else {
+						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id));
+					}
 				}
-				String id = elements[j].getAttribute(ATTRIBUTE_TYPE);
-				if (id == null) {
-					reportError(NLS.bind(Messages.TouchpointManager_Attribute_Not_Specified, ATTRIBUTE_TYPE));
-					continue;
-				}
-				if (touchpointEntries.get(id) == null) {
-					touchpointEntries.put(id, new TouchpointEntry(elements[j]));
-				} else {
-					reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id));
-				}
+			} catch (InvalidRegistryObjectException e) {
+				//skip this extension
 			}
 		}
 		return touchpointEntries;

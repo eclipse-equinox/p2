@@ -71,6 +71,8 @@ public class ActionManager implements IRegistryChangeListener {
 					action.setTouchpoint(touchpoint);
 				}
 				return action;
+			} catch (InvalidRegistryObjectException e) {
+				// skip
 			} catch (CoreException e) {
 				throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Exception_Creating_Action_Extension, actionId));
 			}
@@ -85,20 +87,24 @@ public class ActionManager implements IRegistryChangeListener {
 		IExtension[] extensions = point.getExtensions();
 		actionMap = new HashMap(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
-			IConfigurationElement[] elements = extensions[i].getConfigurationElements();
-			for (int j = 0; j < elements.length; j++) {
-				IConfigurationElement actionElement = elements[j];
-				if (!actionElement.getName().equals(ELEMENT_ACTION))
-					continue;
+			try {
+				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
+				for (int j = 0; j < elements.length; j++) {
+					IConfigurationElement actionElement = elements[j];
+					if (!actionElement.getName().equals(ELEMENT_ACTION))
+						continue;
 
-				String actionId = actionElement.getAttribute(ATTRIBUTE_NAME);
-				if (actionId == null)
-					continue;
+					String actionId = actionElement.getAttribute(ATTRIBUTE_NAME);
+					if (actionId == null)
+						continue;
 
-				if (actionId.indexOf('.') == -1)
-					actionId = actionElement.getNamespaceIdentifier() + "." + actionId; //$NON-NLS-1$
+					if (actionId.indexOf('.') == -1)
+						actionId = actionElement.getNamespaceIdentifier() + "." + actionId; //$NON-NLS-1$
 
-				actionMap.put(actionId, actionElement);
+					actionMap.put(actionId, actionElement);
+				}
+			} catch (InvalidRegistryObjectException e) {
+				// skip
 			}
 		}
 		return actionMap;
