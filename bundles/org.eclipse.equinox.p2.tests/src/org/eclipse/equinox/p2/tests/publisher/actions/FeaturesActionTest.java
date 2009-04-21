@@ -134,6 +134,7 @@ public class FeaturesActionTest extends ActionTest {
 		IRequiredCapability[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
+		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 
 		//check zipped=true in touchpointData
 		String barValue = ((ITouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
