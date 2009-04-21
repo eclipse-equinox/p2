@@ -120,7 +120,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
 
-	public void testDefaultAgentRepoAndBundlePoolFromProfileRepo() {
+	public void testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();
@@ -160,7 +160,14 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(repoCollector.isEmpty());
 		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 
-		assertTrue(manager.contains(tempFolder.toURI()));
-		assertTrue(manager.contains(defaultAgenRepositoryDirectory.toURI()));
+		int maxTries = 20;
+		int current = 0;
+		while (true) {
+			if (manager.contains(tempFolder.toURI()) && manager.contains(defaultAgenRepositoryDirectory.toURI()))
+				break;
+			if (++current == maxTries)
+				fail("profile artifact repos not added");
+			Thread.sleep(100);
+		}
 	}
 }
