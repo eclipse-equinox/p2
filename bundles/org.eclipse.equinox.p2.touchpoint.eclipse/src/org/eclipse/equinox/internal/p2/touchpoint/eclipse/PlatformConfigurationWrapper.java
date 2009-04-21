@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.net.*;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -137,12 +138,12 @@ public class PlatformConfigurationWrapper {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site nextSite = (Site) iter.next();
 			try {
-				File nextFile = URIUtil.toFile(URIUtil.fromString(nextSite.getUrl()));
+				File nextFile = URLUtil.toFile(new URL(nextSite.getUrl()));
 				if (nextFile == null)
 					continue;
 				if (nextFile.equals(file))
 					return nextSite;
-			} catch (URISyntaxException e) {
+			} catch (MalformedURLException e) {
 				//ignore incorrectly formed site
 			}
 		}

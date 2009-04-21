@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
@@ -79,7 +80,58 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		URI siteURI = featureTarget.getParentFile().getParentFile().toURI();
 		assertFalse(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
 		InstallFeatureAction action = new InstallFeatureAction();
-		action.execute(parameters);
+		IStatus status = action.execute(parameters);
+		status.isOK();
+		assertTrue(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
+		action.undo(parameters);
+		assertFalse(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
+	}
+
+	public void testInstallFolderWithSpaces() {
+		Properties profileProperties = new Properties();
+		File installFolder = new File(getTempFolder(), "with space");
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		File featureSource = getTestData("1.0", "/testData/eclipseTouchpoint/features/org.eclipse.rcp_3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG");
+		File targetPlugins = new File(installFolder, "features");
+		assertTrue(targetPlugins.mkdir());
+		File featureTarget = new File(targetPlugins, "org.eclipse.rcp_3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG");
+		copy("2.0", featureSource, featureTarget);
+
+		FeatureParser parser = new FeatureParser();
+		Feature feature = parser.parse(featureTarget);
+
+		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, featureTarget);
+		((ArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
+		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, new PublisherInfo());
+
+		bundlePool.addDescriptor(descriptor);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
+		parameters.put("iu", operand.second());
+		touchpoint.initializeOperand(profile, operand, parameters);
+
+		parameters.put(ActionConstants.PARM_FEATURE, key.toString());
+		parameters.put(ActionConstants.PARM_FEATURE_ID, ActionConstants.PARM_DEFAULT_VALUE);
+		parameters.put(ActionConstants.PARM_FEATURE_VERSION, ActionConstants.PARM_DEFAULT_VALUE);
+		parameters = Collections.unmodifiableMap(parameters);
+
+		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
+		assertNotNull(configuration);
+
+		URI siteURI = featureTarget.getParentFile().getParentFile().toURI();
+		assertFalse(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
+		InstallFeatureAction action = new InstallFeatureAction();
+		IStatus status = action.execute(parameters);
+		status.isOK();
 		assertTrue(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
 		action.undo(parameters);
 		assertFalse(configuration.containsFeature(siteURI, feature.getId(), feature.getVersion()));
