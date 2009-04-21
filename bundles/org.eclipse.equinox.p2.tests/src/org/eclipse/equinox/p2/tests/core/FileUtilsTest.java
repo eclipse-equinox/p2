@@ -15,7 +15,10 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -223,4 +226,76 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 				}
 		}
 	}
+
+	// TODO need to test some cases where there are actual File.isFile() == true inputs
+	public void testDynamicPathComputer0() {
+		IPathComputer computer = FileUtils.createDynamicPathComputer(0);
+		validate(computer, "/foo", "");
+		validate(computer, "/foo/bar", "bar");
+		validate(computer, "/foo/bar/this", "bar/this");
+		computer.reset();
+		validate(computer, "/foo/bar", "");
+		validate(computer, "/foo/bar/this", "this");
+	}
+
+	// TODO need to test some cases where there are actual File.isFile() == true inputs
+	public void testDynamicPathComputer1() {
+		IPathComputer computer = FileUtils.createDynamicPathComputer(1);
+		validate(computer, "/foo", "/foo");
+		validate(computer, "/foo/bar", "/foo/bar");
+		validate(computer, "/foo/bar/this", "/foo/bar/this");
+		computer.reset();
+		validate(computer, "/foo/bar", "bar");
+		validate(computer, "/foo/bar/this", "bar/this");
+	}
+
+	public void testParentPathComputer0() {
+		IPathComputer computer = FileUtils.createParentPrefixComputer(0);
+		validate(computer, "/foo", "");
+		validate(computer, "/foo/bar", "");
+		validate(computer, "/foo/bar/this", "");
+	}
+
+	public void testParentPathComputer1() {
+		IPathComputer computer = FileUtils.createParentPrefixComputer(1);
+		validate(computer, "/foo", "/foo");
+		validate(computer, "/foo/bar", "bar");
+		validate(computer, "/foo/bar/this", "this");
+	}
+
+	public void testParentPathComputer2() {
+		IPathComputer computer = FileUtils.createParentPrefixComputer(2);
+		validate(computer, "/foo", "/foo");
+		validate(computer, "/foo/bar", "/foo/bar");
+		validate(computer, "/foo/bar/this", "bar/this");
+	}
+
+	public void testRootPathComputer0() {
+		IPathComputer computer = FileUtils.createRootPathComputer(new File("/"));
+		validate(computer, "/foo", "/foo");
+		validate(computer, "/foo/bar", "/foo/bar");
+		validate(computer, "/foo/bar/this", "/foo/bar/this");
+	}
+
+	public void testRootPathComputer1() {
+		IPathComputer computer = FileUtils.createRootPathComputer(new File("/foo"));
+		validate(computer, "/foo", "");
+		validate(computer, "/foo/bar", "bar");
+		validate(computer, "/foo/bar/this", "bar/this");
+	}
+
+	public void testRootPathComputer2() {
+		IPathComputer computer = FileUtils.createRootPathComputer(new File("/foo/bar"));
+		validate(computer, "/foo", "");
+		validate(computer, "/foo/bar", "");
+		validate(computer, "/foo/bar/this", "this");
+		validate(computer, "/foo/bar/this/that", "this/that");
+	}
+
+	private void validate(IPathComputer computer, String input, String output) {
+		IPath computed = computer.computePath(new File(input));
+		IPath desired = new Path(output);
+		assertEquals(computed, desired);
+	}
+
 }
