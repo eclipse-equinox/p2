@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.repository;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import javax.security.auth.login.LoginException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -236,6 +237,8 @@ public abstract class RepositoryStatusHelper {
 			IStatus status = ((IncomingFileTransferException) t).getStatus();
 			t = status.getException();
 		}
+		if (t instanceof LoginException)
+			throw new AuthenticationFailedException();
 
 		if (t == null || !(t instanceof IOException))
 			return;
