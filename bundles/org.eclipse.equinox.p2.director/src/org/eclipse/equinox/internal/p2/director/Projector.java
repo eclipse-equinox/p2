@@ -81,6 +81,11 @@ public class Projector {
 			return family == ExplanationJob.this;
 		}
 
+		protected void canceling() {
+			super.canceling();
+			dependencyHelper.stopExplanation();
+		}
+
 		public Set getExplanationResult() {
 			return explanation;
 		}
@@ -833,8 +838,8 @@ public class Projector {
 		}
 		return resolvedFragments;
 	}
-	
-		private void rememberHostMatches(IInstallableUnit fragment, List matches) {
+
+	private void rememberHostMatches(IInstallableUnit fragment, List matches) {
 		Set existingMatches = (Set) fragments.get(fragment);
 		if (existingMatches == null) {
 			existingMatches = new HashSet();
@@ -855,5 +860,5 @@ public class Projector {
 		}
 		return true;
 	}
-	
+
 }
