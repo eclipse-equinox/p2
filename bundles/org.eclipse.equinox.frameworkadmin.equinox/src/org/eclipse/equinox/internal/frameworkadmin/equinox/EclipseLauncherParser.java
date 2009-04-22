@@ -57,7 +57,7 @@ public class EclipseLauncherParser {
 
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
-		//		getFrameworkJar(lines, launcherFolder, laubncherData);
+		getFrameworkJar(lines, launcherFolder, launcherData);
 		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder);
 		if (osgiInstallArea == null) {
 			osgiInstallArea = launcherData.getFwJar() != null ? launcherData.getFwJar().getParentFile().toURI() : launcherFolder;
@@ -72,6 +72,15 @@ public class EclipseLauncherParser {
 		getVM(lines, launcherFolder, launcherData);
 
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, launcherConfigFile.getAbsolutePath()));
+	}
+
+	private void getFrameworkJar(List lines, URI launcherFolder, LauncherData launcherData) {
+		File fwJar = launcherData.getFwJar();
+		if (fwJar != null)
+			return;
+		URI location = ParserUtils.getFrameworkJar(lines, launcherFolder);
+		if (location != null)
+			launcherData.setFwJar(URIUtil.toFile(location));
 	}
 
 	private void getPersistentDataLocation(List lines, URI osgiInstallArea, URI configArea, LauncherData launcherData) {

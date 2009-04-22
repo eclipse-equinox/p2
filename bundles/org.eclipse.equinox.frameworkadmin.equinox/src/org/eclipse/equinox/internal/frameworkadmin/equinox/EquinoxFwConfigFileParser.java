@@ -116,13 +116,14 @@ public class EquinoxFwConfigFileParser {
 			int indexStartInfo = entry.indexOf('@');
 			String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
 			URI realLocation = null;
-			try {
-				if (manipulator.getLauncherData().getFwJar() != null) {
-					realLocation = URIUtil.makeAbsolute(FileUtils.fromFileURL(location), manipulator.getLauncherData().getFwJar().getParentFile().toURI());
+			if (manipulator.getLauncherData().getFwJar() != null) {
+				File parentFile = manipulator.getLauncherData().getFwJar().getParentFile();
+				try {
+					realLocation = URIUtil.makeAbsolute(FileUtils.fromFileURL(location), parentFile.toURI());
+				} catch (URISyntaxException e) {
+					// try searching as a simple location
+					realLocation = FileUtils.getEclipsePluginFullLocation(location, parentFile);
 				}
-			} catch (URISyntaxException e) {
-				Log.log(LogService.LOG_ERROR, "Can't make absolute...");
-				continue;
 			}
 			String slAndFlag = (indexStartInfo > -1) ? entry.substring(indexStartInfo + 1) : null;
 
