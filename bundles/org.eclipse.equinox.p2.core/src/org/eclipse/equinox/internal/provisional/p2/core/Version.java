@@ -75,6 +75,39 @@ public class Version extends VersionVector {
 	private static final long serialVersionUID = 8202715438560849928L;
 
 	/**
+	 * Creates an OSGi version identifier from the specified numerical components.
+	 * 
+	 * <p>
+	 * The qualifier is set to the empty string.
+	 * 
+	 * @param major Major component of the version identifier.
+	 * @param minor Minor component of the version identifier.
+	 * @param micro Micro component of the version identifier.
+	 * @throws IllegalArgumentException If the numerical components are
+	 *         negative.
+	 */
+	public static Version createOSGi(int major, int minor, int micro) {
+		return createOSGi(major, minor, micro, null);
+	}
+
+	/**
+	 * Creates an OSGi version identifier from the specified components.
+	 * 
+	 * @param major Major component of the version identifier.
+	 * @param minor Minor component of the version identifier.
+	 * @param micro Micro component of the version identifier.
+	 * @param qualifier Qualifier component of the version identifier. If
+	 *        <code>null</code> is specified, then the qualifier will be set to
+	 *        the empty string.
+	 * @throws IllegalArgumentException If the numerical components are negative
+	 *         or the qualifier string is invalid.
+	 */
+	public static Version createOSGi(int major, int minor, int micro, String qualifier) {
+		// TODO: Eliminate duplicates
+		return new Version(major, minor, micro, qualifier);
+	}
+
+	/**
 	 * Create an omni version from an OSGi <code>version</code>.
 	 * @param version The OSGi version. Can be <code>null</code>.
 	 * @return The created omni version
@@ -90,25 +123,44 @@ public class Version extends VersionVector {
 	/**
 	 * Parses a version identifier from the specified string.
 	 * 
-	 * <p>
-	 * See {@link #Version(String)} for the format of the version string.
-	 * 
 	 * @param version String representation of the version identifier. Leading
 	 *        and trailing whitespace will be ignored.
-	 * @return A <code>Version</code> object representing the version
-	 *         identifier. If <code>version</code> is <code>null</code> or
-	 *         the empty string then <code>emptyVersion</code> will be
-	 *         returned.
+	 * @return A <code>Version</code> object representing the version identifier
+	 *         or <code>null</code> if <code>version</code> is <code>null</code> or
+	 *         an empty string.
 	 * @throws IllegalArgumentException If <code>version</code> is improperly
 	 *         formatted.
 	 */
-	public static Version parseVersion(String version) {
+	public static Version create(String version) {
+		// TODO: Eliminate duplicates
 		if (version != null) {
 			Version v = new Version();
 			if (VersionParser.parseInto(version, 0, version.length(), v))
 				return v;
 		}
-		return Version.emptyVersion;
+		return null;
+	}
+
+	/**
+	 * Parses a version identifier from the specified string. This method is for backward
+	 * compatibility with OSGi and will return the OSGi {@link #emptyVersion} when
+	 * the provided string is empty or <code>null</code>.
+	 * 
+	 * @param version String representation of the version identifier. Leading
+	 *        and trailing whitespace will be ignored.
+	 * @return A <code>Version</code> object representing the version
+	 *         identifier. If <code>version</code> is <code>null</code> or
+	 *         the empty string then the OSGi <code>emptyVersion</code> will be
+	 *         returned.
+	 * @throws IllegalArgumentException If <code>version</code> is improperly
+	 *         formatted.
+	 * @see #create(String)
+	 */
+	public static Version parseVersion(String version) {
+		if (version == null || version.length() == 0 || "0.0.0".equals(version)) //$NON-NLS-1$
+			return emptyVersion;
+		Version v = create(version);
+		return v == null ? emptyVersion : v;
 	}
 
 	/**
@@ -170,6 +222,7 @@ public class Version extends VersionVector {
 	 * @param micro Micro component of the version identifier.
 	 * @throws IllegalArgumentException If the numerical components are
 	 *         negative.
+	 * @deprecated Use {@link #createOSGi(int, int, int)}. This constructor will not remain public
 	 */
 	public Version(int major, int minor, int micro) {
 		this(major, minor, micro, null);
@@ -186,6 +239,7 @@ public class Version extends VersionVector {
 	 *        the empty string.
 	 * @throws IllegalArgumentException If the numerical components are negative
 	 *         or the qualifier string is invalid.
+	 * @deprecated Use {@link #createOSGi(int, int, int, String)}. This constructor will not remain public
 	 */
 	public Version(int major, int minor, int micro, String qualifier) {
 		if (qualifier != null && qualifier.length() == 0)
@@ -206,6 +260,7 @@ public class Version extends VersionVector {
 	 * @param version String representation of the version identifier.
 	 * @throws IllegalArgumentException If <code>version</code> is improperly
 	 *         formatted.
+	 * @deprecated Use {@link #parseVersion(String)}. This constructor will not remain public
 	 */
 	public Version(String version) {
 		if (!VersionParser.parseInto(version, 0, version.length(), this)) {
