@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -26,16 +28,16 @@ import org.osgi.service.prefs.Preferences;
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	public static void migratePreferences() {
-		Preferences pref = ProvSDKUIActivator.getPreferences();
+		Preferences pref = new ProfileScope(IProfileRegistry.SELF).getNode(ProvSDKUIActivator.PLUGIN_ID);
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
-				org.eclipse.core.runtime.Preferences oldPref = ProvSDKUIActivator.getDefault().getPluginPreferences();
+				Preferences oldPref = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE).node(ProvSDKUIActivator.PLUGIN_ID);
 				// don't migrate everything.  Some of the preferences moved to
 				// another bundle.
-				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN));
-				pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, oldPref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
-				ProvSDKUIActivator.savePreferences();
+				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, "")); //$NON-NLS-1$
+				pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, oldPref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true));
+				ProvSDKUIActivator.getDefault().savePreferences();
 			}
 		} catch (BackingStoreException e) {
 			ProvUI.handleException(e, ProvSDKMessages.PreferenceInitializer_Error, StatusManager.LOG);

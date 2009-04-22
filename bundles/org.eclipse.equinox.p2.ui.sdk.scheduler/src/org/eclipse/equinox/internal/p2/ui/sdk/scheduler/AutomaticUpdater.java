@@ -74,9 +74,6 @@ public class AutomaticUpdater implements IUpdateListener {
 	boolean alreadyDownloaded = false;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
 
-	public AutomaticUpdater() {
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -10,18 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.DefaultScope;
+import java.io.IOException;
+
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 
 /**
  * Activator class for the automatic updates plugin
@@ -35,14 +37,14 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
+	private ScopedPreferenceStore preferenceStore;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
-	public static final String PREFERENCE_ROOT = "/profile/_SELF_/"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
 	}
-	
+
 	public static Bundle getBundle(String symbolicName) {
 		if (packageAdmin == null)
 			return null;
@@ -56,22 +58,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			}
 		}
 		return null;
-	}
-	
-	static Preferences getPreferences() {
-		return Platform.getPreferencesService().getRootNode().node(PREFERENCE_ROOT + PLUGIN_ID);
-	}
-	
-	static Preferences getDefaultPreferences() {
-		return new DefaultScope().getNode(PLUGIN_ID);
-	}
-	
-	static void savePreferences() {
-		try {
-			getPreferences().flush();
-		} catch (BackingStoreException e) {
-			ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG); 
-		}
 	}
 
 	/**
@@ -90,7 +76,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+	 * )
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
@@ -99,14 +87,14 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
 
-		// TODO for now we need to manually start up the provisioning infrastructure
-		// and the update checker, because the Eclipse Application launch config won't 
-		// let me specify bundles to start.
+		// TODO for now we need to manually start up the provisioning
+		// infrastructure and the update checker, because the Eclipse
+		// Application launch config won't let me specify bundles to start.
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		
+
 		PreferenceInitializer.migratePreferences();
 	}
 
@@ -148,5 +136,27 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		if (busReference == null)
 			return null;
 		return (IProvisioningEventBus) context.getService(busReference);
+	}
+
+	/*
+	 * Overridden to use a profile scoped preference store. (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
+	 */
+	public IPreferenceStore getPreferenceStore() {
+		// Create the preference store lazily.
+		if (preferenceStore == null) {
+			preferenceStore = new ScopedPreferenceStore(new ProfileScope(IProfileRegistry.SELF), PLUGIN_ID);
+		}
+		return preferenceStore;
+	}
+
+	public void savePreferences() {
+		if (preferenceStore != null)
+			try {
+				preferenceStore.save();
+			} catch (IOException e) {
+				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG | StatusManager.SHOW);
+			}
 	}
 }

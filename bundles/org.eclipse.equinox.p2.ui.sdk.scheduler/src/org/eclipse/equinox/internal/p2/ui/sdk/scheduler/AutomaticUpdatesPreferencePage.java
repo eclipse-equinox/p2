@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.osgi.service.prefs.Preferences;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -32,9 +32,10 @@ import org.eclipse.ui.PlatformUI;
  * Preference page for automated updates.
  * 
  * @since 3.4
- *
+ * 
  */
-public class AutomaticUpdatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public class AutomaticUpdatesPreferencePage extends PreferencePage implements
+		IWorkbenchPreferencePage {
 
 	private Button enabledCheck;
 	private Button onStartupRadio, onScheduleRadio;
@@ -51,7 +52,12 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	protected Control createContents(Composite parent) {
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IAutomaticUpdaterHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
+		PlatformUI
+				.getWorkbench()
+				.getHelpSystem()
+				.setHelp(
+						parent,
+						IAutomaticUpdaterHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
 
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -59,12 +65,14 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		container.setLayout(layout);
 
 		enabledCheck = new Button(container, SWT.CHECK);
-		enabledCheck.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findUpdates);
+		enabledCheck
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findUpdates);
 
 		createSpacer(container, 1);
 
 		updateScheduleGroup = new Group(container, SWT.NONE);
-		updateScheduleGroup.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_UpdateSchedule);
+		updateScheduleGroup
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_UpdateSchedule);
 		layout = new GridLayout();
 		layout.numColumns = 3;
 		updateScheduleGroup.setLayout(layout);
@@ -72,7 +80,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		updateScheduleGroup.setLayoutData(gd);
 
 		onStartupRadio = new Button(updateScheduleGroup, SWT.RADIO);
-		onStartupRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnStart);
+		onStartupRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnStart);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		onStartupRadio.setLayoutData(gd);
@@ -83,7 +92,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		});
 
 		onScheduleRadio = new Button(updateScheduleGroup, SWT.RADIO);
-		onScheduleRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnSchedule);
+		onScheduleRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnSchedule);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		onScheduleRadio.setLayoutData(gd);
@@ -101,7 +111,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		dayCombo.setLayoutData(gd);
 
 		atLabel = new Label(updateScheduleGroup, SWT.NULL);
-		atLabel.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_at);
+		atLabel
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_at);
 
 		hourCombo = new Combo(updateScheduleGroup, SWT.READ_ONLY);
 		hourCombo.setItems(AutomaticUpdateScheduler.HOURS);
@@ -111,7 +122,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		createSpacer(container, 1);
 
 		downloadGroup = new Group(container, SWT.NONE);
-		downloadGroup.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_downloadOptions);
+		downloadGroup
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_downloadOptions);
 		layout = new GridLayout();
 		layout.numColumns = 3;
 		downloadGroup.setLayout(layout);
@@ -119,7 +131,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		downloadGroup.setLayoutData(gd);
 
 		searchOnlyRadio = new Button(downloadGroup, SWT.RADIO);
-		searchOnlyRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_searchAndNotify);
+		searchOnlyRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_searchAndNotify);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		searchOnlyRadio.setLayoutData(gd);
@@ -130,7 +143,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		});
 
 		searchAndDownloadRadio = new Button(downloadGroup, SWT.RADIO);
-		searchAndDownloadRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_downloadAndNotify);
+		searchAndDownloadRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_downloadAndNotify);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		searchAndDownloadRadio.setLayoutData(gd);
@@ -143,7 +157,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		createSpacer(container, 1);
 
 		remindGroup = new Group(container, SWT.NONE);
-		remindGroup.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindGroup);
+		remindGroup
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindGroup);
 		layout = new GridLayout();
 		layout.numColumns = 3;
 		remindGroup.setLayout(layout);
@@ -151,7 +166,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		remindGroup.setLayoutData(gd);
 
 		remindOnceRadio = new Button(remindGroup, SWT.RADIO);
-		remindOnceRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindOnce);
+		remindOnceRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindOnce);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		remindOnceRadio.setLayoutData(gd);
@@ -162,7 +178,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		});
 
 		remindScheduleRadio = new Button(remindGroup, SWT.RADIO);
-		remindScheduleRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindSchedule);
+		remindScheduleRadio
+				.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindSchedule);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		remindScheduleRadio.setLayoutData(gd);
@@ -200,19 +217,27 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	private void initialize() {
-		Preferences pref = AutomaticUpdatePlugin.getPreferences();
-		enabledCheck.setSelection(pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false));
-		setSchedule(pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, ""));
-		
-		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref)]);
-		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref)]);
-		
-		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
-		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
-		remindElapseCombo.setText(pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, ""));
-		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
-		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
-		
+		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault()
+				.getPreferenceStore();
+		enabledCheck.setSelection(pref
+				.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
+		setSchedule(pref
+				.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
+
+		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, false)]);
+		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, false)]);
+
+		remindScheduleRadio.setSelection(pref
+				.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindOnceRadio.setSelection(!pref
+				.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindElapseCombo.setText(pref
+				.getString(PreferenceConstants.PREF_REMIND_ELAPSED));
+		searchOnlyRadio.setSelection(!pref
+				.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+		searchAndDownloadRadio.setSelection(pref
+				.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+
 		pageChanged();
 	}
 
@@ -237,70 +262,89 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		remindGroup.setEnabled(master);
 		remindScheduleRadio.setEnabled(master);
 		remindOnceRadio.setEnabled(master);
-		remindElapseCombo.setEnabled(master && remindScheduleRadio.getSelection());
+		remindElapseCombo.setEnabled(master
+				&& remindScheduleRadio.getSelection());
 	}
 
 	protected void performDefaults() {
 		super.performDefaults();
-		Preferences defaultPref = AutomaticUpdatePlugin.getDefaultPreferences();
-		enabledCheck.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false));
+		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault()
+				.getPreferenceStore();
+		enabledCheck
+				.setSelection(pref
+						.getDefaultBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
 
-		setSchedule(defaultPref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, ""));
-		onScheduleRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, false));
+		setSchedule(pref
+				.getDefaultString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
+		onScheduleRadio
+				.setSelection(pref
+						.getDefaultBoolean(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE));
 
-		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(defaultPref)]);
-		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(defaultPref)]);
+		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, true)]);
+		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, true)]);
 
-		remindOnceRadio.setSelection(!defaultPref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
-		remindScheduleRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false));
-		remindElapseCombo.setText(defaultPref.get(PreferenceConstants.PREF_REMIND_ELAPSED, ""));
+		remindOnceRadio.setSelection(!pref
+				.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindScheduleRadio.setSelection(pref
+				.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindElapseCombo.setText(pref
+				.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED));
 
-		searchOnlyRadio.setSelection(!defaultPref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
-		searchAndDownloadRadio.setSelection(defaultPref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false));
-
+		searchOnlyRadio.setSelection(!pref
+				.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+		searchAndDownloadRadio.setSelection(pref
+				.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		pageChanged();
 	}
 
-	/** 
-	 * Method declared on IPreferencePage.
-	 * Subclasses should override
+	/**
+	 * Method declared on IPreferencePage. Subclasses should override
 	 */
 	public boolean performOk() {
-		Preferences pref = AutomaticUpdatePlugin.getPreferences();
-		pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enabledCheck.getSelection());
+		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault()
+				.getPreferenceStore();
+		pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED,
+				enabledCheck.getSelection());
 		if (onStartupRadio.getSelection())
-			pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
+			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE,
+					PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		else
-			pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
-		
+			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE,
+					PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
+
 		if (remindScheduleRadio.getSelection()) {
-			pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
-			pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
+			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
+			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED,
+					remindElapseCombo.getText());
 		} else {
-			pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
+			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		}
-		
-		pref.put(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());
-		pref.put(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());
-		
-		pref.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, searchAndDownloadRadio.getSelection());
 
-		AutomaticUpdatePlugin.savePreferences();
+		pref.setValue(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());
+		pref.setValue(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());
 
+		pref.setValue(PreferenceConstants.PREF_DOWNLOAD_ONLY,
+				searchAndDownloadRadio.getSelection());
+
+		AutomaticUpdatePlugin.getDefault().savePreferences();
 		AutomaticUpdatePlugin.getDefault().getScheduler().rescheduleUpdate();
 		return true;
 	}
 
-	private int getDay(Preferences pref) {
-		String day = pref.get(AutomaticUpdateScheduler.P_DAY, "");
+	private int getDay(IPreferenceStore pref, boolean useDefault) {
+		String day = useDefault ? pref
+				.getDefaultString(AutomaticUpdateScheduler.P_DAY) : pref
+				.getString(AutomaticUpdateScheduler.P_DAY);
 		for (int i = 0; i < AutomaticUpdateScheduler.DAYS.length; i++)
 			if (AutomaticUpdateScheduler.DAYS[i].equals(day))
 				return i;
 		return 0;
 	}
 
-	private int getHour(Preferences pref) {
-		String hour = pref.get(AutomaticUpdateScheduler.P_HOUR, "");
+	private int getHour(IPreferenceStore pref, boolean useDefault) {
+		String hour = useDefault ? pref
+				.getDefaultString(AutomaticUpdateScheduler.P_HOUR) : pref
+				.getString(AutomaticUpdateScheduler.P_HOUR);
 		for (int i = 0; i < AutomaticUpdateScheduler.HOURS.length; i++)
 			if (AutomaticUpdateScheduler.HOURS[i].equals(hour))
 				return i;

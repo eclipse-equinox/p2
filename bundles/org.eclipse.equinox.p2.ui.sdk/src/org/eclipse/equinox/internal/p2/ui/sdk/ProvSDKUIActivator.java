@@ -12,28 +12,26 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 
 /**
  * Activator class for the p2 UI.
@@ -46,11 +44,11 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
 	private ServiceRegistration certificateUIRegistration;
+	private ScopedPreferenceStore preferenceStore;
 
 	private IPropertyChangeListener preferenceListener;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
-	public static final String PREFERENCE_ROOT = "/profile/_SELF_/"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
@@ -75,22 +73,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
-
-	public static Preferences getPreferences() {
-		return Platform.getPreferencesService().getRootNode().node(PREFERENCE_ROOT + PLUGIN_ID);
-	}
-
-	public static Preferences getDefaultPreferences() {
-		return new DefaultScope().getNode(PLUGIN_ID);
-	}
-
-	public static void savePreferences() {
-		try {
-			getPreferences().flush();
-		} catch (BackingStoreException e) {
-			ProvUI.handleException(e, ProvSDKMessages.Error_Saving_Preferences, StatusManager.LOG);
-		}
 	}
 
 	public ProvSDKUIActivator() {
@@ -201,5 +183,27 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
 		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+	}
+
+	/*
+	 * Overridden to use a profile scoped preference store.
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
+	 */
+	public IPreferenceStore getPreferenceStore() {
+		// Create the preference store lazily.
+		if (preferenceStore == null) {
+			preferenceStore = new ScopedPreferenceStore(new ProfileScope(IProfileRegistry.SELF), PLUGIN_ID);
+		}
+		return preferenceStore;
+	}
+
+	public void savePreferences() {
+		if (preferenceStore != null)
+			try {
+				preferenceStore.save();
+			} catch (IOException e) {
+				ProvUI.handleException(e, ProvSDKMessages.ProvSDKUIActivator_ErrorSavingPrefs, StatusManager.LOG | StatusManager.SHOW);
+			}
 	}
 }

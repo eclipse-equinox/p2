@@ -14,6 +14,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.service.prefs.BackingStoreException;
@@ -31,34 +33,29 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// scope (final 3.5 format)
 		// 2) if applicable, migrate from 3.4 prefs kept in a different bundle
 		// 3) if applicable, migrate from 3.3 prefs known by Update Manager
-		Preferences pref = AutomaticUpdatePlugin.getPreferences();
+		Preferences pref = new ProfileScope(IProfileRegistry.SELF).getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
-				org.eclipse.core.runtime.Preferences oldPref = AutomaticUpdatePlugin
-						.getDefault().getPluginPreferences();
-				String[] keys = oldPref.propertyNames();
+				Preferences oldPref = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE).node(AutomaticUpdatePlugin.PLUGIN_ID);
+				String[] keys = oldPref.keys();
 				for (int i = 0; i < keys.length; i++)
-					pref.put(keys[i], oldPref.getString(keys[i]));
+					pref.put(keys[i], oldPref.get(keys[i], "")); //$NON-NLS-1$
 
 				if (keys.length > 0)
-					AutomaticUpdatePlugin.savePreferences();
+					pref.flush();
 			}
 		} catch (BackingStoreException e) {
-			ProvUI.handleException(e,
-					AutomaticUpdateMessages.ErrorLoadingPreferenceKeys,
-					StatusManager.LOG);
+			ProvUI.handleException(e, AutomaticUpdateMessages.ErrorLoadingPreferenceKeys, StatusManager.LOG);
 		}
 
 		// Have we migrated from 3.4 pref values?
-		boolean migrated34 = pref.getBoolean(
-				PreferenceConstants.PREF_MIGRATED_34, false);
+		boolean migrated34 = pref.getBoolean(PreferenceConstants.PREF_MIGRATED_34, false);
 		boolean node34exists = false;
 		if (!migrated34) {
 			// first look for the 3.4 automatic update preferences, which were
 			// located in a different bundle than now, in the instance scope.
-			Preferences instanceScope = Platform.getPreferencesService()
-					.getRootNode().node(InstanceScope.SCOPE);
+			Preferences instanceScope = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE);
 			try {
 				node34exists = instanceScope.nodeExists(SDK_UI_PLUGIN_ID);
 			} catch (BackingStoreException e1) {
@@ -69,67 +66,54 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				// We only migrate the preferences associated with auto update.
 				// Other preferences still remain in that bundle and are handled
 				// there. We don't migrate if the value was never set.
-				if (node34.get("enabled", null) == null) {
-					pref.putBoolean(
-							PreferenceConstants.PREF_AUTO_UPDATE_ENABLED,
-							node34.getBoolean("enabled", false));
+				// We use string literals rather than pref constants because we want to
+				// ensure we match the 3.4 values.
+				if (node34.get("enabled", null) == null) { //$NON-NLS-1$
+					pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, node34.getBoolean("enabled", false)); //$NON-NLS-1$
 				}
-				if (node34.get("schedule", null) == null) {
-					pref
-							.put(
-									PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE,
-									node34
-											.get(
-													"schedule",
-													PreferenceConstants.PREF_UPDATE_ON_STARTUP));
+				if (node34.get("schedule", null) == null) { //$NON-NLS-1$
+					pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, node34.get("schedule", //$NON-NLS-1$
+							PreferenceConstants.PREF_UPDATE_ON_STARTUP));
 				}
-				if (node34.get("download", null) == null) {
-					pref.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY,
-							node34.getBoolean("download", false));
+				if (node34.get("download", null) == null) { //$NON-NLS-1$
+					pref.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, node34.getBoolean("download", false)); //$NON-NLS-1$
 				}
-				if (node34.get("remindOnSchedule", null) == null) {
-					pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE,
-							node34.getBoolean("remindOnSchedule", false)); //$NON-NLS-1$
+				if (node34.get("remindOnSchedule", null) == null) { //$NON-NLS-1$
+					pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, node34.getBoolean("remindOnSchedule", false)); //$NON-NLS-1$
 				}
-				if (node34.get("remindElapsedTime", null) == null) {
+				if (node34.get("remindElapsedTime", null) == null) { //$NON-NLS-1$
 
-					pref
-							.put(
-									PreferenceConstants.PREF_REMIND_ELAPSED,
-									node34
-											.get(
-													"remindElapsedTime",
-													AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes));
+					pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, node34.get("remindElapsedTime", //$NON-NLS-1$
+							AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes));
 				}
 			}
 			// mark the pref that says we've migrated
 			pref.putBoolean(PreferenceConstants.PREF_MIGRATED_34, true);
-			AutomaticUpdatePlugin.savePreferences();
+			try {
+				pref.flush();
+			} catch (BackingStoreException e) {
+				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG);
+			}
 		}
 		// pref used to track 3.3 migration
 		// Have we initialized the auto update prefs from previous
 		// releases?
-		boolean autoUpdateInit = pref.getBoolean(
-				PreferenceConstants.PREF_AUTO_UPDATE_INIT, false);
+		boolean autoUpdateInit = pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_INIT, false);
 
 		if (!migrated34 && !autoUpdateInit) {
 			// Look for the 3.3 UM automatic update preferences. We will
 			// not migrate them if we already pulled values from 3.4.
 			// However, we always want to turn off the UM automatic update
 			// checker if it is found to be on.
-			Preferences instanceScope = Platform.getPreferencesService()
-					.getRootNode().node(InstanceScope.SCOPE);
+			Preferences instanceScope = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE);
 			try {
-				boolean updateNodeExists = instanceScope
-						.nodeExists(UPDATE_PLUGIN_ID);
+				boolean updateNodeExists = instanceScope.nodeExists(UPDATE_PLUGIN_ID);
 				Preferences prefUM = instanceScope.node(UPDATE_PLUGIN_ID);
 				boolean enableUpdate = prefUM.getBoolean(P_ENABLED, false);
 				// set p2 automatic update preference to match UM preference,
 				// only if we haven't already set a value.
 				if (pref.get(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, null) == null) {
-					pref.putBoolean(
-							PreferenceConstants.PREF_AUTO_UPDATE_ENABLED,
-							enableUpdate);
+					pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enableUpdate);
 				}
 				// turn off UM automatic update preference if it exists
 				if (updateNodeExists) {
@@ -137,27 +121,21 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 					prefUM.flush();
 				}
 				// mark the pref that says we migrated
-				pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_INIT,
-						true);
-				AutomaticUpdatePlugin.savePreferences();
+				pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_INIT, true);
+				pref.flush();
 			} catch (BackingStoreException e) {
-				ProvUI.handleException(e,
-						AutomaticUpdateMessages.ErrorSavingClassicPreferences,
-						StatusManager.LOG);
+				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingClassicPreferences, StatusManager.LOG);
 			}
 		}
 	}
 
 	public void initializeDefaultPreferences() {
 		// initialize the default scope
-		Preferences node = new DefaultScope()
-				.getNode(AutomaticUpdatePlugin.PLUGIN_ID);
+		Preferences node = new DefaultScope().getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 		node.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false);
-		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE,
-				PreferenceConstants.PREF_UPDATE_ON_STARTUP);
+		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
 		node.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
-		node.put(PreferenceConstants.PREF_REMIND_ELAPSED,
-				AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes);
+		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes);
 	}
 }
