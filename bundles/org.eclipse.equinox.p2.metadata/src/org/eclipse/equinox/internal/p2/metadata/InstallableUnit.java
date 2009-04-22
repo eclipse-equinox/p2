@@ -286,7 +286,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return metaRequires;
 	}
 
-	public void setMetaRequiredCapabilitues(IRequiredCapability[] metaReqs) {
+	public void setMetaRequiredCapabilities(IRequiredCapability[] metaReqs) {
 		if (metaReqs.length == 0) {
 			this.metaRequires = NO_REQUIRES;
 		} else {

@@ -130,7 +130,7 @@ public class MetadataFactory {
 		}
 
 		public void setMetaRequiredCapabilities(IRequiredCapability[] metaRequirements) {
-			unit().setMetaRequiredCapabilitues(metaRequirements);
+			unit().setMetaRequiredCapabilities(metaRequirements);
 		}
 
 		public void setSingleton(boolean singleton) {
