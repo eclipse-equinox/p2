@@ -54,7 +54,7 @@ public class Collector implements IQueryable {
 	}
 
 	/**
-	 * Returns the collection that is being used to collect results. Unlike {@toCollection},
+	 * Returns the collection that is being used to collect results. Unlike {@linkplain #toCollection()},
 	 * this returns the actual modifiable collection that is being used to store results. The
 	 * return value is only intended to be used within subclasses and should not be exposed
 	 * outside of a collection class.
