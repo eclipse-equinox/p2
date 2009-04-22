@@ -36,7 +36,10 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug254481dataSet1.class);
 		suite.addTestSuite(Bug254481dataSet2.class);
 		suite.addTestSuite(Bug255984.class);
-		suite.addTestSuite(Bug262580.class);
+
+		// see bug 273164 
+		//suite.addTestSuite(Bug262580.class);
+
 		suite.addTestSuite(Bug270656.class);
 		suite.addTestSuite(Bug270683.class);
 		suite.addTestSuite(Bug271067.class);
@@ -101,8 +104,11 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PermissiveSlicerTest.class);
 		suite.addTestSuite(PP2ShouldFailToInstall.class);
 		suite.addTestSuite(ProvisioningPlanQueryTest.class);
-		suite.addTestSuite(SDKPatchingTest1.class);
-		suite.addTestSuite(SDKPatchingTest2.class);
+
+		// see bug 273164 
+		//suite.addTestSuite(SDKPatchingTest1.class);
+		//suite.addTestSuite(SDKPatchingTest2.class);
+
 		suite.addTestSuite(SeveralOptionalDependencies.class);
 		suite.addTestSuite(SeveralOptionalDependencies2.class);
 		suite.addTestSuite(SeveralOptionalDependencies3.class);
