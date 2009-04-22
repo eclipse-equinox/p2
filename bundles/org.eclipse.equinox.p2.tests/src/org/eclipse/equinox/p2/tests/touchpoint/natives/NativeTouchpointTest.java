@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -34,7 +33,6 @@ public class NativeTouchpointTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("test");
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
-		assertNull(parameters.get(EclipseTouchpoint.PARM_INSTALL_FOLDER));
 		touchpoint.completePhase(null, profile, "test", parameters);
 
 		parameters.clear();
@@ -44,7 +42,6 @@ public class NativeTouchpointTest extends AbstractProvisioningTest {
 		profile = createProfile("test", null, profileProperties);
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
-		assertNotNull(parameters.get(EclipseTouchpoint.PARM_INSTALL_FOLDER));
 		touchpoint.completePhase(null, profile, "test", parameters);
 	}
 

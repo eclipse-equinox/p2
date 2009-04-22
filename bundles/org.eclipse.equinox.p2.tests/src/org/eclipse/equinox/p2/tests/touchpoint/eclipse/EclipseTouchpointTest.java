@@ -48,7 +48,6 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("test");
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
-		assertNull(parameters.get(EclipseTouchpoint.PARM_INSTALL_FOLDER));
 		Object manipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotNull(manipulator);
 		assertNotNull(parameters.get(EclipseTouchpoint.PARM_SOURCE_BUNDLES));

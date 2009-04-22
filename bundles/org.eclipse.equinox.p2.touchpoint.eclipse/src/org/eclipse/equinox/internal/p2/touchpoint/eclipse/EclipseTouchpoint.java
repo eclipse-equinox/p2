@@ -29,7 +29,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_PLATFORM_CONFIGURATION = "platformConfiguration"; //$NON-NLS-1$
 	public static final String PARM_SOURCE_BUNDLES = "sourceBundles"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
-	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
+
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"chmod", "ln", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
@@ -162,7 +162,6 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		LazyManipulator manipulator = getManipulator(profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, getSourceManipulator(profile));

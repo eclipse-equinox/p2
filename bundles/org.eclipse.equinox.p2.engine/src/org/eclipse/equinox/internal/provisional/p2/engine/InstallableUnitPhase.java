@@ -20,9 +20,15 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 public abstract class InstallableUnitPhase extends Phase {
 	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
+	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 
 	protected InstallableUnitPhase(String phaseId, int weight) {
 		super(phaseId, weight);
+	}
+
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		parameters.put(PARM_INSTALL_FOLDER, profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
+		return super.initializePhase(monitor, profile, parameters);
 	}
 
 	protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {

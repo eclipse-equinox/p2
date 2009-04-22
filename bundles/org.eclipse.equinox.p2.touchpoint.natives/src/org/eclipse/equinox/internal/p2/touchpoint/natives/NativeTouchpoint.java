@@ -26,7 +26,6 @@ public class NativeTouchpoint extends Touchpoint {
 	private static Map backups = new WeakHashMap();
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		touchpointParameters.put(PARM_BACKUP, getBackupStore(profile));
 
 		return null;
