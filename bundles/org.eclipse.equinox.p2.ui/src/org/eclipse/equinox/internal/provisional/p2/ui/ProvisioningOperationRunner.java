@@ -84,7 +84,7 @@ public class ProvisioningOperationRunner {
 					final Job thisJob = this;
 					try {
 						IStatus status = op.execute(monitor);
-						if (status.isOK() && noPrompt) {
+						if (!status.isOK() && noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
@@ -109,7 +109,7 @@ public class ProvisioningOperationRunner {
 				public IStatus runInUIThread(IProgressMonitor monitor) {
 					try {
 						IStatus status = op.execute(monitor);
-						if (status != Status.OK_STATUS && noPrompt) {
+						if (!status.isOK() && noPrompt) {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
