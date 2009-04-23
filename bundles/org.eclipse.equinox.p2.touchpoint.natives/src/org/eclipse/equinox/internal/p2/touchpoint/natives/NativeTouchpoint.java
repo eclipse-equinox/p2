@@ -20,7 +20,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class NativeTouchpoint extends Touchpoint {
 
-	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 	public static final String PARM_BACKUP = "backup"; //$NON-NLS-1$
 
 	private static Map backups = new WeakHashMap();
