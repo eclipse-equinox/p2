@@ -141,6 +141,7 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulationPage_NameColumnTitle;
 	public static String RepositoryManipulationPage_Edit;
 	public static String RepositoryManipulationPage_RefreshConnection;
+	public static String RepositoryManipulationPage_RefreshOperationCanceled;
 	public static String RepositoryManipulationPage_RefreshOperationLabel;
 	public static String RepositoryManipulationPage_Remove;
 	public static String RepositoryManipulationPage_RemoveConfirmMessage;

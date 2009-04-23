@@ -15,8 +15,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.DefaultMetadataURLValidator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
@@ -558,7 +557,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						// Need to report after dialog is closed or the error dialog will disappear when progress
 						// disappears
 						fail[0] = e;
+					} catch (OperationCanceledException e) {
+						// Catch canceled login attempts
+						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e));
 					} finally {
+						// Check if the monitor was canceled
+						if (fail[0] == null && mon.isCanceled())
+							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
 							RemoveRepositoryOperation op = manipulator.getRemoveOperation(new URI[] {location});
@@ -582,7 +587,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (fail[0] != null) {
 			if (fail[0].getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				ProvUI.reportNotFoundStatus(location, fail[0].getStatus(), StatusManager.SHOW);
-			} else
+			} else if (!fail[0].getStatus().matches(IStatus.CANCEL))
+				// An error is only shown if the dialog was not canceled
 				ProvUI.handleException(fail[0], null, StatusManager.SHOW);
 		} else {
 			// Confirm that it was successful
