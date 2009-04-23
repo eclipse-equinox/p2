@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWizardPage;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -49,6 +48,11 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 			if (licensePage.hasLicensesToAccept()) {
 				return licensePage;
 			}
+			return null;
+		} else if (page == licensePage) {
+			// we are done.  We explicitly code this because it's possible
+			// that the license page is added to the wizard before a dynamic page that
+			// gets added afterward, but should appear before.  
 			return null;
 		}
 		return super.getNextPage(page);
