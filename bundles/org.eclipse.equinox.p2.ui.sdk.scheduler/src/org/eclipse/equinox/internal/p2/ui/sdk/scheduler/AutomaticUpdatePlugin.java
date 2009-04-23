@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.io.IOException;
-
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
@@ -20,9 +19,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
@@ -90,12 +87,21 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// TODO for now we need to manually start up the provisioning
 		// infrastructure and the update checker, because the Eclipse
 		// Application launch config won't let me specify bundles to start.
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		// TODO how should we react if we are unable to start one of these bundles?
+		startEarly("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
+		startEarly("org.eclipse.equinox.frameworkadmin.equinox"); //$NON-NLS-1$
+		startEarly("org.eclipse.equinox.simpleconfigurator.manipulator"); //$NON-NLS-1$
+		startEarly("org.eclipse.equinox.p2.updatechecker"); //$NON-NLS-1$
 
 		PreferenceInitializer.migratePreferences();
+	}
+
+	private boolean startEarly(String bundleName) throws BundleException {
+		Bundle bundle = getBundle(bundleName);
+		if (bundle == null)
+			return false;
+		bundle.start(Bundle.START_TRANSIENT);
+		return true;
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {

@@ -11,9 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -37,7 +35,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
-				Preferences oldPref = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE).node(AutomaticUpdatePlugin.PLUGIN_ID);
+				Preferences oldPref = new InstanceScope().getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 				String[] keys = oldPref.keys();
 				for (int i = 0; i < keys.length; i++)
 					pref.put(keys[i], oldPref.get(keys[i], "")); //$NON-NLS-1$

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
@@ -32,12 +31,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
-				Preferences oldPref = Platform.getPreferencesService().getRootNode().node(InstanceScope.SCOPE).node(ProvSDKUIActivator.PLUGIN_ID);
+				Preferences oldPref = new InstanceScope().getNode(ProvSDKUIActivator.PLUGIN_ID);
 				// don't migrate everything.  Some of the preferences moved to
 				// another bundle.
 				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, "")); //$NON-NLS-1$
 				pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, oldPref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true));
-				ProvSDKUIActivator.getDefault().savePreferences();
+				pref.flush();
 			}
 		} catch (BackingStoreException e) {
 			ProvUI.handleException(e, ProvSDKMessages.PreferenceInitializer_Error, StatusManager.LOG);
