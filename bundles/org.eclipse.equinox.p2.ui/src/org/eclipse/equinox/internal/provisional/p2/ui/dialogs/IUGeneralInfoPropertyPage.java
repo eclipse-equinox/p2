@@ -71,8 +71,8 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 			group.setLayout(new GridLayout());
 			group.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-			Text text = new Text(group, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
-			GridData gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
+			Text text = new Text(group, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gd.widthHint = computeWidthLimit(text, 80);
 			gd.heightHint = 200;
 			text.setEditable(false);

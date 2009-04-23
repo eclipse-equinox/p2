@@ -11,18 +11,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -128,7 +128,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 		updateStatus(input, resolvedOperation);
 		setControl(sashForm);
-		sashForm.setWeights(new int[] {80, 20});
+		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
 		Dialog.applyDialogFont(sashForm);
 	}
 

@@ -134,7 +134,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		detailsArea = iuDetailsGroup.getDetailsArea();
 		updateStatus(root, resolvedOperation);
 		setControl(sashForm);
-		sashForm.setWeights(new int[] {80, 20});
+		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
 		Dialog.applyDialogFont(sashForm);
 	}
 

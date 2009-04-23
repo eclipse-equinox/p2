@@ -30,10 +30,10 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 public class AvailableIUsPage extends ProvisioningWizardPage implements ISelectableIUsPage {
@@ -92,12 +92,18 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Repo manipulation 
 		createRepoArea(composite);
 
+		SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+		FillLayout fill = new FillLayout();
+		sashForm.setLayout(fill);
+		GridData data = new GridData(GridData.FILL_BOTH);
+		sashForm.setLayoutData(data);
+
 		// Now the available group 
 		// If we have a repository manipulator, we want to default to showing no repos.  Otherwise all.
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
 		if (policy.getRepositoryManipulator() == null)
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
-		availableIUGroup = new AvailableIUGroup(policy, composite, JFaceResources.getDialogFont(), manager, queryContext, ProvUI.getIUColumnConfig(), filterConstant);
+		availableIUGroup = new AvailableIUGroup(policy, sashForm, JFaceResources.getDialogFont(), manager, queryContext, ProvUI.getIUColumnConfig(), filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons 
@@ -122,8 +128,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		activateCopy(availableIUGroup.getStructuredViewer().getControl());
 
 		// Details area
-		iuDetailsGroup = new IUDetailsGroup(composite, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH), false);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH), true);
 		detailsArea = iuDetailsGroup.getDetailsArea();
+
+		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
 
 		// Controls for filtering/presentation/site selection
 		Composite controlsComposite = new Composite(composite, SWT.NONE);

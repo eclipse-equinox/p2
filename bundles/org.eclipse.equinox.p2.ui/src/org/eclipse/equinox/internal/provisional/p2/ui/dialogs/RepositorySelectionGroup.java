@@ -63,6 +63,8 @@ public class RepositorySelectionGroup {
 	private static final int DEC_MARGIN_WIDTH = 2;
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
 
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=245569
+	private static final int COUNT_VISIBLE_ITEMS = 20;
 	IWizardContainer container;
 	Policy policy;
 	IUViewQueryContext queryContext;
@@ -126,7 +128,7 @@ public class RepositorySelectionGroup {
 		});
 		// Auto complete - install before our own key listeners, so that auto complete gets first shot.
 		repoAutoComplete = new ComboAutoCompleteField(repoCombo);
-
+		repoCombo.setVisibleItemCount(COUNT_VISIBLE_ITEMS);
 		repoCombo.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent e) {
