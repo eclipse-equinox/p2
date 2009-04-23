@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -27,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
@@ -165,11 +163,11 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			return;
 		}
 		// get all IUs from the repos
-		if (sourceMetadataRepositories == null || sourceMetadataRepositories.isEmpty())
+		if (!hasMetadataSources())
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
-		for (Iterator iter = sourceMetadataRepositories.iterator(); iter.hasNext();) {
-			processedIUs.addAll(getAllIUs((URI) iter.next(), monitor).toCollection());
-		}
+
+		processedIUs.addAll(getAllIUs(getCompositeMetadataRepository(), monitor).toCollection());
+
 		if (processedIUs.isEmpty())
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 	}
@@ -188,15 +186,13 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	/*
 	 * Return a collector over all the IUs contained in the given repository.
 	 */
-	private Collector getAllIUs(URI location, IProgressMonitor monitor) throws ProvisionException {
+	private Collector getAllIUs(IMetadataRepository repository, IProgressMonitor monitor) {
 		SubMonitor progress = SubMonitor.convert(monitor, 2);
-		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
-		if (!manager.contains(location))
-			metadataReposToRemove.add(location);
-		IMetadataRepository repository = manager.loadRepository(location, progress.newChild(1));
-		Collector result = new Collector();
-		repository.query(InstallableUnitQuery.ANY, result, progress.newChild(1)).iterator();
-		return result;
+		try {
+			return repository.query(InstallableUnitQuery.ANY, new Collector(), progress.newChild(1));
+		} finally {
+			progress.done();
+		}
 	}
 
 	/*
@@ -242,19 +238,15 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			String arg = args[++i];
 
 			if (option.equalsIgnoreCase("-source")) { //$NON-NLS-1$
-				addSourceArtifactRepository(arg);
-				addSourceMetadataRepository(arg);
+				RepositoryDescriptor source = new RepositoryDescriptor();
+				source.setLocation(URIUtil.fromString(arg));
+				addSource(source);
 			}
 
 			if (option.equalsIgnoreCase("-destination")) { //$NON-NLS-1$
-				RepositoryDescriptor artifact = new RepositoryDescriptor();
-				artifact.setLocation(URIUtil.fromString(arg));
-				artifact.setKind("A"); //$NON-NLS-1$
-				addDestination(artifact);
-				RepositoryDescriptor metadata = new RepositoryDescriptor();
-				metadata.setLocation(URIUtil.fromString(arg));
-				metadata.setKind("M"); //$NON-NLS-1$
-				addDestination(metadata);
+				RepositoryDescriptor destination = new RepositoryDescriptor();
+				destination.setLocation(URIUtil.fromString(arg));
+				addDestination(destination);
 			}
 		}
 	}
@@ -266,7 +258,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 * to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
-		if (sourceMetadataRepositories == null && sourceIUs == null)
+		if (!hasMetadataSources() && sourceIUs == null)
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 		if (destinationArtifactRepository == null)
 			throw new ProvisionException(Messages.exception_needDestinationRepo);

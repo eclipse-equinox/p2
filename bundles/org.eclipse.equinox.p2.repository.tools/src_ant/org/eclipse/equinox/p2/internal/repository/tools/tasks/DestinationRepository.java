@@ -36,8 +36,12 @@ public class DestinationRepository extends DataType {
 		}
 	}
 
-	public void setFormat(String format) {
-		descriptor.setFormat(format);
+	public void setFormat(String formatLocation) {
+		try {
+			descriptor.setFormat(URIUtil.fromString(formatLocation));
+		} catch (URISyntaxException e) {
+			throw new BuildException(e);
+		}
 	}
 
 	public void setAppend(boolean appendMode) {

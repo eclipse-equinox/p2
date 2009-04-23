@@ -1,0 +1,42 @@
+/*******************************************************************************
+ * Copyright (c) 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.equinox.p2.internal.repository.tools.tasks;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RepositoryList extends RepositoryFileSet {
+	// TODO this class should extend DataType, currently RepoFileSet to support <source location="xxx" /> 
+	List repositories = new ArrayList();
+	List sourceFileSets = new ArrayList();
+
+	public DestinationRepository createRepository() {
+		DestinationRepository repo = new DestinationRepository();
+		repositories.add(repo);
+		return repo;
+	}
+
+	public RepositoryFileSet createFileSet() {
+		RepositoryFileSet fileSet = new RepositoryFileSet();
+		sourceFileSets.add(fileSet);
+		return fileSet;
+	}
+
+	public List getRepositoryList() {
+		return repositories;
+	}
+
+	public List getFileSetList() {
+		//TODO this should eventually be removed
+		sourceFileSets.add(this);
+		return sourceFileSets;
+	}
+}

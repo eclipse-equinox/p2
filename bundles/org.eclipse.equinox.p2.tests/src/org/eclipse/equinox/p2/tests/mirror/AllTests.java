@@ -23,6 +23,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MetadataMirrorApplicationTest.class);
 		suite.addTestSuite(ArtifactRepositoryCleanupTest.class);
 		suite.addTestSuite(MetadataRepositoryCleanupTest.class);
+		suite.addTestSuite(NewMirrorApplicationArtifactTest.class);
+		suite.addTestSuite(NewMirrorApplicationMetadataTest.class);
 		return suite;
 	}
 

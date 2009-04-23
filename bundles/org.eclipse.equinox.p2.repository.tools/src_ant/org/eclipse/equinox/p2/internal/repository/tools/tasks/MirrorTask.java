@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
+import java.io.File;
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 
 public class MirrorTask extends AbstractRepositoryTask {
+
+	private File mirrorLog; // file to log mirror output to (optional)
+	private ComparatorDescription comparator;
 
 	public MirrorTask() {
 		application = new MirrorApplication();
@@ -24,17 +30,36 @@ public class MirrorTask extends AbstractRepositoryTask {
 
 	public void execute() throws BuildException {
 		try {
+			if (mirrorLog != null)
+				((MirrorApplication) application).setLog(mirrorLog);
+			else
+				((MirrorApplication) application).setLog(new AntMirrorLog(this));
+
+			if (comparator != null) {
+				// Enable comparison
+				((MirrorApplication) application).setCompare(true);
+				// Set baseline location
+				if (comparator.getBaseline() != null)
+					((MirrorApplication) application).setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
+				// Set comparator to use
+				if (comparator.getComparator() != null)
+					((MirrorApplication) application).setComparatorID(comparator.getComparator());
+				// Set comparator log
+				if (comparator.getComparatorLog() != null)
+					((MirrorApplication) application).setComparatorLog(comparator.getComparatorLog());
+			}
+
 			prepareSourceRepos();
 			application.initializeRepos(null);
 			List ius = prepareIUs();
-			if (ius == null || ius.size() == 0)
-				throw new BuildException("Need to specify one or more IUs to mirror.");
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
-			if (result.matches(IStatus.ERROR)) {
+			if (result.matches(IStatus.ERROR))
 				throw new BuildException(TaskHelper.statusToString(result, null).toString());
-			}
 		} catch (ProvisionException e) {
+			throw new BuildException(e);
+		} catch (NoSuchMethodException e) {
+			// Should not occur
 			throw new BuildException(e);
 		}
 	}
@@ -43,5 +68,47 @@ public class MirrorTask extends AbstractRepositoryTask {
 		SlicingOption options = new SlicingOption();
 		((MirrorApplication) application).setSlicingOptions(options.getOptions());
 		return options;
+	}
+
+	/*
+	 * Set the comparison information
+	 */
+	public ComparatorDescription createComparator() {
+		if (comparator != null)
+			throw new BuildException(Messages.exception_onlyOneComparator);
+		comparator = new ComparatorDescription();
+		return comparator;
+	}
+
+	/*
+	 * Set the location of the mirror log
+	 */
+	public void setLog(String value) {
+		mirrorLog = new File(value);
+	}
+
+	/*
+	 * Set whether or not we should ignore errors when running the mirror application.
+	 */
+	public void setIgnoreErrors(boolean value) {
+		((MirrorApplication) application).setIgnoreErrors(value);
+	}
+
+	/*
+	 * Set whether or not the the artifacts are raw.
+	 */
+	public void setRaw(boolean value) {
+		((MirrorApplication) application).setRaw(value);
+	}
+
+	/*
+	 * Set whether or not the mirror application should be run in verbose mode.
+	 */
+	public void setVerbose(boolean value) {
+		((MirrorApplication) application).setVerbose(value);
+	}
+
+	public void setValidate(boolean value) {
+		((MirrorApplication) application).setValidate(value);
 	}
 }

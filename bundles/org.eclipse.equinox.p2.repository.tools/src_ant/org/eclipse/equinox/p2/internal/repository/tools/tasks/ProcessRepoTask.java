@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.jarprocessor.ant.JarProcessorTask;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
-import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
+import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.osgi.util.NLS;
 
 public class ProcessRepoTask extends Task {
 
@@ -64,7 +64,7 @@ public class ProcessRepoTask extends Task {
 	public void execute() throws BuildException {
 		File file = URIUtil.toFile(repository);
 		if (file == null || !file.exists()) {
-			throw new BuildException("Repository must be local: " + repository.toString()); //$NON-NLS-1$
+			throw new BuildException(NLS.bind(Messages.ProcessRepo_must_be_local, repository.toString()));
 		}
 		if (pack | repack | signing != null) {
 			if (jarProcessor == null)
@@ -113,7 +113,7 @@ public class ProcessRepoTask extends Task {
 		try {
 			this.repository = URIUtil.fromString(repository);
 		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Repository location (" + repository + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalArgumentException(NLS.bind(Messages.ProcessRepo_location_not_url, repository));
 		}
 	}
 

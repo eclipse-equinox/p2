@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -43,7 +44,7 @@ public class Activator implements BundleActivator {
 		// TODO needed to do this to ensure the profile registry was registered
 		Bundle bundle = getBundle("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
 		if (bundle == null)
-			throw new ProvisionException("Unable to start exemplarysetup bundle.");
+			throw new ProvisionException(Messages.unable_to_start_exemplarysetup);
 		bundle.start(Bundle.START_TRANSIENT);
 	}
 
@@ -64,7 +65,7 @@ public class Activator implements BundleActivator {
 		try {
 			return URIUtil.fromString(spec);
 		} catch (URISyntaxException e) {
-			LogHelper.log(new Status(IStatus.WARNING, ID, "Unable to process as URI: " + spec, e));
+			LogHelper.log(new Status(IStatus.WARNING, ID, NLS.bind(Messages.unable_to_process_uri, spec), e));
 		}
 		return null;
 	}
@@ -75,7 +76,7 @@ public class Activator implements BundleActivator {
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(getBundleContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
-			throw new ProvisionException("Unable to acquire artifact repository manager service.");
+			throw new ProvisionException(Messages.no_artifactRepo_manager);
 		return manager;
 	}
 
@@ -85,7 +86,7 @@ public class Activator implements BundleActivator {
 	static IProfileRegistry getProfileRegistry() throws ProvisionException {
 		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(getBundleContext(), IProfileRegistry.class.getName());
 		if (registry == null)
-			throw new ProvisionException("Unable to acquire profile registry service.");
+			throw new ProvisionException(Messages.no_profile_registry);
 		return registry;
 	}
 
@@ -95,7 +96,7 @@ public class Activator implements BundleActivator {
 	public static synchronized Bundle getBundle(String symbolicName) throws ProvisionException {
 		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(getBundleContext(), PackageAdmin.class.getName());
 		if (packageAdmin == null)
-			throw new ProvisionException("Unable to acquire package admin service.");
+			throw new ProvisionException(Messages.no_package_admin);
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
 		if (bundles == null)
 			return null;
@@ -113,7 +114,7 @@ public class Activator implements BundleActivator {
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(getBundleContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
-			throw new ProvisionException("Unable to acquire metadata repository manager service.");
+			throw new ProvisionException(Messages.no_metadataRepo_manager);
 		return manager;
 	}
 }

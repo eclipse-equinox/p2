@@ -16,12 +16,14 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
+import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractRepositoryTask extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
@@ -30,21 +32,18 @@ public abstract class AbstractRepositoryTask extends Task {
 	protected List sourceRepos = new ArrayList();
 	protected List destinations = new ArrayList();
 
-	/*
-	  * Create a special file set since the user specified a "source" sub-element.
-	  */
-	public FileSet createSource() {
-		MyFileSet set = new MyFileSet();
-		sourceRepos.add(set);
-		return set;
-	}
-
 	protected void addMetadataSourceRepository(URI repoLocation) {
-		application.addSourceMetadataRepository(repoLocation);
+		RepositoryDescriptor source = new RepositoryDescriptor();
+		source.setLocation(repoLocation);
+		source.setKind(RepositoryDescriptor.KIND_METADATA);
+		application.addSource(source);
 	}
 
 	protected void addArtifactSourceRepository(URI repoLocation) {
-		application.addSourceArtifactRepository(repoLocation);
+		RepositoryDescriptor source = new RepositoryDescriptor();
+		source.setLocation(repoLocation);
+		source.setKind(RepositoryDescriptor.KIND_ARTIFACT);
+		application.addSource(source);
 	}
 
 	/*
@@ -61,8 +60,13 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * argument to specify both the artifact and metadata repositories.
 	 */
 	public void setSource(String location) {
-		application.addSourceArtifactRepository(location);
-		application.addSourceMetadataRepository(location);
+		RepositoryDescriptor source = new RepositoryDescriptor();
+		try {
+			source.setLocation(URIUtil.fromString(location));
+			application.addSource(source);
+		} catch (URISyntaxException e) {
+			throw new BuildException(e);
+		}
 	}
 
 	/*
@@ -70,20 +74,15 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * argument to specify both the artifact and metadata repositories.
 	 */
 	public void setDestination(String location) {
-		DestinationRepository metadata = new DestinationRepository();
-		metadata.setLocation(URIUtil.toUnencodedString(new Path(location).toFile().toURI()));
-		metadata.setKind("metadata"); //$NON-NLS-1$
-		application.addDestination(metadata.getDescriptor());
-		destinations.add(metadata);
-
-		DestinationRepository artifact = new DestinationRepository();
-		artifact.setLocation(URIUtil.toUnencodedString(new Path(location).toFile().toURI()));
-		metadata.setKind("artifact"); //$NON-NLS-1$
-		application.addDestination(artifact.getDescriptor());
-		destinations.add(artifact);
+		// TODO depreciate 
+		DestinationRepository dest = new DestinationRepository();
+		dest.setLocation(location);
+		destinations.add(dest);
+		application.addDestination(dest.getDescriptor());
 	}
 
 	public DestinationRepository createDestination() {
+		// TODO depreciate 
 		DestinationRepository destination = new DestinationRepository();
 		destinations.add(destination);
 		application.addDestination(destination.getDescriptor());
@@ -91,17 +90,28 @@ public abstract class AbstractRepositoryTask extends Task {
 	}
 
 	/*
-	 * New FileSet subclass which adds an optional "location" attribute.
+	 * Add a repository to mirror into
 	 */
-	public class MyFileSet extends FileSet {
-		String location;
+	public DestinationRepository createRepository() {
+		DestinationRepository destination = new DestinationRepository();
+		destinations.add(destination);
+		application.addDestination(destination.getDescriptor());
+		return destination;
+	}
 
-		public MyFileSet() {
-			super();
+	/*
+	 * Add source repositories to mirror from
+	 */
+	public void addConfiguredSource(RepositoryList sourceList) {
+		for (Iterator iter = sourceList.getRepositoryList().iterator(); iter.hasNext();) {
+			DestinationRepository repo = (DestinationRepository) iter.next();
+			application.addSource(repo.getDescriptor());
 		}
 
-		public void setLocation(String value) {
-			this.location = value;
+		for (Iterator iter = sourceList.getFileSetList().iterator(); iter.hasNext();) {
+			FileSet fileSet = (FileSet) iter.next();
+			sourceRepos.add(fileSet);
+			// Added to the application later through prepareSourceRepos
 		}
 	}
 
@@ -113,38 +123,39 @@ public abstract class AbstractRepositoryTask extends Task {
 		if (sourceRepos == null || sourceRepos.isEmpty())
 			return;
 		for (Iterator iter = sourceRepos.iterator(); iter.hasNext();) {
-			Object next = iter.next();
-			if (next instanceof MyFileSet) {
-				MyFileSet fileset = (MyFileSet) next;
-				// determine if the user set a "location" attribute or used a fileset
-				if (fileset.location == null) {
-					DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
-					String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
-					for (int i = 0; i < 2; i++) {
-						for (int j = 0; j < elements[i].length; j++) {
-							File file = new File(fileset.getDir(), elements[i][j]);
-							URI uri = file.toURI();
+			RepositoryFileSet fileset = (RepositoryFileSet) iter.next();
 
-							if (file.isFile() && file.getName().endsWith(".zip")) { //$NON-NLS-1$
-								try {
-									uri = new URI("jar:" + uri.toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
-								} catch (URISyntaxException e) {
-									//?
-									continue;
-								}
-							}
-							application.addSourceArtifactRepository(uri);
-							application.addSourceMetadataRepository(uri);
+			if (fileset.getRepoLocation() != null) {
+				//TODO depreciate
+				if (!fileset.getRepoLocation().startsWith(ANT_PREFIX)) {
+					addArtifactSourceRepository(fileset.getRepoLocationURI());
+					addMetadataSourceRepository(fileset.getRepoLocationURI());
+				}
+			} else if (fileset.getDir() != null) {
+				DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
+				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
+				for (int i = 0; i < 2; i++) {
+					for (int j = 0; j < elements[i].length; j++) {
+						File file = new File(fileset.getDir(), elements[i][j]);
+						URI uri = file.toURI();
+
+						if (file.isFile() && file.getName().endsWith(".zip")) { //$NON-NLS-1$
+							uri = URIUtil.toJarURI(uri, null);
 						}
-					}
-				} else {
-					if (!fileset.location.startsWith(ANT_PREFIX)) {
-						application.addSourceArtifactRepository(fileset.location);
-						application.addSourceMetadataRepository(fileset.location);
+						if (fileset.isBoth()) {
+							addArtifactSourceRepository(uri);
+							addMetadataSourceRepository(uri);
+						} else if (fileset.isArtifact())
+							addArtifactSourceRepository(uri);
+						else if (fileset.isMetadata())
+							addMetadataSourceRepository(uri);
+						else
+							throw new BuildException(NLS.bind(Messages.unknown_repository_type, uri));
 					}
 				}
 			}
 		}
+		sourceRepos.clear();
 	}
 
 	protected List prepareIUs() {
@@ -161,9 +172,17 @@ public abstract class AbstractRepositoryTask extends Task {
 			repository.query(iuQuery, collector, null);
 
 			if (iu.isRequired() && collector.isEmpty())
-				throw new BuildException("Unable to find: " + iu.toString()); //$NON-NLS-1$ 
+				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
 			result.addAll(collector.toCollection());
 		}
 		return result;
+	}
+
+	protected void log(IStatus status) {
+		try {
+			new AntMirrorLog(this).log(status);
+		} catch (NoSuchMethodException e) {
+			// Shouldn't occur
+		}
 	}
 }

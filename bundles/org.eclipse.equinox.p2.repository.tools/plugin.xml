@@ -15,6 +15,12 @@
             library="lib/repository-tools-ant.jar"
             name="p2.mirror">
       </antTask>
+
+     <antTask
+            class="org.eclipse.equinox.p2.internal.repository.tools.tasks.CompositeRepositoryTask"
+            library="lib/repository-tools-ant.jar"
+            name="p2.composite.repository">
+      </antTask>
       
       <antTask
 			library="lib/repository-tools-ant.jar"

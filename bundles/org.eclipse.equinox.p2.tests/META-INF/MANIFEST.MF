@@ -6,6 +6,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
 Import-Package: javax.xml.parsers,
+ org.eclipse.ant.core,
  org.eclipse.ecf.filetransfer,
  org.eclipse.equinox.internal.p2.artifact.mirror,
  org.eclipse.equinox.internal.p2.artifact.processors.md5,
@@ -50,6 +51,7 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository,
  org.eclipse.equinox.internal.provisional.spi.p2.repository,
+ org.eclipse.equinox.p2.internal.repository.tools,
  org.eclipse.equinox.spi.p2.publisher,
  org.eclipse.internal.provisional.equinox.p2.jarprocessor,
  org.eclipse.osgi.service.datalocation,

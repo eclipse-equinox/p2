@@ -13,7 +13,9 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.util.*;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
+import org.eclipse.osgi.util.NLS;
 
 public class SlicingOption extends Task {
 
@@ -51,7 +53,7 @@ public class SlicingOption extends Task {
 		}
 		StringTokenizer tok = new StringTokenizer(platformFilter, ","); //$NON-NLS-1$
 		if (tok.countTokens() != 3)
-			throw new BuildException("Invalid platform filter format: " + platformFilter + ".");
+			throw new BuildException(NLS.bind(Messages.SlicingOption_invalid_platform, platformFilter));
 		Dictionary filter = options.getFilter();
 		if (filter == null)
 			filter = new Properties();

@@ -10,22 +10,42 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.mirror.Mirroring;
+import org.eclipse.equinox.internal.p2.artifact.mirror.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
 public class MirrorApplication extends AbstractApplication {
+	private static final String LOG_ROOT = "p2.mirror"; //$NON-NLS-1$
+
 	protected SlicingOptions slicingOptions = new SlicingOptions();
+
+	private URI baseline;
+	private String comparatorID;
+	private boolean compare = false;
+	private boolean failOnError = true;
+	private boolean raw = true;
+	private boolean verbose = false;
+	private boolean validate = false;
+
+	private File mirrorLogFile; // file to log mirror output to (optional)
+	private File comparatorLogFile; // file to comparator output to (optional)
+	private IArtifactMirrorLog mirrorLog;
+	private IArtifactMirrorLog comparatorLog;
 
 	public Object start(IApplicationContext context) throws Exception {
 		run(null);
@@ -33,22 +53,30 @@ public class MirrorApplication extends AbstractApplication {
 	}
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
+		IStatus mirrorStatus = Status.OK_STATUS;
 		try {
 			validate();
 			initializeRepos(new NullProgressMonitor());
+			initializeIUs();
 			IQueryable slice = slice(new NullProgressMonitor());
-			IStatus mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
-			if (mirrorStatus.getSeverity() == IStatus.ERROR) {
-				return mirrorStatus;
+			if (destinationArtifactRepository != null) {
+				initializeLogs();
+				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
+				if (mirrorStatus.getSeverity() == IStatus.ERROR)
+					return mirrorStatus;
 			}
-			mirrorMetadata(slice, new NullProgressMonitor());
+			if (destinationMetadataRepository != null)
+				mirrorMetadata(slice, new NullProgressMonitor());
 		} finally {
 			finalizeRepositories();
+			finalizeLogs();
 		}
-		return Status.OK_STATUS;
+		if (mirrorStatus.isOK())
+			return Status.OK_STATUS;
+		return mirrorStatus;
 	}
 
-	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) {
+	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
 		Collector ius = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
 		ArrayList keys = new ArrayList(ius.size());
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
@@ -58,9 +86,33 @@ public class MirrorApplication extends AbstractApplication {
 				keys.add(iuKeys[i]);
 			}
 		}
-		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, true);
-		mirror.setArtifactKeys((IArtifactKey[]) keys.toArray(new IArtifactKey[keys.size()]));
-		return mirror.run(true, false);
+		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
+
+		mirror.setCompare(compare);
+		mirror.setComparatorId(comparatorID);
+		mirror.setBaseline(initializeBaseline());
+		mirror.setValidate(validate);
+
+		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
+		if (keys.size() > 0)
+			mirror.setArtifactKeys((IArtifactKey[]) keys.toArray(new IArtifactKey[keys.size()]));
+
+		if (comparatorLog != null)
+			mirror.setComparatorLog(comparatorLog);
+
+		IStatus result = mirror.run(failOnError, verbose);
+
+		if (mirrorLog != null)
+			mirrorLog.log(result);
+		else
+			LogHelper.log(result);
+		return result;
+	}
+
+	private IArtifactRepository initializeBaseline() throws ProvisionException {
+		if (baseline == null)
+			return null;
+		return addRepository(Activator.getArtifactRepositoryManager(), baseline, 0, null);
 	}
 
 	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {
@@ -75,21 +127,145 @@ public class MirrorApplication extends AbstractApplication {
 	 * to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
-		if (sourceMetadataRepositories == null)
-			throw new ProvisionException("Need to set the source metadata repository location.");
-		if (sourceIUs == null)
-			throw new ProvisionException("Mirroring root needs to be specified.");
-		//TODO Check that the IU is in repo
+		if (sourceRepositories.isEmpty())
+			throw new ProvisionException(Messages.MirrorApplication_set_source_repositories);
 	}
 
-	private IQueryable slice(IProgressMonitor monitor) {
+	/*
+	 * If no IUs have been specified we want to mirror them all
+	 */
+	private void initializeIUs() throws ProvisionException {
+		if (sourceIUs == null || sourceIUs.isEmpty()) {
+			sourceIUs = new ArrayList();
+			IMetadataRepository metadataRepo = getCompositeMetadataRepository();
+			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+
+			for (Iterator iter = collector.iterator(); iter.hasNext();) {
+				IInstallableUnit iu = (IInstallableUnit) iter.next();
+				sourceIUs.add(iu);
+			}
+
+			if (collector.size() == 0 && destinationMetadataRepository != null) {
+				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
+			}
+		} else {
+			//TODO Check that the IU is in repo
+		}
+	}
+
+	/*
+	 * Initialize logs, if applicable
+	 */
+	private void initializeLogs() {
+		if (compare && comparatorLogFile != null)
+			comparatorLog = getLog(comparatorLogFile, comparatorID);
+		if (mirrorLog == null && mirrorLogFile != null)
+			mirrorLog = getLog(mirrorLogFile, LOG_ROOT);
+	}
+
+	/*
+	 * Finalize logs, if applicable
+	 */
+	private void finalizeLogs() {
+		if (comparatorLog != null)
+			comparatorLog.close();
+		if (mirrorLog != null)
+			mirrorLog.close();
+	}
+
+	/*
+	 * Get the log for a location
+	 */
+	private IArtifactMirrorLog getLog(File location, String root) {
+		String absolutePath = location.getAbsolutePath();
+		if (absolutePath.toLowerCase().endsWith(".xml")) //$NON-NLS-1$
+			return new XMLMirrorLog(absolutePath, 0, root);
+		return new FileMirrorLog(absolutePath, 0, root);
+	}
+
+	private IQueryable slice(IProgressMonitor monitor) throws ProvisionException {
 		if (slicingOptions == null)
 			slicingOptions = new SlicingOptions();
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly());
-		return slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
+		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
+		if (slice == null)
+			throw new ProvisionException(slicer.getStatus());
+		return slice;
 	}
 
 	public void setSlicingOptions(SlicingOptions options) {
 		slicingOptions = options;
+	}
+
+	/*
+	 * Set the location of the baseline repository. (used in comparison)
+	 */
+	public void setBaseline(URI baseline) {
+		this.baseline = baseline;
+		compare = true;
+	}
+
+	/*
+	 * Set the identifier of the comparator to use.
+	 */
+	public void setComparatorID(String value) {
+		comparatorID = value;
+		compare = true;
+	}
+
+	/*
+	 * Set whether or not the application should be calling a comparator when mirroring.
+	 */
+	public void setCompare(boolean value) {
+		compare = value;
+	}
+
+	/*
+	 * Set whether or not we should ignore errors when running the mirror application.
+	 */
+	public void setIgnoreErrors(boolean value) {
+		failOnError = !value;
+	}
+
+	/*
+	 * Set whether or not the the artifacts are raw.
+	 */
+	public void setRaw(boolean value) {
+		raw = value;
+	}
+
+	/*
+	 * Set whether or not the mirror application should be run in verbose mode.
+	 */
+	public void setVerbose(boolean value) {
+		verbose = value;
+	}
+
+	/*
+	 * Set the location of the log for comparator output
+	 */
+	public void setComparatorLog(File comparatorLog) {
+		this.comparatorLogFile = comparatorLog;
+	}
+
+	/*
+	 * Set the location of the log for mirroring. 
+	 */
+	public void setLog(File mirrorLog) {
+		this.mirrorLogFile = mirrorLog;
+	}
+
+	/*
+	 * Set the ArtifactMirror log
+	 */
+	public void setLog(IArtifactMirrorLog log) {
+		mirrorLog = log;
+	}
+
+	/*
+	 * Set if the artifact mirror should be validated
+	 */
+	public void setValidate(boolean value) {
+		validate = value;
 	}
 }
