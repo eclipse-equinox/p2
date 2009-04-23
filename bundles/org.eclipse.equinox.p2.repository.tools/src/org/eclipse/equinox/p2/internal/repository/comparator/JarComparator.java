@@ -36,7 +36,14 @@ public class JarComparator implements IArtifactComparator {
 	private static final String RSA_EXT = ".rsa"; //$NON-NLS-1$
 	private static final String SF_EXT = ".sf"; //$NON-NLS-1$
 
+	private String sourceLocation, destinationLocation, descriptorString;
+
 	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor, IArtifactRepository destination, IArtifactDescriptor destinationDescriptor) {
+		// Cache information for potential error messages
+		sourceLocation = URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation());
+		destinationLocation = URIUtil.toUnencodedString(destinationDescriptor.getRepository().getLocation());
+		descriptorString = sourceDescriptor.toString();
+
 		String classifier = sourceDescriptor.getArtifactKey().getClassifier();
 		if (!OSGI_BUNDLE_CLASSIFIER.equals(classifier)) {
 			return Status.OK_STATUS;
@@ -71,7 +78,7 @@ public class JarComparator implements IArtifactComparator {
 			final int firstFileSize = firstFile.size();
 			final int secondFileSize = secondFile.size();
 			if (firstFileSize != secondFileSize) {
-				return newErrorStatus(NLS.bind(Messages.differentNumberOfEntries, new String[] {sourceFile.getName(), Integer.toString(firstFileSize), destinationFile.getName(), Integer.toString(secondFileSize)}));
+				return newErrorStatus(NLS.bind(Messages.differentNumberOfEntries, new String[] {descriptorString, sourceLocation, Integer.toString(firstFileSize), destinationLocation, Integer.toString(secondFileSize)}));
 			}
 			for (Enumeration enumeration = firstFile.entries(); enumeration.hasMoreElements();) {
 				ZipEntry entry = (ZipEntry) enumeration.nextElement();
@@ -93,7 +100,7 @@ public class JarComparator implements IArtifactComparator {
 							try {
 								result = compareClasses(firstStream, entry.getSize(), secondStream, entry2.getSize());
 							} catch (ClassFormatException e) {
-								return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()), e);
+								return newErrorStatus(NLS.bind(Messages.differentEntry, new String[] {entryName, descriptorString, sourceLocation}), e);
 							}
 						} else if (lowerCase.endsWith(JAR_EXTENSION)) {
 							result = compareNestedJars(firstStream, entry.getSize(), secondStream, entry2.getSize(), entryName);
@@ -105,14 +112,14 @@ public class JarComparator implements IArtifactComparator {
 							result = compareBytes(firstStream, entry.getSize(), secondStream, entry2.getSize());
 						}
 						if (!result)
-							return newErrorStatus(NLS.bind(Messages.differentEntry, entryName, sourceFile.getAbsolutePath()));
+							return newErrorStatus(NLS.bind(Messages.differentEntry, new String[] {entryName, descriptorString, sourceLocation}));
 					} finally {
 						Utility.close(firstStream);
 						Utility.close(secondStream);
 					}
 				} else if (!entry.isDirectory()) {
 					// missing entry, entry2 == null
-					return newErrorStatus(NLS.bind(Messages.missingEntry, entryName, sourceFile.getAbsolutePath()));
+					return newErrorStatus(NLS.bind(Messages.missingEntry, new String[] {entryName, descriptorString, sourceLocation}));
 				}
 			}
 		} catch (CoreException e) {
