@@ -62,6 +62,8 @@ public class Messages extends NLS {
 	public static String MirrorLog_Console_Log;
 	public static String MirrorLog_Exception_Occurred;
 
+	public static String MirrorRequest_multipleDownloadProblems;
+
 	public static String exception_unableToCreateParentDir;
 
 	public static String folder_artifact_not_file_repo;

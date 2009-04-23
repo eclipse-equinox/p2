@@ -116,8 +116,13 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		// try with canonical
-		setResult(transfer(getDestinationDescriptor(canonical), canonical, monitor));
+		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical), canonical, monitor);
+		// To prevent the optimized transfer status severity from dominating the canonical, only merge 
+		// if the canonical severity is equal to or higher than the optimized transfer severity.   
+		if (canonicalStatus.getSeverity() < status.getSeverity())
+			setResult(canonicalStatus);
+		else
+			setResult(new MultiStatus(Activator.ID, canonicalStatus.getCode() != 0 ? canonicalStatus.getCode() : status.getCode(), new IStatus[] {status, canonicalStatus}, Messages.MirrorRequest_multipleDownloadProblems, null));
 	}
 
 	private ArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
