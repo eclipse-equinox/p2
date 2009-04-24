@@ -37,6 +37,7 @@ import org.eclipse.osgi.util.NLS;
  * Modified from ArtifactMirrorApplicationTest
  */
 public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
+	private static final String MISSING_ARTIFACT = "canonical: osgi.bundle,javax.wsdl,1.4.0.v200803061811.";
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature
 	protected File sourceRepo2Location; //anotherfeature
@@ -286,11 +287,13 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Runs mirror app on source with missing artifact with "-ignoreErrors"
 	 */
 	private void mirrorWithError(boolean verbose) {
-		File errorSourceLocation = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
+		File errorSourceLocation = getTestData("loading error data", "testData/artifactRepo/missingSingleArtifact");
+		File validSourceLocation = getTestData("loading error data", "testData/artifactRepo/simple");
 		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
 		try {
 			MirrorApplication app = new MirrorApplication();
 			app.addSource(createRepositoryDescriptor(errorSourceLocation.toURI(), null, null, null));
+			app.addSource(createRepositoryDescriptor(validSourceLocation.toURI(), null, null, null));
 			app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
 			//Set ignoreErrors flag. Set verbose flag if verbose == true
 			app.setVerbose(verbose);
@@ -1091,26 +1094,30 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
 		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
+			try {
+				destRepoLocation.mkdir();
+				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+			} catch (FileNotFoundException e) {
+				fail("Error redirecting outputs", e);
+			}
+			System.setErr(newErr);
+
+			//run test without verbose
+			mirrorWithError(false);
+
+		} finally {
+			System.setErr(oldErr);
+			if (newErr != null)
+				newErr.close();
 		}
-		System.setErr(newErr);
-
-		//run test without verbose
-		mirrorWithError(false);
-
-		System.setErr(oldErr);
-		newErr.close();
-
 		try {
-			assertEquals("Verifying correct number of Keys", 1, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
-			//Because only 1 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
+			assertEquals("Verifying correct number of Keys", 2, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			//Because only 2 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
 			//Order in which mirror application mirrors artifacts is random.
 		} catch (ProvisionException e) {
 			fail("Error laoding destiantion repo", e);
 		}
+
 	}
 
 	public void testCompareUsingMD5Comparator() {
@@ -1144,30 +1151,35 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		PrintStream oldOut = System.out;
 		PrintStream newOut = null;
 		try {
-			newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.err")));
-			newOut = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.out")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
+			try {
+				newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.err")));
+				newOut = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.out")));
+			} catch (FileNotFoundException e) {
+				fail("Error redirecting outputs", e);
+			}
+			System.setErr(newErr);
+			System.setOut(newOut);
+			MirrorApplication app = null;
+			try {
+				app = new MirrorApplication();
+				app.addSource(createRepositoryDescriptor(repo1Location.toURI(), null, null, null));
+				app.addDestination(createRepositoryDescriptor(repo2Location.toURI(), null, null, null));
+				app.setVerbose(true);
+				//Set compare flag.
+				app.setCompare(true);
+				//run the mirror application
+				app.run(null);
+			} catch (Exception e) {
+				fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
+			}
+		} finally {
+			System.setErr(oldErr);
+			if (newErr != null)
+				newErr.close();
+			System.setOut(oldOut);
+			if (newOut != null)
+				newOut.close();
 		}
-		System.setErr(newErr);
-		System.setOut(newOut);
-		MirrorApplication app = null;
-		try {
-			app = new MirrorApplication();
-			app.addSource(createRepositoryDescriptor(repo1Location.toURI(), null, null, null));
-			app.addDestination(createRepositoryDescriptor(repo2Location.toURI(), null, null, null));
-			app.setVerbose(true);
-			//Set compare flag.
-			app.setCompare(true);
-			//run the mirror application
-			app.run(null);
-		} catch (Exception e) {
-			fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
-		}
-		System.setErr(oldErr);
-		newErr.close();
-		System.setOut(oldOut);
-		newOut.close();
 
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
@@ -1218,33 +1230,38 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		PrintStream oldOut = System.out;
 		PrintStream newOut = null;
 		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
+			try {
+				destRepoLocation.mkdir();
+				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+				newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
+			} catch (FileNotFoundException e) {
+				fail("Error redirecting outputs", e);
+			}
+			System.setErr(newErr);
+			System.setOut(newOut);
+			MirrorApplication app = null;
+			try {
+				app = new MirrorApplication();
+				app.addSource(createRepositoryDescriptor(repoLocation.toURI(), null, null, null));
+				app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
+				//Set baseline
+				app.setBaseline(baselineLocation.toURI());
+				app.setVerbose(true);
+				//Set compare flag.
+				app.setCompare(true);
+				//run the mirror application
+				app.run(null);
+			} catch (Exception e) {
+				fail("Running mirror application with baseline compare", e);
+			}
+		} finally {
+			System.setErr(oldErr);
+			if (newErr != null)
+				newErr.close();
+			System.setOut(oldOut);
+			if (newOut != null)
+				newOut.close();
 		}
-		System.setErr(newErr);
-		System.setOut(newOut);
-		MirrorApplication app = null;
-		try {
-			app = new MirrorApplication();
-			app.addSource(createRepositoryDescriptor(repoLocation.toURI(), null, null, null));
-			app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
-			//Set baseline
-			app.setBaseline(baselineLocation.toURI());
-			app.setVerbose(true);
-			//Set compare flag.
-			app.setCompare(true);
-			//run the mirror application
-			app.run(null);
-		} catch (Exception e) {
-			fail("Running mirror application with baseline compare", e);
-		}
-		System.setErr(oldErr);
-		newErr.close();
-		System.setOut(oldOut);
-		newOut.close();
 
 		IArtifactRepository destination = null;
 		try {
@@ -1339,22 +1356,24 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
 		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
+			try {
+				destRepoLocation.mkdir();
+				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+			} catch (FileNotFoundException e) {
+				fail("Error redirecting outputs", e);
+			}
+			System.setErr(newErr);
+
+			//run test without verbose resulting in error
+			mirrorWithError(false);
+		} finally {
+			System.setErr(oldErr);
+			if (newErr != null)
+				newErr.close();
 		}
-		System.setErr(newErr);
-
-		//run test without verbose resulting in error
-		mirrorWithError(false);
-
-		System.setErr(oldErr);
-		newErr.close();
-
 		//verify log
 		try {
-			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
+			String[] parts = new String[] {"Artifact not found:", MISSING_ARTIFACT};
 			assertLogContainsLine(log.getFile(), parts);
 		} catch (Exception e) {
 			fail("error verifying output", e);
@@ -1394,46 +1413,51 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		PrintStream oldErr = System.err;
 		PrintStream newErr = null;
 		try {
-			destRepoLocation.mkdir();
-			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting output", e);
+			try {
+				destRepoLocation.mkdir();
+				newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
+				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
+			} catch (FileNotFoundException e) {
+				fail("Error redirecting output", e);
+			}
+			System.setOut(newOut);
+			System.setErr(newErr);
+
+			//run test with verbose, results in error
+			mirrorWithError(true);
+
+			//verify log
+			try {
+				String[] parts = new String[] {"Artifact not found:", MISSING_ARTIFACT};
+				assertLogContainsLine(log.getFile(), parts);
+			} catch (Exception e) {
+				fail("error verifying output", e);
+			}
+
+			//run with verbose
+			//populate destination with duplicate artifacts. We assume this works
+			runMirrorApplication("Initializing Destiantion", sourceRepoLocation, destRepoLocation, false); //value of append should not matter
+
+			try {
+				MirrorApplication app = new MirrorApplication();
+				app.addSource(createRepositoryDescriptor(sourceRepoLocation.toURI(), null, null, null));
+				app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
+				//set the arguments with verbose
+				app.setVerbose(true);
+				//run the mirror application
+				app.run(null);
+			} catch (Exception e) {
+				fail("Error running mirror application to generate INFO items", e);
+			}
+
+		} finally {
+			System.setOut(oldOut);
+			if (newOut != null)
+				newOut.close();
+			System.setErr(oldErr);
+			if (newErr != null)
+				newErr.close();
 		}
-		System.setOut(newOut);
-		System.setErr(newErr);
-
-		//run test with verbose, results in error
-		mirrorWithError(true);
-
-		//verify log
-		try {
-			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
-			assertLogContainsLine(log.getFile(), parts);
-		} catch (Exception e) {
-			fail("error verifying output", e);
-		}
-
-		//run with verbose
-		//populate destination with duplicate artifacts. We assume this works
-		runMirrorApplication("Initializing Destiantion", sourceRepoLocation, destRepoLocation, false); //value of append should not matter
-
-		try {
-			MirrorApplication app = new MirrorApplication();
-			app.addSource(createRepositoryDescriptor(sourceRepoLocation.toURI(), null, null, null));
-			app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
-			//set the arguments with verbose
-			app.setVerbose(true);
-			//run the mirror application
-			app.run(null);
-		} catch (Exception e) {
-			fail("Error running mirror application to generate INFO items", e);
-		}
-
-		System.setOut(oldOut);
-		newOut.close();
-		System.setErr(oldErr);
-		newErr.close();
 
 		IArtifactRepository sourceRepository = null;
 		try {
