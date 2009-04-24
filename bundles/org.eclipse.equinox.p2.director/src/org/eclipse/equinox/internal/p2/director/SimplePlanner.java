@@ -501,14 +501,13 @@ public class SimplePlanner implements IPlanner {
 		agentState.remove(metaRequirementIU); //Remove the fake IU
 		agentState = AttachmentHelper.attachFragments(agentState, ((Projector) agentSolution).getFragmentAssociation());
 
-		ProvisioningContext NO_REPO_CONTEXT = new ProvisioningContext(new URI[0]);
-		NO_REPO_CONTEXT.setArtifactRepositories(new URI[0]);
+		ProvisioningContext noRepoContext = createNoRepoContext(initialRequest);
 		//...This computes the attachment of what is currently in the profile 
-		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), NO_REPO_CONTEXT, new NullProgressMonitor());
+		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof ProvisioningPlan) {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		}
-		Collection initialState = ((Projector) initialSolution).extractSolution();
+		Collection initialState = initialRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
 		ProvisioningPlan agentPlan = generateProvisioningPlan(initialState, agentState, initialRequest, null);
@@ -524,19 +523,29 @@ public class SimplePlanner implements IPlanner {
 			newState = newSolution.extractSolution();
 			newState = AttachmentHelper.attachFragments(newState, newSolution.getFragmentAssociation());
 		}
-		ProvisioningContext NO_REPO_CONTEXT = new ProvisioningContext(new URI[0]);
-		NO_REPO_CONTEXT.setArtifactRepositories(new URI[0]);
+		ProvisioningContext noRepoContext = createNoRepoContext(request);
 
 		//Compute the attachment of the previous state
-		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(request.getProfile())), NO_REPO_CONTEXT, new NullProgressMonitor());
+		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(request.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof ProvisioningPlan) {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			// TODO: should we return the plan here?
 		}
-		Collection initialState = ((Projector) initialSolution).extractSolution();
+		Collection initialState = request.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
 		//Generate the plan
 		return generateProvisioningPlan(initialState, newState, request, null);
+	}
+
+	private ProvisioningContext createNoRepoContext(ProfileChangeRequest request) {
+		ProvisioningContext noRepoContext = new ProvisioningContext(new URI[0]);
+		noRepoContext.setArtifactRepositories(new URI[0]);
+		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
+		ArrayList extraIUs = new ArrayList();
+		extraIUs.addAll(request.getProfile().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).toCollection());
+		noRepoContext.setExtraIUs(extraIUs);
+		return noRepoContext;
 	}
 
 	private IInstallableUnit getPreviousIUForMetaRequirements(IProfile profile, String iuId, IProgressMonitor monitor) {
@@ -554,7 +563,7 @@ public class SimplePlanner implements IPlanner {
 		InstallableUnitDescription description = new InstallableUnitDescription();
 		String id = getActionGatheringIUId(profile);
 		description.setId(id);
-		Version version = new Version(1, 0, 0, profile.getProfileId() + System.currentTimeMillis());
+		Version version = Version.createOSGi(1, 0, 0, profile.getProfileId() + profile.getTimestamp());
 		description.setVersion(version);
 		description.addRequiredCapabilities(metaRequirements);
 
@@ -571,7 +580,7 @@ public class SimplePlanner implements IPlanner {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
-		iud.setVersion(new Version(0, 0, 0, time));
+		iud.setVersion(Version.createOSGi(0, 0, 0, time));
 		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
 		return MetadataFactory.createInstallableUnit(iud);
 	}
