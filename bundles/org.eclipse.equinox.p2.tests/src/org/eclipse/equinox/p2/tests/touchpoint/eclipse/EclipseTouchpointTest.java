@@ -11,18 +11,20 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -204,4 +206,33 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		assertTrue(installedIU.getId().equals(iu.getId()));
 		assertFalse(Boolean.valueOf(installedIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 	}
+
+	public void testInstallPartialIUValidationFailure() throws ProvisionException {
+
+		File installFolder = getTempFolder();
+		Properties profileProperties = new Properties();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();
+		getMetadataRepositoryManager().addRepository(site);
+		getArtifactRepositoryManager().addRepository(site);
+
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
+		IInstallableUnit iu = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor()).iterator().next();
+		assertNotNull(iu);
+		profile = createProfile("test", null, profileProperties);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+
+		final IInstallableUnit[] newIUs = new IInstallableUnit[] {iu};
+		request.addInstallableUnits(newIUs);
+
+		IPlanner planner = createPlanner();
+		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		assertTrue("1.0", plan.getStatus().isOK());
+		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), getMonitor());
+		assertFalse("2.0", result.isOK());
+	}
+
 }
