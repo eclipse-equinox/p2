@@ -69,6 +69,8 @@ public class UpdateWizard extends WizardWithLicenses {
 	 */
 	public static ProfileChangeRequest createProfileChangeRequest(IInstallableUnit[] iusToUpdate, String profileId, IUElementListRoot root, Collection initialSelections, IProgressMonitor monitor) {
 		// Here we create a profile change request by finding the latest version available for any replacement.
+		// We have to consider the scenario where the only updates available are patches, in which case the original
+		// IU should not be removed as part of the update.
 		ArrayList toBeUpdated = new ArrayList();
 		HashMap latestReplacements = new HashMap();
 		ArrayList allReplacements = new ArrayList();
@@ -87,6 +89,9 @@ public class UpdateWizard extends WizardWithLicenses {
 					allReplacements.add(element);
 				}
 			}
+			// This loop gathers the latest version of all replacements by id.
+			// It's possible that there are multiple latest replacements if patches (which have a different id than the original)
+			// are involved.
 			for (int j = 0; j < currentReplacements.size(); j++) {
 				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
 				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
@@ -109,8 +114,12 @@ public class UpdateWizard extends WizardWithLicenses {
 
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileId);
 		Iterator iter = toBeUpdated.iterator();
-		while (iter.hasNext())
-			request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
+		while (iter.hasNext()) {
+			IInstallableUnit iuToBeUpdated = (IInstallableUnit) iter.next();
+			// Only remove it if there is a replacement with the same id.  
+			if (latestReplacements.containsKey(iuToBeUpdated.getId()))
+				request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
+		}
 		iter = latestReplacements.values().iterator();
 		while (iter.hasNext())
 			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});

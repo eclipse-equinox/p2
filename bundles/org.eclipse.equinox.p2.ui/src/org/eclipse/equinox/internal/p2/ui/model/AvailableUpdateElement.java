@@ -41,7 +41,8 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) throws ProvisionException {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
-		request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
+		if (iuToBeUpdated.getId().equals(getIU().getId()))
+			request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
 		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
