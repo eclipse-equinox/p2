@@ -626,10 +626,12 @@ public class BundlesAction extends AbstractPublisherAction {
 			File location = list[i];
 			if (location.isDirectory()) {
 				// if the location is itself a bundle, just add it.  Otherwise r down
-				if (!new File(location, JarFile.MANIFEST_NAME).exists())
-					expandLocations(location.listFiles(), result);
-				else
+				if (new File(location, JarFile.MANIFEST_NAME).exists())
 					result.add(location);
+				else if (new File(location, "plugin.xml").exists() || new File(location, "fragment.xml").exists()) //$NON-NLS-1$ //$NON-NLS-2$
+					result.add(location); //old style bundle without manifest
+				else
+					expandLocations(location.listFiles(), result);
 			} else {
 				result.add(location);
 			}
