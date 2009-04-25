@@ -58,9 +58,9 @@ public class MirrorApplication extends AbstractApplication {
 			validate();
 			initializeRepos(new NullProgressMonitor());
 			initializeIUs();
+			initializeLogs();
 			IQueryable slice = slice(new NullProgressMonitor());
 			if (destinationArtifactRepository != null) {
-				initializeLogs();
 				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
 				if (mirrorStatus.getSeverity() == IStatus.ERROR)
 					return mirrorStatus;
@@ -188,8 +188,12 @@ public class MirrorApplication extends AbstractApplication {
 			slicingOptions = new SlicingOptions();
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly());
 		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
-		if (slice == null)
+		if (slicer.getStatus().getSeverity() != IStatus.OK) {
+			mirrorLog.log(slicer.getStatus());
+		}
+		if (slice == null) {
 			throw new ProvisionException(slicer.getStatus());
+		}
 		return slice;
 	}
 
