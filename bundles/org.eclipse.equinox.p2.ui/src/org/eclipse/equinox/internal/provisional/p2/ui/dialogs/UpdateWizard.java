@@ -92,12 +92,24 @@ public class UpdateWizard extends WizardWithLicenses {
 			// This loop gathers the latest version of all replacements by id.
 			// It's possible that there are multiple latest replacements if patches (which have a different id than the original)
 			// are involved.
+			Set idsSeen = new HashSet();
 			for (int j = 0; j < currentReplacements.size(); j++) {
 				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
+				idsSeen.add(replacementElement.getIU().getId());
 				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
 				IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
 				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
 					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
+			}
+			// If there is a true update available, ignore any other ids seen (patches).
+			// We know there are only patches available if there is no update with the same id as the replacement.
+			if (idsSeen.contains(iusToUpdate[i].getId()) && idsSeen.size() > 1) {
+				Iterator replacementIds = idsSeen.iterator();
+				while (replacementIds.hasNext()) {
+					String id = (String) replacementIds.next();
+					if (id != iusToUpdate[i].getId())
+						latestReplacements.remove(id);
+				}
 			}
 			sub.worked(100);
 		}
