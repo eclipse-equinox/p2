@@ -17,6 +17,7 @@ public class SlicingOptions {
 	private boolean everythingGreedy = true;
 	private boolean forceFilterTo = true;
 	private boolean considerStrictDependencyOnly = false;
+	private boolean followOnlyFilteredRequirements = false;
 	private Dictionary filter = null;
 
 	public boolean includeOptionalDependencies() {
@@ -57,5 +58,13 @@ public class SlicingOptions {
 
 	public void setFilter(Dictionary filter) {
 		this.filter = filter;
+	}
+
+	public void followOnlyFilteredRequirements(boolean onlyFiltered) {
+		this.followOnlyFilteredRequirements = onlyFiltered;
+	}
+
+	public boolean followOnlyFilteredRequirements() {
+		return followOnlyFilteredRequirements;
 	}
 }

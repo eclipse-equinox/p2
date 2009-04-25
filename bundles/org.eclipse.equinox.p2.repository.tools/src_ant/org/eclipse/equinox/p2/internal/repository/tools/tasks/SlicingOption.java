@@ -27,6 +27,7 @@ public class SlicingOption extends Task {
 		options.considerStrictDependencyOnly(false);
 		options.everythingGreedy(true);
 		options.includeOptionalDependencies(true);
+		options.followOnlyFilteredRequirements(false);
 		setIncludeFeatures(true);
 	}
 
@@ -81,6 +82,10 @@ public class SlicingOption extends Task {
 	 */
 	public void setFollowStrict(boolean strict) {
 		options.considerStrictDependencyOnly(strict);
+	}
+
+	public void setFollowOnlyFilteredRequirements(boolean onlyFiltered) {
+		options.followOnlyFilteredRequirements(onlyFiltered);
 	}
 
 	public SlicingOptions getOptions() {

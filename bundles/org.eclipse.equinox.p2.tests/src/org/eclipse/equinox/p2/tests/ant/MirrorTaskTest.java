@@ -246,7 +246,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Properties p = getSliceProperties();
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, true);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, true, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 
@@ -274,7 +274,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		runAntTask();
 
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, true, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
@@ -304,7 +304,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Properties p = getSliceProperties();
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
@@ -336,7 +336,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Properties p = getSliceProperties();
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
@@ -368,7 +368,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		runAntTask();
 
 		Properties p = getSliceProperties();
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
@@ -400,7 +400,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		runAntTask();
 
 		Properties p = getSliceProperties();
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));

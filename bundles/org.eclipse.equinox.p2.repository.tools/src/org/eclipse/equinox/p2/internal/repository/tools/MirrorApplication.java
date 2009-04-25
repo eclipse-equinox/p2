@@ -186,7 +186,7 @@ public class MirrorApplication extends AbstractApplication {
 	private IQueryable slice(IProgressMonitor monitor) throws ProvisionException {
 		if (slicingOptions == null)
 			slicingOptions = new SlicingOptions();
-		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly());
+		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
 		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
 		if (slicer.getStatus().getSeverity() != IStatus.OK) {
 			mirrorLog.log(slicer.getStatus());
