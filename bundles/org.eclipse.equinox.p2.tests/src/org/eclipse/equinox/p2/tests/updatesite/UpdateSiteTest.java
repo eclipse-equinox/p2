@@ -278,6 +278,21 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testCorruptDigestGoodSite() {
+		File site = getTestData("0.1", "/testData/updatesite/corruptdigestgoodsite");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		}
+		try {
+			updatesite.loadFeatures(new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
 	public void testBadDigestBadSite() {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
 		try {

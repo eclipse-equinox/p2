@@ -429,7 +429,7 @@ public class UpdateSite {
 				if (!result.isOK())
 					return null;
 			}
-			Feature[] features = new DigestParser().parse(digestFile);
+			Feature[] features = new DigestParser().parse(digestFile, digestURI);
 			if (features == null)
 				return null;
 			Map tmpFeatureCache = new HashMap(features.length);

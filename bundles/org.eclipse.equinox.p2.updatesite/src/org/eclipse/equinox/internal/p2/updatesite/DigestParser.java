@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -65,14 +66,17 @@ public class DigestParser extends DefaultHandler {
 			featureHandler.endElement(uri, localName, qName);
 	}
 
-	public Feature[] parse(File location) {
-		if (!location.exists())
+	public Feature[] parse(File localFile, URI location) {
+		if (!localFile.exists())
 			return null;
+
+		if (location == null)
+			location = localFile.toURI();
 
 		JarFile jar = null;
 		InputStream is = null;
 		try {
-			jar = new JarFile(location);
+			jar = new JarFile(localFile);
 			JarEntry entry = jar.getJarEntry("digest.xml"); //$NON-NLS-1$
 			if (entry == null)
 				return null;
