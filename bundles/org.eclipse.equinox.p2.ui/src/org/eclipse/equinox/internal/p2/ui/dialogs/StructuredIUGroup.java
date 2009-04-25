@@ -114,8 +114,16 @@ public abstract class StructuredIUGroup {
 		return Dialog.convertHorizontalDLUsToPixels(fm, dlus);
 	}
 
+	protected int convertWidthInCharsToPixels(int dlus) {
+		return Dialog.convertWidthInCharsToPixels(fm, dlus);
+	}
+
 	protected int convertVerticalDLUsToPixels(int dlus) {
 		return Dialog.convertVerticalDLUsToPixels(fm, dlus);
+	}
+
+	protected int convertHeightInCharsToPixels(int dlus) {
+		return Dialog.convertHeightInCharsToPixels(fm, dlus);
 	}
 
 	protected QueryProvider getQueryProvider() {

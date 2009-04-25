@@ -425,7 +425,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	protected GridData getViewerGridData() {
 		GridData data = super.getViewerGridData();
-		data.heightHint = convertVerticalDLUsToPixels(240);
+		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 		return data;
 	}
 
