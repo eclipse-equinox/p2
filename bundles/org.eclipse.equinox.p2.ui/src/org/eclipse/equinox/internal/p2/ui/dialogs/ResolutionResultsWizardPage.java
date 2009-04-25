@@ -137,7 +137,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	public boolean performFinish() {
 		if (resolvedOperation.getResolutionResult().getSummaryStatus().getSeverity() != IStatus.ERROR) {
-			ProfileModificationOperation op = createProfileModificationOperation(resolvedOperation.getProvisioningPlan());
+			ProfileModificationOperation op = createProfileModificationOperation(resolvedOperation);
 			ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
 			return true;
 		}
@@ -190,8 +190,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		}
 	}
 
-	private ProfileModificationOperation createProfileModificationOperation(ProvisioningPlan plan) {
-		return new ProfileModificationOperation(getOperationLabel(), profileId, plan);
+	private ProfileModificationOperation createProfileModificationOperation(PlannerResolutionOperation op) {
+		return new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
 	}
 
 	protected abstract String getOperationLabel();

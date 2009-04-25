@@ -29,8 +29,8 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	boolean isUser = true;
 	ProvisioningContext provisioningContext;
 
-	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan) {
-		this(label, profileId, plan, null, null, true);
+	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, ProvisioningContext context) {
+		this(label, profileId, plan, context, null, true);
 	}
 
 	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, ProvisioningContext context, PhaseSet set, boolean isUser) {
@@ -58,7 +58,7 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
-		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, getProfile(), provisioningContext, monitor);
+		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, provisioningContext, monitor);
 	}
 
 	public boolean runInBackground() {

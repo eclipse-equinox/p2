@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
@@ -125,7 +124,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	}
 
 	protected ProfileModificationOperation getLongTestOperation() {
-		return new ProfileModificationOperation("Test Operation", TESTPROFILE, null) {
+		return new ProfileModificationOperation("Test Operation", TESTPROFILE, null, null) {
 			protected IStatus doExecute(IProgressMonitor monitor) {
 				while (true) {
 					// spin unless cancelled
