@@ -35,10 +35,10 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
  */
 public class SiteXMLAction extends AbstractPublisherAction {
 	static final private String QUALIFIER = "qualifier"; //$NON-NLS-1$
-	private UpdateSite updateSite;
+	protected UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
-	private URI location;
+	protected URI location;
 	private String categoryQualifier = null;
 
 	/**

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<associateSites>
+<associateSite url="http://download.eclipse.org/eclipse/updates/3.5" label="Eclipse Project Update Site"/>
+<associateSite url="This is a bogus URI" label="broken"/>
+</associateSites>

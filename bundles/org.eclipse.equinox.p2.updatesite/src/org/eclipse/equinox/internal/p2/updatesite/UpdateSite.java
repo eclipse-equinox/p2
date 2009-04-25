@@ -71,6 +71,48 @@ public class UpdateSite {
 		return segment != null && segment.endsWith(DOT_XML) && segment.indexOf(SITE) != -1;
 	}
 
+	/**
+	 * Loads and returns a category file
+	 * @param location
+	 * @param monitor
+	 * @return A CategoryFile
+	 * @throws ProvisionException
+	 */
+	public static synchronized UpdateSite loadCategoryFile(URI location, IProgressMonitor monitor) throws ProvisionException {
+		if (location == null)
+			return null;
+		UpdateSite result = (UpdateSite) siteCache.get(location.toString());
+		if (result != null)
+			return result;
+		InputStream input = null;
+		File siteFile = loadActualSiteFile(location, location, monitor);
+		try {
+			DefaultSiteParser siteParser = new DefaultSiteParser(location);
+			Checksum checksum = new CRC32();
+			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
+			SiteModel siteModel = siteParser.parse(input);
+			String checksumString = Long.toString(checksum.getValue());
+			result = new UpdateSite(siteModel, location, checksumString);
+			siteCache.put(location.toString(), result);
+			return result;
+		} catch (SAXException e) {
+			String msg = NLS.bind(Messages.ErrorReadingSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.ErrorReadingSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} finally {
+			try {
+				if (input != null)
+					input.close();
+			} catch (IOException e) {
+				// ignore
+			}
+			if (!PROTOCOL_FILE.equals(location.getScheme()))
+				siteFile.delete();
+		}
+	}
+
 	/*
 	 * Load and return an update site object from the given location.
 	 */
@@ -109,17 +151,20 @@ public class UpdateSite {
 		}
 	}
 
+	private static File loadSiteFile(URI location, IProgressMonitor monitor) throws ProvisionException {
+		return loadActualSiteFile(location, getSiteURI(location), monitor);
+	}
+
 	/**
 	 * Returns a local file containing the contents of the update site at the given location.
 	 */
-	private static File loadSiteFile(URI location, IProgressMonitor monitor) throws ProvisionException {
+	private static File loadActualSiteFile(URI location, URI actualLocation, IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
 			File siteFile = null;
 			IStatus transferResult = null;
 			boolean deleteSiteFile = false;
 			try {
-				URI actualLocation = getSiteURI(location);
 				if (PROTOCOL_FILE.equals(actualLocation.getScheme())) {
 					siteFile = URIUtil.toFile(actualLocation);
 					if (siteFile.exists())
