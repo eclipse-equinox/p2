@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.util.*;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -21,12 +22,12 @@ import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -44,15 +45,22 @@ import org.eclipse.swt.widgets.*;
  * @since 3.4
  */
 public class AcceptLicensesWizardPage extends WizardPage {
+	private static final String DIALOG_SETTINGS_SECTION = "LicensessPage"; //$NON-NLS-1$
+	private static final String LIST_WEIGHT = "ListSashWeight"; //$NON-NLS-1$
+	private static final String LICENSE_WEIGHT = "LicenseSashWeight"; //$NON-NLS-1$
+	private static final String NAME_COLUMN_WIDTH = "NameColumnWidth"; //$NON-NLS-1$
+	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
 
 	TableViewer iuViewer;
 	Text licenseTextBox;
 	Button acceptButton;
 	Button declineButton;
+	SashForm sashForm;
 	private IInstallableUnit[] originalIUs;
 	private IInstallableUnit[] iusWithUnacceptedLicenses;
 	private Policy policy;
-	private static final int DEFAULT_COLUMN_WIDTH = 40;
+	IUColumnConfig nameColumn;
+	IUColumnConfig versionColumn;
 
 	public AcceptLicensesWizardPage(Policy policy, IInstallableUnit[] ius, ProvisioningPlan plan) {
 		super("AcceptLicenses"); //$NON-NLS-1$
@@ -69,13 +77,15 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		} else if (iusWithUnacceptedLicenses.length == 1) {
 			createLicenseSection(parent, true);
 		} else {
-			SashForm composite = new SashForm(parent, SWT.HORIZONTAL);
-			composite.setLayout(new GridLayout());
-			composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+			sashForm = new SashForm(parent, SWT.HORIZONTAL);
+			sashForm.setLayout(new GridLayout());
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-			createIUSection(composite);
-			createLicenseSection(composite, false);
-			setControl(composite);
+			createIUSection(sashForm);
+			createLicenseSection(sashForm, false);
+			sashForm.setWeights(getSashWeights());
+			setControl(sashForm);
 
 			Object element = iuViewer.getElementAt(0);
 			if (element != null)
@@ -109,6 +119,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 		});
 		gd = new GridData(GridData.FILL_BOTH);
+		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH + ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
 		iuViewer.getControl().setLayoutData(gd);
 	}
 
@@ -160,8 +171,6 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		initializeDialogUnits(licenseTextBox);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH);
-		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 
 		licenseTextBox.setLayoutData(gd);
 
@@ -183,14 +192,18 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	private void setTableColumns(Table table) {
 		table.setHeaderVisible(true);
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
 		initializeDialogUnits(table);
-		for (int i = 0; i < columns.length; i++) {
-			TableColumn tc = new TableColumn(table, SWT.NONE, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
-		}
+		getColumnWidthsFromSettings();
+		TableColumn tc = new TableColumn(table, SWT.NONE, 0);
+		tc.setResizable(true);
+		tc.setText(nameColumn.columnTitle);
+		tc.setWidth(nameColumn.getWidth());
+		tc = new TableColumn(table, SWT.NONE, 1);
+		tc.setResizable(true);
+		tc.setText(versionColumn.columnTitle);
+		tc.setWidth(versionColumn.getWidth());
 	}
 
 	public boolean performFinish() {
@@ -214,7 +227,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			Composite parent = getControl().getParent();
 			getControl().dispose();
 			createControl(parent);
-			parent.layout(true, true);
+			parent.layout(true);
 		}
 	}
 
@@ -297,5 +310,62 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			// Without a doubt we know we are showing extra licenses.
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_ReviewExtraLicensesDescription);
 		}
+	}
+
+	private String getDialogSettingsName() {
+		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
+	}
+
+	public void saveBoundsRelatedSettings() {
+		if (iuViewer == null || iuViewer.getTable().isDisposed())
+			return;
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section == null) {
+			section = settings.addNewSection(getDialogSettingsName());
+		}
+		section.put(NAME_COLUMN_WIDTH, iuViewer.getTable().getColumn(0).getWidth());
+		section.put(VERSION_COLUMN_WIDTH, iuViewer.getTable().getColumn(1).getWidth());
+
+		if (sashForm == null || sashForm.isDisposed())
+			return;
+		int[] weights = sashForm.getWeights();
+		section.put(LIST_WEIGHT, weights[0]);
+		section.put(LICENSE_WEIGHT, weights[1]);
+	}
+
+	private void getColumnWidthsFromSettings() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section != null) {
+			try {
+				if (section.get(NAME_COLUMN_WIDTH) != null)
+					nameColumn.columnWidth = section.getInt(NAME_COLUMN_WIDTH);
+				if (section.get(VERSION_COLUMN_WIDTH) != null)
+					versionColumn.columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+	}
+
+	private int[] getSashWeights() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section != null) {
+			try {
+				int[] weights = new int[2];
+				if (section.get(LIST_WEIGHT) != null) {
+					weights[0] = section.getInt(LIST_WEIGHT);
+					if (section.get(LICENSE_WEIGHT) != null) {
+						weights[1] = section.getInt(LICENSE_WEIGHT);
+						return weights;
+					}
+				}
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+		return new int[] {55, 45};
 	}
 }
