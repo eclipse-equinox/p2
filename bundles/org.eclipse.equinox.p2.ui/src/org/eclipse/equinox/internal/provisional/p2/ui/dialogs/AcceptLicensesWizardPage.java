@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-
 import java.util.*;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -23,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
@@ -160,8 +160,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		initializeDialogUnits(licenseTextBox);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = convertWidthInCharsToPixels(80);
-		gd.heightHint = convertHeightInCharsToPixels(20);
+		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 
 		licenseTextBox.setLayoutData(gd);
 

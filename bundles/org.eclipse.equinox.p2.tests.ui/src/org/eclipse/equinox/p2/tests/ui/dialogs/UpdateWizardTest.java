@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
@@ -46,7 +47,7 @@ public class UpdateWizardTest extends WizardTest {
 		request.addInstallableUnits(new IInstallableUnit[] {upgrade});
 		PlannerResolutionOperation op = getResolvedOperation(request);
 		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -82,7 +83,7 @@ public class UpdateWizardTest extends WizardTest {
 		root.setChildren(new Object[] {element});
 
 		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, null, null);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 

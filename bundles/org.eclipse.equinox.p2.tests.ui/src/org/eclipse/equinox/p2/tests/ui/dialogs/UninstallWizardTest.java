@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
+
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -42,7 +43,7 @@ public class UninstallWizardTest extends WizardTest {
 		req.removeInstallableUnits(iusInvolved);
 		PlannerResolutionOperation op = getResolvedOperation(req);
 		UninstallWizard wizard = new UninstallWizard(Policy.getDefault(), TESTPROFILE, iusInvolved, op);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.create();
 		dialog.open();
@@ -76,7 +77,7 @@ public class UninstallWizardTest extends WizardTest {
 	public void testUninstallWizardUnresolved() {
 		// This test is pretty useless right now but at least it opens the wizard
 		UninstallWizard wizard = new UninstallWizard(Policy.getDefault(), TESTPROFILE, new IInstallableUnit[] {top1, top2}, null);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.create();
 		dialog.open();

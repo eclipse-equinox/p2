@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.PreselectedIUInstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -145,7 +146,7 @@ public class InstallAction extends ProfileModificationAction {
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		IWizard wizard = new PreselectedIUInstallWizard(getPolicy(), targetProfileId, ius, resolution, new QueryableMetadataRepositoryManager(getPolicy().getQueryContext(), false));
-		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
 

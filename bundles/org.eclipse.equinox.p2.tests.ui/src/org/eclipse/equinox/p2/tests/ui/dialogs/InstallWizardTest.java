@@ -18,8 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AvailableIUGroup;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -46,7 +45,7 @@ public class InstallWizardTest extends WizardTest {
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(context, false);
 		manager.loadAll(getMonitor());
 		InstallWizard wizard = new InstallWizard(policy, TESTPROFILE, null, null, manager);
-		WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 
 		dialog.create();
 		dialog.setBlockOnOpen(false);

@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -37,7 +39,7 @@ public class UninstallAction extends ExistingIUInProfileAction {
 
 	protected int performAction(IInstallableUnit[] ius, String targetProfileId, PlannerResolutionOperation resolution) {
 		UninstallWizard wizard = new UninstallWizard(getPolicy(), targetProfileId, ius, resolution);
-		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
 

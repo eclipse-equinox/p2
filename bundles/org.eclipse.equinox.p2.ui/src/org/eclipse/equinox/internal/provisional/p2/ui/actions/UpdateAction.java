@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
@@ -56,7 +57,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 
 		UpdateWizard wizard = new UpdateWizard(getPolicy(), targetProfileId, root, initialSelections.toArray(), resolution, manager);
 		wizard.setSkipSelectionsPage(skipSelectionPage);
-		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
 

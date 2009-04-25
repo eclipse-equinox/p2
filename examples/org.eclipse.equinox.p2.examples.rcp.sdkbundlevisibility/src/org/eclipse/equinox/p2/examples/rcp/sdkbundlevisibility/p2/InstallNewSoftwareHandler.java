@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
@@ -33,7 +34,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 
 	protected void doExecute(String profileId, QueryableMetadataRepositoryManager manager) {
 		InstallWizard wizard = new InstallWizard(Policy.getDefault(), profileId, null, null, manager);
-		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(getShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
 
