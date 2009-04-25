@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 	private IProfile initialProfile = null;
+	private Object previousSelfValue = null;
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -38,8 +39,8 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 			try {
 				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 				selfField.setAccessible(true);
-				Object self = selfField.get(profileRegistry);
-				if (self == null)
+				previousSelfValue = selfField.get(profileRegistry);
+				if (previousSelfValue == null)
 					selfField.set(profileRegistry, "agent");
 			} catch (Throwable t) {
 				fail();
@@ -57,7 +58,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 					selfField.setAccessible(true);
 					Object self = selfField.get(profileRegistry);
 					if (self.equals("agent"))
-						selfField.set(profileRegistry, null);
+						selfField.set(profileRegistry, previousSelfValue);
 				} catch (Throwable t) {
 					// ignore as we still want to continue tidying up
 				}

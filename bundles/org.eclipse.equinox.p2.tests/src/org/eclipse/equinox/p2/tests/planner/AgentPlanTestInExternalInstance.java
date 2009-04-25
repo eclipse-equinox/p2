@@ -35,8 +35,7 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 			selfField.setAccessible(true);
 			previousSelfValue = selfField.get(profileRegistry);
-			if (previousSelfValue == null)
-				selfField.set(profileRegistry, "agent");
+			selfField.set(profileRegistry, "agent");
 			clearProfileMap(profileRegistry);
 		} catch (Throwable t) {
 			fail();

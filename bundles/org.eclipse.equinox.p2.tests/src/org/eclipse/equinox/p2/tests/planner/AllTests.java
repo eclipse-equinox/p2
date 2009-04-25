@@ -24,11 +24,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AdditionalConstraints.class);
 		suite.addTestSuite(AddIUProperty.class);
 		suite.addTestSuite(AgentPlanTestInRunningInstance.class);
-
-		// 		Note: Just external instance tests are failing
-		//		suite.addTestSuite(AgentPlanTestInExternalInstance.class);
-		//		suite.addTestSuite(AgentPlanTestInExternalInstanceForCohostedMode.class);
-
+		suite.addTestSuite(AgentPlanTestInExternalInstance.class);
+		suite.addTestSuite(AgentPlanTestInExternalInstanceForCohostedMode.class);
 		suite.addTestSuite(AllOptional.class);
 		suite.addTestSuite(AllOrbit.class);
 		suite.addTestSuite(AnotherSingleton.class);
