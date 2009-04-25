@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
@@ -39,7 +38,7 @@ public class SDKPolicy extends Policy {
 					return ProvSDKUIActivator.getSelfProfileId();
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, e.getStatus().getMessage(), StatusManager.LOG);
-					return IProfileRegistry.SELF;
+					return null;
 				}
 			}
 		});
@@ -87,5 +86,9 @@ public class SDKPolicy extends Policy {
 		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		setQueryContext(queryContext);
 		ProvSDKUIActivator.getDefault().updateWithPreferences(queryContext);
+	}
+
+	public IStatus getNoProfileChosenStatus() {
+		return ProvSDKUIActivator.getNoSelfProfileStatus();
 	}
 }

@@ -60,12 +60,24 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	InstalledIUGroup installedIUGroup;
 
 	public void createPageButtons(Composite parent) {
+		if (profileId == null)
+			return;
 		revertButton = createButton(parent, REVERT_ID, revertAction.getText());
 		revertButton.setEnabled(revertAction.isEnabled());
 	}
 
 	public void createControl(Composite parent) {
 		profileId = Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell());
+		if (profileId == null) {
+			IStatus status = Policy.getDefault().getNoProfileChosenStatus();
+			if (status != null)
+				ProvUI.reportStatus(status, StatusManager.LOG);
+			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
+			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			text.setText(ProvUIMessages.RevertProfilePage_NoProfile);
+			setControl(text);
+			return;
+		}
 
 		initializeDialogUnits(parent);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvHelpContextIds.REVERT_CONFIGURATION_WIZARD);

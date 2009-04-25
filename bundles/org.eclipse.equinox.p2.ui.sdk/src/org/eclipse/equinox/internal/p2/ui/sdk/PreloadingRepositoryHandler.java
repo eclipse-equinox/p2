@@ -22,6 +22,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * PreloadingRepositoryHandler provides background loading of
@@ -54,6 +55,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
 		} catch (ProvisionException e) {
 			MessageDialog.openInformation(null, ProvSDKMessages.Handler_SDKUpdateUIMessageTitle, ProvSDKMessages.Handler_CannotLaunchUI);
+			ProvUI.handleException(e, null, StatusManager.LOG);
 		}
 		return null;
 	}

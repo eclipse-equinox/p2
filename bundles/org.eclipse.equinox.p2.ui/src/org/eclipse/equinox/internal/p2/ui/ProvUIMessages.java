@@ -42,6 +42,7 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
+	public static String RevertProfilePage_NoProfile;
 	public static String RevertProfilePage_RevertLabel;
 	public static String RevertProfilePage_RevertTooltip;
 	public static String IUCopyrightPropertyPage_NoCopyright;
@@ -90,6 +91,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningOperation_RedoErrorTitle;
 	public static String ProvisioningOperation_UndoErrorTitle;
 	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
+	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
 	public static String InstallIUCommandLabel;
 	public static String InstallIUCommandTooltip;

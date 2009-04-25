@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.about.InstallationPage;
 import org.eclipse.ui.menus.AbstractContributionFactory;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * @since 3.4
@@ -50,6 +52,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	AbstractContributionFactory factory;
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
+	String profileId;
 	Button updateButton, uninstallButton, propertiesButton;
 
 	/* (non-Javadoc)
@@ -58,6 +61,18 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvHelpContextIds.INSTALLED_SOFTWARE);
+
+		profileId = Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell());
+		if (profileId == null) {
+			IStatus status = Policy.getDefault().getNoProfileChosenStatus();
+			if (status != null)
+				ProvUI.reportStatus(status, StatusManager.LOG);
+			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
+			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			text.setText(ProvUIMessages.InstalledSoftwarePage_NoProfile);
+			setControl(text);
+			return;
+		}
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -69,7 +84,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUGroup = new InstalledIUGroup(Policy.getDefault(), composite, JFaceResources.getDialogFont(), Policy.getDefault().getProfileChooser().getProfileId(ProvUI.getDefaultParentShell()), getColumnConfig());
+		installedIUGroup = new InstalledIUGroup(Policy.getDefault(), composite, JFaceResources.getDialogFont(), profileId, getColumnConfig());
 		// we hook selection listeners on the viewer in createPageButtons because we
 		// rely on the actions we create there getting selection events before we use
 		// them to update button enablement.
@@ -88,7 +103,8 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	}
 
 	public void createPageButtons(Composite parent) {
-		final String profileId = Policy.getDefault().getProfileChooser().getProfileId(getShell());
+		if (profileId == null)
+			return;
 		// For the update action, we create a custom selection provider that will interpret no
 		// selection as checking for updates to everything.
 		// We also override the run method to close the containing dialog

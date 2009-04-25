@@ -276,4 +276,14 @@ public class Policy {
 	private IUViewQueryContext getDefaultQueryContext() {
 		return new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
 	}
+
+	/**
+	 * Return a status that can be used to describe the failure to
+	 * retrieve a profile.
+	 * @return a status describing a failure to retrieve a profile,
+	 * or <code>null</code> if there is no such status.
+	 */
+	public IStatus getNoProfileChosenStatus() {
+		return null;
+	}
 }
