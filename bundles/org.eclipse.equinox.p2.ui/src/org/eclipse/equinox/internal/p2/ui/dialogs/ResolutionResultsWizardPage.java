@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
@@ -193,12 +192,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	private ProfileModificationOperation createProfileModificationOperation(ProvisioningPlan plan) {
 		return new ProfileModificationOperation(getOperationLabel(), profileId, plan);
-	}
-
-	// We currently create an empty provisioning context, but
-	// in the future we could consider letting clients supply this.
-	protected ProvisioningContext getProvisioningContext() {
-		return new ProvisioningContext();
 	}
 
 	protected abstract String getOperationLabel();
