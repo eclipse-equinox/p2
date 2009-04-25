@@ -36,4 +36,12 @@ abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 	}
 
 	protected abstract String getClipboardText(Control control);
+
+	/**
+	 * Save any settings that are related to the bounds of the wizard.
+	 * This method is called when the wizard is about to close.
+	 */
+	public void saveBoundsRelatedSettings() {
+		// Default is to do nothing
+	}
 }

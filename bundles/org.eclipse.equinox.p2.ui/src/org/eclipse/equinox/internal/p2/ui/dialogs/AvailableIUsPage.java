@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -43,8 +44,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
 	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
 	private static final String RESOLVE_ALL = "ResolveInstallWithAllSites"; //$NON-NLS-1$
+	private static final String NAME_COLUMN_WIDTH = "AvailableNameColumnWidth"; //$NON-NLS-1$
+	private static final String VERSION_COLUMN_WIDTH = "AvailableVersionColumnWidth"; //$NON-NLS-1$
+	private static final String LIST_WEIGHT = "AvailableListSashWeight"; //$NON-NLS-1$
+	private static final String DETAILS_WEIGHT = "AvailableDetailsSashWeight"; //$NON-NLS-1$
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
-	private static final int DEFAULT_WIDTH = 300;
 
 	String profileId;
 	Policy policy;
@@ -56,6 +60,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Link installLink;
 	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox;
 	Text detailsArea;
+	SashForm sashForm;
+	IUColumnConfig nameColumn, versionColumn;
 	StructuredViewerProvisioningListener profileListener;
 	Display display;
 	int batchCount = 0;
@@ -81,7 +87,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
 		composite.setLayoutData(gd);
 		setDropTarget(composite);
 
@@ -92,7 +97,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Repo manipulation 
 		createRepoArea(composite);
 
-		SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+		sashForm = new SashForm(composite, SWT.VERTICAL);
 		FillLayout fill = new FillLayout();
 		sashForm.setLayout(fill);
 		GridData data = new GridData(GridData.FILL_BOTH);
@@ -103,7 +108,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
 		if (policy.getRepositoryManipulator() == null)
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
-		availableIUGroup = new AvailableIUGroup(policy, sashForm, JFaceResources.getDialogFont(), manager, queryContext, ProvUI.getIUColumnConfig(), filterConstant);
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+
+		getColumnWidthsFromSettings();
+		availableIUGroup = new AvailableIUGroup(policy, sashForm, JFaceResources.getDialogFont(), manager, queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons 
@@ -128,10 +137,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		activateCopy(availableIUGroup.getStructuredViewer().getControl());
 
 		// Details area
-		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), convertHorizontalDLUsToPixels(DEFAULT_WIDTH), true);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
 		detailsArea = iuDetailsGroup.getDetailsArea();
 
-		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
+		sashForm.setWeights(getSashWeights());
 
 		// Controls for filtering/presentation/site selection
 		Composite controlsComposite = new Composite(composite, SWT.NONE);
@@ -333,11 +342,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 	}
 
-	public boolean performFinish() {
-		savePageSettings();
-		return true;
-	}
-
 	private void makeQueryContext() {
 		// Make a local query context that is based on the default.
 		IUViewQueryContext defaultQueryContext = policy.getQueryContext();
@@ -383,7 +387,42 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 	}
 
-	private void savePageSettings() {
+	private void getColumnWidthsFromSettings() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+		if (section != null) {
+			try {
+				if (section.get(NAME_COLUMN_WIDTH) != null)
+					nameColumn.columnWidth = section.getInt(NAME_COLUMN_WIDTH);
+				if (section.get(VERSION_COLUMN_WIDTH) != null)
+					versionColumn.columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+	}
+
+	private int[] getSashWeights() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+		if (section != null) {
+			try {
+				int[] weights = new int[2];
+				if (section.get(LIST_WEIGHT) != null) {
+					weights[0] = section.getInt(LIST_WEIGHT);
+					if (section.get(DETAILS_WEIGHT) != null) {
+						weights[1] = section.getInt(DETAILS_WEIGHT);
+						return weights;
+					}
+				}
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+		return ILayoutConstants.IUS_TO_DETAILS_WEIGHTS;
+	}
+
+	public void saveBoundsRelatedSettings() {
 		if (getShell().isDisposed())
 			return;
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
@@ -396,6 +435,15 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		section.put(HIDE_INSTALLED_IUS, hideInstalledCheckbox.getSelection());
 		if (resolveAllCheckbox != null)
 			section.put(RESOLVE_ALL, resolveAllCheckbox.getSelection());
+
+		TreeColumn col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(0);
+		section.put(NAME_COLUMN_WIDTH, col.getWidth());
+		col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(1);
+		section.put(VERSION_COLUMN_WIDTH, col.getWidth());
+
+		int[] weights = sashForm.getWeights();
+		section.put(LIST_WEIGHT, weights[0]);
+		section.put(DETAILS_WEIGHT, weights[1]);
 	}
 
 	void updateDetails() {

@@ -25,10 +25,18 @@ public class IUColumnConfig {
 	public String columnTitle;
 	public int columnField;
 	public int defaultColumnWidth;
+	public int columnWidth;
 
 	public IUColumnConfig(String title, int columnField, int defaultColumnWidth) {
 		this.columnTitle = title;
 		this.columnField = columnField;
 		this.defaultColumnWidth = defaultColumnWidth;
+		this.columnWidth = -1;
+	}
+
+	public int getWidth() {
+		if (columnWidth >= 0)
+			return columnWidth;
+		return defaultColumnWidth;
 	}
 }

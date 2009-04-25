@@ -22,9 +22,9 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 public interface ILayoutConstants {
 	public static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
 	public static final int DEFAULT_SITEDETAILS_HEIGHT = 2;
-	public static final int DEFAULT_COLUMN_WIDTH = 60;
-	public static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
-	public static final int DEFAULT_TABLE_HEIGHT = 15;
-	public static final int DEFAULT_TABLE_WIDTH = 120;
+	public static final int DEFAULT_COLUMN_WIDTH = 40;
+	public static final int DEFAULT_SMALL_COLUMN_WIDTH = 10;
+	public static final int DEFAULT_TABLE_HEIGHT = 10;
+	public static final int DEFAULT_TABLE_WIDTH = 80;
 	public static final int[] IUS_TO_DETAILS_WEIGHTS = new int[] {80, 20};
 }

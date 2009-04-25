@@ -263,6 +263,14 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return resolutionOperation.getResolutionResult().getSummaryStatus();
 	}
 
+	public void saveBoundsRelatedSettings() {
+		IWizardPage[] pages = getPages();
+		for (int i = 0; i < pages.length; i++) {
+			if (pages[i] instanceof ProvisioningWizardPage)
+				((ProvisioningWizardPage) pages[i]).saveBoundsRelatedSettings();
+		}
+	}
+
 	protected abstract ProfileChangeRequest computeProfileChangeRequest(Object[] checkedElements, MultiStatus additionalStatus, IProgressMonitor monitor);
 
 }

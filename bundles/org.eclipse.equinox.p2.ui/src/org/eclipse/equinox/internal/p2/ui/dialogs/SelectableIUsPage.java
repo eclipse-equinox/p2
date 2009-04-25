@@ -42,6 +42,8 @@ import org.eclipse.swt.widgets.*;
  */
 public class SelectableIUsPage extends ResolutionStatusPage implements IResolutionErrorReportingPage {
 
+	private static final String DIALOG_SETTINGS_SECTION = "SelectableIUsPage"; //$NON-NLS-1$
+
 	IUElementListRoot root;
 	Object[] initialSelections;
 	PlannerResolutionOperation resolvedOperation;
@@ -52,6 +54,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
 	protected Policy policy;
+	SashForm sashForm;
+	IUColumnConfig nameColumn, versionColumn;
 
 	public SelectableIUsPage(Policy policy, IUElementListRoot root, Object[] initialSelections, String profileId) {
 		super("IUSelectionPage", profileId); //$NON-NLS-1$
@@ -67,7 +71,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 */
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
-		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		sashForm = new SashForm(parent, SWT.VERTICAL);
 		FillLayout layout = new FillLayout();
 		sashForm.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
@@ -88,17 +92,19 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		table.setLayoutData(data);
 		table.setHeaderVisible(true);
 		activateCopy(table);
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-		for (int i = 0; i < columns.length; i++) {
-			TableColumn tc = new TableColumn(table, SWT.LEFT, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			if (columns[i].columnField == IUColumnConfig.COLUMN_SIZE) {
-				tc.setAlignment(SWT.RIGHT);
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
-			} else
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		}
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		getColumnWidthsFromSettings();
+
+		TableColumn tc = new TableColumn(table, SWT.LEFT, 0);
+		tc.setResizable(true);
+		tc.setText(nameColumn.columnTitle);
+		tc.setWidth(convertWidthInCharsToPixels(nameColumn.getWidth()));
+
+		tc = new TableColumn(table, SWT.LEFT, 1);
+		tc.setResizable(true);
+		tc.setText(versionColumn.columnTitle);
+		tc.setWidth(convertWidthInCharsToPixels(versionColumn.getWidth()));
 
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -134,7 +140,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		detailsArea = iuDetailsGroup.getDetailsArea();
 		updateStatus(root, resolvedOperation);
 		setControl(sashForm);
-		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
+		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
 	}
 
@@ -303,6 +309,29 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			initialSelections = elements;
 		else
 			tableViewer.setCheckedElements(elements);
+	}
 
+	protected String getDialogSettingsName() {
+		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
+	}
+
+	protected IUColumnConfig getNameColumn() {
+		return nameColumn;
+	}
+
+	protected int getNameColumnWidth() {
+		return tableViewer.getTable().getColumn(0).getWidth();
+	}
+
+	protected SashForm getSashForm() {
+		return sashForm;
+	}
+
+	protected IUColumnConfig getVersionColumn() {
+		return versionColumn;
+	}
+
+	protected int getVersionColumnWidth() {
+		return tableViewer.getTable().getColumn(1).getWidth();
 	}
 }

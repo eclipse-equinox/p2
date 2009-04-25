@@ -11,16 +11,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -33,6 +36,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
  *
  */
 public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
+	private static final String LIST_WEIGHT = "ListSashWeight"; //$NON-NLS-1$
+	private static final String DETAILS_WEIGHT = "DetailsSashWeight"; //$NON-NLS-1$
+	private static final String NAME_COLUMN_WIDTH = "NameColumnWidth"; //$NON-NLS-1$
+	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
 
 	protected String profileId;
 
@@ -153,5 +160,68 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		if (detail == null)
 			detail = ""; //$NON-NLS-1$
 		detailsGroup.getDetailsArea().setText(detail);
+	}
+
+	protected abstract String getDialogSettingsName();
+
+	protected abstract SashForm getSashForm();
+
+	protected abstract IUColumnConfig getNameColumn();
+
+	protected abstract IUColumnConfig getVersionColumn();
+
+	protected abstract int getNameColumnWidth();
+
+	protected abstract int getVersionColumnWidth();
+
+	protected int[] getSashWeights() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section != null) {
+			try {
+				int[] weights = new int[2];
+				if (section.get(LIST_WEIGHT) != null) {
+					weights[0] = section.getInt(LIST_WEIGHT);
+					if (section.get(DETAILS_WEIGHT) != null) {
+						weights[1] = section.getInt(DETAILS_WEIGHT);
+						return weights;
+					}
+				}
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+		return ILayoutConstants.IUS_TO_DETAILS_WEIGHTS;
+	}
+
+	protected void getColumnWidthsFromSettings() {
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section != null) {
+			try {
+				if (section.get(NAME_COLUMN_WIDTH) != null)
+					getNameColumn().columnWidth = section.getInt(NAME_COLUMN_WIDTH);
+				if (section.get(VERSION_COLUMN_WIDTH) != null)
+					getVersionColumn().columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+	}
+
+	public void saveBoundsRelatedSettings() {
+		if (getShell().isDisposed())
+			return;
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section == null) {
+			section = settings.addNewSection(getDialogSettingsName());
+		}
+		section.put(NAME_COLUMN_WIDTH, getNameColumnWidth());
+		section.put(VERSION_COLUMN_WIDTH, getVersionColumnWidth());
+
+		int[] weights = getSashForm().getWeights();
+		section.put(LIST_WEIGHT, weights[0]);
+		section.put(DETAILS_WEIGHT, weights[1]);
 	}
 }

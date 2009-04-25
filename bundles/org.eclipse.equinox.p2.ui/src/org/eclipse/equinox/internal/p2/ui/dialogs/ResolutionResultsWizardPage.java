@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
@@ -27,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModifica
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -42,6 +44,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
  *
  */
 public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
+
+	private static final String DIALOG_SETTINGS_SECTION = "ResolutionResultsPage"; //$NON-NLS-1$
+	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
+
 	protected IUElementListRoot input;
 	PlannerResolutionOperation resolvedOperation;
 	protected Policy policy;
@@ -51,6 +57,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
 	private IUDetailsGroup iuDetailsGroup;
+	IUColumnConfig nameColumn, idColumn, versionColumn;
+	SashForm sashForm;
 
 	protected ResolutionResultsWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation resolvedOperation) {
 		super("ResolutionPage", profileID); //$NON-NLS-1$
@@ -69,7 +77,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	 */
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
-		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		sashForm = new SashForm(parent, SWT.VERTICAL);
 		FillLayout layout = new FillLayout();
 		sashForm.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
@@ -127,7 +135,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 		updateStatus(input, resolvedOperation);
 		setControl(sashForm);
-		sashForm.setWeights(ILayoutConstants.IUS_TO_DETAILS_WEIGHTS);
+		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
 	}
 
@@ -172,11 +180,13 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {
-		// TODO we could consider making this settable via API, but for now we rely on
-		// a standard column config.  We intentionally use the IU's id as one of the columns, because
+		// We intentionally use the IU's id as one of the columns, because
 		// resolution errors are reported by ID.
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
-
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		getColumnWidthsFromSettings();
+		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
 	}
 
 	void setDrilldownElements(IUElementListRoot root, ProvisioningPlan plan) {
@@ -224,5 +234,57 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				treeViewer.refresh();
 		}
 		input = newRoot;
+	}
+
+	protected String getDialogSettingsName() {
+		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
+	}
+
+	protected IUColumnConfig getNameColumn() {
+		return nameColumn;
+	}
+
+	protected int getNameColumnWidth() {
+		return treeViewer.getTree().getColumn(0).getWidth();
+	}
+
+	protected SashForm getSashForm() {
+		return sashForm;
+	}
+
+	protected IUColumnConfig getVersionColumn() {
+		return versionColumn;
+	}
+
+	protected int getVersionColumnWidth() {
+		return treeViewer.getTree().getColumn(1).getWidth();
+	}
+
+	// TODO generalize the superclass iucolumn config handling so we don't need to override this
+	protected void getColumnWidthsFromSettings() {
+		super.getColumnWidthsFromSettings();
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section != null) {
+			try {
+				if (section.get(ID_COLUMN_WIDTH) != null)
+					idColumn.columnWidth = section.getInt(ID_COLUMN_WIDTH);
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+			}
+		}
+	}
+
+	// TODO generalize the superclass iucolumn config handling so we don't need to override this
+	public void saveBoundsRelatedSettings() {
+		super.saveBoundsRelatedSettings();
+		if (getShell().isDisposed())
+			return;
+		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(getDialogSettingsName());
+		if (section == null) {
+			section = settings.addNewSection(getDialogSettingsName());
+		}
+		section.put(ID_COLUMN_WIDTH, treeViewer.getTree().getColumn(2).getWidth());
 	}
 }

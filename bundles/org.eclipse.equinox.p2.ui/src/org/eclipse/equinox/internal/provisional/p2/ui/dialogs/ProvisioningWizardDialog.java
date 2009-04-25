@@ -12,8 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -25,12 +25,12 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class ProvisioningWizardDialog extends WizardDialog {
 	private static final String WIZARD_SETTINGS_SECTION = "P2Wizard"; //$NON-NLS-1$
+	private ProvisioningOperationWizard wizard;
 
-	public ProvisioningWizardDialog(Shell parent, IWizard wizard) {
+	public ProvisioningWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
 		super(parent, wizard);
-
+		this.wizard = wizard;
 		setShellStyle(getShellStyle() | SWT.RESIZE);
-		setMinimumPageSize(700, 500);
 	}
 
 	protected IDialogSettings getDialogBoundsSettings() {
@@ -40,5 +40,15 @@ public class ProvisioningWizardDialog extends WizardDialog {
 			section = settings.addNewSection(WIZARD_SETTINGS_SECTION);
 		}
 		return section;
+	}
+
+	/**
+	 * @see org.eclipse.jface.window.Window#close()
+	 */
+	public boolean close() {
+		if (getShell() != null && !getShell().isDisposed()) {
+			wizard.saveBoundsRelatedSettings();
+		}
+		return super.close();
 	}
 }

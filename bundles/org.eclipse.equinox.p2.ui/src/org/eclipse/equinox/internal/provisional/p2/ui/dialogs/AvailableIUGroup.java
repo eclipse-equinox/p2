@@ -51,9 +51,6 @@ import org.eclipse.ui.PlatformUI;
  */
 public class AvailableIUGroup extends StructuredIUGroup {
 
-	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
-	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 350;
-
 	/**
 	 * Show contents from all repositories
 	 */
@@ -217,7 +214,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
 			tc.setText(cols[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(cols[i].defaultColumnWidth));
+			tc.setWidth(cols[i].getWidth());
 		}
 	}
 
@@ -413,21 +410,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		BusyIndicator.showWhile(display, new Runnable() {
 			public void run() {
 				parent.setRedraw(false);
-				updateTreeColumns();
 				getCheckboxTreeViewer().setInput(getNewInput());
 				parent.layout(true);
 				parent.setRedraw(true);
 			}
 		});
-	}
-
-	void updateTreeColumns() {
-		if (getTree() == null || getTree().isDisposed())
-			return;
-		TreeColumn[] columns = getTree().getColumns();
-		if (columns.length > 0)
-			columns[0].setWidth(convertHorizontalDLUsToPixels(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO ? SITE_COLUMN_WIDTH_IN_DLUS : OTHER_COLUMN_WIDTH_IN_DLUS));
-
 	}
 
 	public Control getDefaultFocusControl() {
