@@ -123,10 +123,24 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		assertEquals(1, result.query(new InstallableUnitQuery("Action1"), new Collector(), null).size());
 	}
 
-	public void testMissingOptionalDependency() {
-
+	public void testValidateIU() {
+		Properties p = new Properties();
+		p.setProperty("osgi.os", "win32");
+		p.setProperty("osgi.ws", "win32");
+		p.setProperty("osgi.arch", "x86");
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, true);
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.swt.cocoa.macosx"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+		assertNull(slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()));
+		assertNotOK(slicer.getStatus());
 	}
 
 	public void testMissingNecessaryPiece() {
+		IRequiredCapability[] req = createRequiredCapabilities("B", "B", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IInstallableUnit iuA = createIU("A", DEFAULT_VERSION, null, req, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true);
+		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {iuA}), new Properties(), true, false, false, false);
+		IQueryable result = slicer.slice(new IInstallableUnit[] {iuA}, new NullProgressMonitor());
+		assertNotNull(result);
+		assertNotOK(slicer.getStatus());
 	}
 }
