@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Shell;
  *
  */
 public class ProvisioningWizardDialog extends WizardDialog {
-	private static final String WIZARD_SETTINGS_SECTION = "P2Wizard"; //$NON-NLS-1$
 	private ProvisioningOperationWizard wizard;
 
 	public ProvisioningWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
@@ -35,9 +34,9 @@ public class ProvisioningWizardDialog extends WizardDialog {
 
 	protected IDialogSettings getDialogBoundsSettings() {
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
-		IDialogSettings section = settings.getSection(WIZARD_SETTINGS_SECTION);
+		IDialogSettings section = settings.getSection(wizard.getDialogSettingsSectionName());
 		if (section == null) {
-			section = settings.addNewSection(WIZARD_SETTINGS_SECTION);
+			section = settings.addNewSection(wizard.getDialogSettingsSectionName());
 		}
 		return section;
 	}

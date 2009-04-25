@@ -210,7 +210,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	}
 
 	public void saveBoundsRelatedSettings() {
-		if (getShell().isDisposed())
+		if (!isCreated())
 			return;
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(getDialogSettingsName());

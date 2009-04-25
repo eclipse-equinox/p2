@@ -37,6 +37,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public abstract class ProvisioningOperationWizard extends Wizard {
 
+	private static final String WIZARD_SETTINGS_SECTION = "WizardSettings"; //$NON-NLS-1$
+
 	protected Policy policy;
 	protected String profileId;
 	protected IUElementListRoot root, originalRoot;
@@ -261,6 +263,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			return PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null);
 		}
 		return resolutionOperation.getResolutionResult().getSummaryStatus();
+	}
+
+	public String getDialogSettingsSectionName() {
+		return getClass().getName() + "." + WIZARD_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
 	public void saveBoundsRelatedSettings() {
