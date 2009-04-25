@@ -103,7 +103,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			TreeColumn tc = new TreeColumn(tree, SWT.LEFT, i);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertWidthInCharsToPixels(columns[i].defaultColumnWidth));
+			tc.setWidth(columns[i].getWidth());
 		}
 
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -182,9 +182,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	protected IUColumnConfig[] getColumnConfig() {
 		// We intentionally use the IU's id as one of the columns, because
 		// resolution errors are reported by ID.
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
-		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
 		getColumnWidthsFromSettings();
 		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
 	}

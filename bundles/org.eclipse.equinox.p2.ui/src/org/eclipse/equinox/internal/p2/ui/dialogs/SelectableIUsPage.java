@@ -99,12 +99,12 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		TableColumn tc = new TableColumn(table, SWT.LEFT, 0);
 		tc.setResizable(true);
 		tc.setText(nameColumn.columnTitle);
-		tc.setWidth(convertWidthInCharsToPixels(nameColumn.getWidth()));
+		tc.setWidth(nameColumn.getWidth());
 
 		tc = new TableColumn(table, SWT.LEFT, 1);
 		tc.setResizable(true);
 		tc.setText(versionColumn.columnTitle);
-		tc.setWidth(convertWidthInCharsToPixels(versionColumn.getWidth()));
+		tc.setWidth(versionColumn.getWidth());
 
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
