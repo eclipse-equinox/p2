@@ -2,12 +2,12 @@
 <?profile class='org.eclipse.equinox.internal.p2.engine.Profile' version='0.0.2'?>
 <profile id='SDKPatchingTest' timestamp='1228337371455'>
   <properties size='8'>
-    <property name='org.eclipse.equinox.p2.cache' value='/Applications/eclipse'/>
+    <property name='org.eclipse.equinox.p2.cache' value='/Applications/eclipses'/>
     <property name='org.eclipse.equinox.p2.flavor' value='tooling'/>
     <property name='org.eclipse.equinox.p2.roaming' value='true'/>
     <property name='org.eclipse.update.install.features' value='true'/>
     <property name='org.eclipse.equinox.p2.environments' value='osgi.ws=carbon,osgi.os=macosx,osgi.arch=ppc'/>
-    <property name='org.eclipse.equinox.p2.installFolder' value='/Applications/eclipse'/>
+    <property name='org.eclipse.equinox.p2.installFolder' value='/Applications/eclipses'/>
     <property name='eclipse.touchpoint.launcherName' value='eclipse'/>
     <property name='org.eclipse.equinox.p2.cache.extensions' value='file:/Applications/eclipse/.eclipseextension|file:/Applications/eclipse/configuration/org.eclipse.osgi/bundles/200/data/listener_1925729951/'/>
   </properties>
