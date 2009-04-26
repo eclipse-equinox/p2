@@ -82,8 +82,8 @@ public class Publisher {
 		boolean existing = manager.contains(location);
 
 		IMetadataRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
-		if (!existing && result != null)
-			manager.removeRepository(result.getLocation());
+		if (!existing && removeFromManager)
+			manager.removeRepository(location);
 		return result;
 	}
 
