@@ -33,12 +33,18 @@ public class Bug252682 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		profile = registry.getProfile("SDKProfile");
+		profile = registry.getProfile("Bug252682");
 		assertNotNull(profile);
-		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", new Version("1.0.100.v20081024")));
+		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", Version.createOSGi(1, 0, 100, "v20081024")));
+
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		assertOK("validate profile", plan.getStatus());
 	}
 
 	public void testInstallFeaturePatch() {
+		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new Collector(), new NullProgressMonitor()).iterator().next();
+		System.out.println(p2Feature);
 		Collector c = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.core.patch"), new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		ProvisioningContext ctx = new ProvisioningContext();
