@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -37,7 +35,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		profile = registry.getProfile("SDKProfile");
+		profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
 		MetadataFactory.InstallableUnitDescription newCommon = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.common"), new Collector(), new NullProgressMonitor()).iterator().next());

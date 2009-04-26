@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -38,7 +36,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		profile = registry.getProfile("SDKProfile");
+		profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
 		//create a patch to install a new version of jdt.launching

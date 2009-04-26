@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?profile class='org.eclipse.equinox.internal.p2.engine.Profile' version='0.0.2'?>
-<profile id='SDKProfile' timestamp='1233246815484'>
+<profile id='Bug262580' timestamp='1233246815484'>
   <properties size='10'>
     <property name='org.eclipse.equinox.p2.cache' value='C:\eclipse-3.5'/>
     <property name='org.eclipse.equinox.p2.flavor' value='tooling'/>

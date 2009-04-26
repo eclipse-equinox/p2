@@ -25,8 +25,8 @@ public class Bug262580 extends AbstractProvisioningTest {
 		copy("0.2", testData, tempFolder);
 
 		SimpleProfileRegistry testRregistry = new SimpleProfileRegistry(tempFolder, null, false);
-		IProfile currentProfile = testRregistry.getProfile("SDKProfile");
-		IProfile revertProfile = testRregistry.getProfile("SDKProfile", 1233157854281L);
+		IProfile currentProfile = testRregistry.getProfile("Bug262580");
+		IProfile revertProfile = testRregistry.getProfile("Bug262580", 1233157854281L);
 		assertNotNull(currentProfile);
 		assertNotNull(revertProfile);
 		IPlanner planner = createPlanner();
