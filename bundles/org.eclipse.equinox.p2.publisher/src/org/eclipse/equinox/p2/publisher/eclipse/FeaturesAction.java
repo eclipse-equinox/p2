@@ -242,9 +242,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 		processTouchpointAdvice(iu, null, publisherInfo);
 		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
-		// 		 of the feature?
-		// iu.setFilter(filter);
+
+		//Create a fake entry to reuse the logic to create the filters
+		FeatureEntry entry = new FeatureEntry("fake", "0.0.0", false);
+		entry.setEnvironment(feature.getOS(), feature.getWS(), feature.getArch(), feature.getNL());
+		String filter = getFilter(entry);
+		if (filter != null)
+			iu.setFilter(filter);
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
