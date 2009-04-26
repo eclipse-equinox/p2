@@ -50,7 +50,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
-		File simpleProfileFolder = new File(tempFolder, "SDKProfile.profile");
+		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
 		assertTrue(simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
@@ -67,13 +67,13 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		copy("0.2", testData, tempFolder);
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		IProfile profile = registry.getProfile("SDKProfile");
+		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
 		assertFalse(profileCollector.isEmpty());
 
-		File simpleProfileFolder = new File(tempFolder, "SDKProfile.profile");
+		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
 		assertTrue(simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
@@ -95,13 +95,13 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		copy("0.2", testData, tempFolder);
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		IProfile profile = registry.getProfile("SDKProfile");
+		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
 		assertFalse(profileCollector.isEmpty());
 
-		File simpleProfileFolder = new File(tempFolder, "SDKProfile.profile");
+		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
 		assertTrue(simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
@@ -132,13 +132,13 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);
-		IProfile profile = registry.getProfile("SDKProfile");
+		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
 		assertFalse(profileCollector.isEmpty());
 
-		File simpleProfileFolder = new File(profileRegistryFolder, "SDKProfile.profile");
+		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
 		assertTrue(simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
