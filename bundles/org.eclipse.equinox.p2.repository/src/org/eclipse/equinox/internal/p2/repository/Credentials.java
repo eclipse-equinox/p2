@@ -18,11 +18,11 @@ import java.net.URLEncoder;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Credentials handles AuthenticationInfo that can be used to established an
@@ -131,9 +131,7 @@ public class Credentials {
 			}
 		}
 		//need to prompt user for user name and password
-		ServiceTracker adminUITracker = new ServiceTracker(Activator.getContext(), IServiceUI.class.getName(), null);
-		adminUITracker.open();
-		IServiceUI adminUIService = (IServiceUI) adminUITracker.getService();
+		IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
 		AuthenticationInfo loginDetails = null;
 		if (adminUIService != null)
 			loginDetails = adminUIService.getUsernamePassword(host);
