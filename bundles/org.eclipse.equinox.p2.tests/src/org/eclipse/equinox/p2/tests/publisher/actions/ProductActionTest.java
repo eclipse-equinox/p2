@@ -20,8 +20,8 @@ import org.easymock.EasyMock;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -72,6 +72,57 @@ public class ProductActionTest extends ActionTest {
 		assertEquals("1.0", 1, ius.size());
 
 		//TODO assert branding was done correctly
+	}
+
+	public void testLicense() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productWithLicense.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(new String[] {"win32.win32.x86"});
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction.perform(info, publisherResult, null);
+		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, ius.size());
+		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		assertEquals("1.1", "http://www.example.com", iu.getLicense().getLocation().toString());
+		assertEquals("1.2", "This is the liCenSE.", iu.getLicense().getBody().trim());
+	}
+
+	public void testLicenseNoURL() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "licenseNoURL.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(new String[] {"win32.win32.x86"});
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction.perform(info, publisherResult, null);
+		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, ius.size());
+		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		assertEquals("1.1", "", iu.getLicense().getLocation().toString());
+		assertEquals("1.2", "This is the liCenSE.", iu.getLicense().getBody().trim());
+	}
+
+	public void testLicenseNoText() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "licenseNoText.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(new String[] {"win32.win32.x86"});
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction.perform(info, publisherResult, null);
+		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, ius.size());
+		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		assertEquals("1.1", "http://www.example.com", iu.getLicense().getLocation().toString());
+		assertEquals("1.2", "", iu.getLicense().getBody().trim());
+	}
+
+	public void testMissingLicense() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productWithNoLicense.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(new String[] {"win32.win32.x86"});
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction.perform(info, publisherResult, null);
+		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, ius.size());
+		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		assertNull("1.1", iu.getLicense());
 	}
 
 	/**

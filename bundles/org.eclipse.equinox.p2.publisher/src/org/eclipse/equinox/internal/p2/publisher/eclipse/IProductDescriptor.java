@@ -116,4 +116,14 @@ public interface IProductDescriptor {
 	 */
 	public File getLocation();
 
+	/**
+	 * Returns the license URL for this product
+	 */
+	public String getLicenseURL();
+
+	/**
+	 * Returns the license text for this product
+	 */
+	public String getLicenseText();
+
 }

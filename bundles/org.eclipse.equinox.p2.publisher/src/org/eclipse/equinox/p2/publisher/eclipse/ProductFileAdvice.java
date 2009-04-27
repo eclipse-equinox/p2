@@ -20,12 +20,13 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
 
 /**
  * Provide advice derived from the .product file.  The product can give some info on 
  * launching as well as the configuration (bundles, properties, ...)
  */
-public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
+public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice, IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
 
 	private final static String OSGI_SPLASH_PATH = "osgi.splashPath"; //$NON-NLS-1$
 	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
@@ -48,6 +49,14 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 			return new Version(b1.getVersion()).compareTo(new Version(b2.getVersion()));
 		}
 	};
+
+	protected String getId() {
+		return product.getId();
+	}
+
+	protected Version getVersion() {
+		return Version.parseVersion(product.getVersion());
+	}
 
 	/**
 	 * Constructs a new ProductFileAdvice for a given product file and a
@@ -132,6 +141,20 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 		return this.os;
 	}
 
+	/**
+	 * Returns the license text for this product
+	 */
+	public String getLicenseURL() {
+		return product.getLicenseURL();
+	}
+
+	/**
+	 * Returns the license URL for this product
+	 */
+	public String getLicenseText() {
+		return product.getLicenseText();
+	}
+
 	private ConfigData getConfigData() {
 		DataLoader loader = createDataLoader();
 		ConfigData result;
@@ -206,8 +229,11 @@ public class ProductFileAdvice extends AbstractAdvice implements IExecutableAdvi
 	}
 
 	protected boolean matchConfig(String spec, boolean includeDefault) {
-		String targetOS = AbstractPublisherAction.parseConfigSpec(spec)[1];
-		return os.equals(targetOS);
+		if (spec != null) {
+			String targetOS = AbstractPublisherAction.parseConfigSpec(spec)[1];
+			return os.equals(targetOS);
+		}
+		return true;
 	}
 
 	private DataLoader createDataLoader() {

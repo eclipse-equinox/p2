@@ -85,6 +85,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String EL_LAUNCHER_ARGS = "launcherArgs"; //$NON-NLS-1$
 	private static final String EL_SPLASH = "splash"; //$NON-NLS-1$
 	private static final String EL_CONFIGURATIONS = "configurations"; //$NON-NLS-1$
+	private static final String EL_LICENSE = "license"; //$NON-NLS-1$
+	private static final String EL_URL = "url"; //$NON-NLS-1$
+	private static final String EL_TEXT = "text"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -105,6 +108,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_VM_ARGS_WIN = 15;
 	private static final int STATE_CONFIG_INI = 16;
 	private static final int STATE_CONFIGURATIONS = 17;
+	private static final int STATE_LICENSE = 18;
+	private static final int STATE_LICENSE_URL = 19;
+	private static final int STATE_LICENSE_TEXT = 20;
 
 	private int state = STATE_START;
 
@@ -130,6 +136,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private File location;
 	private List bundleInfos;
 	private Properties properties;
+	private String licenseURL;
+	private String licenseText = null;
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -370,6 +378,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return normalize(args);
 	}
 
+	public String getLicenseText() {
+		return licenseText;
+	}
+
+	public String getLicenseURL() {
+		return licenseURL;
+	}
+
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
 		switch (state) {
 			case STATE_START :
@@ -396,6 +412,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
 				} else if (EL_CONFIGURATIONS.equals(localName)) {
 					state = STATE_CONFIGURATIONS;
+				} else if (EL_LICENSE.equals(localName)) {
+					state = STATE_LICENSE;
 				}
 				break;
 
@@ -447,6 +465,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_PLUGINS :
 				if (EL_PLUGIN.equals(localName)) {
 					processPlugin(attributes);
+				}
+				break;
+
+			case STATE_LICENSE :
+				if (EL_URL.equals(localName)) {
+					state = STATE_LICENSE_URL;
+				} else if (EL_TEXT.equals(localName)) {
+					licenseText = ""; //$NON-NLS-1$
+					state = STATE_LICENSE_TEXT;
 				}
 				break;
 
@@ -519,6 +546,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (EL_CONFIGURATIONS.equals(localName))
 					state = STATE_PRODUCT;
 				break;
+			case STATE_LICENSE :
+				if (EL_LICENSE.equals(localName))
+					state = STATE_PRODUCT;
+				break;
 
 			case STATE_PROGRAM_ARGS :
 			case STATE_PROGRAM_ARGS_LINUX :
@@ -531,6 +562,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_VM_ARGS_SOLARIS :
 			case STATE_VM_ARGS_WIN :
 				state = STATE_LAUNCHER_ARGS;
+				break;
+			case STATE_LICENSE_URL :
+			case STATE_LICENSE_TEXT :
+				state = STATE_LICENSE;
 				break;
 
 			case STATE_CONFIG_INI :
@@ -578,6 +613,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (platformConfigPath != null)
 					platformConfigPath += String.valueOf(ch, start, length);
 				break;
+			case STATE_LICENSE_URL :
+				licenseURL = String.valueOf(ch, start, length);
+				break;
+			case STATE_LICENSE_TEXT :
+				if (licenseText != null)
+					licenseText += String.valueOf(ch, start, length);
+				break;
+
 		}
 	}
 
@@ -698,4 +741,5 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void processMac(Attributes attributes) {
 		addIcon(OS_MACOSX, attributes.getValue(ATTRIBUTE_ICON));
 	}
+
 }

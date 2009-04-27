@@ -345,6 +345,7 @@ public class RootIUActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
 		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 	}

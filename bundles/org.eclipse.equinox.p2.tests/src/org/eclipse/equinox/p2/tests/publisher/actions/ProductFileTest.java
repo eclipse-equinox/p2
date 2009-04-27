@@ -196,4 +196,16 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.1", "programArg", programArguments);
 	}
 
+	public void testGetLicenseURL() throws Exception {
+		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
+		ProductFile product = new ProductFile(productWithLicense);
+		assertEquals("1.0", "http://www.example.com", product.getLicenseURL());
+	}
+
+	public void testGetLicenseText() throws Exception {
+		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
+		ProductFile product = new ProductFile(productWithLicense);
+		assertEquals("1.0", "This is the liCenSE.", product.getLicenseText().trim());
+	}
+
 }

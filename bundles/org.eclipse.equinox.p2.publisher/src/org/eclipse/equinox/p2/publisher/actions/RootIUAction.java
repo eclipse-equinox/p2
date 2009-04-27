@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.*;
@@ -49,6 +51,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		processCapabilityAdvice(descriptor, info);
 		processTouchpointAdvice(descriptor, null, info);
 		processInstallableUnitPropertiesAdvice(descriptor, info);
+		processLicense(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
@@ -62,6 +65,28 @@ public class RootIUAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 		// TODO why do we create a category here?
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
+	}
+
+	protected static void processLicense(InstallableUnitDescription iu, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, true, iu.getId(), iu.getVersion(), ILicenseAdvice.class);
+		if (advice.size() > 0) {
+			// Only process the first license we find for this IU.
+			ILicenseAdvice entry = (ILicenseAdvice) advice.iterator().next();
+			String licenseText = entry.getLicenseText() == null ? "" : entry.getLicenseText(); //$NON-NLS-1$
+			String licenseUrl = entry.getLicenseURL() == null ? "" : entry.getLicenseURL(); //$NON-NLS-1$
+			if (licenseText.length() > 0 || licenseUrl.length() > 0)
+				iu.setLicense(MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText));
+		}
+	}
+
+	private static URI toURIOrNull(String url) {
+		if (url == null)
+			return null;
+		try {
+			return URIUtil.fromString(url);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
 	/**
