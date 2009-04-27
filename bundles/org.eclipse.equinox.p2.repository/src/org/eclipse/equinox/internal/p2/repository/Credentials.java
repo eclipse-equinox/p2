@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
@@ -29,6 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
  * in a store, if none is provided the user is optionally prompted for the information. 
  */
 public class Credentials {
+	private static final Map savedAuthInfo = Collections.synchronizedMap(new HashMap());
+
 	/**
 	 * Returns the AuthenticationInfo for the given URI. This may prompt the
 	 * user for user name and password as required.
@@ -114,15 +117,15 @@ public class Credentials {
 			throw RepositoryStatusHelper.internalError(e);
 		}
 		if (!prompt) {
-			if (prefNode == null)
-				return null;
 			try {
-				String username = prefNode.get(IRepository.PROP_USERNAME, null);
-				String password = prefNode.get(IRepository.PROP_PASSWORD, null);
-				// if we don't have stored connection data just return a null auth info
-				if (username == null || password == null)
-					return null;
-				return new IServiceUI.AuthenticationInfo(username, password, true);
+				if (prefNode != null) {
+					String username = prefNode.get(IRepository.PROP_USERNAME, null);
+					String password = prefNode.get(IRepository.PROP_PASSWORD, null);
+					// if we don't have stored connection data just return a null auth info
+					if (username != null && password != null)
+						return new IServiceUI.AuthenticationInfo(username, password, true);
+				}
+				return restoreFromMemory(nodeName);
 			} catch (StorageException e) {
 				throw RepositoryStatusHelper.internalError(e);
 			}
@@ -150,8 +153,25 @@ public class Credentials {
 			} catch (IOException e) {
 				throw RepositoryStatusHelper.internalError(e);
 			}
+		} else {
+			saveInMemory(nodeName, loginDetails);
 		}
 		return loginDetails;
+	}
+
+	/**
+	 * Returns authentication details stored in memory for the given node name,
+	 * or <code>null</code> if no information is stored.
+	 */
+	private static AuthenticationInfo restoreFromMemory(String nodeName) {
+		return (AuthenticationInfo) savedAuthInfo.get(nodeName);
+	}
+
+	/**
+	 * Saves authentication details in memory so user is only prompted once per session
+	 */
+	private static void saveInMemory(String nodeName, AuthenticationInfo loginDetails) {
+		savedAuthInfo.put(nodeName, loginDetails);
 	}
 
 }
