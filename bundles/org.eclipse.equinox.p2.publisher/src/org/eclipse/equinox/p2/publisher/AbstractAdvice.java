@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,8 +8,6 @@
  *   Code 9 - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
-
-
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
@@ -21,6 +19,8 @@ public class AbstractAdvice implements IPublisherAdvice {
 	}
 
 	protected boolean matchVersion(Version version) {
+		if (version == null)
+			return true;
 		Version adviceVersion = getVersion();
 		if (adviceVersion != null)
 			return version.equals(adviceVersion);
@@ -39,6 +39,8 @@ public class AbstractAdvice implements IPublisherAdvice {
 	}
 
 	protected boolean matchId(String id) {
+		if (id == null)
+			return true;
 		String adviceId = getId();
 		return adviceId == null ? true : adviceId.equals(id);
 	}
