@@ -188,7 +188,7 @@ public class MirrorApplication extends AbstractApplication {
 			slicingOptions = new SlicingOptions();
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
 		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
-		if (slicer.getStatus().getSeverity() != IStatus.OK) {
+		if (slicer.getStatus().getSeverity() != IStatus.OK && mirrorLog != null) {
 			mirrorLog.log(slicer.getStatus());
 		}
 		if (slice == null) {
