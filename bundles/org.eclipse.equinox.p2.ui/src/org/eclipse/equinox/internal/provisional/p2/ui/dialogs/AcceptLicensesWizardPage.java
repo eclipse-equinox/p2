@@ -80,7 +80,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			sashForm = new SashForm(parent, SWT.HORIZONTAL);
 			sashForm.setLayout(new GridLayout());
 			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-			sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
+			sashForm.setLayoutData(gd);
 
 			createIUSection(sashForm);
 			createLicenseSection(sashForm, false);
