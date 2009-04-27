@@ -1,0 +1,41 @@
+<html>
+<body>
+<h1>Welcome to the p2 test server</h1>
+<p>You can access all files under the "webfiles" folder in this bundle via either a "public" or "private"
+pseudoroot. Try the public link <a href="http://localhost:8080/public/index.html">here</a></p>
+<p>To access using a login, password, you simply use the pseudoroot "/private", and you will be asked to
+log in. The credentials are: user: <b>Aladdin</b>, password: <b>open sesame</b>. Try it
+<a href="http://localhost:8080/private/index.html">here</a></p>
+<p>The following real content is registered:</p>
+<ul>
+<li>/proxy/private/ - goes to http://http://download.eclipse.org/eclipse/updates/3.4, but requires authentication.</li>
+<li>/proxy/never/ - goes to http://http://download.eclipse.org/eclipse/updates/3.4, but always fail authentication.</li>
+<li>/proxy/flipFlop/ - goes to http://http://download.eclipse.org/eclipse/updates/3.4, but fails authentication every second attempt.</li>
+<li>/proxy/truncated - goes to updates/3.4, but truncates all files</li>
+<li>/proxy/molested - goes to updates/3.4, but generates gibberish for all files</li>
+<li>/proxy/decelerate - goes to updates/3.4, but delivers files in very small delayed packets - delay increases.</li>
+<li>
+</ul>
+<p>The content listed below is also available and can be accessed under:
+<ul><li>/public</li>
+<li>/private</li>
+<li>/never</li>
+<li>/flipFlop</li>
+<li>/truncated</li>
+<li>/molested</li>
+</ul>
+<p>Content</p>
+<ul>
+<li>.../ar/simple - a simple artifact repo with a feature and a plugin, uses artifact.xml</li>
+<li>.../mdr/composite - a composite meta data repository - consisting of two mdrs</li>
+<li>.../mdr/composite/one - a regular meta data repostory, uses content.xml</li>
+<li>.../updatesite - a classic update site with site.xml, features and plugins subdirectory</li>
+</ul>
+<p>The following two URL's are also available</p>
+<ul>
+<li>/timeout/ - a black hole - sleeps an our and produces no response.</li>
+<li>/status/nnn/xxxxx - returns the status-code "nnn", and text/html
+content, The xxxxx part is ignored. e.g. http://localhost:8080/status/500/ignored/part</li>
+</ul>
+</body>
+</html>
