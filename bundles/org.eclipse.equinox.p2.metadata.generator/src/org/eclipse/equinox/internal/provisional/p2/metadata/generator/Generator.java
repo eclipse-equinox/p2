@@ -541,7 +541,7 @@ public class Generator {
 	/** 
 	 * @deprecated moved to ConfigCUsAction
 	 */
-	protected void generateBundleConfigIUs(BundleInfo[] infos, GeneratorResult result, String launcherConfig) {
+	protected void generateBundleConfigIUs(BundleInfo[] infos, GeneratorResult result, String launcherConfig, int defaultStartLevel) {
 		if (infos == null)
 			return;
 
@@ -573,7 +573,7 @@ public class Generator {
 				bundle.setMarkedAsStarted(false);
 				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);"); //$NON-NLS-1$
-			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
+			} else if ((bundle.getStartLevel() == BundleInfo.NO_LEVEL || bundle.getStartLevel() == defaultStartLevel) && !bundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;
 			}
@@ -610,7 +610,7 @@ public class Generator {
 			storeConfigData(result);
 		} else if (data != null) {
 			// generation against an eclipse install (config.ini + bundles)
-			generateBundleConfigIUs(data.getBundles(), result, info.getLauncherConfig());
+			generateBundleConfigIUs(data.getBundles(), result, info.getLauncherConfig(), data.getInitialBundleStartLevel());
 		} else if (result.configData.size() > 0 && generateRootIU) {
 			// generation from remembered config.ini's
 			// we have N platforms, generate a CU for each
@@ -618,7 +618,7 @@ public class Generator {
 			for (Iterator iterator = result.configData.keySet().iterator(); iterator.hasNext();) {
 				String launcherConfig = (String) iterator.next();
 				data = (ConfigData) result.configData.get(launcherConfig);
-				generateBundleConfigIUs(data.getBundles(), result, launcherConfig);
+				generateBundleConfigIUs(data.getBundles(), result, launcherConfig, data.getInitialBundleStartLevel());
 			}
 		}
 
