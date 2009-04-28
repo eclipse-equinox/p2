@@ -120,6 +120,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		});
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH + ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 		iuViewer.getControl().setLayoutData(gd);
 	}
 
@@ -167,11 +168,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_LicenseTextLabel);
-		licenseTextBox = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.WRAP | SWT.READ_ONLY);
+		licenseTextBox = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
 		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		initializeDialogUnits(licenseTextBox);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-
+		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 		licenseTextBox.setLayoutData(gd);
 
 		createLicenseAcceptSection(composite, !singleLicense);
