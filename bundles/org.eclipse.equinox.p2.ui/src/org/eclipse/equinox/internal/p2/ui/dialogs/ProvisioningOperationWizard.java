@@ -161,7 +161,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	private boolean shouldRecomputePlan(ISelectableIUsPage page) {
 		boolean previouslyWaiting = waitingForOtherJobs;
-		boolean previouslyCanceled = resolutionPage != null && getCurrentStatus().getSeverity() == IStatus.CANCEL;
+		boolean previouslyCanceled = getCurrentStatus().getSeverity() == IStatus.CANCEL;
 		waitingForOtherJobs = ProvisioningOperationRunner.hasScheduledOperationsFor(profileId);
 		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || pageSelectionsHaveChanged(page) || provisioningContextChanged();
 	}
