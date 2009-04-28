@@ -88,7 +88,9 @@ public class EngineSession {
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
 			Touchpoint touchpoint = (Touchpoint) iterator.next();
 			try {
-				status.add(touchpoint.commit(profile));
+				IStatus result = touchpoint.commit(profile);
+				if (!result.isOK())
+					status.add(result);
 			} catch (RuntimeException e) {
 				// "touchpoint.commit" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -118,7 +120,9 @@ public class EngineSession {
 
 		if (currentPhaseActive && currentPhase != null) {
 			try {
-				status.add(rollBackPhase(currentPhase, currentActionRecords));
+				IStatus result = rollBackPhase(currentPhase, currentActionRecords);
+				if (!result.isOK())
+					status.add(result);
 			} catch (RuntimeException e) {
 				// "phase.undo" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -138,7 +142,9 @@ public class EngineSession {
 			Phase phase = (Phase) pair[0];
 			List actionRecords = (List) pair[1];
 			try {
-				status.add(rollBackPhase(phase, actionRecords));
+				final IStatus result = rollBackPhase(phase, actionRecords);
+				if (!result.isOK())
+					status.add(result);
 			} catch (RuntimeException e) {
 				// "phase.undo" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -151,16 +157,18 @@ public class EngineSession {
 
 		phaseActionRecordsPairs.clear();
 		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = (Touchpoint) iterator.next();
 			try {
-				Touchpoint touchpoint = (Touchpoint) iterator.next();
-				status.add(touchpoint.rollback(profile));
+				IStatus result = touchpoint.rollback(profile);
+				if (!result.isOK())
+					status.add(result);
 			} catch (RuntimeException e) {
 				// "touchpoint.rollback" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
-				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, Touchpoint.class.getName()), e));
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, touchpoint.getClass().getName()), e));
 			} catch (LinkageError e) {
 				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
-				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, Touchpoint.class.getName()), e));
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, touchpoint.getClass().getName()), e));
 			}
 		}
 
