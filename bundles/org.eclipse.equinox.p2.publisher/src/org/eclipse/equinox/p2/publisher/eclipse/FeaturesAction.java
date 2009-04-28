@@ -239,12 +239,12 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
+		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		processTouchpointAdvice(iu, null, publisherInfo);
 		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 
 		//Create a fake entry to reuse the logic to create the filters
-		FeatureEntry entry = new FeatureEntry("fake", "0.0.0", false);
+		FeatureEntry entry = new FeatureEntry("fake", "0.0.0", false); //$NON-NLS-1$ //$NON-NLS-2$
 		entry.setEnvironment(feature.getOS(), feature.getWS(), feature.getArch(), feature.getNL());
 		String filter = getFilter(entry);
 		if (filter != null)
