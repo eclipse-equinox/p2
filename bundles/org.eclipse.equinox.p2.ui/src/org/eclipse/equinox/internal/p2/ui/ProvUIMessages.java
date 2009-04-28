@@ -238,6 +238,8 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_WarningTitle;
 	public static String ProvUIActivator_ExceptionDuringProfileChange;
 	public static String ProvUILicenseManager_ParsingError;
+	public static String ProvUIMessages_NotAccepted_EnterFor_0;
+	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;
 	public static String OptionalPlatformRestartMessage;
 	public static String IUViewQueryContext_NoCategorizedItemsDescription;
 	public static String QueriedElementWrapper_NoCategorizedItemsExplanation;

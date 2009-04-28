@@ -134,7 +134,8 @@ public class Credentials {
 		IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
 		AuthenticationInfo loginDetails = null;
 		if (adminUIService != null)
-			loginDetails = adminUIService.getUsernamePassword(host);
+			if (lastUsed != null)
+				loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 		//null result means user canceled password dialog
 		if (loginDetails == null)
 			throw new UserCancelledException();
@@ -152,6 +153,16 @@ public class Credentials {
 				throw RepositoryStatusHelper.internalError(e);
 			}
 		} else {
+			// if persisted earlier - the preference should be removed
+			if (securePreferences.nodeExists(nodeName)) {
+				prefNode = securePreferences.node(nodeName);
+				prefNode.removeNode();
+				try {
+					prefNode.flush();
+				} catch (IOException e) {
+					throw RepositoryStatusHelper.internalError(e);
+				}
+			}
 			saveInMemory(nodeName, loginDetails);
 		}
 		return loginDetails;

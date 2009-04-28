@@ -52,6 +52,16 @@ public interface IServiceUI {
 	public AuthenticationInfo getUsernamePassword(String location);
 
 	/**
+	 * Opens a UI prompt for authentication details when cached or remembered details
+	 * where not accepted.
+	 * 
+	 * @param location  the location requiring login details
+	 * @param previousInfo - the previously used authentication details - may not be null.
+	 * @return The authentication result
+	 */
+	public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo);
+
+	/**
 	 * Displays a list of certificates to the user.
 	 *  
 	 * @param certificates - a list of certificates to display to the user

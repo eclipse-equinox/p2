@@ -35,6 +35,11 @@ public class UserValidationDialog extends MessageDialog {
 		super(parentShell, titleMessage, titleImage, message, MessageDialog.QUESTION, buttonLabels, 0);
 	}
 
+	public UserValidationDialog(AuthenticationInfo lastUsed, Shell parentShell, String titleMessage, Image titleImage, String message, String[] buttonLabels) {
+		super(parentShell, titleMessage, titleImage, message, MessageDialog.WARNING, buttonLabels, 0);
+		result = lastUsed;
+	}
+
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 
@@ -52,6 +57,7 @@ public class UserValidationDialog extends MessageDialog {
 		layoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		layoutData.horizontalAlignment = SWT.END;
 		username.setLayoutData(layoutData);
+		username.setText(getUserName());
 
 		label = new Label(fieldContainer, SWT.NONE);
 		label.setText(ProvUIMessages.UserValidationDialog_PasswordLabel);
@@ -60,6 +66,7 @@ public class UserValidationDialog extends MessageDialog {
 		layoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		layoutData.horizontalAlignment = SWT.END;
 		password.setLayoutData(layoutData);
+		password.setText(getPassword());
 
 		Composite checkboxContainer = new Composite(composite, SWT.NONE);
 		layout = new GridLayout();
@@ -69,6 +76,7 @@ public class UserValidationDialog extends MessageDialog {
 		checkboxContainer.setLayoutData(layoutData);
 		saveButton = new Button(checkboxContainer, SWT.CHECK);
 		saveButton.setText(ProvUIMessages.UserValidationDialog_SavePasswordButton);
+		saveButton.setSelection(saveResult());
 
 		username.setFocus();
 
@@ -87,5 +95,17 @@ public class UserValidationDialog extends MessageDialog {
 	 */
 	public AuthenticationInfo getResult() {
 		return result;
+	}
+
+	private String getUserName() {
+		return result != null ? result.getUserName() : ""; //$NON-NLS-1$
+	}
+
+	private String getPassword() {
+		return result != null ? result.getPassword() : ""; //$NON-NLS-1$
+	}
+
+	private boolean saveResult() {
+		return result != null ? result.saveResult() : false;
 	}
 }

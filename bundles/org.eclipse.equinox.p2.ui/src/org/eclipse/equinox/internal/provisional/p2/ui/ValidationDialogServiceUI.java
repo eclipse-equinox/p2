@@ -89,4 +89,28 @@ public class ValidationDialogServiceUI implements IServiceUI {
 		}
 		return children;
 	}
+
+	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
+
+		final AuthenticationInfo[] result = new AuthenticationInfo[1];
+		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+
+			public void run() {
+				Shell shell = ProvUI.getDefaultParentShell();
+				String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
+				String message = null;
+				if (previousInfo.saveResult())
+					message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
+				else
+					message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
+
+				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
+				if (dialog.open() == Window.OK) {
+					result[0] = dialog.getResult();
+				}
+			}
+
+		});
+		return result[0];
+	}
 }
