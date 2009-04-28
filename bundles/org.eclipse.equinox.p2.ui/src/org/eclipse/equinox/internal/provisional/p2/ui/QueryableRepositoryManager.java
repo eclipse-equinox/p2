@@ -120,8 +120,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	protected void handleLoadFailure(ProvisionException e, URI problemRepo) {
 		int code = e.getStatus().getCode();
 		// special handling when the repo is bad.  We don't want to continually report it
-		// TODO: consider alternative approach when it was not possible to authenticate
-		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION || code == ProvisionException.REPOSITORY_FAILED_AUTHENTICATION) {
+		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
 			// If we thought we had loaded it, get rid of the reference
 			loaded.remove(problemRepo);
 			// If we've already reported a URL is not found, don't report again.

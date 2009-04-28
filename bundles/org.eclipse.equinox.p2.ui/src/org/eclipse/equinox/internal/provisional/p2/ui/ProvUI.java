@@ -84,7 +84,7 @@ public class ProvUI {
 		int code = status.getCode();
 		// Special handling when the location is bad (not found, etc.) vs. a failure
 		// associated with a known repo.
-		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION || code == ProvisionException.REPOSITORY_FAILED_AUTHENTICATION) {
+		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
 			if (!hasNotFoundStatusBeenReported(location)) {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
