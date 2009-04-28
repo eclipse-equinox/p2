@@ -64,6 +64,9 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
 					IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));
 					if (!status.isOK()) {
+						// not meaningful to continue on an authentication exception (user will likely just be prompted again)
+						if (status.getCode() == ProvisionException.REPOSITORY_FAILED_AUTHENTICATION)
+							throw new ProvisionException(status);
 						// retry uncompressed
 						compress = false;
 						status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress), artifacts, sub.newChild(100));

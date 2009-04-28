@@ -87,6 +87,7 @@ public class CacheManager {
 	 * @throws AuthenticationFailedException if jar not available and xml causes authentication fail
 	 * @throws IOException on general IO errors
 	 * @throws ProvisionException on any error (e.g. user cancellation, unknown host, malformed address, connection refused, etc.)
+	 * @throws OperationCanceledException - if user canceled
 	 */
 	public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException, ProvisionException {
 
@@ -121,6 +122,10 @@ public class CacheManager {
 				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
+			} catch (AuthenticationFailedException e) {
+				// it is not meaningful to continue - the credentials are for the server
+				// do not pass the exception - it gives no additional meaningful user information
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), null));
 			} catch (Exception e) {
 				// not ideal, just skip the jar on error, and try the xml instead - report errors for
 				// the xml.
@@ -151,7 +156,8 @@ public class CacheManager {
 				} catch (FileNotFoundException e) {
 					throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Neither_0_nor_1_found, jarLocation, xmlLocation));
 				} catch (AuthenticationFailedException e) {
-					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), e));
+					// do not pass the exception, it provides no additional meaningful user information
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), null));
 				} catch (CoreException e) {
 					IStatus status = e.getStatus();
 					if (status == null)

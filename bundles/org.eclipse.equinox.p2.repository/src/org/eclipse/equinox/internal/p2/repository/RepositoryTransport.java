@@ -58,7 +58,7 @@ public class RepositoryTransport extends Transport {
 
 		boolean promptUser = false;
 		AuthenticationInfo loginDetails = null;
-		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
+		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
@@ -127,7 +127,7 @@ public class RepositoryTransport extends Transport {
 
 		boolean promptUser = false;
 		AuthenticationInfo loginDetails = null;
-		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
+		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
@@ -176,16 +176,18 @@ public class RepositoryTransport extends Transport {
 	 * @throws OperationCanceledException if the operation was canceled by the user.
 	 * @return last modified date (possibly 0)
 	 */
-	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws UserCancelledException, CoreException, FileNotFoundException, AuthenticationFailedException {
+	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
 		AuthenticationInfo loginDetails = null;
-		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i++) {
+		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
 				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
 				// get the remote info
 				FileInfoReader reader = new FileInfoReader(context);
 				return reader.getLastModified(toDownload, monitor);
+			} catch (UserCancelledException e) {
+				throw new OperationCanceledException();
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a user
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
