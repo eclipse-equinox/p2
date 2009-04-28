@@ -32,7 +32,6 @@ public class Messages extends NLS {
 	public static String mirroring;
 	public static String repoMan_internalError;
 	public static String repoFailedWrite;
-	public static String repoReadOnly;
 
 	public static String sar_downloading;
 	public static String sar_downloadJobName;
