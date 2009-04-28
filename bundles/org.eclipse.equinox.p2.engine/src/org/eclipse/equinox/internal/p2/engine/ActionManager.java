@@ -46,7 +46,7 @@ public class ActionManager implements IRegistryChangeListener {
 	public String getTouchpointQualifiedActionId(String actionId, ITouchpointType type) {
 		if (actionId.indexOf('.') == -1) {
 			if (type == null || type == ITouchpointType.NONE)
-				return null;
+				return actionId;
 
 			Touchpoint touchpoint = touchpointManager.getTouchpoint(type);
 			if (touchpoint == null)
