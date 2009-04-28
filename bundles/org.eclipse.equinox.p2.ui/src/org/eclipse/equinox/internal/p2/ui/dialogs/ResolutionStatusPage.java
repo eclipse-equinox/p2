@@ -146,6 +146,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				detail = resolvedOperation.getResolutionResult().getSummaryReport();
 				detailsGroup.enablePropertyLink(false);
 				detailsGroup.getDetailsArea().setText(detail);
+				return;
 			}
 
 			// The overall status is not an error, so we may as well just show info about this iu rather than everything.
