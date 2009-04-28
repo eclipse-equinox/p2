@@ -113,7 +113,7 @@ public class ConfigData {
 	}
 
 	public boolean removeBundle(BundleInfo bundleInfo) {
-		if (bundleInfo == null || bundleInfo.getSymbolicName() == null || bundleInfo.getVersion() == null)
+		if (bundleInfo == null)
 			throw new IllegalArgumentException("Bundle info can't be null:" + bundleInfo); //$NON-NLS-1$
 		return bundlesList.remove(bundleInfo);
 	}
