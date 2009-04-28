@@ -30,7 +30,7 @@ public class MkdirAction extends ProvisioningAction {
 		if (dir.isDirectory())
 			return Status.OK_STATUS;
 		// mkdir could have failed because of permissions, or because of an existing file
-		return Util.createError(NLS.bind(Messages.mkdir_failed, ActionConstants.PARM_PATH, ID));
+		return Util.createError(NLS.bind(Messages.mkdir_failed, path, ID));
 	}
 
 	public IStatus undo(Map parameters) {

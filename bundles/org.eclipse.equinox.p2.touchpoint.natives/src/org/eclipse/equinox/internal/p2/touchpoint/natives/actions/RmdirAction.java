@@ -29,12 +29,12 @@ public class RmdirAction extends ProvisioningAction {
 
 		File dir = new File(path);
 		if (!dir.isDirectory())
-			return Util.createError(NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID));
+			return Util.createError(NLS.bind(Messages.rmdir_failed, path, ID));
 		if (store != null)
 			try {
 				store.backupDirectory(dir);
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID), e);
+				return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, path, ID), e);
 			} catch (IllegalArgumentException e) {
 				// Ignore the delete/backup if the directory was not empty as this preserves the
 				// the original semantics.

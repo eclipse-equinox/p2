@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
-
 import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -40,7 +38,7 @@ public class LinkAction extends ProvisioningAction {
 		try {
 			ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue(), store);
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.link_failed, ActionConstants.PARM_LINK_NAME, ID), e);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.link_failed, linkName, ID), e);
 		}
 		return Status.OK_STATUS;
 	}
