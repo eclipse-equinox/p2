@@ -45,4 +45,5 @@ public class ActionConstants {
 	public static final String PARM_REPOSITORY_TYPE = "type"; //$NON-NLS-1$
 	public static final String PARM_REPOSITORY_ENABLEMENT = "enabled"; //$NON-NLS-1$
 	public static final String PARM_REPOSITORY_NICKNAME = "name"; //$NON-NLS-1$
+	public static final Object PARM_OPTIONS = "options"; //$NON-NLS-1$
 }

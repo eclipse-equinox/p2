@@ -22,10 +22,12 @@ public class Messages extends NLS {
 	public static String failed_bundleinfo;
 	public static String cannot_configure_source_bundle;
 	public static String error_parsing_startlevel;
+	public static String artifact_not_directory;
 	public static String no_bundle_pool;
 	public static String error_processing_vmargs;
 	public static String invalid_byte_format;
 	public static String unable_to_open_file;
+	public static String action_0_failed_file_1_doesNotExist;
 
 	static {
 		// load message values from bundle file and assign to fields below

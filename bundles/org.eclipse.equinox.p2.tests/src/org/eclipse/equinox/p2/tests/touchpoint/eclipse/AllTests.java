@@ -25,6 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AddRepositoryActionTest.class);
 		suite.addTestSuite(AddSourceBundleActionTest.class);
 		suite.addTestSuite(CheckTrustActionTest.class);
+		suite.addTestSuite(ChmodActionTest.class);
 		suite.addTestSuite(CollectActionTest.class);
 		suite.addTestSuite(InstallBundleActionTest.class);
 		suite.addTestSuite(InstallFeatureActionTest.class);
