@@ -134,8 +134,7 @@ public class Credentials {
 		IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
 		AuthenticationInfo loginDetails = null;
 		if (adminUIService != null)
-			if (lastUsed != null)
-				loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
+			loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 		//null result means user canceled password dialog
 		if (loginDetails == null)
 			throw new UserCancelledException();
