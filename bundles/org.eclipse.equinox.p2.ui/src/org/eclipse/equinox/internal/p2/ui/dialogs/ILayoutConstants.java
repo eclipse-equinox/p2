@@ -21,6 +21,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
  */
 public interface ILayoutConstants {
 	public static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
+	public static final int MINIMUM_DESCRIPTION_HEIGHT = 1;
 	public static final int DEFAULT_SITEDETAILS_HEIGHT = 2;
 	public static final int DEFAULT_COLUMN_WIDTH = 40;
 	public static final int DEFAULT_SMALL_COLUMN_WIDTH = 10;

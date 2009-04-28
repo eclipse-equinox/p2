@@ -72,6 +72,7 @@ public class IUDetailsGroup {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.verticalIndent = Dialog.convertVerticalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_SPACING);
 		gd.heightHint = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
+		gd.minimumHeight = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.MINIMUM_DESCRIPTION_HEIGHT);
 		gd.widthHint = widthHint;
 		if (scrollable)
 			detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
