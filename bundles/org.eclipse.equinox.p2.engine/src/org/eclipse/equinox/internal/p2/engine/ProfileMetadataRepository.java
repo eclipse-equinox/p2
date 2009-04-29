@@ -20,7 +20,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
 
-	private static final String DEFAULT_ARTIFACT_REPO_DIRECTORY = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
+	private static final String DEFAULT_ARTIFACT_REPO_DIRECTORY = "org.eclipse.equinox.p2.core/cache"; //$NON-NLS-1$
 	private static final String ARTIFACTS_XML = "artifacts.xml"; //$NON-NLS-1$
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static final String DOT_PROFILE = ".profile"; //$NON-NLS-1$
