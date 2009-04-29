@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -27,13 +28,14 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	private List childrenToAdd = new ArrayList();
 	private List childrenToRemove = new ArrayList();
 	private boolean failOnExists = false;
+	private String comparatorID = null;
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
 			initializeRepos(new NullProgressMonitor());
 			// load repository
 			ICompositeRepository metadataRepo = (ICompositeRepository) destinationMetadataRepository;
-			ICompositeRepository artifactRepo = (ICompositeRepository) destinationArtifactRepository;
+			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
 			// Remove children from the Composite Repositories
 			for (Iterator iterator = childrenToRemove.iterator(); iterator.hasNext();) {
@@ -52,6 +54,10 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 				if (child.isMetadata() && metadataRepo != null)
 					metadataRepo.addChild(child.getRepoLocation());
 			}
+
+			if (comparatorID != null)
+				if (!artifactRepo.validate(comparatorID))
+					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CompositeRepositoryApplication_failedComparator, comparatorID));
 			return Status.OK_STATUS;
 		} finally {
 			finalizeRepositories();
@@ -169,5 +175,9 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		RepositoryHelper.validDestinationRepository(repository);
 		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 			repository.setProperty(IRepository.PROP_COMPRESSED, String.valueOf(true));
+	}
+
+	public void setComparator(String value) {
+		comparatorID = value;
 	}
 }

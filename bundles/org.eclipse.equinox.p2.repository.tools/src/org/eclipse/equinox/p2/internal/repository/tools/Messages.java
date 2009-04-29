@@ -38,8 +38,13 @@ public class Messages extends NLS {
 	public static String unable_to_start_exemplarysetup;
 	public static String unknown_repository_type;
 
+	public static String MirrorApplication_artifactDestinationNoSource;
+	public static String MirrorApplication_metadataDestinationNoSource;
+	public static String MirrorApplication_missingIU;
+	public static String MirrorApplication_missingSourceForIUs;
 	public static String MirrorApplication_no_IUs;
 	public static String MirrorApplication_set_source_repositories;
+	public static String MirrorApplication_validateAndMirrorProblems;
 
 	public static String ProcessRepo_location_not_url;
 	public static String ProcessRepo_must_be_local;
@@ -47,6 +52,9 @@ public class Messages extends NLS {
 	public static String SlicingOption_invalid_platform;
 	public static String exception_invalidDestination;
 	public static String exception_invalidSource;
+	public static String CompositeRepositoryApplication_failedComparator;
+	public static String Repo2RunnableTask_errorTransforming;
+	public static String SlicingOption_invalidFilterFormat;
 
 	static {
 		// initialize resource bundles

@@ -62,4 +62,8 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	public void setFailOnExists(boolean value) {
 		((CompositeRepositoryApplication) application).setFailOnExists(value);
 	}
+
+	public void setValidate(String value) {
+		((CompositeRepositoryApplication) application).setComparator(value);
+	}
 }

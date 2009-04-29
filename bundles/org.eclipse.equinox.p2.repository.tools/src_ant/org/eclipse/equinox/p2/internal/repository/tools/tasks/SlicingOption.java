@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import java.util.*;
+import java.util.Dictionary;
+import java.util.StringTokenizer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -56,8 +57,6 @@ public class SlicingOption extends Task {
 		if (tok.countTokens() != 3)
 			throw new BuildException(NLS.bind(Messages.SlicingOption_invalid_platform, platformFilter));
 		Dictionary filter = options.getFilter();
-		if (filter == null)
-			filter = new Properties();
 		filter.put("osgi.os", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.ws", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.arch", tok.nextToken().trim()); //$NON-NLS-1$
@@ -70,9 +69,22 @@ public class SlicingOption extends Task {
 
 	public void setIncludeFeatures(boolean includeFeatures) {
 		Dictionary filter = options.getFilter();
-		if (filter == null)
-			filter = new Properties();
 		filter.put("org.eclipse.update.install.features", String.valueOf(includeFeatures)); //$NON-NLS-1$
+		options.setFilter(filter);
+	}
+
+	public void setFilter(String filterString) {
+		if (filterString == null || filterString.trim().equals("")) //$NON-NLS-1$
+			return;
+		Dictionary filter = options.getFilter();
+		StringTokenizer tok = new StringTokenizer(filterString, ","); //$NON-NLS-1$
+		while (tok.hasMoreTokens()) {
+			String rule = tok.nextToken().trim();
+			int eqIndex = rule.indexOf('=');
+			if (eqIndex == -1)
+				throw new BuildException(NLS.bind(Messages.SlicingOption_invalidFilterFormat, rule));
+			filter.put(rule.substring(0, eqIndex), rule.substring(eqIndex + 1));
+		}
 		options.setFilter(filter);
 	}
 

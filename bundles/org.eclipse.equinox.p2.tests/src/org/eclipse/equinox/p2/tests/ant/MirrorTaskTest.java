@@ -137,9 +137,32 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	/*
+	 * Test what occurs with a missing IU
+	 */
+	public void testMirrorMissingIU() {
+		String id = "My_Missing_IU";
+		String version = "1.0.0";
+		String iu = "Installable Unit [ id=" + id + " version=" + version + " ]";
+
+		AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
+		mirror.addElement(createSourceElement(sourceRepo2, sourceRepo2));
+		mirror.addElement(createIUElement(id, version));
+		Exception exception = null;
+		try {
+			runAntTaskWithExceptions();
+		} catch (CoreException e) {
+			exception = e;
+		}
+		if (exception == null)
+			fail("No Exception was thrown");
+
+		assertEquals("Unexpected message", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.AbstractRepositoryTask_unableToFind, iu), rootCause(exception).getMessage());
+	}
+
+	/*
 	 * Test that the proper exception is thrown when no IU is provided
 	 */
-	public void testMirrorNoIUNoRepo() {
+	public void testMirrorMetadataDestinationWithoutSource() {
 		AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
 		mirror.addElement(createSourceElement(sourceRepo2, null));
 
@@ -151,9 +174,27 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		}
 		if (exception == null)
 			fail("No exception thrown");
-		if (!(rootCause(exception) instanceof ProvisionException) && !rootCause(exception).getMessage().contains("No IUs"))
+		if (!(rootCause(exception) instanceof ProvisionException && rootCause(exception).getMessage().equals(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_metadataDestinationNoSource)))
 			fail("Exception is of an unexpected type or message", rootCause(exception));
+	}
 
+	/*
+	 * Test that the proper exception is thrown when no IU is provided
+	 */
+	public void testMirrorArtifactDestinationWithoutSource() {
+		AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
+		mirror.addElement(createSourceElement(null, sourceRepo2));
+
+		Exception exception = null;
+		try {
+			runAntTaskWithExceptions();
+		} catch (CoreException e) {
+			exception = e;
+		}
+		if (exception == null)
+			fail("No exception thrown");
+		if (!(rootCause(exception) instanceof ProvisionException) && rootCause(exception).getMessage().contains(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_artifactDestinationNoSource))
+			fail("Exception is of an unexpected type or message", rootCause(exception));
 	}
 
 	/*
@@ -201,6 +242,33 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	/*
+	 * Test the behavior when a valid path is provided as source, but no repository is present at the location
+	 */
+	public void testMirrorWithNoRepositoryAtSource() {
+		URI location = getTempFolder().toURI();
+		try {
+			AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
+			mirror.addElement(createSourceElement(location, location));
+			addTask(mirror);
+
+			Throwable exception = null;
+			try {
+				runAntTaskWithExceptions();
+			} catch (Exception e) {
+				exception = e;
+			}
+			if (exception == null)
+				fail("No Exception thrown");
+
+			while (exception.getCause() != null && !(exception instanceof ProvisionException))
+				exception = exception.getCause();
+			assertTrue("Unexpected error", NLS.bind("No repository found at {0}.", location).equals(exception.getMessage()));
+		} finally {
+			delete(new File(location));
+		}
+	}
+
+	/*
 	 * Test the handling of invalid destinations with the mirror task
 	 */
 	public void testMirrorWithInvalidSource() throws URISyntaxException {
@@ -239,8 +307,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(null, null, true, null, "win32,win32,x86"));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(null, null, true, null, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
@@ -269,8 +337,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(null, false, null, null, null));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(null, false, null, null, null, null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
@@ -297,14 +365,42 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(false, null, null, null, "win32,win32,x86"));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(false, null, null, null, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
 		Properties p = getSliceProperties();
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false, false);
+		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		try {
+			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
+		} catch (ProvisionException e) {
+			fail("Failed to compare contents", e);
+		}
+	}
+
+	public void testSlicingFilter() {
+		IMetadataRepository repo = null;
+		try {
+			repo = loadMetadataRepository(sliceRepo);
+		} catch (ProvisionException e) {
+			fail("Loading repository failed", e);
+		}
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+
+		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
+		mirror.addElement(createSourceElement(null, sliceRepo));
+		mirror.addElement(createSlicingOption(null, null, null, null, "win32,win32,x86", "org.eclipse.update.install.features=false"));
+		mirror.addElement(createIUElement(iu));
+
+		runAntTask();
+
+		Properties p = getSliceProperties();
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
@@ -329,8 +425,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(null, null, null, null, "win32,win32,x86"));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(null, null, null, null, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
@@ -362,8 +458,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		// Create task
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86"));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
@@ -381,7 +477,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Tests the results of a slice are used to mirror artifacts
 	 */
-	public void testSlicingArtifactsMirrored() {
+	public void testSlicingMetadataAndArtifactsMirrored() {
 		IMetadataRepository repo = null;
 		try {
 			repo = loadMetadataRepository(sliceArtifactRepo);
@@ -394,8 +490,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		// Create task
 		AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
 		mirror.addElement(createSourceElement(sliceArtifactRepo, sliceArtifactRepo));
-		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86"));
-		mirror.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
 
 		runAntTask();
 
@@ -415,12 +511,101 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	/*
+	 * Test the ability to slice an IU and mirror only the artifacts
+	 */
+	public void testMirrorSlicedIUtoArtifact() {
+		IMetadataRepository repo = null;
+		try {
+			repo = loadMetadataRepository(sliceArtifactRepo);
+		} catch (ProvisionException e) {
+			fail("Loading repository failed", e);
+		}
+		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+
+		// Create task
+		AntTaskElement mirror = createMirrorTask(TYPE_ARTIFACT);
+		mirror.addElement(createSourceElement(sliceArtifactRepo, sliceArtifactRepo));
+		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
+
+		runAntTask();
+
+		Properties p = getSliceProperties();
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
+		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
+		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()), destinationRepo);
+	}
+
+	/*
+	 * Test the ability to slice an IU and mirror only the artifacts
+	 */
+	public void testMirrorSlicedMultipleIUsToArtifact() {
+		IMetadataRepository repo = null;
+		try {
+			repo = loadMetadataRepository(sliceArtifactRepo);
+		} catch (ProvisionException e) {
+			fail("Loading repository failed", e);
+		}
+		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+
+		c = repo.query(new InstallableUnitQuery("RCP_Browser_Example.feature.group"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu2 = (IInstallableUnit) c.iterator().next();
+
+		// Create task
+		AntTaskElement mirror = createMirrorTask(TYPE_ARTIFACT);
+		mirror.addElement(createSourceElement(sliceArtifactRepo, sliceArtifactRepo));
+		mirror.addElement(createSlicingOption(null, null, null, false, "win32,win32,x86", null));
+		mirror.addElement(createIUElement(iu));
+		mirror.addElement(createIUElement(iu2));
+
+		runAntTask();
+
+		Properties p = getSliceProperties();
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
+		IQueryable result = slicer.slice(new IInstallableUnit[] {iu, iu2}, new NullProgressMonitor());
+
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
+		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()), destinationRepo);
+	}
+
+	/*
+	 * Test the ability to slice an IU and mirror only the artifacts
+	 */
+	public void testMirrorIUtoArtifact() {
+		IMetadataRepository repo = null;
+		try {
+			repo = loadMetadataRepository(sliceArtifactRepo);
+		} catch (ProvisionException e) {
+			fail("Loading repository failed", e);
+		}
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.ui.examples.readmetool"), new Collector(), new NullProgressMonitor());
+		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+
+		// Create task
+		AntTaskElement mirror = createMirrorTask(TYPE_ARTIFACT);
+		mirror.addElement(createSourceElement(sliceArtifactRepo, sliceArtifactRepo));
+		mirror.addElement(createIUElement(iu));
+
+		runAntTask();
+
+		Collector collector = new Collector();
+		collector.accept(iu);
+
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(collector), getArtifactKeyCount(destinationRepo));
+		assertArtifactKeyContentEquals("Different ArtifactKeys", collector, destinationRepo);
+	}
+
+	/*
 	 * Test the result of a slice which results in no IUs
 	 */
 	public void testSlicingInvalid() {
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
 		mirror.addElement(createSourceElement(null, sliceRepo));
-		mirror.addElement(createSlicingOption(null, null, null, null, "win32,win32,x86"));
+		mirror.addElement(createSlicingOption(null, null, null, null, "win32,win32,x86", null));
 
 		Exception exception = null;
 		try {
@@ -529,7 +714,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		return p;
 	}
 
-	protected AntTaskElement createSlicingOption(Boolean includeOptional, Boolean includeNonGreedy, Boolean followStrict, Boolean includeFeatures, String platformFilter) {
+	protected AntTaskElement createSlicingOption(Boolean includeOptional, Boolean includeNonGreedy, Boolean followStrict, Boolean includeFeatures, String platformFilter, String filter) {
 		AntTaskElement slicing = new AntTaskElement("slicingoptions");
 		if (followStrict != null)
 			slicing.addAttribute("followstrict", followStrict.toString());
@@ -541,6 +726,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 			slicing.addAttribute("includeoptional", includeOptional.toString());
 		if (platformFilter != null)
 			slicing.addAttribute("platformfilter", platformFilter);
+		if (filter != null)
+			slicing.addAttribute("filter", filter);
 		return slicing;
 	}
 
@@ -619,17 +806,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		for (Iterator iter = collector.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			parent.addElement(createIUElement(iu.getId(), iu.getVersion().toString()));
+			parent.addElement(createIUElement(iu));
 		}
-	}
-
-	/*
-	 * Create an element from the specified information
-	 */
-	protected AntTaskElement createIUElement(String id, String version) {
-		AntTaskElement iu = new AntTaskElement("iu");
-		iu.addAttributes(new String[] {"id", id, "version", version});
-		return iu;
 	}
 
 	/*

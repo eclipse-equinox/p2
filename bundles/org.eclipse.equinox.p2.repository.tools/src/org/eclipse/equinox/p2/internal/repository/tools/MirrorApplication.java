@@ -55,10 +55,10 @@ public class MirrorApplication extends AbstractApplication {
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		IStatus mirrorStatus = Status.OK_STATUS;
 		try {
-			validate();
 			initializeRepos(new NullProgressMonitor());
-			initializeIUs();
 			initializeLogs();
+			validate();
+			initializeIUs();
 			IQueryable slice = slice(new NullProgressMonitor());
 			if (destinationArtifactRepository != null) {
 				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
@@ -77,6 +77,7 @@ public class MirrorApplication extends AbstractApplication {
 	}
 
 	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
+		// Obtain ArtifactKeys from IUs
 		Collector ius = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
 		ArrayList keys = new ArrayList(ius.size());
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
@@ -129,6 +130,10 @@ public class MirrorApplication extends AbstractApplication {
 	private void validate() throws ProvisionException {
 		if (sourceRepositories.isEmpty())
 			throw new ProvisionException(Messages.MirrorApplication_set_source_repositories);
+		if (!hasArtifactSources() && destinationArtifactRepository != null)
+			throw new ProvisionException(Messages.MirrorApplication_artifactDestinationNoSource);
+		if (!hasMetadataSources() && destinationMetadataRepository != null)
+			throw new ProvisionException(Messages.MirrorApplication_metadataDestinationNoSource);
 	}
 
 	/*
@@ -145,11 +150,8 @@ public class MirrorApplication extends AbstractApplication {
 				sourceIUs.add(iu);
 			}
 
-			if (collector.size() == 0 && destinationMetadataRepository != null) {
+			if (collector.size() == 0 && destinationMetadataRepository != null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
-			}
-		} else {
-			//TODO Check that the IU is in repo
 		}
 	}
 

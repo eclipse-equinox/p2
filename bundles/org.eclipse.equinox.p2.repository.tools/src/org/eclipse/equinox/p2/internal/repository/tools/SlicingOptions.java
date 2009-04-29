@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.util.Dictionary;
+import java.util.Properties;
 
 public class SlicingOptions {
 	private boolean includeOptionalDependencies = true;
@@ -53,6 +54,8 @@ public class SlicingOptions {
 	}
 
 	public Dictionary getFilter() {
+		if (filter == null)
+			filter = new Properties();
 		return filter;
 	}
 

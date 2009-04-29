@@ -124,6 +124,23 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	}
 
 	/*
+	 * Create an element from the specified information
+	 */
+	protected AntTaskElement createIUElement(IInstallableUnit iu) {
+		return createIUElement(iu.getId(), iu.getVersion().toString());
+	}
+
+	/*
+	 * Create an element from the specified information
+	 */
+	protected AntTaskElement createIUElement(String id, String version) {
+		AntTaskElement iuElement = new AntTaskElement("iu");
+		iuElement.addAttribute("id", id);
+		iuElement.addAttribute("version", version);
+		return iuElement;
+	}
+
+	/*
 	 * Create the base elements of the build script
 	 */
 	private void createBuildScript() {

@@ -95,7 +95,7 @@ public class IUDescription extends DataType {
 				queries.add(new InstallableUnitQuery(id));
 				queries.add(new LatestIUVersionQuery());
 			} else {
-				Version iuVersion = new Version(version);
+				Version iuVersion = Version.parseVersion(version);
 				queries.add(new InstallableUnitQuery(id, iuVersion));
 			}
 		}

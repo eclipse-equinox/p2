@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(CompositeRepositoryTaskTest.class);
 		suite.addTestSuite(MirrorTaskTest.class);
+		suite.addTestSuite(Repo2RunnableTaskTests.class);
 		return suite;
 	}
 

@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
 
 /**
@@ -45,13 +46,13 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 			application.initializeRepos(null);
 			List ius = prepareIUs();
 			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources()))
-				throw new BuildException("Need to specify either a non-empty source metadata repository or a valid list of IUs.");
+				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
 			if (result.matches(IStatus.ERROR))
 				throw new ProvisionException(result);
 		} catch (ProvisionException e) {
-			throw new BuildException("Error occurred while transforming repository.", e);
+			throw new BuildException(Messages.Repo2RunnableTask_errorTransforming, e);
 		}
 	}
 }
