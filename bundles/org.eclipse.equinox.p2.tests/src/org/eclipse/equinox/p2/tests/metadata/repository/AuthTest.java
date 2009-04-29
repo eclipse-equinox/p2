@@ -20,14 +20,16 @@ import org.osgi.framework.ServiceReference;
 
 public class AuthTest extends ServerBasedTestCase {
 	//	private static String UPDATE_SITE = "http://p2.piggott.ca/updateSite/";
-	private static String PRIVATE_REPO = "http://localhost:8080/private/mdr/composite/one";
-	private static String NEVER_REPO = "http://localhost:8080/proxy/never";
+	private String PRIVATE_REPO;
+	private String NEVER_REPO;
 	private IMetadataRepositoryManager mgr;
 	private URI repoLoc;
 	protected String authTestFailMessage;
 
 	public void setUp() throws Exception {
 		super.setUp();
+		PRIVATE_REPO = super.getBaseURL() + "/private/mdr/composite/one";
+		NEVER_REPO = super.getBaseURL() + "/proxy/never";
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {

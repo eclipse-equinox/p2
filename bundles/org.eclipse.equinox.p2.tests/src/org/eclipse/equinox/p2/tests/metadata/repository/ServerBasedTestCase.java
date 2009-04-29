@@ -11,23 +11,22 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import junit.framework.*;
 
 public class ServerBasedTestCase extends TestCase {
-	//	public static Test suite() {
-	//		final TestSuite suite = new TestSuite();
-	//		TestSetup wrapper = new TestSetup(suite) {
-	//			public void setUp() throws Exception {
-	//				oneTimeSetUp();
-	//			}
-	//
-	//			public void tearDown() throws Exception {
-	//				oneTimeTearDown();
-	//			}
-	//		};
-	//		return wrapper;
-	//	}
+
+	public ServerBasedTestCase() {
+		super();
+	}
+
+	public ServerBasedTestCase(String name) {
+		super(name);
+	}
 
 	public void run(TestResult result) {
 		Protectable p = new ProtectedRunner(result);
 		result.runProtected(this, p);
+	}
+
+	protected String getBaseURL() {
+		return "http://localhost:" + System.getProperty(AllServerTests.PROP_TESTSERVER_PORT, "8080");
 	}
 
 	protected void basicRun(TestResult result) {
@@ -40,6 +39,16 @@ public class ServerBasedTestCase extends TestCase {
 
 	public static void oneTimeTearDown() throws Exception {
 		AllServerTests.checkTearDown();
+	}
+
+	public void tearDown() throws Exception {
+		// if a test is run out or order - this must be done
+		AllServerTests.checkTearDown();
+	}
+
+	public void setUp() throws Exception {
+		// if a test is run out or order - this must be done
+		AllServerTests.checkSetUp();
 	}
 
 	private class ProtectedRunner implements Protectable {
