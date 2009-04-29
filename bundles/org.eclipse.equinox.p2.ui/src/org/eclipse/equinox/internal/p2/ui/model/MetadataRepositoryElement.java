@@ -102,7 +102,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			try {
 				queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
 			} catch (ProvisionException e) {
-				ProvUI.reportNotFoundStatus(location, e.getStatus(), StatusManager.SHOW);
+				ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}

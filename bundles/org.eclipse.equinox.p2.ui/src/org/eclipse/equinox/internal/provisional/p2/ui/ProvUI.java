@@ -23,8 +23,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryNameAndLocationDialog;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -80,7 +82,7 @@ public class ProvUI {
 		return status;
 	}
 
-	public static void reportNotFoundStatus(final URI location, IStatus status, int style) {
+	public static void reportLoadFailure(final URI location, IStatus status, int style, final RepositoryManipulator repoManipulator) {
 		int code = status.getCode();
 		// Special handling when the location is bad (not found, etc.) vs. a failure
 		// associated with a known repo.
@@ -112,11 +114,14 @@ public class ProvUI {
 							if (ret == Window.OK) {
 								ProvUI.startBatchOperation();
 								try {
-									ProvisioningUtil.removeMetadataRepository(location);
-									ProvisioningUtil.removeArtifactRepository(location);
-									ProvisioningUtil.addArtifactRepository(dialog.getLocation(), false);
+									RepositoryManipulator repoMan = repoManipulator;
+									if (repoManipulator == null)
+										repoMan = Policy.getDefault().getRepositoryManipulator();
+									ProvisioningOperation op = repoMan.getRemoveOperation(new URI[] {location});
+									op.execute(null);
 									ProvUI.endBatchOperation(false);
-									ProvisioningUtil.addMetadataRepository(dialog.getLocation(), true);
+									op = repoMan.getAddOperation(location);
+									op.execute(null);
 									String nickname = dialog.getName();
 									if (nickname != null && nickname.length() > 0)
 										ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);

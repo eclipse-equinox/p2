@@ -473,13 +473,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	private StructuredViewerProvisioningListener getViewerProvisioningListener() {
-		return new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		return new StructuredViewerProvisioningListener(repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryDiscovered(RepositoryEvent e) {
-				asyncRefresh();
+				RepositoryManipulationPage.this.asyncRefresh(null);
 			}
 
 			protected void repositoryChanged(RepositoryEvent e) {
-				asyncRefresh();
+				RepositoryManipulationPage.this.asyncRefresh(null);
 			}
 		};
 	}
@@ -585,11 +585,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			// nothing to report
 		}
 		if (fail[0] != null) {
+			// If the repo was not found, tell ProvUI that we will be reporting it.
+			// We are going to report problems directly to the status manager because we
+			// do not want the automatic repo location editing to kick in.
 			if (fail[0].getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
-				ProvUI.reportNotFoundStatus(location, fail[0].getStatus(), StatusManager.SHOW);
-			} else if (!fail[0].getStatus().matches(IStatus.CANCEL))
+				ProvUI.notFoundStatusReported(location);
+			}
+			if (!fail[0].getStatus().matches(IStatus.CANCEL)) {
 				// An error is only shown if the dialog was not canceled
 				ProvUI.handleException(fail[0], null, StatusManager.SHOW);
+			}
 		} else {
 			// Confirm that it was successful
 			MessageDialog.openInformation(getShell(), ProvUIMessages.RepositoryManipulationPage_TestConnectionTitle, NLS.bind(ProvUIMessages.RepositoryManipulationPage_TestConnectionSuccess, URIUtil.toUnencodedString(location)));
@@ -630,7 +635,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					changed = true;
 					for (int i = 0; i < imported.length; i++)
 						repos.put(URIUtil.toUnencodedString(imported[i].getLocation()), imported[i]);
-					asyncRefresh();
+					asyncRefresh(null);
 				}
 			}
 		});
@@ -705,10 +710,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 	}
 
-	void asyncRefresh() {
+	void asyncRefresh(final MetadataRepositoryElement elementToSelect) {
 		display.asyncExec(new Runnable() {
 			public void run() {
 				repositoryViewer.refresh();
+				if (elementToSelect != null)
+					repositoryViewer.setSelection(new StructuredSelection(elementToSelect), true);
 			}
 		});
 	}
@@ -767,7 +774,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				for (int i = 0; i < selections.length; i++) {
 					getInput().cachedElements.remove(URIUtil.toUnencodedString(selections[i].getLocation()));
 				}
-				asyncRefresh();
+				asyncRefresh(null);
 			}
 		}
 	}
@@ -780,24 +787,24 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				public AddRepositoryOperation getAddOperation(URI location) {
 					return new AddRepositoryOperation("Cached add repo operation", new URI[] {location}) { //$NON-NLS-1$
 						protected IStatus doExecute(IProgressMonitor monitor) {
+							MetadataRepositoryElement element = null;
 							for (int i = 0; i < locations.length; i++) {
-								MetadataRepositoryElement element = new MetadataRepositoryElement(getInput(), locations[i], true);
+								element = new MetadataRepositoryElement(getInput(), locations[i], true);
 								if (nicknames != null)
 									element.setNickname(nicknames[i]);
 								getInput().cachedElements.put(URIUtil.toUnencodedString(locations[i]), element);
-
 							}
 							changed = true;
-							asyncRefresh();
+							asyncRefresh(element);
 							return Status.OK_STATUS;
 						}
 
-						protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+						protected IStatus doBatchedExecute(IProgressMonitor monitor) {
 							// Not called due to override of doExecute
 							return null;
 						}
 
-						protected void setNickname(URI location, String nickname) throws ProvisionException {
+						protected void setNickname(URI loc, String nickname) {
 							// Not called due to override of doExecute
 						}
 					};
@@ -821,7 +828,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				public RemoveRepositoryOperation getRemoveOperation(URI[] repoLocations) {
 					return new RemoveRepositoryOperation("Cached remove repo operation", repoLocations) { //$NON-NLS-1$
-						protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+						protected IStatus doBatchedExecute(IProgressMonitor monitor) {
 							removeRepositories();
 							return Status.OK_STATUS;
 						}
