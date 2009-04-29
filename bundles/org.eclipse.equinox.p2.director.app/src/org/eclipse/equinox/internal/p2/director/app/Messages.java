@@ -30,12 +30,18 @@ public class Messages extends NLS {
 	public static String Ambigous_Command;
 	public static String Application_NoManager;
 	public static String Application_NoRepositories;
+	public static String flavor_0_inconsistent_with_flavor_1;
 	public static String Missing_Required_Argument;
 
 	public static String Installing;
 	public static String Uninstalling;
 
 	public static String Ignored_repo;
+	public static String option_0_requires_an_argument;
+	public static String unable_to_parse_0_to_uri_1;
+	public static String unable_to_start_bundle_0;
+	public static String unable_to_stop_bundle_0;
+	public static String unknown_option_0;
 
 	static {
 		// initialize resource bundle
