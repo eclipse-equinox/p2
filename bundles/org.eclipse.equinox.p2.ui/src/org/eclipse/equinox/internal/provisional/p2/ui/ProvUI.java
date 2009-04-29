@@ -167,6 +167,11 @@ public class ProvUI {
 				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
 				style = style & ~StatusManager.SHOW;
+				// unset logging for statuses that should never be logged.
+				// Ideally the caller would do this but this bug keeps coming back.
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274074
+				if (status.getCode() == IStatusCodes.NOTHING_TO_UPDATE)
+					style = 0;
 			} else if (status.getSeverity() == IStatus.WARNING) {
 				MessageDialog.openWarning(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
 				// unset the dialog bits
