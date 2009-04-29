@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="SampleProduct" uid="bounded.product" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
    <configIni use="">
    </configIni>

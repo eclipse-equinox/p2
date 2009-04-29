@@ -17,10 +17,13 @@ import java.util.Collection;
 import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -146,6 +149,22 @@ public class ProductActionTest extends ActionTest {
 		assertEquals("2.2", "2.0.0", bundles[1].getVersion());
 		assertEquals("2.3", 6, bundles[1].getStartLevel());
 		assertEquals("2.4", true, bundles[1].isMarkedAsStarted());
+	}
+
+	public void testMultiProductPublishing() throws Exception {
+		ProductFile productFile1 = new ProductFile(TestData.getFile("ProductActionTest", "boundedVersionConfigurations.product").toString());
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(getArrayFromString(configSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		ProductAction action1 = new ProductAction(null, productFile1, flavorArg, executablesFeatureLocation);
+		ProductAction action2 = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+		action1.perform(info, results, new NullProgressMonitor());
+		results = new PublisherResult();
+		action2.perform(info, results, new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 1, collector.size());
 	}
 
 	/**

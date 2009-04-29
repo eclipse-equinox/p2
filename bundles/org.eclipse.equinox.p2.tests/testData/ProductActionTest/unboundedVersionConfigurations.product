@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="SampleProduct" uid="unbounded.product" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
    <configIni use="">
    </configIni>
@@ -23,7 +23,7 @@
    </vm>
 
    <plugins>
-      <plugin id="org.eclipse.core.commands" version="0.0.0"/>
+      <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.runtime"/>
    </plugins>
 

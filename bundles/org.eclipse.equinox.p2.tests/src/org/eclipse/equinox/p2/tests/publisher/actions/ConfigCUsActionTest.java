@@ -14,6 +14,7 @@ import static org.easymock.EasyMock.expect;
 
 import java.io.File;
 import java.util.ArrayList;
+import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
@@ -104,14 +105,14 @@ public class ConfigCUsActionTest extends ActionTest {
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
 		ArrayList configList = new ArrayList();
 		configList.add(configAdvice);
-		expect(publisherInfo.getAdvice(configSpec, false, null, null, IConfigAdvice.class)).andReturn(configList);
+		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList);
 
 		//configure ILaunchingAdvice
 		LauncherData launcherData = loader.getLauncherData();
 		LaunchingAdvice launchingAdvice = new LaunchingAdvice(launcherData, configSpec);
 		ArrayList launchingList = new ArrayList();
 		launchingList.add(launchingAdvice);
-		expect(publisherInfo.getAdvice(configSpec, false, null, null, IExecutableAdvice.class)).andReturn(launchingList);
+		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IExecutableAdvice.class))).andReturn(launchingList);
 
 		//setup metadata repository
 		IInstallableUnit[] ius = {mockIU("foo", null), mockIU("bar", null)}; //$NON-NLS-1$ //$NON-NLS-2$

@@ -95,11 +95,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			String configSpec = configSpecs[i];
-			Collection configAdvice = info.getAdvice(configSpec, false, null, null, IConfigAdvice.class);
+			Collection configAdvice = info.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
 			publishBundleCUs(info, bundles, configSpec, innerResult);
 			publishConfigIUs(configAdvice, innerResult, configSpec);
-			Collection launchingAdvice = info.getAdvice(configSpec, false, null, null, IExecutableAdvice.class);
+			Collection launchingAdvice = info.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
 			publishIniIUs(launchingAdvice, innerResult, configSpec);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
