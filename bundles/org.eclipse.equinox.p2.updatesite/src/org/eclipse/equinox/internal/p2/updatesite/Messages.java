@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,14 +22,7 @@ public class Messages extends NLS {
 	public static String ErrorReadingDigest;
 	public static String ErrorReadingFeature;
 	public static String ErrorReadingSite;
-	public static String InvalidRepositoryLocation;
 	public static String Error_Generation;
-
-	public static String io_failedRead;
-	public static String ecf_configuration_error;
-	public static String repo_loading;
-
-	public static String repoMan_internalError;
 
 	public static String DefaultFeatureParser_IdOrVersionInvalid;
 	public static String DefaultSiteParser_NoSiteTag;

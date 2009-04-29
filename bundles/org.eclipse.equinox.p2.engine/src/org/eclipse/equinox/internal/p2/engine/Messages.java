@@ -24,8 +24,6 @@ class Messages extends NLS {
 
 	public static String error_persisting_profile;
 
-	public static String failed_creating_metadata_cache;
-
 	public static String ParameterizedProvisioningAction_action_or_parameters_null;
 
 	public static String profile_does_not_exist;
@@ -38,13 +36,7 @@ class Messages extends NLS {
 	public static String Profile_Null_Profile_Id;
 	public static String Profile_Parent_Not_Found;
 
-	public static String ProfilePreferences_save_failed;
-
 	public static String ProfilePreferences_saving;
-	public static String ProfilePreferences_load_failed;
-
-	public static String ProfilePreferences_nullDir;
-	public static String ProfilePreferences_Profile_not_found;
 
 	public static String reg_dir_not_available;
 

@@ -18,14 +18,8 @@ public class Messages extends NLS {
 	public static String differentEntry;
 	public static String missingEntry;
 	public static String ioexception;
-	public static String ioexceptioninentry;
-	public static String filenotfoundexception;
-
-	public static String disassembler_description;
 	public static String disassembler_opentypedeclaration;
 	public static String disassembler_closetypedeclaration;
-	public static String disassembler_parametername;
-	public static String disassembler_localvariablename;
 	public static String disassembler_endofmethodheader;
 	public static String disassembler_begincommentline;
 	public static String disassembler_fieldhasconstant;
@@ -33,7 +27,6 @@ public class Messages extends NLS {
 	public static String disassembler_sourceattributeheader;
 	public static String disassembler_enclosingmethodheader;
 	public static String disassembler_exceptiontableheader;
-	public static String disassembler_arraydimensions;
 	public static String disassembler_innerattributesheader;
 	public static String disassembler_inner_class_info_name;
 	public static String disassembler_outer_class_info_name;

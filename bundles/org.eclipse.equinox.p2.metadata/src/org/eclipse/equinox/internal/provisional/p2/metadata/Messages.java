@@ -19,8 +19,6 @@ public class Messages extends NLS {
 
 	public static String _0_is_not_a_valid_qualifier_in_osgi_1;
 
-	public static String _0_is_not_an_osgi_version;
-
 	public static String array_can_not_be_empty;
 
 	public static String array_can_not_have_character_group;

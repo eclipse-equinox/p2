@@ -33,8 +33,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
 	public static String MetadataRepositoriesView_ChooseProfileDialogTitle;
 	public static String MetadataRepositoriesView_RemoveRepositoryTooltip;
-	public static String MetadataRepositoriesView_RevertLabel;
-	public static String MetadataRepositoriesView_UnexpectedRevertError;
 	public static String ArtifactRepositoriesView_AddRepositoryTooltip;
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;

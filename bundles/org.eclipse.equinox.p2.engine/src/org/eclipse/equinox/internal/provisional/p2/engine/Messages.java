@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ public class Messages extends NLS {
 	public static String null_phases;
 	public static String null_phaseset;
 	public static String null_profile;
-	public static String operand_error;
 	public static String phase_error;
 	public static String phase_not_started;
 	public static String phase_started;
@@ -40,7 +39,6 @@ public class Messages extends NLS {
 	public static String phase_undo_error;
 	public static String session_prepare_error;
 	public static String session_commit_error;
-	public static String session_rollback_error;
 	public static String null_operand;
 	public static String operand_started;
 	public static String operand_not_started;

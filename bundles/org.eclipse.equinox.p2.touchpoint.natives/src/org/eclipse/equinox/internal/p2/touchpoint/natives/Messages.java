@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,22 +21,18 @@ public class Messages extends NLS {
 	}
 
 	public static String BackupStore_0_of_1_items_restored;
-	public static String BackupStore_backup_root_for_0_not_determinable;
 	public static String BackupStore_backupCopy_closed_store;
 	public static String BackupStore_can_not_close_tcp_port;
 	public static String BackupStore_can_not_copy_directory;
-	public static String BackupStore_can_not_create_backup_dir;
 	public static String BackupStore_can_not_create_dummy;
 	public static String BackupStore_can_not_delete_after_copy_0;
 	public static String BackupStore_can_not_delete_tmp_file;
-	public static String BackupStore_can_not_move_file_to;
 	public static String BackupStore_can_not_remove;
 	public static String BackupStore_can_not_remove_bu_directory;
 	public static String BackupStore_directory_file_mismatch;
 	public static String BackupStore_directory_not_empty;
 	public static String BackupStore_errors_while_restoring_see_log;
 	public static String BackupStore_externally_modified_0_of_1_restored;
-	public static String BackupStore_file_0_must_be_related_to_1;
 	public static String BackupStore_file_directory_mismatch;
 	public static String BackupStore_file_not_found;
 	public static String BackupStore_manual_restore_needed;
@@ -50,7 +46,6 @@ public class Messages extends NLS {
 	public static String could_not_obtain_download_cache;
 	public static String download_cache_not_writeable;
 	public static String unzipping;
-	public static String restoring;
 	public static String param_not_set;
 	public static String copy_failed;
 	public static String failed_backup_restore;
