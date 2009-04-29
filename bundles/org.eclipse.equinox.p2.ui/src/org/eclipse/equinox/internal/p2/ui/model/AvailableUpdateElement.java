@@ -46,4 +46,27 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
 		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof AvailableUpdateElement))
+			return false;
+		if (iu == null)
+			return false;
+		if (iuToBeUpdated == null)
+			return false;
+		AvailableUpdateElement other = (AvailableUpdateElement) obj;
+		return iu.equals(other.getIU()) && iuToBeUpdated.equals(other.getIUToBeUpdated());
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((iu == null) ? 0 : iu.hashCode());
+		result = prime * result + ((iuToBeUpdated == null) ? 0 : iuToBeUpdated.hashCode());
+		return result;
+	}
 }
