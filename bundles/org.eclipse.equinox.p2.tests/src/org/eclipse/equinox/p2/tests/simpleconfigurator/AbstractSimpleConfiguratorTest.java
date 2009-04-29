@@ -133,7 +133,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 		try {
 			String value = null;
 			if (bundleFile.isDirectory()) {
-				File m = new File(bundleFile, "META-INF/Manifest.MF");
+				File m = new File(bundleFile, "META-INF/MANIFEST.MF");
 				InputStream os;
 				os = new FileInputStream(m);
 				Manifest mf;
