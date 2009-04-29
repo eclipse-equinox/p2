@@ -195,7 +195,7 @@ public class Version extends VersionVector {
 			case 2 :
 				name = "micro"; //$NON-NLS-1$
 				break;
-			case 4 :
+			case 3 :
 				name = "qualifier"; //$NON-NLS-1$
 		}
 		return name;

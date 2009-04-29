@@ -562,7 +562,7 @@ public class SimplePlanner implements IPlanner {
 		InstallableUnitDescription description = new InstallableUnitDescription();
 		String id = getActionGatheringIUId(profile);
 		description.setId(id);
-		Version version = Version.createOSGi(1, 0, 0, profile.getProfileId() + profile.getTimestamp());
+		Version version = Version.createOSGi(1, 0, 0, Long.toString(profile.getTimestamp()));
 		description.setVersion(version);
 		description.addRequiredCapabilities(metaRequirements);
 
