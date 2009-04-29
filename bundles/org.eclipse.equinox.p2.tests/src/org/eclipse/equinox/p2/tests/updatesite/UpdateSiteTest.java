@@ -519,7 +519,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		a.setURLString("http://foo");
 		b.setURLString("http://foo");
 		assertEquals("1.1", a.hashCode(), b.hashCode());
-		a.setURLString("http://FOO");
+		a.setURLString("http://FOO/");
 		assertEquals("1.2", a.hashCode(), b.hashCode());
 		a.setURLString("foo");
 		b.setURLString("FoO");
@@ -533,8 +533,42 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		a.setURLString("file:/c:/foo");
 		assertFalse("1.1", a.equals(b));
 		b.setURLString("file:/c:/bar");
-		assertFalse("1.1", a.equals(b));
-		assertFalse("1.1", b.equals(a));
+		assertFalse("1.2", a.equals(b));
+		assertFalse("1.3", b.equals(a));
+		a.setURLString("http://foo");
+		b.setURLString("http://bar/");
+		assertFalse("1.4", b.equals(a));
+	}
+
+	public void testSiteFeatureFileURL() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setURLString("file:/c:/foo");
+		b.setURLString("file:/c:/FOO");
+		if (a.equals(b))
+			assertEquals("1.1", a.hashCode(), b.hashCode());
+		a.setURLString("FILE:/c:/foo");
+		b.setURLString("file:/c:/FOO");
+		if (a.equals(b))
+			assertEquals("1.2", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://example.com");
+		b.setURLString("HTtP://example.com");
+		if (a.equals(b))
+			assertEquals("1.3", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://eXaMpLe.com");
+		b.setURLString("HTtP://example.com");
+		if (a.equals(b))
+			assertEquals("1.4", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://eXaMpLe.com/");
+		b.setURLString("HTtP://example.com");
+		assertEquals(a, b);
+		if (a.equals(b))
+			assertEquals("1.5", a.hashCode(), b.hashCode());
+		a.setURLString("http://localhost");
+		b.setURLString("http://127.0.0.1");
+		if (a.equals(b))
+			assertEquals("1.6", a.hashCode(), b.hashCode());
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
