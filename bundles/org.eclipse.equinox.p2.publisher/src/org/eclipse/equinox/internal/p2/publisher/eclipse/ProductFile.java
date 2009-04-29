@@ -515,8 +515,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		info.setSymbolicName(attributes.getValue(ATTRIBUTE_ID));
 		info.setVersion(attributes.getValue(ATTRIBUTE_VERSION));
 		String value = attributes.getValue(ATTRIBUTE_START_LEVEL);
-		if (value != null)
-			info.setStartLevel(Integer.parseInt(value));
+		if (value != null) {
+			int startLevel = Integer.parseInt(value);
+			if (startLevel > 0)
+				info.setStartLevel(startLevel);
+		}
 		value = attributes.getValue(ATTRIBUTE_AUTO_START);
 		if (value != null)
 			info.setMarkedAsStarted(Boolean.valueOf(value).booleanValue());
