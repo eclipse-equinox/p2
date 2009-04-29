@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,33 +45,43 @@ public class SiteFeature {
 	 * Compares two URL for equality
 	 */
 	public static boolean sameURL(URL url1, URL url2) {
-
-		if (url1 == null && url2 == null)
+		if (url1 == url2)
 			return true;
 		if (url1 == null ^ url2 == null)
 			return false;
-
-		if (url1 == url2)
-			return true;
-		if (url1.equals(url2))
-			return true;
 
 		// check if URL are file: URL as we may
 		// have 2 URL pointing to the same featureReference
 		// but with different representation
 		// (i.e. file:/C;/ and file:C:/)
-		if (!"file".equalsIgnoreCase(url1.getProtocol())) //$NON-NLS-1$
+		final boolean isFile1 = "file".equalsIgnoreCase(url1.getProtocol());//$NON-NLS-1$
+		final boolean isFile2 = "file".equalsIgnoreCase(url2.getProtocol());//$NON-NLS-1$
+		if (isFile1 && isFile2) {
+			File file1 = new File(url1.getFile());
+			File file2 = new File(url2.getFile());
+			return file1.equals(file2);
+		}
+		// URL1 xor URL2 is a file, return false. (They either both need to be files, or neither)
+		if (isFile1 ^ isFile2)
 			return false;
-		if (!"file".equalsIgnoreCase(url2.getProtocol())) //$NON-NLS-1$
-			return false;
+		return getExternalForm(url1).equals(getExternalForm(url2));
+	}
 
-		File file1 = new File(url1.getFile());
-		File file2 = new File(url2.getFile());
+	/**
+	 * Gets the external form of this URL. In particular, it trims any white space, 
+	 * removes a trailing slash and creates a lower case string.
+	 */
+	private static String getExternalForm(URL url) {
+		String externalForm = url.toExternalForm();
+		if (externalForm == null)
+			return ""; //$NON-NLS-1$
+		externalForm = externalForm.trim();
+		if (externalForm.endsWith("/")) { //$NON-NLS-1$
+			// Remove the trailing slash
+			externalForm = externalForm.substring(0, externalForm.length() - 1);
+		}
+		return externalForm.toLowerCase();
 
-		if (file1 == null)
-			return false;
-
-		return (file1.equals(file2));
 	}
 
 	/**
@@ -147,9 +157,17 @@ public class SiteFeature {
 		int result = 1;
 		result = prime * result + (featureId == null ? 0 : featureId.hashCode());
 		result = prime * result + (featureVersion == null ? 0 : featureVersion.hashCode());
-		if (this.getURL() != null) {
-			result = prime * result + (getURL().toExternalForm() == null ? 0 : getURL().toExternalForm().toLowerCase().hashCode());
-		}
+		if (this.getURL() == null)
+			return result;
+
+		if ("file".equalsIgnoreCase(getURL().getProtocol())) {//$NON-NLS-1$ 
+			// If the URL is a file, then create the HashCode from the file
+			File f = new File(getURL().getFile());
+			if (f != null)
+				result = prime * result + f.hashCode();
+		} else
+			// Otherwise create it from the External form of the URL (in lower case)
+			result = prime * result + getExternalForm(this.getURL()).hashCode();
 		return result;
 	}
 
