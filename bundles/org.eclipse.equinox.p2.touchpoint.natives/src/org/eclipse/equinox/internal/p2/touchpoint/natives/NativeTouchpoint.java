@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,34 @@ public class NativeTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
+	/**
+	 * Converts a profile id into a string that can be used as a file name in any file system.
+	 */
+	public static String escape(String toEscape) {
+		StringBuffer buffer = new StringBuffer();
+		int length = toEscape.length();
+		for (int i = 0; i < length; ++i) {
+			char ch = toEscape.charAt(i);
+			switch (ch) {
+				case '\\' :
+				case '/' :
+				case ':' :
+				case '*' :
+				case '?' :
+				case '"' :
+				case '<' :
+				case '>' :
+				case '|' :
+				case '%' :
+					buffer.append("%" + (int) ch + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+					break;
+				default :
+					buffer.append(ch);
+			}
+		}
+		return buffer.toString();
+	}
+
 	public IStatus rollback(IProfile profile) {
 		IStatus returnStatus = Status.OK_STATUS;
 		IBackupStore store = getBackupStore(profile);
@@ -77,7 +105,7 @@ public class NativeTouchpoint extends Touchpoint {
 	private static synchronized IBackupStore getBackupStore(IProfile profile) {
 		IBackupStore store = (IBackupStore) backups.get(profile);
 		if (store == null) {
-			store = new LazyBackupStore(profile.getProfileId());
+			store = new LazyBackupStore(escape(profile.getProfileId()));
 			backups.put(profile, store);
 		}
 		return store;

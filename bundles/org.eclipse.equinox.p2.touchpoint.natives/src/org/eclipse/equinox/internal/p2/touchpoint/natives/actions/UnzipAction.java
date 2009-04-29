@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
-
-import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,20 +84,21 @@ public class UnzipAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	// this is a drastically simplified version of the code that was in org.eclipse.equinox.internal.p2.touchpoint.natives (Zip, BackupFiles)
-	// In particular backing up files might be useful to look at 
+	/**
+	 * Unzips a source zip into the given destination. Any existing contents in the destination
+	 * are backed up in the provided backup store.
+	 */
 	private static File[] unzip(String source, String destination, IBackupStore store) {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
 			Util.log(UnzipAction.class.getName() + " the files to be unzipped is not here"); //$NON-NLS-1$
 		}
-
 		try {
 			String taskName = NLS.bind(Messages.unzipping, source);
 			return Util.unzipFile(zipFile, new File(destination), store, taskName, new NullProgressMonitor());
 		} catch (IOException e) {
 			Util.log(UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() + "destination: " + destination); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return null;
+		return new File[0];
 	}
 }
