@@ -35,21 +35,6 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	private String os;
 	private ConfigData configData = null;
 
-	/**
-	 * A way of comparing BundleInfos.  Bundles are first sorted by 
-	 * Name and then sorted by version.
-	 */
-	Comparator bundleInfoComparator = new Comparator() {
-		public int compare(Object arg0, Object arg1) {
-			BundleInfo b1 = (BundleInfo) arg0;
-			BundleInfo b2 = (BundleInfo) arg1;
-			boolean useVersion = b1.getVersion() != null && b2.getVersion() != null;
-			if (b1.getSymbolicName().compareTo(b2.getSymbolicName()) != 0 || !useVersion)
-				return b1.getSymbolicName().compareTo(b2.getSymbolicName());
-			return new Version(b1.getVersion()).compareTo(new Version(b2.getVersion()));
-		}
-	};
-
 	protected String getId() {
 		return product.getId();
 	}
@@ -163,8 +148,9 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		else
 			result = generateConfigData();
 
-		addProductFileConfigBundles(result); // these are the bundles specified in the <configurations> tag in the product file
 		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
+		addProductFileConfigBundles(result); // these are the bundles specified in the <configurations> tag in the product file
+
 		if (product.getProductId() != null)
 			result.setProperty("eclipse.product", product.getProductId()); //$NON-NLS-1$
 		if (product.getApplication() != null)
@@ -176,20 +162,63 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	}
 
 	private void addProductFileConfigBundles(ConfigData configData) {
-		TreeSet set = new TreeSet(bundleInfoComparator);
-		set.addAll(Arrays.asList(configData.getBundles()));
-		List bundleInfos = product.getBundleInfos();
-		for (Iterator i = bundleInfos.iterator(); i.hasNext();) {
-			BundleInfo bundleInfo = (BundleInfo) i.next();
-			if (!set.contains(bundleInfo)) {
-				configData.addBundle(bundleInfo);
+		Set versionBoundBundles = new HashSet();
+		Map unboundedBundles = new HashMap();
+
+		BundleInfo[] bundles = configData.getBundles();
+		for (int i = 0; i < bundles.length; i++) {
+			// For each bundle we know about, cache it.  If the bundle doesn't have a version
+			// add it to a list of bundles by name
+			BundleInfo bundleInfo = bundles[i];
+			if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals("0.0.0")) { //$NON-NLS-1$
+				bundleInfo.setVersion("0.0.0"); //$NON-NLS-1$
+				addUnboundedBundle(unboundedBundles, bundleInfo);
+			} else {
+				versionBoundBundles.add(bundleInfo);
+				addUnboundedBundle(unboundedBundles, bundleInfo);
 			}
 		}
+
+		List bundleInfos = product.getBundleInfos();
+		for (Iterator i = bundleInfos.iterator(); i.hasNext();) {
+			// For each bundle that has configuration information, if the bundle is in the 
+			// bundles bound by version, add the "configured" bundle instead
+			// If the bundle is not bound to a version, then replace all bounded versions
+			// with this one.  Otherwise, just add this one (don't replace)
+			BundleInfo bundleInfo = (BundleInfo) i.next();
+
+			if (versionBoundBundles.contains(bundleInfo)) {
+				// If we found a version with the same name and version, replace it with the "configured" bundle
+				configData.removeBundle(bundleInfo);
+				configData.addBundle(bundleInfo);
+			} else if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals("0.0.0")) {//$NON-NLS-1$
+				// If we don't have a version number, look for all bundles that match by name
+				List list = (List) unboundedBundles.get(bundleInfo.getSymbolicName());
+				if (list == null)
+					configData.addBundle(bundleInfo);
+				else
+					for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+						BundleInfo target = (BundleInfo) iterator.next();
+						target.setStartLevel(bundleInfo.getStartLevel());
+						target.setMarkedAsStarted(bundleInfo.isMarkedAsStarted());
+					}
+			} else {
+				// Otherwise we have a version, but we could not match it, so just add this one.
+				configData.addBundle(bundleInfo);
+			}
+
+		}
+	}
+
+	private void addUnboundedBundle(Map data, BundleInfo bundleInfo) {
+		if (!data.containsKey(bundleInfo.getSymbolicName()))
+			data.put(bundleInfo.getSymbolicName(), new LinkedList());
+		((LinkedList) data.get(bundleInfo.getSymbolicName())).add(bundleInfo);
 	}
 
 	private void addProductFileBundles(ConfigData configData) {
 		List bundles = product.getBundles(true);
-		Set set = new TreeSet(bundleInfoComparator);
+		Set set = new HashSet();
 		set.addAll(Arrays.asList(configData.getBundles()));
 
 		for (Iterator i = bundles.iterator(); i.hasNext();) {
@@ -207,8 +236,8 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		if (product.useFeatures())
 			return result;
 
-		// TODO need to do something more interesting here.  What if update.config is around?
-		// what if the product is p2 based or simpleconfig is in the list?
+		// Add all the bundles here.  We replace / update them later
+		// if we find configuration information
 		List bundles = product.getBundles(true);
 		for (Iterator i = bundles.iterator(); i.hasNext();) {
 			VersionedName name = (VersionedName) i.next();

@@ -97,7 +97,46 @@ public class ProductFileAdviceTest extends TestCase {
 		assertEquals("2.0", 1, bundles.length);
 		for (int i = 0; i < 1; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
-				// nothing yet
+				assertTrue("2.1", bundles[i].getStartLevel() == 2);
+				assertTrue("2.2", bundles[i].isMarkedAsStarted() == false);
+			} else
+				fail("unknown bundle: " + bundles[i].getSymbolicName());
+		}
+	}
+
+	public void testBoundedVersionConfigurations() throws Exception {
+		String location = TestData.getFile("ProductActionTest", "boundedVersionConfigurations.product").toString();
+		ProductFile product = new ProductFile(location);
+		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.*");
+
+		BundleInfo[] bundles = advice.getBundles();
+		assertEquals("1.0", 2, bundles.length);
+		for (int i = 0; i < 2; i++) {
+			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
+				assertEquals(2, bundles[i].getStartLevel());
+				assertEquals(true, bundles[i].isMarkedAsStarted());
+			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
+				assertTrue("1.1", bundles[i].getStartLevel() == 2);
+				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
+			} else
+				fail("unknown bundle: " + bundles[i].getSymbolicName());
+		}
+	}
+
+	public void testUnboundedVersionConfigurations() throws Exception {
+		String location = TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString();
+		ProductFile product = new ProductFile(location);
+		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.*");
+
+		BundleInfo[] bundles = advice.getBundles();
+		assertEquals("1.0", 2, bundles.length);
+		for (int i = 0; i < 2; i++) {
+			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
+				assertEquals(2, bundles[i].getStartLevel());
+				assertEquals(true, bundles[i].isMarkedAsStarted());
+			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
+				assertTrue("1.1", bundles[i].getStartLevel() == 2);
+				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
 			} else
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 		}
