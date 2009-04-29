@@ -38,10 +38,12 @@ public class RepositoryPreferences {
 
 	/**
 	 * Number of attempts to connect (with different credentials) before giving up.
+	 * The returned value should be the number of prompts to the user + 1 (for the initial
+	 * attempt with either no, or stored/cached credentials).
 	 * TODO - make this configurable via a property.
-	 * @return the value 3
+	 * @return the value 4 - resulting in 3 prompts to user
 	 */
 	public static int getLoginRetryCount() {
-		return 3;
+		return 4;
 	}
 }
