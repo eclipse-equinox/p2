@@ -32,7 +32,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.mirror;x-internal:=true
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.touchpoint.eclipse,
-   org.eclipse.equinox.p2.repository.tools",
+   org.eclipse.equinox.p2.repository.tools,
+   org.eclipse.pde.core",
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.engine"
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.app;resolution:=optional,
