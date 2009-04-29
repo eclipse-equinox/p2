@@ -41,19 +41,23 @@ import org.eclipse.osgi.util.NLS;
  */
 public class FeaturesAction extends AbstractPublisherAction {
 	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_APPLICATION_PROP = "org.eclipse.update.feature.application"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_EXCLUSIVE_PROP = "org.eclipse.update.feature.exclusive"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
 	protected Feature[] features;
 	private File[] locations;
 
 	public static IArtifactKey createFeatureArtifactKey(String id, String version) {
-		return new ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, id, new Version(version));
+		return new ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, id, Version.parseVersion(version));
 	}
 
 	public static IInstallableUnit createFeatureJarIU(Feature feature, IPublisherInfo info) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.parseVersion(feature.getVersion());
 		iu.setVersion(version);
 		if (feature.getLicense() != null)
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
@@ -64,6 +68,16 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		iu.setFilter(INSTALL_FEATURES_FILTER);
 		iu.setSingleton(true);
+
+		// set properties for other feature attributes
+		if (feature.getApplication() != null)
+			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
+		if (feature.getPlugin() != null)
+			iu.setProperty(UPDATE_FEATURE_PLUGIN_PROP, feature.getPlugin());
+		if (feature.isExclusive())
+			iu.setProperty(UPDATE_FEATURE_EXCLUSIVE_PROP, Boolean.TRUE.toString());
+		if (feature.isPrimary())
+			iu.setProperty(UPDATE_FEATURE_PRIMARY_PROP, Boolean.TRUE.toString());
 
 		if (feature.getInstallHandler() != null && feature.getInstallHandler().trim().length() > 0) {
 			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
@@ -156,7 +170,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		String location = feature.getLocation();
 		if (location != null) {
 			String groupId = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
-			AdviceFileAdvice advice = new AdviceFileAdvice(groupId, new Version(feature.getVersion()), new Path(location), new Path("p2.inf")); //$NON-NLS-1$
+			AdviceFileAdvice advice = new AdviceFileAdvice(groupId, Version.parseVersion(feature.getVersion()), new Path(location), new Path("p2.inf")); //$NON-NLS-1$
 			if (advice.containsAdvice())
 				publisherInfo.addAdvice(advice);
 		}
@@ -174,7 +188,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
 			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
-				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
+				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), Version.parseVersion(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
 	}
 
@@ -183,7 +197,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setSingleton(true);
 		String id = featureId + '_' + descriptor.getKey();
 		iu.setId(id);
-		Version version = new Version(featureVersion);
+		Version version = Version.parseVersion(featureVersion);
 		iu.setVersion(version);
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
@@ -281,7 +295,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = new Version(feature.getVersion());
+		Version version = Version.parseVersion(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -399,7 +413,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 			ArrayList childIUs = new ArrayList();
 
-			IInstallableUnit featureJarIU = queryForIU(result, getTransformedId(feature.getId(), false, false), new Version(feature.getVersion()));
+			IInstallableUnit featureJarIU = queryForIU(result, getTransformedId(feature.getId(), false, false), Version.parseVersion(feature.getVersion()));
 			if (featureJarIU == null)
 				featureJarIU = generateFeatureJarIU(feature, info);
 
@@ -409,7 +423,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 				childIUs.add(featureJarIU);
 			}
 
-			IInstallableUnit groupIU = queryForIU(result, getGroupId(feature.getId()), new Version(feature.getVersion()));
+			IInstallableUnit groupIU = queryForIU(result, getGroupId(feature.getId()), Version.parseVersion(feature.getVersion()));
 			if (groupIU == null) {
 				childIUs.addAll(generateRootFileIUs(feature, result, info));
 				groupIU = createGroupIU(feature, childIUs, info);
@@ -599,7 +613,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
 			return VersionRange.emptyRange;
-		Version version = new Version(versionSpec);
+		Version version = Version.parseVersion(versionSpec);
 		if (version.equals(Version.emptyVersion))
 			return VersionRange.emptyRange;
 		if (!entry.isRequires())
@@ -611,11 +625,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor(), version.getMinor() + 1, 0);
+			Version upper = Version.createOSGi(version.getMajor(), version.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor() + 1, 0, 0);
+			Version upper = Version.createOSGi(version.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
