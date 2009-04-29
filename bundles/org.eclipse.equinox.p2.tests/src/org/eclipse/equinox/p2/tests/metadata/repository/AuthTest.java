@@ -9,51 +9,96 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.net.URI;
-import junit.framework.TestCase;
+import java.security.cert.Certificate;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
-public class AuthTest extends TestCase {
+public class AuthTest extends ServerBasedTestCase {
 	//	private static String UPDATE_SITE = "http://p2.piggott.ca/updateSite/";
-	private static String UPDATE_SITE = "http://localhost:8080/private/composite/one";
+	private static String PRIVATE_REPO = "http://localhost:8080/private/mdr/composite/one";
+	private static String NEVER_REPO = "http://localhost:8080/proxy/never";
 	private IMetadataRepositoryManager mgr;
 	private URI repoLoc;
+	protected String authTestFailMessage;
 
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
-		repoLoc = new URI(UPDATE_SITE);
-
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}
+	}
+
+	private void setUpRepo(String repo) throws Exception {
+		repoLoc = new URI(repo);
 		mgr.removeRepository(repoLoc);
 		if (mgr.contains(repoLoc))
 			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+
 	}
 
 	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
+		AllServerTests.setServiceUI(null); // cleanup hook
 		super.tearDown();
-		mgr.removeRepository(repoLoc);
+		if (repoLoc != null)
+			mgr.removeRepository(repoLoc);
 	}
 
-	public void testLoad() throws ProvisionException {
-		boolean caught = false;
+	public void testPrivateLoad() throws ProvisionException, Exception {
+		AllServerTests.setServiceUI(new AladdinNotSavedService());
+		setUpRepo(PRIVATE_REPO);
 		try {
 			mgr.loadRepository(repoLoc, null);
 		} catch (OperationCanceledException e) {
-			/* ignore - the operation is supposed to be canceled */
-			caught = true;
-		} catch (ProvisionException e) {
-			caught = false;
+			fail("The repository load was canceled - the UI auth service is probably not running");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		assertTrue("Cancel should have been caught (1)", caught);
+		assertTrue("Repository should have been added", mgr.contains(repoLoc));
+	}
+
+	public void testNeverLoad() throws ProvisionException, Exception {
+		AladdinNotSavedService service;
+		AllServerTests.setServiceUI(service = new AladdinNotSavedService());
+		setUpRepo(NEVER_REPO);
+		try {
+			mgr.loadRepository(repoLoc, null);
+		} catch (OperationCanceledException e) {
+			fail("The repository load was canceled - the UI auth service is probably not running");
+		} catch (ProvisionException e) {
+			assertEquals("Repository is expected to report failed authentication", ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, e.getStatus().getCode());
+		}
+		// note that preference includes the first attempt where user is not prompted
+		assertEquals("There should have been N attempts", RepositoryPreferences.getLoginRetryCount() - 1, service.counter);
+		assertFalse("Repository should not have been added", mgr.contains(repoLoc));
 
 	}
 
+	public class AladdinNotSavedService implements IServiceUI {
+		public int counter = 0;
+
+		public AuthenticationInfo getUsernamePassword(String location) {
+			counter++;
+			return new AuthenticationInfo("Aladdin", "open sesame", false);
+		}
+
+		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
+			counter++;
+			assertEquals("Aladdin", previousInfo.getUserName());
+			assertEquals("open sesame", previousInfo.getPassword());
+			assertEquals(false, previousInfo.saveResult());
+			return previousInfo;
+		}
+
+		public Certificate[] showCertificates(Certificate[][] certificates) {
+			return null;
+		}
+	}
 }

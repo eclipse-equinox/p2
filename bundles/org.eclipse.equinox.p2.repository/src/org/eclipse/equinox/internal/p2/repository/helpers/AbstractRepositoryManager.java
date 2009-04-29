@@ -366,6 +366,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			case ProvisionException.REPOSITORY_NOT_FOUND :
 				msg = NLS.bind(Messages.repoMan_notExists, location);
 				break;
+			case ProvisionException.REPOSITORY_FAILED_AUTHENTICATION :
+				msg = NLS.bind(Messages.repoManAuthenticationFailedFor_0, location);
+				break;
 		}
 		if (msg == null)
 			msg = Messages.repoMan_internalError;
@@ -624,7 +627,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 				//eagerly cleanup missing system repositories
 				if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
 					removeRepository(location);
-				else
+				else if (failure == null || failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION)
 					rememberNotFound(location);
 				if (failure != null)
 					throw failure;
