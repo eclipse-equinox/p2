@@ -52,7 +52,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	PlannerResolutionOperation resolvedOperation;
 	protected Policy policy;
 	TreeViewer treeViewer;
-	Text detailsArea;
 	ProvElementContentProvider contentProvider;
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
@@ -131,7 +130,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, treeViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
-		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		updateStatus(input, resolvedOperation);
 		setControl(sashForm);

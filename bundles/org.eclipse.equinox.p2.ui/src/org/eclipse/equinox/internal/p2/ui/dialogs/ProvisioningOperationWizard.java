@@ -113,6 +113,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (page == mainPage || page == errorPage) {
 			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
 			// Do we need to resolve?
+			boolean weResolved = false;
 			if (resolutionOperation == null || (resolutionOperation != null && shouldRecomputePlan(currentPage))) {
 				resolutionOperation = null;
 				provisioningContext = getProvisioningContext();
@@ -120,21 +121,28 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				root = makeResolutionElementRoot(planSelections);
 				recomputePlan(getContainer());
 				planChanged();
+				weResolved = true;
 			} else {
 				planSelections = currentPage.getCheckedIUElements();
 				root = makeResolutionElementRoot(planSelections);
 			}
-			return selectNextPage(page, getCurrentStatus());
+			return selectNextPage(page, getCurrentStatus(), weResolved);
 		}
 		return super.getNextPage(page);
 	}
 
-	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status) {
+	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status, boolean hasResolved) {
+		// We have already established before calling this method that the
+		// current page is either the main page or the error page.  
 		if (status.getSeverity() == IStatus.CANCEL)
 			return currentPage;
 		else if (status.getSeverity() == IStatus.ERROR) {
 			if (errorPage == null)
 				errorPage = getErrorReportingPage();
+			if (currentPage == errorPage) {
+				updateErrorPageStatus(errorPage);
+				return null;
+			}
 			showingErrorPage();
 			return errorPage;
 		} else {

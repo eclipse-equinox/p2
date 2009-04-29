@@ -59,7 +59,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	Composite availableIUButtonBar;
 	Link installLink;
 	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox;
-	Text detailsArea;
 	SashForm sashForm;
 	IUColumnConfig nameColumn, versionColumn;
 	StructuredViewerProvisioningListener profileListener;
@@ -138,7 +137,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		// Details area
 		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
-		detailsArea = iuDetailsGroup.getDetailsArea();
 
 		sashForm.setWeights(getSashWeights());
 
@@ -452,7 +450,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (elements.length == 1 && elements[0] instanceof EmptyElementExplanation) {
 			String description = ((EmptyElementExplanation) elements[0]).getDescription();
 			if (description != null) {
-				detailsArea.setText(description);
+				iuDetailsGroup.setDetailText(description);
 				return;
 			}
 		}
@@ -474,10 +472,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				result.append(selected[0].getVersion().toString());
 			}
 
-			detailsArea.setText(result.toString());
+			iuDetailsGroup.setDetailText(result.toString());
 			return;
 		}
-		detailsArea.setText(""); //$NON-NLS-1$
+		iuDetailsGroup.setDetailText(""); //$NON-NLS-1$
 	}
 
 	public IInstallableUnit[] getSelectedIUs() {

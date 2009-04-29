@@ -48,7 +48,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	Object[] initialSelections;
 	PlannerResolutionOperation resolvedOperation;
 	CheckboxTableViewer tableViewer;
-	Text detailsArea;
 	IUDetailsGroup iuDetailsGroup;
 	ProvElementContentProvider contentProvider;
 	IUDetailsLabelProvider labelProvider;
@@ -137,7 +136,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
 
-		detailsArea = iuDetailsGroup.getDetailsArea();
 		updateStatus(root, resolvedOperation);
 		setControl(sashForm);
 		sashForm.setWeights(getSashWeights());
@@ -280,7 +278,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			setPageComplete(false);
 			if (!isCreated())
 				return;
-			getDetailsGroup().getDetailsArea().setText(specialStatus.getMessage());
+			getDetailsGroup().setDetailText(specialStatus.getMessage());
 			setMessage(getMessageText(specialStatus), IMessageProvider.ERROR);
 
 		}

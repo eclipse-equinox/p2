@@ -129,7 +129,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				detail = ""; //$NON-NLS-1$
 				detailsGroup.enablePropertyLink(false);
 			}
-			detailsGroup.getDetailsArea().setText(detail);
+			detailsGroup.setDetailText(detail);
 			return;
 		}
 
@@ -138,20 +138,20 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			detail = resolvedOperation.getResolutionResult().getDetailedReport(new IInstallableUnit[] {selectedIU});
 			if (detail != null) {
 				detailsGroup.enablePropertyLink(false);
-				detailsGroup.getDetailsArea().setText(detail);
+				detailsGroup.setDetailText(detail);
 				return;
 			}
 			// No specific error about this IU.  Show the overall error if it is in error.
 			if (resolvedOperation.getResolutionResult().getSummaryStatus().getSeverity() == IStatus.ERROR) {
 				detail = resolvedOperation.getResolutionResult().getSummaryReport();
 				detailsGroup.enablePropertyLink(false);
-				detailsGroup.getDetailsArea().setText(detail);
+				detailsGroup.setDetailText(detail);
 				return;
 			}
 
 			// The overall status is not an error, so we may as well just show info about this iu rather than everything.
 			detailsGroup.enablePropertyLink(true);
-			detailsGroup.getDetailsArea().setText(getIUDescription(selectedIU));
+			detailsGroup.setDetailText(getIUDescription(selectedIU));
 			return;
 		}
 
@@ -160,7 +160,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		detailsGroup.enablePropertyLink(false);
 		if (detail == null)
 			detail = ""; //$NON-NLS-1$
-		detailsGroup.getDetailsArea().setText(detail);
+		detailsGroup.setDetailText(detail);
 	}
 
 	protected abstract String getDialogSettingsName();

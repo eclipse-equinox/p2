@@ -39,6 +39,7 @@ public class IUDetailsGroup {
 	private ISelectionProvider selectionProvider;
 	private int widthHint;
 	private boolean scrollable;
+	private String lastText;
 
 	/**
 	 * 
@@ -91,10 +92,15 @@ public class IUDetailsGroup {
 	}
 
 	/**
-	 * @return The details area for this IUDEtailsGroup
+	 * Set the detail text
 	 */
-	public Text getDetailsArea() {
-		return this.detailsArea;
+	public void setDetailText(String text) {
+		// If the string is the same but the user has scrolled, the text
+		// widget will reset the selection.  This makes it look like the text
+		// has changed when it hasn't.  For this reason, we check equality first.
+		if (lastText == null || !lastText.equals(text))
+			detailsArea.setText(text);
+		lastText = text;
 	}
 
 	/**
