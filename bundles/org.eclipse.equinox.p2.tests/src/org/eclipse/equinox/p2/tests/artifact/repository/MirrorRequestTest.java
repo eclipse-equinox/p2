@@ -30,12 +30,14 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.AbstractWrappedArtifactRepository;
 import org.w3c.dom.*;
 
 public class MirrorRequestTest extends AbstractProvisioningTest {
 	private static final String testDataLocation = "testData/artifactRepo/emptyJarRepo";
 	File targetLocation;
 	IArtifactRepository targetRepository, sourceRepository;
+	URI destination, failedOptimized;
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -46,16 +48,21 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		sourceRepository = mgr.loadRepository((getTestData("EmptyJar repo", testDataLocation).toURI()), null);
-
+		failedOptimized = URIUtil.toJarURI(getTestData("Error loading test data", "testData/mirror/invalidPackedMissingCanonical.zip").toURI(), null);
+		destination = getTempFolder().toURI();
 	}
 
 	protected void tearDown() throws Exception {
+		getArtifactRepositoryManager().removeRepository(destination);
+		getArtifactRepositoryManager().removeRepository(failedOptimized);
+		getArtifactRepositoryManager().removeRepository(targetLocation.toURI());
 		AbstractProvisioningTest.delete(targetLocation);
+		delete(new File(destination));
 		super.tearDown();
 	}
 
 	public void testInvalidZipFileInTheSource() {
-		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "HelloWorldFeature", new Version(1, 0, 0));
+		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "HelloWorldFeature", Version.createOSGi(1, 0, 0));
 		Properties targetProperties = new Properties();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
@@ -68,7 +75,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	public void testMissingArtifact() {
-		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "Missing", new Version(1, 0, 0));
+		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "Missing", Version.createOSGi(1, 0, 0));
 		Properties targetProperties = new Properties();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
@@ -83,7 +90,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	public void testFailToCanonical() {
 		RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
 
-		IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", new Version("1.0.0"));
+		IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", Version.parseVersion("1.0.0"));
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
 		request.setSourceRepository(src);
 		request.perform(new NullProgressMonitor());
@@ -98,7 +105,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
 
 		// call test
-		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", new Version("1.0.0"));
+		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
 		request.setSourceRepository(sourceRepository);
 		request.perform(new NullProgressMonitor());
@@ -107,6 +114,55 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		// All available mirrors used
 		assertTrue("All mirrors utilized", selector.index == selector.mirrors.length);
+	}
+
+	public void testFailedOptimizedMissingCanonical() {
+
+		try {
+			IArtifactRepository source = new AbstractWrappedArtifactRepository(getArtifactRepositoryManager().loadRepository(failedOptimized, new NullProgressMonitor())) {
+				public URI getLocation() {
+					try {
+						return new URI("http://nowhere");
+					} catch (URISyntaxException e) {
+						fail("Failed to create URI", e);
+						return null;
+					}
+				}
+			};
+			IArtifactRepository target = getArtifactRepositoryManager().createRepository(destination, "Destination", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+
+			IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ve.jfc", Version.parseVersion("1.4.0.HEAD"));
+			MirrorRequest req = new MirrorRequest(key, target, null, null);
+			req.setSourceRepository(source);
+
+			req.perform(new NullProgressMonitor());
+			IStatus result = req.getResult();
+			assertTrue("MirrorRequest should have failed", result.matches(IStatus.ERROR));
+			assertEquals("Result should contain two failures", 2, result.getChildren().length);
+			assertStatusContains("Return status does not contain Signature Verification failure", result, "Invalid content:");
+			assertStatusContains("Return status does not contain Missing Artifact status", result, "Artifact not found:");
+		} catch (ProvisionException e) {
+			fail("Failed to load repositories", e);
+		}
+	}
+
+	protected static void assertStatusContains(String message, IStatus status, String statusString) {
+		if (!statusContains(status, statusString))
+			fail(message);
+	}
+
+	private static boolean statusContains(IStatus status, String statusString) {
+		if (status.getMessage().indexOf(statusString) != -1)
+			return true;
+		if (!status.isMultiStatus())
+			return false;
+
+		IStatus[] children = status.getChildren();
+		for (int i = 0; i < children.length; i++)
+			if (statusContains(children[i], statusString))
+				return true;
+
+		return false;
 	}
 
 	// Repository which misleads about its location
