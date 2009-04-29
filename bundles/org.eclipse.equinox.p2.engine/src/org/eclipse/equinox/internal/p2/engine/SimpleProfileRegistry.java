@@ -728,13 +728,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry#containsProfile(java.lang.String)
 	 */
-	public boolean containsProfile(String id) {
+	public synchronized boolean containsProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
 		//null check done after self check, because self can be null
 		if (id == null)
 			return false;
 
+		// check profiles to avoid restoring the profile registry
 		if (profiles != null)
 			if (getProfile(id) != null)
 				return true;
@@ -776,7 +777,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
-	public File getProfileDataDirectory(String id) {
+	public synchronized File getProfileDataDirectory(String id) {
 		if (SELF.equals(id))
 			id = self;
 		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
