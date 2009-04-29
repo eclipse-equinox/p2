@@ -13,11 +13,12 @@
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
+
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;

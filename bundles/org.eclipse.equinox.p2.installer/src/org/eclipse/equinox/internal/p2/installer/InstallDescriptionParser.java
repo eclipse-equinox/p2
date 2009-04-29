@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 
 /**

@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
+
 import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.publisher.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.*;

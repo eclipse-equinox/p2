@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
+
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;

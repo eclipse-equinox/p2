@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.equinox.internal.p2.installer.VersionedName;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
 
 /**
  * An install information captures all the data needed to perform a product install.
