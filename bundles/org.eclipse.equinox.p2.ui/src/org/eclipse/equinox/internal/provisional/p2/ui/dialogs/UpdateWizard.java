@@ -16,12 +16,18 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.widgets.Composite;
@@ -56,9 +62,9 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	/**
-	 * Create a profile change request that represents an update of the specified IUs to their latest versions.
-	 * If an element root and selection container are provided, update those elements so that a wizard could
-	 * be opened on them to reflect the profile change request.
+	 * Create a profile change request that represents an update of the specified IUs to their latest versions,
+	 * unless otherwise specified by the initial selections.  If an element root and selection container are provided, 
+	 * update those elements so that a wizard could be opened on them to reflect the profile change request.
 	 * 
 	 * @param iusToUpdate
 	 * @param profileId
@@ -68,73 +74,120 @@ public class UpdateWizard extends WizardWithLicenses {
 	 * @return the profile change request describing an update, or null if there is nothing to update.
 	 */
 	public static ProfileChangeRequest createProfileChangeRequest(IInstallableUnit[] iusToUpdate, String profileId, IUElementListRoot root, Collection initialSelections, IProgressMonitor monitor) {
-		// Here we create a profile change request by finding the latest version available for any replacement.
+		// Here we create a profile change request by finding the latest version available for any replacement, unless
+		// otherwise specified in the selections.
 		// We have to consider the scenario where the only updates available are patches, in which case the original
 		// IU should not be removed as part of the update.
-		ArrayList toBeUpdated = new ArrayList();
-		HashMap latestReplacements = new HashMap();
+		Set toBeUpdated = new HashSet();
+		HashSet elementsToPlan = new HashSet();
 		ArrayList allReplacements = new ArrayList();
+		IProfile profile;
+		try {
+			profile = ProvisioningUtil.getProfile(profileId);
+			if (profile == null)
+				return null;
+		} catch (ProvisionException e) {
+			return null;
+		}
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProfileChangeRequestBuildingRequest, 100 * iusToUpdate.length);
 		for (int i = 0; i < iusToUpdate.length; i++) {
+			boolean selectionSpecified = false;
 			ElementQueryDescriptor descriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new Updates(profileId, new IInstallableUnit[] {iusToUpdate[i]}));
 			Iterator iter = descriptor.performQuery(sub).iterator();
-			if (iter.hasNext())
-				toBeUpdated.add(iusToUpdate[i]);
 			ArrayList currentReplacements = new ArrayList();
 			while (iter.hasNext()) {
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+				// If there is already a selected element representing an update for this iu, then we won't need
+				// to look for the latest.
 				if (iu != null) {
-					AvailableUpdateElement element = new AvailableUpdateElement(root, iu, iusToUpdate[i], profileId, true);
-					currentReplacements.add(element);
-					allReplacements.add(element);
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273967
+					// In the case of patches, it's possible that a patch is returned as an available update
+					// even though it is already installed, because we are querying each IU for updates individually.
+					// For now, we ignore any proposed update that is already installed.
+					Collector alreadyInstalled = profile.query(new InstallableUnitQuery(iu.getId(), iu.getVersion()), new Collector(), null);
+					if (alreadyInstalled.isEmpty()) {
+						toBeUpdated.add(iusToUpdate[i]);
+						AvailableUpdateElement element = new AvailableUpdateElement(root, iu, iusToUpdate[i], profileId, true);
+						currentReplacements.add(element);
+						allReplacements.add(element);
+						if (initialSelections != null && initialSelections.contains(element)) {
+							elementsToPlan.add(element);
+							selectionSpecified = true;
+						}
+					}
 				}
 			}
-			// This loop gathers the latest version of all replacements by id.
-			// It's possible that there are multiple latest replacements if patches (which have a different id than the original)
-			// are involved.
-			Set idsSeen = new HashSet();
-			for (int j = 0; j < currentReplacements.size(); j++) {
-				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
-				idsSeen.add(replacementElement.getIU().getId());
-				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
-				IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
-				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
-					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
-			}
-			// If there is a true update available, ignore any other ids seen (patches).
-			// We know there are only patches available if there is no update with the same id as the replacement.
-			if (idsSeen.contains(iusToUpdate[i].getId()) && idsSeen.size() > 1) {
-				Iterator replacementIds = idsSeen.iterator();
-				while (replacementIds.hasNext()) {
-					String id = (String) replacementIds.next();
-					if (id != iusToUpdate[i].getId())
-						latestReplacements.remove(id);
+			if (!selectionSpecified) {
+				// If no selection was specified, we must figure out the latest version to apply.
+				// The rules are that a true update will always win over a patch, but if only
+				// patches are available, they should all be selected.
+				// We first gather the latest versions of everything proposed.
+				// Patches are keyed by their id because they are unique and should not be compared to
+				// each other.  Updates are keyed by the IU they are updating so we can compare the
+				// versions and select the latest one
+				HashMap latestVersions = new HashMap();
+				boolean foundUpdate = false;
+				boolean foundPatch = false;
+				for (int j = 0; j < currentReplacements.size(); j++) {
+					AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
+					String key;
+					if (Boolean.toString(true).equals(replacementElement.getIU().getProperty(IInstallableUnit.PROP_TYPE_PATCH))) {
+						foundPatch = true;
+						key = replacementElement.getIU().getId();
+					} else {
+						foundUpdate = true;
+						key = replacementElement.getIUToBeUpdated().getId();
+					}
+					AvailableUpdateElement latestElement = (AvailableUpdateElement) latestVersions.get(key);
+					IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
+					if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
+						latestVersions.put(key, replacementElement);
 				}
+				// If there is a true update available, ignore any patches found
+				// Patches are keyed by their own id
+				if (foundPatch && foundUpdate) {
+					Set keys = new HashSet();
+					keys.addAll(latestVersions.keySet());
+					Iterator keyIter = keys.iterator();
+					while (keyIter.hasNext()) {
+						String id = (String) keyIter.next();
+						// Get rid of things keyed by a different id.  We've already made sure
+						// that updates with a different id are keyed under the original id
+						if (!id.equals(iusToUpdate[i].getId())) {
+							latestVersions.remove(id);
+						}
+					}
+				}
+				elementsToPlan.addAll(latestVersions.values());
 			}
 			sub.worked(100);
 		}
 		if (root != null)
 			root.setChildren(allReplacements.toArray());
 
-		if (initialSelections != null)
-			initialSelections.addAll(latestReplacements.values());
-
-		if (toBeUpdated.size() <= 0) {
+		if (toBeUpdated.size() <= 0 || elementsToPlan.isEmpty()) {
 			sub.done();
 			return null;
 		}
 
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileId);
-		Iterator iter = toBeUpdated.iterator();
+		Iterator iter = elementsToPlan.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iuToBeUpdated = (IInstallableUnit) iter.next();
-			// Only remove it if there is a replacement with the same id.  
-			if (latestReplacements.containsKey(iuToBeUpdated.getId()))
-				request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
+			AvailableUpdateElement element = (AvailableUpdateElement) iter.next();
+			IInstallableUnit theUpdate = element.getIU();
+			if (initialSelections != null) {
+				if (!initialSelections.contains(element))
+					initialSelections.add(element);
+			}
+			request.addInstallableUnits(new IInstallableUnit[] {theUpdate});
+			request.setInstallableUnitProfileProperty(theUpdate, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			if (Boolean.toString(true).equals(theUpdate.getProperty(IInstallableUnit.PROP_TYPE_PATCH))) {
+				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
+			} else {
+				request.removeInstallableUnits(new IInstallableUnit[] {element.getIUToBeUpdated()});
+			}
+
 		}
-		iter = latestReplacements.values().iterator();
-		while (iter.hasNext())
-			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
 		sub.done();
 		return request;
 	}
@@ -184,10 +237,9 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	protected ProfileChangeRequest computeProfileChangeRequest(Object[] selectedElements, MultiStatus additionalStatus, IProgressMonitor monitor) {
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileId);
-		request.removeInstallableUnits(getIUsToReplace(selectedElements));
-		request.addInstallableUnits(getReplacementIUs(selectedElements));
-		return request;
+		ArrayList initialSelections = new ArrayList();
+		initialSelections.addAll(Arrays.asList(selectedElements));
+		return createProfileChangeRequest(getIUsToReplace(selectedElements), profileId, null, initialSelections, monitor);
 	}
 
 	/* (non-Javadoc)
