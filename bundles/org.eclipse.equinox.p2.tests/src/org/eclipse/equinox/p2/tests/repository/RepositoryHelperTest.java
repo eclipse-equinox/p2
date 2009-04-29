@@ -33,14 +33,14 @@ public class RepositoryHelperTest extends TestCase {
 
 		location = new URI("https://somwhere.com/path");
 		result = RepositoryHelper.checkRepositoryLocationSyntax(location);
-		assertTrue("2.0 Valid URI should be ok", result.isOK());
+		assertTrue("3.0 Valid URI should be ok", result.isOK());
 
 		location = new URI("htp://somwhere.com/path");
 		result = RepositoryHelper.checkRepositoryLocationSyntax(location);
-		assertFalse("1.0 Invalid URI should not be ok", result.isOK());
+		assertFalse("4.0 Invalid URI should not be ok", result.isOK());
 
 		location = new URI("/somwhere.com/path");
 		result = RepositoryHelper.checkRepositoryLocationSyntax(location);
-		assertFalse("2.0 Invalid URI should not be ok", result.isOK());
+		assertFalse("5.0 Invalid URI should not be ok", result.isOK());
 	}
 }
