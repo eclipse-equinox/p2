@@ -470,6 +470,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		FileUtils.deleteAll(profileDirectory);
 	}
 
+	/**
+	 * Converts a profile id into a string that can be used as a file name in any file system.
+	 */
 	public static String escape(String toEscape) {
 		StringBuffer buffer = new StringBuffer();
 		int length = toEscape.length();
