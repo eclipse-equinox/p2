@@ -284,6 +284,7 @@ class ConfigApplier {
 			Bundle bundle = bundles[i];
 			if (bundle.getState() == Bundle.UNINSTALLED) {
 				System.err.println("Could not start: " + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')' + ". It's state is uninstalled.");
+				continue;
 			}
 			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
 				continue;
