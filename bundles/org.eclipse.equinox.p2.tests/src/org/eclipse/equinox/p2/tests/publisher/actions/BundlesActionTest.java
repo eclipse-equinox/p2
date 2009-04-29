@@ -17,18 +17,20 @@ import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -96,6 +98,42 @@ public class BundlesActionTest extends ActionTest {
 		verifyBundlesAction();
 		cleanup();
 		debug("Completed BundlesActionTest.");//$NON-NLS-1$
+	}
+
+	public void testTranslationFragment() {
+		File foo_fragment = new File(TestActivator.getTestDataFolder(), "FragmentPublisherTest/foo.fragment");//$NON-NLS-1$
+		File foo = new File(TestActivator.getTestDataFolder(), "FragmentPublisherTest/foo");//$NON-NLS-1$
+		BundlesAction bundlesAction = new BundlesAction(new File[] {foo_fragment});
+		PublisherInfo info = new PublisherInfo();
+		PublisherResult results = new PublisherResult();
+
+		bundlesAction.perform(info, results, new NullProgressMonitor());
+		Collection ius = results.getIUs(null, null);
+		assertEquals("1.0", 1, ius.size());
+
+		info = new PublisherInfo();
+		results = new PublisherResult();
+		bundlesAction = new BundlesAction(new File[] {foo});
+		bundlesAction.perform(info, results, new NullProgressMonitor());
+		ius = results.getIUs(null, null);
+		assertEquals("2.0", 1, ius.size());
+		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
+		assertEquals("3.1", 1, result.size());
+		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IUPropertyUtils iuPropertyUtils = new IUPropertyUtils(queryableArray);
+		assertEquals("3.2", "English Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+
+		bundlesAction = new BundlesAction(new File[] {foo_fragment});
+		bundlesAction.perform(info, results, new NullProgressMonitor());
+		ius = results.getIUs(null, null);
+		assertEquals("2.0", 3, ius.size());
+		queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+		result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
+		assertEquals("2.1", 1, result.size());
+		iu = (IInstallableUnit) result.iterator().next();
+		iuPropertyUtils = new IUPropertyUtils(queryableArray);
+		assertEquals("2.2", "German Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
 	}
 
 	private void verifyBundlesAction() throws Exception {

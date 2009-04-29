@@ -83,9 +83,8 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$
 
-	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL};
-	public static final String[] BUNDLE_LOCALIZED_PROPERTIES = {Constants.BUNDLE_NAME, Constants.BUNDLE_DESCRIPTION, Constants.BUNDLE_VENDOR, Constants.BUNDLE_CONTACTADDRESS, Constants.BUNDLE_DOCURL, Constants.BUNDLE_UPDATELOCATION};
-	public static final int BUNDLE_LOCALIZATION_INDEX = BUNDLE_LOCALIZED_PROPERTIES.length;
+	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_BUNDLE_LOCALIZATION, Constants.BUNDLE_LOCALIZATION, IInstallableUnit.PROP_BUNDLE_LOCALIZATION};
+	public static final int BUNDLE_LOCALIZATION_INDEX = PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length - 1;
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
 	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
@@ -393,7 +392,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String[] bundleManifestValues = getManifestCachedValues(manifest);
-		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
+		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX]; // Bundle localization is the last one in the list
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
@@ -407,16 +406,33 @@ public class BundlesAction extends AbstractPublisherAction {
 		return localizations;
 	}
 
+	public static String[] getExternalizedStrings(IInstallableUnit iu) {
+		String[] result = new String[PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length];
+		int j = 0;
+		for (int i = 1; i < BUNDLE_IU_PROPERTY_MAP.length - 1; i += 2) {
+			if (iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]) != null && iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).length() > 0 && iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).charAt(0) == '%')
+				result[j++] = iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).substring(1);
+			else
+				j++;
+		}
+		// The last string is the location 
+		result[BUNDLE_LOCALIZATION_INDEX] = iu.getProperty(IInstallableUnit.PROP_BUNDLE_LOCALIZATION);
+
+		return result;
+	}
+
 	public static String[] getManifestCachedValues(Map manifest) {
-		String[] cachedValues = new String[BUNDLE_LOCALIZED_PROPERTIES.length + 1];
+		String[] cachedValues = new String[PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length];
 		for (int j = 0; j < PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length; j++) {
-			String value = (String) manifest.get(BUNDLE_LOCALIZED_PROPERTIES[j]);
-			if (value != null && value.length() > 1 && value.charAt(0) == '%') {
+			String value = (String) manifest.get(PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j]);
+			if (PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j].equals(Constants.BUNDLE_LOCALIZATION)) {
+				if (value == null)
+					value = DEFAULT_BUNDLE_LOCALIZATION;
+				cachedValues[j] = value;
+			} else if (value != null && value.length() > 1 && value.charAt(0) == '%') {
 				cachedValues[j] = value.substring(1);
 			}
 		}
-		String localizationFile = (String) manifest.get(org.osgi.framework.Constants.BUNDLE_LOCALIZATION);
-		cachedValues[BUNDLE_LOCALIZATION_INDEX] = (localizationFile != null ? localizationFile : DEFAULT_BUNDLE_LOCALIZATION);
 		return cachedValues;
 	}
 
@@ -427,6 +443,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String hostBundleLocalization = hostBundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
+		if (hostBundleLocalization == null)
+			return null;
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
@@ -639,78 +657,60 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result, IProgressMonitor monitor) {
-		// Computing the path for localized property files in a NL fragment bundle
-		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
-		// so a first pass is done over all the bundles to cache this value as well as the tags
-		// from the manifest for the localizable properties.
-		final int CACHE_PHASE = 0;
-		final int GENERATE_PHASE = 1;
-		Map bundleLocalizationMap = new HashMap(bundleDescriptions.length);
-		//		Set localizationIUs = new HashSet(32);
-		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {
-			for (int i = 0; i < bundleDescriptions.length; i++) {
-				if (monitor.isCanceled())
-					throw new OperationCanceledException();
 
-				BundleDescription bd = bundleDescriptions[i];
-				//Version bundleVersion = bd.getVersion().toString())
-				// A bundle may be null if the associated plug-in does not have a manifest file -
-				// for example, org.eclipse.jdt.launching.j9
-				if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
-					Map bundleManifest = (Map) bd.getUserObject();
+		// This assumes that hosts are processed before fragments because for each fragment the host
+		// is queried for the strings that should be translated.
+		for (int i = 0; i < bundleDescriptions.length; i++) {
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
 
-					if (phase == CACHE_PHASE) {
-						if (bundleManifest != null) {
-							String[] cachedValues = getManifestCachedValues(bundleManifest);
-							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
-						}
-					} else {
-						//First check to see if there is already an IU around for this
-						IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()));
-						IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-						if (bundleIU == null) {
-							createAdviceFileAdvice(bundleDescriptions[i], info);
-							// Create the bundle IU according to any shape advice we have
-							bundleIU = createBundleIU(bd, key, info);
-						}
+			BundleDescription bd = bundleDescriptions[i];
+			if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
+				//First check to see if there is already an IU around for this
+				IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()));
+				IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+				if (bundleIU == null) {
+					createAdviceFileAdvice(bundleDescriptions[i], info);
+					// Create the bundle IU according to any shape advice we have
+					bundleIU = createBundleIU(bd, key, info);
+				}
 
-						File location = new File(bd.getLocation());
-						IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
-						processArtifactPropertiesAdvice(bundleIU, (ArtifactDescriptor) ad, info);
+				File location = new File(bd.getLocation());
+				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
+				processArtifactPropertiesAdvice(bundleIU, (ArtifactDescriptor) ad, info);
 
-						// Publish according to the shape on disk
-						File bundleLocation = new File(bd.getLocation());
-						if (bundleLocation.isDirectory())
-							publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
-						else
-							publishArtifact(ad, bundleLocation, info);
+				// Publish according to the shape on disk
+				File bundleLocation = new File(bd.getLocation());
+				if (bundleLocation.isDirectory())
+					publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
+				else
+					publishArtifact(ad, bundleLocation, info);
 
-						IInstallableUnit fragment = null;
-						if (isFragment(bd)) {
-							// TODO: Can NL fragments be multi-host?  What special handling
-							//		 is required for multi-host fragments in general?
-							String hostId = bd.getHost().getName();
-							String hostKey = makeSimpleKey(hostId);
-							String[] cachedValues = (String[]) bundleLocalizationMap.get(hostKey);
+				IInstallableUnit fragment = null;
+				if (isFragment(bd)) {
+					// TODO: Need a test case for multiple hosts
+					String hostId = bd.getHost().getName();
+					VersionRange hostVersionRange = VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange());
+					IInstallableUnit[] hosts = queryForIUs(result, hostId, hostVersionRange);
 
-							if (cachedValues != null) {
-								String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
-								fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
-								if (fragment == null)
-									fragment = createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues);
-							}
-
-						}
-
-						result.addIU(bundleIU, IPublisherResult.ROOT);
-						if (fragment != null)
-							result.addIU(fragment, IPublisherResult.NON_ROOT);
-
-						InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
-						for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
-							result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
+					for (int j = 0; j < hosts.length; j++) {
+						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
+						fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
+						if (fragment == null) {
+							String[] externalizedStrings = getExternalizedStrings(hosts[j]);
+							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
 						}
 					}
+
+				}
+
+				result.addIU(bundleIU, IPublisherResult.ROOT);
+				if (fragment != null)
+					result.addIU(fragment, IPublisherResult.NON_ROOT);
+
+				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
+				for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
+					result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
 				}
 			}
 		}
@@ -743,19 +743,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map manifest = (Map) bundle.getUserObject();
 		String format = (String) manifest.get(BUNDLE_SHAPE);
 		return DIR.equals(format);
-	}
-
-	private String makeSimpleKey(BundleDescription bd) {
-		// TODO: can't use the bundle version in the key for the BundleLocalization
-		//		 property map since the host specification for a fragment has a
-		//		 version range, not a version. Hence, this mechanism for finding
-		// 		 manifest localization property files may break under changes
-		//		 to the BundleLocalization property of a bundle.
-		return makeSimpleKey(bd.getSymbolicName() /*, bd.getVersion() */);
-	}
-
-	private String makeSimpleKey(String id /*, Version version */) {
-		return id; // + '_' + version.toString();
 	}
 
 	private boolean isFragment(BundleDescription bd) {

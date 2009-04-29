@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fragment
+Bundle-SymbolicName: foo.fragment
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: foo;bundle-version="1.0.0"
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -514,6 +514,30 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return null;
 	}
 
+	/**
+	 * Loop over the known metadata repositories looking for the given IU within a particular range
+	 * @param publisherResult
+	 * @param iuId the id of the IU to look for
+	 * @param versionRange the version range to consider
+	 * @return The the IUs with the matching ids in the given range
+	 */
+	protected IInstallableUnit[] queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
+		Query query = null;
+		Collector collector = new Collector();
+		query = new InstallableUnitQuery(iuId, versionRange);
+		NullProgressMonitor progress = new NullProgressMonitor();
+		if (publisherResult != null)
+			collector = publisherResult.query(query, collector, progress);
+		if (collector.isEmpty() && info.getMetadataRepository() != null)
+			collector = info.getMetadataRepository().query(query, collector, progress);
+		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
+			collector = info.getContextMetadataRepository().query(query, collector, progress);
+
+		if (!collector.isEmpty())
+			return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
+		return new IInstallableUnit[0];
+	}
+
 	public abstract IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor);
 
 	public void setPublisherInfo(IPublisherInfo info) {

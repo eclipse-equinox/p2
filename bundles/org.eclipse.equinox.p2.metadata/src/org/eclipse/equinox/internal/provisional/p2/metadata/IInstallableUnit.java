@@ -132,6 +132,12 @@ public interface IInstallableUnit extends Comparable {
 	public static final String PROP_DOC_URL = "org.eclipse.equinox.p2.doc.url"; //$NON-NLS-1$
 
 	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.bundle.localization"</code>) for a String
+	 * property containing the bundle localization property file name
+	 */
+	public static final String PROP_BUNDLE_LOCALIZATION = "org.eclipse.equinox.p2.bundle.localization"; //$NON-NLS-1$
+
+	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.name"</code>) for a 
 	 * String property containing a human-readable name for the installable unit.
 	 * 
