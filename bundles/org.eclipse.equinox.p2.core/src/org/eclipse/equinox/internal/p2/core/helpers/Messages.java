@@ -27,5 +27,7 @@ class Messages extends NLS {
 
 	public static String Util_Invalid_Zip_File_Format;
 	public static String Util_Error_Unzipping;
+	public static String Util_Empty_Zip_Entry;
+	public static String Util_Absolute_Entry;
 
 }

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.osgi.util.NLS;
@@ -243,10 +244,11 @@ public class FileUtils {
 		FileOutputStream fileOutput = new FileOutputStream(destinationArchive);
 		ZipOutputStream output = new ZipOutputStream(fileOutput);
 		HashSet exclusionSet = exclusions == null ? new HashSet() : new HashSet(Arrays.asList(exclusions));
+		HashSet directoryEntries = new HashSet();
 		try {
 			for (int i = 0; i < inclusions.length; i++) {
 				pathComputer.reset();
-				zip(output, inclusions[i], exclusionSet, pathComputer);
+				zip(output, inclusions[i], exclusionSet, pathComputer, directoryEntries);
 			}
 		} finally {
 			try {
@@ -272,27 +274,32 @@ public class FileUtils {
 	 * @throws IOException
 	 */
 	public static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
+		zip(output, source, exclusions, pathComputer, new HashSet());
+	}
+
+	public static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer, Set directoryEntries) throws IOException {
 		if (exclusions.contains(source))
 			return;
 		if (source.isDirectory()) //if the file path is a URL then isDir and isFile are both false
-			zipDir(output, source, exclusions, pathComputer);
+			zipDir(output, source, exclusions, pathComputer, directoryEntries);
 		else
-			zipFile(output, source, pathComputer);
+			zipFile(output, source, pathComputer, directoryEntries);
 	}
 
-	/*
-	 * Zip the contents of the given directory into the zip file represented by
-	 * the given zip stream. Prepend the given prefix to the file paths.
-	 */
-	private static void zipDir(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
-		File[] files = source.listFiles();
-		if (files.length == 0) {
+	private static void zipDirectoryEntry(ZipOutputStream output, IPath entry, long time, Set directoryEntries) throws IOException {
+		entry = entry.addTrailingSeparator();
+		if (!directoryEntries.contains(entry)) {
+			//make sure parent entries are in the zip
+			if (entry.segmentCount() > 1)
+				zipDirectoryEntry(output, entry.removeLastSegments(1), time, directoryEntries);
+
 			try {
-				ZipEntry dirEntry = new ZipEntry(pathComputer.computePath(source).toString() + "/"); //$NON-NLS-1$
-				dirEntry.setTime(source.lastModified());
+				ZipEntry dirEntry = new ZipEntry(entry.toString());
+				dirEntry.setTime(time);
 				output.putNextEntry(dirEntry);
+				directoryEntries.add(entry);
 			} catch (ZipException ze) {
-				//TODO: something about duplicate entries
+				//duplicate entries shouldn't happen because we checked the set
 			} finally {
 				try {
 					output.closeEntry();
@@ -300,6 +307,17 @@ public class FileUtils {
 					// ignore
 				}
 			}
+		}
+	}
+
+	/*
+	 * Zip the contents of the given directory into the zip file represented by
+	 * the given zip stream. Prepend the given prefix to the file paths.
+	 */
+	private static void zipDir(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer, Set directoryEntries) throws IOException {
+		File[] files = source.listFiles();
+		if (files.length == 0) {
+			zipDirectoryEntry(output, pathComputer.computePath(source), source.lastModified(), directoryEntries);
 		}
 
 		// Different OSs return files in a different order.  This affects the creation
@@ -327,19 +345,31 @@ public class FileUtils {
 		});
 
 		for (int i = 0; i < files.length; i++)
-			zip(output, files[i], exclusions, pathComputer);
+			zip(output, files[i], exclusions, pathComputer, directoryEntries);
 	}
 
 	/*
 	 * Add the given file to the zip file represented by the specified stream.
 	 * Prepend the given prefix to the path of the file.
 	 */
-	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer) throws IOException {
-		InputStream input = new FileInputStream(source);
+	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer, Set directoryEntries) throws IOException {
+		boolean isManifest = false; //manifest files are special
+		InputStream input = new BufferedInputStream(new FileInputStream(source));
 		try {
 			IPath entryPath = pathComputer.computePath(source);
+			if (entryPath.isAbsolute())
+				throw new IOException(Messages.Util_Absolute_Entry);
 			if (entryPath.segmentCount() == 0)
-				throw new IOException("Cannot have an empty zip entry."); //$NON-NLS-1$
+				throw new IOException(Messages.Util_Empty_Zip_Entry);
+
+			//make sure parent directory entries are in the zip
+			if (entryPath.segmentCount() > 1) {
+				//manifest files should be first, add their directory entry afterwards
+				isManifest = JarFile.MANIFEST_NAME.equals(entryPath.toString());
+				if (!isManifest)
+					zipDirectoryEntry(output, entryPath.removeLastSegments(1), source.lastModified(), directoryEntries);
+			}
+
 			ZipEntry zipEntry = new ZipEntry(entryPath.toString());
 			zipEntry.setTime(source.lastModified());
 			output.putNextEntry(zipEntry);
@@ -357,6 +387,10 @@ public class FileUtils {
 			} catch (IOException e) {
 				// ignore
 			}
+		}
+
+		if (isManifest) {
+			zipDirectoryEntry(output, new Path("META-INF"), source.lastModified(), directoryEntries); //$NON-NLS-1$
 		}
 	}
 

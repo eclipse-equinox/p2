@@ -108,6 +108,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertTrue("2.2", archive.length() > 0);
 		assertExists("2.3", archive, "a.txt");
 		assertExists("2.4", archive, "b/b.txt");
+		assertExists("2.5", archive, "b/");
 	}
 
 	public void testZipDynamicPathComputer() {
@@ -142,7 +143,9 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertTrue("3.1", archive.exists());
 		assertTrue("3.2", archive.length() > 0);
 		assertExists("3.3", archive, "a2/a.txt");
+		assertExists("3.3.1", archive, "a2/");
 		assertExists("3.4", archive, "b/b.txt");
+		assertExists("3.4.1", archive, "b/");
 
 		archive = new File(temp, getUniqueString() + ".zip");
 		File[] input = new File[] {getTestData("4.0", "testData/core/x/y"), getTestData("4.0", "testData/core/z")};
@@ -154,7 +157,9 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertTrue("4.1", archive.exists());
 		assertTrue("4.2", archive.length() > 0);
 		assertExists("4.3", archive, "features/feature.txt");
+		assertExists("4.3.1", archive, "features/");
 		assertExists("4.4", archive, "plugins/bundle.txt");
+		assertExists("4.4.1", archive, "plugins/");
 	}
 
 	public void testZipParentPrefixComputer() {
