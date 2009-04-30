@@ -81,7 +81,7 @@ public class ProfileLock {
 			if (lockHolder == current)
 				throw new IllegalStateException(Messages.profile_lock_not_reentrant);
 
-			boolean locationLocked = false;
+			boolean locationLocked = (waiting != 0);
 			while (lockHolder != null) {
 				locationLocked = true;
 				waiting++;
