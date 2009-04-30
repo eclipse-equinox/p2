@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ecf.core.identity.IDCreateException;
@@ -125,8 +126,23 @@ public class RepositoryStatus {
 
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
-		if (t instanceof IncomingFileTransferException) {
-			int code = ((IncomingFileTransferException) t).getErrorCode();
+		int code = 0;
+		// (sigh) parse http code from IOException thrown by ECF
+		if (t instanceof IOException) {
+			String ioMsg = t.getMessage();
+			String prefix = "HttpClient connection error response code "; //$NON-NLS-1$
+			if (ioMsg != null && ioMsg.startsWith(prefix)) {
+				try {
+					code = new Integer(ioMsg.substring(prefix.length(), ioMsg.lastIndexOf("."))).intValue(); //$NON-NLS-1$
+				} catch (Throwable e) {
+					code = 0;
+				}
+			}
+		}
+
+		if (t instanceof IncomingFileTransferException || code != 0) {
+			if (code == 0)
+				code = ((IncomingFileTransferException) t).getErrorCode();
 			// Switch on error codes in the HTTP error code range 
 			if (code >= 400 && code <= 600) {
 				int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
