@@ -34,6 +34,10 @@ import org.eclipse.swt.widgets.Label;
  * @since 3.5
  */
 public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPage {
+	protected Label sizeInfo;
+	protected long size;
+	Job sizingJob;
+	private ProvisioningPlan lastComputedPlan = null;
 
 	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, PlannerResolutionOperation initialResolution) {
 		super(policy, root, profileID, initialResolution);
@@ -46,11 +50,10 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			size = IIUElement.SIZE_NOTAPPLICABLE;
 	}
 
-	protected Label sizeInfo;
-	protected long size;
-	Job sizingJob;
-
-	protected void computeSizing(final ProvisioningPlan plan, final String profileId, final ProvisioningContext provisioningContext) {
+	protected void computeSizing(final ProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
+		if (plan == lastComputedPlan)
+			return;
+		lastComputedPlan = plan;
 		size = IIUElement.SIZE_UNKNOWN;
 		updateSizingInfo();
 		if (sizingJob != null)
@@ -58,7 +61,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					size = ProvisioningUtil.getSize(plan, profileId, provisioningContext, monitor);
+					size = ProvisioningUtil.getSize(plan, id, provisioningContext, monitor);
 				} catch (ProvisionException e) {
 					return e.getStatus();
 				}
