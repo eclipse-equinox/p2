@@ -16,6 +16,8 @@ import javax.servlet.ServletException;
 import org.eclipse.equinox.p2.testserver.servlets.BasicResourceDelivery;
 import org.eclipse.equinox.p2.testserver.servlets.ChopAndDelay;
 import org.eclipse.equinox.p2.testserver.servlets.FileMolester;
+import org.eclipse.equinox.p2.testserver.servlets.StatusCodeResponse;
+import org.eclipse.equinox.p2.testserver.servlets.TimeOut;
 import org.eclipse.equinox.p2.testserver.servlets.Truncator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -60,6 +62,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			httpService.registerResources("/private", "/webfiles", secureHttpContext); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/never", "/webfiles", alwaysFail); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/flipflop", "/webfiles", flipFlop); //$NON-NLS-1$ //$NON-NLS-2$
+
+			httpService.registerServlet("/status", new StatusCodeResponse(), null, null); //$NON-NLS-1$
+			httpService.registerServlet("/timeout", new TimeOut(), null, null); //$NON-NLS-1$
+
 			httpService.registerServlet("/truncated", new Truncator("/truncated", URI.create("/webfiles"), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			httpService.registerServlet("/molested", new FileMolester("/molested", URI.create("/webfiles"), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			// 8 bytes at a time, delay from 0 to 100 ms, in steps of 5
