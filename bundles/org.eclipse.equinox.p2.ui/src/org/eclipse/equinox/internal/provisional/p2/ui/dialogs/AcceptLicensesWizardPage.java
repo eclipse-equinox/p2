@@ -173,6 +173,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		initializeDialogUnits(licenseTextBox);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
+		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		licenseTextBox.setLayoutData(gd);
 
 		createLicenseAcceptSection(composite, !singleLicense);
