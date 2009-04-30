@@ -122,7 +122,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			selfProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
-		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_CACHE)))) {
+		String propCache = selfProfile.getProperty(IProfile.PROP_CACHE);
+		if (propCache != null && !location.equals(new File(propCache))) {
 			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
