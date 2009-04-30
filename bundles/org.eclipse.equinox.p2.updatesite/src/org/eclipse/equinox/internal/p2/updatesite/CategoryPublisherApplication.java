@@ -1,0 +1,48 @@
+/*******************************************************************************
+ * Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: 
+ *   EclipseSource - initial API and implementation
+ ******************************************************************************/
+package org.eclipse.equinox.internal.p2.updatesite;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.publisher.*;
+
+/**
+ * <p>
+ * This application categorizes the elements in a repo based on a category definition file.  The category definition
+ * file is specified with <source>-categoryDefinition</source>
+ * </p>
+ */
+public class CategoryPublisherApplication extends AbstractPublisherApplication {
+
+	private String categoryQualifier = null;
+	private URI categoryDefinition = null;
+
+	public CategoryPublisherApplication() {
+		// nothing todo
+	}
+
+	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
+		super.processParameter(arg, parameter, pinfo);
+
+		this.append = true; // Always append, otherwise we will end up with nothing
+
+		if (arg.equalsIgnoreCase("-categoryQualifier")) //$NON-NLS-1$
+			categoryQualifier = parameter;
+
+		if (arg.equalsIgnoreCase("-categoryDefinition")) //$NON-NLS-1$
+			categoryDefinition = URIUtil.fromString(parameter);
+
+	}
+
+	protected IPublisherAction[] createActions() {
+		return new IPublisherAction[] {new CategoryXMLAction(categoryDefinition, categoryQualifier)};
+	}
+}

@@ -31,4 +31,26 @@
          </run>
       </application>
    </extension>
+   <extension id="org.eclipse.equinox.p2.publisher.UpdateSitePublisher" point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="any"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.updatesite.UpdateSitePublisherApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="org.eclipse.equinox.p2.publisher.CategoryPublisher"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="any"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication">
+         </run>
+      </application>
+   </extension>
 </plugin>
