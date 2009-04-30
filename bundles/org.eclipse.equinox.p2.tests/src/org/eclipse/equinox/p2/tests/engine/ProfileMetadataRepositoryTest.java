@@ -120,7 +120,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
 
-	public void testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
+	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();

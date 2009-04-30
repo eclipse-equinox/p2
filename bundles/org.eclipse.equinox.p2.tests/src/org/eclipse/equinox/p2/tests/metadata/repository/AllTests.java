@@ -25,7 +25,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
 		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
 		suite.addTestSuite(ResumeDownloadTest.class);
-		AllServerTests.addToSuite(suite);
+		// DISABLING until we get a test build
+		//		AllServerTests.addToSuite(suite);
 		return suite;
 	}
 
