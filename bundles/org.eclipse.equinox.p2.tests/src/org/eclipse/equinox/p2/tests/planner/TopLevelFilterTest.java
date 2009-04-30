@@ -1,0 +1,27 @@
+package org.eclipse.equinox.p2.tests.planner;
+
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+
+public class TopLevelFilterTest extends AbstractProvisioningTest {
+
+	public void testInstallIUWithFilter() {
+		InstallableUnitDescription desc = new InstallableUnitDescription();
+		desc.setId("ThingWithFilter");
+		desc.setFilter("(os=linux)");
+		desc.setVersion(Version.createOSGi(1, 0, 0));
+
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(desc);
+		IProfile p = createProfile(getClass().getName());
+		createTestMetdataRepository(new IInstallableUnit[] {iu});
+		ProfileChangeRequest req = new ProfileChangeRequest(p);
+		req.addInstallableUnits(new IInstallableUnit[] {iu});
+
+		assertNotOK(createPlanner().getProvisioningPlan(req, null, null).getStatus());
+	}
+}
