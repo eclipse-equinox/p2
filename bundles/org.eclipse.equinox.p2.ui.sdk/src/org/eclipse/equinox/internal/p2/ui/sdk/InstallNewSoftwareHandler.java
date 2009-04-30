@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-
-import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
@@ -49,5 +48,13 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		// repositories, then we don't wait, because we don't know which
 		// ones they want to work with.
 		return Policy.getDefault().getRepositoryManipulator() == null;
+	}
+
+	protected void setLoadJobProperties(Job loadJob) {
+		// If we are doing a background load, we do not wish to authenticate, as the
+		// user is unaware that loading was needed
+		if (!waitForPreload()) {
+			loadJob.setProperty(ValidationDialogServiceUI.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
+		}
 	}
 }

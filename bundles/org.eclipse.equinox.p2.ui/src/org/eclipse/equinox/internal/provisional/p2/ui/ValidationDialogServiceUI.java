@@ -11,6 +11,9 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.security.cert.Certificate;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
@@ -27,6 +30,8 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ValidationDialogServiceUI implements IServiceUI {
 
+	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#getUsernamePassword(java.lang.String)
@@ -34,20 +39,29 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	public AuthenticationInfo getUsernamePassword(final String location) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-
-			public void run() {
-				Shell shell = ProvUI.getDefaultParentShell();
-				String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
-				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
-				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
-				if (dialog.open() == Window.OK) {
-					result[0] = dialog.getResult();
+		if (!suppressAuthentication()) {
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
+					String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
+					UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
+					if (dialog.open() == Window.OK) {
+						result[0] = dialog.getResult();
+					}
 				}
-			}
 
-		});
+			});
+		}
 		return result[0];
+	}
+
+	private boolean suppressAuthentication() {
+		Job job = Job.getJobManager().currentJob();
+		if (job != null) {
+			return job.getProperty(SUPPRESS_AUTHENTICATION_JOB_MARKER) != null;
+		}
+		return false;
 	}
 
 	/*
@@ -93,24 +107,25 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+		if (!suppressAuthentication()) {
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
+					String message = null;
+					if (previousInfo.saveResult())
+						message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
+					else
+						message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
 
-			public void run() {
-				Shell shell = ProvUI.getDefaultParentShell();
-				String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
-				String message = null;
-				if (previousInfo.saveResult())
-					message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
-				else
-					message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
-
-				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
-				if (dialog.open() == Window.OK) {
-					result[0] = dialog.getResult();
+					UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
+					if (dialog.open() == Window.OK) {
+						result[0] = dialog.getResult();
+					}
 				}
-			}
 
-		});
+			});
+		}
 		return result[0];
 	}
 }

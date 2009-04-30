@@ -77,6 +77,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				}
 
 			};
+			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					public void done(IJobChangeEvent event) {
@@ -112,6 +113,10 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
 	protected boolean waitForPreload() {
 		return true;
+	}
+
+	protected void setLoadJobProperties(Job loadJob) {
+		// nothing to do by default
 	}
 
 	/**
