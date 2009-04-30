@@ -134,6 +134,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	class MetadataRepositoryPatternFilter extends PatternFilter {
+		MetadataRepositoryPatternFilter() {
+			setIncludeLeadingWildcard(true);
+		}
+
 		public boolean isElementVisible(Viewer viewer, Object element) {
 			if (element instanceof MetadataRepositoryElement) {
 				return wordMatches(labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_NAME) + " " + labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_LOCATION)); //$NON-NLS-1$
