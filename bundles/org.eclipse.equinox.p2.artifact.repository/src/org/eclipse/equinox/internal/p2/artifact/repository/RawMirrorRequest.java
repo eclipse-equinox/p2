@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
@@ -70,7 +71,7 @@ public class RawMirrorRequest extends MirrorRequest {
 	// Perform the mirror operation without any processing steps
 	protected IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
-		if (descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
+		if (SimpleArtifactRepository.MD5_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
 			destination = handler.link(new ProcessingStep[] {new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5))}, destination, monitor);
 		return getSourceRepository().getRawArtifact(descriptor, destination, monitor);
 	}
