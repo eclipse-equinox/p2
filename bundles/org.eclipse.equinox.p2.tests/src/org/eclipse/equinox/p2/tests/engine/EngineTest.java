@@ -35,12 +35,50 @@ import org.osgi.framework.ServiceReference;
  */
 public class EngineTest extends AbstractProvisioningTest {
 
-	private static class NPEPhase extends Phase {
-		protected NPEPhase(int weight) {
-			super("NPE", 1);
+	private static class CountPhase extends Phase {
+		int operandCount = 0;
+		int phaseCount = 0;
+
+		protected CountPhase(String name) {
+			super(name, 1);
+		}
+
+		protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+			operandCount--;
+			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			phaseCount--;
+			return super.completePhase(monitor, profile, parameters);
+		}
+
+		protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+			operandCount++;
+			return super.initializeOperand(profile, operand, parameters, monitor);
+		}
+
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			phaseCount++;
+			return super.initializePhase(monitor, profile, parameters);
+		}
+
+		protected ProvisioningAction[] getActions(Operand operand) {
+			return null;
+		}
+
+		public boolean isConsistent() {
+			return operandCount == 0 && phaseCount == 0;
+		}
+	}
+
+	private static class NPEPhase extends CountPhase {
+		protected NPEPhase() {
+			super("NPE");
+		}
+
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			super.completePhase(monitor, profile, parameters);
 			throw new NullPointerException();
 		}
 
@@ -49,9 +87,29 @@ public class EngineTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private static class NPEPhaseSet extends PhaseSet {
-		public NPEPhaseSet() {
-			super(new Phase[] {new Collect(100), new Unconfigure(10), new Uninstall(50), new Property(1), new CheckTrust(10), new Install(50), new Configure(10), new NPEPhase(1)});
+	private static class ActionNPEPhase extends CountPhase {
+		protected ActionNPEPhase() {
+			super("ActionNPEPhase");
+		}
+
+		protected ProvisioningAction[] getActions(Operand operand) {
+			ProvisioningAction action = new ProvisioningAction() {
+
+				public IStatus undo(Map parameters) {
+					throw new NullPointerException();
+				}
+
+				public IStatus execute(Map parameters) {
+					throw new NullPointerException();
+				}
+			};
+			return new ProvisioningAction[] {action};
+		}
+	}
+
+	private static class TestPhaseSet extends PhaseSet {
+		public TestPhaseSet(Phase phase) {
+			super(new Phase[] {new Collect(100), new Unconfigure(10), new Uninstall(50), new Property(1), new CheckTrust(10), new Install(50), new Configure(10), phase});
 		}
 	}
 
@@ -340,12 +398,13 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(ius.hasNext());
 	}
 
-	public void testPerformRollbackOnError() {
+	public void testPerformRollbackOnPhaseError() {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformRollbackOnError", null, properties);
-		PhaseSet phaseSet = new NPEPhaseSet();
+		NPEPhase phase = new NPEPhase();
+		PhaseSet phaseSet = new TestPhaseSet(phase);
 
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -355,6 +414,26 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
+		assertTrue(phase.isConsistent());
+	}
+
+	public void testPerformRollbackOnActionError() {
+
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformRollbackOnError", null, properties);
+		ActionNPEPhase phase = new ActionNPEPhase();
+		PhaseSet phaseSet = new TestPhaseSet(phase);
+
+		Iterator ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertFalse(result.isOK());
+		ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+		assertTrue(phase.isConsistent());
 	}
 
 	public void testOrphanedIUProperty() {

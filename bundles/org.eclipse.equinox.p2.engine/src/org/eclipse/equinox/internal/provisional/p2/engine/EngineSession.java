@@ -118,7 +118,7 @@ public class EngineSession {
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
-		if (currentPhaseActive && currentPhase != null) {
+		if (currentPhaseActive) {
 			try {
 				IStatus result = rollBackPhase(currentPhase, currentActionRecords);
 				if (!result.isOK())
@@ -132,10 +132,10 @@ public class EngineSession {
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, currentPhase.getClass().getName()), e));
 			}
 			currentPhaseActive = false;
-			currentPhase = null;
 			currentActionRecords = null;
 			currentRecord = null;
 		}
+		currentPhase = null;
 
 		for (ListIterator it = phaseActionRecordsPairs.listIterator(phaseActionRecordsPairs.size()); it.hasPrevious();) {
 			Object[] pair = (Object[]) it.previous();
@@ -183,7 +183,7 @@ public class EngineSession {
 	private IStatus rollBackPhase(Phase phase, List actionRecords) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
-		if (phase != currentPhase)
+		if (!currentPhaseActive)
 			phase.prePerform(result, this, profile, context, new NullProgressMonitor());
 
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
