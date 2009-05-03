@@ -24,7 +24,6 @@ import org.osgi.framework.ServiceReference;
  * Test response to various HTTP status codes.
  */
 public class HttpStatusTest extends ServerBasedTestCase {
-	//	private static String UPDATE_SITE = "http://p2.piggott.ca/updateSite/";
 	private IMetadataRepositoryManager mgr;
 	private URI repoLoc;
 	protected String authTestFailMessage;
@@ -92,7 +91,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 				System.out.print(String.format("HTTP %d => %s e-message: [%s]\n", //
 						i, provisionCodeToText(status.getCode()), msg));
 
-				// assert
+				// assert:
 				// - that HTTP code => Repository Code is correct
 				// - that correct message surfaces
 				//					String m = org.eclipse.equinox.internal.p2.repository.Messages.TransportErrorTranslator_400;
