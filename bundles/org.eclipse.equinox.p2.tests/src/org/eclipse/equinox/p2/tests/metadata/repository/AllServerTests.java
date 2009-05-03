@@ -45,6 +45,7 @@ public class AllServerTests extends TestCase {
 		// AuthTest *should* run twice to make sure that second attempt produces the same result.
 		suite.addTestSuite(AuthTest.class);
 		suite.addTestSuite(AuthTest.class);
+		suite.addTestSuite(HttpStatusTest.class);
 		suite.addTest(new AllServerTests("stopServer"));
 	}
 
