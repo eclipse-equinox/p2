@@ -14,33 +14,57 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.director.app.messages"; //$NON-NLS-1$
+
+	public static String Ambigous_Command;
+	public static String Application_NoManager;
+
+	public static String Application_NoRepositories;
+	public static String Cant_change_roaming;
 	public static String destination_commandline;
 
-	public static String Operation_complete;
-	public static String Operation_failed;
-	public static String Cant_change_roaming;
+	public static String flavor_0_inconsistent_with_flavor_1;
 
+	public static String Help_A_list_of_properties_in_the_form_key_value_pairs;
+	public static String Help_A_list_of_URLs_denoting_artifact_repositories;
+	public static String Help_A_list_of_URLs_denoting_colocated_repositories;
+	public static String Help_A_list_of_URLs_denoting_metadata_repositories;
+	public static String Help_Defines_flavor_to_use_for_created_profile;
+	public static String Help_Defines_what_profile_to_use_for_the_actions;
+	public static String Help_Indicates_that_the_product_can_be_moved;
+	public static String Help_Installs_the_listed_IUs;
+	public static String Help_lb_lt_path_gt_rb;
+	public static String Help_List_all_IUs_found_in_repos;
+	public static String Help_lt_comma_separated_list_gt;
+	public static String Help_lt_name_gt;
+	public static String Help_lt_path_gt;
+	public static String Help_Missing_argument;
+	public static String Help_Only_verify_dont_install;
+	public static String Help_Prints_this_command_line_help;
+	public static String Help_The_ARCH_when_profile_is_created;
+	public static String Help_The_folder_in_which_the_targetd_product_is_located;
+	public static String Help_The_location_where_the_plugins_and_features_will_be_stored;
+	public static String Help_The_NL_when_profile_is_created;
+	public static String Help_The_OS_when_profile_is_created;
+	public static String Help_The_WS_when_profile_is_created;
+	public static String Help_Uninstalls_the_listed_IUs;
+	public static String Help_Use_a_shared_location_for_the_install;
+
+	public static String Ignored_repo;
+	public static String Installing;
 	public static String Missing_bundle;
 	public static String Missing_director;
 	public static String Missing_Engine;
 	public static String Missing_IU;
 	public static String Missing_planner;
 	public static String Missing_profileid;
-
-	public static String Ambigous_Command;
-	public static String Application_NoManager;
-	public static String Application_NoRepositories;
-	public static String flavor_0_inconsistent_with_flavor_1;
 	public static String Missing_Required_Argument;
-
-	public static String Installing;
-	public static String Uninstalling;
-
-	public static String Ignored_repo;
+	public static String Operation_complete;
+	public static String Operation_failed;
 	public static String option_0_requires_an_argument;
 	public static String unable_to_parse_0_to_uri_1;
 	public static String unable_to_start_bundle_0;
 	public static String unable_to_stop_bundle_0;
+	public static String Uninstalling;
 	public static String unknown_option_0;
 
 	static {

@@ -49,6 +49,61 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
+	private static class CommandLineOption {
+		private final String[] identifiers;
+		private final String optionSyntaxString;
+		private final String helpString;
+
+		CommandLineOption(String[] identifiers, String optionSyntaxString, String helpString) {
+			this.identifiers = identifiers;
+			this.optionSyntaxString = optionSyntaxString;
+			this.helpString = helpString;
+		}
+
+		boolean isOption(String opt) {
+			int idx = identifiers.length;
+			while (--idx >= 0)
+				if (identifiers[idx].equalsIgnoreCase(opt))
+					return true;
+			return false;
+		}
+
+		void appendHelp(PrintStream out) {
+			out.print(identifiers[0]);
+			for (int idx = 1; idx < identifiers.length; ++idx) {
+				out.print(" | "); //$NON-NLS-1$
+				out.print(identifiers[idx]);
+			}
+			if (optionSyntaxString != null) {
+				out.print(' ');
+				out.print(optionSyntaxString);
+			}
+			out.println();
+			out.print("  "); //$NON-NLS-1$
+			out.println(helpString);
+		}
+	}
+
+	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] {"-help", "-h", "-?"}, null, Messages.Help_Prints_this_command_line_help); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, null, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_DESTINATION = new CommandLineOption(new String[] {"-destination", "-d"}, Messages.Help_lt_path_gt, Messages.Help_The_folder_in_which_the_targetd_product_is_located); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_METADATAREPOS = new CommandLineOption(new String[] {"-metadatarepository", "metadatarepositories", "-m"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_metadata_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_ARTIFACTREPOS = new CommandLineOption(new String[] {"-artifactrepository", "artifactrepositories", "-a"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_artifact_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_REPOSITORIES = new CommandLineOption(new String[] {"-repository", "repositories", "-r"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_colocated_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_VERIFY_ONLY = new CommandLineOption(new String[] {"-verifyOnly"}, null, Messages.Help_Only_verify_dont_install); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_PROFILE = new CommandLineOption(new String[] {"-profile", "-p"}, Messages.Help_lt_name_gt, Messages.Help_Defines_what_profile_to_use_for_the_actions); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_FLAVOR = new CommandLineOption(new String[] {"-flavor", "-f"}, Messages.Help_lt_name_gt, Messages.Help_Defines_flavor_to_use_for_created_profile); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_SHARED = new CommandLineOption(new String[] {"-shared", "-s"}, Messages.Help_lb_lt_path_gt_rb, Messages.Help_Use_a_shared_location_for_the_install); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_BUNDLEPOOL = new CommandLineOption(new String[] {"-bundlepool", "-b"}, Messages.Help_lt_path_gt, Messages.Help_The_location_where_the_plugins_and_features_will_be_stored); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_PROFILE_PROPS = new CommandLineOption(new String[] {"-profileproperties"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_properties_in_the_form_key_value_pairs); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_ROAMING = new CommandLineOption(new String[] {"-roaming"}, null, Messages.Help_Indicates_that_the_product_can_be_moved); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_P2_OS = new CommandLineOption(new String[] {"-p2.os"}, null, Messages.Help_The_OS_when_profile_is_created); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_P2_WS = new CommandLineOption(new String[] {"-p2.ws"}, null, Messages.Help_The_WS_when_profile_is_created); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_P2_ARCH = new CommandLineOption(new String[] {"-p2.arch"}, null, Messages.Help_The_ARCH_when_profile_is_created); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_P2_NL = new CommandLineOption(new String[] {"-p2.nl"}, null, Messages.Help_The_NL_when_profile_is_created); //$NON-NLS-1$
+
 	static private final String BUNDLE_CORE = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 	static private final String BUNDLE_ENGINE = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
 	static private final String BUNDLE_EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
@@ -59,6 +114,8 @@ public class DirectorApplication implements IApplication {
 	static private final String PROP_P2_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 
 	static private final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
+
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
 	private static void getURIs(List uris, String spec) throws CoreException {
 		if (spec == null)
@@ -73,8 +130,13 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
-	private static void optionRequiresArgument(String opt) throws CoreException {
-		throw new ProvisionException(NLS.bind(Messages.option_0_requires_an_argument, opt));
+	private static String getRequiredArgument(String[] args, int argIdx) throws CoreException {
+		if (argIdx < args.length) {
+			String arg = args[argIdx];
+			if (!arg.startsWith("-")) //$NON-NLS-1$
+				return arg;
+		}
+		throw new ProvisionException(NLS.bind(Messages.option_0_requires_an_argument, args[argIdx - 1]));
 	}
 
 	private static void parseIUsArgument(List vnames, String arg) {
@@ -456,45 +518,37 @@ public class DirectorApplication implements IApplication {
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 			String opt = args[i];
-			if ("-list".equalsIgnoreCase(opt) || "-l".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (OPTION_LIST.isOption(opt)) {
 				printIUList = true;
 				continue;
 			}
 
-			if ("-help".equalsIgnoreCase(opt) || "-h".equals(opt) || "-?".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (OPTION_HELP.isOption(opt)) {
 				printHelpInfo = true;
 				continue;
 			}
 
-			if ("-installIU".equalsIgnoreCase(opt) || "-installIUs".equalsIgnoreCase(opt) || "-i".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				parseIUsArgument(rootsToInstall, args[i]);
+			if (OPTION_INSTALL_IU.isOption(opt)) {
+				parseIUsArgument(rootsToInstall, getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-uninstallIU".equalsIgnoreCase(opt) || "-uninstallIUs".equalsIgnoreCase(opt) || "-u".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				parseIUsArgument(rootsToUninstall, args[i]);
+			if (OPTION_UNINSTALL_IU.isOption(opt)) {
+				parseIUsArgument(rootsToUninstall, getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-profile".equalsIgnoreCase(opt) || "-p".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				profileId = args[i];
+			if (OPTION_PROFILE.isOption(opt)) {
+				profileId = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-flavor".equalsIgnoreCase(opt) || "-f".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				flavor = args[i];
+			if (OPTION_FLAVOR.isOption(opt)) {
+				flavor = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-shared".equalsIgnoreCase(opt) || "-s".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (OPTION_SHARED.isOption(opt)) {
 				if (++i < args.length) {
 					String nxt = args[i];
 					if (nxt.startsWith("-")) //$NON-NLS-1$
@@ -508,92 +562,74 @@ public class DirectorApplication implements IApplication {
 				continue;
 			}
 
-			if ("-destination".equalsIgnoreCase(opt) || "-d".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				destination = processFileArgument(args[i]);
+			if (OPTION_DESTINATION.isOption(opt)) {
+				destination = processFileArgument(getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-bundlepool".equalsIgnoreCase(opt) || "-b".equals(opt)) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				bundlePool = processFileArgument(args[i]);
+			if (OPTION_BUNDLEPOOL.isOption(opt)) {
+				bundlePool = processFileArgument(getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-metadataRepository".equalsIgnoreCase(opt) || "-metadataRepositories".equalsIgnoreCase(opt) || "-m".equalsIgnoreCase(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				getURIs(metadataRepositoryLocations, args[i]);
+			if (OPTION_METADATAREPOS.isOption(opt)) {
+				getURIs(metadataRepositoryLocations, getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-artifactRepository".equalsIgnoreCase(opt) || "-artifactRepositories".equalsIgnoreCase(opt) || "-a".equalsIgnoreCase(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				getURIs(artifactRepositoryLocations, args[i]);
+			if (OPTION_ARTIFACTREPOS.isOption(opt)) {
+				getURIs(artifactRepositoryLocations, getRequiredArgument(args, ++i));
 				continue;
 			}
 
-			if ("-repository".equalsIgnoreCase(opt) || "-repositories".equalsIgnoreCase(opt) || "-r".equalsIgnoreCase(opt)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				getURIs(metadataRepositoryLocations, args[i]);
-				getURIs(artifactRepositoryLocations, args[i]);
+			if (OPTION_REPOSITORIES.isOption(opt)) {
+				String arg = getRequiredArgument(args, ++i);
+				getURIs(metadataRepositoryLocations, arg);
+				getURIs(artifactRepositoryLocations, arg);
 				continue;
 			}
 
-			if ("-profileProperties".equalsIgnoreCase(opt)) { //$NON-NLS-1$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				profileProperties = args[i];
+			if (OPTION_PROFILE_PROPS.isOption(opt)) {
+				profileProperties = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-roaming".equalsIgnoreCase(opt)) { //$NON-NLS-1$
+			if (OPTION_ROAMING.isOption(opt)) {
 				roamingProfile = true;
 				continue;
 			}
 
-			if ("-verifyOnly".equalsIgnoreCase(opt)) { //$NON-NLS-1$
+			if (OPTION_VERIFY_ONLY.isOption(opt)) {
 				verifyOnly = true;
 				continue;
 			}
 
-			if ("-p2.os".equalsIgnoreCase(opt)) { //$NON-NLS-1$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				os = args[i];
+			if (OPTION_P2_OS.isOption(opt)) {
+				os = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-p2.ws".equalsIgnoreCase(opt)) { //$NON-NLS-1$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				ws = args[i];
+			if (OPTION_P2_WS.isOption(opt)) {
+				ws = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-p2.nl".equalsIgnoreCase(opt)) { //$NON-NLS-1$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				nl = args[i];
+			if (OPTION_P2_NL.isOption(opt)) {
+				nl = getRequiredArgument(args, ++i);
 				continue;
 			}
 
-			if ("-p2.arch".equalsIgnoreCase(opt)) { //$NON-NLS-1$
-				if (++i >= args.length)
-					optionRequiresArgument(opt);
-				arch = args[i];
+			if (OPTION_P2_ARCH.isOption(opt)) {
+				arch = getRequiredArgument(args, ++i);
 				continue;
 			}
 			throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
 
-		if (!printHelpInfo && !printIUList && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty())
-			// Nothing to do, default to print the help info
+		if (!printHelpInfo && !printIUList && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()) {
+			System.out.println(Messages.Help_Missing_argument);
 			printHelpInfo = true;
+		}
 	}
 
 	/**
@@ -651,23 +687,27 @@ public class DirectorApplication implements IApplication {
 
 		try {
 			processArguments(args);
-			initializeServices();
-			initializeRepositories();
-			if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
-				performProvisioningActions();
-			if (printIUList)
-				performList();
 			if (printHelpInfo)
 				performHelpInfo();
-			System.out.println(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
+			else {
+				initializeServices();
+				initializeRepositories();
+				if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
+					performProvisioningActions();
+				if (printIUList)
+					performList();
+				System.out.println(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
+			}
 			return IApplication.EXIT_OK;
 		} catch (CoreException e) {
 			deeplyPrint(e.getStatus(), System.err, 0);
 			logFailure(e.getStatus());
 			return EXIT_ERROR;
 		} finally {
-			cleanupRepositories();
-			restoreServices();
+			if (!printHelpInfo) {
+				cleanupRepositories();
+				restoreServices();
+			}
 		}
 	}
 
@@ -720,8 +760,10 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void performHelpInfo() {
-		// TODO: Emit help
-
+		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_DESTINATION, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL};
+		for (int i = 0; i < allOptions.length; ++i) {
+			allOptions[i].appendHelp(System.out);
+		}
 	}
 
 	/*
