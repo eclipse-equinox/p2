@@ -46,6 +46,7 @@ public class AllServerTests extends TestCase {
 		suite.addTestSuite(AuthTest.class);
 		suite.addTestSuite(AuthTest.class);
 		suite.addTestSuite(HttpStatusTest.class);
+		suite.addTestSuite(TimeoutTest.class);
 		suite.addTest(new AllServerTests("stopServer"));
 	}
 
