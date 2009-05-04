@@ -34,7 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				Preferences oldPref = new InstanceScope().getNode(ProvSDKUIActivator.PLUGIN_ID);
 				// don't migrate everything.  Some of the preferences moved to
 				// another bundle.
-				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, "")); //$NON-NLS-1$
+				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT));
 				pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, oldPref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true));
 				pref.flush();
 			}
