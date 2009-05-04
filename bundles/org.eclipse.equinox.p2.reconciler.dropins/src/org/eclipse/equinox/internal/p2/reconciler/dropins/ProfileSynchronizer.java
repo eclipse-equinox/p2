@@ -94,7 +94,7 @@ public class ProfileSynchronizer {
 			//create the provisioning plan
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
 			IStatus status = plan.getStatus();
-			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
+			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
 				return status;
 
 			Operand[] operands = plan.getOperands();
@@ -105,7 +105,7 @@ public class ProfileSynchronizer {
 
 			//invoke the engine to perform installs/uninstalls
 			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
-			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
+			if (engineResult.getSeverity() == IStatus.ERROR || engineResult.getSeverity() == IStatus.CANCEL)
 				return engineResult;
 
 			writeTimestamps();
