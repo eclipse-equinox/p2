@@ -98,8 +98,6 @@ public class HttpStatusTest extends ServerBasedTestCase {
 				// Some codes have different message
 				switch (i) {
 					case 401 : // fall through
-					case 403 : // fall through
-					case 407 :
 						// Authentication exception -
 						// TODO: check details - The HTTP message should be retained - See Bug 274711
 
@@ -113,6 +111,8 @@ public class HttpStatusTest extends ServerBasedTestCase {
 						assertEquals("Expected Provision Exception code for: " + Integer.valueOf(i), //
 								ProvisionException.REPOSITORY_NOT_FOUND, status.getCode());
 						break;
+					case 407 : // fall through
+					case 403 :
 					default :
 						// All other messages should surface
 						try {
