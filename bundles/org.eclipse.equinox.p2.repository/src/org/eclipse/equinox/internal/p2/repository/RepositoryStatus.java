@@ -103,7 +103,7 @@ public class RepositoryStatus {
 				return NLS.bind(Messages.TransportErrorTranslator_510, toDownload);
 
 			default :
-				return NLS.bind(Messages.TransportErrorTranslator_UnknownErrorCode + Integer.toString(code), toDownload);
+				return NLS.bind(Messages.TransportErrorTranslator_UnknownErrorCode, Integer.toString(code), toDownload);
 		}
 	}
 
@@ -139,23 +139,46 @@ public class RepositoryStatus {
 				}
 			}
 		}
+		if (t.getClass().getName().equals("javax.security.auth.login.LoginException")) {//$NON-NLS-1$
+			// we end up here on 401, 403, and 407 errors transformed to LoginException in ECF
+			// file browser. Since 403 should be treated as a READ error - a check is made for "Forbidden"
+			// to exclude it from being reported as auth fail.
 
-		if (t instanceof IncomingFileTransferException || code != 0) {
-			if (code == 0)
-				code = ((IncomingFileTransferException) t).getErrorCode();
-			// Switch on error codes in the HTTP error code range 
-			if (code >= 400 && code <= 600) {
-				int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
-				if (code == 401 || code == 500)
-					provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;
-				else if (code == 404)
-					provisionCode = ProvisionException.ARTIFACT_NOT_FOUND;
-				return new DownloadStatus(IStatus.ERROR, Activator.ID, provisionCode, //
+			// Ugly message parsing - see Bug 274821
+			String exMsg = t.getMessage();
+			if (exMsg != null) {
+				if ("Forbidden".equals(t.getMessage())) //$NON-NLS-1$
+					code = 403;
+				else if (exMsg.indexOf("Proxy") != -1) //$NON-NLS-1$
+					code = 407;
+				else if ("Unauthorized".equals(exMsg)) //$NON-NLS-1$
+					code = 401;
+
+				return new DownloadStatus(IStatus.ERROR, Activator.ID, //
+						code == 401 ? ProvisionException.REPOSITORY_FAILED_AUTHENTICATION //
+								: ProvisionException.REPOSITORY_FAILED_READ, //
 						codeToMessage(code, toDownload.toString()), t);
 			}
 		}
-		// Add more specific translation here
-		return new DownloadStatus(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload), t);
-	}
 
+		// default to report as read repository error
+		int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
+
+		if (t instanceof IncomingFileTransferException)
+			code = ((IncomingFileTransferException) t).getErrorCode();
+
+		// Switch on error codes in the HTTP error code range. 
+		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND, which
+		// is determined higher up in the calling chain).
+		if (code == 401)
+			provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;
+		else if (code == 404)
+			provisionCode = ProvisionException.ARTIFACT_NOT_FOUND;
+
+		// Add more specific translation here
+
+		return new DownloadStatus(IStatus.ERROR, Activator.ID, provisionCode, //
+				code == 0 ? NLS.bind(Messages.io_failedRead, toDownload) //
+						: codeToMessage(code, toDownload.toString()), t);
+	}
 }

@@ -236,16 +236,21 @@ public abstract class RepositoryStatusHelper {
 			IStatus status = ((IncomingFileTransferException) t).getStatus();
 			t = status.getException();
 		}
-		if (t.getClass().getName().equals("javax.security.auth.login.LoginException")) //$NON-NLS-1$
-			throw new AuthenticationFailedException();
+		if (t.getClass().getName().equals("javax.security.auth.login.LoginException")) { //$NON-NLS-1$
+			// Ugly, Ugly message parsing - see Bug 274821 (parsing out "Forbidden" as it is not NLS, and then scan for "Proxy" as this is
+			// word is more likely to survive translation. The 401 message is simply "Unauthorized" in English, but is translatable.
 
+			// Only 401 should cause AuthenticationFailedException
+			String exMsg = t.getMessage();
+			if (exMsg != null && !"Forbidden".equals(exMsg) && exMsg.indexOf("Proxy") == -1) //$NON-NLS-1$ //$NON-NLS-2$
+				throw new AuthenticationFailedException();
+		}
 		if (t == null || !(t instanceof IOException))
 			return;
 
 		// try to figure out if we have a 401 by parsing the exception message
 		// There is unfortunately no specific exception for "redirected too many times" - which is commonly
 		// caused by a failed login.
-		//
 		String m = t.getMessage();
 		if (m != null && (m.indexOf(" 401 ") != -1 || m.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 			throw new AuthenticationFailedException();
