@@ -155,7 +155,7 @@ public class RepositorySelectionGroup {
 			public void modifyText(ModifyEvent event) {
 				URI location = null;
 				IStatus status = null;
-				String text = repoCombo.getText();
+				String text = repoCombo.getText().trim();
 				int index = getComboIndex(text);
 				// only validate text that doesn't match existing text in combo
 				if (index < 0) {
@@ -440,6 +440,8 @@ public class RepositorySelectionGroup {
 	}
 
 	int getComboIndex(String repoText) {
+		// Callers have typically done this already, but just in case
+		repoText = repoText.trim();
 		// First look for exact match to the combo string.
 		// This includes the name, etc.
 		if (repoText.length() > 0) {
@@ -501,7 +503,7 @@ public class RepositorySelectionGroup {
 	 */
 	void addRepository(boolean alwaysPrompt) {
 		final RepositoryManipulator manipulator = policy.getRepositoryManipulator();
-		final String selectedRepo = repoCombo.getText();
+		final String selectedRepo = repoCombo.getText().trim();
 		int selectionIndex = getComboIndex(selectedRepo);
 		final boolean isNewText = selectionIndex < 0;
 		// If we are adding something already in the combo, just
@@ -564,7 +566,7 @@ public class RepositorySelectionGroup {
 	}
 
 	public ProvisioningContext getProvisioningContext() {
-		int siteSel = getComboIndex(repoCombo.getText());
+		int siteSel = getComboIndex(repoCombo.getText().trim());
 		if (siteSel < 0 || siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
 			return new ProvisioningContext();
 		URI[] locals = getLocalSites();
@@ -592,7 +594,7 @@ public class RepositorySelectionGroup {
 		if (repoCombo.getListVisible()) {
 			selection = repoCombo.getSelectionIndex();
 		} else {
-			selection = getComboIndex(repoCombo.getText());
+			selection = getComboIndex(repoCombo.getText().trim());
 		}
 		int localIndex = getLocalSites().length == 0 ? repoCombo.getItemCount() : repoCombo.getItemCount() - 1;
 		if (comboRepos == null || selection < 0) {
