@@ -14,7 +14,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Properties;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.*;
@@ -37,7 +37,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	private static final String testDataLocation = "testData/artifactRepo/emptyJarRepo";
 	File targetLocation;
 	IArtifactRepository targetRepository, sourceRepository;
-	URI destination, failedOptimized;
+	URI destination, failedOptimized, pakedRepositoryLocation;
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -49,6 +49,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		sourceRepository = mgr.loadRepository((getTestData("EmptyJar repo", testDataLocation).toURI()), null);
 		failedOptimized = URIUtil.toJarURI(getTestData("Error loading test data", "testData/mirror/invalidPackedMissingCanonical.zip").toURI(), null);
+		pakedRepositoryLocation = getTestData("Error loading packed repository", "testData/mirror/mirrorPackedRepo").toURI();
 		destination = getTempFolder().toURI();
 	}
 
@@ -56,6 +57,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().removeRepository(destination);
 		getArtifactRepositoryManager().removeRepository(failedOptimized);
 		getArtifactRepositoryManager().removeRepository(targetLocation.toURI());
+		getArtifactRepositoryManager().removeRepository(pakedRepositoryLocation);
 		AbstractProvisioningTest.delete(targetLocation);
 		delete(new File(destination));
 		super.tearDown();
@@ -116,6 +118,58 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue("All mirrors utilized", selector.index == selector.mirrors.length);
 	}
 
+	/*
+	 * Test that the expected Status level is returned when a mirror fails from packed to canonical
+	 */
+	public void testStatusFromFailover() {
+		StatusSequenceRepository source = null;
+		LinkedList seq = new LinkedList();
+		try {
+			source = new StatusSequenceRepository(getArtifactRepositoryManager().loadRepository(pakedRepositoryLocation, new NullProgressMonitor()));
+
+		} catch (ProvisionException e) {
+			fail("Failed to load source repository");
+		}
+		// Set status sequence, actual Statuses added later
+		source.setSequence(seq);
+		// Grab an ArtifactKey to mirror, doesn't matter which
+		IArtifactKey[] keys = source.getArtifactKeys();
+		assertTrue("Unable to obtain artifact keys", keys != null && keys.length > 0);
+
+		MirrorRequest req = new MirrorRequest(keys[0], targetRepository, null, null);
+		req.setSourceRepository(source);
+		// Set Status sequence 
+		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
+		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
+		req.perform(new NullProgressMonitor());
+
+		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+
+		// Remove key from repo so the same one can be used
+		targetRepository.removeDescriptor(keys[0]);
+		// Set Status sequence 
+		req = new MirrorRequest(keys[0], targetRepository, null, null);
+		req.setSourceRepository(source);
+		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
+		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
+		req.perform(new NullProgressMonitor());
+
+		assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
+
+		// Remove key from repo so the same one can be used
+		targetRepository.removeDescriptor(keys[0]);
+		// Set Status sequence 
+		req = new MirrorRequest(keys[0], targetRepository, null, null);
+		req.setSourceRepository(source);
+		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
+		req.perform(new NullProgressMonitor());
+
+		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
+	}
+
+	/*
+	 * 
+	 */
 	public void testFailedOptimizedMissingCanonical() {
 
 		try {
@@ -149,6 +203,38 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	protected static void assertStatusContains(String message, IStatus status, String statusString) {
 		if (!statusContains(status, statusString))
 			fail(message);
+	}
+
+	class StatusSequenceRepository extends AbstractWrappedArtifactRepository {
+		Queue sequence;
+
+		public StatusSequenceRepository(IArtifactRepository repo) {
+			super(repo);
+		}
+
+		public URI getLocation() {
+			// Lie about the location so packed files are used
+			try {
+				return new URI("http://somewhere");
+			} catch (URISyntaxException e) {
+				return null;
+			}
+		}
+
+		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+			try {
+				destination.write(new byte[] {1, 1, 2});
+			} catch (Exception e) {
+				fail("Failed to write to stream", e);
+			}
+			if (sequence.isEmpty())
+				return Status.OK_STATUS;
+			return (IStatus) sequence.remove();
+		}
+
+		public void setSequence(Queue queue) {
+			sequence = queue;
+		}
 	}
 
 	private static boolean statusContains(IStatus status, String statusString) {

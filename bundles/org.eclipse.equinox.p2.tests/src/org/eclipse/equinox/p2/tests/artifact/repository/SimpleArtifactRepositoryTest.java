@@ -6,8 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * 	compeople AG (Stefan Liebig) - initial API and implementation
- *     Code 9 - ongoing development
+ *		compeople AG (Stefan Liebig) - initial API and implementation
+ *		Code 9 - ongoing development
+ *		IBM - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
@@ -20,8 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -234,5 +234,31 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 				}
 		}
 
+	}
+
+	/*
+	 * Test that the appropriate location for a packed feature is returned.
+	 */
+	public void testProperPackedFeatureLocation() {
+		try {
+			repositoryFile = getTempFolder();
+			repositoryURI = repositoryFile.toURI();
+
+			// Create a descriptor for a packed repo
+			ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("org.eclipse.update.feature", "test", Version.parseVersion("1.0.0")));
+			descriptor.setProperty(IArtifactDescriptor.FORMAT, "packed");
+			descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
+
+			// Create repository
+			Map properties = new HashMap();
+			properties.put("publishPackFilesAsSiblings", Boolean.TRUE.toString());
+			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+
+			URI location = repo.getLocation(descriptor);
+			assertNotNull("Null location returned", location);
+			assertTrue("Unexpected location", location.toString().endsWith(".pack.gz"));
+		} catch (Exception e) {
+			fail("Test failed", e);
+		}
 	}
 }
