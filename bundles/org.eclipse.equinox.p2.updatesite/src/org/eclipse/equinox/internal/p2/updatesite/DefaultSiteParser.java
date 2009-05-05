@@ -261,8 +261,10 @@ public class DefaultSiteParser extends DefaultHandler {
 				SiteCategory category = (SiteCategory) objectStack.peek();
 				if (category.getDescription() != null)
 					internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state), category.getLabel()})));
-				else
+				else {
+					checkTranslated(info.getAnnotation());
 					category.setDescription(info.getAnnotation());
+				}
 				break;
 
 			default :
