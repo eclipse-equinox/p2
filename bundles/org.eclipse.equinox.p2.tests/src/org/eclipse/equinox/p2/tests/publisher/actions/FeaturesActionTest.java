@@ -81,6 +81,10 @@ public class FeaturesActionTest extends ActionTest {
 		IInstallableUnit foo = (IInstallableUnit) fooIUs.get(0);
 		assertTrue(foo.getId().equalsIgnoreCase("foo.feature.jar")); //$NON-NLS-1$
 		assertTrue(foo.getVersion().equals(fooVersion));
+		assertEquals("Foo Feature", foo.getProperty(IInstallableUnit.PROP_NAME));
+		assertEquals("Foo Description", foo.getProperty(IInstallableUnit.PROP_DESCRIPTION));
+		assertEquals("Foo License", foo.getLicense().getBody());
+		assertEquals("Foo Copyright", foo.getCopyright().getBody());
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(foo.getArtifacts()[0].equals(FOO_KEY));
