@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.osgi.util.TextProcessor;
 import org.eclipse.swt.graphics.Image;
 
 /**
@@ -66,10 +67,10 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 				return ""; //$NON-NLS-1$
 			case COL_LOCATION :
 				if (element instanceof IRepository) {
-					return URIUtil.toUnencodedString(((IRepository) element).getLocation());
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepository) element).getLocation()));
 				}
 				if (element instanceof IRepositoryElement) {
-					return URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation());
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation()));
 				}
 				break;
 			case COL_ENABLEMENT :
