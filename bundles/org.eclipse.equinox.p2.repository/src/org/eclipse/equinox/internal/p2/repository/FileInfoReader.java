@@ -38,6 +38,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private final IConnectContext connectContext;
 	final Boolean[] barrier = new Boolean[1];
 	private IRemoteFile[] remoteFiles;
+	private IRemoteFileSystemRequest browseRequest;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
@@ -46,7 +47,9 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		synchronized (barrier) {
 			while (barrier[0] == null) {
 				try {
-					barrier.wait();
+					barrier.wait(1000);
+					if (theMonitor.isCanceled() && browseRequest != null)
+						browseRequest.cancel();
 				} catch (InterruptedException e) {
 					//ignore
 				}
@@ -174,7 +177,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
-				adapter.sendBrowseRequest(fileID, this);
+				browseRequest = adapter.sendBrowseRequest(fileID, this);
 			} catch (RemoteFileSystemException e) {
 				exception = e;
 			} catch (FileCreateException e) {
