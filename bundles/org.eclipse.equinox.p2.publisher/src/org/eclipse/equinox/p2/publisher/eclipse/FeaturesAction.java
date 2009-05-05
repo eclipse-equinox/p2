@@ -59,17 +59,19 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setId(id);
 		Version version = Version.parseVersion(feature.getVersion());
 		iu.setVersion(version);
+
+		// set properties for other feature attributes
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-
-		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
-		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
-		iu.setFilter(INSTALL_FEATURES_FILTER);
-		iu.setSingleton(true);
-
-		// set properties for other feature attributes
 		if (feature.getApplication() != null)
 			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
 		if (feature.getPlugin() != null)
@@ -78,6 +80,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setProperty(UPDATE_FEATURE_EXCLUSIVE_PROP, Boolean.TRUE.toString());
 		if (feature.isPrimary())
 			iu.setProperty(UPDATE_FEATURE_PRIMARY_PROP, Boolean.TRUE.toString());
+
+		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
+		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
+		iu.setFilter(INSTALL_FEATURES_FILTER);
+		iu.setSingleton(true);
 
 		if (feature.getInstallHandler() != null && feature.getInstallHandler().trim().length() > 0) {
 			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
@@ -91,17 +98,31 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setProperty(PublisherHelper.ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
 
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(PublisherHelper.createSelfCapability(id, version));
+		providedCapabilities.add(PublisherHelper.FEATURE_CAPABILITY);
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version));
+
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version), PublisherHelper.FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
-		// TODO its not clear when this would ever be false reasonably.  Features are always
-		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
-		// Anyway, in the future it seems reasonable that features be installed as JARs...
-		// Note: We have decided to always unzip features when they are installed (regardless of whether they
-		//were zipped when we found them). https://bugs.eclipse.org/bugs/show_bug.cgi?id=267282
 		Map touchpointData = new HashMap();
 		touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(PublisherHelper.makeTranslationCapability(id, locale));
+			}
+		}
 
 		processInstallableUnitPropertiesAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
