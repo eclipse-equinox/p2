@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="%siteName">
+      %siteDescription
+   </description>
+   <feature id="fooFeature" version="0.0.0">
+      <category name="new_category_1"/>
+   </feature>
+   <category-def name="new_category_1" label="%categoryName">
+      <description>
+         %categoryDescription
+      </description>
+   </category-def>
+</site>

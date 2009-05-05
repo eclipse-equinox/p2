@@ -27,6 +27,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(EquinoxLauncherCUActionTest.class);
 		suite.addTestSuite(FeaturesActionTest.class);
 		suite.addTestSuite(JREActionTest.class);
+		suite.addTestSuite(LocalizationTests.class);
 		suite.addTestSuite(LocalUpdateSiteActionTest.class);
 		suite.addTestSuite(MD5GenerationTest.class);
 		suite.addTestSuite(ProductActionTest.class);
