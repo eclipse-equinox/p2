@@ -374,8 +374,11 @@ public class ProvisioningUtil {
 			// Apply the configuration
 			Configurator configChanger = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 			try {
+				// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
 				ProvisioningOperationRunner.suppressRestart(true);
 				configChanger.applyConfiguration();
+				// We just applied the configuration so restart is no longer required.
+				ProvisioningOperationRunner.clearRestartRequests();
 			} catch (IOException e) {
 				mon.done();
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_InstallPlanConfigurationError, e);
