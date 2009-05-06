@@ -31,6 +31,7 @@ public class Messages extends NLS {
 	public static String parent_dir_features;
 	public static String platform_config_unavailable;
 	public static String unexpected_prepareiu_error;
+	public static String error_validating_profile;
 
 	static {
 		// load message values from bundle file and assign to fields below

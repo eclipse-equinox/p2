@@ -119,7 +119,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			if (hasPreparedIUs(profile))
 				return validateProfile(profile);
 		} catch (RuntimeException e) {
-			return Util.createError(Messages.error_saving_manipulator, e);
+			return Util.createError(NLS.bind(Messages.error_validating_profile, profile.getProfileId()), e);
 		}
 		return Status.OK_STATUS;
 	}
@@ -235,7 +235,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (c != null) {
 			return DirectorUtil.validateProfile(profile);
 		}
-
 		return null;
 	}
 }
