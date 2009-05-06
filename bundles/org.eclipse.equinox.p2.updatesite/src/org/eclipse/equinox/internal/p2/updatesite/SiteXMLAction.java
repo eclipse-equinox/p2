@@ -319,7 +319,6 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (categoryQualifier != null) {
 			if (categoryQualifier.length() > 0)
 				return categoryQualifier + "." + categoryName; //$NON-NLS-1$
-			return categoryName;
 		}
 		if (updateSite != null)
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
