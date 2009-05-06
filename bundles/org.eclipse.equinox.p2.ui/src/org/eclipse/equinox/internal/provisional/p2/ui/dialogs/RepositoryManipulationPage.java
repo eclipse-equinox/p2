@@ -86,8 +86,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.5
  */
 public class RepositoryManipulationPage extends PreferencePage implements IWorkbenchPreferencePage, ICopyable {
-	private final static int WIDTH_IN_DLUS = 480;
-	private final static int HEIGHT_IN_DLUS = 240;
 	final static String DEFAULT_FILTER_TEXT = ProvUIMessages.RepositoryManipulationPage_DefaultFilterString;
 	private final static int FILTER_DELAY = 200;
 
@@ -162,7 +160,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
 
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		composite.setLayoutData(gd);
 
 		GridLayout layout = new GridLayout();
 		layout.numColumns = manipulator == null ? 1 : 2;
@@ -212,7 +211,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				});
 			}
 		});
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		pattern.setLayoutData(gd);
 
 		// spacer to fill other column
@@ -289,11 +288,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Input last
 		repositoryViewer.setInput(getInput());
 
-		GridData data = new GridData(GridData.FILL_BOTH);
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		data.widthHint = convertHorizontalDLUsToPixels(WIDTH_IN_DLUS);
-		data.heightHint = convertVerticalDLUsToPixels(HEIGHT_IN_DLUS);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
+		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 		table.setLayoutData(data);
 
 		// Drop targets and vertical buttons only if repository manipulation is provided.
