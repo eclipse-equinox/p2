@@ -740,7 +740,28 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private void setupLinks(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
-		// TODO setup the link support.
+		String[] links = getArrayFromString(descriptor.getLinks(), ","); //$NON-NLS-1$
+		StringBuffer linkActions = new StringBuffer();
+
+		int i = 0;
+		while (i < links.length) {
+			//format is [target,name]*
+			String target = links[i++];
+			if (i < links.length) {
+				String name = links[i++];
+				linkActions.append("ln(linkTarget:" + target); //$NON-NLS-1$
+				linkActions.append(",targetDir:${installFolder},linkName:" + name); //$NON-NLS-1$
+				linkActions.append(");"); //$NON-NLS-1$
+			}
+
+		}
+
+		if (linkActions.length() > 0) {
+			Map touchpointData = new HashMap();
+			//we do ln during configure to avoid complicating branding which uses the install phase
+			touchpointData.put("configure", linkActions.toString()); //$NON-NLS-1$
+			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		}
 	}
 
 	private void setupPermissions(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
