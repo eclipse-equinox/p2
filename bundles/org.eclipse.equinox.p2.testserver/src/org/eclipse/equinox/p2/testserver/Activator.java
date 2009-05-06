@@ -15,7 +15,9 @@ import java.net.URI;
 import javax.servlet.ServletException;
 import org.eclipse.equinox.p2.testserver.servlets.BasicResourceDelivery;
 import org.eclipse.equinox.p2.testserver.servlets.ChopAndDelay;
+import org.eclipse.equinox.p2.testserver.servlets.ContentLengthLier;
 import org.eclipse.equinox.p2.testserver.servlets.FileMolester;
+import org.eclipse.equinox.p2.testserver.servlets.LastModifiedLier;
 import org.eclipse.equinox.p2.testserver.servlets.StatusCodeResponse;
 import org.eclipse.equinox.p2.testserver.servlets.TimeOut;
 import org.eclipse.equinox.p2.testserver.servlets.Truncator;
@@ -77,6 +79,18 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			httpService.registerServlet("/proxy/flipFlop", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, flipFlop); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/molested", new FileMolester("/proxy/molested", URI.create(SITE), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/decelerate", new ChopAndDelay("/proxy/decelerate", URI.create(SITE), 3, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+
+			// lie about modified time
+			httpService.registerServlet("/proxy/modified/zero", new LastModifiedLier("/proxy/modified/zero", URI.create(SITE), LastModifiedLier.TYPE_ZERO), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/modified/old", new LastModifiedLier("/proxy/modified/old", URI.create(SITE), LastModifiedLier.TYPE_OLD), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/modified/now", new LastModifiedLier("/proxy/modified/now", URI.create(SITE), LastModifiedLier.TYPE_NOW), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/modified/future", new LastModifiedLier("/proxy/modified/future", URI.create(SITE), LastModifiedLier.TYPE_FUTURE), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/modified/bad", new LastModifiedLier("/proxy/modified/bad", URI.create(SITE), LastModifiedLier.TYPE_BAD), null, null); //$NON-NLS-1$//$NON-NLS-2$
+
+			// lie about length
+			httpService.registerServlet("/proxy/length/zero", new ContentLengthLier("/proxy/length/zero", URI.create(SITE), 0), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/length/less", new ContentLengthLier("/proxy/length/less", URI.create(SITE), 90), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/length/more", new ContentLengthLier("/proxy/length/more", URI.create(SITE), 200), null, null); //$NON-NLS-1$//$NON-NLS-2$
 
 		} catch (NamespaceException e) {
 			// TODO Auto-generated catch block

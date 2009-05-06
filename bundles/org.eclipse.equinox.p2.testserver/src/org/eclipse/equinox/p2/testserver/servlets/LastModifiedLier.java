@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.testserver.servlets;
 
 import java.net.URI;
 import java.net.URLConnection;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Manipulates the last modified time of serviced files.
@@ -20,6 +21,7 @@ import java.net.URLConnection;
  * to the current time if TYPE_NOW is used, and a value 24 hours into the future if TYPE_FUTURE is used.
  * (Future values are not allowed in HTTP - the server should guard against them and force the value
  * to be no bigger than the response date).
+ * The TYPE_BAD will produce a HTTP header with wrong format for the date value (fails date parsing).
  *
  */
 public class LastModifiedLier extends BasicResourceDelivery {
@@ -28,12 +30,14 @@ public class LastModifiedLier extends BasicResourceDelivery {
 	public static final int TYPE_OLD = 2;
 	public static final int TYPE_NOW = 3;
 	public static final int TYPE_FUTURE = 4;
+	public static final int TYPE_BAD = 5;
+	private static final int TYPE_LAST = TYPE_BAD;
 
 	private int type;
 
 	/**
-	 * The ContentLengthLier sets the content length to a percentage of the original length.
-	 * Values between 0 and 200 can be used (to lie about files being both smaller < 100, or larger > 100).
+	 * The LastModifiedLier returns a last modified time according to the parameter timeType.
+	 * It can be TYPE_ZERO, TYPE_OLD, TYPE_NOW, TYPE_FUTURE, or TYPE_BAD.
 	 * 
 	 * @param theAlias
 	 * @param thePath
@@ -41,7 +45,7 @@ public class LastModifiedLier extends BasicResourceDelivery {
 	 */
 	public LastModifiedLier(String theAlias, URI thePath, int timeType) {
 		super(theAlias, thePath);
-		if (timeType < TYPE_ZERO || timeType > TYPE_FUTURE)
+		if (timeType < TYPE_ZERO || timeType > TYPE_LAST)
 			throw new IllegalArgumentException("unknown timeType, was:" + Integer.valueOf(timeType)); //$NON-NLS-1$
 		type = timeType;
 	}
@@ -58,7 +62,7 @@ public class LastModifiedLier extends BasicResourceDelivery {
 			case TYPE_ZERO :
 				return 0L;
 			case TYPE_OLD :
-				return 1L;
+				return 1000L;
 			case TYPE_NOW :
 				return System.currentTimeMillis();
 			case TYPE_FUTURE :
@@ -67,4 +71,12 @@ public class LastModifiedLier extends BasicResourceDelivery {
 		// should not happen
 		return 0L;
 	}
+
+	public void addDateHeader(HttpServletResponse response, String name, long timestamp) {
+		if (type != TYPE_BAD)
+			super.addDateHeader(response, name, timestamp);
+		else
+			response.setHeader(name, "intentionally-bad-date"); //$NON-NLS-1$
+	}
+
 }

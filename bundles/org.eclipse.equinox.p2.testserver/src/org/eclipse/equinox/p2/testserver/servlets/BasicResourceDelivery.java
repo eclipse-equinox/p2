@@ -118,9 +118,8 @@ public class BasicResourceDelivery extends HttpServlet {
 	 * @throws IOException - on errors
 	 */
 	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		long modified = conn.getLastModified();
 		// set when the resource was modified
-		addDateHeader(response, HttpConstants.LAST_MODIFIED, modified);
+		addDateHeader(response, HttpConstants.LAST_MODIFIED, getLastModified(conn));
 
 		int contentlength = getContentLength(conn);
 		if (contentlength >= 0) {
