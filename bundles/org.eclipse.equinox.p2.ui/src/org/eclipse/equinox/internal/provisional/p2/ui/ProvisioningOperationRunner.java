@@ -44,10 +44,18 @@ public class ProvisioningOperationRunner {
 	static HashSet scheduledJobs = new HashSet();
 	static boolean restartRequested = false;
 	static boolean restartRequired = false;
+	static boolean subsequentRestartsRequested = false;
 	// used during automated testing to prevent a restart dialog from interrupting tests
 	static boolean suppressRestart = false;
 	static ListenerList jobListeners = new ListenerList();
 
+	/**
+	 * This method is temporary and will not appear in the final API.
+	 * 
+	 * @param suppress
+	 * 
+	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
+	 */
 	public static void suppressRestart(boolean suppress) {
 		suppressRestart = suppress;
 	}
@@ -135,9 +143,28 @@ public class ProvisioningOperationRunner {
 		return job;
 	}
 
+	/**
+	 * This method is temporary and is not intended for the API.
+	 * 
+	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
+	 */
+	public static void clearRestartRequests() {
+		restartRequired = false;
+		restartRequested = false;
+		subsequentRestartsRequested = false;
+	}
+
+	/**
+	 * This method will not appear in the final API.
+	 * 
+	 * @param force
+	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
+
+	 */
 	public static void requestRestart(boolean force) {
 		if (suppressRestart || hasScheduledOperations()) {
 			restartRequested = true;
+			subsequentRestartsRequested = true;
 			restartRequired = restartRequired || force;
 			return;
 		}
@@ -202,11 +229,15 @@ public class ProvisioningOperationRunner {
 
 	public static void manageJob(Job job) {
 		scheduledJobs.add(job);
+		subsequentRestartsRequested = false;
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				scheduledJobs.remove(event.getJob());
-				if (event.getResult().getSeverity() != IStatus.CANCEL && restartRequested) {
+				int severity = event.getResult().getSeverity();
+				if (severity != IStatus.CANCEL && severity != IStatus.ERROR && restartRequested) {
 					requestRestart(restartRequired);
+				} else {
+					restartRequested = subsequentRestartsRequested;
 				}
 			}
 		});
