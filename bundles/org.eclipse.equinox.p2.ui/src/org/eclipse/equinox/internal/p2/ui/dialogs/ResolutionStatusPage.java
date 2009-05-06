@@ -40,7 +40,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	private static final String DETAILS_WEIGHT = "DetailsSashWeight"; //$NON-NLS-1$
 	private static final String NAME_COLUMN_WIDTH = "NameColumnWidth"; //$NON-NLS-1$
 	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
-
+	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
+	private IUColumnConfig nameColumn, versionColumn, idColumn;
 	protected String profileId;
 
 	/**
@@ -167,13 +168,31 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	protected abstract SashForm getSashForm();
 
-	protected abstract IUColumnConfig getNameColumn();
+	private IUColumnConfig getNameColumn() {
+		return nameColumn;
+	}
 
-	protected abstract IUColumnConfig getVersionColumn();
+	private IUColumnConfig getVersionColumn() {
+		return versionColumn;
+	}
 
-	protected abstract int getNameColumnWidth();
+	private IUColumnConfig getIdColumn() {
+		return idColumn;
+	}
 
-	protected abstract int getVersionColumnWidth();
+	protected abstract int getColumnWidth(int index);
+
+	private int getNameColumnWidth() {
+		return getColumnWidth(0);
+	}
+
+	private int getVersionColumnWidth() {
+		return getColumnWidth(1);
+	}
+
+	private int getIdColumnWidth() {
+		return getColumnWidth(2);
+	}
 
 	protected int[] getSashWeights() {
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
@@ -204,6 +223,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 					getNameColumn().columnWidth = section.getInt(NAME_COLUMN_WIDTH);
 				if (section.get(VERSION_COLUMN_WIDTH) != null)
 					getVersionColumn().columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+				if (section.get(ID_COLUMN_WIDTH) != null)
+					getIdColumn().columnWidth = section.getInt(ID_COLUMN_WIDTH);
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}
@@ -220,9 +241,19 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		}
 		section.put(NAME_COLUMN_WIDTH, getNameColumnWidth());
 		section.put(VERSION_COLUMN_WIDTH, getVersionColumnWidth());
-
+		section.put(ID_COLUMN_WIDTH, getIdColumnWidth());
 		int[] weights = getSashForm().getWeights();
 		section.put(LIST_WEIGHT, weights[0]);
 		section.put(DETAILS_WEIGHT, weights[1]);
+	}
+
+	protected IUColumnConfig[] getColumnConfig() {
+		// We intentionally use the IU's id as one of the columns, because
+		// resolution errors are reported by ID.
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		getColumnWidthsFromSettings();
+		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
 	}
 }

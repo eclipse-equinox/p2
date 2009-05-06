@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -28,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModifica
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -46,7 +43,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	private static final String DIALOG_SETTINGS_SECTION = "ResolutionResultsPage"; //$NON-NLS-1$
-	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
 
 	protected IUElementListRoot input;
 	PlannerResolutionOperation resolvedOperation;
@@ -56,7 +52,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	IUDetailsLabelProvider labelProvider;
 	protected Display display;
 	private IUDetailsGroup iuDetailsGroup;
-	IUColumnConfig nameColumn, idColumn, versionColumn;
 	SashForm sashForm;
 
 	protected ResolutionResultsWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation resolvedOperation) {
@@ -177,16 +172,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return ElementUtils.elementsToIUs(input.getChildren(input));
 	}
 
-	protected IUColumnConfig[] getColumnConfig() {
-		// We intentionally use the IU's id as one of the columns, because
-		// resolution errors are reported by ID.
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
-		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		getColumnWidthsFromSettings();
-		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
-	}
-
 	void setDrilldownElements(IUElementListRoot root, ProvisioningPlan plan) {
 		if (plan == null)
 			return;
@@ -238,51 +223,11 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
-	protected IUColumnConfig getNameColumn() {
-		return nameColumn;
-	}
-
-	protected int getNameColumnWidth() {
-		return treeViewer.getTree().getColumn(0).getWidth();
+	protected int getColumnWidth(int index) {
+		return treeViewer.getTree().getColumn(index).getWidth();
 	}
 
 	protected SashForm getSashForm() {
 		return sashForm;
-	}
-
-	protected IUColumnConfig getVersionColumn() {
-		return versionColumn;
-	}
-
-	protected int getVersionColumnWidth() {
-		return treeViewer.getTree().getColumn(1).getWidth();
-	}
-
-	// TODO generalize the superclass iucolumn config handling so we don't need to override this
-	protected void getColumnWidthsFromSettings() {
-		super.getColumnWidthsFromSettings();
-		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
-		IDialogSettings section = settings.getSection(getDialogSettingsName());
-		if (section != null) {
-			try {
-				if (section.get(ID_COLUMN_WIDTH) != null)
-					idColumn.columnWidth = section.getInt(ID_COLUMN_WIDTH);
-			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
-			}
-		}
-	}
-
-	// TODO generalize the superclass iucolumn config handling so we don't need to override this
-	public void saveBoundsRelatedSettings() {
-		super.saveBoundsRelatedSettings();
-		if (getShell().isDisposed())
-			return;
-		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
-		IDialogSettings section = settings.getSection(getDialogSettingsName());
-		if (section == null) {
-			section = settings.addNewSection(getDialogSettingsName());
-		}
-		section.put(ID_COLUMN_WIDTH, treeViewer.getTree().getColumn(2).getWidth());
 	}
 }

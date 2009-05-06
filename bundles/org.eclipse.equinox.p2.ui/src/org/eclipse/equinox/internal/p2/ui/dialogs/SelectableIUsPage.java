@@ -54,7 +54,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Display display;
 	protected Policy policy;
 	SashForm sashForm;
-	IUColumnConfig nameColumn, versionColumn;
 
 	public SelectableIUsPage(Policy policy, IUElementListRoot root, Object[] initialSelections, String profileId) {
 		super("IUSelectionPage", profileId); //$NON-NLS-1$
@@ -91,19 +90,13 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		table.setLayoutData(data);
 		table.setHeaderVisible(true);
 		activateCopy(table);
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		getColumnWidthsFromSettings();
-
-		TableColumn tc = new TableColumn(table, SWT.LEFT, 0);
-		tc.setResizable(true);
-		tc.setText(nameColumn.columnTitle);
-		tc.setWidth(nameColumn.getWidth());
-
-		tc = new TableColumn(table, SWT.LEFT, 1);
-		tc.setResizable(true);
-		tc.setText(versionColumn.columnTitle);
-		tc.setWidth(versionColumn.getWidth());
+		IUColumnConfig[] columns = getColumnConfig();
+		for (int i = 0; i < columns.length; i++) {
+			TableColumn tc = new TableColumn(table, SWT.LEFT, i);
+			tc.setResizable(true);
+			tc.setText(columns[i].columnTitle);
+			tc.setWidth(columns[i].getWidth());
+		}
 
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -309,27 +302,15 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			tableViewer.setCheckedElements(elements);
 	}
 
-	protected String getDialogSettingsName() {
-		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
-	}
-
-	protected IUColumnConfig getNameColumn() {
-		return nameColumn;
-	}
-
-	protected int getNameColumnWidth() {
-		return tableViewer.getTable().getColumn(0).getWidth();
-	}
-
 	protected SashForm getSashForm() {
 		return sashForm;
 	}
 
-	protected IUColumnConfig getVersionColumn() {
-		return versionColumn;
+	protected String getDialogSettingsName() {
+		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
-	protected int getVersionColumnWidth() {
-		return tableViewer.getTable().getColumn(1).getWidth();
+	protected int getColumnWidth(int index) {
+		return tableViewer.getTable().getColumn(index).getWidth();
 	}
 }
