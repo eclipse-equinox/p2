@@ -269,7 +269,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setSingleton(true);
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
-		cat.setVersion(Version.emptyVersion);
+
+		cat.setVersion(Version.createOSGi(0, 0, 0, getDateQualifier()));
 		String label = category.getLabel();
 		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
@@ -319,10 +320,34 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (categoryQualifier != null) {
 			if (categoryQualifier.length() > 0)
 				return categoryQualifier + "." + categoryName; //$NON-NLS-1$
+			return categoryName;
 		}
 		if (updateSite != null)
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
 		return categoryName;
+	}
+
+	/*
+	 * Returns the current date/time as a string to be used as a qualifier
+	 * replacement.  This is the default qualifier replacement.  Will
+	 * be of the form YYYYMMDDHHMM.
+	 * @return current date/time as a qualifier replacement 
+	 */
+	private static String getDateQualifier() {
+		final String empty = ""; //$NON-NLS-1$
+		int monthNbr = Calendar.getInstance().get(Calendar.MONTH) + 1;
+		String month = (monthNbr < 10 ? "0" : empty) + monthNbr; //$NON-NLS-1$
+
+		int dayNbr = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+		String day = (dayNbr < 10 ? "0" : empty) + dayNbr; //$NON-NLS-1$
+
+		int hourNbr = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+		String hour = (hourNbr < 10 ? "0" : empty) + hourNbr; //$NON-NLS-1$
+
+		int minuteNbr = Calendar.getInstance().get(Calendar.MINUTE);
+		String minute = (minuteNbr < 10 ? "0" : empty) + minuteNbr; //$NON-NLS-1$
+
+		return empty + Calendar.getInstance().get(Calendar.YEAR) + month + day + hour + minute;
 	}
 
 }
