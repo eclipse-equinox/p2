@@ -493,6 +493,6 @@ public class VersionRange implements Serializable {
 	public static VersionRange fromOSGiVersionRange(org.eclipse.osgi.service.resolver.VersionRange range) {
 		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange))
 			return emptyRange;
-		return new VersionRange(Version.fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), Version.fromOSGiVersion(range.getMaximum()), range.getIncludeMinimum());
+		return new VersionRange(Version.fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), Version.fromOSGiVersion(range.getMaximum()), range.getIncludeMaximum());
 	}
 }
