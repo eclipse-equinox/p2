@@ -44,7 +44,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		actionParameters.put("test", "testValue");
 
 		Map phaseParameters = new HashMap();
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 
 		assertEquals("testValue", value);
@@ -58,7 +58,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("testValue", value);
 	}
@@ -72,7 +72,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("testValue", value);
 	}
@@ -86,7 +86,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("", value);
 	}
@@ -100,7 +100,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("testVlue", value);
 	}
@@ -114,7 +114,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("testVlue", value);
 	}
@@ -128,7 +128,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("", value);
 	}
@@ -142,7 +142,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("$ , : ; { }", value);
 	}
@@ -156,7 +156,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("a\0b", value);
 	}
@@ -170,7 +170,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("a\uFFFFb", value);
 	}
@@ -184,7 +184,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("ab", value);
 	}
@@ -198,7 +198,7 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 		Map phaseParameters = new HashMap();
 		phaseParameters.put("variable", "Value");
 
-		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters);
+		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 		assertEquals("ab", value);
 	}

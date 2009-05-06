@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,12 +20,14 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	private ProvisioningAction action;
 	private Map actionParameters;
+	private String actionText;
 
-	public ParameterizedProvisioningAction(ProvisioningAction action, Map actionParameters) {
+	public ParameterizedProvisioningAction(ProvisioningAction action, Map actionParameters, String actionText) {
 		if (action == null || actionParameters == null)
 			throw new IllegalArgumentException(Messages.ParameterizedProvisioningAction_action_or_parameters_null);
 		this.action = action;
 		this.actionParameters = actionParameters;
+		this.actionText = actionText;
 	}
 
 	public IStatus execute(Map parameters) {
@@ -85,6 +87,10 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	public Map getParameters() {
 		return actionParameters;
+	}
+
+	public String getActionText() {
+		return actionText;
 	}
 
 	public Touchpoint getTouchpoint() {

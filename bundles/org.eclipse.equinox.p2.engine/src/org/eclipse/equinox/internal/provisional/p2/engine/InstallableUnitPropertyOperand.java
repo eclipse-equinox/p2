@@ -38,6 +38,6 @@ public class InstallableUnitPropertyOperand extends PropertyOperand {
 	}
 
 	public String toString() {
-		return "IInstallableUnit property for " + iu.toString() + super.toString(); //$NON-NLS-1$
+		return "[IInstallableUnit property for " + iu.toString() + "] " + super.toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

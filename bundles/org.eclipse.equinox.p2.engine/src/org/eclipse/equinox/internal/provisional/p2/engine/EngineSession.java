@@ -13,11 +13,11 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.osgi.util.NLS;
 
 public class EngineSession {
+	private static final String ENGINE_SESSION = "enginesession"; //$NON-NLS-1$
 
 	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
@@ -124,7 +124,7 @@ public class EngineSession {
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
-				// "phase.undo" calls user code and might throw an unchecked exception
+				// "phase.prePerform and phase.postPerform" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, currentPhase.getClass().getName()), e));
 			} catch (LinkageError e) {
@@ -146,7 +146,7 @@ public class EngineSession {
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
-				// "phase.undo" calls user code and might throw an unchecked exception
+				// "phase.prePerform and phase.postPerform" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_error, phase.getClass().getName()), e));
 			} catch (LinkageError e) {
@@ -189,7 +189,16 @@ public class EngineSession {
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 			ActionsRecord record = (ActionsRecord) it.previous();
 			ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
-			phase.undo(result, this, profile, record.operand, actions, context);
+			try {
+				phase.undo(result, this, profile, record.operand, actions, context);
+			} catch (RuntimeException e) {
+				// "phase.undo" calls user code and might throw an unchecked exception
+				// we catch the error here to gather information on where the problem occurred.
+				result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+			} catch (LinkageError e) {
+				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+				result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+			}
 		}
 		phase.postPerform(result, profile, context, new NullProgressMonitor());
 		return result;
@@ -203,6 +212,9 @@ public class EngineSession {
 			throw new IllegalStateException(Messages.phase_started);
 
 		currentPhase = phase;
+
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugPhaseEnter(phase);
 	}
 
 	void recordPhaseStart(Phase phase) {
@@ -236,6 +248,8 @@ public class EngineSession {
 			throw new IllegalArgumentException(Messages.not_current_phase);
 
 		currentPhase = null;
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugPhaseExit(phase);
 	}
 
 	void recordOperandStart(Operand operand) {
@@ -247,6 +261,9 @@ public class EngineSession {
 
 		currentRecord = new ActionsRecord(operand);
 		currentActionRecords.add(currentRecord);
+
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugOperandStart(operand);
 	}
 
 	void recordOperandEnd(Operand operand) {
@@ -257,9 +274,12 @@ public class EngineSession {
 			throw new IllegalArgumentException(Messages.not_current_operand);
 
 		currentRecord = null;
+
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugOperandEnd(operand);
 	}
 
-	void recordAction(ProvisioningAction action) {
+	void recordActionExecute(ProvisioningAction action, Map parameters) {
 		if (action == null)
 			throw new IllegalArgumentException(Messages.null_action);
 
@@ -268,6 +288,23 @@ public class EngineSession {
 		Touchpoint touchpoint = action.getTouchpoint();
 		if (touchpoint != null)
 			touchpoints.add(touchpoint);
+
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugActionExecute(action, parameters);
+	}
+
+	public void recordActionUndo(ProvisioningAction action, Map parameters) {
+		if (DebugHelper.DEBUG_ENGINE_SESSION)
+			debugActionUndo(action, parameters);
+	}
+
+	public String getContextString(Phase phase, Operand operand, ProvisioningAction action) {
+		if (action instanceof ParameterizedProvisioningAction) {
+			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) action;
+			action = parameterizedAction.getAction();
+		}
+		String message = NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), phase.getClass().getName(), operand.toString(), getCurrentActionId()});
+		return message;
 	}
 
 	public String getContextString() {
@@ -297,5 +334,29 @@ public class EngineSession {
 		if (currentRecord == null)
 			return EMPTY_STRING;
 		return currentRecord.operand.toString();
+	}
+
+	private static void debugPhaseEnter(Phase phase) {
+		DebugHelper.debug(ENGINE_SESSION, "Entering phase: " + phase.getClass().getName()); //$NON-NLS-1$
+	}
+
+	private static void debugPhaseExit(Phase phase) {
+		DebugHelper.debug(ENGINE_SESSION, "Exiting phase: " + phase.getClass().getName()); //$NON-NLS-1$
+	}
+
+	private static void debugOperandStart(Operand operand) {
+		DebugHelper.debug(ENGINE_SESSION, "Starting processing of operand: " + operand.toString()); //$NON-NLS-1$
+	}
+
+	private static void debugOperandEnd(Operand operand) {
+		DebugHelper.debug(ENGINE_SESSION, "Ending processing of operand: " + operand.toString()); //$NON-NLS-1$
+	}
+
+	private static void debugActionExecute(ProvisioningAction action, Map parameters) {
+		DebugHelper.debug(ENGINE_SESSION, "Executing action: " + DebugHelper.formatAction(action, parameters)); //$NON-NLS-1$
+	}
+
+	private static void debugActionUndo(ProvisioningAction action, Map parameters) {
+		DebugHelper.debug(ENGINE_SESSION, "Undoing action: " + DebugHelper.formatAction(action, parameters)); //$NON-NLS-1$
 	}
 }

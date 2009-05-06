@@ -37,6 +37,7 @@ public class Messages extends NLS {
 	public static String touchpoint_commit_error;
 	public static String touchpoint_rollback_error;
 	public static String phase_undo_error;
+	public static String phase_undo_operand_error;
 	public static String session_prepare_error;
 	public static String session_commit_error;
 	public static String null_operand;

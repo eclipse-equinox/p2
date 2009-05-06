@@ -54,6 +54,10 @@ public class ProvisioningContext {
 		properties.setProperty(key, value);
 	}
 
+	public Properties getProperties() {
+		return properties;
+	}
+
 	public List getExtraIUs() {
 		return extraIUs;
 	}

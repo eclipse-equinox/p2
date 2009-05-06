@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 
 public class Engine implements IEngine {
+	private static final String ENGINE = "engine"; //$NON-NLS-1$
 
 	private final IProvisioningEventBus eventBus;
 	private ActionManager actionManager;
@@ -43,27 +44,35 @@ public class Engine implements IEngine {
 		profileRegistry.lockProfile(profile);
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
+			if (DebugHelper.DEBUG_ENGINE)
+				DebugHelper.debug(ENGINE, "Beginning engine operation for profile=" + profile.getProfileId() + " [" + profile.getTimestamp() + "]:" + DebugHelper.LINE_SEPARATOR + DebugHelper.formatOperation(phaseSet, operands, context)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
 			File profileDataDirectory = profileRegistry.getProfileDataDirectory(profile.getProfileId());
 
 			EngineSession session = new EngineSession(profile, profileDataDirectory, context);
 
 			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
-			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING))
+			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING)) {
+				if (DebugHelper.DEBUG_ENGINE)
+					DebugHelper.debug(ENGINE, "Preparing to commit engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
 				result.merge(session.prepare(monitor));
-
+			}
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
-				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
+				if (DebugHelper.DEBUG_ENGINE)
+					DebugHelper.debug(ENGINE, "Rolling back engine operation for profile=" + profile.getProfileId() + ". Reason was: " + result.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 				IStatus status = session.rollback(monitor, result.getSeverity());
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
+				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 			} else {
+				if (DebugHelper.DEBUG_ENGINE)
+					DebugHelper.debug(ENGINE, "Committing engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
 				if (profile.isChanged())
 					profileRegistry.updateProfile(profile);
-				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				IStatus status = session.commit(monitor);
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
+				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 			}
 			//if there is only one child status, return that status instead because it will have more context
 			IStatus[] children = result.getChildren();

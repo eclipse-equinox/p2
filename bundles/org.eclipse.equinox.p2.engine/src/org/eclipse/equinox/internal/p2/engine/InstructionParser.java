@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public class InstructionParser {
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
-			return new ParameterizedProvisioningAction(action, Collections.EMPTY_MAP);
+			return new ParameterizedProvisioningAction(action, Collections.EMPTY_MAP, statement);
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map parameters = new HashMap();
@@ -99,7 +99,7 @@ public class InstructionParser {
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			parameters.put(name, value);
 		}
-		return new ParameterizedProvisioningAction(action, parameters);
+		return new ParameterizedProvisioningAction(action, parameters, statement);
 	}
 
 	private ProvisioningAction lookupAction(String actionId, Map importMap, ITouchpointType touchpointType) {

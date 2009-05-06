@@ -144,4 +144,8 @@ public abstract class PhaseSet {
 		}
 		return count;
 	}
+
+	public Phase[] getPhases() {
+		return phases;
+	}
 }

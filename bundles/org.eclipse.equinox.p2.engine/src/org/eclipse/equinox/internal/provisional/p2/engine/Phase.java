@@ -114,7 +114,7 @@ public abstract class Phase {
 
 						parameters = (Map) touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
-					session.recordAction(action);
+					session.recordActionExecute(action, parameters);
 					mergeStatus(status, action.execute(parameters));
 					if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 						return;
@@ -184,15 +184,22 @@ public abstract class Phase {
 
 				parameters = (Map) touchpointToTouchpointOperandParameters.get(touchpoint);
 			}
+			IStatus actionStatus = null;
 			try {
-				mergeStatus(status, action.undo(parameters));
+				session.recordActionUndo(action, parameters);
+				actionStatus = action.undo(parameters);
 			} catch (RuntimeException e) {
 				// "action.undo" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
-				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.action_undo_error, action.getClass().getName()), e));
+				actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.action_undo_error, action.getClass().getName()), e);
 			} catch (LinkageError e) {
 				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
-				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.action_undo_error, action.getClass().getName()), e));
+				actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.action_undo_error, action.getClass().getName()), e);
+			}
+			if (actionStatus != null && actionStatus.matches(IStatus.ERROR)) {
+				MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, getProblemMessage(), null);
+				result.add(new Status(IStatus.ERROR, EngineActivator.ID, session.getContextString(this, operand, action), null));
+				result.merge(actionStatus);
 			}
 		}
 		mergeStatus(status, touchpointCompleteOperand(profile, operand, operandParameters, new NullProgressMonitor()));
