@@ -10,15 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
-
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
-import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.p2.publisher.SingleElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
@@ -71,7 +70,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	}
 
-	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
+	public static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
 	protected IPublisherInfo info;
@@ -102,6 +101,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		for (int i = 0; i < result.length; i++)
 			if (result[i].equals("*")) //$NON-NLS-1$
 				result[i] = CONFIG_ANY;
+
+		if (result.length < 3) {
+			String[] temp = new String[3];
+			System.arraycopy(result, 0, temp, 0, result.length);
+			for (int i = result.length; i < temp.length; i++) {
+				temp[i] = CONFIG_ANY;
+			}
+			result = temp;
+		}
 		return result;
 	}
 

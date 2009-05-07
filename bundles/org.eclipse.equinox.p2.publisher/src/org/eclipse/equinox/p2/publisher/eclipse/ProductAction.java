@@ -9,13 +9,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -113,7 +112,7 @@ public class ProductAction extends AbstractPublisherAction {
 		if (productFileLocation == null)
 			return;
 
-		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), new Version(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf")); //$NON-NLS-1$
+		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), Version.parseVersion(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf")); //$NON-NLS-1$
 		if (advice.containsAdvice())
 			info.addAdvice(advice);
 	}
@@ -131,7 +130,7 @@ public class ProductAction extends AbstractPublisherAction {
 
 	private void createProductAdvice() {
 		id = product.getId();
-		version = new Version(product.getVersion());
+		version = Version.parseVersion(product.getVersion());
 		name = product.getProductName();
 		if (name == null || name.length() == 0) // If the name is not defined, use the ID
 			name = product.getId();

@@ -32,7 +32,9 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
 	private IProductDescriptor product;
 	private String configSpec;
+	private String ws;
 	private String os;
+	private String arch;
 	private ConfigData configData = null;
 
 	protected String getId() {
@@ -54,7 +56,18 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	public ProductFileAdvice(IProductDescriptor product, String configSpec) {
 		this.product = product;
 		this.configSpec = configSpec;
-		os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
+
+		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
+		ws = config[0];
+		if (ws == null)
+			ws = AbstractPublisherAction.CONFIG_ANY;
+		os = config[1];
+		if (os == null)
+			os = AbstractPublisherAction.CONFIG_ANY;
+		arch = config[2];
+		if (arch == null)
+			arch = AbstractPublisherAction.CONFIG_ANY;
+
 		configData = getConfigData();
 	}
 
@@ -259,8 +272,26 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 
 	protected boolean matchConfig(String spec, boolean includeDefault) {
 		if (spec != null) {
+			String targetWS = AbstractPublisherAction.parseConfigSpec(spec)[0];
+			if (targetWS == null)
+				targetWS = AbstractPublisherAction.CONFIG_ANY;
+			if (!ws.equals(targetWS) && !ws.equals(AbstractPublisherAction.CONFIG_ANY) && !targetWS.equals(AbstractPublisherAction.CONFIG_ANY)) {
+				return false;
+			}
+
 			String targetOS = AbstractPublisherAction.parseConfigSpec(spec)[1];
-			return os.equals(targetOS);
+			if (targetOS == null)
+				targetOS = AbstractPublisherAction.CONFIG_ANY;
+			if (!os.equals(targetOS) && !os.equals(AbstractPublisherAction.CONFIG_ANY) && !targetOS.equals(AbstractPublisherAction.CONFIG_ANY)) {
+				return false;
+			}
+
+			String targetArch = AbstractPublisherAction.parseConfigSpec(spec)[2];
+			if (targetArch == null)
+				targetArch = AbstractPublisherAction.CONFIG_ANY;
+			if (!arch.equals(targetArch) && !arch.equals(AbstractPublisherAction.CONFIG_ANY) && !targetArch.equals(AbstractPublisherAction.CONFIG_ANY)) {
+				return false;
+			}
 		}
 		return true;
 	}

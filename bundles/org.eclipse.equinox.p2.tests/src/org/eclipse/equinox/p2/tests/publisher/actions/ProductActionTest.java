@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import org.easymock.Capture;
@@ -165,6 +166,17 @@ public class ProductActionTest extends ActionTest {
 		action2.perform(info, results, new NullProgressMonitor());
 		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
+	}
+
+	public void testMultiConfigspecProductPublishing() throws IOException, Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		info.setConfigurations(new String[] {"carbon.macos.x86", "cocoa.macos.x86"});
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction.perform(info, publisherResult, null);
+
+		Collection advice = info.getAdvice("carbon.macos.x86", false, null, null, IConfigAdvice.class);
+		assertEquals("1.0", 1, advice.size());
 	}
 
 	/**
