@@ -19,11 +19,12 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
 		suite.addTestSuite(JarURLMetadataRepositoryTest.class);
 		suite.addTestSuite(LocalMetadataRepositoryTest.class);
 		suite.addTestSuite(SPIMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
-		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
+		suite.addTestSuite(NoFailOver.class);
 		suite.addTestSuite(ResumeDownloadTest.class);
 		// DISABLING until we get a test build
 		//		AllServerTests.addToSuite(suite);
