@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -80,6 +81,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		};
 		sizingJob.setUser(false);
 		sizingJob.setSystem(true);
+		sizingJob.setProperty(ValidationDialogServiceUI.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
 		sizingJob.schedule();
 		sizingJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
