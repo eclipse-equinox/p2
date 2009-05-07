@@ -800,7 +800,7 @@ public class Projector {
 		pm.beginTask(Messages.Planner_NoSolution, 1000);
 		try {
 			synchronized (job) {
-				while (job.getExplanationResult() == null) {
+				while (job.getExplanationResult() == null && job.getState() != Job.NONE) {
 					if (monitor.isCanceled()) {
 						job.cancel();
 						throw new OperationCanceledException();
