@@ -209,15 +209,12 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 			// if this is a authentication failure - it is not meaningful to continue
 			RepositoryStatusHelper.checkPermissionDenied(exception);
 
+			// if this is a file not found - it is not meaningful to continue
+			RepositoryStatusHelper.checkFileNotFound(exception, uri);
+
 			Throwable t = RepositoryStatusHelper.unwind(exception);
 			if (t instanceof CoreException)
 				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
-
-			if (t instanceof FileNotFoundException)
-				//
-				// Connection succeeded but the target doesn't exist
-				//
-				throw (FileNotFoundException) t;
 
 			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
 				// TODO: Retry only certain exceptions or filter out

@@ -13,7 +13,8 @@ import java.net.URI;
 import java.security.cert.Certificate;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -68,7 +69,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 		// undefined HTTP response codes.
 		runSequence(419, 421);
 		runSequence(427, 448);
-		runSequence(510, 601);
+		runSequence(511, 601);
 	}
 
 	private void runSequence(int from, int to) throws Exception {
@@ -82,10 +83,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 			} catch (ProvisionException e) {
 
 				IStatus status = e.getStatus();
-				Throwable ex = status.getException();
 				String msg = e.getMessage();
-				if (ex instanceof CoreException)
-					msg = ((CoreException) ex).getStatus().getMessage();
 
 				// Print for human inspection
 				System.out.print(String.format("HTTP %d => %s e-message: [%s]\n", //
@@ -97,10 +95,8 @@ public class HttpStatusTest extends ServerBasedTestCase {
 				//					String m = org.eclipse.equinox.internal.p2.repository.Messages.TransportErrorTranslator_400;
 				// Some codes have different message
 				switch (i) {
-					case 401 : // fall through
+					case 401 :
 						// Authentication exception -
-						// TODO: check details - The HTTP message should be retained - See Bug 274711
-
 						// Assert the ProvisionException code
 						assertEquals("Expected Provision Exception code for: " + Integer.valueOf(i), //
 								ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, status.getCode());

@@ -276,18 +276,15 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		// note that 'exception' could have been captured in a callback
 		if (exception != null) {
-			// if this is a authentication failure - it is not meaningful to continue
+			// if this is an 'authentication failure' - it is not meaningful to continue
 			RepositoryStatusHelper.checkPermissionDenied(exception);
+
+			// if this is a 'file not found' - it is not meaningful to continue
+			RepositoryStatusHelper.checkFileNotFound(exception, uri);
 
 			Throwable t = RepositoryStatusHelper.unwind(exception);
 			if (t instanceof CoreException)
 				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
-
-			if (t instanceof FileNotFoundException)
-				//
-				// Connection succeeded but the target doesn't exist
-				//
-				throw (FileNotFoundException) t;
 
 			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
 				// TODO: Retry only certain exceptions or filter out

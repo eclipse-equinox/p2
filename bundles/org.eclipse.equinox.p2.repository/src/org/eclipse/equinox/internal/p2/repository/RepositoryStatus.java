@@ -12,10 +12,10 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ecf.core.identity.IDCreateException;
+import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
@@ -127,45 +127,14 @@ public class RepositoryStatus {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
 		int code = 0;
-		// (sigh) parse http code from IOException thrown by ECF
-		if (t instanceof IOException) {
-			String ioMsg = t.getMessage();
-			String prefix = "HttpClient connection error response code "; //$NON-NLS-1$
-			if (ioMsg != null && ioMsg.startsWith(prefix)) {
-				try {
-					code = new Integer(ioMsg.substring(prefix.length(), ioMsg.lastIndexOf("."))).intValue(); //$NON-NLS-1$
-				} catch (Throwable e) {
-					code = 0;
-				}
-			}
-		}
-		if (t.getClass().getName().equals("javax.security.auth.login.LoginException")) {//$NON-NLS-1$
-			// we end up here on 401, 403, and 407 errors transformed to LoginException in ECF
-			// file browser. Since 403 should be treated as a READ error - a check is made for "Forbidden"
-			// to exclude it from being reported as auth fail.
-
-			// Ugly message parsing - see Bug 274821
-			String exMsg = t.getMessage();
-			if (exMsg != null) {
-				if ("Forbidden".equals(t.getMessage())) //$NON-NLS-1$
-					code = 403;
-				else if (exMsg.indexOf("Proxy") != -1) //$NON-NLS-1$
-					code = 407;
-				else if ("Unauthorized".equals(exMsg)) //$NON-NLS-1$
-					code = 401;
-
-				return new DownloadStatus(IStatus.ERROR, Activator.ID, //
-						code == 401 ? ProvisionException.REPOSITORY_FAILED_AUTHENTICATION //
-								: ProvisionException.REPOSITORY_FAILED_READ, //
-						codeToMessage(code, toDownload.toString()), t);
-			}
-		}
 
 		// default to report as read repository error
 		int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
 
 		if (t instanceof IncomingFileTransferException)
 			code = ((IncomingFileTransferException) t).getErrorCode();
+		else if (t instanceof BrowseFileTransferException)
+			code = ((BrowseFileTransferException) t).getErrorCode();
 
 		// Switch on error codes in the HTTP error code range. 
 		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND, which

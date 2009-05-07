@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
@@ -230,24 +231,24 @@ public abstract class RepositoryStatusHelper {
 	 * and throw a AuthenticationFailedException if a permission failure was encountered.
 	 */
 	public static void checkPermissionDenied(Throwable t) throws AuthenticationFailedException {
+		// From Use of File Transfer
 		if (t instanceof IncomingFileTransferException) {
 			if (((IncomingFileTransferException) t).getErrorCode() == 401)
 				throw new AuthenticationFailedException();
 			IStatus status = ((IncomingFileTransferException) t).getStatus();
 			t = status.getException();
-		}
-		if (t.getClass().getName().equals("javax.security.auth.login.LoginException")) { //$NON-NLS-1$
-			// Ugly, Ugly message parsing - see Bug 274821 (parsing out "Forbidden" as it is not NLS, and then scan for "Proxy" as this is
-			// word is more likely to survive translation. The 401 message is simply "Unauthorized" in English, but is translatable.
-
-			// Only 401 should cause AuthenticationFailedException
-			String exMsg = t.getMessage();
-			if (exMsg != null && !"Forbidden".equals(exMsg) && exMsg.indexOf("Proxy") == -1) //$NON-NLS-1$ //$NON-NLS-2$
+			// From Use of Browse
+		} else if (t instanceof BrowseFileTransferException) {
+			if (((BrowseFileTransferException) t).getErrorCode() == 401)
 				throw new AuthenticationFailedException();
+			IStatus status = ((BrowseFileTransferException) t).getStatus();
+			t = status.getException();
 		}
+
 		if (t == null || !(t instanceof IOException))
 			return;
 
+		// TODO: is this needed (for 401) now that ECF throws exceptions with codes?
 		// try to figure out if we have a 401 by parsing the exception message
 		// There is unfortunately no specific exception for "redirected too many times" - which is commonly
 		// caused by a failed login.
@@ -255,6 +256,33 @@ public abstract class RepositoryStatusHelper {
 		if (m != null && (m.indexOf(" 401 ") != -1 || m.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 			throw new AuthenticationFailedException();
 
+	}
+
+	/**
+	 * Translates exceptions representing "FileNotFound" into FileNotFoundException.
+	 * @param t the throwable to check
+	 * @param toDownload the URI the exception was thrown for
+	 * @throws FileNotFoundException if 't' represents a file not found
+	 */
+	public static void checkFileNotFound(Throwable t, URI toDownload) throws FileNotFoundException {
+		if (t instanceof IncomingFileTransferException) {
+			IncomingFileTransferException e = (IncomingFileTransferException) t;
+			if (e.getErrorCode() == 404)
+				throw new FileNotFoundException(toDownload.toString());
+		}
+		if (t instanceof BrowseFileTransferException) {
+			BrowseFileTransferException e = (BrowseFileTransferException) t;
+			if (e.getErrorCode() == 404)
+				throw new FileNotFoundException(toDownload.toString());
+		}
+
+		if (t instanceof FileNotFoundException)
+			throw (FileNotFoundException) t;
+		if (t instanceof CoreException) {
+			Throwable e = ((CoreException) t).getStatus().getException();
+			if (e instanceof FileNotFoundException)
+				throw (FileNotFoundException) e;
+		}
 	}
 
 	/**

@@ -85,6 +85,8 @@ public class RepositoryTransport extends Transport {
 				statusOn(target, new DownloadStatus(IStatus.CANCEL, Activator.ID, 1, "", null), reader); //$NON-NLS-1$
 				throw e;
 			} catch (CoreException e) {
+				if (e.getStatus().getException() == null)
+					return statusOn(target, RepositoryStatus.forException(e, toDownload), reader);
 				return statusOn(target, RepositoryStatus.forStatus(e.getStatus(), toDownload), reader);
 			} catch (FileNotFoundException e) {
 				return statusOn(target, RepositoryStatus.forException(e, toDownload), reader);
@@ -140,6 +142,11 @@ public class RepositoryTransport extends Transport {
 				throw new OperationCanceledException();
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
+			} catch (CoreException e) {
+				// must translate this core exception as it is most likely not informative to a user
+				if (e.getStatus().getException() == null)
+					throw new CoreException(RepositoryStatus.forException(e, toDownload));
+				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
 			}
 		}
 		throw new AuthenticationFailedException();
@@ -190,6 +197,8 @@ public class RepositoryTransport extends Transport {
 				throw new OperationCanceledException();
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a user
+				if (e.getStatus().getException() == null)
+					throw new CoreException(RepositoryStatus.forException(e, toDownload));
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
