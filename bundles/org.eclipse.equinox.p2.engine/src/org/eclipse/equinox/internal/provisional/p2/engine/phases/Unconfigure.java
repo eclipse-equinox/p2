@@ -18,8 +18,12 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class Unconfigure extends InstallableUnitPhase {
 
+	public Unconfigure(int weight, boolean forced) {
+		super("unconfigure", weight, forced); //$NON-NLS-1$
+	}
+
 	public Unconfigure(int weight) {
-		super("unconfigure", weight); //$NON-NLS-1$
+		this(weight, false);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

@@ -64,8 +64,12 @@ public class Uninstall extends InstallableUnitPhase {
 
 	private static final String PHASE_ID = "uninstall"; //$NON-NLS-1$
 
+	public Uninstall(int weight, boolean forced) {
+		super(PHASE_ID, weight, forced);
+	}
+
 	public Uninstall(int weight) {
-		super(PHASE_ID, weight);
+		this(weight, false);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

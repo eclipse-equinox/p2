@@ -22,8 +22,12 @@ public abstract class InstallableUnitPhase extends Phase {
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 
+	protected InstallableUnitPhase(String phaseId, int weight, boolean forced) {
+		super(phaseId, weight, forced);
+	}
+
 	protected InstallableUnitPhase(String phaseId, int weight) {
-		super(phaseId, weight);
+		this(phaseId, weight, false);
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {

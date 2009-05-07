@@ -11,9 +11,12 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.ArrayList;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 
 public class DefaultPhaseSet extends PhaseSet {
+
+	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
 
 	public static int PHASE_CHECK_TRUST = 0x01;
 	public static int PHASE_COLLECT = 0x02;
@@ -24,7 +27,7 @@ public class DefaultPhaseSet extends PhaseSet {
 	public static int PHASE_UNINSTALL = 0x40;
 
 	public DefaultPhaseSet() {
-		super(new Phase[] {new Collect(100), new Unconfigure(10), new Uninstall(50), new Property(1), new CheckTrust(10), new Install(50), new Configure(10)});
+		this(new Phase[] {new Collect(100), new Unconfigure(10, forcedUninstall), new Uninstall(50, forcedUninstall), new Property(1), new CheckTrust(10), new Install(50), new Configure(10)});
 	}
 
 	private DefaultPhaseSet(Phase[] phases) {
@@ -44,9 +47,9 @@ public class DefaultPhaseSet extends PhaseSet {
 		if ((PHASE_COLLECT & exclude) != PHASE_COLLECT)
 			phases.add(new Collect(100));
 		if ((PHASE_UNCONFIGURE & exclude) != PHASE_UNCONFIGURE)
-			phases.add(new Unconfigure(10));
+			phases.add(new Unconfigure(10, forcedUninstall));
 		if ((PHASE_UNINSTALL & exclude) != PHASE_UNINSTALL)
-			phases.add(new Uninstall(50));
+			phases.add(new Uninstall(50, forcedUninstall));
 		if ((PHASE_PROPERTY & exclude) != PHASE_PROPERTY)
 			phases.add(new Property(1));
 		if ((PHASE_CHECK_TRUST & exclude) != PHASE_CHECK_TRUST)

@@ -53,6 +53,7 @@ public class Messages extends NLS {
 	public static String rollingback_cancel;
 	public static String rollingback_error;
 	public static String action_undo_error;
+	public static String forced_action_execute_error;
 
 	static {
 		// initialize resource bundle

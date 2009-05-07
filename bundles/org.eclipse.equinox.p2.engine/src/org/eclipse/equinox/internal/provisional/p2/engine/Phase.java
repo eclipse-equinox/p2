@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.osgi.util.NLS;
@@ -23,9 +24,11 @@ public abstract class Phase {
 	protected static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 	protected static final String PARM_PROFILE_DATA_DIRECTORY = "profileDataDirectory"; //$NON-NLS-1$
 	protected static final String PARM_CONTEXT = "context"; //$NON-NLS-1$
+	protected static final String PARM_FORCED = "forced"; //$NON-NLS-1$
 
 	protected final String phaseId;
 	protected final int weight;
+	protected final boolean forced;
 	protected int prePerformWork = 1000;
 	protected int mainPerformWork = 10000;
 	protected int postPerformWork = 1000;
@@ -35,13 +38,18 @@ public abstract class Phase {
 	private Map touchpointToTouchpointOperandParameters = new HashMap();
 	ActionManager actionManager; // injected from phaseset
 
-	protected Phase(String phaseId, int weight) {
+	protected Phase(String phaseId, int weight, boolean forced) {
 		if (phaseId == null || phaseId.length() == 0)
 			throw new IllegalArgumentException(Messages.phaseid_not_set);
 		if (weight <= 0)
 			throw new IllegalArgumentException(Messages.phaseid_not_positive);
 		this.weight = weight;
 		this.phaseId = phaseId;
+		this.forced = forced;
+	}
+
+	protected Phase(String phaseId, int weight) {
+		this(phaseId, weight, false);
 	}
 
 	final protected ActionManager getActionManager() {
@@ -80,6 +88,7 @@ public abstract class Phase {
 		phaseParameters.put(PARM_PROFILE_DATA_DIRECTORY, session.getProfileDataDirectory());
 		phaseParameters.put(PARM_CONTEXT, context);
 		phaseParameters.put(PARM_PHASE_ID, phaseId);
+		phaseParameters.put(PARM_FORCED, Boolean.toString(forced));
 		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 	}
 
@@ -114,11 +123,31 @@ public abstract class Phase {
 
 						parameters = (Map) touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
-					session.recordActionExecute(action, parameters);
-					mergeStatus(status, action.execute(parameters));
+					IStatus actionStatus = null;
+					try {
+						session.recordActionExecute(action, parameters);
+						actionStatus = action.execute(parameters);
+					} catch (RuntimeException e) {
+						if (!forced)
+							throw e;
+						// "action.execute" calls user code and might throw an unchecked exception
+						// we catch the error here to gather information on where the problem occurred.
+						actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.forced_action_execute_error, action.getClass().getName()), e);
+					} catch (LinkageError e) {
+						if (!forced)
+							throw e;
+						// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+						actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.forced_action_execute_error, action.getClass().getName()), e);
+					}
+					if (forced && actionStatus != null && actionStatus.matches(IStatus.ERROR)) {
+						MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, getProblemMessage(), null);
+						result.add(new Status(IStatus.ERROR, EngineActivator.ID, session.getContextString(this, operand, action), null));
+						LogHelper.log(result);
+						actionStatus = Status.OK_STATUS;
+					}
+					mergeStatus(status, actionStatus);
 					if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 						return;
-
 				}
 			}
 			mergeStatus(status, touchpointCompleteOperand(profile, operand, operandParameters, subMonitor));
@@ -266,5 +295,4 @@ public abstract class Phase {
 	protected String getProblemMessage() {
 		return NLS.bind(Messages.phase_error, getClass().getName());
 	}
-
 }
