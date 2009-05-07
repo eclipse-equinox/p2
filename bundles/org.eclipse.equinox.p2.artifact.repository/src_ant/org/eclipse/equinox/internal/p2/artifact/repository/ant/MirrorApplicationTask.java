@@ -32,6 +32,7 @@ public class MirrorApplicationTask extends Task {
 	private static final String ARG_COMPARE_AGAINST = "-compareAgainst"; //$NON-NLS-1$
 	private static final String ARG_COMPARATOR_LOG = "-comparatorLog"; //$NON-NLS-1$
 	private static final String ARG_DESTINATION = "-destination"; //$NON-NLS-1$
+	private static final String ARG_DESTINATION_NAME = "-destinationName"; //$NON-NLS-1$
 	private static final String ARG_IGNORE_ERRORS = "-ignoreErrors"; //$NON-NLS-1$
 	private static final String ARG_LOG = "-log"; //$NON-NLS-1$
 	private static final String ARG_RAW = "-raw"; //$NON-NLS-1$
@@ -41,6 +42,7 @@ public class MirrorApplicationTask extends Task {
 
 	URL source;
 	URL destination;
+	String destinationName;
 	URL baseline; // location of known good repository for compare against (optional)
 	File mirrorLog; // file to log mirror output to (optional)
 	File comparatorLog; // file to comparator output to (optional)
@@ -120,7 +122,9 @@ public class MirrorApplicationTask extends Task {
 				mirrorLog != null ? ARG_LOG : EMPTY_STRING, //
 				mirrorLog != null ? mirrorLog.getAbsolutePath() : EMPTY_STRING, //
 				comparatorLog != null ? ARG_COMPARATOR_LOG : EMPTY_STRING, //
-				comparatorLog != null ? comparatorLog.getAbsolutePath() : EMPTY_STRING,};
+				comparatorLog != null ? comparatorLog.getAbsolutePath() : EMPTY_STRING, //
+				destinationName != null ? ARG_DESTINATION_NAME : EMPTY_STRING, //
+				destinationName != null ? destinationName : EMPTY_STRING};
 
 		try {
 			runMirrorApplication(args);
@@ -141,6 +145,13 @@ public class MirrorApplicationTask extends Task {
 	 */
 	public void setDestination(String value) throws MalformedURLException {
 		destination = new URL(value);
+	}
+
+	/*
+	 * Set the name of the destination repository.
+	 */
+	public void setDestinationName(String value) {
+		destinationName = value;
 	}
 
 	/*

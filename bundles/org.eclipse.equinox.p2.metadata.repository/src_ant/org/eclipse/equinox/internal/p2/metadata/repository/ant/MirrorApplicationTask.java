@@ -27,10 +27,12 @@ public class MirrorApplicationTask extends Task {
 
 	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	private static final String ARG_DESTINATION = "-destination"; //$NON-NLS-1$
+	private static final String ARG_DESTINATION_NAME = "-destinationName"; //$NON-NLS-1$
 	private static final String ARG_SOURCE = "-source"; //$NON-NLS-1$
 	private static final String ARG_WRITE_MODE = "-writeMode"; //$NON-NLS-1$
 	URL source;
 	URL destination;
+	String destinationName;
 	String writeMode;
 
 	//TODO add transitive and roots attributed when implemented.
@@ -85,7 +87,9 @@ public class MirrorApplicationTask extends Task {
 		String[] args = new String[] { //
 		ARG_SOURCE, source.toExternalForm(), //
 				ARG_DESTINATION, destination.toExternalForm(), // 
-				ARG_WRITE_MODE, writeMode == null ? EMPTY_STRING : writeMode};
+				ARG_WRITE_MODE, writeMode == null ? EMPTY_STRING : writeMode, //
+				destinationName == null ? EMPTY_STRING : ARG_DESTINATION_NAME, //
+				destinationName == null ? EMPTY_STRING : destinationName};
 
 		try {
 			runMirrorApplication(args);
@@ -106,6 +110,13 @@ public class MirrorApplicationTask extends Task {
 	 */
 	public void setDestination(String value) throws MalformedURLException {
 		destination = new URL(value);
+	}
+
+	/*
+	 * Set the destination name.
+	 */
+	public void setDestinationName(String value) {
+		destinationName = value;
 	}
 
 	/*
