@@ -228,14 +228,18 @@ public class DirectorApplication implements IApplication {
 		return new CompoundQueryable(locationQueryables).query(query, result, nullMonitor);
 	}
 
-	private IInstallableUnit[] collectRoots(IProfile profile, List rootNames) throws CoreException {
+	private IInstallableUnit[] collectRoots(IProfile profile, List rootNames, boolean forInstall) throws CoreException {
 		ArrayList allRoots = new ArrayList();
 		int top = rootNames.size();
 		for (int i = 0; i < top; ++i) {
 			VersionedName rootName = (VersionedName) rootNames.get(i);
 			Version v = rootName.getVersion();
 			Query query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-			Collector roots = collectRootIUs(new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
+			Collector roots;
+			if (forInstall)
+				roots = collectRootIUs(new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
+			else
+				roots = new Collector();
 			if (roots.size() <= 0)
 				roots = profile.query(query, roots, new NullProgressMonitor());
 			if (roots.size() <= 0)
@@ -467,8 +471,8 @@ public class DirectorApplication implements IApplication {
 
 	private void performProvisioningActions() throws CoreException {
 		IProfile profile = initializeProfile();
-		IInstallableUnit[] installs = collectRoots(profile, rootsToInstall);
-		IInstallableUnit[] uninstalls = collectRoots(profile, rootsToUninstall);
+		IInstallableUnit[] installs = collectRoots(profile, rootsToInstall, true);
+		IInstallableUnit[] uninstalls = collectRoots(profile, rootsToUninstall, false);
 
 		// keep this result status in case there is a problem so we can report it to the user
 		boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();

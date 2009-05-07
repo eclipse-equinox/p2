@@ -84,6 +84,19 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * creates the director app arguments based on the arguments submitted with bug 248045
 	 */
+	private String[] getSingleRepoUninstallArgs(String message, File srcRepo, File destinationRepo, String installIU) {
+		String[] args = new String[0];
+		try {
+			args = new String[] {"-repository", srcRepo.toURL().toExternalForm(), "-uninstallIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile"};
+		} catch (MalformedURLException e) {
+			fail(message, e);
+		}
+		return args;
+	}
+
+	/**
+	 * creates the director app arguments based on the arguments submitted with bug 248045
+	 */
 	private String[] getSingleRepoArgs(String message, File metadataRepo, File artifactRepo, File destinationRepo, String installIU) {
 		String[] args = new String[0];
 		try {
@@ -697,6 +710,41 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		artifactManager.removeRepository(artifactRepo1.toURI());
 		metadataManager.removeRepository(metadataRepo1.toURI());
+		delete(destinationRepo);
+	}
+
+	/**
+	 * Test the ProvisioningContext only uses the passed in repos and not all known repos.
+	 * Expect to install helloworld_1.0.0 not helloworld_1.0.1
+	 * @throws Exception
+	 */
+	public void testUninstallIgnoresPassedInRepos() throws Exception {
+		File srcRepo = getTestData("14.0", "/testData/mirror/mirrorSourceRepo4");
+
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		String[] args = getSingleRepoUninstallArgs("14.1", srcRepo, destinationRepo, "helloworld");
+
+		destinationRepo.mkdirs();
+		PrintStream oldErr = System.err;
+		PrintStream newErr = new PrintStream(new FileOutputStream(destinationRepo + "/err.out"));
+		System.setErr(newErr);
+
+		try {
+			runDirectorApp("14.2", args);
+		} finally {
+			System.setOut(oldErr);
+			newErr.close();
+		}
+
+		assertLogContainsLine(new File(destinationRepo, "err.out"), "The installable unit helloworld has not been found.");
+
+		artifactManager.removeRepository(srcRepo.toURI());
+		metadataManager.removeRepository(srcRepo.toURI());
 		delete(destinationRepo);
 	}
 }
