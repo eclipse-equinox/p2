@@ -30,11 +30,6 @@ import org.eclipse.equinox.security.storage.*;
  * in a store, if none is provided the user is optionally prompted for the information. 
  */
 public class Credentials {
-	public static class LoginCanceledException extends Exception {
-		private static final long serialVersionUID = 1L;
-
-	}
-
 	private static final Map savedAuthInfo = Collections.synchronizedMap(new HashMap());
 
 	/**
@@ -53,7 +48,7 @@ public class Credentials {
 	 * @throws CoreException if the password cannot be read or saved
 	 * @return The authentication info.
 	 */
-	public static AuthenticationInfo forLocation(URI location, boolean prompt) throws LoginCanceledException, CoreException {
+	public static AuthenticationInfo forLocation(URI location, boolean prompt) throws UserCancelledException, CoreException {
 		return forLocation(location, prompt, null);
 	}
 
@@ -75,7 +70,7 @@ public class Credentials {
 	 * @throws UserCancelledException - user canceled the prompt for name/password
 	 * @throws CoreException if there is an error
 	 */
-	public static AuthenticationInfo forLocation(URI location, boolean prompt, AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
+	public static AuthenticationInfo forLocation(URI location, boolean prompt, AuthenticationInfo lastUsed) throws UserCancelledException, CoreException {
 		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 
 		// if URI is not opaque, just getting the host may be enough
@@ -142,7 +137,7 @@ public class Credentials {
 			loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 		//null result means user canceled password dialog
 		if (loginDetails == null)
-			throw new LoginCanceledException();
+			throw new UserCancelledException();
 		//save user name and password if requested by user
 		if (loginDetails.saveResult()) {
 			if (prefNode == null)

@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
-import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
@@ -93,11 +92,6 @@ public class RepositoryTransport extends Transport {
 				return statusOn(target, RepositoryStatus.forException(e, toDownload), reader);
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
-			} catch (Credentials.LoginCanceledException e) {
-				DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
-						NLS.bind(Messages.UnableToRead_0_UserCanceled, toDownload), null);
-				return statusOn(target, status, null);
-
 			}
 		}
 		// reached maximum number of retries without success
@@ -153,9 +147,6 @@ public class RepositoryTransport extends Transport {
 				if (e.getStatus().getException() == null)
 					throw new CoreException(RepositoryStatus.forException(e, toDownload));
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
-			} catch (LoginCanceledException e) {
-				// i.e. same behavior when user cancels as when failing n attempts.
-				throw new AuthenticationFailedException();
 			}
 		}
 		throw new AuthenticationFailedException();
@@ -211,9 +202,6 @@ public class RepositoryTransport extends Transport {
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
-			} catch (LoginCanceledException e) {
-				// same behavior as if user failed n attempts.
-				throw new AuthenticationFailedException();
 			}
 		}
 		// reached maximum number of authentication retries without success
