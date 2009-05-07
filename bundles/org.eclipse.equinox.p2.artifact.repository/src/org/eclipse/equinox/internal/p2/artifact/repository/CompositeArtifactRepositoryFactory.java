@@ -86,7 +86,8 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 						jarEntry = jInStream.getNextJarEntry();
 					}
 					if (jarEntry == null) {
-						throw new FileNotFoundException("Repository not found in " + actualLocation.getPath()); //$NON-NLS-1$
+						//there is a jar but the entry is missing or invalid, so treat this as an invalid repository
+						throw new IOException(NLS.bind(Messages.io_invalidLocation, actualLocation.getPath()));
 					}
 					descriptorStream = jInStream;
 				}

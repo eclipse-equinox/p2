@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
@@ -113,8 +112,9 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 					while (jarEntry != null && (!entryName.equals(jarEntry.getName()))) {
 						jarEntry = jarStream.getNextJarEntry();
 					}
+					//if there is a jar but the entry is missing or invalid, treat this as an invalid repository
 					if (jarEntry == null)
-						throw new FileNotFoundException(NLS.bind(Messages.repoMan_invalidLocation, location));
+						throw new IOException(NLS.bind(Messages.repoMan_invalidLocation, location));
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);

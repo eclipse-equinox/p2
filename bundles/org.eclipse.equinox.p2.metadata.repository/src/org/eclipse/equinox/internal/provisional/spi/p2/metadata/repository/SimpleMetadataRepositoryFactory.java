@@ -108,8 +108,9 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 					while (jarEntry != null && (!entryName.equals(jarEntry.getName()))) {
 						jarEntry = jarStream.getNextJarEntry();
 					}
+					//if there is a jar but the entry is missing or invalid, treat this as an invalid repository
 					if (jarEntry == null)
-						throw new FileNotFoundException(NLS.bind(Messages.repoMan_invalidLocation, location));
+						throw new IOException(NLS.bind(Messages.repoMan_invalidLocation, location));
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);
