@@ -385,6 +385,7 @@ public class Application implements IApplication {
 	}
 
 	public Object run(String[] args) throws Exception {
+		System.out.println("This application is deprecated. Please use the org.eclipse.equinox.p2.director application.");
 		long time = -System.currentTimeMillis();
 		initializeServices();
 		processArguments(args);
