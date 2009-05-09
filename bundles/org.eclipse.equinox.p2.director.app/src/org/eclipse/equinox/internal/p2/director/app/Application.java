@@ -142,11 +142,10 @@ public class Application implements IApplication {
 			Properties props = new Properties();
 			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
 			props.setProperty(IProfile.PROP_FLAVOR, flavor);
-			if (bundlePool != null)
-				if (bundlePool.equals(Messages.destination_commandline))
-					props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
-				else
-					props.setProperty(IProfile.PROP_CACHE, bundlePool);
+			if (bundlePool == null || bundlePool.equals(Messages.destination_commandline))
+				props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
+			else
+				props.setProperty(IProfile.PROP_CACHE, bundlePool);
 			if (roamingProfile)
 				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
