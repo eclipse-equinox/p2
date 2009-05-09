@@ -39,7 +39,8 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 			if (product == null)
 				throw new IllegalArgumentException("unable to load product file"); //$NON-NLS-1$
 		}
-		return new ProductAction(source, productDescriptor, flavor, new File(executables));
+		File executablesFeature = executables == null ? null : new File(executables);
+		return new ProductAction(source, productDescriptor, flavor, executablesFeature);
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
