@@ -236,13 +236,13 @@ public abstract class RepositoryStatusHelper {
 			if (((IncomingFileTransferException) t).getErrorCode() == 401)
 				throw new AuthenticationFailedException();
 			IStatus status = ((IncomingFileTransferException) t).getStatus();
-			t = status.getException();
+			t = status == null ? t : status.getException();
 			// From Use of Browse
 		} else if (t instanceof BrowseFileTransferException) {
 			if (((BrowseFileTransferException) t).getErrorCode() == 401)
 				throw new AuthenticationFailedException();
 			IStatus status = ((BrowseFileTransferException) t).getStatus();
-			t = status.getException();
+			t = status == null ? t : status.getException();
 		}
 
 		if (t == null || !(t instanceof IOException))
@@ -279,7 +279,8 @@ public abstract class RepositoryStatusHelper {
 		if (t instanceof FileNotFoundException)
 			throw (FileNotFoundException) t;
 		if (t instanceof CoreException) {
-			Throwable e = ((CoreException) t).getStatus().getException();
+			IStatus status = ((CoreException) t).getStatus();
+			Throwable e = status == null ? null : status.getException();
 			if (e instanceof FileNotFoundException)
 				throw (FileNotFoundException) e;
 		}
