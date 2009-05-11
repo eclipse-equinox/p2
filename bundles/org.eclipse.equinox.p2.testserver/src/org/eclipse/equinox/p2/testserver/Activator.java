@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.testserver.servlets.ChopAndDelay;
 import org.eclipse.equinox.p2.testserver.servlets.ContentLengthLier;
 import org.eclipse.equinox.p2.testserver.servlets.FileMolester;
 import org.eclipse.equinox.p2.testserver.servlets.LastModifiedLier;
+import org.eclipse.equinox.p2.testserver.servlets.Redirector;
 import org.eclipse.equinox.p2.testserver.servlets.StatusCodeResponse;
 import org.eclipse.equinox.p2.testserver.servlets.TimeOut;
 import org.eclipse.equinox.p2.testserver.servlets.Truncator;
@@ -67,18 +68,20 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 			httpService.registerServlet("/status", new StatusCodeResponse(), null, null); //$NON-NLS-1$
 			httpService.registerServlet("/timeout", new TimeOut(), null, null); //$NON-NLS-1$
+			httpService.registerServlet("/redirect", new Redirector(), null, null); //$NON-NLS-1$
 
 			httpService.registerServlet("/truncated", new Truncator("/truncated", URI.create("/webfiles"), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			httpService.registerServlet("/molested", new FileMolester("/molested", URI.create("/webfiles"), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			// 8 bytes at a time, delay from 0 to 100 ms, in steps of 5
-			httpService.registerServlet("/decelerate", new ChopAndDelay("/decelerate", URI.create("/webfiles"), 3, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			httpService.registerServlet("/decelerate", new ChopAndDelay("/decelerate", URI.create("/webfiles"), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
 			httpService.registerServlet("/proxy/truncated", new Truncator("/proxy/truncated", URI.create(SITE), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/private", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/never", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, alwaysFail); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/flipFlop", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, flipFlop); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/molested", new FileMolester("/proxy/molested", URI.create(SITE), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$
-			httpService.registerServlet("/proxy/decelerate", new ChopAndDelay("/proxy/decelerate", URI.create(SITE), 3, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/decelerate", new ChopAndDelay("/proxy/decelerate", URI.create(SITE), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/decelerate2", new ChopAndDelay("/proxy/decelerate2", URI.create(SITE), 3, 80, new LinearChange(100, 5, 105, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
 
 			// lie about modified time
 			httpService.registerServlet("/proxy/modified/zero", new LastModifiedLier("/proxy/modified/zero", URI.create(SITE), LastModifiedLier.TYPE_ZERO), null, null); //$NON-NLS-1$//$NON-NLS-2$

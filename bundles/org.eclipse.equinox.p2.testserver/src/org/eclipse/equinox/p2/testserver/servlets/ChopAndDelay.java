@@ -33,6 +33,7 @@ public class ChopAndDelay extends BasicResourceDelivery {
 	int chopFactor;
 	private LinearChange delayFunction;
 	private long msDelay;
+	private int fastPercent;
 
 	/**
 	 * Create a file molester that turns content into gibberish.
@@ -42,13 +43,14 @@ public class ChopAndDelay extends BasicResourceDelivery {
 	 * @param chopFactor - a value between 1 and 12 where 1 is one byte, and 12 is 4k bytes at a time.
 	 * @param delayFunction - function returning a series of delay values
 	 */
-	public ChopAndDelay(String theAlias, URI thePath, int chopFactor, LinearChange delayFunction) {
+	public ChopAndDelay(String theAlias, URI thePath, int chopFactor, int fastPercent, LinearChange delayFunction) {
 		super(theAlias, thePath);
 		if (chopFactor < 1 || chopFactor > 12)
 			throw new IllegalArgumentException("chopFactor must be between 1 and 12 (inclusive) - was:" + Integer.valueOf(chopFactor)); //$NON-NLS-1$
 		this.chopFactor = chopFactor;
-		if (msDelay < 0)
-			throw new IllegalArgumentException("msDelay must be >= 0 - was:" + Integer.valueOf(chopFactor)); //$NON-NLS-1$
+		if (fastPercent < 0 || fastPercent > 100)
+			throw new IllegalArgumentException("fastPercent must be 0-100 - was:" + Integer.valueOf(fastPercent)); //$NON-NLS-1$
+		this.fastPercent = fastPercent;
 		this.delayFunction = delayFunction;
 		msDelay = 0L;
 		this.delayFunction = delayFunction;
@@ -84,20 +86,25 @@ public class ChopAndDelay extends BasicResourceDelivery {
 				int chunksize = 1 << chopFactor;
 				char buffer[] = new char[4096];
 				int read;
+				int totalRead = 0;
+				boolean delay = fastPercent == 0 ? true : false;
 				while ((read = reader.read(buffer, 0, buffer.length)) != -1) {
 					int nChunks = read / chunksize + (read % chunksize > 0 ? 1 : 0);
 					for (int i = 0; i < nChunks; i++) {
 						writer.write(buffer, i * chunksize, Math.min(chunksize, read - i * chunksize));
 						writer.flush();
-						if (msDelay > 0)
+						if (delay && msDelay > 0)
 							try {
 								Thread.sleep(msDelay);
 							} catch (InterruptedException e) {
 								// ignore
 							}
-						if (delayer.hasNext())
+						if (delay && delayer.hasNext())
 							msDelay = delayer.next();
 					}
+					totalRead += read;
+					if (totalRead > contentlength * fastPercent / 100)
+						delay = true;
 				}
 			} else {
 				ServletOutputStream out = response.getOutputStream();
@@ -107,20 +114,25 @@ public class ChopAndDelay extends BasicResourceDelivery {
 				int chunksize = 1 << chopFactor;
 				byte buffer[] = new byte[4096];
 				int read;
+				int totalRead = 0;
+				boolean delay = fastPercent == 0 ? true : false;
 				while ((read = in.read(buffer, 0, buffer.length)) != -1) {
 					int nChunks = read / chunksize + (read % chunksize > 0 ? 1 : 0);
 					for (int i = 0; i < nChunks; i++) {
 						out.write(buffer, i * chunksize, Math.min(chunksize, read - i * chunksize));
 						out.flush();
-						if (msDelay > 0)
+						if (delay && msDelay > 0)
 							try {
 								Thread.sleep(msDelay);
 							} catch (InterruptedException e) {
 								// ignore
 							}
-						if (delayer.hasNext())
+						if (delay && delayer.hasNext())
 							msDelay = delayer.next();
 					}
+					totalRead += read;
+					if (totalRead > contentlength * fastPercent / 100)
+						delay = true;
 				}
 			}
 		}
