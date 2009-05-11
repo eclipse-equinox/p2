@@ -88,6 +88,48 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.5", "Foo German License", utils.getLicense(iu, Locale.GERMAN).getBody());
 	}
 
+	public void testFeatureJarLocalizationDefault() throws IOException {
+		File file = TestData.getFile("localizationtests/foofeature", "");
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
+		featuresAction.perform(info, results, monitor);
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
+		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
+		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
+		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION));
+		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicense(iu).getBody());
+	}
+
+	public void testFeatureJarLocalizationEN() throws IOException {
+		File file = TestData.getFile("localizationtests/foofeature", "");
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
+		featuresAction.perform(info, results, monitor);
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
+		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
+		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
+		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH));
+		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH));
+		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu, Locale.ENGLISH).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicense(iu, Locale.ENGLISH).getBody());
+	}
+
+	public void testFeatureJarLocalizatioDE() throws IOException {
+		File file = TestData.getFile("localizationtests/foofeature", "");
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
+		featuresAction.perform(info, results, monitor);
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
+		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
+		assertEquals("1.0", "Foo German Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
+		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN));
+		assertEquals("1.3", "Foo German Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN));
+		assertEquals("1.4", "Foo German Copyright", utils.getCopyright(iu, Locale.GERMAN).getBody());
+		assertEquals("1.5", "Foo German License", utils.getLicense(iu, Locale.GERMAN).getBody());
+	}
+
 	public void testBundleLocalizationEN() throws IOException {
 		File file = TestData.getFile("localizationtests/foobundle", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
