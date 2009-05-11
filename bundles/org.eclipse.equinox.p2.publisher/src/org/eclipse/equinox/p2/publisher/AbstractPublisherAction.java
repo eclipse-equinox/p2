@@ -30,46 +30,6 @@ import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
-	static final class CapabilityKey {
-		private String namespace;
-		private String name;
-
-		public CapabilityKey(String namespace, String name) {
-			this.namespace = namespace;
-			this.name = name;
-		}
-
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
-			return result;
-		}
-
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			CapabilityKey other = (CapabilityKey) obj;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.equals(other.name))
-				return false;
-			if (namespace == null) {
-				if (other.namespace != null)
-					return false;
-			} else if (!namespace.equals(other.namespace))
-				return false;
-			return true;
-		}
-
-	}
-
 	public static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
@@ -312,57 +272,73 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (advice.isEmpty())
 			return;
 
-		Map requiredMap = new HashMap();
-		IRequiredCapability[] required = iu.getRequiredCapabilities();
-		for (int i = 0; i < required.length; i++) {
-			requiredMap.put(new CapabilityKey(required[i].getNamespace(), required[i].getName()), required[i]);
-		}
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
 
-		Map metaRequiredMap = new HashMap();
-		IRequiredCapability[] metaRequired = iu.getMetaRequiredCapabilities();
-		for (int i = 0; i < metaRequired.length; i++) {
-			metaRequiredMap.put(new CapabilityKey(metaRequired[i].getNamespace(), metaRequired[i].getName()), metaRequired[i]);
-		}
-
-		Map providedMap = new HashMap();
-		IProvidedCapability[] provided = iu.getProvidedCapabilities();
-		for (int i = 0; i < provided.length; i++) {
-			providedMap.put(new CapabilityKey(provided[i].getNamespace(), provided[i].getName()), provided[i]);
-		}
-
-		for (Iterator it = advice.iterator(); it.hasNext();) {
-			ICapabilityAdvice entry = (ICapabilityAdvice) it.next();
-
+			//process required capabilities
 			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
-				for (int i = 0; i < requiredAdvice.length; i++) {
-					requiredMap.put(new CapabilityKey(requiredAdvice[i].getNamespace(), requiredAdvice[i].getName()), requiredAdvice[i]);
+				IRequiredCapability[] current = iu.getRequiredCapabilities();
+				Set resultRequiredCapabilities = new HashSet(Arrays.asList(current));
+
+				// remove current required capabilities that match (same name and namespace) advice.
+				for (int j = 0; j < current.length; j++) {
+					IRequiredCapability currentRequiredCapability = current[j];
+					for (int k = 0; k < requiredAdvice.length; k++) {
+						IRequiredCapability requiredCapability = requiredAdvice[k];
+						if (requiredCapability.getNamespace().equals(currentRequiredCapability.getNamespace()) && requiredCapability.getName().equals(currentRequiredCapability.getName())) {
+							resultRequiredCapabilities.remove(currentRequiredCapability);
+							break;
+						}
+					}
 				}
+				// add all advice
+				resultRequiredCapabilities.addAll(Arrays.asList(requiredAdvice));
+				iu.setRequiredCapabilities((IRequiredCapability[]) resultRequiredCapabilities.toArray(new IRequiredCapability[resultRequiredCapabilities.size()]));
 			}
 
+			//process meta required capabilities
 			IRequiredCapability[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
-				for (int i = 0; i < metaRequiredAdvice.length; i++) {
-					metaRequiredMap.put(new CapabilityKey(metaRequiredAdvice[i].getNamespace(), metaRequiredAdvice[i].getName()), metaRequiredAdvice[i]);
+				IRequiredCapability[] current = iu.getMetaRequiredCapabilities();
+				Set resultMetaRequiredCapabilities = new HashSet(Arrays.asList(current));
+
+				// remove current meta-required capabilities that match (same name and namespace) advice.
+				for (int j = 0; j < current.length; j++) {
+					IRequiredCapability currentMetaRequiredCapability = current[j];
+					for (int k = 0; k < metaRequiredAdvice.length; k++) {
+						IRequiredCapability metaRequiredCapability = metaRequiredAdvice[k];
+						if (metaRequiredCapability.getNamespace().equals(currentMetaRequiredCapability.getNamespace()) && metaRequiredCapability.getName().equals(currentMetaRequiredCapability.getName())) {
+							resultMetaRequiredCapabilities.remove(currentMetaRequiredCapability);
+							break;
+						}
+					}
 				}
+
+				// add all advice
+				resultMetaRequiredCapabilities.addAll(Arrays.asList(metaRequiredAdvice));
+				iu.setMetaRequiredCapabilities((IRequiredCapability[]) resultMetaRequiredCapabilities.toArray(new IRequiredCapability[resultMetaRequiredCapabilities.size()]));
 			}
 
+			//process provided capabilities
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				for (int i = 0; i < providedAdvice.length; i++) {
-					providedMap.put(new CapabilityKey(providedAdvice[i].getNamespace(), providedAdvice[i].getName()), providedAdvice[i]);
+				IProvidedCapability[] current = iu.getProvidedCapabilities();
+				Set resultProvidedCapabilities = new HashSet(Arrays.asList(current));
+				for (int j = 0; j < current.length; j++) {
+					IProvidedCapability currentProvidedCapability = current[j];
+					for (int k = 0; k < providedAdvice.length; k++) {
+						IProvidedCapability providedCapability = providedAdvice[k];
+						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace()) && providedCapability.getName().equals(currentProvidedCapability.getName())) {
+							resultProvidedCapabilities.remove(currentProvidedCapability);
+							break;
+						}
+					}
 				}
+				resultProvidedCapabilities.addAll(Arrays.asList(providedAdvice));
+				iu.setCapabilities((IProvidedCapability[]) resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
 			}
 		}
-
-		IRequiredCapability[] resultRequired = (IRequiredCapability[]) requiredMap.values().toArray(new IRequiredCapability[requiredMap.size()]);
-		iu.setRequiredCapabilities(resultRequired);
-
-		IRequiredCapability[] resultMetaRequired = (IRequiredCapability[]) metaRequiredMap.values().toArray(new IRequiredCapability[metaRequiredMap.size()]);
-		iu.setMetaRequiredCapabilities(resultMetaRequired);
-
-		IProvidedCapability[] resultProvided = (IProvidedCapability[]) providedMap.values().toArray(new IProvidedCapability[providedMap.size()]);
-		iu.setCapabilities(resultProvided);
 	}
 
 	/**
