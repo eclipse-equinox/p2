@@ -72,7 +72,7 @@ public class Messages extends NLS {
 	public static String FileTransport_reader;
 
 	public static String UnableToRead_0_TooManyAttempts;
-
+	public static String UnableToRead_0_UserCanceled;
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
