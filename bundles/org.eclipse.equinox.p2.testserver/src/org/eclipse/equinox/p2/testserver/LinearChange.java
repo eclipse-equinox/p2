@@ -71,9 +71,9 @@ public class LinearChange {
 	public boolean hasNext() {
 		if (step == 0)
 			return false;
-		if (step > 0 && current + step >= max)
+		if (step > 0 && current + step > max)
 			return false;
-		if (step < 0 && current + step <= min)
+		if (step < 0 && current + step < min)
 			return false;
 		return true;
 	}
