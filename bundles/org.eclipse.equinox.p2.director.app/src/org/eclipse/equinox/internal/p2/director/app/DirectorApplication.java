@@ -36,6 +36,12 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+/**
+ * This director implementation is a complete replacement for the old director application
+ * found in {@link Application}. This implementation has simplified command line 
+ * arguments, and doesn't require the user to set system property such as the
+ * p2 data location. See bug 268138 for related discussion.
+ */
 public class DirectorApplication implements IApplication {
 	class LocationQueryable implements IQueryable {
 		private URI location;

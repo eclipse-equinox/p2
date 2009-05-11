@@ -37,6 +37,12 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+/**
+ * This is the original p2 director application created for the p2 1.0 release. There
+ * is a replacement application in {@link DirectorApplication} that should be preferred
+ * over this implementation where possible. This implementation remains for backwards
+ * compatibility purposes.
+ */
 public class Application implements IApplication {
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
