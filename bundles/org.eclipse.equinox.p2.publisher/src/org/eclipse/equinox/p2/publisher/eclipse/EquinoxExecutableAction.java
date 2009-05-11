@@ -190,7 +190,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(descriptor);
 		result.makeTemporaryCopy();
 		IBrandingAdvice advice = getBrandingAdvice(info);
-		if (advice == null || advice.getIcons() == null)
+		if (advice == null)
 			partialBrandExecutables(result);
 		else
 			fullBrandExecutables(result, advice);
@@ -209,12 +209,15 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	protected void fullBrandExecutables(ExecutablesDescriptor descriptor, IBrandingAdvice advice) {
 		BrandingIron iron = new BrandingIron();
 		iron.setIcons(advice.getIcons());
-		iron.setName(advice.getExecutableName());
+		String name = advice.getExecutableName();
+		if (name == null)
+			name = "eclipse"; //$NON-NLS-1$
+		iron.setName(name);
 		iron.setOS(advice.getOS());
 		iron.setRoot(descriptor.getLocation().getAbsolutePath());
 		try {
 			iron.brand();
-			descriptor.setExecutableName(advice.getExecutableName(), true);
+			descriptor.setExecutableName(name, true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
