@@ -76,6 +76,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			httpService.registerServlet("/decelerate", new ChopAndDelay("/decelerate", URI.create("/webfiles"), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
 			httpService.registerServlet("/proxy/truncated", new Truncator("/proxy/truncated", URI.create(SITE), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy/public", new BasicResourceDelivery("/proxy/public", URI.create(SITE)), null, null); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/private", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/never", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, alwaysFail); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy/flipFlop", new BasicResourceDelivery("/proxy/private", URI.create(SITE)), null, flipFlop); //$NON-NLS-1$//$NON-NLS-2$
