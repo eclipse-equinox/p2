@@ -31,7 +31,7 @@ public class TimeOut extends HttpServlet {
 	private void doDelay() {
 		// Do nothing...
 		try {
-			Thread.sleep(60 * MINUTES_MS); // sleep 1 hour
+			Thread.sleep(10 * MINUTES_MS); // sleep 10 minutes
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
