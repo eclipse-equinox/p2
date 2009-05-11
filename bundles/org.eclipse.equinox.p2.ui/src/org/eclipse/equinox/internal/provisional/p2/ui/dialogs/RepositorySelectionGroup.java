@@ -78,7 +78,8 @@ public class RepositorySelectionGroup {
 	ProvUIProvisioningListener comboRepoListener;
 
 	Image info, warning, error;
-	URI[] comboRepos;
+	URI[] comboRepos; // the URIs shown in the combo, kept in sync with combo items
+	HashMap disabledRepoProposals = new HashMap(); // proposal string -> disabled URI 
 
 	public RepositorySelectionGroup(IWizardContainer container, Composite parent, Policy policy, IUViewQueryContext queryContext) {
 		this.container = container;
@@ -425,10 +426,13 @@ public class RepositorySelectionGroup {
 		try {
 			int flags = queryContext.getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_DISABLED;
 			String[] items = repoCombo.getItems();
+			// Clear any previously remembered disabled repos
+			disabledRepoProposals = new HashMap();
 			URI[] disabled = ProvisioningUtil.getMetadataRepositories(flags);
 			String[] disabledItems = new String[disabled.length];
 			for (int i = 0; i < disabledItems.length; i++) {
 				disabledItems[i] = getSiteString(disabled[i]);
+				disabledRepoProposals.put(disabledItems[i], disabled[i]);
 			}
 			String[] both = new String[items.length + disabledItems.length];
 			System.arraycopy(items, 0, both, 0, items.length);
@@ -534,14 +538,20 @@ public class RepositorySelectionGroup {
 			try {
 				container.run(false, false, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
-						URI location = null;
+						URI location;
 						IStatus status;
-						location = RepositoryLocationValidator.locationFromString(selectedRepo);
-						if (location == null)
-							status = RepositoryLocationValidator.getInvalidLocationStatus(selectedRepo);
-						else {
-							RepositoryLocationValidator validator = manipulator.getRepositoryLocationValidator(repoCombo.getShell());
-							status = validator.validateRepositoryLocation(location, false, monitor);
+						// This might be a disabled repo.  If so, no need to validate further.
+						if (disabledRepoProposals.containsKey(selectedRepo)) {
+							location = (URI) disabledRepoProposals.get(selectedRepo);
+							status = Status.OK_STATUS;
+						} else {
+							location = RepositoryLocationValidator.locationFromString(selectedRepo);
+							if (location == null)
+								status = RepositoryLocationValidator.getInvalidLocationStatus(selectedRepo);
+							else {
+								RepositoryLocationValidator validator = manipulator.getRepositoryLocationValidator(repoCombo.getShell());
+								status = validator.validateRepositoryLocation(location, false, monitor);
+							}
 						}
 						if (status.isOK() && location != null) {
 							try {
