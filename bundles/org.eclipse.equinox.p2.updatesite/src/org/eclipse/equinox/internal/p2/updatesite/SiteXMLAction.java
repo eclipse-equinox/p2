@@ -335,19 +335,23 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	private static String getDateQualifier() {
 		final String empty = ""; //$NON-NLS-1$
-		int monthNbr = Calendar.getInstance().get(Calendar.MONTH) + 1;
+		Calendar calendar = Calendar.getInstance();
+		int monthNbr = calendar.get(Calendar.MONTH) + 1;
 		String month = (monthNbr < 10 ? "0" : empty) + monthNbr; //$NON-NLS-1$
 
-		int dayNbr = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+		int dayNbr = calendar.get(Calendar.DAY_OF_MONTH);
 		String day = (dayNbr < 10 ? "0" : empty) + dayNbr; //$NON-NLS-1$
 
-		int hourNbr = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+		int hourNbr = calendar.get(Calendar.HOUR_OF_DAY);
 		String hour = (hourNbr < 10 ? "0" : empty) + hourNbr; //$NON-NLS-1$
 
-		int minuteNbr = Calendar.getInstance().get(Calendar.MINUTE);
+		int minuteNbr = calendar.get(Calendar.MINUTE);
 		String minute = (minuteNbr < 10 ? "0" : empty) + minuteNbr; //$NON-NLS-1$
 
-		return empty + Calendar.getInstance().get(Calendar.YEAR) + month + day + hour + minute;
+		int secondNbr = calendar.get(Calendar.SECOND);
+		String second = (secondNbr < 10 ? "0" : empty) + secondNbr; //$NON-NLS-1$
+
+		return empty + calendar.get(Calendar.YEAR) + month + day + hour + minute + second;
 	}
 
 }
