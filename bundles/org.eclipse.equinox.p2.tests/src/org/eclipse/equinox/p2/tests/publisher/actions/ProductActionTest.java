@@ -23,6 +23,8 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.publisher.*;
@@ -33,6 +35,9 @@ import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
 @SuppressWarnings( {"unchecked"})
 public class ProductActionTest extends ActionTest {
+
+	private String winFitler = "(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))";
+	private String linuxFilter = "(& (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86))";
 
 	File executablesFeatureLocation = null;
 	String productLocation = "";
@@ -159,13 +164,144 @@ public class ProductActionTest extends ActionTest {
 		info.setConfigurations(getArrayFromString(configSpec, COMMA_SEPARATOR));
 		PublisherResult results = new PublisherResult();
 
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setVersion(Version.create("4.0.0"));
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
 		ProductAction action1 = new ProductAction(null, productFile1, flavorArg, executablesFeatureLocation);
 		ProductAction action2 = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
 		action1.perform(info, results, new NullProgressMonitor());
 		results = new PublisherResult();
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+
 		action2.perform(info, results, new NullProgressMonitor());
 		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
+	}
+
+	public void testMultiPlatformCUs_DifferentPlatforms() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String windowsConfigSpec = AbstractPublisherAction.createConfigSpec("win32", "win32", "x86");
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setVersion(Version.create("0.0.0"));
+		iuDescription.setFilter(winFitler);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 0, collector.size());
+
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("2.0", 0, collector.size());
+	}
+
+	public void testMultiPlatformCUs_SamePlatforms() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String windowsConfigSpec = AbstractPublisherAction.createConfigSpec("win32", "win32", "x86");
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setVersion(Version.create("0.0.0"));
+		iuDescription.setFilter(linuxFilter);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 1, collector.size());
+
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("2.0", 0, collector.size());
+	}
+
+	public void testMultiPlatformCUs_SamePlatforms_NoVersion() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String windowsConfigSpec = AbstractPublisherAction.createConfigSpec("win32", "win32", "x86");
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setFilter(linuxFilter);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 1, collector.size());
+
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("2.0", 0, collector.size());
+	}
+
+	public void testMultiPlatformCUs_SamePlatforms_BoundedVersions() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String windowsConfigSpec = AbstractPublisherAction.createConfigSpec("win32", "win32", "x86");
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setVersion(Version.create("4.0.0")); // Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
+		iuDescription.setFilter("(osgi.os=linux)"); //filter is different from linuxConfigSpec, but will still match
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 1, collector.size());
+
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("2.0", 0, collector.size());
+	}
+
+	public void testCUNoHost() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String windowsConfigSpec = AbstractPublisherAction.createConfigSpec("win32", "win32", "x86");
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 0, collector.size());
+
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("2.0", 0, collector.size());
 	}
 
 	public void testMultiConfigspecProductPublishing() throws IOException, Exception {

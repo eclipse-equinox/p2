@@ -19,9 +19,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
@@ -41,6 +38,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	protected Version version;
 	protected String id;
 	protected String flavor;
+	IPublisherResult outerResults = null;
 
 	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so 
 	// it is not hardcoded in the action.
@@ -88,6 +86,8 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherResult innerResult = new PublisherResult();
+		this.outerResults = results;
+		this.info = info;
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = info.getConfigurations();
@@ -301,8 +301,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		}
 
 		for (int i = 0; i < bundles.length; i++) {
-			GeneratorBundleInfo bundle = createGeneratorBundleInfo(info, bundles[i], result);
+			GeneratorBundleInfo bundle = createGeneratorBundleInfo(bundles[i], result);
 			if (bundle == null)
+				continue;
+
+			IInstallableUnit iu = bundle.getIU();
+
+			// If there is no host, or the filters don't match, skip this one.
+			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
 				continue;
 
 			// TODO need to factor this out into its own action
@@ -316,7 +322,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				continue;
 			}
 
-			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
+			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.parseVersion(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
 				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.
@@ -329,48 +335,35 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected GeneratorBundleInfo createGeneratorBundleInfo(IPublisherInfo info, BundleInfo bundleInfo, IPublisherResult result) {
-		if (bundleInfo.getLocation() != null || bundleInfo.getVersion() != null)
-			return new GeneratorBundleInfo(bundleInfo);
-
+	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, IPublisherResult result) {
 		String name = bundleInfo.getSymbolicName();
 
-		//easy case: do we have a matching IU?
-		IInstallableUnit iu = result.getIU(name, null);
+		//query for a matching IU
+		IInstallableUnit iu = queryForIU(outerResults, name, Version.create(bundleInfo.getVersion()));
 		if (iu != null) {
-			bundleInfo.setVersion(iu.getVersion().toString());
-			return new GeneratorBundleInfo(bundleInfo);
+			if (iu.getVersion() == null)
+				bundleInfo.setVersion("0.0.0"); //$NON-NLS-1$
+			else
+				bundleInfo.setVersion(iu.getVersion().toString());
+			GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
+			newInfo.setIU(iu);
+			return newInfo;
 		}
 
+		if (bundleInfo.getLocation() != null || bundleInfo.getVersion() != null)
+			return new GeneratorBundleInfo(bundleInfo);
 		//harder: try id_version
 		int i = name.indexOf('_');
 		while (i > -1) {
-			Version version = null;
 			try {
-				version = new Version(name.substring(i));
+				Version bundleVersion = Version.parseVersion(name.substring(i));
 				bundleInfo.setSymbolicName(name.substring(0, i));
-				bundleInfo.setVersion(version.toString());
+				bundleInfo.setVersion(bundleVersion.toString());
 				return new GeneratorBundleInfo(bundleInfo);
 			} catch (IllegalArgumentException e) {
 				// the '_' found was probably part of the symbolic id
 				i = name.indexOf('_', i);
 			}
-		}
-
-		//Query the repo
-		Query query = new InstallableUnitQuery(name);
-		Collector collector = new Collector();
-		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
-		//pick the newest match
-		IInstallableUnit newest = null;
-		while (matches.hasNext()) {
-			IInstallableUnit candidate = (IInstallableUnit) matches.next();
-			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
-				newest = candidate;
-		}
-		if (newest != null) {
-			bundleInfo.setVersion(newest.getVersion().toString());
-			return new GeneratorBundleInfo(bundleInfo);
 		}
 
 		return null;

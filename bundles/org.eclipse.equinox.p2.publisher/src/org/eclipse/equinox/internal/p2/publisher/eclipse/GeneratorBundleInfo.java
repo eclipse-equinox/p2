@@ -11,8 +11,10 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class GeneratorBundleInfo extends BundleInfo {
+	private IInstallableUnit iu = null;
 	private String specialConfigCommands;
 	private String specialUnconfigCommands;
 
@@ -37,6 +39,14 @@ public class GeneratorBundleInfo extends BundleInfo {
 
 	public void setSpecialConfigCommands(String specialConfigCommands) {
 		this.specialConfigCommands = specialConfigCommands;
+	}
+
+	public void setIU(IInstallableUnit iu) {
+		this.iu = iu;
+	}
+
+	public IInstallableUnit getIU() {
+		return iu;
 	}
 
 	public String getSpecialUnconfigCommands() {

@@ -105,20 +105,21 @@ public class ConfigCUsActionTest extends ActionTest {
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
 		ArrayList configList = new ArrayList();
 		configList.add(configAdvice);
-		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList);
+		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList).anyTimes();
 
 		//configure ILaunchingAdvice
 		LauncherData launcherData = loader.getLauncherData();
 		LaunchingAdvice launchingAdvice = new LaunchingAdvice(launcherData, configSpec);
 		ArrayList launchingList = new ArrayList();
 		launchingList.add(launchingAdvice);
-		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IExecutableAdvice.class))).andReturn(launchingList);
+		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IExecutableAdvice.class))).andReturn(launchingList).anyTimes();
 
 		//setup metadata repository
 		IInstallableUnit[] ius = {mockIU("foo", null), mockIU("bar", null)}; //$NON-NLS-1$ //$NON-NLS-2$
 
 		metadataRepo = new TestMetadataRepository(ius);
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepo).anyTimes();
+		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 
 	}
 }

@@ -28,6 +28,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersio
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
@@ -108,6 +110,26 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
+	}
+
+	protected boolean filterMatches(String filter, String configSpec) {
+		if (filter == null)
+			return true;
+
+		Filter ldapFilter = null;
+		try {
+			ldapFilter = Activator.context.createFilter(filter);
+		} catch (InvalidSyntaxException e) {
+			// TODO true or false on error?
+			return true;
+		}
+
+		String[] config = parseConfigSpec(configSpec);
+		Dictionary environment = new Hashtable(3);
+		environment.put("osgi.ws", config[0]); //$NON-NLS-1$
+		environment.put("osgi.os", config[1]); //$NON-NLS-1$
+		environment.put("osgi.arch", config[2]); //$NON-NLS-1$
+		return ldapFilter.match(environment);
 	}
 
 	/**
