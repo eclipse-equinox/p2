@@ -250,12 +250,14 @@ public abstract class RepositoryStatusHelper {
 
 		// TODO: is this needed (for 401) now that ECF throws exceptions with codes?
 		// try to figure out if we have a 401 by parsing the exception message
-		// There is unfortunately no specific exception for "redirected too many times" - which is commonly
-		// caused by a failed login.
+		// There is unfortunately no specific (general) exception for "redirected too many times" - which is commonly
+		// caused by a failed login. The message and exception are different in different implementations
+		// of http client.
 		String m = t.getMessage();
 		if (m != null && (m.indexOf(" 401 ") != -1 || m.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 			throw new AuthenticationFailedException();
-
+		if ("org.apache.commons.httpclient.RedirectException".equals(t.getClass().getName())) //$NON-NLS-1$
+			throw new AuthenticationFailedException();
 	}
 
 	/**
