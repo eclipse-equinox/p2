@@ -13,8 +13,10 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
+import org.eclipse.equinox.internal.p2.updatesite.metadata.Messages;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -25,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.osgi.util.NLS;
 
 public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
@@ -50,11 +53,23 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			return null;
 		}
 		IArtifactRepository repository = loadRepository(location, monitor);
-		initializeRepository(repository, location, monitor);
+		try {
+			initializeRepository(repository, location, monitor);
+		} catch (Exception e) {
+			resetCache(repository);
+			if (e instanceof ProvisionException)
+				throw (ProvisionException) e;
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Unexpected_exception, location.toString()), e));
+		}
 		return new UpdateSiteArtifactRepository(location, repository);
 	}
 
-	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+	private void resetCache(IArtifactRepository repository) {
+		repository.setProperty(PROP_SITE_CHECKSUM, "0"); //$NON-NLS-1$
+		repository.removeAll();
+	}
+
+	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) {
 		URI localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
