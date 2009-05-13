@@ -16,8 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IUProfilePropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -38,11 +37,11 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
 		profile = registry.getProfile("SDKProfile");
-		getMetadataRepositoryManager().addRepository(new URI("http://download.eclipse.org/releases/galileo"));
+		getMetadataRepositoryManager().addRepository(getTestData("nonMinimalState-galileoM7", "testData/galileoM7/").toURI());
 		assertNotNull(profile);
 	}
 
-	public void testInstallFeaturePatch() {
+	public void testValidateProfileWithRepository() {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
@@ -52,6 +51,15 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		why("slf4j.jcl");
 		why("org.eclipse.tptp.platform.iac.administrator");
 		why("org.eclipse.tptp.platform.agentcontroller");
+	}
+
+	public void testValidateProfileWithoutRepo() {
+		IPlanner planner = createPlanner();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
+		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		assertOK("Plan OK", plan.getStatus());
+		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
 	}
 
 	private void why(String id) {
