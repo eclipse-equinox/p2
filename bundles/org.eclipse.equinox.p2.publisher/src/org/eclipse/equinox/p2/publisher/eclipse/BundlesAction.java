@@ -39,6 +39,7 @@ import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * Publish IUs for all of the bundles in a given set of locations or described by a set of
@@ -775,7 +776,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (addSimpleConfigurator) {
 			// Add simple configurator to the list of bundles
 			try {
-				Bundle simpleConfigBundle = Platform.getBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
+				Bundle simpleConfigBundle = getBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
 				if (simpleConfigBundle == null)
 					LogHelper.log(new Status(IStatus.INFO, Activator.ID, Messages.message_noSimpleconfigurator));
 				else {
@@ -787,5 +788,22 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 		return result;
+	}
+
+	// This method is based on core.runtime's InternalPlatform.getBundle(...) with a difference just in how we get PackageAdmin
+	private static Bundle getBundle(String symbolicName) {
+		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
+		if (packageAdmin == null)
+			return null;
+		Bundle[] matchingBundles = packageAdmin.getBundles(symbolicName, null);
+		if (matchingBundles == null)
+			return null;
+		//Return the first bundle that is not installed or uninstalled
+		for (int i = 0; i < matchingBundles.length; i++) {
+			if ((matchingBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return matchingBundles[i];
+			}
+		}
+		return null;
 	}
 }
