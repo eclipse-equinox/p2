@@ -12,6 +12,9 @@ package org.eclipse.equinox.internal.provisional.p2.core;
 
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * TODO Shouldn't be a public class in an API package.
+ */
 public class Messages extends NLS {
 	public static String _0_is_not_a_positive_integer_in_osgi_1;
 
