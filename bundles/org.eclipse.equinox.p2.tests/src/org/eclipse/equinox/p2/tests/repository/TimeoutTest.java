@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCa
 public class TimeoutTest extends AbstractTestServerClientCase {
 	private static final int MODIFIED = 1;
 	private static final int DOWNLOAD = 2;
-	//	private static final int STREAM = 3;
+	private static final int STREAM = 3;
 
 	protected String authTestFailMessage;
 
@@ -62,9 +62,10 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 				case MODIFIED :
 					transport.getLastModified(toDownload, null);
 					break;
-				//				case STREAM :
-				//					transport.stream(toDownload, null);
-				//					break;
+				case STREAM :
+					transport.stream(toDownload);
+					//					transport.stream(toDownload, null); // 
+					break;
 			}
 		} catch (OperationCanceledException e) {
 			fail("The getLastModified was canceled - the UI auth service is probably not running");
@@ -124,13 +125,13 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		doTimeoutCancelation(DOWNLOAD);
 	}
 
-	//	public void testStreamTimeout() throws Exception {
-	//		doTimeout(STREAM);
-	//	}
-	//
-	//	public void testStreamTimeoutCancelation() throws Exception {
-	//		doTimeoutCancelation(STREAM);
-	//	}
+	public void testStreamTimeout() throws Exception {
+		doTimeout(STREAM);
+	}
+
+	public void testStreamTimeoutCancelation() throws Exception {
+		doTimeoutCancelation(STREAM);
+	}
 
 	public void doTimeoutCancelation(int type) throws Exception {
 		System.out.print("Note that test takes at least 10 seconds before timing out (and >120 if it fails)\n");
@@ -153,9 +154,10 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 				case MODIFIED :
 					transport.getLastModified(toDownload, monitor);
 					break;
-				//				case STREAM :
-				//					transport.stream(toDownload, monitor);
-				//					break;
+				case STREAM :
+					transport.stream(toDownload);
+					//					transport.stream(toDownload, null); // 
+					break;
 			}
 		} catch (OperationCanceledException e) {
 			caught = true;
