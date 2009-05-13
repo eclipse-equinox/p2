@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
@@ -160,6 +159,20 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		result.append(ius.toString());
 		result.append(")"); //$NON-NLS-1$
 		return result.toString();
+	}
+
+	/*
+	 * Overridden to ensure that we check whether we are using a
+	 * QueryableMetadataRepositoryManager.  If so, we must find out
+	 * if it is up to date with the real manager.  
+	 * 
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=275235
+	 * 
+	 */
+	public boolean hasQueryable() {
+		if (queryable instanceof QueryableMetadataRepositoryManager)
+			return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
+		return super.hasQueryable();
 	}
 
 }
