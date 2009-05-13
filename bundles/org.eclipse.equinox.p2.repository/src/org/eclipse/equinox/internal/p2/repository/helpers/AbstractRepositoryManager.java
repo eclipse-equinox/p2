@@ -177,6 +177,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		checkValidLocation(location);
 		clearNotFound(location);
 		boolean wasEnabled = isEnabled(location);
+		String nick = getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		//remove the repository so  event is broadcast and repositories can clear their caches
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
@@ -190,6 +191,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			//if we failed to load, make sure the repository is not lost
 			if (!loaded)
 				addRepository(location, wasEnabled, true);
+			if (nick != null)
+				setRepositoryProperty(location, IRepository.PROP_NICKNAME, nick);
 		}
 	}
 

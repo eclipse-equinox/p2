@@ -389,6 +389,26 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests for {@link IMetadataRepositoryManager#refreshRepository(URI, org.eclipse.core.runtime.IProgressMonitor)}.
+	 */
+	public void testRefresh() throws ProvisionException {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		URI location = site.toURI();
+		manager.addRepository(location);
+		manager.refreshRepository(location, getMonitor());
+		assertTrue("1.0", manager.contains(location));
+		assertTrue("1.1", manager.isEnabled(location));
+
+		//tests that refreshing doesn't lose repository properties
+		manager.setEnabled(location, false);
+		manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, "MyNick");
+		manager.refreshRepository(location, getMonitor());
+		assertTrue("2.0", manager.contains(location));
+		assertFalse("2.1", manager.isEnabled(location));
+		assertEquals("2.2", "MyNick", manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
+	}
+
+	/**
 	 * Repository references were originally encoded as URL, but we now encode
 	 * as URI. This test ensures we handle both old and new references.
 	 */
