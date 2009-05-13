@@ -395,6 +395,10 @@ public class RepositorySelectionGroup {
 		int sortEnd = hasLocalSites ? strings.length - 2 : strings.length - 1;
 		if (sortStart >= sortEnd)
 			return;
+		final HashMap uriToString = new HashMap();
+		for (int i = sortStart; i <= sortEnd; i++) {
+			uriToString.put(locations[i], strings[i]);
+		}
 		final Collator collator = Collator.getInstance(Locale.getDefault());
 		Comparator stringComparator = new Comparator() {
 			public int compare(Object a, Object b) {
@@ -403,7 +407,7 @@ public class RepositorySelectionGroup {
 		};
 		Comparator uriComparator = new Comparator() {
 			public int compare(Object a, Object b) {
-				return collator.compare(getSiteString((URI) a), getSiteString((URI) b));
+				return collator.compare(uriToString.get(a), uriToString.get(b));
 			}
 		};
 
