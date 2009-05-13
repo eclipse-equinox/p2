@@ -15,7 +15,7 @@
     </filter>
  </extension>
 
-	<extension id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferencesExtPtName">
+	<extension id="preferences" point="org.eclipse.equinox.preferences.preferences" name="%preferencesExtPtName">
 		<scope name="profile" class="org.eclipse.equinox.internal.p2.engine.ProfilePreferences"/>
 	</extension>
 	
