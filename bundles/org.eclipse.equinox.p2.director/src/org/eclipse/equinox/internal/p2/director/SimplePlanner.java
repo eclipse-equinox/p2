@@ -505,7 +505,8 @@ public class SimplePlanner implements IPlanner {
 		//...This computes the attachment of what is currently in the profile 
 		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof ProvisioningPlan) {
-			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			return (ProvisioningPlan) initialSolution;
 		}
 		Collection initialState = initialRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
@@ -528,7 +529,8 @@ public class SimplePlanner implements IPlanner {
 		//Compute the attachment of the previous state
 		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(request.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof ProvisioningPlan) {
-			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed to resolve.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			return (ProvisioningPlan) initialSolution;
 		}
 		Collection initialState = request.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
