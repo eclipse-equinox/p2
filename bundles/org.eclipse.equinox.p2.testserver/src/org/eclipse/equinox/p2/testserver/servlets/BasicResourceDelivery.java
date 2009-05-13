@@ -120,6 +120,9 @@ public class BasicResourceDelivery extends HttpServlet {
 	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// set when the resource was modified
 		addDateHeader(response, HttpConstants.LAST_MODIFIED, getLastModified(conn));
+		int statusCode = HttpHeaderToStatus(conn.getHeaderField(0));
+
+		response.setStatus(statusCode != -1 ? HttpServletResponse.SC_OK : statusCode);
 
 		int contentlength = getContentLength(conn);
 		if (contentlength >= 0) {
@@ -193,6 +196,9 @@ public class BasicResourceDelivery extends HttpServlet {
 
 	protected void doDeliverHead(String filename, URLConnection conn, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int contentlength = getContentLength(conn);
+		int statusCode = HttpHeaderToStatus(conn.getHeaderField(0));
+		// set status = ok if there was no http header...
+		response.setStatus(statusCode == -1 ? HttpServletResponse.SC_OK : statusCode);
 		if (contentlength >= 0) {
 			response.setContentLength(contentlength);
 
@@ -204,6 +210,18 @@ public class BasicResourceDelivery extends HttpServlet {
 			super.doHead(request, response);
 		}
 
+	}
+
+	public int HttpHeaderToStatus(String httpHeader) {
+		if (httpHeader == null)
+			return -1;
+		try {
+			return Integer.valueOf((httpHeader.substring(9, 12))).intValue();
+		} catch (IndexOutOfBoundsException e) {
+			return -1;
+		} catch (NumberFormatException e) {
+			return -1;
+		}
 	}
 
 	/**
