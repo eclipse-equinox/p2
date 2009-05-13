@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,9 +89,9 @@ public class ProvisioningUtil {
 		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 		// This will keep the name in the manager even when the repo is not loaded
 		String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
-		if (name == null) {
-			name = getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name != null)
+		if (name == null || name.length() == 0) {
+			name = repo.getName();
+			if (name != null && name.length() > 0)
 				setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 		}
 		return repo;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,8 +63,11 @@ public class ElementUtils {
 								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
 							}
 						}
-						ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, elements[i].getName());
-						ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, elements[i].getName());
+						String name = elements[i].getName();
+						if (name != null && name.length() > 0) {
+							ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+							ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+						}
 					}
 					// Are there any elements that need to be deleted?  Go over the original state
 					// and remove any elements that weren't in the elements we were given

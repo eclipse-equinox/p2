@@ -191,16 +191,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	}
 
 	protected IRepository loadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
-		Object repo = loaded.get(location);
-		if (repo == null) {
-			monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, URIUtil.toUnencodedString(location)));
-			repo = doLoadRepository(manager, location, monitor);
-			if (repo != null)
-				loaded.put(location, repo);
-		} else {
-			monitor.done();
-		}
-		return (IRepository) repo;
+		monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, URIUtil.toUnencodedString(location)));
+		IRepository repo = doLoadRepository(manager, location, monitor);
+		if (repo != null)
+			loaded.put(location, repo);
+		return repo;
 	}
 
 	/**
@@ -218,6 +213,8 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * yet located at that location.
 	 */
 	protected IRepository getRepository(IRepositoryManager manager, URI location) {
+		// This is only used by the artifact mgr subclass.
+		// MetadataRepositoryManager has a method for getting its cached repo instance
 		return (IRepository) loaded.get(location);
 	}
 
