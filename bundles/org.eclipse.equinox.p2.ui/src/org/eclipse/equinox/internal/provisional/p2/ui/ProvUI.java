@@ -247,7 +247,7 @@ public class ProvUI {
 
 	private static Shell getDefaultParentShell(Shell[] shells) {
 		//first look for a modal shell
-		for (int i = 0; i < shells.length; i++) {
+		for (int i = shells.length - 1; i >= 0; i--) {
 			Shell shell = shells[i];
 
 			// Check if this shell has a modal child
