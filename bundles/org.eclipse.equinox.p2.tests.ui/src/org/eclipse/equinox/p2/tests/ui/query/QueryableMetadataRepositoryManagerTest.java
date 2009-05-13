@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuer
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
@@ -231,6 +232,26 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		assertEquals("1.0", 1, collection.size());
 		AvailableIUElement next = (AvailableIUElement) collection.iterator().next();
 		assertEquals("1.1", new Version(3, 0, 0), next.getIU().getVersion());
+	}
+
+	/**
+	 * Tests that the repository nickname is set on load.  See bug 274334 for details.
+	 */
+	public void testNicknameOnLoad() {
+		URI location;
+		try {
+			location = TestData.getFile("metadataRepo", "good").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		metadataRepositoryManager.removeRepository(location);
+		metadataRepositoryManager.addRepository(location);
+		QueryableMetadataRepositoryManager manager = getQueryableManager();
+		manager.loadAll(getMonitor());
+		assertEquals("1.0", "Good Test Repository", metadataRepositoryManager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
+
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {
