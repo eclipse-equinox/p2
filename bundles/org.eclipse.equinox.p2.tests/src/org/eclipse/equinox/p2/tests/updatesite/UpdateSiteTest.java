@@ -851,16 +851,19 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		// Overridden to prevent mirror sorting
+		@Override
 		public synchronized void reportResult(String toDownload, IStatus result) {
 			return;
 		}
 
 		// We want to test each mirror once.
+		@Override
 		public synchronized boolean hasValidMirror() {
 			return mirrors != null && index < mirrors.length;
 		}
 
-		public synchronized URI getMirrorLocation(URI inputLocation) {
+		@Override
+		public synchronized URI getMirrorLocation(URI inputLocation, IProgressMonitor monitor) {
 			return URIUtil.append(nextMirror(), repoLocation.relativize(inputLocation).getPath());
 		}
 

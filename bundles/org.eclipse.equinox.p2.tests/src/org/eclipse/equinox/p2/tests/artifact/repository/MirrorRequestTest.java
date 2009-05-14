@@ -115,7 +115,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// The download succeeded
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		// All available mirrors used
-		assertTrue("All mirrors utilized", selector.index == selector.mirrors.length);
+		assertEquals("All mirrors utilized", selector.mirrors.length, selector.index);
 	}
 
 	/*
@@ -338,16 +338,19 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		}
 
 		// Overridden to prevent mirror sorting
+		@Override
 		public synchronized void reportResult(String toDownload, IStatus result) {
 			return;
 		}
 
 		// We want to test each mirror once.
+		@Override
 		public synchronized boolean hasValidMirror() {
 			return mirrors != null && index < mirrors.length;
 		}
 
-		public synchronized URI getMirrorLocation(URI inputLocation) {
+		@Override
+		public synchronized URI getMirrorLocation(URI inputLocation, IProgressMonitor monitor) {
 			return URIUtil.append(nextMirror(), repoLocation.relativize(inputLocation).getPath());
 		}
 

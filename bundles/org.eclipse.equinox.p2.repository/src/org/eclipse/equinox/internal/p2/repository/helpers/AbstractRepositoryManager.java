@@ -251,7 +251,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		Assert.isNotNull(type);
 		IRepository result = null;
 		try {
-			enterLoad(location);
+			enterLoad(location, new NullProgressMonitor());
 			boolean loaded = false;
 			try {
 				//repository should not already exist
@@ -313,15 +313,17 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * 
 	 * @param location The location to lock
 	 */
-	private void enterLoad(URI location) {
+	private void enterLoad(URI location, IProgressMonitor monitor) {
 		Thread current = Thread.currentThread();
 		synchronized (loadLocks) {
 			while (true) {
 				Thread owner = (Thread) loadLocks.get(location);
 				if (owner == null || current.equals(owner))
 					break;
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
 				try {
-					loadLocks.wait();
+					loadLocks.wait(1000);
 				} catch (InterruptedException e) {
 					//keep trying
 				}
@@ -594,7 +596,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		IRepository result = null;
 
 		try {
-			enterLoad(location);
+			enterLoad(location, monitor);
 			result = basicGetRepository(location);
 			if (result != null)
 				return result;

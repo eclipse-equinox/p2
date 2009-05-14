@@ -63,8 +63,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 					transport.getLastModified(toDownload, null);
 					break;
 				case STREAM :
-					transport.stream(toDownload);
-					//					transport.stream(toDownload, null); // 
+					transport.stream(toDownload, null);
 					break;
 			}
 		} catch (OperationCanceledException e) {
@@ -155,8 +154,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 					transport.getLastModified(toDownload, monitor);
 					break;
 				case STREAM :
-					transport.stream(toDownload);
-					//					transport.stream(toDownload, null); // 
+					transport.stream(toDownload, monitor);
 					break;
 			}
 		} catch (OperationCanceledException e) {
