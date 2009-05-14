@@ -87,7 +87,7 @@ public class PublisherInfo implements IPublisherInfo {
 	}
 
 	public String getSummary() {
-		return "some text that describes this setup";
+		return ".";
 	}
 
 }
