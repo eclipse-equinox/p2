@@ -184,6 +184,9 @@ public class ProvisioningOperationRunner {
 						configurator.applyConfiguration();
 					} catch (IOException e) {
 						ProvUI.handleException(e, ProvUIMessages.ProvUI_ErrorDuringApplyConfig, StatusManager.LOG | StatusManager.BLOCK);
+					} catch (IllegalStateException e) {
+						IStatus illegalApplyStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProvisioningOperationRunner_CannotApplyChanges, e);
+						ProvUI.reportStatus(illegalApplyStatus, StatusManager.LOG | StatusManager.BLOCK);
 					}
 				} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
 					PlatformUI.getWorkbench().restart();

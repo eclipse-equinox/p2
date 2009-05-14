@@ -85,6 +85,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvDropAdapter_UnsupportedDropOperation;
 
 	// Provisioning operations
+	public static String ProvisioningOperationRunner_CannotApplyChanges;
 	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
