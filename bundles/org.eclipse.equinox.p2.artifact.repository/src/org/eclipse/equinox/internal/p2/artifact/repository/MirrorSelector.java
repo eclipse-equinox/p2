@@ -122,7 +122,7 @@ public class MirrorSelector {
 	 * 
 	 * Originally copied from DefaultSiteParser.getMirrors in org.eclipse.update.core
 	 */
-	private MirrorInfo[] computeMirrors(String mirrorsURL) {
+	private MirrorInfo[] computeMirrors(String mirrorsURL, IProgressMonitor monitor) {
 		try {
 			String countryCode = Locale.getDefault().getCountry().toLowerCase();
 			int timeZone = (new GregorianCalendar()).get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000);
@@ -140,7 +140,7 @@ public class MirrorSelector {
 			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
 			RepositoryTransport transport = RepositoryTransport.getInstance();
 			InputSource input = new InputSource(mirrorsURL);
-			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL)));
+			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL), monitor));
 			document = builder.parse(input);
 			if (document == null)
 				return null;
@@ -172,7 +172,7 @@ public class MirrorSelector {
 	 * repository.  Always falls back to the given input location in case of failure
 	 * to compute mirrors. Never returns null.
 	 */
-	public synchronized URI getMirrorLocation(URI inputLocation) {
+	public synchronized URI getMirrorLocation(URI inputLocation, IProgressMonitor monitor) {
 		Assert.isNotNull(inputLocation);
 		if (baseURI == null)
 			return inputLocation;
@@ -180,7 +180,7 @@ public class MirrorSelector {
 		//if we failed to relativize the location, we can't select a mirror
 		if (relativeLocation == null || relativeLocation.isAbsolute())
 			return inputLocation;
-		MirrorInfo selectedMirror = selectMirror();
+		MirrorInfo selectedMirror = selectMirror(monitor);
 		if (selectedMirror == null)
 			return inputLocation;
 		if (Tracing.DEBUG_MIRRORS)
@@ -197,12 +197,12 @@ public class MirrorSelector {
 	 * Returns the mirror locations for this repository, or <code>null</code> if
 	 * they could not be computed.
 	 */
-	private MirrorInfo[] initMirrors() {
+	private MirrorInfo[] initMirrors(IProgressMonitor monitor) {
 		if (mirrors != null)
 			return mirrors;
 		String mirrorsURL = (String) repository.getProperties().get(IRepository.PROP_MIRRORS_URL);
 		if (mirrorsURL != null)
-			mirrors = computeMirrors(mirrorsURL);
+			mirrors = computeMirrors(mirrorsURL, monitor);
 		return mirrors;
 	}
 
@@ -251,8 +251,8 @@ public class MirrorSelector {
 	 * Selects a mirror from the given list of mirrors. Returns null if a mirror
 	 * could not be found.
 	 */
-	private MirrorInfo selectMirror() {
-		initMirrors();
+	private MirrorInfo selectMirror(IProgressMonitor monitor) {
+		initMirrors(monitor);
 		int mirrorCount;
 		if (mirrors == null || (mirrorCount = mirrors.length) == 0)
 			return null;

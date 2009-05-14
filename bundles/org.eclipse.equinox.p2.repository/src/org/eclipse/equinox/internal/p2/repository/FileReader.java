@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2009, Cloudsmith Inc.
+ * Copyright (c) 2006, 2009, Cloudsmith Inc.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -8,9 +8,11 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.*;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Date;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.*;
@@ -22,20 +24,22 @@ import org.eclipse.osgi.util.NLS;
 /**
  * FileReader is an ECF FileTransferJob implementation.
  */
-public class FileReader extends FileTransferJob implements IFileTransferListener {
+public final class FileReader extends FileTransferJob implements IFileTransferListener {
 	private static IFileReaderProbe testProbe;
 	private boolean closeStreamWhenFinished = false;
 	private Exception exception;
 	private FileInfo fileInfo;
 	private long lastProgressCount;
 	private long lastStatsCount;
-	private IProgressMonitor theMonitor;
+	protected IProgressMonitor theMonitor;
 	private OutputStream theOutputStream;
 	private ProgressStatistics statistics;
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
 	private URI requestUri;
+	protected IFileTransferConnectStartEvent connectEvent;
+	private Job cancelJob;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
@@ -56,8 +60,53 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		return fileInfo;
 	}
 
+	/**
+	 * A job to handle cancelation when trying to establish a socket connection.
+	 * At this point we don't have a transfer job running yet, so we need a separate
+	 * job to monitor for cancelation.
+	 */
+	protected class CancelHandler extends Job {
+		private boolean done = false;
+
+		protected CancelHandler() {
+			super(Messages.FileTransport_cancelCheck);
+			setSystem(true);
+		}
+
+		public IStatus run(IProgressMonitor jobMonitor) {
+			while (!done && !jobMonitor.isCanceled()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					return Status.CANCEL_STATUS;
+				}
+				if (theMonitor != null && theMonitor.isCanceled())
+					if (connectEvent != null)
+						connectEvent.cancel();
+			}
+			return Status.OK_STATUS;
+		}
+
+		protected void canceling() {
+			//wake up from sleep in run method
+			Thread t = getThread();
+			if (t != null)
+				t.interrupt();
+		}
+
+	}
+
 	public synchronized void handleTransferEvent(IFileTransferEvent event) {
-		if (event instanceof IIncomingFileTransferReceiveStartEvent) {
+		if (event instanceof IFileTransferConnectStartEvent) {
+			// keep the connect event to be able to cancel the transfer
+			connectEvent = (IFileTransferConnectStartEvent) event;
+			cancelJob = new CancelHandler();
+			//schedule with a delay to avoid the overhead of an extra job on a fast connection
+			cancelJob.schedule(500);
+		} else if (event instanceof IIncomingFileTransferReceiveStartEvent) {
+			//we no longer need the cancel handler because we are about to fork the transfer job
+			if (cancelJob != null)
+				cancelJob.cancel();
 			IIncomingFileTransfer source = ((IIncomingFileTransferEvent) event).getSource();
 			try {
 				FileInfo fi = new FileInfo();
@@ -114,7 +163,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		}
 	}
 
-	public InputStream read(URI url) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	public InputStream read(URI url, final IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		final PipedInputStream input = new PipedInputStream();
 		PipedOutputStream output;
 		try {
@@ -124,8 +173,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		}
 		RepositoryTracing.debug("Downloading {0}", url); //$NON-NLS-1$
 
-		final IProgressMonitor cancellationMonitor = new NullProgressMonitor();
-		sendRetrieveRequest(url, output, null, true, cancellationMonitor);
+		sendRetrieveRequest(url, output, null, true, monitor);
 
 		return new InputStream() {
 			public int available() throws IOException {
@@ -134,7 +182,7 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 			}
 
 			public void close() throws IOException {
-				cancellationMonitor.setCanceled(true);
+				monitor.setCanceled(true);
 				hardClose(input);
 				checkException();
 			}
@@ -194,22 +242,32 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 		readInto(uri, anOutputStream, -1, monitor);
 	}
 
+	public boolean belongsTo(Object family) {
+		return family == this;
+	}
+
 	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		try {
 			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
-			join();
+			Job.getJobManager().join(this, new SubProgressMonitor(monitor, 0));
+			if (monitor.isCanceled() && connectEvent != null)
+				connectEvent.cancel();
 			// check and throw exception if received in callback
 			checkException(uri, connectionRetryCount);
 		} catch (InterruptedException e) {
 			monitor.setCanceled(true);
 			throw new OperationCanceledException();
 		} finally {
+			// kill the cancelJob, if there is one
+			if (cancelJob != null) {
+				cancelJob.cancel();
+				cancelJob = null;
+			}
+
 			if (monitor != null) {
 				if (statistics == null)
-					//
 					// Monitor was never started. See to that it's balanced
-					//
 					monitor.beginTask(null, 1);
 				else
 					statistics = null;
@@ -285,6 +343,12 @@ public class FileReader extends FileTransferJob implements IFileTransferListener
 			Throwable t = RepositoryStatusHelper.unwind(exception);
 			if (t instanceof CoreException)
 				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
+
+			// not meaningful to try 'timeout again' - if a server is that busy, we
+			// need to wait for quite some time before retrying- it is not likely it is
+			// just a temporary network thing.
+			if (t instanceof SocketTimeoutException)
+				throw RepositoryStatusHelper.wrap(t);
 
 			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
 				// TODO: Retry only certain exceptions or filter out

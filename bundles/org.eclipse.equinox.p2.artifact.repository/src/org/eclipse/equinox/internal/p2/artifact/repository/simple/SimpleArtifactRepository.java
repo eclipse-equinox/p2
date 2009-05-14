@@ -451,7 +451,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		URI baseLocation = getLocation(descriptor);
 		if (baseLocation == null)
 			return new Status(IStatus.ERROR, Activator.ID, "Can not find the location of " + descriptor);
-		URI mirrorLocation = getMirror(baseLocation);
+		URI mirrorLocation = getMirror(baseLocation, monitor);
 		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, monitor);
 		IStatus result = reportStatus(descriptor, destination, status);
 		// if the original download went reasonably but the reportStatus found some issues
@@ -490,12 +490,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @param baseLocation The location of the artifact in this repository
 	 * @return the Location of the artifact in this repository, or an equivalent mirror
 	 */
-	private synchronized URI getMirror(URI baseLocation) {
+	private synchronized URI getMirror(URI baseLocation, IProgressMonitor monitor) {
 		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
 			mirrors = new MirrorSelector(this);
-		return mirrors.getMirrorLocation(baseLocation);
+		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
 	public Object getAdapter(Class adapter) {

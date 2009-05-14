@@ -70,6 +70,7 @@ public class Messages extends NLS {
 	public static String connection_to_0_failed_on_1_retry_attempt_2;
 
 	public static String FileTransport_reader;
+	public static String FileTransport_cancelCheck;
 
 	public static String UnableToRead_0_TooManyAttempts;
 	public static String UnableToRead_0_UserCanceled;

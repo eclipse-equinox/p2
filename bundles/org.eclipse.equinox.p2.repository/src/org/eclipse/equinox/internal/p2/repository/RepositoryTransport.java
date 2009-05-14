@@ -126,12 +126,13 @@ public class RepositoryTransport extends Transport {
 	 * 
 	 * @returns InputStream a stream with the content from the toDownload URI, or null
 	 * @param toDownload URI of file to download
+	 * @param monitor monitor checked for cancellation
 	 * @throws OperationCanceledException if the operation was canceled.
 	 * @throws AuthenticationFailedException if authentication failed, or too many attempt were made
 	 * @throws FileNotFoundException if the toDownload was reported as non existing
 	 * @throws CoreException on errors
 	 */
-	public InputStream stream(URI toDownload) throws FileNotFoundException, CoreException, AuthenticationFailedException {
+	public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException {
 
 		boolean promptUser = false;
 		AuthenticationInfo loginDetails = null;
@@ -143,7 +144,7 @@ public class RepositoryTransport extends Transport {
 
 				// perform the streamed download
 				reader = new FileReader(context);
-				return reader.read(toDownload);
+				return reader.read(toDownload, monitor);
 			} catch (UserCancelledException e) {
 				throw new OperationCanceledException();
 			} catch (AuthenticationFailedException e) {
