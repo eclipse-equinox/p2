@@ -57,6 +57,21 @@ class ConfigApplier {
 
 		BundleInfo[] expectedState = Utils.getBundleInfosFromList(bundleInfoList);
 
+		// check for an update to the system bundle
+		String systemBundleSymbolicName = manipulatingContext.getBundle(0).getSymbolicName();
+		Version systemBundleVersion = manipulatingContext.getBundle(0).getVersion();
+		if (systemBundleSymbolicName != null) {
+			for (int i = 0; i < expectedState.length; i++) {
+				String symbolicName = expectedState[i].getSymbolicName();
+				if (!systemBundleSymbolicName.equals(symbolicName))
+					continue;
+
+				Version version = Version.parseVersion(expectedState[i].getVersion());
+				if (!systemBundleVersion.equals(version))
+					throw new IllegalStateException("The System Bundle was updated. The framework must be restarted to finalize the configuration change");
+			}
+		}
+
 		HashSet toUninstall = null;
 		if (!exclusiveMode) {
 			BundleInfo[] lastInstalledBundles = getLastState();
@@ -179,9 +194,6 @@ class ConfigApplier {
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {
-					//TODO Need to eliminate System Bundle.
-					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
-					// it will be installed unfortunately. 
 					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
