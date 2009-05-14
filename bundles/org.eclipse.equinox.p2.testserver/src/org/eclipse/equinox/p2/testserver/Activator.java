@@ -79,6 +79,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			addProxyServices(httpService, SITE, "/proxy/"); //$NON-NLS-1$
 			addProxyServices(httpService, SITE2, "/proxy2/"); //$NON-NLS-1$
 
+			httpService.registerServlet("/proxy3/aprivate/plugins", new BasicResourceDelivery("/proxy3/aprivate/plugins", URI.create(SITE2 + "/plugins")), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			httpService.registerServlet("/proxy3/aprivate/features", new BasicResourceDelivery("/proxy3/aprivate/features", URI.create(SITE2 + "/features")), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			httpService.registerServlet("/proxy3/aprivate", new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+
 		} catch (NamespaceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,6 +109,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		httpService.registerServlet(root + "molested", new FileMolester(root + "molested", URI.create(site), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$
 		httpService.registerServlet(root + "decelerate", new ChopAndDelay(root + "decelerate", URI.create(site), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
 		httpService.registerServlet(root + "decelerate2", new ChopAndDelay(root + "decelerate2", URI.create(site), 3, 80, new LinearChange(100, 5, 105, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+		httpService.registerServlet(root + "readtimeout", new ChopAndDelay(root + "readtimeout", URI.create(site), 3, 10, new LinearChange(10 * 60 * 1000, 5, 5 + 10 * 60 * 1000, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
 
 		// lie about modified time
 		httpService.registerServlet(root + "modified/zero", new LastModifiedLier(root + "modified/zero", URI.create(site), LastModifiedLier.TYPE_ZERO), null, null); //$NON-NLS-1$//$NON-NLS-2$

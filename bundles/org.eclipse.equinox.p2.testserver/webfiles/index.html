@@ -16,6 +16,7 @@ log in. The credentials are: user: <b>Aladdin</b>, password: <b>open sesame</b>.
 <li>/proxy/molested - goes to updates/3.4, but generates gibberish for all files</li>
 <li>/proxy/decelerate - goes to updates/3.4, but delivers files in very small delayed packets - delay increases.</li>
 <li>/proxy/decelerate2 - like /proxy/decelerate, but does not start delay until 80% of file has been processed. Good for progress bar testing.</li>
+<li>/proxy/readtimeout - When 10% of file has been processed, it delays deliver 10 minutes. Good for progress bar/cancel testing.</li>
 <li>/proxy/modified/... - goes to updates/3.4, but delivers various errors in "last modified" (see below)
 	<ul><li>.../zero - all times are returned as 0</li>
 		<li>.../old - all times are very old</li>
@@ -32,6 +33,9 @@ log in. The credentials are: user: <b>Aladdin</b>, password: <b>open sesame</b>.
 </li>
 </li>/proxy2/... - goes to http://www.eclipse.org/equinox/p2/testing/updateSite - the same
 paths as for /proxy/... are available.
+</li>
+</li>/proxy3/aprivate/... - goes to http://www.eclipse.org/equinox/p2/testing/updateSite. This proxy makes
+the subpaths .../plugins, and .../features, private.
 </li>
 </ul>
 <p>The content listed below is also available and can be accessed under:
