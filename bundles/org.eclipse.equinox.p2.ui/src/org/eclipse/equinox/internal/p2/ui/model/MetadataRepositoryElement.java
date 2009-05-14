@@ -66,6 +66,14 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		return super.getAdapter(adapter);
 	}
 
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, 200);
+		//Ensure the repository is loaded using the monitor, so we respond to cancelation.
+		//Otherwise, a non-loaded repository could be loaded in the query provider without a monitor.
+		getRepository(sub.newChild(100));
+		return super.fetchChildren(o, sub.newChild(100));
+	}
+
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_METADATA_REPOSITORY;
 	}
@@ -103,8 +111,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 				queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
 			} catch (ProvisionException e) {
 				ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
-			} catch (OperationCanceledException e) {
-				// Nothing to report
 			}
 		return (IMetadataRepository) queryable;
 
