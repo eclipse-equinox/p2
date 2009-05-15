@@ -182,7 +182,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			}
 
 			public void close() throws IOException {
-				monitor.setCanceled(true);
 				hardClose(input);
 				checkException();
 			}
