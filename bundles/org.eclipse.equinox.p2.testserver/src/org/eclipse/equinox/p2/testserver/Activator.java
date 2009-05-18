@@ -34,6 +34,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	private static BundleContext context;
 	private ServiceTracker httpTracker;
 	private SecureContext secureHttpContext;
+	private SecuredArtifactsContext artifactSecuredHttpContext;
 	private static Activator instance;
 	private HttpService httpService;
 	private AlwaysFailContext alwaysFail;
@@ -41,6 +42,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 	private static final String SITE = "http://download.eclipse.org/eclipse/updates/3.4"; //$NON-NLS-1$
 	private static final String SITE2 = "http://www.eclipse.org/equinox/p2/testing/updateSite"; //$NON-NLS-1$
+	private static final String SITE3 = "http://download.eclipse.org/eclipse/updates/3.5-I-builds/"; //$NON-NLS-1$
 
 	public void start(BundleContext aContext) throws Exception {
 		context = aContext;
@@ -58,6 +60,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	public Object addingService(ServiceReference reference) {
 		httpService = (HttpService) context.getService(reference);
 		secureHttpContext = new SecureContext(httpService.createDefaultHttpContext());
+		artifactSecuredHttpContext = new SecuredArtifactsContext(httpService.createDefaultHttpContext());
 		alwaysFail = new AlwaysFailContext(httpService.createDefaultHttpContext());
 		flipFlop = new FlipFlopFailContext(httpService.createDefaultHttpContext());
 
@@ -79,9 +82,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			addProxyServices(httpService, SITE, "/proxy/"); //$NON-NLS-1$
 			addProxyServices(httpService, SITE2, "/proxy2/"); //$NON-NLS-1$
 
-			httpService.registerServlet("/proxy3/aprivate/plugins", new BasicResourceDelivery("/proxy3/aprivate/plugins", URI.create(SITE2 + "/plugins")), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-			httpService.registerServlet("/proxy3/aprivate/features", new BasicResourceDelivery("/proxy3/aprivate/features", URI.create(SITE2 + "/features")), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-			httpService.registerServlet("/proxy3/aprivate", new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy3/aprivate", new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy4/aprivate", new BasicResourceDelivery("/proxy4/aprivate", URI.create(SITE3)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
 
 		} catch (NamespaceException e) {
 			// TODO Auto-generated catch block
