@@ -592,6 +592,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 
 	protected IRepository loadRepository(URI location, IProgressMonitor monitor, String type, int flags) throws ProvisionException {
 		checkValidLocation(location);
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 		boolean added = false;
 		IRepository result = null;
 

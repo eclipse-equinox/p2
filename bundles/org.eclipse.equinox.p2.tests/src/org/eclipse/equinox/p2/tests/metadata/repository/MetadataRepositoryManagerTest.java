@@ -17,8 +17,8 @@ import java.net.*;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
@@ -209,6 +209,45 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 		assertEquals("6.0", disabledCount, newDisabledCount);
 		assertEquals("6.1", allCount, newAllCount);
+	}
+
+	/**
+	 * Tests contention for the repository load lock
+	 */
+	public void testLoadContention() {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		final URI location = site.toURI();
+		final List<Exception> failures = new ArrayList<Exception>();
+		final IMetadataRepositoryManager repoManager = getMetadataRepositoryManager();
+		class LoadJob extends Job {
+			LoadJob() {
+				super("");
+			}
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				for (int i = 0; i < 100; i++) {
+					try {
+						repoManager.loadRepository(location, null);
+					} catch (Exception e) {
+						failures.add(e);
+					}
+				}
+				return Status.OK_STATUS;
+			}
+		}
+		Job job1 = new LoadJob();
+		Job job2 = new LoadJob();
+		job1.schedule();
+		job2.schedule();
+		try {
+			job1.join();
+			job2.join();
+		} catch (InterruptedException e) {
+			fail("4.99", e);
+		}
+		if (!failures.isEmpty())
+			fail("1.0", failures.iterator().next());
 	}
 
 	/**
