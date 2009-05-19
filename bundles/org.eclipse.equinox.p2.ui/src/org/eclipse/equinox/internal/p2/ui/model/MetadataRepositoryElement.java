@@ -68,10 +68,18 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, 200);
-		//Ensure the repository is loaded using the monitor, so we respond to cancelation.
-		//Otherwise, a non-loaded repository could be loaded in the query provider without a monitor.
-		getRepository(sub.newChild(100));
-		return super.fetchChildren(o, sub.newChild(100));
+		// Ensure the repository is loaded using the monitor, so we respond to cancelation.
+		// Otherwise, a non-loaded repository could be loaded in the query provider without a monitor.
+		// If the load fails, return an explanation element.
+		try {
+			getMetadataRepository(sub.newChild(100));
+			//only invoke super if we successfully loaded the repository
+			return super.fetchChildren(o, sub.newChild(100));
+		} catch (ProvisionException e) {
+			ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
+			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
+			return new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
+		}
 	}
 
 	protected String getImageId(Object obj) {
@@ -97,21 +105,22 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 */
 	public IQueryable getQueryable() {
 		if (queryable == null)
-			return getMetadataRepository(new NullProgressMonitor());
+			return (IQueryable) getRepository(new NullProgressMonitor());
 		return queryable;
 	}
 
 	public IRepository getRepository(IProgressMonitor monitor) {
-		return getMetadataRepository(monitor);
+		try {
+			return getMetadataRepository(monitor);
+		} catch (ProvisionException e) {
+			ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
+		}
+		return null;
 	}
 
-	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) {
+	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
 		if (queryable == null)
-			try {
-				queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
-			} catch (ProvisionException e) {
-				ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
-			}
+			queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
 		return (IMetadataRepository) queryable;
 
 	}
