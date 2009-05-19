@@ -9,11 +9,7 @@
       </text>
    </aboutInfo>
 
-   <configIni use="default">
-      <linux>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</linux>
-      <macosx>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</macosx>
-      <solaris>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</solaris>
-      <win32>/org.eclipse.equinox.p2.ui.admin.rcp/config.ini</win32>
+   <configIni>      
    </configIni>
 
    <launcherArgs>
