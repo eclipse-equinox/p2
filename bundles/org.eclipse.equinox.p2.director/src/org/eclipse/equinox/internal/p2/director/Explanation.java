@@ -221,9 +221,17 @@ public abstract class Explanation implements Comparable {
 	protected String getUserReadableName(IInstallableUnit iu) {
 		if (iu == null)
 			return ""; //$NON-NLS-1$
-		String result = iu.getProperty(IInstallableUnit.PROP_NAME);
+		String result = getLocalized(iu);
 		if (result == null)
 			return iu.toString();
 		return result + ' ' + iu.getVersion() + " (" + iu.toString() + ')'; //$NON-NLS-1$
+	}
+
+	private String getLocalized(IInstallableUnit iu) {
+		String value = iu.getProperty(IInstallableUnit.PROP_NAME);
+		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
+			return value;
+		final String actualKey = value.substring(1); // Strip off the %
+		return iu.getProperty("df_LT." + actualKey); //$NON-NLS-1$
 	}
 }
