@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009, Cloudsmith Inc.
- * The code, documentation and other materials contained herein have been
- * licensed under the Eclipse Public License - v 1.0 by the copyright holder
- * listed above, as the Initial Contributor under such license. The text of
- * such license is available at www.eclipse.org.
+ * Copyright (c) 2006, 2009 Cloudsmith Inc.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ * 	Cloudsmith Inc - initial API and implementation
+ * 	IBM Corporation - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
@@ -40,6 +44,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private URI requestUri;
 	protected IFileTransferConnectStartEvent connectEvent;
 	private Job cancelJob;
+	private boolean monitorStarted;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
@@ -122,12 +127,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				exception = e;
 				return;
 			}
+			long fileLength = source.getFileLength();
+			ProgressStatistics stats = new ProgressStatistics(requestUri, source.getRemoteFileName(), fileLength);
+			setStatistics(stats);
 
 			if (theMonitor != null) {
-				long fileLength = source.getFileLength();
-				statistics = new ProgressStatistics(requestUri, source.getRemoteFileName(), fileLength);
 				theMonitor.beginTask(null, 1000);
-				theMonitor.subTask(statistics.report());
+				monitorStarted = true;
+				theMonitor.subTask(stats.report());
 				lastStatsCount = 0;
 				lastProgressCount = 0;
 			}
@@ -143,13 +150,16 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				long br = source.getBytesReceived();
 				long count = br - lastStatsCount;
 				lastStatsCount = br;
-				statistics.increase(count);
-				fileInfo.setAverageSpeed(statistics.getAverageSpeed());
-				if (statistics.shouldReport()) {
-					count = br - lastProgressCount;
-					lastProgressCount = br;
-					theMonitor.subTask(statistics.report());
-					theMonitor.worked((int) (1000 * count / statistics.getTotal()));
+				ProgressStatistics stats = getStatistics();
+				if (stats != null) {
+					stats.increase(count);
+					fileInfo.setAverageSpeed(stats.getAverageSpeed());
+					if (stats.shouldReport()) {
+						count = br - lastProgressCount;
+						lastProgressCount = br;
+						theMonitor.subTask(stats.report());
+						theMonitor.worked((int) (1000 * count / stats.getTotal()));
+					}
 				}
 			}
 			onData(source);
@@ -247,6 +257,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 		try {
 			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
 			Job.getJobManager().join(this, new SubProgressMonitor(monitor, 0));
@@ -263,15 +275,11 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				cancelJob.cancel();
 				cancelJob = null;
 			}
-
-			if (monitor != null) {
-				if (statistics == null)
-					// Monitor was never started. See to that it's balanced
-					monitor.beginTask(null, 1);
-				else
-					statistics = null;
-				monitor.done();
-			}
+			// If monitor was never started, make sure it is balanced
+			if (!monitorStarted)
+				monitor.beginTask(null, 1);
+			monitorStarted = false;
+			monitor.done();
 		}
 	}
 
@@ -293,6 +301,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		this.lastProgressCount = 0L;
 		this.lastStatsCount = 0L;
 		this.theMonitor = monitor;
+		this.monitorStarted = false;
 		this.theOutputStream = outputStream;
 		this.requestUri = uri;
 
@@ -427,6 +436,28 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 */
 	public static void setTestProbe(IFileReaderProbe probe) {
 		testProbe = probe;
+	}
+
+	/**
+	 * Sets the progress statistics. This method is synchronized because the field
+	 * is accessed from both the transfer thread and the thread initiating the transfer
+	 * and we need to ensure field values are consistent across threads.
+	 * 
+	 * @param statistics the statistics to set, or <code>null</code>
+	 */
+	private synchronized void setStatistics(ProgressStatistics statistics) {
+		this.statistics = statistics;
+	}
+
+	/**
+	 * Returns the progress statistics. This method is synchronized because the field
+	 * is accessed from both the transfer thread and the thread initiating the transfer
+	 * and we need to ensure field values are consistent across threads.
+	 * 
+	 * @return the statistics, or <code>null</code>
+	 */
+	private synchronized ProgressStatistics getStatistics() {
+		return statistics;
 	}
 
 	/**
