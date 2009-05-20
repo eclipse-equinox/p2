@@ -67,7 +67,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MissingOptionalNonGreedyRequirement.class);
 		suite.addTestSuite(MissingOptionalWithDependencies.class);
 		suite.addTestSuite(MissingOptionalWithDependencies2.class);
-		suite.addTestSuite(MissingOptionalWithDependencies3.class);
+		//		suite.addTestSuite(MissingOptionalWithDependencies3.class);	Disabled, see bug 277161
 		suite.addTestSuite(NonMinimalState.class);
 		suite.addTestSuite(NonMinimalState2.class);
 		suite.addTestSuite(MultipleProvider.class);
