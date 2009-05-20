@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -49,5 +50,14 @@ public class ProvisioningWizardDialog extends WizardDialog {
 			wizard.saveBoundsRelatedSettings();
 		}
 		return super.close();
+	}
+
+	/**
+	 * This method is provided only for automated testing.
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public Button testGetButton(int id) {
+		return getButton(id);
 	}
 }

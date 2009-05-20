@@ -1,30 +1,35 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v1.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
- *  Contributors:
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import java.util.HashSet;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.AvailableIUsPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.IResolutionErrorReportingPage;
+import org.eclipse.equinox.internal.p2.metadata.License;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -32,8 +37,43 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class InstallWizardTest extends WizardTest {
 
+	private static final String SELECTION_PAGE = "IUSelectionPage";
 	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
 	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
+	private static final String MAIN_IU = "MainIU";
+
+	public void testInstallWizardResolved() throws ProvisionException {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setId(MAIN_IU);
+		iu.setVersion(new Version(1, 0, 0));
+		iu.setSingleton(true);
+		iu.setLicense(new License(null, "There is a license to accept!"));
+		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
+		IInstallableUnit toInstall = MetadataFactory.createInstallableUnit(iu);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
+		PlannerResolutionOperation op = getResolvedOperation(request);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(Policy.getDefault(), TESTPROFILE, new IInstallableUnit[] {toInstall}, op, null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+
+		try {
+			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			// should already have a plan
+			assertTrue("1.0", page1.isPageComplete());
+			// simulate the next button by getting next page and showing
+			IWizardPage page = page1.getNextPage();
+			dialog.showPage(page);
+			// license needs approval
+			assertFalse("1.1", wizard.canFinish());
+			// finish button should be disabled
+			Button finishButton = dialog.testGetButton(IDialogConstants.FINISH_ID);
+			assertFalse("1.2", finishButton.isEnabled());
+		} finally {
+			dialog.getShell().close();
+		}
+	}
 
 	/**
 	 * Tests the wizard
