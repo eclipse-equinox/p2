@@ -152,8 +152,13 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (arg.equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
 			metadataRepoName = parameter;
 
-		if (arg.equalsIgnoreCase("-source")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-source")) { //$NON-NLS-1$
+			// check here to see if the location actually exists so we can fail gracefully now rather than unpredictably later
+			// see bug 272956 where we would fail with an NPE if someone gave us a URL instead of a file-system path
+			if (!new File(parameter).exists())
+				throw new IllegalArgumentException("Source location (" + parameter + ") must be a valid file-system path.");
 			source = parameter;
+		}
 
 		if (arg.equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
 			artifactRepoName = parameter;
@@ -250,13 +255,21 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	public Object run(String args[]) throws Exception {
-		info = createPublisherInfo();
-		processCommandLineArguments(args, info);
-		Object result = run(info);
-		if (result != IApplication.EXIT_OK)
-			for (int i = 0; i < args.length; i++)
-				System.out.println(args[i]);
-		return result;
+		try {
+			info = createPublisherInfo();
+			processCommandLineArguments(args, info);
+			Object result = run(info);
+			if (result != IApplication.EXIT_OK)
+				for (int i = 0; i < args.length; i++)
+					System.out.println(args[i]);
+			return result;
+		} catch (Exception e) {
+			if (e.getMessage() != null)
+				System.err.println(e.getMessage());
+			else
+				e.printStackTrace(System.err);
+			throw e;
+		}
 	}
 
 	protected PublisherInfo createPublisherInfo() {
