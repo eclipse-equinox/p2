@@ -32,6 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersio
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.framework.log.FrameworkLog;
+import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -712,12 +713,26 @@ public class DirectorApplication implements IApplication {
 		} catch (CoreException e) {
 			deeplyPrint(e.getStatus(), System.err, 0);
 			logFailure(e.getStatus());
+			//set empty exit data to suppress error dialog from launcher
+			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			return EXIT_ERROR;
 		} finally {
 			if (!printHelpInfo) {
 				cleanupRepositories();
 				restoreServices();
 			}
+		}
+	}
+
+	/**
+	 * Sets a system property, using the EnvironmentInfo service if possible.
+	 */
+	private void setSystemProperty(String key, String value) {
+		EnvironmentInfo env = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		if (env != null) {
+			env.setProperty(key, value);
+		} else {
+			System.getProperties().put(key, value);
 		}
 	}
 
