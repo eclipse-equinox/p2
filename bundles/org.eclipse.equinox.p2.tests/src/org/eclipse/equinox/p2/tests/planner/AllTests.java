@@ -68,6 +68,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MissingOptionalWithDependencies.class);
 		suite.addTestSuite(MissingOptionalWithDependencies2.class);
 		suite.addTestSuite(MissingOptionalWithDependencies3.class);
+		suite.addTestSuite(NonMinimalState.class);
+		suite.addTestSuite(NonMinimalState2.class);
 		suite.addTestSuite(MultipleProvider.class);
 		suite.addTestSuite(MultipleSingleton.class);
 		suite.addTestSuite(NoRequirements.class);

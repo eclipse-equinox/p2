@@ -343,7 +343,7 @@ public class Projector {
 		} else {
 			if (!matches.isEmpty()) {
 				AbstractVariable abs = getAbstractVariable();
-				createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
+				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
 				optionalAbstractRequirements.add(abs);
 			}
 		}
@@ -447,7 +447,7 @@ public class Projector {
 					} else {
 						if (!matches.isEmpty()) {
 							AbstractVariable abs = getAbstractVariable();
-							createImplication(new Object[] {patch, abs}, matches, Explanation.OPTIONAL_REQUIREMENT);
+							createImplication(new Object[] {patch, abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
 							optionalAbstractRequirements.add(abs);
 						}
 					}
@@ -483,7 +483,7 @@ public class Projector {
 						if (!matches.isEmpty()) {
 							AbstractVariable abs = getAbstractVariable();
 							matches.add(patch);
-							createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
+							createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
 							optionalAbstractRequirements.add(abs);
 						}
 					}
@@ -535,7 +535,7 @@ public class Projector {
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
 					AbstractVariable abs = getAbstractVariable();
-					createImplication(abs, matches, Explanation.OPTIONAL_REQUIREMENT);
+					createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
 					optionalAbstractRequirements.add(abs);
 				}
 			}
