@@ -322,7 +322,12 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				continue;
 			}
 
-			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.parseVersion(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
+			IInstallableUnit cu = null;
+			if (this.version != null && !this.version.equals(Version.emptyVersion))
+				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), this.version, false, bundle, flavor + cuIdPrefix, filter);
+			else
+				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.parseVersion(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
+
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
 				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.
