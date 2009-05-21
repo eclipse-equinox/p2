@@ -717,7 +717,7 @@ public class DirectorApplication implements IApplication {
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			return EXIT_ERROR;
 		} finally {
-			if (!printHelpInfo) {
+			if (packageAdminRef != null) {
 				cleanupRepositories();
 				restoreServices();
 			}
