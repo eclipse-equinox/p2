@@ -112,22 +112,25 @@ public class ProvUI {
 							};
 							int ret = dialog.open();
 							if (ret == Window.OK) {
-								ProvUI.startBatchOperation();
-								try {
-									RepositoryManipulator repoMan = repoManipulator;
-									if (repoManipulator == null)
-										repoMan = Policy.getDefault().getRepositoryManipulator();
-									ProvisioningOperation op = repoMan.getRemoveOperation(new URI[] {location});
-									op.execute(null);
-									ProvUI.endBatchOperation(false);
-									op = repoMan.getAddOperation(location);
-									op.execute(null);
-									String nickname = dialog.getName();
-									if (nickname != null && nickname.length() > 0)
-										ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
-								} catch (ProvisionException e) {
-									ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
-									ProvUI.endBatchOperation(true);
+								URI correctedLocation = dialog.getLocation();
+								if (correctedLocation != null) {
+									ProvUI.startBatchOperation();
+									try {
+										RepositoryManipulator repoMan = repoManipulator;
+										if (repoManipulator == null)
+											repoMan = Policy.getDefault().getRepositoryManipulator();
+										ProvisioningOperation op = repoMan.getRemoveOperation(new URI[] {location});
+										op.execute(null);
+										ProvUI.endBatchOperation(false);
+										op = repoMan.getAddOperation(correctedLocation);
+										op.execute(null);
+										String nickname = dialog.getName();
+										if (nickname != null && nickname.length() > 0)
+											ProvisioningUtil.setMetadataRepositoryProperty(correctedLocation, IRepository.PROP_NICKNAME, nickname);
+									} catch (ProvisionException e) {
+										ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+										ProvUI.endBatchOperation(true);
+									}
 								}
 							}
 						}
