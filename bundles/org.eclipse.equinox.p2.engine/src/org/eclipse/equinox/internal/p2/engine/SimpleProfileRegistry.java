@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -18,213 +18,88 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.p2.installregistry.*;
+import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.osgi.framework.Version;
+import org.xml.sax.*;
 
 public class SimpleProfileRegistry implements IProfileRegistry {
-	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
-	
-	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
-	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
-	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
+	private static String STORAGE = "profileRegistry.xml"; //$NON-NLS-1$
 
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
-	private SoftReference profiles;
-	private Map profileLocks = new HashMap();
+	SoftReference profiles;
+
+	OrderedProperties properties = new OrderedProperties();
 
 	private String self;
 
-	//Whether the registry should update the self profile when the registry is restored
-	private boolean updateSelfProfile;
-
-	private File store;
-
-	ISurrogateProfileHandler surrogateProfileHandler;
+	//Whether the registry has been loaded at all in this session
+	private boolean restored = false;
 
 	public SimpleProfileRegistry() {
-		this(null, new SurrogateProfileHandler(), true);
-	}
-
-	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
-		store = (registryDirectory != null) ? registryDirectory : getDefaultRegistryDirectory();
-		surrogateProfileHandler = handler;
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
-		this.updateSelfProfile = updateSelfProfile;
-	}
-
-	private static File getDefaultRegistryDirectory() {
-		File registryDirectory = null;
-		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-		if (agent == null)
-			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
-		try {
-			URL registryURL = new URL(agent.getDataArea(EngineActivator.ID), DEFAULT_STORAGE_DIR);
-			registryDirectory = new File(registryURL.getPath());
-			registryDirectory.mkdirs();
-
-		} catch (MalformedURLException e) {
-			//this is not possible because we know the above URL is valid
-		}
-		return registryDirectory;
 	}
 
 	/**
 	 * If the current profile for self is marked as a roaming profile, we need
 	 * to update its install and bundle pool locations.
 	 */
-	private void updateSelfProfile(Map profileMap) {
+	private void updateRoamingProfile(Map profileMap) {
 		if (profileMap == null)
 			return;
 		Profile selfProfile = (Profile) profileMap.get(self);
 		if (selfProfile == null)
 			return;
-
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateSelfProfile"); //$NON-NLS-1$
-		boolean changed = false;
 		//only update if self is a roaming profile
-		if (Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
-			changed = updateRoamingProfile(selfProfile);
-
-		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(selfProfile))
-			changed = changed || surrogateProfileHandler.updateProfile(selfProfile);
-
-		if (changed)
-			saveProfile(selfProfile);
-	}
-
-	private boolean updateRoamingProfile(Profile selfProfile) {
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile"); //$NON-NLS-1$
+		if (!Boolean.valueOf(selfProfile.getValue(Profile.PROP_ROAMING)).booleanValue())
+			return;
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
-		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
-			selfProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
+		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_INSTALL_FOLDER)))) {
+			selfProfile.setValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
-		String propCache = selfProfile.getProperty(IProfile.PROP_CACHE);
-		if (propCache != null && !location.equals(new File(propCache))) {
-			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
+		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_CACHE)))) {
+			selfProfile.setValue(Profile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile(changed=" + changed + ')'); //$NON-NLS-1$
-		return changed;
+		if (changed)
+			persist();
 	}
 
 	public synchronized String toString() {
-		return getProfileMap().toString();
+		return this.profiles.toString();
 	}
 
-	public synchronized IProfile getProfile(String id) {
-		Profile profile = internalGetProfile(id);
-		if (profile == null)
-			return null;
-		return profile.snapshot();
-	}
-
-	public synchronized IProfile getProfile(String id, long timestamp) {
-		if (SELF.equals(id))
-			id = self;
-
-		if (profiles != null) {
-			IProfile profile = getProfile(id);
-			if (profile != null && profile.getTimestamp() == timestamp)
-				return profile;
-		}
-
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
-		if (!profileDirectory.isDirectory())
-			return null;
-
-		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
-		if (!profileFile.exists())
-			return null;
-
-		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
-		try {
-			parser.parse(profileFile);
-		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
-		}
-		return (IProfile) parser.getProfileMap().get(id);
-	}
-
-	public synchronized long[] listProfileTimestamps(String id) {
-		if (SELF.equals(id))
-			id = self;
-		//guard against null self profile
-		if (id == null)
-			return new long[0];
-
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
-		if (!profileDirectory.isDirectory())
-			return new long[0];
-
-		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
-			}
-		});
-
-		long[] timestamps = new long[profileFiles.length];
-		for (int i = 0; i < profileFiles.length; i++) {
-			String filename = profileFiles[i].getName();
-			int extensionIndex = filename.lastIndexOf(PROFILE_EXT);
-			try {
-				timestamps[i] = Long.parseLong(filename.substring(0, extensionIndex));
-			} catch (NumberFormatException e) {
-				throw new IllegalStateException("Incompatible profile file name. Expected format is {timestamp}" + PROFILE_EXT + " but was " + filename + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			}
-		}
-		Arrays.sort(timestamps);
-		return timestamps;
-	}
-
-	private Profile internalGetProfile(String id) {
+	public synchronized Profile getProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
 		Profile profile = (Profile) getProfileMap().get(id);
-		if (profile == null && self != null && self.equals(id))
-			profile = createSurrogateProfile(id);
-
-		return profile;
-	}
-
-	private Profile createSurrogateProfile(String id) {
-		if (surrogateProfileHandler == null)
-			return null;
-
-		Profile profile = (Profile) surrogateProfileHandler.createProfile(id);
 		if (profile == null)
 			return null;
-
-		saveProfile(profile);
-		resetProfiles();
-		return (Profile) getProfileMap().get(id);
+		return copyProfile(profile);
 	}
 
-	public synchronized IProfile[] getProfiles() {
+	public synchronized Profile[] getProfiles() {
 		Map profileMap = getProfileMap();
 		Profile[] result = new Profile[profileMap.size()];
 		int i = 0;
 		for (Iterator it = profileMap.values().iterator(); it.hasNext(); i++) {
 			Profile profile = (Profile) it.next();
-			result[i] = profile.snapshot();
+			result[i] = copyProfile(profile);
 		}
 		return result;
 	}
@@ -242,106 +117,96 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (result == null)
 			result = new LinkedHashMap(8);
 		profiles = new SoftReference(result);
-		if (updateSelfProfile) {
-			//update self profile on first load
-			updateSelfProfile(result);
-		}
 		return result;
 	}
 
-	public synchronized void updateProfile(Profile profile) {
-		String id = profile.getProfileId();
-		Profile current = internalGetProfile(id);
-		if (current == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_does_not_exist, id));
-
-		ProfileLock lock = (ProfileLock) profileLocks.get(id);
-		lock.checkLocked();
-
-		current.clearLocalProperties();
-		current.clearInstallableUnits();
-
-		current.addProperties(profile.getLocalProperties());
-		Collector collector = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
-		for (Iterator collectorIt = collector.iterator(); collectorIt.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) collectorIt.next();
-			current.addInstallableUnit(iu);
-			Map iuProperties = profile.getInstallableUnitProperties(iu);
-			if (iuProperties != null)
-				current.addInstallableUnitProperties(iu, iuProperties);
-		}
-		saveProfile(current);
-		profile.clearOrphanedInstallableUnitProperties();
-		profile.setTimestamp(current.getTimestamp());
-		broadcastChangeEvent(id, ProfileEvent.CHANGED);
+	public synchronized void updateProfile(Profile toUpdate) {
+		String id = toUpdate.getProfileId();
+		if (SELF.equals(id))
+			id = self;
+		Map profileMap = getProfileMap();
+		if (profileMap.get(id) == null)
+			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
+		doUpdateProfile(toUpdate, profileMap);
+		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}
 
-	public IProfile addProfile(String id) throws ProvisionException {
-		return addProfile(id, null, null);
-	}
-
-	public IProfile addProfile(String id, Map profileProperties) throws ProvisionException {
-		return addProfile(id, profileProperties, null);
-	}
-
-	public synchronized IProfile addProfile(String id, Map profileProperties, String parentId) throws ProvisionException {
+	public synchronized void addProfile(Profile toAdd) throws IllegalArgumentException {
+		if (isNamedSelf(toAdd))
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toAdd.getProfileId()));
+		String id = toAdd.getProfileId();
 		if (SELF.equals(id))
 			id = self;
 		Map profileMap = getProfileMap();
 		if (profileMap.get(id) != null)
-			throw new ProvisionException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
-
-		Profile parent = null;
-		if (parentId != null) {
-			if (SELF.equals(parentId))
-				parentId = self;
-			parent = (Profile) profileMap.get(parentId);
-			if (parent == null)
-				throw new ProvisionException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
-		}
-
-		Profile profile = new Profile(id, parent, profileProperties);
-		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
-			profile.setSurrogateProfileHandler(surrogateProfileHandler);
-		profileMap.put(id, profile);
-		saveProfile(profile);
-		broadcastChangeEvent(id, ProfileEvent.ADDED);
-		return profile.snapshot();
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+		doUpdateProfile(toAdd, profileMap);
+		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 	}
 
-	public synchronized void removeProfile(String profileId) {
-		if (SELF.equals(profileId))
-			profileId = self;
-		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
-		Map profileMap = getProfileMap();
-		Profile profile = (Profile) profileMap.get(profileId);
-		if (profile == null)
+	private void doUpdateProfile(Profile toUpdate, Map profileMap) {
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
 			return;
 
-		String[] subProfileIds = profile.getSubProfileIds();
-		for (int i = 0; i < subProfileIds.length; i++) {
-			removeProfile(subProfileIds[i]);
-		}
-		internalLockProfile(profile);
-		// The above call recursively locked the parent(s). So save it away to rewind the locking process.
-		IProfile savedParent = profile.getParentProfile();
-		try {
-			profile.setParent(null);
-		} finally {
-			internalUnlockProfile(profile);
-			// The above call will not recurse since parent is now null. So do it explicitly.
-			if (savedParent != null) {
-				internalUnlockProfile(savedParent);
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.createProfileInstallRegistry(toUpdate.getProfileId());
+		Iterator it = toUpdate.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		while (it.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			profileInstallRegistry.addInstallableUnits(iu);
+			OrderedProperties iuProperties = toUpdate.getInstallableUnitProfileProperties(iu);
+			for (Iterator propIt = iuProperties.entrySet().iterator(); propIt.hasNext();) {
+				Entry propertyEntry = (Entry) propIt.next();
+				String key = (String) propertyEntry.getKey();
+				String value = (String) propertyEntry.getValue();
+				profileInstallRegistry.setInstallableUnitProfileProperty(iu, key, value);
 			}
 		}
-		profileMap.remove(profileId);
-		profileLocks.remove(profileId);
-		deleteProfile(profileId);
-		broadcastChangeEvent(profileId, ProfileEvent.REMOVED);
+
+		profileMap.put(toUpdate.getProfileId(), copyProfile(toUpdate));
+		// TODO: persists should be grouped some way to ensure they are consistent
+		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
+		persist();
 	}
 
-	private void broadcastChangeEvent(String profileId, byte reason) {
-		((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
+	public synchronized void removeProfile(Profile toRemove) {
+		if (isNamedSelf(toRemove))
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toRemove.getProfileId()));
+
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			return;
+
+		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
+		Map profileMap = getProfileMap();
+		if (profileMap.remove(toRemove.getProfileId()) == null)
+			return;
+		installRegistry.removeProfileInstallRegistry(toRemove.getProfileId());
+		persist();
+		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
+	}
+
+	private Profile copyProfile(Profile profile) {
+		Profile parent = profile.getParentProfile();
+		if (parent != null)
+			parent = copyProfile(parent);
+
+		Profile copy = new Profile(profile.getProfileId(), parent, profile.getProperties());
+		return copy;
+	}
+
+	private void broadcastChangeEvent(Profile profile, byte reason) {
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profile, reason));
+	}
+
+	private URL getRegistryLocation() {
+		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+		try {
+			return new URL(agent.getDataArea(EngineActivator.ID), STORAGE);
+		} catch (MalformedURLException e) {
+			//this is not possible because we know the above URL is valid
+		}
+		return null;
 	}
 
 	/**
@@ -349,163 +214,117 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * Returns <code>null</code> if unable to read the registry.
 	 */
 	private Map restore() {
-		if (store == null || !store.isDirectory())
-			throw new IllegalStateException(Messages.reg_dir_not_available);
-
-		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
-		File[] profileDirectories = store.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory();
-			}
-		});
-		for (int i = 0; i < profileDirectories.length; i++) {
-			String directoryName = profileDirectories[i].getName();
-			String profileId = unescape(directoryName.substring(0, directoryName.lastIndexOf(PROFILE_EXT)));
-			ProfileLock lock = (ProfileLock) profileLocks.get(profileId);
-			if (lock == null) {
-				lock = new ProfileLock(this, profileDirectories[i]);
-				profileLocks.put(profileId, lock);
-			}
-
-			boolean locked = false;
-			if (lock.processHoldsLock() || (locked = lock.lock())) {
-				try {
-					File profileFile = findLatestProfileFile(profileDirectories[i]);
-					if (profileFile != null) {
-						try {
-							parser.parse(profileFile);
-						} catch (IOException e) {
-							LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
-						}
-					}
-				} finally {
-					if (locked)
-						lock.unlock();
-				}
-			} else {
-				// could not lock the profile, so add a place holder
-				parser.addProfilePlaceHolder(profileId);
-			}
-		}
-		return parser.getProfileMap();
-	}
-
-	private File findLatestProfileFile(File profileDirectory) {
-		File latest = null;
-		long latestTimestamp = 0;
-		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && !pathname.isDirectory();
-			}
-		});
-		for (int i = 0; i < profileFiles.length; i++) {
-			File profileFile = profileFiles[i];
-			String fileName = profileFile.getName();
-			try {
-				long timestamp = Long.parseLong(fileName.substring(0, fileName.indexOf(PROFILE_EXT)));
-				if (timestamp > latestTimestamp) {
-					latestTimestamp = timestamp;
-					latest = profileFile;
-				}
-			} catch (NumberFormatException e) {
-				// ignore
-			}
-		}
-		return latest;
-	}
-
-	private void saveProfile(Profile profile) {
-		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
-		profileDirectory.mkdir();
-
-		long previousTimestamp = profile.getTimestamp();
-		long currentTimestamp = System.currentTimeMillis();
-		if (currentTimestamp <= previousTimestamp)
-			currentTimestamp = previousTimestamp + 1;
-		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
-
-		// Log a stack trace to see who is writing the profile.
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-			DebugHelper.debug(PROFILE_REGISTRY, "Saving profile to: " + profileFile.getAbsolutePath()); //$NON-NLS-1$
-
-		profile.setTimestamp(currentTimestamp);
-		profile.setChanged(false);
-		OutputStream os = null;
+		Map loadedMap = null;
 		try {
-			os = new BufferedOutputStream(new FileOutputStream(profileFile));
-			Writer writer = new Writer(os);
-			writer.writeProfile(profile);
-		} catch (IOException e) {
-			profile.setTimestamp(previousTimestamp);
-			profileFile.delete();
-			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_persisting_profile, profile.getProfileId()), e));
-		} finally {
+			BufferedInputStream bif = null;
 			try {
-				if (os != null)
-					os.close();
-			} catch (IOException e) {
-				// ignore
+				bif = new BufferedInputStream(getRegistryLocation().openStream());
+				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
+				parser.parse(bif);
+				loadedMap = parser.getProfileMap();
+				IStatus result = parser.getStatus();
+				if (!result.isOK())
+					LogHelper.log(result);
+			} finally {
+				if (bif != null)
+					bif.close();
 			}
-		}
-	}
-
-	private void deleteProfile(String profileId) {
-		File profileDirectory = new File(store, escape(profileId) + PROFILE_EXT);
-		FileUtils.deleteAll(profileDirectory);
-	}
-
-	/**
-	 * Converts a profile id into a string that can be used as a file name in any file system.
-	 */
-	public static String escape(String toEscape) {
-		StringBuffer buffer = new StringBuffer();
-		int length = toEscape.length();
-		for (int i = 0; i < length; ++i) {
-			char ch = toEscape.charAt(i);
-			switch (ch) {
-				case '\\' :
-				case '/' :
-				case ':' :
-				case '*' :
-				case '?' :
-				case '"' :
-				case '<' :
-				case '>' :
-				case '|' :
-				case '%' :
-					buffer.append("%" + (int) ch + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-					break;
-				default :
-					buffer.append(ch);
+			if (!restored) {
+				//update roaming profile on first load
+				restored = true;
+				updateRoamingProfile(loadedMap);
 			}
+		} catch (FileNotFoundException e) {
+			//This is ok.
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error restoring profile registry", e)); //$NON-NLS-1$
 		}
-		return buffer.toString();
+		return loadedMap;
 	}
 
-	public static String unescape(String text) {
-		if (text.indexOf('%') == -1)
-			return text;
-
-		StringBuffer buffer = new StringBuffer();
-		int length = text.length();
-		for (int i = 0; i < length; ++i) {
-			char ch = text.charAt(i);
-			if (ch == '%') {
-				int colon = text.indexOf(';', i);
-				if (colon == -1)
-					throw new IllegalStateException("error unescaping the sequence at character (" + i + ") for " + text + ". Expected %{int};."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				ch = (char) Integer.parseInt(text.substring(i + 1, colon));
-				i = colon;
+	private void persist() {
+		OutputStream os;
+		try {
+			Location agent = (Location) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+			if (agent == null) {
+				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Unable to persist profile registry due to missing AgentLocation")); //$NON-NLS-1$
+				return;
 			}
-			buffer.append(ch);
+			URL registryLocation = getRegistryLocation();
+			if (!registryLocation.getProtocol().equals("file")) //$NON-NLS-1$
+				throw new IOException(NLS.bind(Messages.SimpleProfileRegistry_Persist_To_Non_File_URL_Error, registryLocation));
+
+			File outputFile = new File(registryLocation.toExternalForm().substring(5));
+			if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
+				throw new RuntimeException(NLS.bind(Messages.SimpleProfileRegistry_Cannot_Create_File_Error, outputFile));
+			os = new BufferedOutputStream(new FileOutputStream(outputFile));
+			try {
+				Writer writer = new Writer(os);
+				writer.write(this);
+			} finally {
+				os.close();
+			}
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile registry", e)); //$NON-NLS-1$
 		}
-		return buffer.toString();
+
 	}
 
-	static class Writer extends ProfileWriter {
+	private boolean isNamedSelf(Profile p) {
+		if (SELF.equals(p.getParentProfile()))
+			return true;
+		return false;
+	}
+
+	public synchronized Map getProperties() {
+		return properties;
+	}
+
+	public synchronized String getProperty(String key) {
+		return properties.getProperty(key);
+	}
+
+	public synchronized void setProperty(String key, String value) {
+		properties.setProperty(key, value);
+	}
+
+	public synchronized void removeProperty(String key) {
+		properties.remove(key);
+	}
+
+	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
+
+		// Constants defining the structure of the XML for a SimpleProfileRegistry
+
+		// A format version number for simple profile registry XML.
+		public static final Version CURRENT_VERSION = new Version(0, 0, 2);
+		public static final Version COMPATIBLE_VERSION = new Version(0, 0, 1);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+
+		// Constants for processing instructions
+		public static final String PI_REPOSITORY_TARGET = "profileRegistry"; //$NON-NLS-1$
+		public static XMLWriter.ProcessingInstruction[] PI_DEFAULTS = new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeClassVersionInstruction(PI_REPOSITORY_TARGET, SimpleProfileRegistry.class, CURRENT_VERSION)};
+
+		// Constants for profile registry elements
+		public static final String REGISTRY_ELEMENT = "profileRegistry"; //$NON-NLS-1$
+
+	}
+
+	protected class Writer extends ProfileWriter implements XMLConstants {
 
 		public Writer(OutputStream output) throws IOException {
-			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TARGET, ProfileXMLConstants.CURRENT_VERSION)});
+			super(output, PI_DEFAULTS);
+		}
+
+		/**
+		 * Write the given SimpleProfileRegistry to the output stream.
+		 */
+		public void write(SimpleProfileRegistry registry) {
+			start(REGISTRY_ELEMENT);
+			writeProperties(registry.getProperties());
+			writeProfiles(registry.getProfiles());
+			end(REGISTRY_ELEMENT);
+			flush();
 		}
 	}
 
@@ -513,19 +332,15 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * 	Parser for the contents of a SimpleProfileRegistry,
 	 * 	as written by the Writer class.
 	 */
-	class Parser extends ProfileParser {
-		private final Map profileHandlers = new HashMap();
+	private class Parser extends ProfileParser implements XMLConstants {
+		Map profileMap = new LinkedHashMap(8);
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
 		}
 
-		public void addProfilePlaceHolder(String profileId) {
-			profileHandlers.put(profileId, new ProfileHandler(profileId));
-		}
-
 		public void parse(File file) throws IOException {
-			parse(new BufferedInputStream(new FileInputStream(file)));
+			parse(new FileInputStream(file));
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {
@@ -534,10 +349,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
 				getParser();
-				ProfileHandler profileHandler = new ProfileHandler();
-				xmlReader.setContentHandler(new ProfileDocHandler(PROFILE_ELEMENT, profileHandler));
+				RegistryHandler registryHandler = new RegistryHandler();
+				xmlReader.setContentHandler(new ProfileRegistryDocHandler(REGISTRY_ELEMENT, registryHandler));
 				xmlReader.parse(new InputSource(stream));
-				profileHandlers.put(profileHandler.getProfileId(), profileHandler);
 			} catch (SAXException e) {
 				throw new IOException(e.getMessage());
 			} catch (ParserConfigurationException e) {
@@ -548,69 +362,79 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		protected Object getRootObject() {
-			return this;
+			return SimpleProfileRegistry.this;
 		}
 
-		public Map getProfileMap() {
-			Map profileMap = new HashMap();
-			for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
-				String profileId = (String) it.next();
-				addProfile(profileId, profileMap);
-			}
+		/**
+		 * Returns the map of profiles that was parsed.
+		 */
+		protected Map getProfileMap() {
 			return profileMap;
 		}
 
-		private void addProfile(String profileId, Map profileMap) {
-			if (profileMap.containsKey(profileId))
-				return;
+		private final class ProfileRegistryDocHandler extends DocHandler {
 
-			ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
-			Profile parentProfile = null;
-
-			String parentId = profileHandler.getParentId();
-			if (parentId != null) {
-				addProfile(parentId, profileMap);
-				parentProfile = (Profile) profileMap.get(parentId);
-			}
-
-			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
-			if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
-				profile.setSurrogateProfileHandler(surrogateProfileHandler);
-
-			profile.setTimestamp(profileHandler.getTimestamp());
-
-			IInstallableUnit[] ius = profileHandler.getInstallableUnits();
-			if (ius != null) {
-				for (int i = 0; i < ius.length; i++) {
-					IInstallableUnit iu = ius[i];
-					profile.addInstallableUnit(iu);
-					Map iuProperties = profileHandler.getIUProperties(iu);
-					if (iuProperties != null) {
-						for (Iterator it = iuProperties.entrySet().iterator(); it.hasNext();) {
-							Entry entry = (Entry) it.next();
-							String key = (String) entry.getKey();
-							String value = (String) entry.getValue();
-							profile.setInstallableUnitProperty(iu, key, value);
-						}
-					}
-				}
-			}
-			profile.setChanged(false);
-			profileMap.put(profileId, profile);
-		}
-
-		private final class ProfileDocHandler extends DocHandler {
-
-			public ProfileDocHandler(String rootName, RootHandler rootHandler) {
+			public ProfileRegistryDocHandler(String rootName, RootHandler rootHandler) {
 				super(rootName, rootHandler);
 			}
 
-			public void processingInstruction(String target, String data) throws SAXException {
-				if (ProfileXMLConstants.PROFILE_TARGET.equals(target)) {
+			public void ProcessingInstruction(String target, String data) throws SAXException {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
+					// TODO: should the root handler be constructed based on class
+					// 		 via an extension registry mechanism?
+					// String clazz = extractPIClass(data);
+					// and
+					// TODO: version tolerance by extension
 					Version repositoryVersion = extractPIVersion(target, data);
-					if (!ProfileXMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {
-						throw new SAXException(NLS.bind(Messages.SimpleProfileRegistry_Parser_Has_Incompatible_Version, repositoryVersion, ProfileXMLConstants.XML_TOLERANCE));
+					if (!XMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {
+						throw new SAXException(NLS.bind(Messages.SimpleProfileRegistry_Parser_Has_Incompatible_Version, repositoryVersion, XMLConstants.XML_TOLERANCE));
 					}
+				}
+			}
+
+		}
+
+		private final class RegistryHandler extends RootHandler {
+
+			private ProfilesHandler profilesHandler = null;
+			private PropertiesHandler propertiesHandler = null;
+
+			public RegistryHandler() {
+				super();
+			}
+
+			protected void handleRootAttributes(Attributes attributes) {
+				parseRequiredAttributes(attributes, noAttributes);
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (PROPERTIES_ELEMENT.equals(name)) {
+					if (propertiesHandler == null) {
+						propertiesHandler = new PropertiesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else if (PROFILES_ELEMENT.equals(name)) {
+					if (profilesHandler == null) {
+						profilesHandler = new ProfilesHandler(this, attributes, null /*no parent*/);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+
+			protected void finished() {
+				if (isValidXML()) {
+					Profile[] profyles = (profilesHandler == null ? new Profile[0] //
+							: profilesHandler.getProfiles());
+					for (int i = 0; i < profyles.length; i++) {
+						Profile nextProfile = profyles[i];
+						profileMap.put(nextProfile.getProfileId(), nextProfile);
+					}
+					properties = (propertiesHandler == null ? new OrderedProperties(0) //
+							: propertiesHandler.getProperties());
 				}
 			}
 		}
@@ -624,157 +448,5 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return null;
 		}
 
-	}
-
-	public synchronized boolean isCurrent(IProfile profile) {
-		Profile internalProfile = internalGetProfile(profile.getProfileId());
-		if (internalProfile == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
-
-		if (!internalLockProfile(internalProfile))
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
-
-		try {
-			return (!((Profile) profile).isChanged() && checkTimestamps(profile, internalProfile));
-		} finally {
-			internalUnlockProfile(internalProfile);
-		}
-	}
-
-	public synchronized void lockProfile(Profile profile) {
-		Profile internalProfile = internalGetProfile(profile.getProfileId());
-		if (internalProfile == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
-
-		if (!internalLockProfile(internalProfile))
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
-
-		boolean isCurrent = false;
-		try {
-			if (profile.isChanged()) {
-				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-					DebugHelper.debug(PROFILE_REGISTRY, "Profile is marked as changed."); //$NON-NLS-1$
-				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
-			}
-			if (!checkTimestamps(profile, internalProfile)) {
-				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-					DebugHelper.debug(PROFILE_REGISTRY, "Unexpected timestamp difference in profile."); //$NON-NLS-1$
-				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
-			}
-			isCurrent = true;
-		} finally {
-			// this check is done here to ensure we unlock even if a runtime exception is thrown
-			if (!isCurrent)
-				internalUnlockProfile(internalProfile);
-		}
-	}
-
-	private boolean internalLockProfile(IProfile profile) {
-		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
-		if (lock == null) {
-			lock = new ProfileLock(this, new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
-			profileLocks.put(profile.getProfileId(), lock);
-		}
-		if (!lock.lock())
-			return false;
-
-		if (profile.getParentProfile() == null)
-			return true;
-
-		boolean locked = false;
-		try {
-			locked = internalLockProfile(profile.getParentProfile());
-		} finally {
-			// this check is done here to ensure we unlock even if a runtime exception is thrown
-			if (!locked)
-				lock.unlock();
-		}
-		return locked;
-	}
-
-	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
-		long[] timestamps = listProfileTimestamps(profile.getProfileId());
-		if (timestamps.length == 0) {
-			if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-				DebugHelper.debug(PROFILE_REGISTRY, "check timestamp: expected " + profile.getTimestamp() + " but no profiles were found"); //$NON-NLS-1$ //$NON-NLS-2$
-			resetProfiles();
-			return false;
-		}
-
-		long currentTimestamp = (timestamps.length == 0) ? -1 : timestamps[timestamps.length - 1];
-		if (profile.getTimestamp() != currentTimestamp) {
-			if (DebugHelper.DEBUG_PROFILE_REGISTRY)
-				DebugHelper.debug(PROFILE_REGISTRY, "check timestamp: expected " + profile.getTimestamp() + " but was " + currentTimestamp); //$NON-NLS-1$ //$NON-NLS-2$
-			if (internalProfile.getTimestamp() != currentTimestamp)
-				resetProfiles();
-			return false;
-		}
-
-		if (profile.getParentProfile() != null)
-			return checkTimestamps(profile.getParentProfile(), internalProfile.getParentProfile());
-
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry#containsProfile(java.lang.String)
-	 */
-	public synchronized boolean containsProfile(String id) {
-		if (SELF.equals(id))
-			id = self;
-		//null check done after self check, because self can be null
-		if (id == null)
-			return false;
-
-		// check profiles to avoid restoring the profile registry
-		if (profiles != null)
-			if (getProfile(id) != null)
-				return true;
-
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
-		if (!profileDirectory.isDirectory())
-			return false;
-		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
-			}
-		});
-		return profileFiles.length > 0;
-	}
-
-	public synchronized void resetProfiles() {
-		profiles = null;
-	}
-
-	public synchronized void unlockProfile(IProfile profile) {
-		Profile internalProfile = internalGetProfile(profile.getProfileId());
-		if (internalProfile == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
-		internalUnlockProfile(internalProfile);
-	}
-
-	private void internalUnlockProfile(IProfile profile) {
-		if (profile.getParentProfile() != null)
-			internalUnlockProfile(profile.getParentProfile());
-
-		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
-		lock.unlock();
-	}
-
-	public Profile validate(IProfile candidate) {
-		if (candidate instanceof Profile)
-			return (Profile) candidate;
-
-		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-	}
-
-	public synchronized File getProfileDataDirectory(String id) {
-		if (SELF.equals(id))
-			id = self;
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
-		File profileDataArea = new File(profileDirectory, DATA_EXT);
-		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
-			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + id); //$NON-NLS-1$ //$NON-NLS-2$
-		return profileDataArea;
 	}
 }
