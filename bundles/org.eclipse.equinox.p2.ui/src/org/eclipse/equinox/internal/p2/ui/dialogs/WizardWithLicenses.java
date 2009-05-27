@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     David Dubrow <david.dubrow@nokia.com> - Bug 276356 [ui] check the wizard and page completion logic for AcceptLicensesWizardPage
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -17,7 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWiza
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Common superclass for wizards that need to show licenses.
@@ -44,6 +47,14 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 			if (licensePage == null) {
 				licensePage = createLicensesPage(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionPage.getCurrentPlan());
 				addPage(licensePage);
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						IWizardContainer container = getContainer();
+						if (container != null)
+							container.updateButtons();
+					}
+				});
+
 			}
 			if (licensePage.hasLicensesToAccept()) {
 				return licensePage;

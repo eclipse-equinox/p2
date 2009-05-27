@@ -68,6 +68,9 @@ public class InstallWizardTest extends WizardTest {
 			// license needs approval
 			assertFalse("1.1", wizard.canFinish());
 			// finish button should be disabled
+			while (dialog.getShell().getDisplay().readAndDispatch()) {
+				// run event loop
+			}
 			Button finishButton = dialog.testGetButton(IDialogConstants.FINISH_ID);
 			assertFalse("1.2", finishButton.isEnabled());
 		} finally {

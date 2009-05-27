@@ -29,7 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -127,6 +127,9 @@ public class UpdateWizardTest extends WizardTest {
 			// license needs approval
 			assertFalse("1.1", wizard.canFinish());
 			// finish button should be disabled
+			while (dialog.getShell().getDisplay().readAndDispatch()) {
+				// run event loop
+			}
 			Button finishButton = dialog.testGetButton(IDialogConstants.FINISH_ID);
 			assertFalse("1.2", finishButton.isEnabled());
 		} finally {
@@ -220,4 +223,55 @@ public class UpdateWizardTest extends WizardTest {
 			dialog.getShell().close();
 		}
 	}
+
+	/**
+	 * Tests the wizard when multiple versions are available.
+	 */
+	public void testBug277554MultipleVersions() throws ProvisionException {
+		IUElementListRoot root = new IUElementListRoot();
+		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
+		AvailableUpdateElement element2 = new AvailableUpdateElement(root, mainUpgrade2, main, TESTPROFILE, true);
+		root.setChildren(new Object[] {element, element2});
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.removeInstallableUnits(new IInstallableUnit[] {main});
+		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade2});
+		PlannerResolutionOperation op = getResolvedOperation(request);
+		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element2}, op, null);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+
+		try {
+			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			// should already have a plan
+			assertTrue("1.0", page1.isPageComplete());
+			assertEquals("1.1", page1.getCheckedIUElements().length, 1);
+			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
+			dialog.showPage(page2);
+			// should only have one root item in the resolution page
+			assertEquals("1.2", 1, findTree(page2).getItemCount());
+		} finally {
+			dialog.getShell().close();
+		}
+	}
+
+	protected Tree findTree(ResolutionResultsWizardPage page) {
+		return findTree(page.getControl());
+	}
+
+	protected Tree findTree(Control control) {
+		if (control instanceof Tree)
+			return (Tree) control;
+		if (control instanceof Composite) {
+			Control[] children = ((Composite) control).getChildren();
+			for (int i = 0; i < children.length; i++) {
+				Tree tree = findTree(children[i]);
+				if (tree != null)
+					return tree;
+			}
+
+		}
+		return null;
+	}
+
 }
