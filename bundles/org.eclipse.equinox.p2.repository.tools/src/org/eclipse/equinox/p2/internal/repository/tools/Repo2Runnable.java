@@ -111,10 +111,11 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 */
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor progress = SubMonitor.convert(monitor, 4);
-		// ensure all the right parameters are set
-		validate();
 
 		initializeRepos(progress);
+
+		// ensure all the right parameters are set
+		validate();
 
 		// figure out which IUs we need to process
 		collectIUs(progress.newChild(1));
