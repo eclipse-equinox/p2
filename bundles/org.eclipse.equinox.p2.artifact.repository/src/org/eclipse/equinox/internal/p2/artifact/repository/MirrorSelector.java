@@ -124,8 +124,12 @@ public class MirrorSelector {
 	 */
 	private MirrorInfo[] computeMirrors(String mirrorsURL, IProgressMonitor monitor) {
 		try {
-			String countryCode = Locale.getDefault().getCountry().toLowerCase();
-			int timeZone = (new GregorianCalendar()).get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000);
+			String countryCode = Activator.getContext().getProperty("eclipse.p2.countryCode"); //$NON-NLS-1$
+			if (countryCode == null || countryCode.trim().length() == 0)
+				countryCode = Locale.getDefault().getCountry().toLowerCase();
+			String timeZone = Activator.getContext().getProperty("eclipse.p2.timeZone"); //$NON-NLS-1$
+			if (timeZone == null || timeZone.trim().length() == 0)
+				timeZone = Integer.toString(new GregorianCalendar().get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000));
 
 			if (mirrorsURL.indexOf('?') != -1) {
 				mirrorsURL = mirrorsURL + '&';
