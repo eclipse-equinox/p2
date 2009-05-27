@@ -100,23 +100,24 @@ public class BundlesAction extends AbstractPublisherAction {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
-	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version hostVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
+	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
 
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = configurationFlavor + hostId;
 		cu.setId(configUnitId);
-		cu.setVersion(hostVersion);
+		cu.setVersion(cuVersion);
 
 		//Indicate the IU to which this CU apply
+		Version hostVersion = Version.parseVersion(configInfo.getVersion());
 		cu.setHost(new IRequiredCapability[] { //
 				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), //
 						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, hostVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -22,8 +22,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -283,6 +282,33 @@ public class ProductActionTest extends ActionTest {
 
 		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
+	}
+
+	public void testCUsHost() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String linuxConfigSpec = AbstractPublisherAction.createConfigSpec("gtk", "linux", "x86");
+		info.setConfigurations(getArrayFromString(linuxConfigSpec, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId("org.eclipse.core.runtime");
+		iuDescription.setVersion(Version.create("4.0.0")); // Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
+		iuDescription.setFilter("(osgi.os=linux)"); //filter is different from linuxConfigSpec, but will still match
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
+
+		results.addIU(iu, IPublisherResult.NON_ROOT);
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		assertEquals("1.0", 1, collector.size());
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) collector.iterator().next();
+		assertEquals("1.1", "org.eclipse.core.runtime", fragment.getHost()[0].getName());
+		assertEquals("1.2", Version.create("4.0.0"), fragment.getHost()[0].getRange().getMinimum());
+		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
+
 	}
 
 	public void testCUNoHost() throws Exception {
