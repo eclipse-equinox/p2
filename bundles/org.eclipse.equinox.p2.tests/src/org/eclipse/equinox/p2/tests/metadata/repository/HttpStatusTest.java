@@ -72,6 +72,12 @@ public class HttpStatusTest extends ServerBasedTestCase {
 		runSequence(511, 601);
 	}
 
+	public void testMultipleChoiceCode() throws ProvisionException, Exception {
+		AllServerTests.setServiceUI(new AladdinNotSavedService());
+		// undefined HTTP response codes.
+		runSequence(300, 300);
+	}
+
 	private void runSequence(int from, int to) throws Exception {
 		for (int i = from; i <= to; i++) {
 			setUpRepo(super.getBaseURL() + "/status/" + Integer.valueOf(i).toString());
@@ -101,6 +107,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 						assertEquals("Expected Provision Exception code for: " + Integer.valueOf(i), //
 								ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, status.getCode());
 						break;
+					case 300 : // fall through
 					case 404 : // Does not use the HTTP message.
 						// No need to test the message text - any error would be discovered immediately
 						// in the UI anyway.
