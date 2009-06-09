@@ -143,9 +143,11 @@ public class UpdateManagerCompatibility {
 		} catch (IOException e) {
 			logFail(e);
 		} finally {
-			writer.println("</bookmarks>"); //$NON-NLS-1$
-			writer.flush();
-			writer.close();
+			if (writer != null) {
+				writer.println("</bookmarks>"); //$NON-NLS-1$
+				writer.flush();
+				writer.close();
+			}
 			try {
 				if (osw != null)
 					osw.close();
