@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,8 @@ import org.eclipse.osgi.framework.eventmgr.*;
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
 public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus {
-	private CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
-	private CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
+	private final CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
+	private final CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
 	private Object dispatchEventLock = new Object();
@@ -53,15 +53,11 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	public void removeListener(ProvisioningListener toRemove) {
 		if (toRemove instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
-				if (syncListeners != null) {
-					syncListeners.remove(toRemove);
-				}
+				syncListeners.remove(toRemove);
 			}
 		} else {
 			synchronized (asyncListeners) {
-				if (asyncListeners != null) {
-					asyncListeners.remove(toRemove);
-				}
+				asyncListeners.remove(toRemove);
 			}
 		}
 	}
