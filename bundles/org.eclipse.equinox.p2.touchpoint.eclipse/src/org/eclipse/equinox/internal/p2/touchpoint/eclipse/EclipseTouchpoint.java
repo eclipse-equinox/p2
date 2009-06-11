@@ -32,7 +32,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"ln", "mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
 
 	private static Map manipulators = new WeakHashMap();

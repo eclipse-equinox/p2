@@ -30,6 +30,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(InstallBundleActionTest.class);
 		suite.addTestSuite(InstallFeatureActionTest.class);
 		suite.addTestSuite(JVMArgumentActionLogicTest.class);
+		suite.addTestSuite(LinkActionTest.class);
 		suite.addTestSuite(MarkStartedActionTest.class);
 		suite.addTestSuite(RemoveJVMArgumentActionTest.class);
 		suite.addTestSuite(RemoveProgramArgumentActionTest.class);
