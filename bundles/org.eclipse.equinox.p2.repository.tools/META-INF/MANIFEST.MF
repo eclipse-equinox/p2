@@ -10,7 +10,6 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
 Import-Package: org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.p2.artifact.mirror,
  org.eclipse.equinox.internal.p2.artifact.repository,
- org.eclipse.equinox.internal.p2.artifact.repository.ant,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
@@ -32,7 +31,6 @@ Import-Package: org.eclipse.equinox.app;version="1.0.0",
  org.osgi.framework;version="1.5.0",
  org.osgi.service.packageadmin;version="1.2.0"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
-Export-Package: org.eclipse.equinox.p2.internal.repository.tools;x-internal:=true,
- org.eclipse.equinox.p2.internal.repository.tools.tasks;x-internal:=true
+Export-Package: org.eclipse.equinox.p2.internal.repository.tools;x-internal:=true
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
