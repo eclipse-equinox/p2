@@ -143,7 +143,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = URIUtil.fromString(parameter);
 
-			if (arg.equalsIgnoreCase("-artifactRepository") | arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (arg.equalsIgnoreCase("-artifactRepository") || arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactLocation = URIUtil.fromString(parameter);
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Repository location (" + parameter + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
