@@ -1,36 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.equinox.p2.agent.feature"
-      label="%featureName"
-      provider-name="%providerName"
+      label="Equinox p2 Agent"
       version="1.0.100.qualifier">
 
-   <description>
-      %description
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
    </description>
 
-   <copyright>
-      %copyright
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
    </copyright>
 
-   <license url="%licenseURL">
-      %license
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
    </license>
 
-
    <requires>
-      <import plugin="org.eclipse.ecf" version="3.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.filetransfer" version="3.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.identity" version="3.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer" version="3.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.ssl" version="1.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.ssl" version="1.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient" version="3.0.0.v20090505-1437" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" version="1.0.0.v20090505-1437" match="compatible"/>
+      <import plugin="org.eclipse.ecf" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.filetransfer" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.identity" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.ssl" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.ssl" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient" version="3.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" version="1.0.0" match="compatible"/>
       <import plugin="org.apache.commons.codec" version="1.3.0" match="compatible"/>
       <import plugin="org.apache.commons.httpclient" version="3.1.0" match="compatible"/>
    </requires>
-   
+
    <plugin
          id="org.eclipse.equinox.p2.director"
          download-size="0"
@@ -222,13 +220,6 @@
 
    <plugin
          id="org.eclipse.equinox.p2.repository"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.security.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
