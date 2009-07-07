@@ -212,10 +212,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private MirrorSelector mirrors;
 
 	static void delete(File toDelete) {
-		if (toDelete.isFile()) {
-			toDelete.delete();
-			return;
-		}
 		if (toDelete.isDirectory()) {
 			File[] children = toDelete.listFiles();
 			if (children != null) {
@@ -223,8 +219,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					delete(children[i]);
 				}
 			}
-			toDelete.delete();
 		}
+		toDelete.delete();
 	}
 
 	public static URI getActualLocation(URI base, boolean compress) throws IOException {
