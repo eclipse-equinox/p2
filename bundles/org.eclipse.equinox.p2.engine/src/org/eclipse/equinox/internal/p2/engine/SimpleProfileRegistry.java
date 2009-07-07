@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -34,8 +36,9 @@ import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry {
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
-	
+
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
+	private static final String PROFILE_GZ_EXT = ".profile.gz"; //$NON-NLS-1$
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
 
@@ -151,9 +154,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (!profileDirectory.isDirectory())
 			return null;
 
-		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
-		if (!profileFile.exists())
-			return null;
+		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_GZ_EXT);
+		if (!profileFile.exists()) {
+			profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
+			if (!profileFile.exists())
+				return null;
+		}
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		try {
@@ -177,7 +183,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
+				return (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile();
 			}
 		});
 
@@ -188,7 +194,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			try {
 				timestamps[i] = Long.parseLong(filename.substring(0, extensionIndex));
 			} catch (NumberFormatException e) {
-				throw new IllegalStateException("Incompatible profile file name. Expected format is {timestamp}" + PROFILE_EXT + " but was " + filename + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				throw new IllegalStateException("Incompatible profile file name. Expected format is {timestamp}" + PROFILE_GZ_EXT + " (or {timestamp}" + PROFILE_EXT + ") but was " + filename + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 		}
 		Arrays.sort(timestamps);
@@ -395,7 +401,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		long latestTimestamp = 0;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && !pathname.isDirectory();
+				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && !pathname.isDirectory();
 			}
 		});
 		for (int i = 0; i < profileFiles.length; i++) {
@@ -422,7 +428,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		long currentTimestamp = System.currentTimeMillis();
 		if (currentTimestamp <= previousTimestamp)
 			currentTimestamp = previousTimestamp + 1;
-		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
+		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_GZ_EXT);
 
 		// Log a stack trace to see who is writing the profile.
 		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
@@ -432,7 +438,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		profile.setChanged(false);
 		OutputStream os = null;
 		try {
-			os = new BufferedOutputStream(new FileOutputStream(profileFile));
+			os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(profileFile)));
 			Writer writer = new Writer(os);
 			writer.writeProfile(profile);
 		} catch (IOException e) {
@@ -525,7 +531,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		public void parse(File file) throws IOException {
-			parse(new BufferedInputStream(new FileInputStream(file)));
+			InputStream is;
+			if (file.getName().endsWith(PROFILE_GZ_EXT)) {
+				is = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)));
+			} else { // backward compatibility. SimpleProfileRegistry doesn't write non-gzipped profiles any more. 
+				is = new BufferedInputStream(new FileInputStream(file));
+			}
+			parse(is);
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {
@@ -736,7 +748,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return false;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isFile();
+				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && pathname.isFile();
 			}
 		});
 		return profileFiles.length > 0;
