@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.0.0.@qualifier@" useFeatures="false">
+<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.0.1.@qualifier@" useFeatures="false">
 
    <aboutInfo>
       <text>
@@ -17,11 +17,9 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-Xms40m
--Xmx256m</programArgs>
-      <programArgsMac>-Xms40m
--Xmx256m</programArgsMac>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgs>-Xms40m
+-Xmx256m</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Xms40m -Xmx256m</vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
@@ -32,7 +30,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
