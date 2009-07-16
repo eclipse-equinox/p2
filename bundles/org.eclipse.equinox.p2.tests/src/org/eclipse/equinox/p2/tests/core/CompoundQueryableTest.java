@@ -150,29 +150,6 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	class ListCollector extends Collector {
-		List list = null;
-
-		public boolean accept(Object object) {
-			if (list == null)
-				list = new ArrayList();
-			list.add(object);
-			return true;
-		}
-
-		public Collection toCollection() {
-			return list == null ? Collections.EMPTY_LIST : Collections.unmodifiableList(list);
-		}
-
-		public Iterator iterator() {
-			return list == null ? Collections.EMPTY_LIST.iterator() : list.iterator();
-		}
-
-		public int size() {
-			return list == null ? 0 : list.size();
-		}
-	}
-
 	public void testMatchQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -218,11 +195,66 @@ public class CompoundQueryableTest extends TestCase {
 	public void testListCollector1() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(contextQuery, new ListCollector(), monitor);
+		Collector collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
 
 		// We use a list so there should be 7 elements (4 is there twice)
 		assertEquals("1.0", 7, collector.size());
 		Collection collection = collector.toCollection();
+		assertTrue("1.1", collection.contains(2));
+		assertTrue("1.2", collection.contains(4));
+		assertTrue("1.3", collection.contains(6));
+		assertTrue("1.4", collection.contains(8));
+		assertTrue("1.5", collection.contains(10));
+		assertTrue("1.6", collection.contains(12));
+	}
+
+	public void testListCollector_isEmpty() {
+		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
+		Collector collector = cQueryable.new ListCollector();
+		assertTrue("1.0", collector.isEmpty());
+		collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
+		assertFalse("1.0", collector.isEmpty());
+	}
+
+	public void testListCollector_getCollection() {
+		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
+
+		Collector collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
+
+		// We use a list so there should be 7 elements (4 is there twice)
+		assertEquals("1.0", 7, collector.size());
+		Integer[] array = (Integer[]) collector.toArray(Integer.class);
+		Collection collection = Arrays.asList(array);
+		assertTrue("1.1", collection.contains(2));
+		assertTrue("1.2", collection.contains(4));
+		assertTrue("1.3", collection.contains(6));
+		assertTrue("1.4", collection.contains(8));
+		assertTrue("1.5", collection.contains(10));
+		assertTrue("1.6", collection.contains(12));
+	}
+
+	public void testListCollector_toArray() {
+		final CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
+
+		class CustomListCollector extends CompoundQueryable.ListCollector {
+
+			public CustomListCollector() {
+				cQueryable.super();
+			}
+
+			public Collection getCollection() {
+				return super.getCollection();
+			}
+		}
+
+		CustomListCollector collector = (CustomListCollector) cQueryable.query(contextQuery, new CustomListCollector(), monitor);
+
+		// We use a list so there should be 7 elements (4 is there twice)
+		assertEquals("1.0", 7, collector.size());
+		Collection collection = collector.getCollection();
 		assertTrue("1.1", collection.contains(2));
 		assertTrue("1.2", collection.contains(4));
 		assertTrue("1.3", collection.contains(6));

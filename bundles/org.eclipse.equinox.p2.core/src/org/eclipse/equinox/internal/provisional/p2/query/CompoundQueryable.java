@@ -9,6 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.query;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 
@@ -61,13 +62,37 @@ public class CompoundQueryable implements IQueryable {
 	 * A list collector.
 	 * 
 	 * This is a collector backed as a list.
-	 *
+	 * 
+	 * The list collector is not intended to be used outside of this class.  It is only public
+	 * for testing purposes.
+	 * 
+	 * @noinstantiate This class is not intended to be instantiated by clients.
+	 * @noextend This class is not intended to be subclassed by clients.
+	 * 
 	 */
-	private class ListCollector extends Collector {
+	public class ListCollector extends Collector {
 		private List collected;
 
 		public ListCollector() {
 			super();
+		}
+
+		protected Collection getCollection() {
+			if (collected == null)
+				collected = new ArrayList();
+			return collected;
+		}
+
+		public boolean isEmpty() {
+			return collected == null || collected.isEmpty();
+		}
+
+		public Object[] toArray(Class clazz) {
+			int size = collected == null ? 0 : collected.size();
+			Object[] result = (Object[]) Array.newInstance(clazz, size);
+			if (size != 0)
+				collected.toArray(result);
+			return result;
 		}
 
 		public boolean accept(Object object) {
