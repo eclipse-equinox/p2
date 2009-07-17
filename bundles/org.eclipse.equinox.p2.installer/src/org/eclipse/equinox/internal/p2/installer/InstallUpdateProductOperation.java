@@ -253,15 +253,25 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		URI[] repos = installDescription.getArtifactRepositories();
 		if (repos == null)
 			return;
-		for (int i = 0; i < repos.length; i++)
+
+		// Repositories must be registered before they are loaded
+		// This is to avoid them being possibly overridden with the configuration as a referenced repository
+		for (int i = 0; i < repos.length; i++) {
+			artifactRepoMan.addRepository(repos[i]);
 			artifactRepoMan.loadRepository(repos[i], null);
+		}
 	}
 
 	private void prepareMetadataRepositories() throws ProvisionException {
 		URI[] repos = installDescription.getMetadataRepositories();
 		if (repos == null)
 			return;
-		for (int i = 0; i < repos.length; i++)
+
+		// Repositories must be registered before they are loaded
+		// This is to avoid them being possibly overridden with the configuration as a referenced repository
+		for (int i = 0; i < repos.length; i++) {
+			metadataRepoMan.addRepository(repos[i]);
 			metadataRepoMan.loadRepository(repos[i], null);
+		}
 	}
 }
