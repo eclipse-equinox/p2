@@ -18,6 +18,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
 public class ParserUtils {
@@ -51,7 +52,7 @@ public class ParserUtils {
 		try {
 			return URIUtil.makeAbsolute(URIUtil.fromString(fwk), launcherFolder);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + fwk);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.exception_createAbsoluteURI, fwk, launcherFolder));
 			return null;
 		}
 	}
@@ -62,7 +63,7 @@ public class ParserUtils {
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
 		if (install == null && properties != null)
-			install = properties.getProperty("osgi.install.area");
+			install = properties.getProperty("osgi.install.area"); //$NON-NLS-1$
 
 		if (install != null) {
 			if (install.startsWith(FILE_PROTOCOL))
