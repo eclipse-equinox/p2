@@ -252,7 +252,7 @@ public class Util {
 
 	public static File getLauncherPath(IProfile profile) {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
-		if (name == null)
+		if (name == null || name.length() == 0)
 			name = "eclipse"; //$NON-NLS-1$
 		return new File(getInstallFolder(profile), getLauncherName(name, getOSFromProfile(profile)));
 	}
