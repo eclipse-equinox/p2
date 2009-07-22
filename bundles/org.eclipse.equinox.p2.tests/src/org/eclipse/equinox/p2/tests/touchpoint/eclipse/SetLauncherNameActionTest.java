@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
@@ -51,6 +52,32 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		assertEquals(launcherName, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
 		action.undo(parameters);
 		assertNotSame(launcherName, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
+	}
+
+	public void testEmptyName() {
+		Map parameters = new HashMap();
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+
+		File tempFolder = getTempFolder();
+		Properties profileProperties = new Properties();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
+		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=cocoa,osgi.os=macosx,osgi.arch=x86");
+		IProfile profile = createProfile("launcherNameProfile", null, profileProperties);
+
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		parameters.put("iu", operand.second());
+		touchpoint.initializeOperand(profile, operand, parameters);
+
+		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
+		assertNotNull(manipulator);
+
+		parameters.put(ActionConstants.PARM_LAUNCHERNAME, "");
+		parameters = Collections.unmodifiableMap(parameters);
+
+		SetLauncherNameAction action = new SetLauncherNameAction();
+		action.execute(parameters);
 	}
 
 }
