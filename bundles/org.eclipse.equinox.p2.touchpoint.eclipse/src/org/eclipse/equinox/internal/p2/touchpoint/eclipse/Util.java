@@ -184,7 +184,7 @@ public class Util {
 				return null;
 			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
 			// padding zeros at the end
-			bundleInfo.setVersion(new Version(version).toString());
+			bundleInfo.setVersion(Version.parseVersion(version).toString());
 
 			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
 			if (fragmentHost != null)
