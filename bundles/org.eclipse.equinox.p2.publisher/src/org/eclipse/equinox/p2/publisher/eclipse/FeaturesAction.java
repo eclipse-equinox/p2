@@ -10,15 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.io.*;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
@@ -32,6 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
 
@@ -154,35 +154,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 		this.locations = locations;
 	}
 
-	// attach the described files from the given location to the given iu description.  Return
-	// the list of files identified.
-	private File[] attachFiles(InstallableUnitDescription iu, FileSetDescriptor descriptor, File location) {
-		String fileList = descriptor.getFiles();
-		String[] fileSpecs = getArrayFromString(fileList, ","); //$NON-NLS-1$
-		File[] files = new File[fileSpecs.length];
-		if (fileSpecs.length > 0) {
-			for (int i = 0; i < fileSpecs.length; i++) {
-				String spec = fileSpecs[i];
-				if (spec.startsWith("file:")) //$NON-NLS-1$
-					spec = spec.substring(5);
-				files[i] = new File(location, spec);
-			}
-		}
-		// add touchpoint actions to unzip and cleanup as needed
-		// TODO need to support fancy root file location specs
-		Map touchpointData = new HashMap(2);
-		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		touchpointData.put("install", configurationData); //$NON-NLS-1$
-		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-
-		// prime the IU with an artifact key that will correspond to the zipped up root files.
-		IArtifactKey key = new ArtifactKey(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER, iu.getId(), iu.getVersion());
-		iu.setArtifacts(new IArtifactKey[] {key});
-		return files;
-	}
-
 	/**
 	 * Looks for advice in a p2.inf file inside the feature location.
 	 */
@@ -213,7 +184,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected Object[] createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
+	protected IInstallableUnit createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
 		String id = featureId + '_' + descriptor.getKey();
@@ -225,13 +196,23 @@ public class FeaturesAction extends AbstractPublisherAction {
 		String configSpec = descriptor.getConfigSpec();
 		if (configSpec != null && configSpec.length() > 0)
 			iu.setFilter(createFilterSpec(configSpec));
-		File[] fileResult = attachFiles(iu, descriptor, location);
+
+		Map touchpointData = new HashMap(2);
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
+		// prime the IU with an artifact key that will correspond to the zipped up root files.
+		IArtifactKey key = new ArtifactKey(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER, iu.getId(), iu.getVersion());
+		iu.setArtifacts(new IArtifactKey[] {key});
 		setupLinks(iu, descriptor);
 		setupPermissions(iu, descriptor);
 
 		IInstallableUnit iuResult = MetadataFactory.createInstallableUnit(iu);
 		// need to return both the iu and any files.
-		return new Object[] {iuResult, fileResult};
+		return iuResult;
 	}
 
 	protected IInstallableUnit createGroupIU(Feature feature, List childIUs, IPublisherInfo publisherInfo) {
@@ -464,48 +445,35 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return createFeatureJarIU(feature, publisherInfo);
 	}
 
-	private IInstallableUnit generateRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor rootFile, IPublisherResult result, IPublisherInfo publisherInfo) {
-		File tempLocation = null;
-		try {
-			if (location.isFile()) {
-				// We cannot copy from a jar file. It must be expanded into a temporary folder
-				try {
-					tempLocation = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-					tempLocation.delete();
-					tempLocation.mkdirs();
-					FileUtils.unzipFile(location, tempLocation);
-				} catch (IOException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
-					return null;
-				}
-				location = tempLocation;
-			}
-			Object[] iuAndFiles = createFeatureRootFileIU(featureId, featureVersion, location, rootFile);
-			IInstallableUnit iuResult = (IInstallableUnit) iuAndFiles[0];
-			File[] fileResult = (File[]) iuAndFiles[1];
-			if (fileResult != null && fileResult.length > 0) {
-				IArtifactKey artifact = iuResult.getArtifacts()[0];
-				ArtifactDescriptor descriptor = new ArtifactDescriptor(artifact);
-				publishArtifact(descriptor, fileResult, null, publisherInfo, FileUtils.createDynamicPathComputer(1));
-			}
-			result.addIU(iuResult, IPublisherResult.NON_ROOT);
-			return iuResult;
-		} finally {
-			if (tempLocation != null)
-				FileUtils.deleteAll(tempLocation);
-		}
-	}
-
 	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
-		File location = new File(feature.getLocation());
-		Properties props = loadProperties(location, "build.properties"); //$NON-NLS-1$
 		ArrayList ius = new ArrayList();
-		FileSetDescriptor[] rootFileDescriptors = getRootFileDescriptors(props);
-		for (int i = 0; i < rootFileDescriptors.length; i++) {
-			IInstallableUnit iu = generateRootFileIU(feature.getId(), feature.getVersion(), location, rootFileDescriptors[i], result, publisherInfo);
-			if (iu != null)
+
+		Collection collection = publisherInfo.getAdvice(null, false, feature.getId(), Version.parseVersion(feature.getVersion()), IFeatureRootAdvice.class);
+		if (collection.size() == 0)
+			return ius;
+
+		IFeatureRootAdvice advice = (IFeatureRootAdvice) collection.iterator().next();
+		String[] configs = advice.getConfigurations();
+		for (int i = 0; i < configs.length; i++) {
+			String config = configs[i];
+
+			FileSetDescriptor descriptor = advice.getDescriptor(config);
+			if (descriptor != null && descriptor.size() > 0) {
+				IInstallableUnit iu = createFeatureRootFileIU(feature.getId(), feature.getVersion(), null, descriptor);
+
+				File[] files = descriptor.getFiles();
+				IArtifactKey artifactKey = iu.getArtifacts()[0];
+				ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(artifactKey);
+				IPathComputer computer = advice.getRootFileComputer(config);
+				if (computer == null)
+					computer = FileUtils.createDynamicPathComputer(1);
+				publishArtifact(artifactDescriptor, files, null, publisherInfo, computer);
+
+				result.addIU(iu, IPublisherResult.NON_ROOT);
 				ius.add(iu);
+			}
 		}
+
 		return ius;
 	}
 
@@ -587,49 +555,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	protected FileSetDescriptor[] getRootFileDescriptors(Properties props) {
-		HashMap result = new HashMap();
-		for (Iterator i = props.keySet().iterator(); i.hasNext();) {
-			String property = (String) i.next();
-			// we only care about root properties
-			if (!(property.startsWith("root") && (property.length() == 4 || property.charAt(4) == '.'))) //$NON-NLS-1$
-				continue;
-			String[] spec = getArrayFromString(property, "."); //$NON-NLS-1$
-			String descriptorKey = spec[0];
-			String configSpec = null;
-			// if the spec is 4 or more then there must be a config involved to get it
-			if (spec.length > 3) {
-				configSpec = createConfigSpec(spec[2], spec[1], spec[3]);
-				descriptorKey += "." + createIdString(configSpec); //$NON-NLS-1$
-			}
-
-			FileSetDescriptor descriptor = (FileSetDescriptor) result.get(descriptorKey);
-			if (descriptor == null) {
-				descriptor = new FileSetDescriptor(descriptorKey, configSpec);
-				result.put(descriptorKey, descriptor);
-			}
-
-			// if the property was simply 'root'
-			if (spec.length == 1)
-				// it must be a straight file copy (without a config)
-				descriptor.setFiles(props.getProperty(property));
-			// if the last segment in the spec is "link"
-			else if (spec[spec.length - 1] == "link") //$NON-NLS-1$
-				descriptor.setLinks(props.getProperty(property));
-			else {
-				// if the second last segment is "permissions"
-				if (spec[spec.length - 2].equals("permissions")) //$NON-NLS-1$
-					descriptor.addPermissions(new String[] {spec[spec.length - 1], props.getProperty(property)});
-				else {
-					// so it is not a link or a permissions, it must be a straight file copy (with or without a config)
-					descriptor.setFiles(props.getProperty(property));
-				}
-			}
-		}
-		Collection values = result.values();
-		return (FileSetDescriptor[]) values.toArray(new FileSetDescriptor[values.size()]);
-	}
-
 	private VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
@@ -665,49 +590,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 				return true;
 		}
 		return false;
-	}
-
-	private static Properties loadProperties(File location, String file) {
-		Properties props = new Properties();
-		try {
-			if (!location.isDirectory()) {
-				JarFile jar = null;
-				try {
-					jar = new JarFile(location);
-					JarEntry entry = jar.getJarEntry(file);
-					if (entry != null)
-						parseProperties(jar.getInputStream(entry), props, location.toString() + '#' + file);
-				} finally {
-					if (jar != null)
-						jar.close();
-				}
-			} else {
-				try {
-					InputStream in = null;
-					try {
-						File propsFile = new File(location, file);
-						in = new FileInputStream(propsFile);
-						parseProperties(in, props, propsFile.toString());
-					} finally {
-						if (in != null)
-							in.close();
-					}
-				} catch (FileNotFoundException e) {
-					// ignore if it is just a file not found.
-				}
-			}
-		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.exception_errorPublishingArtifacts, e));
-		}
-		return props;
-	}
-
-	private static void parseProperties(InputStream in, Properties props, String file) {
-		try {
-			props.load(new BufferedInputStream(in));
-		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorLoadingProperties, file), e));
-		}
 	}
 
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
