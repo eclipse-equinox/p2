@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 
@@ -38,7 +39,9 @@ public class SetLauncherNameAction extends ProvisioningAction {
 	}
 
 	private static void setLauncher(Manipulator manipulator, Profile profile, String launcherName) {
+		//Get the launcherData before changing the name so we don't lose anything from the old launcher.ini
+		LauncherData launcherData = manipulator.getLauncherData();
 		profile.setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, launcherName);
-		manipulator.getLauncherData().setLauncher(Util.getLauncherPath(profile));
+		launcherData.setLauncher(Util.getLauncherPath(profile));
 	}
 }
