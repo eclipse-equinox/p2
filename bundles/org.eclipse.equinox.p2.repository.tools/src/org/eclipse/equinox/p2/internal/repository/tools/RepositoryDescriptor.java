@@ -27,6 +27,7 @@ public class RepositoryDescriptor {
 	private URI location = null;
 	private URI format = null;
 	private int kind = TYPE_BOTH;
+	private URI originalLocation = null;
 
 	public void setCompressed(boolean compress) {
 		compressed = compress;
@@ -37,6 +38,7 @@ public class RepositoryDescriptor {
 	}
 
 	public void setLocation(URI repoLocation) {
+		originalLocation = repoLocation;
 		location = RepositoryHelper.localRepoURIHelper(repoLocation);
 	}
 
@@ -62,6 +64,10 @@ public class RepositoryDescriptor {
 
 	public URI getRepoLocation() {
 		return location;
+	}
+
+	public URI getOriginalRepoLocation() {
+		return originalLocation;
 	}
 
 	public URI getFormat() {
