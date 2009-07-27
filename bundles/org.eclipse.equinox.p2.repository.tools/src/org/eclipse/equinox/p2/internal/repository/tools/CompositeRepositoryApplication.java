@@ -41,18 +41,18 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			for (Iterator iterator = childrenToRemove.iterator(); iterator.hasNext();) {
 				RepositoryDescriptor child = (RepositoryDescriptor) iterator.next();
 				if (child.isArtifact() && artifactRepo != null)
-					artifactRepo.removeChild(child.getRepoLocation());
+					artifactRepo.removeChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)
-					metadataRepo.removeChild(child.getRepoLocation());
+					metadataRepo.removeChild(child.getOriginalRepoLocation());
 			}
 
 			// Add children to the Composite Repositories
 			for (Iterator iterator = childrenToAdd.iterator(); iterator.hasNext();) {
 				RepositoryDescriptor child = (RepositoryDescriptor) iterator.next();
 				if (child.isArtifact() && artifactRepo != null)
-					artifactRepo.addChild(child.getRepoLocation());
+					artifactRepo.addChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)
-					metadataRepo.addChild(child.getRepoLocation());
+					metadataRepo.addChild(child.getOriginalRepoLocation());
 			}
 
 			if (comparatorID != null)
