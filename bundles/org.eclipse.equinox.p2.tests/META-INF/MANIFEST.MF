@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.1.100.qualifier
 Import-Package: javax.xml.parsers,
  org.eclipse.ant.core,
  org.eclipse.ecf.filetransfer,

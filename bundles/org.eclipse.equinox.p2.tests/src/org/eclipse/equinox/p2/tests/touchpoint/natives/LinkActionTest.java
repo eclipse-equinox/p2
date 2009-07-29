@@ -48,12 +48,15 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_LINK_TARGET, zipTarget.getAbsolutePath());
 		parameters = Collections.unmodifiableMap(parameters);
 
-		// TODO: We need a way to verify
+		// TODO: We need a way to verify success
 		// one idea is to run an executable here
 		// This is currently just going through the paces to check for any runtime exceptions
 		LinkAction action = new LinkAction();
-		action.execute(parameters);
+		assertOK("3.0", action.execute(parameters));
 		// does nothing so should not alter parameters
-		action.undo(parameters);
+		assertOK("3.1", action.undo(parameters));
+		File linkFile = new File((String) parameters.get(ActionConstants.PARM_TARGET_DIR));
+		linkFile = new File(linkFile, (String) parameters.get(ActionConstants.PARM_LINK_NAME));
+		assertFalse("3.2", linkFile.exists());
 	}
 }
