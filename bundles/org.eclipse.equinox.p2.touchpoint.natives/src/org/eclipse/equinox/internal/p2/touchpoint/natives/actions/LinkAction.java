@@ -46,14 +46,14 @@ public class LinkAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map parameters) {
-		String linkTarget = (String) parameters.get(ActionConstants.PARM_LINK_TARGET);
+		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
 
-		if (linkTarget != null && linkName != null) {
-			File linkFile = new File(linkTarget, linkName);
+		if (targetDir != null && linkName != null) {
+			File linkFile = new File(targetDir, linkName);
 			linkFile.delete(); // ok since if something was overwritten - it is restored from backup
 		}
-		return null;
+		return Status.OK_STATUS;
 	}
 
 	/**
