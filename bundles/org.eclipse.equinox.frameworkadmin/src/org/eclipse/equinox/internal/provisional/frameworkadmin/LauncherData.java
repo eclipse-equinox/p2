@@ -40,6 +40,7 @@ public class LauncherData {
 	private String fwVersion;
 	private String launcherName;
 	private String launcherVersion;
+	private String os;
 
 	public LauncherData(String fwName, String fwVersion, String launcherName, String launcherVersion) {
 		this.fwName = fwName;
@@ -194,6 +195,14 @@ public class LauncherData {
 
 	public void setLauncherConfigLocation(File launcherConfigLocation) {
 		this.launcherConfigLocation = launcherConfigLocation;
+	}
+
+	public void setOS(String os) {
+		this.os = os;
+	}
+
+	public String getOS() {
+		return os;
 	}
 
 	public void setProgramArgs(String[] args) {

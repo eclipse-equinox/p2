@@ -13,11 +13,12 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.Version;
 
 public class FileUtils {
@@ -68,11 +69,20 @@ public class FileUtils {
 		File pluginsDir = null;
 		if (home != null)
 			pluginsDir = new File(home, EquinoxConstants.PLUGINS_DIR);
-		else if (launcherData.getLauncher() != null)
-			pluginsDir = new File(launcherData.getLauncher().getParentFile(), EquinoxConstants.PLUGINS_DIR);
 		else if (launcherData.getFwJar() != null)
 			pluginsDir = launcherData.getFwJar().getParentFile();
-
+		else if (launcherData.getLauncher() != null) {
+			File launcherDir = null;
+			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
+				IPath launcherPath = new Path(launcherData.getLauncher().getAbsolutePath());
+				if (launcherPath.segmentCount() > 4) {
+					launcherPath = launcherPath.removeLastSegments(4);
+					launcherDir = launcherPath.toFile();
+				}
+			} else
+				launcherDir = launcherData.getLauncher().getParentFile();
+			pluginsDir = new File(launcherDir, EquinoxConstants.PLUGINS_DIR);
+		}
 		if (pluginsDir != null)
 			return pluginsDir.getAbsolutePath();
 		return null;

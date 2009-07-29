@@ -18,6 +18,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
@@ -35,8 +36,21 @@ public class ParserUtils {
 
 		if (launcherData.getFwJar() != null)
 			return fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());
-		if (launcherData.getLauncher() != null)
-			return launcherData.getLauncher().getParentFile();
+
+		File launcherFile = launcherData.getLauncher();
+		if (launcherFile != null) {
+			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
+				//the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
+				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
+				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
+				if (launcherPath.segmentCount() > 4) {
+					//removing "Eclipse.app/Contents/MacOS/eclipse"
+					launcherPath = launcherPath.removeLastSegments(4);
+					return launcherPath.toFile();
+				}
+			}
+			return launcherFile.getParentFile();
+		}
 		return null;
 	}
 

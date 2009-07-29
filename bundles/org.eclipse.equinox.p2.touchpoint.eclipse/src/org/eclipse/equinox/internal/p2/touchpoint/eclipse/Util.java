@@ -287,7 +287,7 @@ public class Util {
 		return name;
 	}
 
-	private static String getOSFromProfile(IProfile profile) {
+	public static String getOSFromProfile(IProfile profile) {
 		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return null;

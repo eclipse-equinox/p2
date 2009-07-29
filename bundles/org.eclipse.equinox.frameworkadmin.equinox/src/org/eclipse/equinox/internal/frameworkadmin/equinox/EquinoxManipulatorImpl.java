@@ -276,6 +276,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		launcherData.setFwJar(fwJar);
 		launcherData.setFwPersistentDataLocation(fwConfigLocation, false);
 		launcherData.setLauncher(launcherFile);
+		launcherData.setOS(context.getProperty("osgi.os")); //$NON-NLS-1$
 		try {
 			this.loadWithoutFwPersistentData();
 		} catch (IOException e1) {
@@ -497,6 +498,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		launcherData.setFwPersistentDataLocation(value.getFwPersistentDataLocation(), value.isClean());
 		launcherData.setJvm(value.getJvm());
 		launcherData.setJvmArgs(value.getJvmArgs());
+		launcherData.setOS(value.getOS());
 		if (launcherData.getFwName().equals(value.getFwName()))
 			if (launcherData.getFwVersion().equals(value.getFwVersion())) {
 				// TODO launcherData.getFwName()/getFwVersion()/
