@@ -34,7 +34,7 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings( {"unchecked", "restriction"})
+@SuppressWarnings({"unchecked", "restriction"})
 public class FeaturesActionTest extends ActionTest {
 
 	public static IArtifactKey FOO_KEY = ArtifactKey.parse("org.eclipse.update.feature,foo,1.0.0"); //$NON-NLS-1$
@@ -138,7 +138,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
 		IRequiredCapability[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
-		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
+		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(barGroup.getFilter().equalsIgnoreCase("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
@@ -179,12 +179,14 @@ public class FeaturesActionTest extends ActionTest {
 		ArrayList adviceCollection = fillAdvice(new ArrayList());
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IFeatureRootAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ITouchpointAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.jar", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IFeatureRootAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
