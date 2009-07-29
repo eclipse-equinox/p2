@@ -96,8 +96,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		for (int i = 0; i < columns.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.LEFT, i);
 			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(columns[i].getWidth());
+			tc.setText(columns[i].getColumnTitle());
+			tc.setWidth(columns[i].getWidthInPixels(tree));
 		}
 
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {

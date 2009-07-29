@@ -42,8 +42,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class InstalledSoftwarePage extends InstallationPage implements ICopyable {
 
-	private static final int DEFAULT_WIDTH = 300;
-	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	private static final int UPDATE_ID = IDialogConstants.CLIENT_ID;
 	private static final int UNINSTALL_ID = IDialogConstants.CLIENT_ID + 1;
 	private static final int PROPERTIES_ID = IDialogConstants.CLIENT_ID + 2;
@@ -76,7 +74,8 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
+		int width = getDefaultWidth(composite);
+		gd.widthHint = width;
 		composite.setLayoutData(gd);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -93,7 +92,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
-		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
+		gd.widthHint = width;
 
 		detailsArea = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
 		detailsArea.setBackground(detailsArea.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
@@ -199,9 +198,16 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	}
 
 	private IUColumnConfig[] getColumnConfig() {
-		int pixels = convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH);
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, pixels / 3), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, pixels * 2 / 3)};
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
+	}
 
+	private int getDefaultWidth(Control control) {
+		IUColumnConfig[] columns = getColumnConfig();
+		int totalWidth = 0;
+		for (int i = 0; i < columns.length; i++) {
+			totalWidth += columns[i].getWidthInPixels(control);
+		}
+		return totalWidth + 20; // buffer for surrounding composites
 	}
 
 	public void copyToClipboard(Control activeControl) {

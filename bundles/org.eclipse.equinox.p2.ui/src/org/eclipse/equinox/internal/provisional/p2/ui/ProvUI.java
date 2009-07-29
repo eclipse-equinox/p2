@@ -11,15 +11,15 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
-import org.eclipse.core.commands.operations.*;
+import org.eclipse.core.commands.operations.ObjectUndoContext;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryNameAndLocationDialog;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
@@ -29,8 +29,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -59,8 +57,6 @@ public class ProvUI {
 	public static final String REVERT_COMMAND_TOOLTIP = ProvUIMessages.RevertIUCommandTooltip;
 
 	static ObjectUndoContext provisioningUndoContext;
-	private static final int DEFAULT_COLUMN_WIDTH = 200;
-	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, DEFAULT_COLUMN_WIDTH)};
 
 	/**
 	 * List<URI> of repositories that have already been reported to the user as not found.
@@ -192,11 +188,8 @@ public class ProvUI {
 	}
 
 	public static IUColumnConfig[] getIUColumnConfig() {
-		return iuColumnConfig;
-	}
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
 
-	public static void setIUColumnConfig(IUColumnConfig[] columnConfig) {
-		iuColumnConfig = columnConfig;
 	}
 
 	public static Object getAdapter(Object object, Class adapterType) {
@@ -268,80 +261,6 @@ public class ProvUI {
 			}
 		}
 		return null;
-	}
-
-	static IOperationApprover getOperationApprover() {
-		return new IOperationApprover() {
-			public IStatus proceedUndoing(final IUndoableOperation operation, IOperationHistory history, IAdaptable info) {
-				final IStatus[] status = new IStatus[1];
-				status[0] = Status.OK_STATUS;
-				if (operation.hasContext(provisioningUndoContext) && operation instanceof IAdvancedUndoableOperation) {
-					final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) {
-							try {
-								status[0] = ((IAdvancedUndoableOperation) operation).computeUndoableStatus(monitor);
-								if (!status[0].isOK()) {
-									ProvUI.reportStatus(status[0], StatusManager.SHOW | StatusManager.LOG);
-								}
-							} catch (ExecutionException e) {
-								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-							}
-						}
-					};
-					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-						public void run() {
-							try {
-								new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, runnable);
-							} catch (InterruptedException e) {
-								// don't report thread interruption
-							} catch (InvocationTargetException e) {
-								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-							}
-						}
-					});
-
-				}
-				return status[0];
-			}
-
-			public IStatus proceedRedoing(final IUndoableOperation operation, IOperationHistory history, IAdaptable info) {
-				final IStatus[] status = new IStatus[1];
-				status[0] = Status.OK_STATUS;
-				if (operation.hasContext(provisioningUndoContext) && operation instanceof IAdvancedUndoableOperation) {
-					final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) {
-							try {
-								status[0] = ((IAdvancedUndoableOperation) operation).computeRedoableStatus(monitor);
-								if (!status[0].isOK()) {
-									ProvUI.reportStatus(status[0], StatusManager.SHOW);
-								}
-							} catch (ExecutionException e) {
-								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-							}
-						}
-					};
-					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-						public void run() {
-							try {
-								new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, runnable);
-							} catch (InterruptedException e) {
-								// don't report thread interruption
-							} catch (InvocationTargetException e) {
-								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-							}
-						}
-					});
-
-				}
-				return status[0];
-			}
-
-		};
-
 	}
 
 	public static void addProvisioningListener(ProvUIProvisioningListener listener) {

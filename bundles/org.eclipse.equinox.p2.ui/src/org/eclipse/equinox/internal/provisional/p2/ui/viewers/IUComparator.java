@@ -36,7 +36,7 @@ public class IUComparator extends ViewerComparator {
 	 */
 	public void useColumnConfig(IUColumnConfig[] columnConfig) {
 		for (int i = 0; i < columnConfig.length; i++)
-			if (columnConfig[i].columnField == IUColumnConfig.COLUMN_ID) {
+			if (columnConfig[i].getColumnType() == IUColumnConfig.COLUMN_ID) {
 				showingId = true;
 				break;
 			}

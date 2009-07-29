@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -94,7 +93,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * @param parent the parent composite for the group
 	 */
 	public AvailableIUGroup(final Composite parent) {
-		this(Policy.getDefault(), parent, parent.getFont(), null, null, ProvUI.getIUColumnConfig(), AVAILABLE_ALL);
+		this(Policy.getDefault(), parent, parent.getFont(), null, null, getDefaultColumnConfig(), AVAILABLE_ALL);
+	}
+
+	private static IUColumnConfig[] getDefaultColumnConfig() {
+		// increase primary column width because we might be nesting names under categories and require more space than a flat list
+		IUColumnConfig nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
+		IUColumnConfig versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		return new IUColumnConfig[] {nameColumn, versionColumn};
 	}
 
 	/**
@@ -170,7 +176,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// after content has been retrieved.
 		filteredTree.contentProviderSet(contentProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
 				// Only make the repo visible if the UI triggered this event.
 				// This allows us to ignore the addition of system repositories, as
@@ -213,8 +219,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		for (int i = 0; i < cols.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
-			tc.setText(cols[i].columnTitle);
-			tc.setWidth(cols[i].getWidth());
+			tc.setText(cols[i].getColumnTitle());
+			tc.setWidth(cols[i].getWidthInPixels(tree));
 		}
 	}
 

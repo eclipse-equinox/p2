@@ -369,9 +369,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
 				tc.setAlignment(SWT.CENTER);
 			} else if (i == RepositoryDetailsLabelProvider.COL_NAME) {
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH) * 2 / 3);
-			} else {
 				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+			} else {
+				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH));
 			}
 			tc.addSelectionListener(new SelectionListener() {
 				public void widgetDefaultSelected(SelectionEvent e) {

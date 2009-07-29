@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
@@ -74,7 +75,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		// Input last.
 		installedIUViewer.setInput(getInput());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -91,8 +92,8 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		for (int i = 0; i < columns.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(columns[i].defaultColumnWidth));
+			tc.setText(columns[i].getColumnTitle());
+			tc.setWidth(columns[i].getWidthInPixels(tree));
 		}
 	}
 

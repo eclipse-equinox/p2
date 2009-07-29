@@ -48,7 +48,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private static final int REVERT_ID = IDialogConstants.CLIENT_ID;
-	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TableViewer configsViewer;
 	TreeViewer configContentsViewer;
 	IUDetailsLabelProvider labelProvider;
@@ -227,8 +226,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		for (int i = 0; i < columns.length; i++) {
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
+			tc.setText(columns[i].getColumnTitle());
+			tc.setWidth(columns[i].getWidthInPixels(tree));
 		}
 	}
 

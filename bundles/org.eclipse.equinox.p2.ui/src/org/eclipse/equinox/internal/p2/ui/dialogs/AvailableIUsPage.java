@@ -107,8 +107,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
 		if (policy.getRepositoryManipulator() == null)
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 
 		getColumnWidthsFromSettings();
 		availableIUGroup = new AvailableIUGroup(policy, sashForm, JFaceResources.getDialogFont(), manager, queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
@@ -391,9 +391,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (section != null) {
 			try {
 				if (section.get(NAME_COLUMN_WIDTH) != null)
-					nameColumn.columnWidth = section.getInt(NAME_COLUMN_WIDTH);
+					nameColumn.setWidthInPixels(section.getInt(NAME_COLUMN_WIDTH));
 				if (section.get(VERSION_COLUMN_WIDTH) != null)
-					versionColumn.columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+					versionColumn.setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}

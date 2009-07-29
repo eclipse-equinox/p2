@@ -36,7 +36,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	public AvailableIUPatternFilter(IUColumnConfig[] columnConfig) {
 		super();
 		for (int i = 0; i < columnConfig.length; i++) {
-			int field = columnConfig[i].columnField;
+			int field = columnConfig[i].getColumnType();
 			if (field == IUColumnConfig.COLUMN_ID)
 				checkId = true;
 			else if (field == IUColumnConfig.COLUMN_NAME)

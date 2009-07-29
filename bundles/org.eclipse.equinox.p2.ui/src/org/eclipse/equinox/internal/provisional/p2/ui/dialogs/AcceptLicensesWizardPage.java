@@ -183,7 +183,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 		});
 		gd = new GridData(GridData.FILL_BOTH);
-		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH + ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
 		iuViewer.getControl().setLayoutData(gd);
 	}

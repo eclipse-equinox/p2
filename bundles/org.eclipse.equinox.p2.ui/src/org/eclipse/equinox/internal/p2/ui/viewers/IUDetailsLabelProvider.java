@@ -58,7 +58,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		else
 			this.columnConfig = columnConfig;
 		for (int i = 0; i < this.columnConfig.length; i++)
-			if (this.columnConfig[i].columnField == IUColumnConfig.COLUMN_ID) {
+			if (this.columnConfig[i].getColumnType() == IUColumnConfig.COLUMN_ID) {
 				showingId = true;
 				break;
 			}
@@ -76,7 +76,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	public String getColumnText(Object element, int columnIndex) {
 		int columnContent = IUColumnConfig.COLUMN_ID;
 		if (columnIndex < columnConfig.length) {
-			columnContent = columnConfig[columnIndex].columnField;
+			columnContent = columnConfig[columnIndex].getColumnType();
 		}
 
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);

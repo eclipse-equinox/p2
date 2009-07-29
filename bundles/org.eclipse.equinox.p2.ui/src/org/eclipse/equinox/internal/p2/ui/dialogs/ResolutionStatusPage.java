@@ -220,11 +220,11 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		if (section != null) {
 			try {
 				if (section.get(NAME_COLUMN_WIDTH) != null)
-					getNameColumn().columnWidth = section.getInt(NAME_COLUMN_WIDTH);
+					getNameColumn().setWidthInPixels(section.getInt(NAME_COLUMN_WIDTH));
 				if (section.get(VERSION_COLUMN_WIDTH) != null)
-					getVersionColumn().columnWidth = section.getInt(VERSION_COLUMN_WIDTH);
+					getVersionColumn().setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
 				if (section.get(ID_COLUMN_WIDTH) != null)
-					getIdColumn().columnWidth = section.getInt(ID_COLUMN_WIDTH);
+					getIdColumn().setWidthInPixels(section.getInt(ID_COLUMN_WIDTH));
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}
@@ -250,9 +250,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	protected IUColumnConfig[] getColumnConfig() {
 		// We intentionally use the IU's id as one of the columns, because
 		// resolution errors are reported by ID.
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
-		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		getColumnWidthsFromSettings();
 		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
 	}
