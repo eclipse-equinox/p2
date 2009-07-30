@@ -39,9 +39,9 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testCreate() {
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		try {
-			assertNull(factory.create(getTempFolder().toURI(), "", "", null));
+			assertNull("1.0", factory.create(getTempFolder().toURI(), "", "", null));
 		} catch (ProvisionException e) {
-			fail();
+			fail("1.99", e);
 		}
 	}
 
@@ -51,14 +51,14 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		copy("0.2", testData, tempFolder);
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue(simpleProfileFolder.exists());
+		assertTrue("0.3", simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		IStatus status = factory.validate(simpleProfileFolder.toURI(), getMonitor());
-		assertTrue(status.isOK());
+		assertOK("1.0", status);
 
 		status = factory.validate(tempFolder.toURI(), getMonitor());
-		assertFalse(status.isOK());
+		assertNotOK("2.0", status);
 	}
 
 	public void testLoad() {
@@ -68,25 +68,25 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull(profile);
+		assertNotNull("0.3", profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(profileCollector.isEmpty());
+		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue(simpleProfileFolder.exists());
+		assertTrue("0.5", simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), 0, getMonitor());
 		} catch (ProvisionException e1) {
-			fail();
+			fail("0.99", e1);
 		}
 
 		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(repoCollector.isEmpty());
-		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertFalse("1.0", repoCollector.isEmpty());
+		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
 
 	public void testLoadTimestampedProfile() {
@@ -96,28 +96,28 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull(profile);
+		assertNotNull("0.3", profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(profileCollector.isEmpty());
+		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue(simpleProfileFolder.exists());
+		assertTrue("0.5", simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
-		assertTrue(timeStampedProfile.exists());
+		assertTrue("0.6", timeStampedProfile.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
 		} catch (ProvisionException e1) {
-			fail();
+			fail("0.99", e1);
 		}
 
 		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(repoCollector.isEmpty());
-		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertFalse("1.0", repoCollector.isEmpty());
+		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
 
 	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
@@ -133,32 +133,32 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull(profile);
+		assertNotNull("1.0", profile);
 
 		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(profileCollector.isEmpty());
+		assertFalse("1.1", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
-		assertTrue(simpleProfileFolder.exists());
+		assertTrue("1.2", simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
-		assertTrue(timeStampedProfile.exists());
+		assertTrue("1.3", timeStampedProfile.exists());
 
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
-		assertNotNull(manager);
-		assertFalse(manager.contains(tempFolder.toURI()));
+		assertNotNull("2.0", manager);
+		assertFalse("2.1", manager.contains(tempFolder.toURI()));
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
 		} catch (ProvisionException e1) {
-			fail();
+			fail("2.99", e1);
 		}
 
 		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertFalse(repoCollector.isEmpty());
-		assertTrue(repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertFalse("3.0", repoCollector.isEmpty());
+		assertTrue("3.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 
 		int maxTries = 20;
 		int current = 0;
