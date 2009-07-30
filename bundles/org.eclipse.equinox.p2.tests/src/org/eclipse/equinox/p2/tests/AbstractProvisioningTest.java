@@ -91,7 +91,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertNotOK(IStatus result) {
-		assertTrue("The status should not have been OK", !result.isOK());
+		assertNotOK("The status should not have been OK", result);
+	}
+
+	protected static void assertNotOK(String message, IStatus result) {
+		assertTrue(message, !result.isOK());
 	}
 
 	protected static void assertOK(String message, IStatus status) {
