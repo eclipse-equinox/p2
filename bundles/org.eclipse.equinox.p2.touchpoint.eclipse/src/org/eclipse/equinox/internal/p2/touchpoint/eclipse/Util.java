@@ -173,7 +173,7 @@ public class Util {
 
 		bundleInfo.setManifest(manifest);
 		try {
-			Map headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes()), new HashMap());
+			Map headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap()); //$NON-NLS-1$
 			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			if (element == null || element.length == 0)
 				return null;
