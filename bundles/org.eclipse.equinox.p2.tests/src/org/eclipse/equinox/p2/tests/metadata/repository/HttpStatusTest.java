@@ -108,6 +108,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 								ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, status.getCode());
 						break;
 					case 300 : // fall through
+					case 403 : // fall through
 					case 404 : // Does not use the HTTP message.
 						// No need to test the message text - any error would be discovered immediately
 						// in the UI anyway.
@@ -115,7 +116,6 @@ public class HttpStatusTest extends ServerBasedTestCase {
 								ProvisionException.REPOSITORY_NOT_FOUND, status.getCode());
 						break;
 					case 407 : // fall through
-					case 403 :
 					default :
 						// All other messages should surface
 						try {
