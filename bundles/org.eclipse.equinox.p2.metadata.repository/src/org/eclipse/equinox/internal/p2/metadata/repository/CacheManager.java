@@ -304,8 +304,10 @@ public class CacheManager {
 		}
 		File resumeDir = new File(cacheFile.getParentFile(), DOWNLOADING);
 		if (!resumeDir.mkdir()) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not create directory {0} for resumable download of {1}", resumeDir, remoteFile))); //$NON-NLS-1$
-			return false;
+			if (!(resumeDir.exists() && resumeDir.isDirectory())) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not create directory {0} for resumable download of {1}", resumeDir, remoteFile))); //$NON-NLS-1$
+				return false;
+			}
 		}
 		// move partial cache file to "downloading" directory
 		File resumeFile = new File(resumeDir, cacheFile.getName());
