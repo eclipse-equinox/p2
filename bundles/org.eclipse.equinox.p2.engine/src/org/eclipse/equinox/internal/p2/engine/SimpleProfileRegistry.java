@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry {
+
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
@@ -462,6 +463,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * Returns whether the profile file for the given profile should be written in gzip format.
 	 */
 	private boolean shouldGzipFile(Profile profile) {
+		//check system property controlling compression
+		String format = EngineActivator.getContext().getProperty(EngineActivator.PROP_PROFILE_FORMAT);
+		if (format != null && format.equals(EngineActivator.PROFILE_FORMAT_UNCOMPRESSED))
+			return false;
+
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
 		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), new Collector(), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
