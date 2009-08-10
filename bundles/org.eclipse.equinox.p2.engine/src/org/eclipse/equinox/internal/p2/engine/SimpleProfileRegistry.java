@@ -20,8 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -428,7 +427,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		long currentTimestamp = System.currentTimeMillis();
 		if (currentTimestamp <= previousTimestamp)
 			currentTimestamp = previousTimestamp + 1;
-		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_GZ_EXT);
+		boolean shouldGzipFile = shouldGzipFile(profile);
+		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + (shouldGzipFile ? PROFILE_GZ_EXT : PROFILE_EXT));
 
 		// Log a stack trace to see who is writing the profile.
 		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
@@ -438,7 +438,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		profile.setChanged(false);
 		OutputStream os = null;
 		try {
-			os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(profileFile)));
+			if (shouldGzipFile)
+				os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(profileFile)));
+			else
+				os = new BufferedOutputStream(new FileOutputStream(profileFile));
 			Writer writer = new Writer(os);
 			writer.writeProfile(profile);
 		} catch (IOException e) {
@@ -453,6 +456,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				// ignore
 			}
 		}
+	}
+
+	/**
+	 * Returns whether the profile file for the given profile should be written in gzip format.
+	 */
+	private boolean shouldGzipFile(Profile profile) {
+		//check whether the profile contains the p2 engine from 3.5.0 or earlier
+		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), new Collector(), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {
