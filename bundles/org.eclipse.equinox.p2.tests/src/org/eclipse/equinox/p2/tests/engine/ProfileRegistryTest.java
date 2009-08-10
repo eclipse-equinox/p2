@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -19,10 +20,12 @@ import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -541,4 +544,77 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	//			}
 	//		}
 	//	}
+
+	public void testPersistenceFormatNotGzipped() {
+		//in a profile with an engine version from 3.5.0 or earlier, we must not gzip the profile registry
+		IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("1.0.100.v20090605"));
+		File folder = getTempFolder();
+		folder.mkdirs();
+		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
+		Profile profile = new Profile(getName(), null, null);
+		profile.addInstallableUnit(engineIU);
+		Method saveMethod;
+		try {
+			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+			saveMethod.setAccessible(true);
+			saveMethod.invoke(profileRegistry, new Object[] {profile});
+		} catch (SecurityException e) {
+			fail();
+		} catch (NoSuchMethodException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
+			fail();
+		} catch (IllegalAccessException e) {
+			fail();
+		} catch (InvocationTargetException e) {
+			fail();
+		}
+		File profileFolder = new File(folder, getName() + ".profile");
+		File[] filesFound = profileFolder.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".profile");
+			}
+		});
+		assertEquals(1, filesFound.length);
+		filesFound = profileFolder.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".profile.gz");
+			}
+		});
+		assertEquals(0, filesFound.length);
+	}
+
+	public void testPersistenceFormatGzipped() {
+		//in a profile with an engine version from 3.5.1 or later, we gzip the profile registry
+		IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("1.0.101"));
+		File folder = getTempFolder();
+		folder.mkdirs();
+		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
+		Profile profile = new Profile(getName(), null, null);
+		profile.addInstallableUnit(engineIU);
+		Method saveMethod;
+		try {
+			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+			saveMethod.setAccessible(true);
+			saveMethod.invoke(profileRegistry, new Object[] {profile});
+		} catch (SecurityException e) {
+			fail();
+		} catch (NoSuchMethodException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
+			fail();
+		} catch (IllegalAccessException e) {
+			fail();
+		} catch (InvocationTargetException e) {
+			fail();
+		}
+		File profileFolder = new File(folder, getName() + ".profile");
+		File[] filesFound = profileFolder.listFiles(new FileFilter() {
+
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".profile.gz");
+			}
+		});
+		assertEquals(1, filesFound.length);
+	}
 }
