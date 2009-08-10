@@ -63,6 +63,9 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testLoad() {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		//assert that test data is intact (see bug 285158)
+		File profileFile = new File(new File(testData, "SDKPatchingTest.profile"), "1228337371455.profile");
+		assertTrue("0.15", profileFile.exists());
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
