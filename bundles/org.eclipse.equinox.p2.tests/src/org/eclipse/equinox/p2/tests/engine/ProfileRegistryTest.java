@@ -16,8 +16,7 @@ import java.lang.reflect.Method;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
@@ -582,6 +581,57 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			}
 		});
 		assertEquals(0, filesFound.length);
+	}
+
+	/**
+	 * Asserts that the profile registry persistence honours the system property for controlling
+	 * the profile format. See bug 285774.
+	 */
+	public void testPersistenceFormatOverride() {
+		try {
+			IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("55.2"));
+			final String[] values = new String[] {"", "blort", null, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED};
+			for (int i = 0; i < values.length; i++) {
+				final String currentValue = values[i];
+				if (currentValue == null)
+					System.getProperties().remove(EngineActivator.PROP_PROFILE_FORMAT);
+				else
+					System.getProperties().put(EngineActivator.PROP_PROFILE_FORMAT, currentValue);
+				File folder = getTempFolder();
+				folder.mkdirs();
+				SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
+				Profile profile = new Profile(getName(), null, null);
+				profile.addInstallableUnit(engineIU);
+				Method saveMethod;
+				try {
+					saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+					saveMethod.setAccessible(true);
+					saveMethod.invoke(profileRegistry, new Object[] {profile});
+				} catch (SecurityException e) {
+					fail("1.0", e);
+				} catch (NoSuchMethodException e) {
+					fail("1.1", e);
+				} catch (IllegalArgumentException e) {
+					fail("1.2", e);
+				} catch (IllegalAccessException e) {
+					fail("1.3", e);
+				} catch (InvocationTargetException e) {
+					fail("1.4", e);
+				}
+				File profileFolder = new File(folder, getName() + ".profile");
+				profileFolder.listFiles(new FileFilter() {
+					public boolean accept(File pathname) {
+						if (pathname.getName().endsWith(".profile"))
+							assertEquals("2.0." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED, currentValue);
+						else if (pathname.getName().endsWith(".profile.gz"))
+							assertFalse("2.1." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED.equals(currentValue));
+						return false;
+					}
+				});
+			}
+		} finally {
+			System.getProperties().remove(EngineActivator.PROP_PROFILE_FORMAT);
+		}
 	}
 
 	public void testPersistenceFormatGzipped() {
