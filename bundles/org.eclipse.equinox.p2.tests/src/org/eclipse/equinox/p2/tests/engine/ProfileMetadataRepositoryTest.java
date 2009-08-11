@@ -46,7 +46,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testValidate() {
-		File testData = getTestData("0.1", "testData/sdkpatchingtest/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
@@ -62,7 +62,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testLoad() {
-		File testData = getTestData("0.1", "testData/sdkpatchingtest/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		//assert that test data is intact (see bug 285158)
 		File profileFile = new File(new File(testData, "SDKPatchingTest.profile"), "1228337371455.profile");
 		assertTrue("0.15", profileFile.exists());
@@ -93,7 +93,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testLoadTimestampedProfile() {
-		File testData = getTestData("0.1", "testData/sdkpatchingtest/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
