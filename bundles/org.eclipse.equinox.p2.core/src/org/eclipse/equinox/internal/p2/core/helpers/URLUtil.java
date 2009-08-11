@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,14 +28,42 @@ public class URLUtil {
 	 * @return The local file corresponding to the given url, or <code>null</code>
 	 */
 	public static File toFile(URL url) {
+
+		if (!"file".equalsIgnoreCase(url.getProtocol())) //$NON-NLS-1$
+			return null;
+		//assume all illegal characters have been properly encoded, so use URI class to unencode
+
+		String externalForm = url.toExternalForm();
+		String pathString = externalForm.substring(5);
+
 		try {
-			if (!"file".equalsIgnoreCase(url.getProtocol())) //$NON-NLS-1$
-				return null;
-			//assume all illegal characters have been properly encoded, so use URI class to unencode
-			return new File(new URI(url.toExternalForm()));
+			if (pathString.indexOf('/') == 0) {
+				if (pathString.indexOf("//") == 0) //$NON-NLS-1$
+					externalForm = "file:" + ensureUNCPath(pathString); //$NON-NLS-1$
+				return new File(new URI(externalForm));
+			}
+			if (pathString.indexOf(':') == 1)
+				return new File(new URI("file:/" + pathString)); //$NON-NLS-1$
+
+			return new File(new URI(pathString).getSchemeSpecificPart());
 		} catch (Exception e) {
 			//URL contains unencoded characters
-			return new File(url.getFile());
+			return new File(pathString);
 		}
+	}
+
+	/**
+	 * Ensures the given path string starts with exactly four leading slashes.
+	 */
+	private static String ensureUNCPath(String path) {
+		int len = path.length();
+		StringBuffer result = new StringBuffer(len);
+		for (int i = 0; i < 4; i++) {
+			//	if we have hit the first non-slash character, add another leading slash
+			if (i >= len || result.length() > 0 || path.charAt(i) != '/')
+				result.append('/');
+		}
+		result.append(path);
+		return result.toString();
 	}
 }
