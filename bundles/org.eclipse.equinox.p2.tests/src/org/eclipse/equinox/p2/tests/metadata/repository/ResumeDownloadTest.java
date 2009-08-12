@@ -73,6 +73,38 @@ public class ResumeDownloadTest extends TestCase {
 
 	}
 
+	public void testResumeTwice() throws ProvisionException {
+		boolean caught = false;
+		try {
+			FileReader.setTestProbe(new CancelSimulator());
+			mgr.loadRepository(repoLoc, null);
+		} catch (OperationCanceledException e) {
+			/* ignore - the operation is supposed to be canceled */
+			caught = true;
+		}
+		assertTrue("Cancel should have been caught (1)", caught);
+		caught = false;
+
+		try {
+			FileReader.setTestProbe(new CancelSimulator());
+			mgr.loadRepository(repoLoc, null);
+		} catch (OperationCanceledException e) {
+			/* ignore - the operation is supposed to be canceled */
+			caught = true;
+		}
+		assertTrue("Cancel should have been caught (2)", caught);
+		caught = false;
+		FileReader.setTestProbe(null);
+
+		FileReader.setTestProbe(new ResumeCheck());
+		mgr.loadRepository(repoLoc, null);
+
+		assertTrue("Cancelation was made before entire file was downloaded", bytesReceived < entireLength);
+		assertEquals("First+remaining size equals entire size", bytesReceived + remainingLength, entireLength);
+		assertTrue("Remaining length smaller than entire length", entireLength > remainingLength);
+
+	}
+
 	public void testBlockedResume() throws ProvisionException {
 		// block the resume functionality
 		System.setProperty("org.eclipse.equinox.p2.metadata.repository.resumable", "false");
