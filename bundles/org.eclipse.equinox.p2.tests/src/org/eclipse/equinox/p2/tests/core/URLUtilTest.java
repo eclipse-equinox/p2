@@ -69,7 +69,7 @@ public class URLUtilTest extends AbstractProvisioningTest {
 	}
 
 	public void testToFileFromUNC() throws Exception {
-		File original = new File("\\\\a\\b c");
+		File original = new File("//a/b c");
 		// this tests the two slash UNC path that URL creates
 		URL url = new URL("file:" + original.toString());
 		File result = URLUtil.toFile(url);
