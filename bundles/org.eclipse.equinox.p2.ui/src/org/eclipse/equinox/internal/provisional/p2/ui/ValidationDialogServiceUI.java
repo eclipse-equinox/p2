@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.security.cert.Certificate;
-import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -19,16 +19,36 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUICheckUnsigned;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
  * The default GUI-based implementation of {@link IServiceUI}.
  */
-public class ValidationDialogServiceUI implements IServiceUI {
+public class ValidationDialogServiceUI implements IServiceUI, IServiceUICheckUnsigned {
+	/**
+	 * Subclassed to add a cancel button to the error dialog.
+	 */
+	static class OkCancelErrorDialog extends ErrorDialog {
+
+		public OkCancelErrorDialog(Shell parentShell, String dialogTitle, String message, IStatus status, int displayMask) {
+			super(parentShell, dialogTitle, message, status, displayMask);
+		}
+
+		protected void createButtonsForButtonBar(Composite parent) {
+			// create OK and Details buttons
+			createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+			createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, true);
+			createDetailsButton(parent);
+		}
+	}
 
 	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
 
@@ -126,6 +146,26 @@ public class ValidationDialogServiceUI implements IServiceUI {
 
 			});
 		}
+		return result[0];
+	}
+
+	public boolean promptForUnsignedContent(final String[] details) {
+		final boolean[] result = new boolean[] {false};
+		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				Shell shell = ProvUI.getDefaultParentShell();
+				OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title, null, createStatus(), IStatus.WARNING);
+				result[0] = dialog.open() == IDialogConstants.OK_ID;
+			}
+
+			private IStatus createStatus() {
+				MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ServiceUI_unsigned_message, null);
+				for (int i = 0; i < details.length; i++) {
+					parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, details[i]));
+				}
+				return parent;
+			}
+		});
 		return result[0];
 	}
 }

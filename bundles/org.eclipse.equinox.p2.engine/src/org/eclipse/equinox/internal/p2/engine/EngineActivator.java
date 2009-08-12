@@ -33,6 +33,30 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 	 */
 	public static final String PROFILE_FORMAT_UNCOMPRESSED = "uncompressed"; //$NON-NLS-1$
 
+	/**
+	 * System property specifying how the engine should handle unsigned artifacts.
+	 * If this property is undefined, the default value is assumed to be "prompt".
+	 */
+	public static final String PROP_UNSIGNED_POLICY = "eclipse.p2.unsignedPolicy"; //$NON-NLS-1$
+
+	/**
+	 * System property value specifying that the engine should prompt for confirmation
+	 * when installing unsigned artifacts.
+	 */
+	public static final String UNSIGNED_PROMPT = "prompt"; //$NON-NLS-1$
+
+	/**
+	 * System property value specifying that the engine should fail when an attempt
+	 * is made to install unsigned artifacts.
+	 */
+	public static final String UNSIGNED_FAIL = "fail"; //$NON-NLS-1$
+
+	/**
+	 * System property value specifying that the engine should silently allow unsigned
+	 * artifacts to be installed.
+	 */
+	public static final String UNSIGNED_ALLOW = "allow"; //$NON-NLS-1$
+
 	private ServiceRegistration registration;
 
 	private ServiceTracker tracker;

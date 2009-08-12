@@ -268,6 +268,9 @@ public class ProvUIMessages extends NLS {
 	public static String ServiceUI_LoginDetails;
 	public static String ServiceUI_LoginRequired;
 	public static String ServiceUI_OK;
+	public static String ServiceUI_unsigned_message;
+	public static String ServiceUI_unsigned_title;
+	public static String ServiceUI_warning_title;
 	public static String UpdateOrInstallWizardPage_Size;
 	public static String Updates_Label;
 	public static String UpdateWizardPage_Description;

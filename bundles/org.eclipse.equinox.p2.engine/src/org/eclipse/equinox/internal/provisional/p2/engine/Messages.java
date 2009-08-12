@@ -20,6 +20,7 @@ public class Messages extends NLS {
 	public static String CertificateChecker_KeystoreConnectionError;
 	public static String CertificateChecker_SignedContentIOError;
 	public static String CertificateChecker_SignedContentError;
+	public static String CertificateChecker_UnsignedNotAllowed;
 	public static String not_current_phase;
 	public static String null_operands;
 	public static String null_phase;
