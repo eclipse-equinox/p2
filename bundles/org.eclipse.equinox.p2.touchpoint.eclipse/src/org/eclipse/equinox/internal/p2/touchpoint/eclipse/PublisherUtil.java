@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *      EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -21,8 +22,14 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 
 public class PublisherUtil {
 
+	/**
+	 * Returns an IU corresponding to the given artifact key and bundle, or <code>null</code>
+	 * if an IU could not be created.
+	 */
 	public static IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
+		if (bundleDescription == null)
+			return null;
 		PublisherInfo info = new PublisherInfo();
 		Version version = new Version(bundleDescription.getVersion().toString());
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);

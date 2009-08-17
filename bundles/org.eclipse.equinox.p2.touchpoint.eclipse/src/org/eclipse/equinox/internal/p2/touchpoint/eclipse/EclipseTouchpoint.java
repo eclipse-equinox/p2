@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
+ *     Eclipse Source - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -212,6 +213,10 @@ public class EclipseTouchpoint extends Touchpoint {
 				return null;
 			}
 			preparedIU = PublisherUtil.createBundleIU(artifactKey, bundleFile);
+			if (preparedIU == null) {
+				LogHelper.log(Util.createError("The bundle manifest could not be read: " + bundleFile.toString())); //$NON-NLS-1$
+				return null;
+			}
 			savePreparedIU(profile, preparedIU);
 			return preparedIU;
 		}
