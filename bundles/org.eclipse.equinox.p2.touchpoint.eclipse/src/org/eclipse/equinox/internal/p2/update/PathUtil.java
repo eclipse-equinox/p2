@@ -73,7 +73,7 @@ public class PathUtil {
 			return toRel.toOSString();
 		}
 		String result = ""; //$NON-NLS-1$
-		for (int j = 0; j < (base.segmentCount() - i); j++) {
+		for (int j = 0; j < base.segmentCount() - i; j++) {
 			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
 		}
 		if (i == toRel.segmentCount())

@@ -94,7 +94,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		if (currentValue == null)
 			// User has removed value from file
 			setUserArg(storedValues, flag, null);
-		else if ((maxValue == null) || (!maxValue.equals(currentValue.substring(flag.length()))))
+		else if (maxValue == null || !maxValue.equals(currentValue.substring(flag.length())))
 			// User has set an initial value, or modified the file 
 			setUserArg(storedValues, flag, currentValue.substring(flag.length()));
 	}
@@ -114,7 +114,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		String maxStored = getMaxValue(getArgs(storedValues, flag));
 		String userDefined = AddJVMArgumentAction.getUserArg(storedValues, flag);
 
-		if ((maxStored != null) || (userDefined != null)) {
+		if (maxStored != null || userDefined != null) {
 			// Replacement is available either stored, or user defined
 			if (maxStored == null)
 				launcherData.addJvmArg(flag + userDefined);
@@ -145,9 +145,9 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 			bPower += 10;
 		}
 
-		if ((aPower > bPower) && (aVal != 0))
+		if (aPower > bPower && aVal != 0)
 			return 1;
-		else if ((aPower < bPower) && (bVal != 0))
+		else if (aPower < bPower && bVal != 0)
 			return -1;
 		// Both have same power, so direct comparison 
 		else if (aVal > bVal)
@@ -190,7 +190,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	// Get the current used argument if there is one 
 	protected static String getCurrentArg(String flag, String[] jvmArgs) {
 		for (int i = 0; i < jvmArgs.length; i++)
-			if ((jvmArgs[i] != null) && (jvmArgs[i].startsWith(flag)))
+			if (jvmArgs[i] != null && jvmArgs[i].startsWith(flag))
 				return jvmArgs[i];
 		return null;
 	}

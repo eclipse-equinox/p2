@@ -234,7 +234,7 @@ public class PlatformConfigurationWrapper {
 		if (site == null)
 			return false;
 
-		return (site.getFeature(featureId, featureVersion) != null);
+		return site.getFeature(featureId, featureVersion) != null;
 	}
 
 	/*

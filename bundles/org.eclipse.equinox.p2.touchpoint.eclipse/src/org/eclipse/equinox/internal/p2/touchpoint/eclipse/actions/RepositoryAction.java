@@ -169,7 +169,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
 		Preferences node = getRepositoryPreferenceNode(null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
-		if ((--count < 1) && (manager != null))
+		if (--count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
 		setRepositoryCount(node, count);
 	}
