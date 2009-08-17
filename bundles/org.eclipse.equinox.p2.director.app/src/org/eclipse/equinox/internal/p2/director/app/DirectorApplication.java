@@ -417,7 +417,7 @@ public class DirectorApplication implements IApplication {
 						profileId = destination;
 				}
 			}
-			if (profileId == null)
+			if (profileId != null)
 				preservedProfile = System.setProperty(PROP_P2_PROFILE, profileId);
 			else
 				System.getProperties().remove(PROP_P2_PROFILE);
