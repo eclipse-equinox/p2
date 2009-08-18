@@ -558,7 +558,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (e != null)
 				e.printStackTrace();
 		}
-		fail(message + ": " + e);
+		if (e != null)
+			message = message + ": " + e;
+		fail(message);
 	}
 
 	public static Iterator getInstallableUnits(IProfile profile2) {
