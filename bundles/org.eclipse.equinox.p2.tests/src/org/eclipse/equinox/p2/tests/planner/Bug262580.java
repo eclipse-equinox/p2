@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class Bug262580 extends AbstractProvisioningTest {
 	public void testRevertFeaturePatch() {
 
-		File testData = getTestData("test data bug 262580", "testData/bug262580/dataSet/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File testData = getTestData("test data bug 262580", "testData/bug262580");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 

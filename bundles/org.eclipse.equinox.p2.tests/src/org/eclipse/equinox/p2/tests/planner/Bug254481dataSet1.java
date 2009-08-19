@@ -27,7 +27,7 @@ public class Bug254481dataSet1 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		File reporegistry1 = getTestData("test data bug 254481", "testData/bug254481/dataSet1/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File reporegistry1 = getTestData("test data bug 254481", "testData/bug254481/dataSet1/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);

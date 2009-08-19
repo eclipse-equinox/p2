@@ -64,7 +64,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testLoad() {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		//assert that test data is intact (see bug 285158)
-		File profileFile = new File(new File(testData, "SDKPatchingTest.profile"), "1228337371455.profile");
+		File profileFile = new File(new File(testData, "SDKPatchingTest.profile"), "1228337371455.profile.gz");
 		assertTrue("0.15", profileFile.exists());
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
@@ -107,7 +107,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
 		assertTrue("0.5", simpleProfileFolder.exists());
 
-		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
+		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile.gz");
 		assertTrue("0.6", timeStampedProfile.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();

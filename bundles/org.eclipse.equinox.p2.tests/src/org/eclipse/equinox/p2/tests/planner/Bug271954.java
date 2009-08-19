@@ -34,7 +34,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		File reporegistry1 = getTestData("test data bug 271954", "testData/bug271954/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File reporegistry1 = getTestData("test data bug 271954", "testData/bug271954");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 

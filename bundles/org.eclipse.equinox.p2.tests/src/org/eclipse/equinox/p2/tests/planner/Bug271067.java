@@ -33,7 +33,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		File reporegistry1 = getTestData("test data bug 271067", "testData/bug271067/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File reporegistry1 = getTestData("test data bug 271067", "testData/bug271067/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());

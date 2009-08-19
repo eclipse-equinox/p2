@@ -35,7 +35,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		repo1 = loadMetadataRepository(getTestData("repo1", "testData/testLargeConflict/repo1").toURI());
 		repo2 = loadMetadataRepository(getTestData("repo2", "testData/testLargeConflict/repo2").toURI());
 
-		File reporegistry1 = getTestData("test data explanation large conflict", "testData/testLargeConflict/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File reporegistry1 = getTestData("test data explanation large conflict", "testData/testLargeConflict/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
