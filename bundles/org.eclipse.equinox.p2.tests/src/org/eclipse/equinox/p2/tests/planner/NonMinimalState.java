@@ -36,7 +36,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
-		profile = registry.getProfile("SDKProfile");
+		profile = registry.getProfile("NonMinimalState");
 		getMetadataRepositoryManager().addRepository(getTestData("nonMinimalState-galileoM7", "testData/galileoM7/").toURI());
 		assertNotNull(profile);
 	}
