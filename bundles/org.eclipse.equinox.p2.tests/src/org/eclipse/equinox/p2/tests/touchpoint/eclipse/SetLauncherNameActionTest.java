@@ -13,6 +13,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetLauncherNameAction;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
@@ -80,4 +81,44 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		action.execute(parameters);
 	}
 
+	public void testChangeName() throws Exception {
+		File tempFolder = getTempFolder();
+
+		Properties profileProperties = new Properties();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
+		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=win32,osgi.os=win32,osgi.arch=x86");
+		IProfile profile = createProfile("changeNameProfile", null, profileProperties);
+
+		//profile will start using "eclipse" by default, give it some content and see if it 
+		//survives a name change.
+		File eclipseIni = new File(tempFolder, "eclipse.ini");
+		StringBuffer ini = new StringBuffer();
+		ini.append("-startup\n");
+		ini.append("plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar\n");
+		writeBuffer(eclipseIni, ini);
+
+		Map parameters = new HashMap();
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		parameters.put("iu", operand.second());
+		touchpoint.initializeOperand(profile, operand, parameters);
+
+		parameters.put(ActionConstants.PARM_LAUNCHERNAME, "foo");
+		parameters = Collections.unmodifiableMap(parameters);
+
+		SetLauncherNameAction action = new SetLauncherNameAction();
+		action.execute(parameters);
+
+		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
+		File bundle = new File(tempFolder, "plugins/aBundle_1.0.0.jar");
+		bundle.getParentFile().mkdirs();
+		copy("1.0", getTestData("1.1", "/testData/testRepos/simple.1/plugins/aBundle_1.0.0.jar"), bundle);
+		manipulator.getConfigData().addBundle(new BundleInfo(bundle.toURI()));
+		manipulator.save(false);
+
+		assertLogContainsLines(new File(tempFolder, "foo.ini"), new String[] {"-startup", "plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar"});
+		assertFalse(eclipseIni.exists());
+	}
 }
