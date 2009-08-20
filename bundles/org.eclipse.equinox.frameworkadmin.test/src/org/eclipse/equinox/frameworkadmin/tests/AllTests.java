@@ -23,7 +23,9 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug196525.class);
 		suite.addTestSuite(Bug258370.class);
 		suite.addTestSuite(CleanupTest.class);
+		suite.addTestSuite(FrameworkExtensionTest.class);
 		suite.addTestSuite(LauncherConfigLocationTest.class);
+		suite.addTestSuite(LauncherDataTest.class);
 		suite.addTestSuite(ManipulatorTests.class);
 		suite.addTestSuite(NoConfigurationValueInEclipseIni.class);
 		suite.addTestSuite(NoRenamingLauncherIni.class);
@@ -33,6 +35,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ReaderTest3.class);
 		suite.addTestSuite(ReaderTest4.class);
 		suite.addTestSuite(ReaderTest5.class);
+		suite.addTestSuite(ReaderTestBug267850.class);
+		suite.addTestSuite(ReaderTestBug285935.class);
 		suite.addTestSuite(RelativePathTest.class);
 		suite.addTestSuite(RemovingABundle.class);
 		suite.addTestSuite(RemovingAllBundles.class);
@@ -43,10 +47,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TestEclipseDataArea.class);
 		suite.addTestSuite(TestRunningInstance.class);
 		suite.addTestSuite(TestVMArg.class);
-		suite.addTestSuite(ManipulatorTests.class);
 		suite.addTestSuite(UtilsTest.class);
-		suite.addTestSuite(LauncherDataTest.class);
-		suite.addTestSuite(FrameworkExtensionTest.class);
 		return suite;
 	}
 
