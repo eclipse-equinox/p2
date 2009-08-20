@@ -420,7 +420,7 @@ public class DirectorApplication implements IApplication {
 			if (profileId != null)
 				preservedProfile = System.setProperty(PROP_P2_PROFILE, profileId);
 			else
-				System.getProperties().remove(PROP_P2_PROFILE);
+				preservedProfile = (String) System.getProperties().remove(PROP_P2_PROFILE);
 		}
 
 		if (!startTransient(BUNDLE_SIMPLE_CONFIGURATOR_MANIPULATOR))
