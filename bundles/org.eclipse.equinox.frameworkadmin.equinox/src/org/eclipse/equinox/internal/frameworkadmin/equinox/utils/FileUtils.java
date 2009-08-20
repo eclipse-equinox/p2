@@ -202,6 +202,9 @@ public class FileUtils {
 		throw new URISyntaxException(url, "Not a file url");
 	}
 
+	/**
+	 * Loads an ini file, returning a list of all non-blank lines in the file.
+	 */
 	public static List loadFile(File file) throws IOException {
 		BufferedReader br = null;
 		try {
@@ -210,7 +213,9 @@ public class FileUtils {
 			String line;
 			List list = new ArrayList();
 			while ((line = br.readLine()) != null) {
-				list.add(line);
+				//skip whitespace
+				if (line.trim().length() > 0)
+					list.add(line);
 			}
 			return list;
 		} finally {
