@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.0.100.@qualifier@" useFeatures="false">
+<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.0.100.@qualifier@" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <text>
@@ -144,6 +144,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.core.databinding"/>
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.net"/>
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
@@ -173,7 +174,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
       <plugin id="org.eclipse.equinox.p2.ui"/>
-      <plugin id="org.eclipse.equinox.p2.ui.admin"/>
+      <plugin id="org.eclipse.equinox.p2.ui.admin" fragment=""/>
       <plugin id="org.eclipse.equinox.p2.ui.admin.rcp"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
@@ -189,6 +190,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.net"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
