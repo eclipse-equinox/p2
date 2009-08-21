@@ -93,13 +93,13 @@ public class CertificateChecker {
 			}
 			Certificate[] trustedCertificates = serviceUI.showCertificates(certificates);
 			if (trustedCertificates == null) {
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
 			}
 			for (int i = 0; i < trustedCertificates.length; i++) {
 				untrusted.remove(trustedCertificates[i]);
 			}
 			if (untrusted.size() > 0)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
 			// add newly trusted certificates to trust engine
 			for (int i = 0; i < trustedCertificates.length; i++) {
 				try {
