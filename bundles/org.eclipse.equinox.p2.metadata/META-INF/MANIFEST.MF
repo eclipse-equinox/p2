@@ -77,9 +77,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.pde.core"
-Import-Package: org.eclipse.osgi.service.resolver;version="1.1.0",
- org.eclipse.osgi.util;version="1.1.0",
- org.osgi.framework;version="1.3.0"
+Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.MetadataActivator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
