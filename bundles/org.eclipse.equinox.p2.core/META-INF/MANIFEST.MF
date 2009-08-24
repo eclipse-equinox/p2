@@ -5,19 +5,13 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
-Import-Package: javax.xml.parsers,
- org.eclipse.core.runtime.preferences;version="3.2.0",
- org.eclipse.osgi.framework.eventmgr;version="1.2.0",
+Import-Package: org.eclipse.osgi.framework.eventmgr;version="1.2.0",
  org.eclipse.osgi.framework.log;version="1.0.0",
- org.eclipse.osgi.service.datalocation;version="1.0.0",
  org.eclipse.osgi.service.debug;version="1.0.0",
  org.eclipse.osgi.service.resolver;version="1.1.0",
  org.eclipse.osgi.util;version="1.0.0",
  org.osgi.framework;version="1.3.0",
- org.osgi.service.prefs;version="1.1.0",
- org.osgi.util.tracker;version="1.3.3",
- org.xml.sax,
- org.xml.sax.helpers
+ org.osgi.util.tracker;version="1.3.0"
 Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.repository",
  org.eclipse.equinox.internal.p2.core.helpers;
   x-friends:="org.eclipse.equinox.p2.director,
@@ -132,10 +126,9 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.pde.core"
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
+ J2SE-1.4
 Bundle-Activator: org.eclipse.equinox.internal.p2.core.Activator
-Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)",
- org.eclipse.equinox.registry;bundle-version="[3.4.0,4.0.0)"
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"

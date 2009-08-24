@@ -32,7 +32,7 @@ Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.pde.core"
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)",

@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="[3.8.0,4.0.0)"
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.tests.Activator
 Import-Package: org.osgi.framework;version="1.4.0"
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Export-Package: org.eclipse.equinox.frameworkadmin.tests
