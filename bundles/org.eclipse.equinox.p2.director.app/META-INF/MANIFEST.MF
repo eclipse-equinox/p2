@@ -10,19 +10,21 @@ Import-Package: org.eclipse.equinox.app,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
- org.eclipse.equinox.internal.provisional.p2.repository,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.engine,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
  org.eclipse.equinox.internal.provisional.p2.metadata.repository,
  org.eclipse.equinox.internal.provisional.p2.query,
+ org.eclipse.equinox.internal.provisional.p2.repository,
+ org.eclipse.osgi.framework.log,
  org.eclipse.osgi.service.environment,
- org.osgi.framework
+ org.eclipse.osgi.util,
+ org.osgi.framework,
+ org.osgi.service.packageadmin
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.app.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
-Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)",
- org.eclipse.osgi;bundle-version="3.4.0"
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
 Export-Package: org.eclipse.equinox.internal.p2.director.app;x-internal:=true
