@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.File;
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -40,6 +41,8 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String PROP_INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
 	private SimpleProfileRegistry profileRegistry;
+
+	private SoftReference cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
 		Query rootIUQuery = new MatchQuery() {
@@ -151,7 +154,20 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		long[] timestamps = registry.listProfileTimestamps(id);
 		if (timestamps.length == 0)
 			return null;
-		return registry.getProfile(id, timestamps[timestamps.length - 1]);
+
+		long currentTimestamp = timestamps[timestamps.length - 1];
+
+		//see if we have a cached profile
+		if (cachedProfile != null) {
+			IProfile profile = (IProfile) cachedProfile.get();
+			if (profile != null && profile.getProfileId().equals(id) && profile.getTimestamp() == currentTimestamp)
+				return profile;
+		}
+
+		final IProfile profile = registry.getProfile(id, currentTimestamp);
+		if (profile != null)
+			cachedProfile = new SoftReference(profile);
+		return profile;
 	}
 
 	/* (non-Javadoc)
