@@ -167,17 +167,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
 		}
-		final Map parsedProfiles = parser.getProfileMap();
-		Map profileMap;
-		if (profiles == null) {
-			profileMap = new LinkedHashMap(10);
-			profiles = new SoftReference(profileMap);
-		} else {
-			profileMap = getProfileMap();
-		}
-		Profile profile = (Profile) parsedProfiles.get(id);
-		profileMap.put(id, profile);
-		return profile;
+		return (IProfile) parser.getProfileMap().get(id);
 	}
 
 	public synchronized long[] listProfileTimestamps(String id) {
