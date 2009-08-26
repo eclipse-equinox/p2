@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   EclipseSource - ongoing development
+ *   IBM Corporation - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -27,7 +28,7 @@ import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
  * launching as well as the configuration (bundles, properties, ...)
  */
 public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice, IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
-
+	private final static String EMPTY_VERSION = "0.0.0"; //$NON-NLS-1$
 	private final static String OSGI_SPLASH_PATH = "osgi.splashPath"; //$NON-NLS-1$
 	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
 	private IProductDescriptor product;
@@ -156,9 +157,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	private ConfigData getConfigData() {
 		DataLoader loader = createDataLoader();
 		ConfigData result;
-		if (loader != null)
+		if (loader != null) {
 			result = loader.getConfigData();
-		else
+			normalizeBundleVersions(result);
+		} else
 			result = generateConfigData();
 
 		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
@@ -174,17 +176,26 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		return result;
 	}
 
-	private void addProductFileConfigBundles(ConfigData configData) {
+	private void normalizeBundleVersions(ConfigData data) {
+		BundleInfo[] bundles = data.getBundles();
+		for (int i = 0; i < bundles.length; i++) {
+			// If the bundle doesn't have a version set it to 0.0.0
+			if (bundles[i].getVersion() == null)
+				bundles[i].setVersion(EMPTY_VERSION);
+		}
+	}
+
+	private void addProductFileConfigBundles(ConfigData data) {
 		Set versionBoundBundles = new HashSet();
 		Map unboundedBundles = new HashMap();
 
-		BundleInfo[] bundles = configData.getBundles();
+		BundleInfo[] bundles = data.getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			// For each bundle we know about, cache it.  If the bundle doesn't have a version
 			// add it to a list of bundles by name
 			BundleInfo bundleInfo = bundles[i];
-			if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals("0.0.0")) { //$NON-NLS-1$
-				bundleInfo.setVersion("0.0.0"); //$NON-NLS-1$
+			if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals(EMPTY_VERSION)) {
+				bundleInfo.setVersion(EMPTY_VERSION);
 				addUnboundedBundle(unboundedBundles, bundleInfo);
 			} else {
 				versionBoundBundles.add(bundleInfo);
@@ -202,13 +213,13 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 
 			if (versionBoundBundles.contains(bundleInfo)) {
 				// If we found a version with the same name and version, replace it with the "configured" bundle
-				configData.removeBundle(bundleInfo);
-				configData.addBundle(bundleInfo);
+				data.removeBundle(bundleInfo);
+				data.addBundle(bundleInfo);
 			} else if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals("0.0.0")) {//$NON-NLS-1$
 				// If we don't have a version number, look for all bundles that match by name
 				List list = (List) unboundedBundles.get(bundleInfo.getSymbolicName());
 				if (list == null)
-					configData.addBundle(bundleInfo);
+					data.addBundle(bundleInfo);
 				else
 					for (Iterator iterator = list.iterator(); iterator.hasNext();) {
 						BundleInfo target = (BundleInfo) iterator.next();
@@ -217,7 +228,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 					}
 			} else {
 				// Otherwise we have a version, but we could not match it, so just add this one.
-				configData.addBundle(bundleInfo);
+				data.addBundle(bundleInfo);
 			}
 
 		}
@@ -229,10 +240,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		((LinkedList) data.get(bundleInfo.getSymbolicName())).add(bundleInfo);
 	}
 
-	private void addProductFileBundles(ConfigData configData) {
+	private void addProductFileBundles(ConfigData data) {
 		List bundles = product.getBundles(true);
 		Set set = new HashSet();
-		set.addAll(Arrays.asList(configData.getBundles()));
+		set.addAll(Arrays.asList(data.getBundles()));
 
 		for (Iterator i = bundles.iterator(); i.hasNext();) {
 			VersionedName name = (VersionedName) i.next();
@@ -240,7 +251,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 			bundleInfo.setSymbolicName(name.getId());
 			bundleInfo.setVersion(name.getVersion().toString());
 			if (!set.contains(bundleInfo))
-				configData.addBundle(bundleInfo);
+				data.addBundle(bundleInfo);
 		}
 	}
 
@@ -302,16 +313,19 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 			location = product.getConfigIniPath(null);
 		if (location == null)
 			return null;
-		File configFile = new File(location);
 
+		File configFile = new File(location);
 		// We are assuming we are always relative from the product file
 		// However PDE tooling puts us relative from the workspace, that "relative" path also looks like an absolute path on linux
 		// Build may have copied the file to the correct place for us
 		if (!configFile.isAbsolute() || !configFile.exists())
 			configFile = new File(product.getLocation().getParentFile(), location);
-		// TODO need to figure out what to do for the launcher location here...
-		// for now just give any old path that has a parent
-		return new DataLoader(configFile, new File(product.getLauncherName()).getAbsoluteFile());
+
+		//We don't really have an executable location, get something reasonable based on the config.ini location
+		File parent = configFile.getParentFile();
+		if (parent.getName().equals("configuration") && parent.getParentFile() != null) //$NON-NLS-1$
+			parent = parent.getParentFile();
+		return new DataLoader(configFile, parent);
 	}
 
 }

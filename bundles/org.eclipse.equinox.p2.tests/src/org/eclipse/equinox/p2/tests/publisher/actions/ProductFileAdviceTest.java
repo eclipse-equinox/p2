@@ -199,8 +199,6 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 
 		Properties configProperties = new Properties();
 		configProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", "file:org.eclipse.equinox.simpleconfigurator/bundles.info");
-		configProperties.put("osgi.bundles", "org.eclipse.equinox.simpleconfigurator@1:start");
-		writeProperties(new File(rootFolder, "config.ini"), configProperties);
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("org.eclipse.equinox.common,3.5.100.v20090817,plugins/org.eclipse.equinox.common_3.5.100.v20090817.jar,2,true\n");
@@ -221,5 +219,39 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 				assertEquals("update.configurator started", false, bundles[i].isMarkedAsStarted());
 			}
 		}
+	}
+
+	public void testConfigNullLauncher() throws Exception {
+		File root = getTestFolder("configNullLauncher");
+		File testProduct = new File(root, "test.product");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<product id=\"test.product\" version=\"1\" useFeatures=\"false\">	\n");
+		buffer.append("   <configIni use=\"default\">										\n");
+		buffer.append("      <win32>config.ini</win32>										\n");
+		buffer.append("   </configIni>														\n");
+		buffer.append("   <plugins>															\n");
+		buffer.append("      <plugin id=\"org.eclipse.core.runtime\" version=\"1.0.4\"/>	\n");
+		buffer.append("      <plugin id=\"org.eclipse.equinox.simpleconfigurator\" />		\n");
+		buffer.append("   </plugins>														\n");
+		buffer.append("</product>															\n");
+		writeBuffer(testProduct, buffer);
+
+		Properties configProperties = new Properties();
+		configProperties.put("osgi.bundles", "org.eclipse.equinox.simpleconfigurator@1:start");
+		configProperties.put("eclipse.application", "test.application");
+		configProperties.put("osgi.instance.area.default", "@user.home/workspace");
+		writeProperties(new File(root, "config.ini"), configProperties);
+
+		ProductFile product = new ProductFile(testProduct.getCanonicalPath());
+		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.win32");
+
+		BundleInfo[] bundles = advice.getBundles();
+		assertEquals("bundlers length", 2, bundles.length);
+
+		Properties adviceProperties = advice.getProperties();
+		assertEquals("instance.area.default", "@user.home/workspace", adviceProperties.get("osgi.instance.area.default"));
+		assertEquals("eclipse.application", "test.application", adviceProperties.get("eclipse.application"));
+		assertEquals("eclipse.product", "test.product", adviceProperties.get("eclipse.product"));
 	}
 }
