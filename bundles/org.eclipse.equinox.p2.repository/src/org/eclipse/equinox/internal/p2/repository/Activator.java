@@ -62,6 +62,12 @@ public class Activator implements BundleActivator {
 		return (IRetrieveFileTransferFactory) getFileTransferServiceTracker().getService();
 	}
 
+	public synchronized void useJREHttpClient() {
+		// TODO: Check of JREHttpClient is already in use - then do nothing, else switch to JRE HTTP Client
+		//
+		// TODO - Log that the http client was switched.
+	}
+
 	/**
 	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and starts the bundles
 	 * "org.eclipse.ecf" and

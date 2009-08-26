@@ -32,6 +32,7 @@ public class AllTestServerTests extends AbstractTestServerSuite {
 
 		suite.addTestSuite(FileInfoReaderTest.class);
 		suite.addTestSuite(FileReaderTest.class);
+		suite.addTestSuite(NTLMTest.class);
 
 		suite.addTest(new AbstractTestServerSuite("stopServer"));
 	}
