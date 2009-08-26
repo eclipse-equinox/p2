@@ -42,13 +42,13 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
  */
 public abstract class AbstractProvisioningTest extends TestCase {
 
-	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
-	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	protected static final VersionRange ANY_VERSION = VersionRange.emptyRange;
+	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0))};
 
 	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
-	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
-	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0));
+	protected static final Version DEFAULT_VERSION = Version.createOSGi(1, 0, 0);
+	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0));
 
 	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
 	protected static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
@@ -596,6 +596,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			outputFile.getParentFile().mkdirs();
 			stream = new FileOutputStream(outputFile);
 			stream.write(buffer.toString().getBytes());
+		} finally {
+			if (stream != null)
+				stream.close();
+		}
+	}
+
+	public static void writeProperties(File outputFile, Properties properties) throws IOException {
+		FileOutputStream stream = null;
+		try {
+			outputFile.getParentFile().mkdirs();
+			stream = new FileOutputStream(outputFile);
+			properties.store(stream, "");
 		} finally {
 			if (stream != null)
 				stream.close();

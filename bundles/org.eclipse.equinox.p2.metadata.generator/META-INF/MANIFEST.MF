@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.metadata.generator;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.100.qualifier
+Bundle-Version: 1.0.200.qualifier
 Require-Bundle: org.eclipse.equinox.p2.core,
  org.eclipse.osgi,
  org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
@@ -22,6 +22,7 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
  org.eclipse.equinox.internal.provisional.p2.metadata.repository,
  org.eclipse.equinox.internal.provisional.p2.repository,
+ org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator,
  org.w3c.dom,
  org.xml.sax,
  org.xml.sax.helpers

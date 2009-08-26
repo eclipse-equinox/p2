@@ -6,21 +6,22 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM Corporation - on-going maintenance
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
  * Tests the product file advice
  */
-public class ProductFileAdviceTest extends TestCase {
+public class ProductFileAdviceTest extends AbstractProvisioningTest {
 
 	String productFileLocation = null;
 	ProductFile productFile = null;
@@ -189,5 +190,36 @@ public class ProductFileAdviceTest extends TestCase {
 		absolutePath = new File(productFile2.getLocation().getParentFile(), "icon.bmp").getAbsolutePath();
 		assertEquals("2.0", 1, icons.length);
 		assertEquals("2.1", absolutePath, icons[0]);
+	}
+
+	public void testSimpleConfiguratorConfigURL() throws Exception {
+		File rootFolder = getTestFolder("simpleConfiguratorConfigURL");
+		File sampleProduct = new File(rootFolder, "sample.product");
+		copy("Copying sample.product", TestData.getFile("ProductActionTest/productWithConfig", "sample.product"), sampleProduct);
+
+		Properties configProperties = new Properties();
+		configProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", "file:org.eclipse.equinox.simpleconfigurator/bundles.info");
+		configProperties.put("osgi.bundles", "org.eclipse.equinox.simpleconfigurator@1:start");
+		writeProperties(new File(rootFolder, "config.ini"), configProperties);
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("org.eclipse.equinox.common,3.5.100.v20090817,plugins/org.eclipse.equinox.common_3.5.100.v20090817.jar,2,true\n");
+		buffer.append("org.eclipse.update.configurator,3.3.100.v20090813,plugins/org.eclipse.update.configurator_3.3.100.v20090813.jar,4,false\n");
+		buffer.append("org.eclipse.equinox.simpleconfigurator,1.0.200.v20090729-1800,plugins/org.eclipse.equinox.simpleconfigurator_1.0.200.v20090729-1800.jar,1,true\n");
+		writeBuffer(new File(rootFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), buffer);
+
+		ProductFile product = new ProductFile(sampleProduct.getCanonicalPath());
+		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.win32");
+
+		BundleInfo[] bundles = advice.getBundles();
+		for (int i = 0; i < 2; i++) {
+			if (bundles[i].getSymbolicName().equals("org.eclipse.equinox.common")) {
+				assertEquals("equinox.common start level", 2, bundles[i].getStartLevel());
+				assertEquals("equinox.common started", true, bundles[i].isMarkedAsStarted());
+			} else if (bundles[i].getSymbolicName().equals("org.eclipse.update.configurator")) {
+				assertEquals("update.configurator start level", 4, bundles[i].getStartLevel());
+				assertEquals("update.configurator started", false, bundles[i].isMarkedAsStarted());
+			}
+		}
 	}
 }
