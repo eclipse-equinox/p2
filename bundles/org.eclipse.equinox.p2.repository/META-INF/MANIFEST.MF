@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.ecf.filetransfer,
  org.eclipse.ecf,
  org.eclipse.equinox.p2.core,
- org.eclipse.equinox.registry;bundle-version="3.4.100"
+ org.eclipse.equinox.registry;bundle-version="3.4.100",
+ org.eclipse.ecf.provider.filetransfer;bundle-version="3.0.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
