@@ -227,22 +227,6 @@ public abstract class RepositoryStatusHelper {
 	}
 
 	/**
-	 * Check if the given exception represents that a switch to the JRE HTTP Client 
-	 * is required. ECF sets the HTTP status code 477 to indicate this.
-	 * If the JRE HTTP client is required a JREHttpClientRequiredException is thrown.
-	 */
-	public static void checkJREHttpClientRequired(Throwable t) throws JREHttpClientRequiredException {
-		if (t instanceof IncomingFileTransferException) {
-			if (((IncomingFileTransferException) t).getErrorCode() == 477)
-				throw new JREHttpClientRequiredException();
-		} else if (t instanceof BrowseFileTransferException) {
-			if (((BrowseFileTransferException) t).getErrorCode() == 477)
-				throw new JREHttpClientRequiredException();
-		}
-
-	}
-
-	/**
 	 * Check if the given exception represents a permission failure (401 for HTTP),
 	 * and throw a AuthenticationFailedException if a permission failure was encountered.
 	 */

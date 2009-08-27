@@ -19,7 +19,6 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
@@ -36,21 +35,7 @@ public class Credentials {
 
 	}
 
-	/** 
-	 * Cache of auth information that is not persisted, and modified auth info.
-	 */
 	private static final Map savedAuthInfo = Collections.synchronizedMap(new HashMap());
-
-	/**
-	 * Information about retry counts, and prompts canceled by user. The SoftReference is
-	 * a Map if not null. The keys are also used as serialization per host.
-	 */
-	private static Map remembered;
-
-	/** 
-	 * Serializes pop up of login/password prompt 
-	 */
-	private static final Object promptLock = new Object();
 
 	/**
 	 * Returns the AuthenticationInfo for the given URI. This may prompt the
@@ -91,7 +76,23 @@ public class Credentials {
 	 * @throws CoreException if there is an error
 	 */
 	public static AuthenticationInfo forLocation(URI location, boolean prompt, AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
-		String host = uriToHost(location);
+		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
+
+		// if URI is not opaque, just getting the host may be enough
+		String host = location.getHost();
+		if (host == null) {
+			String scheme = location.getScheme();
+			if (URIUtil.isFileURI(location) || scheme == null)
+				// If the URI references a file, a password could possibly be needed for the directory
+				// (it could be a protected zip file representing a compressed directory) - in this
+				// case the key is the path without the last segment.
+				// Using "Path" this way may result in an empty string - which later will result in
+				// an invalid key.
+				host = new Path(location.toString()).removeLastSegments(1).toString();
+			else
+				// it is an opaque URI - details are unknown - can only use entire string.
+				host = location.toString();
+		}
 		String nodeKey;
 		try {
 			nodeKey = URLEncoder.encode(host, "UTF-8"); //$NON-NLS-1$
@@ -108,212 +109,67 @@ public class Credentials {
 				throw RepositoryStatusHelper.internalError(e);
 			}
 		}
-		if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-			DebugHelper.debug("Credentials", "forLocation:ENTER", // //$NON-NLS-1$ //$NON-NLS-2$
-					new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+		String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
+		ISecurePreferences prefNode = null;
+		try {
+			if (securePreferences.nodeExists(nodeName))
+				prefNode = securePreferences.node(nodeName);
+		} catch (IllegalArgumentException e) {
+			// if the node name is illegal/malformed (should not happen).
+			throw RepositoryStatusHelper.internalError(e);
+		} catch (IllegalStateException e) {
+			// thrown if preference store has been tampered with
+			throw RepositoryStatusHelper.internalError(e);
 		}
-
-		// Must serialize getting stored permissions per host as the location may
-		// be prompted right now
-		// Start by getting a key to lock on
-		HostEntry hostLock = null;
-		synchronized (Credentials.class) {
-			Map r = getRemembered();
-			hostLock = (HostEntry) r.get(host);
-			if (hostLock == null) {
-				hostLock = new HostEntry(0);
-				r.put(host, hostLock);
-			}
-		}
-		AuthenticationInfo loginDetails = null;
-		ISecurePreferences securePreferences = null;
-		// synchronize getting secure store with prompting user, as it may prompt.
-		synchronized (promptLock) {
-			securePreferences = SecurePreferencesFactory.getDefault();
-		}
-
-		// serialize the prompting per host
-		synchronized (hostLock) {
+		if (!prompt) {
 			try {
-				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-					DebugHelper.debug("Credentials", "forLocation:HOSTLOCK OBTAINED", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+				if (prefNode != null) {
+					String username = prefNode.get(IRepository.PROP_USERNAME, null);
+					String password = prefNode.get(IRepository.PROP_PASSWORD, null);
+					// if we don't have stored connection data just return a null auth info
+					if (username != null && password != null)
+						return new IServiceUI.AuthenticationInfo(username, password, true);
 				}
-
-				String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
-				ISecurePreferences prefNode = null;
+				return restoreFromMemory(nodeName);
+			} catch (StorageException e) {
+				throw RepositoryStatusHelper.internalError(e);
+			}
+		}
+		//need to prompt user for user name and password
+		IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
+		AuthenticationInfo loginDetails = null;
+		if (adminUIService != null)
+			loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
+		//null result means user canceled password dialog
+		if (loginDetails == null)
+			throw new LoginCanceledException();
+		//save user name and password if requested by user
+		if (loginDetails.saveResult()) {
+			if (prefNode == null)
+				prefNode = securePreferences.node(nodeName);
+			try {
+				prefNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
+				prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+				prefNode.flush();
+			} catch (StorageException e1) {
+				throw RepositoryStatusHelper.internalError(e1);
+			} catch (IOException e) {
+				throw RepositoryStatusHelper.internalError(e);
+			}
+		} else {
+			// if persisted earlier - the preference should be removed
+			if (securePreferences.nodeExists(nodeName)) {
+				prefNode = securePreferences.node(nodeName);
+				prefNode.removeNode();
 				try {
-					if (securePreferences.nodeExists(nodeName))
-						prefNode = securePreferences.node(nodeName);
-				} catch (IllegalArgumentException e) {
-					// if the node name is illegal/malformed (should not happen).
+					prefNode.flush();
+				} catch (IOException e) {
 					throw RepositoryStatusHelper.internalError(e);
-				} catch (IllegalStateException e) {
-					// thrown if preference store has been tampered with
-					throw RepositoryStatusHelper.internalError(e);
-				}
-				if (!prompt) {
-					try {
-						if (prefNode != null) {
-							String username = prefNode.get(IRepository.PROP_USERNAME, null);
-							String password = prefNode.get(IRepository.PROP_PASSWORD, null);
-							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (username != null && password != null) {
-									DebugHelper.debug("Credentials", "forLocation:PREFNODE FOUND - USING STORED INFO", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
-								}
-							}
-
-							// if we don't have stored connection data just return a null auth info
-							if (username != null && password != null)
-								return new IServiceUI.AuthenticationInfo(username, password, true);
-						}
-						if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-							DebugHelper.debug("Credentials", "forLocation:PREFNODE NOT FOUND - RETURN FROM MEMORY", // //$NON-NLS-1$ //$NON-NLS-2$
-									new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						return restoreFromMemory(nodeName);
-					} catch (StorageException e) {
-						throw RepositoryStatusHelper.internalError(e);
-					}
-				}
-				// need to prompt user for user name and password
-				// first check (throw exception) if having a remembered cancel
-				checkRememberedCancel(host);
-
-				// check if another thread has modified the credentials since last attempt
-				// made by current thread - if so, try with latest without prompting
-				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-					AuthenticationInfo latest = restoreFromMemory(nodeName);
-					boolean useLatest = false;
-					if (latest != null && lastUsed != null)
-						if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
-							useLatest = true;
-					if (useLatest)
-						DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
-								new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-
-				AuthenticationInfo latest = restoreFromMemory(nodeName);
-				if (latest != null && lastUsed != null)
-					if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
-						return latest;
-
-				// check if number of prompts have been exceeded for the host - if so
-				// do a synthetic Login canceled by user
-				// (The alternative is to return "latest" until retry login gives up with
-				// authentication failed - but that would waste time).
-				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-					if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
-						if (lastUsed == null && latest == null)
-							DebugHelper.debug("Credentials", "forLocation:NO INFO - SYNTHETIC CANCEL", // //$NON-NLS-1$ //$NON-NLS-2$
-									new Object[] {"host", location}); //$NON-NLS-1$ 
-						return latest == null ? lastUsed : latest; // keep client failing on the latest known
-					}
-					DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
-
-				}
-				if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
-					if (lastUsed == null && latest == null)
-						throw new LoginCanceledException();
-					return latest == null ? lastUsed : latest; // keep client failing on the latest known
-				}
-				IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
-				if (adminUIService != null)
-					synchronized (promptLock) {
-						try {
-							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK OBTAINED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$ 					
-							}
-
-							// serialize the popping of the dialog itself
-							loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
-							//null result means user canceled password dialog
-							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails == null)
-									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$					
-							}
-							if (loginDetails == null) {
-								rememberCancel(host);
-								throw new LoginCanceledException();
-							}
-							//save user name and password if requested by user
-							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails.saveResult())
-									DebugHelper.debug("Credentials", "forLocation:SAVING RESULT", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$					
-							}
-
-							if (loginDetails.saveResult()) {
-								if (prefNode == null)
-									prefNode = securePreferences.node(nodeName);
-								try {
-									prefNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
-									prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
-									prefNode.flush();
-								} catch (StorageException e1) {
-									throw RepositoryStatusHelper.internalError(e1);
-								} catch (IOException e) {
-									throw RepositoryStatusHelper.internalError(e);
-								}
-							} else {
-								// if persisted earlier - the preference should be removed
-								if (securePreferences.nodeExists(nodeName)) {
-									if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-										DebugHelper.debug("Credentials", "forLocation:REMOVING PREVIOUSLY SAVED INFO", // //$NON-NLS-1$ //$NON-NLS-2$
-												new Object[] {"host", location}); //$NON-NLS-1$					
-									}
-
-									prefNode = securePreferences.node(nodeName);
-									prefNode.removeNode();
-									try {
-										prefNode.flush();
-									} catch (IOException e) {
-										throw RepositoryStatusHelper.internalError(e);
-									}
-								}
-							}
-							saveInMemory(nodeName, loginDetails);
-						} finally {
-							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$					
-							}
-						}
-					}
-				incrementPromptCount(host);
-			} finally {
-				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-					DebugHelper.debug("Credentials", "forLocation:HOSTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location}); //$NON-NLS-1$					
 				}
 			}
-
+			saveInMemory(nodeName, loginDetails);
 		}
-
 		return loginDetails;
-	}
-
-	private static String uriToHost(URI location) {
-		// if URI is not opaque, just getting the host may be enough
-		String host = location.getHost();
-		if (host == null) {
-			String scheme = location.getScheme();
-			if (URIUtil.isFileURI(location) || scheme == null)
-				// If the URI references a file, a password could possibly be needed for the directory
-				// (it could be a protected zip file representing a compressed directory) - in this
-				// case the key is the path without the last segment.
-				// Using "Path" this way may result in an empty string - which later will result in
-				// an invalid key.
-				host = new Path(location.toString()).removeLastSegments(1).toString();
-			else
-				// it is an opaque URI - details are unknown - can only use entire string.
-				host = location.toString();
-		}
-		return host;
 	}
 
 	/**
@@ -325,158 +181,10 @@ public class Credentials {
 	}
 
 	/**
-	 * Saves authentication details in memory so user is only prompted once per (SDK) session
+	 * Saves authentication details in memory so user is only prompted once per session
 	 */
 	private static void saveInMemory(String nodeName, AuthenticationInfo loginDetails) {
 		savedAuthInfo.put(nodeName, loginDetails);
 	}
 
-	/**
-	 * Remember the fact that the host was canceled.
-	 * @param host
-	 */
-	private static void rememberCancel(String host) {
-		Map r = getRemembered();
-		if (r != null)
-			r.put(host, new HostEntry(-1));
-	}
-
-	/**
-	 * Throws LoginCancledException if the host was previously canceled, and the information
-	 * is not stale.
-	 * @param host
-	 * @throws LoginCanceledException
-	 */
-	private static void checkRememberedCancel(String host) throws LoginCanceledException {
-		Map r = getRemembered();
-		if (r != null) {
-			Object x = r.get(host);
-			if (x != null && x instanceof HostEntry)
-				if (((HostEntry) x).isCanceled()) {
-					if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-						DebugHelper.debug("Credentials", "checkRememberCancel:PREVIOUSLY CANCELED", // //$NON-NLS-1$ //$NON-NLS-2$
-								new Object[] {"host", host}); //$NON-NLS-1$ 
-					}
-
-					throw new LoginCanceledException();
-				}
-		}
-
-	}
-
-	/**
-	 * Increments the prompt count for host. If information is stale, the count is restarted
-	 * at 1.
-	 * @param host
-	 */
-	private static void incrementPromptCount(String host) {
-		Map r = getRemembered();
-		if (r != null) {
-			HostEntry value = (HostEntry) r.get(host);
-			if (value == null)
-				r.put(host, value = new HostEntry(1));
-			else {
-				if (value.isStale())
-					value.reset();
-				value.increment();
-			}
-		}
-	}
-
-	/**
-	 * Returns prompt count for host, except if information is stale in which case 0 is returned.
-	 * @param host
-	 * @return number of time prompt has been performed for a host (or 0 if information is stale)
-	 */
-	private static int getPromptCount(String host) {
-		Map r = getRemembered();
-		if (r != null) {
-			HostEntry value = (HostEntry) r.get(host);
-			if (value != null && !value.isStale())
-				return value.getCount();
-		}
-		return 0;
-
-	}
-
-	/**
-	 * Clears the cached information about prompts for all login/password and
-	 * canceled logins.
-	 */
-	public static synchronized void clearPromptCache() {
-		if (remembered == null)
-			return;
-		Map r = remembered;
-		if (r == null || r.isEmpty())
-			return;
-		// reset entries rather than creating a new empty map since the entries
-		// are also used as locks
-		Iterator itor = r.entrySet().iterator();
-		while (itor.hasNext())
-			((HostEntry) itor.next()).reset();
-	}
-
-	/**
-	 * Clears the cached information for location about prompts for login/password and
-	 * canceled logins.
-	 * @param location the repository location
-	 */
-	public static synchronized void clearPromptCache(URI location) {
-		clearPromptCache(uriToHost(location));
-	}
-
-	/**
-	 * Clears the cached information for host about prompts for login/password and
-	 * canceled logins. 
-	 * @param host a host as returned from uriToHost for a location
-	 */
-	public static synchronized void clearPromptCache(String host) {
-		if (remembered == null)
-			return;
-		Map r = remembered;
-		if (r == null)
-			return;
-		HostEntry value = (HostEntry) r.get(host);
-		if (value != null)
-			value.reset();
-	}
-
-	private static synchronized Map getRemembered() {
-		if (remembered == null)
-			remembered = Collections.synchronizedMap(new HashMap());
-		return remembered;
-	}
-
-	private static class HostEntry {
-		long timestamp;
-		int count;
-
-		public HostEntry(int count) {
-			this.count = count;
-			this.timestamp = System.currentTimeMillis();
-		}
-
-		public boolean isCanceled() {
-			return count == -1 && !isStale();
-		}
-
-		public boolean isStale() {
-			// a record is stale if older than 3 minutes
-			return System.currentTimeMillis() - timestamp > 1000 * 60 * 3;
-		}
-
-		public int getCount() {
-			return count;
-		}
-
-		public void increment() {
-			if (count != -1)
-				count++;
-		}
-
-		public void reset() {
-			count = 0;
-			timestamp = System.currentTimeMillis();
-		}
-	}
 }

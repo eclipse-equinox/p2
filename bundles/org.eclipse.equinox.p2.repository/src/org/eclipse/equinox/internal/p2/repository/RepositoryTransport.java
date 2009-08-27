@@ -58,7 +58,6 @@ public class RepositoryTransport extends Transport {
 	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
 
 		boolean promptUser = false;
-		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
@@ -98,12 +97,7 @@ public class RepositoryTransport extends Transport {
 				DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
 						NLS.bind(Messages.UnableToRead_0_UserCanceled, toDownload), null);
 				return statusOn(target, status, null);
-			} catch (JREHttpClientRequiredException e) {
-				if (!useJREHttp) {
-					useJREHttp = true; // only do this once
-					i++; // need an extra retry
-					Activator.getDefault().useJREHttpClient();
-				}
+
 			}
 		}
 		// reached maximum number of retries without success
@@ -141,7 +135,6 @@ public class RepositoryTransport extends Transport {
 	public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException {
 
 		boolean promptUser = false;
-		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
@@ -164,12 +157,6 @@ public class RepositoryTransport extends Transport {
 			} catch (LoginCanceledException e) {
 				// i.e. same behavior when user cancels as when failing n attempts.
 				throw new AuthenticationFailedException();
-			} catch (JREHttpClientRequiredException e) {
-				if (!useJREHttp) {
-					useJREHttp = true; // only do this once
-					i++; // need an extra retry
-					Activator.getDefault().useJREHttpClient();
-				}
 			}
 		}
 		throw new AuthenticationFailedException();
@@ -208,7 +195,6 @@ public class RepositoryTransport extends Transport {
 	 */
 	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
-		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			try {
@@ -229,14 +215,7 @@ public class RepositoryTransport extends Transport {
 			} catch (LoginCanceledException e) {
 				// same behavior as if user failed n attempts.
 				throw new AuthenticationFailedException();
-			} catch (JREHttpClientRequiredException e) {
-				if (!useJREHttp) {
-					useJREHttp = true; // only do this once
-					i++; // need an extra retry
-					Activator.getDefault().useJREHttpClient();
-				}
 			}
-
 		}
 		// reached maximum number of authentication retries without success
 		throw new AuthenticationFailedException();
