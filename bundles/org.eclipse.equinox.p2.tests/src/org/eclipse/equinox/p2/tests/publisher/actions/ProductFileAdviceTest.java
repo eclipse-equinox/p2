@@ -199,6 +199,8 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 
 		Properties configProperties = new Properties();
 		configProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", "file:org.eclipse.equinox.simpleconfigurator/bundles.info");
+		configProperties.put("osgi.bundles", "org.eclipse.equinox.simpleconfigurator@1:start");
+		writeProperties(new File(rootFolder, "config.ini"), configProperties);
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("org.eclipse.equinox.common,3.5.100.v20090817,plugins/org.eclipse.equinox.common_3.5.100.v20090817.jar,2,true\n");
