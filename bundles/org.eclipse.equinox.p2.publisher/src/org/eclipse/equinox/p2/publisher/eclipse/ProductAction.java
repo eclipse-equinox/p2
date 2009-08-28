@@ -150,7 +150,7 @@ public class ProductAction extends AbstractPublisherAction {
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
 				Iterator advice = versionAdvice.iterator();
 				while (advice.hasNext()) {
-					elementVersion = ((VersionAdvice) advice.next()).getVersion(namespace, element.getId());
+					elementVersion = ((IVersionAdvice) advice.next()).getVersion(namespace, element.getId());
 					break;
 				}
 			}
