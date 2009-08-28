@@ -596,6 +596,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
+	public static void writeProperties(File outputFile, Properties properties) throws IOException {
+		FileOutputStream stream = null;
+		try {
+			outputFile.getParentFile().mkdirs();
+			stream = new FileOutputStream(outputFile);
+			properties.store(stream, "");
+		} finally {
+			if (stream != null)
+				stream.close();
+		}
+	}
+
 	private static void write(IStatus status, int indent, PrintStream output) {
 		indent(output, indent);
 		output.println("Severity: " + status.getSeverity());
