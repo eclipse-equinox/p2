@@ -11,8 +11,10 @@
 package org.eclipse.equinox.p2.tests.publisher;
 
 import java.lang.reflect.Method;
+import java.util.NoSuchElementException;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
+import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
 
@@ -50,5 +52,52 @@ public class GeneralPublisherTests extends TestCase {
 		assertEquals("1.0", 1, retValue.intValue());
 		assertEquals("1.1", Messages.exception_noArtifactRepo, application.getStatus().getMessage());
 
+	}
+
+	public void testQuotedTokenizer() throws Exception {
+		QuotedTokenizer tokenizer = new QuotedTokenizer("abra ca dabra");
+		assertEquals("abra", tokenizer.nextToken());
+		assertEquals("ca", tokenizer.nextToken());
+		assertTrue(tokenizer.hasMoreTokens());
+		assertEquals("dabra", tokenizer.nextToken());
+		assertFalse(tokenizer.hasMoreTokens());
+
+		boolean exception = false;
+		try {
+			tokenizer.nextToken();
+		} catch (NoSuchElementException e) {
+			exception = true;
+		}
+		assertTrue(exception);
+
+		tokenizer = new QuotedTokenizer("ab c\"de fg\" hi");
+		assertEquals("ab", tokenizer.nextToken());
+		assertEquals("cde fg", tokenizer.nextToken());
+		assertEquals("hi", tokenizer.nextToken());
+		assertFalse(tokenizer.hasMoreTokens());
+
+		tokenizer = new QuotedTokenizer("a,b c,d", ",");
+		assertEquals("a", tokenizer.nextToken());
+		assertEquals("b c", tokenizer.nextToken());
+		assertEquals("d", tokenizer.nextToken());
+		assertFalse(tokenizer.hasMoreTokens());
+
+		tokenizer = new QuotedTokenizer("a bcd" + '\u7432' + "e fg");
+		assertEquals("a", tokenizer.nextToken());
+		assertEquals("bcd" + '\u7432' + "e", tokenizer.nextToken());
+		assertEquals("fg", tokenizer.nextToken());
+		assertFalse(tokenizer.hasMoreTokens());
+
+		tokenizer = new QuotedTokenizer("    ");
+		assertFalse(tokenizer.hasMoreTokens());
+
+		tokenizer = new QuotedTokenizer(",,,", ",");
+		assertFalse(tokenizer.hasMoreElements());
+
+		tokenizer = new QuotedTokenizer("a \"b\\\" c\" d");
+		assertEquals("a", tokenizer.nextToken());
+		assertEquals("b\" c", tokenizer.nextToken());
+		assertEquals("d", tokenizer.nextToken());
+		assertFalse(tokenizer.hasMoreTokens());
 	}
 }

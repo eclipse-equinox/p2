@@ -9,14 +9,13 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
-
 import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
@@ -182,9 +181,9 @@ public class ProductFileTest extends TestCase {
 	 */
 	public void testGetVMArguments() {
 		String vmArguments = productFile.getVMArguments("");
-		assertEquals("1.0", "vmArg", vmArguments);
+		assertEquals("1.0", "vmArg -Dfoo=\"b a r\"", vmArguments);
 		vmArguments = productFile.getVMArguments(null);
-		assertEquals("1.1", "vmArg", vmArguments);
+		assertEquals("1.1", "vmArg -Dfoo=\"b a r\"", vmArguments);
 	}
 
 	/**
@@ -192,9 +191,9 @@ public class ProductFileTest extends TestCase {
 	 */
 	public void testGetProgramArguments() {
 		String programArguments = productFile.getProgramArguments("");
-		assertEquals("1.0", "programArg", programArguments);
+		assertEquals("1.0", "programArg -name \"My Name\"", programArguments);
 		programArguments = productFile.getProgramArguments(null);
-		assertEquals("1.1", "programArg", programArguments);
+		assertEquals("1.1", "programArg -name \"My Name\"", programArguments);
 	}
 
 	public void testGetLicenseURL() throws Exception {

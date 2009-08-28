@@ -8,8 +8,8 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>programArg</programArgs>
-      <vmArgs>vmArg</vmArgs>
+      <programArgs>programArg -name "My Name"</programArgs>
+      <vmArgs>vmArg  -Dfoo="b a r"</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 

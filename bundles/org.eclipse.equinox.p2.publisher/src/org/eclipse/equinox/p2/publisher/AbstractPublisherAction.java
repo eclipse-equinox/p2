@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.publisher.SingleElementCollector;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
@@ -45,7 +44,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
 		List result = new ArrayList();
-		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+		for (QuotedTokenizer tokens = new QuotedTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
-import java.util.*;
+import java.util.Properties;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
@@ -52,9 +52,10 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 */
 	public void testGetProgramArguments() {
 		String[] programArgumentsWin32 = productFileAdviceWin32.getProgramArguments();
-		List listOfArguments = Arrays.asList(programArgumentsWin32);
-		assertEquals("1.0", 1, listOfArguments.size());
-		assertTrue("1.0", listOfArguments.contains("programArg"));
+		assertEquals("1.0", 3, programArgumentsWin32.length);
+		assertEquals("1.1", "programArg", programArgumentsWin32[0]);
+		assertEquals("1.2", "-name", programArgumentsWin32[1]);
+		assertEquals("1.3", "My Name", programArgumentsWin32[2]);
 
 		String[] programArguments2 = productFileAdvice2.getProgramArguments();
 		assertEquals("2.0", 0, programArguments2.length);
@@ -65,8 +66,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 */
 	public void testGetVMArguments() {
 		String[] vmArgumentsWin32 = productFileAdviceWin32.getVMArguments();
-		assertEquals("1.0", 1, vmArgumentsWin32.length);
+		assertEquals("1.0", 2, vmArgumentsWin32.length);
 		assertEquals("1.1", "vmArg", vmArgumentsWin32[0]);
+		assertEquals("1.2", "-Dfoo=b a r", vmArgumentsWin32[1]);
 
 		String[] vmArguments2 = productFileAdvice2.getVMArguments();
 		assertEquals("2.0", 0, vmArguments2.length);
