@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -22,9 +23,15 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator implements BundleActivator {
 
 	public static final String ID = "org.eclipse.equinox.p2.repository"; //$NON-NLS-1$
+	private static final String HTTP = "http"; //$NON-NLS-1$
+	private static final String HTTPS = "https"; //$NON-NLS-1$
+
 	private static BundleContext context;
 	// tracker for ECF service
 	private ServiceTracker retrievalFactoryTracker;
+
+	// tracker for protocolToFactoryMapperTracker
+	private ServiceTracker protocolToFactoryMapperTracker = null;
 
 	// The shared instance
 	private static Activator plugin;
@@ -37,6 +44,15 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext aContext) throws Exception {
 		Activator.context = null;
 		Activator.plugin = null;
+		if (retrievalFactoryTracker != null) {
+			retrievalFactoryTracker.close();
+			retrievalFactoryTracker = null;
+		}
+		if (protocolToFactoryMapperTracker != null) {
+			protocolToFactoryMapperTracker.close();
+			protocolToFactoryMapperTracker = null;
+		}
+
 	}
 
 	public static BundleContext getContext() {
@@ -62,6 +78,44 @@ public class Activator implements BundleActivator {
 		return (IRetrieveFileTransferFactory) getFileTransferServiceTracker().getService();
 	}
 
+	public synchronized void useJREHttpClient() {
+		IFileTransferProtocolToFactoryMapper mapper = getProtocolToFactoryMapper();
+		if (mapper != null) {
+			// remove http
+			// Remove browse provider
+			String providerId = mapper.getBrowseFileTransferFactoryId(HTTP);
+			if (providerId != null) {
+				mapper.removeBrowseFileTransferFactory(HTTP);
+			}
+			// Remove retrieve provider
+			providerId = mapper.getRetrieveFileTransferFactoryId(HTTP);
+			if (providerId != null) {
+				mapper.removeRetrieveFileTransferFactory(HTTP);
+			}
+			// Remove send provider
+			providerId = mapper.getSendFileTransferFactoryId(HTTP);
+			if (providerId != null) {
+				mapper.removeSendFileTransferFactory(HTTP);
+			}
+			// remove https
+			// Remove browse provider
+			providerId = mapper.getBrowseFileTransferFactoryId(HTTPS);
+			if (providerId != null) {
+				mapper.removeBrowseFileTransferFactory(HTTPS);
+			}
+			// Remove retrieve provider
+			providerId = mapper.getRetrieveFileTransferFactoryId(HTTPS);
+			if (providerId != null) {
+				mapper.removeRetrieveFileTransferFactory(HTTPS);
+			}
+			// Remove send provider
+			providerId = mapper.getSendFileTransferFactoryId(HTTPS);
+			if (providerId != null) {
+				mapper.removeSendFileTransferFactory(HTTPS);
+			}
+		}
+	}
+
 	/**
 	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and starts the bundles
 	 * "org.eclipse.ecf" and
@@ -76,6 +130,14 @@ public class Activator implements BundleActivator {
 			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
 		}
 		return retrievalFactoryTracker;
+	}
+
+	private IFileTransferProtocolToFactoryMapper getProtocolToFactoryMapper() {
+		if (protocolToFactoryMapperTracker == null) {
+			protocolToFactoryMapperTracker = new ServiceTracker(context, IFileTransferProtocolToFactoryMapper.class.getName(), null);
+			protocolToFactoryMapperTracker.open();
+		}
+		return (IFileTransferProtocolToFactoryMapper) protocolToFactoryMapperTracker.getService();
 	}
 
 	private boolean startBundle(String bundleId) {
