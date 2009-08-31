@@ -39,7 +39,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 		Activator.plugin = this;
-		useJREHttpClient();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
