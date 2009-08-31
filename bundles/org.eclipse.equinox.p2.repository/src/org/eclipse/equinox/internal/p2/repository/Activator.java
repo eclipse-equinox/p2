@@ -39,6 +39,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 		Activator.plugin = this;
+		useJREHttpClient();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
@@ -85,33 +86,33 @@ public class Activator implements BundleActivator {
 			// Remove browse provider
 			String providerId = mapper.getBrowseFileTransferFactoryId(HTTP);
 			if (providerId != null) {
-				mapper.removeBrowseFileTransferFactory(HTTP);
+				mapper.removeBrowseFileTransferFactory(providerId);
 			}
 			// Remove retrieve provider
 			providerId = mapper.getRetrieveFileTransferFactoryId(HTTP);
 			if (providerId != null) {
-				mapper.removeRetrieveFileTransferFactory(HTTP);
+				mapper.removeRetrieveFileTransferFactory(providerId);
 			}
 			// Remove send provider
 			providerId = mapper.getSendFileTransferFactoryId(HTTP);
 			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(HTTP);
+				mapper.removeSendFileTransferFactory(providerId);
 			}
 			// remove https
 			// Remove browse provider
 			providerId = mapper.getBrowseFileTransferFactoryId(HTTPS);
 			if (providerId != null) {
-				mapper.removeBrowseFileTransferFactory(HTTPS);
+				mapper.removeBrowseFileTransferFactory(providerId);
 			}
 			// Remove retrieve provider
 			providerId = mapper.getRetrieveFileTransferFactoryId(HTTPS);
 			if (providerId != null) {
-				mapper.removeRetrieveFileTransferFactory(HTTPS);
+				mapper.removeRetrieveFileTransferFactory(providerId);
 			}
 			// Remove send provider
 			providerId = mapper.getSendFileTransferFactoryId(HTTPS);
 			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(HTTPS);
+				mapper.removeSendFileTransferFactory(providerId);
 			}
 		}
 	}
