@@ -22,6 +22,9 @@ public class BackupTest extends AbstractProvisioningTest {
 	private File bDir;
 	private File aTxt;
 	private File bTxt;
+	private File abDir;
+	private File cTxt;
+	private File cTxtRelative;
 
 	/**
 	 * Sets up directories and files under user.home
@@ -47,13 +50,19 @@ public class BackupTest extends AbstractProvisioningTest {
 		aDir.mkdirs();
 		aaDir = new File(aDir, "AA");
 		aaDir.mkdir();
+		abDir = new File(aDir, "AB");
+		abDir.mkdir();
+
 		bDir = new File(sourceDir, "B");
 		bDir.mkdirs();
 		aTxt = new File(aaDir, "a.txt");
 		bTxt = new File(aaDir, "b.txt");
+		cTxt = new File(abDir, "c.txt");
+		cTxtRelative = new File(aaDir, "../AB/c.txt");
 		try {
 			writeToFile(aTxt, "A\nA file with an A");
 			writeToFile(bTxt, "B\nA file with a B");
+			writeToFile(cTxt, "C\nA file with a C");
 		} catch (IOException e) {
 			fail();
 		}
@@ -90,6 +99,39 @@ public class BackupTest extends AbstractProvisioningTest {
 					return false;
 		}
 		return file.delete();
+	}
+
+	/**
+	 * Test that a path containing ".." can be backed up and restored.
+	 */
+	public void testBackupRelative() {
+		BackupStore store = new BackupStore(null, BUPREFIX);
+		// backup and overwrite a.txt
+		try {
+			store.backup(cTxtRelative);
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("IO Exception when backing up cTxtRelative");
+		}
+		if (cTxt.exists())
+			fail("File not moved to backup - still exists");
+		try {
+			writeToFile(cTxt, "XXXX\n- This file should be restored with C");
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Could not write a file for testing purposes.");
+		}
+
+		// restore
+		try {
+			store.restore();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Restore operation failed with IOException");
+		}
+		// assert restore
+		assertFileContent("Restore of C failed - not original content", cTxt, "C");
+		assertNoGarbage(store);
 	}
 
 	public void testBackupRestore() {

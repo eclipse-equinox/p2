@@ -224,7 +224,7 @@ public class BackupStore implements IBackupStore {
 			throw new IOException(NLS.bind(Messages.BackupStore_file_not_found, file.getAbsolutePath()));
 		if (file.isDirectory())
 			return backupDirectory(file);
-
+		file = makeParentCanonical(file);
 		File buRoot = backupRoot;
 		// File buRoot = findBackupRoot(file);
 		File buDir = new File(buRoot, backupName);
@@ -269,6 +269,7 @@ public class BackupStore implements IBackupStore {
 	public void backupAll(File file) throws IOException {
 		if (!file.exists())
 			return;
+		file = makeParentCanonical(file);
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
 			if (files != null)
@@ -287,6 +288,7 @@ public class BackupStore implements IBackupStore {
 	public void backupCopyAll(File file) throws IOException {
 		if (!file.exists())
 			return;
+		file = makeParentCanonical(file);
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
 			if (files != null)
@@ -331,7 +333,7 @@ public class BackupStore implements IBackupStore {
 			throw new IOException(NLS.bind(Messages.BackupStore_file_not_found, file.getAbsolutePath()));
 		if (file.isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_can_not_copy_directory, file.getAbsolutePath()));
-
+		file = makeParentCanonical(file);
 		//File buRoot = backupRoot;
 		// File buRoot = findBackupRoot(file);
 		File buDir = new File(backupRoot, backupName);
@@ -346,7 +348,7 @@ public class BackupStore implements IBackupStore {
 			return false;
 
 		// make sure all of the directories exist / gets created
-		buFile.getParentFile().mkdirs();
+		buFile.getParentFile().getCanonicalFile().mkdirs();
 		if (buFile.getParentFile().exists() && !buFile.getParentFile().isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_file_directory_mismatch, buFile.getParentFile().getAbsolutePath()));
 
@@ -371,6 +373,7 @@ public class BackupStore implements IBackupStore {
 	public boolean backupDirectory(File file) throws IOException {
 		if (!file.isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_not_a_directory, file.getAbsolutePath()));
+		file = makeParentCanonical(file);
 		if (file.list().length != 0)
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_directory_not_empty, file.getAbsolutePath()));
 		// the easiest is to create a dummy file and back that up (the dummy is simply ignored when restoring).
@@ -705,7 +708,15 @@ public class BackupStore implements IBackupStore {
 		if (idx < 1)
 			throw new InternalError("File is neither absolute nor has a drive name: " + path); //$NON-NLS-1$
 		path = path.substring(0, idx) + path.substring(idx + 1);
+
 		return new File(path);
 	}
 
+	/** 
+	 * The parent path may include ".." as a directory name - this must be made canonical. But if the file itself is
+	 * a symbolic link, it should not be resolved. 
+	 */
+	private File makeParentCanonical(File file) throws IOException {
+		return new File(file.getParentFile().getCanonicalFile(), file.getName());
+	}
 }
