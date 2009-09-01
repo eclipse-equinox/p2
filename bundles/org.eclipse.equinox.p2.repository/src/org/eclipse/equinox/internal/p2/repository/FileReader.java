@@ -173,7 +173,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		}
 	}
 
-	public InputStream read(URI url, final IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	public InputStream read(URI url, final IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		final PipedInputStream input = new PipedInputStream();
 		PipedOutputStream output;
 		try {
@@ -247,7 +247,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	public void readInto(URI uri, OutputStream anOutputStream, IProgressMonitor monitor) //
-			throws CoreException, FileNotFoundException, AuthenticationFailedException {
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		readInto(uri, anOutputStream, -1, monitor);
 	}
 
@@ -256,7 +256,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
-			throws CoreException, FileNotFoundException, AuthenticationFailedException {
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
@@ -284,7 +284,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	protected void sendRetrieveRequest(URI uri, OutputStream outputStream, DownloadRange range, boolean closeStreamOnFinish, //
-			IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+			IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 
 		IRetrieveFileTransferFactory factory = Activator.getDefault().getRetrieveFileTransferFactory();
 		if (factory == null) {
@@ -339,9 +339,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * @throws FileNotFoundException
 	 * @throws AuthenticationFailedException
 	 */
-	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		// note that 'exception' could have been captured in a callback
 		if (exception != null) {
+			// check if HTTP client needs to be changed
+			RepositoryStatusHelper.checkJREHttpClientRequired(exception);
+
 			// if this is an 'authentication failure' - it is not meaningful to continue
 			RepositoryStatusHelper.checkPermissionDenied(exception);
 

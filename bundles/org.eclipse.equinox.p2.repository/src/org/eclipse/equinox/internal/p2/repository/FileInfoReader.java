@@ -98,8 +98,9 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * @throws CoreException 
 	 * @throws FileNotFoundException 
 	 * @throws AuthenticationFailedException 
+	 * @throws JREHttpClientRequiredException 
 	 */
-	public IRemoteFile[] getRemoteFiles(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException {
+	public IRemoteFile[] getRemoteFiles(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		if (monitor != null)
 			monitor.beginTask(location.toString(), 1);
 		try {
@@ -117,13 +118,13 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 
 	}
 
-	public IRemoteFile getRemoteFile(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException {
+	public IRemoteFile getRemoteFile(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 
 		getRemoteFiles(location, monitor);
 		return remoteFiles != null && remoteFiles.length > 0 ? remoteFiles[0] : null;
 	}
 
-	public long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException {
+	public long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		IRemoteFile file = getRemoteFile(location, monitor);
 		if (file == null)
 			throw new FileNotFoundException(location.toString());
@@ -154,7 +155,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		}
 	}
 
-	protected void sendBrowseRequest(URI uri, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	protected void sendBrowseRequest(URI uri, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		IContainer container;
 		try {
 			container = ContainerFactory.getDefault().createContainer();
@@ -202,10 +203,14 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * @throws CoreException
 	 * @throws FileNotFoundException
 	 * @throws AuthenticationFailedException
+	 * @throws JREHttpClientRequiredException 
 	 */
-	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		// note that 'exception' could have been captured in a callback
 		if (exception != null) {
+			// check if HTTP client needs to be changed
+			RepositoryStatusHelper.checkJREHttpClientRequired(exception);
+
 			// if this is a authentication failure - it is not meaningful to continue
 			RepositoryStatusHelper.checkPermissionDenied(exception);
 
