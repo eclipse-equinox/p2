@@ -335,7 +335,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void initializeRepositories() throws CoreException {
-		if (rootsToInstall.isEmpty())
+		if (rootsToInstall.isEmpty() && revertToPreviousState == -1)
 			// Not much point initializing repositories if we have nothing to install
 			return;
 
