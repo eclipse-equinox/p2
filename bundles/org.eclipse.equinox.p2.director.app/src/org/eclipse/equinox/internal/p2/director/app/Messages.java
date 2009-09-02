@@ -48,6 +48,7 @@ public class Messages extends NLS {
 	public static String Help_The_OS_when_profile_is_created;
 	public static String Help_The_WS_when_profile_is_created;
 	public static String Help_Uninstalls_the_listed_IUs;
+	public static String Help_Revert_to_previous_state;
 	public static String Help_Use_a_shared_location_for_the_install;
 
 	public static String Ignored_repo;
@@ -59,6 +60,7 @@ public class Messages extends NLS {
 	public static String Missing_planner;
 	public static String Missing_profileid;
 	public static String Missing_Required_Argument;
+	public static String Missing_profile;
 	public static String Operation_complete;
 	public static String Operation_failed;
 	public static String option_0_requires_an_argument;

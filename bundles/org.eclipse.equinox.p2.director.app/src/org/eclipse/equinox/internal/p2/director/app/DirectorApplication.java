@@ -95,6 +95,7 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, null, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final CommandLineOption OPTION_REVERT = new CommandLineOption(new String[] {"-revert"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Revert_to_previous_state); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_DESTINATION = new CommandLineOption(new String[] {"-destination", "-d"}, Messages.Help_lt_path_gt, Messages.Help_The_folder_in_which_the_targetd_product_is_located); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_METADATAREPOS = new CommandLineOption(new String[] {"-metadatarepository", "metadatarepositories", "-m"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_metadata_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_ARTIFACTREPOS = new CommandLineOption(new String[] {"-artifactrepository", "artifactrepositories", "-a"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_artifact_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -146,6 +147,17 @@ public class DirectorApplication implements IApplication {
 		throw new ProvisionException(NLS.bind(Messages.option_0_requires_an_argument, args[argIdx - 1]));
 	}
 
+	private static String getOptionalArgument(String[] args, int argIdx) {
+		//Look ahead to the next argument
+		++argIdx;
+		if (argIdx < args.length) {
+			String arg = args[argIdx];
+			if (!arg.startsWith("-")) //$NON-NLS-1$
+				return arg;
+		}
+		return null;
+	}
+
 	private static void parseIUsArgument(List vnames, String arg) {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
 		for (int i = 0; i < roots.length; ++i)
@@ -177,6 +189,7 @@ public class DirectorApplication implements IApplication {
 	private String flavor;
 	private boolean printHelpInfo = false;
 	private boolean printIUList = false;
+	private long revertToPreviousState = -1;
 	private boolean verifyOnly = false;
 	private boolean roamingProfile = false;
 	private boolean stackTrace = false;
@@ -250,7 +263,7 @@ public class DirectorApplication implements IApplication {
 			if (roots.size() <= 0)
 				roots = profile.query(query, roots, new NullProgressMonitor());
 			if (roots.size() <= 0)
-				throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
+				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
 			allRoots.addAll(roots.toCollection());
 		}
 		return (IInstallableUnit[]) allRoots.toArray(new IInstallableUnit[allRoots.size()]);
@@ -502,6 +515,11 @@ public class DirectorApplication implements IApplication {
 		IStatus operationStatus = result.getStatus();
 		if (!operationStatus.isOK())
 			throw new CoreException(operationStatus);
+		executePlan(context, result);
+	}
+
+	private void executePlan(ProvisioningContext context, ProvisioningPlan result) throws CoreException {
+		IStatus operationStatus;
 		if (!verifyOnly) {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 			if (!operationStatus.isOK())
@@ -549,6 +567,17 @@ public class DirectorApplication implements IApplication {
 				continue;
 			}
 
+			if (OPTION_REVERT.isOption(opt)) {
+				String targettedState = getOptionalArgument(args, i);
+				if (targettedState == null) {
+					revertToPreviousState = 0;
+				} else {
+					i++;
+					revertToPreviousState = Long.valueOf(targettedState).longValue();
+				}
+				continue;
+
+			}
 			if (OPTION_PROFILE.isOption(opt)) {
 				profileId = getRequiredArgument(args, ++i);
 				continue;
@@ -637,7 +666,7 @@ public class DirectorApplication implements IApplication {
 			throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
 
-		if (!printHelpInfo && !printIUList && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()) {
+		if (!printHelpInfo && !printIUList && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == -1) {
 			System.out.println(Messages.Help_Missing_argument);
 			printHelpInfo = true;
 		}
@@ -703,7 +732,9 @@ public class DirectorApplication implements IApplication {
 			else {
 				initializeServices();
 				initializeRepositories();
-				if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
+				if (revertToPreviousState >= 0) {
+					revertToPreviousState();
+				} else if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
 					performProvisioningActions();
 				if (printIUList)
 					performList();
@@ -722,6 +753,27 @@ public class DirectorApplication implements IApplication {
 				restoreServices();
 			}
 		}
+	}
+
+	private void revertToPreviousState() throws CoreException {
+		IProfile profile = initializeProfile();
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+		IProfile targetProfile = null;
+		if (revertToPreviousState == 0) {
+			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
+			if (profiles.length == 0)
+				return;
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
+		} else {
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(), revertToPreviousState);
+		}
+		if (targetProfile == null)
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
+		ProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
+
+		ProvisioningContext context = new ProvisioningContext((URI[]) metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
+		context.setArtifactRepositories((URI[]) artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
+		executePlan(context, plan);
 	}
 
 	/**
@@ -785,7 +837,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void performHelpInfo() {
-		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_DESTINATION, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL};
+		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL};
 		for (int i = 0; i < allOptions.length; ++i) {
 			allOptions[i].appendHelp(System.out);
 		}
@@ -887,6 +939,6 @@ public class DirectorApplication implements IApplication {
 		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
-			throw new CoreException(new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
+			throw new CoreException(new MultiStatus(org.eclipse.equinox.internal.p2.director.app.Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
 	}
 }
