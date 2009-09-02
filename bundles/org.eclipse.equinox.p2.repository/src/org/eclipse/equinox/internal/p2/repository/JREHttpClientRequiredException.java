@@ -15,6 +15,6 @@ import java.net.ProtocolException;
  */
 public class JREHttpClientRequiredException extends ProtocolException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1550518207489119010L;
 
 }
