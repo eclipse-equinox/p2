@@ -10,19 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import java.util.Calendar;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.ULocale;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -38,7 +35,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	public static final String P_HOUR = "hour"; //$NON-NLS-1$
 
-	public static final String[] DAYS = {AutomaticUpdateMessages.SchedulerStartup_day, AutomaticUpdateMessages.SchedulerStartup_Monday, AutomaticUpdateMessages.SchedulerStartup_Tuesday, AutomaticUpdateMessages.SchedulerStartup_Wednesday, AutomaticUpdateMessages.SchedulerStartup_Thursday, AutomaticUpdateMessages.SchedulerStartup_Friday, AutomaticUpdateMessages.SchedulerStartup_Saturday, AutomaticUpdateMessages.SchedulerStartup_Sunday};
+	public static final String[] DAYS;
 
 	public static final String[] HOURS = {AutomaticUpdateMessages.SchedulerStartup_1AM, AutomaticUpdateMessages.SchedulerStartup_2AM, AutomaticUpdateMessages.SchedulerStartup_3AM, AutomaticUpdateMessages.SchedulerStartup_4AM, AutomaticUpdateMessages.SchedulerStartup_5AM, AutomaticUpdateMessages.SchedulerStartup_6AM, AutomaticUpdateMessages.SchedulerStartup_7AM, AutomaticUpdateMessages.SchedulerStartup_8AM, AutomaticUpdateMessages.SchedulerStartup_9AM, AutomaticUpdateMessages.SchedulerStartup_10AM, AutomaticUpdateMessages.SchedulerStartup_11AM, AutomaticUpdateMessages.SchedulerStartup_12PM, AutomaticUpdateMessages.SchedulerStartup_1PM, AutomaticUpdateMessages.SchedulerStartup_2PM, AutomaticUpdateMessages.SchedulerStartup_3PM, AutomaticUpdateMessages.SchedulerStartup_4PM,
 			AutomaticUpdateMessages.SchedulerStartup_5PM, AutomaticUpdateMessages.SchedulerStartup_6PM, AutomaticUpdateMessages.SchedulerStartup_7PM, AutomaticUpdateMessages.SchedulerStartup_8PM, AutomaticUpdateMessages.SchedulerStartup_9PM, AutomaticUpdateMessages.SchedulerStartup_10PM, AutomaticUpdateMessages.SchedulerStartup_11PM, AutomaticUpdateMessages.SchedulerStartup_12AM,};
@@ -46,6 +43,21 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private IUpdateListener listener = null;
 	private IUpdateChecker checker = null;
 	String profileId;
+
+	static {
+		Calendar calendar = Calendar.getInstance(new ULocale(Platform.getNL()));
+		String[] daysAsStrings = {AutomaticUpdateMessages.SchedulerStartup_day, AutomaticUpdateMessages.SchedulerStartup_Sunday, AutomaticUpdateMessages.SchedulerStartup_Monday, AutomaticUpdateMessages.SchedulerStartup_Tuesday, AutomaticUpdateMessages.SchedulerStartup_Wednesday, AutomaticUpdateMessages.SchedulerStartup_Thursday, AutomaticUpdateMessages.SchedulerStartup_Friday, AutomaticUpdateMessages.SchedulerStartup_Saturday};
+		int firstDay = calendar.getFirstDayOfWeek();
+		DAYS = new String[8];
+		DAYS[0] = daysAsStrings[0];
+		int countDays = 0;
+		for (int i = firstDay; i <= 7; i++) {
+			DAYS[++countDays] = daysAsStrings[i];
+		}
+		for (int i = 1; i < firstDay; i++) {
+			DAYS[++countDays] = daysAsStrings[i];
+		}
+	}
 
 	/**
 	 * A query that searches for {@link IInstallableUnit} instances that have
@@ -147,7 +159,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			public void updatesAvailable(UpdateEvent event) {
 				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().updatesAvailable(event);
 			}
-			
+
 		};
 		checker.addUpdateCheck(profileId, getProfileQuery(), delay, poll, listener);
 
