@@ -90,23 +90,13 @@ public class MetadataRepositories extends RootElement {
 	}
 
 	/*
-	 * Overridden to check whether the queryable repository manager
-	 * has loaded all repositories or not.
-	 * This is necessary to prevent background loading of already loaded repositories
-	 * by the DeferredTreeContentManager, which will add redundant children to the
-	 * viewer.  
-	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
-	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
+	 * Overridden because we might be iterating sites 
+	 * (type = METADATA_REPOSITORIES) rather than loading repos.  If this
+	 * is the case, we only care whether we have a queryable or not.
 	 */
 	public boolean hasQueryable() {
-		// We use the superclass implementation if we don't have a queryable or
-		// don't recognize it.  Also, if we are merely iterating sites 
-		// (type = METADATA_REPOSITORIES) rather than loading repos
-		// to obtain further results, use the superclass
-		if (queryable == null || !(queryable instanceof QueryableMetadataRepositoryManager) || getQueryType() == QueryProvider.METADATA_REPOS)
-			return super.hasQueryable();
-		return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
+		if (getQueryType() == QueryProvider.METADATA_REPOS)
+			return queryable != null;
+		return super.hasQueryable();
 	}
 }

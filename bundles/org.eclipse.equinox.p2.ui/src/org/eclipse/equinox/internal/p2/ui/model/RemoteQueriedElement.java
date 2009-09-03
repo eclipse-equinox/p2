@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 
@@ -48,6 +49,27 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 
 	public boolean isContainer() {
 		return true;
+	}
+
+	/*
+	 * Overridden to ensure that we check whether we are using a
+	 * QueryableMetadataRepositoryManager as our queryable.  If so, 
+	 * we must find out if it is up to date with the real manager.  
+	 *
+	 * This is necessary to prevent background loading of already loaded repositories
+	 * by the DeferredTreeContentManager, which will add redundant children to the
+	 * viewer.  
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=275235
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
+	 */
+
+	public boolean hasQueryable() {
+		if (queryable instanceof QueryableMetadataRepositoryManager)
+			return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
+		return super.hasQueryable();
 	}
 
 }
