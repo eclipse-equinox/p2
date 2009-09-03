@@ -79,13 +79,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 		return createProfile(profileId, null, properties);
 	}
 
-	public void testInstallSDK() {
+	public void testInstallSDK35() {
 		File installFolder = TestActivator.getContext().getDataFile(End2EndTest.class.getName());
 		IProfile profile2 = createProfile("End2EndProfile", installFolder.getAbsolutePath());
 
 		//Add repository of the release
 		try {
-			URI location = new URI("http://download.eclipse.org/eclipse/updates/3.4");
+			URI location = new URI("http://download.eclipse.org/eclipse/updates/3.5");
 			metadataRepoManager.addRepository(location);
 			metadataRepoManager.setEnabled(location, true);
 			metadataRepoManager.loadRepository(location, new NullProgressMonitor());
@@ -97,21 +97,21 @@ public class End2EndTest extends AbstractProvisioningTest {
 			fail("Invalid repository location", e);
 		}
 
-		installPlatform(profile2, installFolder);
+		installPlatform35(profile2, installFolder);
 
 		installBogusIU(profile2, installFolder);
 
-		installPlatformSource(profile2, installFolder);
+		installPlatformSource35(profile2, installFolder);
 
-		attemptToUninstallRCP(profile2, installFolder);
+		attemptToUninstallRCP35(profile2, installFolder);
 
-		rollbackPlatformSource(profile2, installFolder);
+		rollbackPlatformSource35(profile2, installFolder);
 
 		//		uninstallPlatform(profile2, installFolder);
 
 	}
 
-	private void attemptToUninstallRCP(IProfile profile2, File installFolder) {
+	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
 		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
 		assertEquals(1, collect.size());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -132,7 +132,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertOK("Can not uninstall platform", s);
 	}
 
-	private void rollbackPlatformSource(IProfile profile2, File installFolder) {
+	private void rollbackPlatformSource35(IProfile profile2, File installFolder) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
 		assertEquals(3, timestamps.length);
@@ -142,13 +142,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 		IStatus s = director.revert(profile2, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue(s.isOK());
 
-		validateInstallContentFor34(installFolder);
+		validateInstallContentFor35(installFolder);
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source/source.info").exists());
 	}
 
-	private void installPlatformSource(IProfile profile2, File installFolder) {
+	private void installPlatformSource35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.source.feature.group";
-		final Version version = new Version("3.4.1.r341_v20080731-9I96EiDElYevwz-p1bP5z-NlAaP7vtX6Utotqsu");
+		final Version version = new Version("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
 
 		IInstallableUnit toInstall = getIU(id, version);
 		if (toInstall == null)
@@ -180,9 +180,9 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotOK(s);
 	}
 
-	private void installPlatform(IProfile profile2, File installFolder) {
+	private void installPlatform35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.ide";
-		final Version version = new Version("3.4.0.M20080911-1700");
+		final Version version = new Version("3.5.0.I20090611-1540");
 
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -197,8 +197,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 			fail("Installation of the " + id + " " + version + " failed. " + s.toString());
 		}
 
-		assertProfileContainsAll("Platform 3.4 profile", profile2, new IInstallableUnit[] {platformIU});
-		validateInstallContentFor34(installFolder);
+		assertProfileContainsAll("Platform 3.5 profile", profile2, new IInstallableUnit[] {platformIU});
+		validateInstallContentFor35(installFolder);
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
 	}
 
@@ -209,7 +209,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		return null;
 	}
 
-	private void validateInstallContentFor34(File installFolder) {
+	private void validateInstallContentFor35(File installFolder) {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 		LauncherData launcherData = manipulator.getLauncherData();
