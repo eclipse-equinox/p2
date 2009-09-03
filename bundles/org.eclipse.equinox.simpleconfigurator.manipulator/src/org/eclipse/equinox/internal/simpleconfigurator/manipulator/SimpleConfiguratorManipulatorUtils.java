@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Comparator;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
@@ -47,7 +48,9 @@ public class SimpleConfiguratorManipulatorUtils {
 			}
 		});
 
-		Utils.createParentDir(outputFile);
+		if (!Utils.createParentDir(outputFile)) {
+			throw new IllegalStateException(Messages.exception_failedToCreateDir);
+		}
 		BufferedWriter writer = null;
 		IOException caughtException = null;
 		boolean oldStyle = false;

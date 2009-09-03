@@ -472,7 +472,9 @@ public class EquinoxFwConfigFileParser {
 			Log.log(LogService.LOG_WARNING, this, "saveFwConfig() ", Messages.log_configProps); //$NON-NLS-1$
 			return;
 		}
-		Utils.createParentDir(outputFile);
+		if (!Utils.createParentDir(outputFile)) {
+			throw new IllegalStateException(Messages.exception_failedToCreateDir);
+		}
 
 		if (DEBUG)
 			Utils.printoutProperties(System.out, "configProps", configProps); //$NON-NLS-1$
