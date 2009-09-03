@@ -309,12 +309,9 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		// Build may have copied the file to the correct place for us
 		if (!configFile.isAbsolute() || !configFile.exists())
 			configFile = new File(product.getLocation().getParentFile(), location);
-
-		//We don't really have an executable location, get something reasonable based on the config.ini location
-		File parent = configFile.getParentFile();
-		if (parent.getName().equals("configuration") && parent.getParentFile() != null) //$NON-NLS-1$
-			parent = parent.getParentFile();
-		return new DataLoader(configFile, parent);
+		// TODO need to figure out what to do for the launcher location here...
+		// for now just give any old path that has a parent
+		return new DataLoader(configFile, new File(product.getLauncherName()).getAbsoluteFile());
 	}
 
 }
