@@ -131,6 +131,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			this.queryableManager = queryable;
 		this.filterConstant = filterConstant;
 		this.filter = new AvailableIUPatternFilter(getColumnConfig());
+		this.filter.setIncludeLeadingWildcard(true);
 		createGroupComposite(parent);
 	}
 
