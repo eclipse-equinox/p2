@@ -264,10 +264,8 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String UpdateOperation_NothingToUpdate;
-	public static String ServiceUI_Cancel;
 	public static String ServiceUI_LoginDetails;
 	public static String ServiceUI_LoginRequired;
-	public static String ServiceUI_OK;
 	public static String ServiceUI_unsigned_message;
 	public static String ServiceUI_unsigned_title;
 	public static String ServiceUI_warning_title;

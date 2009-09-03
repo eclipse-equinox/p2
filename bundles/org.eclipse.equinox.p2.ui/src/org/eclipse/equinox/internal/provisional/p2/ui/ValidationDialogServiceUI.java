@@ -63,9 +63,8 @@ public class ValidationDialogServiceUI implements IServiceUI, IServiceUICheckUns
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
-					String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
 					String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
-					UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
+					UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
 					if (dialog.open() == Window.OK) {
 						result[0] = dialog.getResult();
 					}
@@ -131,14 +130,13 @@ public class ValidationDialogServiceUI implements IServiceUI, IServiceUICheckUns
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
-					String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
 					String message = null;
 					if (previousInfo.saveResult())
 						message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
 					else
 						message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
 
-					UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
+					UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
 					if (dialog.open() == Window.OK) {
 						result[0] = dialog.getResult();
 					}
