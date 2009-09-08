@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer.ui;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.internal.p2.installer.Messages;
+
+import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.installer.*;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.osgi.util.NLS;
@@ -160,6 +162,8 @@ public class InstallDialog {
 	private Shell shell;
 
 	private boolean waitingForClose = false;
+	private Button proxySettingsButton;
+	private Button manualProxyTypeCheckBox;
 
 	/**
 	 * Creates and opens a progress monitor dialog.
@@ -172,6 +176,7 @@ public class InstallDialog {
 		createProgressControls();
 		createButtonBar();
 
+		shell.pack();
 		shell.layout();
 		shell.open();
 	}
@@ -305,6 +310,54 @@ public class InstallDialog {
 		data.horizontalAlignment = GridData.FILL;
 		settingsExplain.setLayoutData(data);
 		settingsExplain.setText(Messages.Dialog_ExplainStandalone);
+
+		//The group asking for the product proxy configuration
+		Group proxySettingsGroup = new Group(settingsGroup, SWT.NONE);
+		proxySettingsGroup.setLayout(new GridLayout());
+		proxySettingsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		proxySettingsGroup.setText(Messages.Dialog_ProxiesGroup);
+
+		//The sub-group with check box, label entry field and settings button
+		Composite proxySettingsFieldGroup = new Composite(proxySettingsGroup, SWT.NONE);
+		proxySettingsFieldGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		layout = new GridLayout();
+		layout.numColumns = 3;
+		layout.makeColumnsEqualWidth = false;
+		proxySettingsFieldGroup.setLayout(layout);
+
+		manualProxyTypeCheckBox = new Button(proxySettingsFieldGroup, SWT.CHECK);
+		manualProxyTypeCheckBox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		manualProxyTypeCheckBox.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+				if (proxies != null) {
+					//When the manual check box is selected the system properties should be disabled. 
+					//This cases the net component to switch to manual proxy provider.
+					proxies.setSystemProxiesEnabled(!manualProxyTypeCheckBox.getSelection());
+					if (proxySettingsButton != null) {
+						proxySettingsButton.setEnabled(manualProxyTypeCheckBox.getSelection());
+					}
+				} else {
+					openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
+				}
+			}
+		});
+		manualProxyTypeCheckBox.setText(Messages.Dialog_ManualProxyCheckBox);
+		proxySettingsButton = new Button(proxySettingsFieldGroup, SWT.PUSH);
+		proxySettingsButton.setLayoutData(new GridData(BUTTON_WIDTH, SWT.DEFAULT));
+		proxySettingsButton.setText(Messages.Dialog_SettingsButton);
+		proxySettingsButton.setEnabled(manualProxyTypeCheckBox.getSelection());
+		proxySettingsButton.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+				if (proxies != null) {
+					ProxiesDialog proxiesDialog = new ProxiesDialog(proxies);
+					proxiesDialog.open();
+				} else {
+					openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
+				}
+			}
+		});
 
 		//make the entire group invisible until we actually need to prompt for locations
 		settingsGroup.setVisible(false);
@@ -503,5 +556,11 @@ public class InstallDialog {
 			settingsExplain.setText(Messages.Dialog_ExplainStandalone);
 		else
 			settingsExplain.setText(Messages.Dialog_ExplainShared);
+	}
+
+	private void openMessage(String msg, int style) {
+		MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(), style);
+		messageBox.setMessage(msg);
+		messageBox.open();
 	}
 }

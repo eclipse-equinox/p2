@@ -37,8 +37,11 @@ public class Messages extends NLS {
 	public static String Dialog_LocationField;
 	public static String Dialog_LocationLabel;
 	public static String Dialog_LocationPrompt;
+	public static String Dialog_ManualProxyCheckBox;
 	public static String Dialog_PromptStart;
+	public static String Dialog_ProxiesGroup;
 	public static String Dialog_SelectLocation;
+	public static String Dialog_SettingsButton;
 	public static String Dialog_SharedButton;
 	public static String Dialog_ShellTitle;
 	public static String Dialog_StandaloneButton;
@@ -52,6 +55,26 @@ public class Messages extends NLS {
 	public static String Op_Preparing;
 	public static String Op_UpdateComplete;
 	public static String Op_Updating;
+	public static String ProxiesDialog_DialogTitle;
+	public static String ProxiesDialog_EmptyHostMessage;
+	public static String ProxiesDialog_EmptyPasswordMessage;
+	public static String ProxiesDialog_EmptyProtMessage;
+	public static String ProxiesDialog_EmptyUserMessage;
+	public static String ProxiesDialog_FailedToReadProxySettingsMessage;
+	public static String ProxiesDialog_FailedTorSetProxySettings;
+	public static String ProxiesDialog_FailedToSetProxyMessage;
+	public static String ProxiesDialog_HostLabel;
+	public static String ProxiesDialog_InvalitHostMessage;
+	public static String ProxiesDialog_NegativValue;
+	public static String ProxiesDialog_OkLabel;
+	public static String ProxiesDialog_PasswordLabel;
+	public static String ProxiesDialog_PortLabel;
+	public static String ProxiesDialog_ServiceNotAvailableMessage;
+	public static String ProxiesDialog_ShemaLabel;
+	public static String ProxiesDialog_StatusPrefix;
+	public static String ProxiesDialog_UnknownProxyTypeMessage;
+	public static String ProxiesDialog_UserLabel;
+	public static String ProxiesDialog_WrongFormat;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
