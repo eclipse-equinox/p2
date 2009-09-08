@@ -11,7 +11,10 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ICopyable;
@@ -48,11 +51,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private static final int REVERT_ID = IDialogConstants.CLIENT_ID;
+	private static final int DELETE_ID = IDialogConstants.CLIENT_ID + 1;
 	TableViewer configsViewer;
 	TreeViewer configContentsViewer;
 	IUDetailsLabelProvider labelProvider;
 	IAction revertAction;
-	Button revertButton;
+	Button revertButton, deleteButton;
 	String profileId;
 	AbstractContributionFactory factory;
 	Text detailsArea;
@@ -61,6 +65,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
+		deleteButton = createButton(parent, DELETE_ID, ProvUIMessages.RevertProfilePage_Delete);
+		deleteButton.setEnabled(computeDeleteEnablement());
 		revertButton = createButton(parent, REVERT_ID, revertAction.getText());
 		revertButton.setEnabled(revertAction.isEnabled());
 	}
@@ -109,7 +115,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
-		configsViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configsViewer.setContentProvider(new RepositoryContentProvider());
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
@@ -195,28 +201,63 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			case REVERT_ID :
 				revertAction.run();
 				break;
+			case DELETE_ID :
+				deleteSelectedSnapshots();
+				break;
 		}
 	}
 
 	void handleSelectionChanged(IStructuredSelection selection) {
 		if (!selection.isEmpty()) {
-			final Object selected = selection.getFirstElement();
-			if (selected instanceof RollbackProfileElement) {
-				Object[] elements = configContentsViewer.getExpandedElements();
-				configContentsViewer.getTree().setRedraw(false);
-				configContentsViewer.setInput(selected);
-				configContentsViewer.setExpandedElements(elements);
-				configContentsViewer.getTree().setRedraw(true);
-				revertAction.setEnabled(!((RollbackProfileElement) selected).isCurrentProfile());
-				if (revertButton != null)
-					revertButton.setEnabled(revertAction.isEnabled());
+			if (selection.size() == 1) {
+				final Object selected = selection.getFirstElement();
+				if (selected instanceof RollbackProfileElement) {
+					Object[] elements = configContentsViewer.getExpandedElements();
+					configContentsViewer.getTree().setRedraw(false);
+					configContentsViewer.setInput(selected);
+					configContentsViewer.setExpandedElements(elements);
+					configContentsViewer.getTree().setRedraw(true);
+					boolean isNotCurrentProfile = !((RollbackProfileElement) selected).isCurrentProfile();
+					revertAction.setEnabled(isNotCurrentProfile);
+					if (revertButton != null)
+						revertButton.setEnabled(isNotCurrentProfile);
+					if (deleteButton != null)
+						deleteButton.setEnabled(isNotCurrentProfile);
+					return;
+				}
+			} else {
+				// multiple selections, can't revert or look at details
+				revertAction.setEnabled(false);
+				if (revertButton != null) {
+					revertButton.setEnabled(false);
+				}
+				configContentsViewer.setInput(null);
+				deleteButton.setEnabled(computeDeleteEnablement());
 				return;
 			}
 		}
+		// Nothing is selected
 		configContentsViewer.setInput(null);
 		revertAction.setEnabled(false);
 		if (revertButton != null)
 			revertButton.setEnabled(false);
+		if (deleteButton != null)
+			deleteButton.setEnabled(computeDeleteEnablement());
+	}
+
+	boolean computeDeleteEnablement() {
+		// delete is permitted if none of the selected elements are the current profile
+		boolean okToDelete = true;
+		Iterator iter = ((IStructuredSelection) configsViewer.getSelection()).iterator();
+		while (iter.hasNext()) {
+			Object selected = iter.next();
+			// If it's not a recognized element or if it is the current profile, we can't delete.  Stop iterating.
+			if (!(selected instanceof RollbackProfileElement) || ((RollbackProfileElement) selected).isCurrentProfile()) {
+				okToDelete = false;
+				break;
+			}
+		}
+		return okToDelete;
 	}
 
 	private void setTreeColumns(Tree tree) {
@@ -311,5 +352,32 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
 		clipboard.dispose();
+	}
+
+	void deleteSelectedSnapshots() {
+		IStructuredSelection selection = (IStructuredSelection) configsViewer.getSelection();
+		if (selection.isEmpty())
+			return;
+		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle : ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
+		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig : ProvUIMessages.RevertProfilePage_ConfirmDeleteMultipleConfigs;
+		if (MessageDialog.openConfirm(configsViewer.getControl().getShell(), title, confirmMessage)) {
+			Iterator iter = selection.iterator();
+			while (iter.hasNext()) {
+				Object selected = iter.next();
+				// If it is a recognized element and it is not the current profile, then it can be deleted.
+				if (selected instanceof RollbackProfileElement && !((RollbackProfileElement) selected).isCurrentProfile()) {
+					RollbackProfileElement snapshot = (RollbackProfileElement) selected;
+					IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
+					if (registry != null) {
+						try {
+							registry.removeProfile(profileId, snapshot.getTimestamp());
+							configsViewer.refresh();
+						} catch (ProvisionException e) {
+							ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+						}
+					}
+				}
+			}
+		}
 	}
 }

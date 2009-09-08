@@ -48,6 +48,8 @@ class Messages extends NLS {
 	public static String SimpleProfileRegistry_Profile_not_locked_due_to_exception;
 	public static String SimpleProfileRegistry_Bad_profile_location;
 
+	public static String SimpleProfileRegistry_CannotRemoveCurrentSnapshot;
+
 	public static String thread_not_owner;
 	public static String profile_lock_not_reentrant;
 

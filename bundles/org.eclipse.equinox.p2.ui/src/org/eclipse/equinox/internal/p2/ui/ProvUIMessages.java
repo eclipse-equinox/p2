@@ -42,6 +42,11 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
+	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
+	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
+	public static String RevertProfilePage_Delete;
+	public static String RevertProfilePage_DeleteMultipleConfigurationsTitle;
+	public static String RevertProfilePage_DeleteSingleConfigurationTitle;
 	public static String RevertProfilePage_NoProfile;
 	public static String RevertProfilePage_RevertLabel;
 	public static String RevertProfilePage_RevertTooltip;

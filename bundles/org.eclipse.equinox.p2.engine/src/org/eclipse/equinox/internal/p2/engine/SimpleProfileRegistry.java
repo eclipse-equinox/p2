@@ -346,6 +346,29 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(profileId, ProfileEvent.REMOVED);
 	}
 
+	public synchronized void removeProfile(String id, long timestamp) throws ProvisionException {
+		if (SELF.equals(id))
+			id = self;
+
+		if (profiles != null) {
+			IProfile profile = getProfile(id);
+			if (profile != null && profile.getTimestamp() == timestamp)
+				throw new ProvisionException(Messages.SimpleProfileRegistry_CannotRemoveCurrentSnapshot);
+		}
+
+		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		if (!profileDirectory.isDirectory())
+			return;
+
+		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_GZ_EXT);
+		if (!profileFile.exists()) {
+			profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
+			if (!profileFile.exists())
+				return;
+		}
+		FileUtils.deleteAll(profileFile);
+	}
+
 	private void broadcastChangeEvent(String profileId, byte reason) {
 		((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
 	}

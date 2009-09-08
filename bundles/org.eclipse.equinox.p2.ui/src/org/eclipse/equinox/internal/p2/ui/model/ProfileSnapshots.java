@@ -47,7 +47,8 @@ public class ProfileSnapshots extends ProvElement {
 				// revert to.
 				if (i == 0) {
 					skipFirst = elements[0].getChildren(elements[0]).length == 0;
-				} else if (i == timestamps.length - 1) {
+				}
+				if (i == timestamps.length - 1) {
 					elements[i].setIsCurrentProfile(true);
 				}
 			}

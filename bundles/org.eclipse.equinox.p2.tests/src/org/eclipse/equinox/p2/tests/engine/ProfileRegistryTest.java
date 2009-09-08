@@ -667,4 +667,41 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		});
 		assertEquals(1, filesFound.length);
 	}
+
+	public void testRemoveProfileTimestamps() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
+		assertTrue(profile.getProperties().containsKey("test"));
+		long[] timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(1, timestamps.length);
+
+		assertTrue(profile.getProperties().containsKey("test"));
+		profile.removeProperty("test");
+		assertNull(profile.getProperty("test"));
+		saveProfile(registry, profile);
+		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(2, timestamps.length);
+
+		profile.setProperty("test2", "test2");
+		saveProfile(registry, profile);
+		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+
+		// We have three timestamps and should be able to remove two
+		// of them (but not the current)
+		assertEquals(3, timestamps.length);
+		int fail = 0;
+
+		for (int i = 0; i < timestamps.length; i++) {
+			try {
+				registry.removeProfile(PROFILE_NAME, timestamps[i]);
+			} catch (ProvisionException e) {
+				fail++;
+			}
+		}
+		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
+		assertEquals(1, timestamps.length);
+		assertEquals(1, fail);
+	}
 }

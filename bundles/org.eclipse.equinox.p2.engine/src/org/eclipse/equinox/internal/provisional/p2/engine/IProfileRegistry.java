@@ -99,6 +99,18 @@ public interface IProfileRegistry {
 	public boolean containsProfile(String profileId);
 
 	/**
+	 * Remove the given profile snapshot from this profile registry. This method has no effect
+	 * if this registry does not contain a profile with the given id and timestamp.
+	 * The current profile cannot be removed using this method.
+	 * 
+	 * @param id the profile to remove
+	 * @param timestamp the timestamp of the profile to remove 
+	 * 
+	 * @throws ProvisionException if the profile with the specified id and timestamp is the current profile.
+	 */
+	void removeProfile(String id, long timestamp) throws ProvisionException;
+
+	/**
 	 * Remove the given profile from this profile registry.  This method has no effect
 	 * if this registry does not contain a profile with the given id.
 	 * 
