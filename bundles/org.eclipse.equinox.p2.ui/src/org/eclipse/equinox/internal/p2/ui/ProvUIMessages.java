@@ -47,9 +47,12 @@ public class ProvUIMessages extends NLS {
 	public static String RevertProfilePage_Delete;
 	public static String RevertProfilePage_DeleteMultipleConfigurationsTitle;
 	public static String RevertProfilePage_DeleteSingleConfigurationTitle;
+	public static String RevertProfilePage_DeleteTooltip;
 	public static String RevertProfilePage_NoProfile;
 	public static String RevertProfilePage_RevertLabel;
 	public static String RevertProfilePage_RevertTooltip;
+	public static String RevertProfilePage_CompareLabel;
+	public static String RevertProfilePage_CompareTooltip;
 	public static String IUCopyrightPropertyPage_NoCopyright;
 	public static String IUCopyrightPropertyPage_ViewLinkLabel;
 	public static String IUDetailsLabelProvider_KB;
