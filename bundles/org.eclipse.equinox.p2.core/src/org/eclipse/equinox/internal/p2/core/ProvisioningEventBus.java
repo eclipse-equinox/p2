@@ -11,6 +11,9 @@
 package org.eclipse.equinox.internal.p2.core;
 
 import java.util.EventObject;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.osgi.framework.eventmgr.*;
 
@@ -103,8 +106,7 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		try {
 			((ProvisioningListener) eventListener).notify((EventObject) eventObject);
 		} catch (Exception e) {
-			e.printStackTrace();
-			//TODO Need to do the appropriate logging
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Exception during event notification", e)); //$NON-NLS-1$
 		} finally {
 			synchronized (dispatchEventLock) {
 				dispatchingEvents--;
