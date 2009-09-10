@@ -54,7 +54,10 @@ public class From35to36 extends AbstractReconcilerTest {
 	}
 
 	public void from35To36() {
+		//TODO : IHave a variable that points to the 3.5 archive of the platform
+		//TODO Have a variable that points to the repo of teh build being tested
 		runDirectorToUpdate("Updating 3.5 to 3.6", "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide", "org.eclipse.platform.ide");
+		//What do we check?
 		runDirectorToRevert("Reverting from 3.6 to 3.5", "http://download.eclipse.org/eclipse/updates/3.5");
 	}
 }
