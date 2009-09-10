@@ -37,11 +37,18 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	protected static Set toRemove = new HashSet();
 	private static boolean initialized = false;
 
+	private String propertyToPlatformArchive;
+
 	/*
-	 * Constructor for the class.
-	 */
+			 * Constructor for the class.
+			 */
 	public AbstractReconcilerTest(String name) {
 		super(name);
+	}
+
+	public AbstractReconcilerTest(String name, String propertyToPlatformArchive) {
+		super(name);
+		this.propertyToPlatformArchive = propertyToPlatformArchive;
 	}
 
 	/*
@@ -132,8 +139,13 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * it will fail an assert before that.
 	 */
 	private File getPlatformZip() {
-		// Check to see if the user set a system property first
-		String property = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
+		String property = null;
+		if (propertyToPlatformArchive != null) {
+			property = TestActivator.getContext().getProperty(propertyToPlatformArchive);
+		} else {
+			// Check to see if the user set a system property first
+			property = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
+		}
 		File file = null;
 		if (property == null) {
 			// the releng test framework copies the zip so let's look for it...

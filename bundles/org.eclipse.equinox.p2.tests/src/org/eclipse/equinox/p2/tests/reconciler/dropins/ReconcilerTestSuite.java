@@ -17,8 +17,22 @@ import junit.framework.TestSuite;
 
 public class ReconcilerTestSuite extends TestSuite {
 
-	private Test INITIALIZE = new AbstractReconcilerTest("initialize");
-	private Test CLEANUP = new AbstractReconcilerTest("cleanup");
+	private Test INITIALIZE;
+	private Test CLEANUP;
+	private String propertyToPlatformArchive;
+
+	public ReconcilerTestSuite() {
+		super();
+		INITIALIZE = getInitializationTest();
+		CLEANUP = getCleanUpTest();
+	}
+
+	public ReconcilerTestSuite(String propertyToPlatformArchive) {
+		super();
+		this.propertyToPlatformArchive = propertyToPlatformArchive;
+		INITIALIZE = getInitializationTest();
+		CLEANUP = getCleanUpTest();
+	}
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestSuite#tests()
@@ -48,5 +62,13 @@ public class ReconcilerTestSuite extends TestSuite {
 		if (index == testCount() - 1)
 			return CLEANUP;
 		return super.testAt(index - 1);
+	}
+
+	public Test getInitializationTest() {
+		return new AbstractReconcilerTest("initialize", propertyToPlatformArchive);
+	}
+
+	public Test getCleanUpTest() {
+		return new AbstractReconcilerTest("cleanup");
 	}
 }

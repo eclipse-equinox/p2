@@ -48,7 +48,7 @@ public class From35to36 extends AbstractReconcilerTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite();
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.35.platform.archive");
 		suite.addTest(new From35to36("from35To36"));
 		return suite;
 	}
