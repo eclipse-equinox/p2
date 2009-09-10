@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
@@ -30,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.osgi.framework.Bundle;
 
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
@@ -441,6 +441,24 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			for (int i = 0; i < plugins.length; i++)
 				result.addPlugin(plugins[i]);
 		return result;
+	}
+
+	/*
+	 * Copy the bundle with the given id to the specified location. (location
+	 * is parent directory)
+	 */
+	public void copyBundle(String bundlename, File destination) throws IOException {
+		Bundle bundle = TestActivator.getBundle(bundlename);
+		if (bundle == null) {
+			// TODO
+			return;
+		}
+		String location = bundle.getLocation();
+		if (location.startsWith("reference:"))
+			location = location.substring("reference:".length());
+		File source = new File(FileLocator.toFileURL(new URL(location)).getFile());
+		destination = new File(destination, source.getName());
+		FileUtils.copy(source, destination, new File(""), false);
 	}
 
 	/*
