@@ -82,6 +82,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the given command.
 	 */
 	protected static int run(String message, String[] commandArray) {
+		//		System.out.print("Executing ");
+		//		for (int i = 0; i < commandArray.length; i++) {
+		//			System.out.print(" " + commandArray[i]);
+		//		}
 		BufferedReader reader = null;
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
