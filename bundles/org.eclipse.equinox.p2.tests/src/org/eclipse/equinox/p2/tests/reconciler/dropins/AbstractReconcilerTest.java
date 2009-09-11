@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +35,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.Bundle;
 
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
-
+	public static final String VERIFIER_BUNDLE_ID = "org.eclipse.equinox.p2.tests.verifier";
 	protected static File output;
 	protected static Set toRemove = new HashSet();
 	private static boolean initialized = false;
@@ -461,10 +464,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * is parent directory)
 	 */
 	public void copyBundle(String bundlename, File destination) throws IOException {
+		if (destination == null)
+			destination = new File(output, "eclipse/plugins");
 		Bundle bundle = TestActivator.getBundle(bundlename);
 		if (bundle == null) {
-			// TODO
-			return;
+			throw new IOException("Could not find: " + bundlename);
 		}
 		String location = bundle.getLocation();
 		if (location.startsWith("reference:"))
@@ -519,5 +523,51 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
 		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, collector.size());
 		return (IInstallableUnit) collector.iterator().next();
+	}
+
+	public int runDirectorToUpdate(String message, String sourceRepo, String iuToInstall, String iuToUninstall) {
+		File root = new File(Activator.getBundleContext().getProperty("java.home"));
+		root = new File(root, "bin");
+		File exe = new File(root, "javaw.exe");
+		if (!exe.exists())
+			exe = new File(root, "java");
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		// command-line if you want to run and allow a remote debugger to connect
+		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
+		return run(message, command);
+	}
+
+	public int runDirectorToRevert(String message, String sourceRepo, String timestampToRevertTo) {
+		File root = new File(Activator.getBundleContext().getProperty("java.home"));
+		root = new File(root, "bin");
+		File exe = new File(root, "javaw.exe");
+		if (!exe.exists())
+			exe = new File(root, "java");
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", timestampToRevertTo, "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		// command-line if you want to run and allow a remote debugger to connect
+		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
+		return run(message, command);
+	}
+
+	public int runVerifierBundle() {
+		String message = "Running the verifier bundle";
+		File root = new File(Activator.getBundleContext().getProperty("java.home"));
+		root = new File(root, "bin");
+		File exe = new File(root, "javaw.exe");
+		if (!exe.exists())
+			exe = new File(root, "java");
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		// command-line if you want to run and allow a remote debugger to connect
+		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
+		return run(message, command);
+	}
+
+	public int installAndRunVerifierBundle() {
+		try {
+			copyBundle(VERIFIER_BUNDLE_ID, null);
+		} catch (IOException e) {
+			fail("Could not find the verifier bundle");
+		}
+		return runVerifierBundle();
 	}
 }
