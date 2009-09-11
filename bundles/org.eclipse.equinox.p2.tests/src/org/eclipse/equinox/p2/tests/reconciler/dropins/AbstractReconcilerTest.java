@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
-import java.io.File;
-import java.io.IOException;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -465,7 +462,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void copyBundle(String bundlename, File destination) throws IOException {
 		if (destination == null)
-			destination = new File(output, "eclipse/plugins");
+			destination = output;
+		destination = new File(destination, "eclipse/plugins");
 		Bundle bundle = TestActivator.getBundle(bundlename);
 		if (bundle == null) {
 			throw new IOException("Could not find: " + bundlename);
@@ -549,25 +547,29 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return run(message, command);
 	}
 
-	public int runVerifierBundle() {
+	public int runVerifierBundle(File destination) {
+		if (destination == null)
+			destination = output;
 		String message = "Running the verifier bundle";
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
 		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
+		//String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
 		return run(message, command);
 	}
 
-	public int installAndRunVerifierBundle() {
+	public int installAndRunVerifierBundle(File destination) {
+		if (destination == null)
+			destination = output;
 		try {
-			copyBundle(VERIFIER_BUNDLE_ID, null);
+			copyBundle(VERIFIER_BUNDLE_ID, destination);
 		} catch (IOException e) {
 			fail("Could not find the verifier bundle");
 		}
-		return runVerifierBundle();
+		return runVerifierBundle(destination);
 	}
 }

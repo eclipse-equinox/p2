@@ -1,0 +1,6 @@
+	From  | To 
+	=-=-=-=-=-==
+a	3.5	    3.6 (update / install) --> From35to36 for the update part, and Install36from35 for the install
+b	3.5	    3.5 (update / install)  --> 
+c	3.6	    3.6 (update / install) --> 
+d	3.6	    3.5 (install / revert)  --> End2EndTest for the install part, From35to36 for the revert

@@ -35,9 +35,13 @@ public class From35to36 extends AbstractReconcilerTest {
 			currentBuildRepo = "http://download.eclipse.org/eclipse/updates/3.6-I-builds";
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/"), null, false);
 		String initialTimestamp = Long.toString(registry.getProfile("PlatformProfile").getTimestamp());
+
+		//Take 3.5 archive, unzip, run it to update to 3.6   
 		assertEquals(0, runDirectorToUpdate("Updating from 3.5 to 3.6", currentBuildRepo, "org.eclipse.platform.ide", "org.eclipse.platform.ide"));
-		assertEquals(0, installAndRunVerifierBundle());
+		assertEquals(0, installAndRunVerifierBundle(null));
+
+		// revert to 3.5
 		assertEquals(0, runDirectorToRevert("Reverting from 3.6 to 3.5", "http://download.eclipse.org/eclipse/updates/3.5", initialTimestamp));
-		assertEquals(0, runVerifierBundle());
+		assertEquals(0, runVerifierBundle(null));
 	}
 }
