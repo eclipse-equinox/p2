@@ -140,13 +140,20 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	private File getPlatformZip() {
 		String property = null;
+		File file = null;
 		if (propertyToPlatformArchive != null) {
 			property = TestActivator.getContext().getProperty(propertyToPlatformArchive);
-		} else {
-			// Check to see if the user set a system property first
-			property = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
+			String message = "Need to set the " + "\"" + property + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
+			if (property == null) {
+				fail(message);
+			}
+			file = new File(property);
+			assertNotNull(message, file);
+			assertTrue(message, file.exists());
+			return file;
 		}
-		File file = null;
+
+		property = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
 		if (property == null) {
 			// the releng test framework copies the zip so let's look for it...
 			// it will be a sibling of the eclipse/ folder that we are running
