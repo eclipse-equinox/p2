@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.internal.adaptor.EclipseAdaptorMsg;
 import org.eclipse.core.runtime.internal.adaptor.MessageHelper;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -74,7 +75,10 @@ public class VerifierApplication implements IApplication {
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
-		return verify();
+		IStatus result = verify();
+		if (!result.isOK())
+			LogHelper.log(result);
+		return result;
 	}
 
 	/*
@@ -265,8 +269,10 @@ public class VerifierApplication implements IApplication {
 	 * added to our results.
 	 */
 	private boolean shouldAdd(ResolverError error) {
-		// ignore EE problems?
-		if (ResolverError.MISSING_EXECUTION_ENVIRONMENT == error.getType() && Boolean.valueOf(properties.getProperty("ignore.ee")).booleanValue())
+		// ignore EE problems? default value is true
+		String prop = properties.getProperty("ignore.ee");
+		boolean ignoreEE = prop == null || Boolean.valueOf(prop).booleanValue();
+		if (ResolverError.MISSING_EXECUTION_ENVIRONMENT == error.getType() && ignoreEE)
 			return false;
 		return true;
 	}
