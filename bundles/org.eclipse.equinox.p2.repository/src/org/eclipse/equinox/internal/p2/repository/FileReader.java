@@ -29,6 +29,25 @@ import org.eclipse.osgi.util.NLS;
  * FileReader is an ECF FileTransferJob implementation.
  */
 public final class FileReader extends FileTransferJob implements IFileTransferListener {
+	/**
+	 * Class used to suppress warnings about a job being blocked by another job.
+	 * Since we are running a job that will always be blocked by another job that
+	 * is actually performing the transfer, these messages are unnecessary and ugly.
+	 */
+	static class SuppressBlockedMonitor extends SubProgressMonitor {
+		public SuppressBlockedMonitor(IProgressMonitor monitor, int ticks) {
+			super(monitor, ticks);
+		}
+
+		public void setBlocked(IStatus reason) {
+			//do nothing
+		}
+
+		public void clearBlocked() {
+			//do nothing
+		}
+	}
+
 	private static IFileReaderProbe testProbe;
 	private boolean closeStreamWhenFinished = false;
 	private Exception exception;
@@ -261,7 +280,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			monitor = new NullProgressMonitor();
 		try {
 			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
-			Job.getJobManager().join(this, new SubProgressMonitor(monitor, 0));
+			Job.getJobManager().join(this, new SuppressBlockedMonitor(monitor, 0));
 			if (monitor.isCanceled() && connectEvent != null)
 				connectEvent.cancel();
 			// check and throw exception if received in callback
