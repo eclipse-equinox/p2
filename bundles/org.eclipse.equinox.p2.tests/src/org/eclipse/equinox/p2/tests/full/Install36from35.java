@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 //Install 3.6 using 3.5
 public class Install36from35 extends AbstractReconcilerTest {
 
-	public void runDirectorToInstall(String message, String sourceRepo, String iuToInstall) {
+	public int runDirectorToInstall(String message, String sourceRepo, String iuToInstall) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -39,7 +39,7 @@ public class Install36from35 extends AbstractReconcilerTest {
 
 		// command-line if you want to run and allow a remote debugger to connect
 		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-installIU", iuToInstall, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
-		run(message, command);
+		return run(message, command);
 	}
 
 	public Install36from35(String string) {
@@ -53,6 +53,6 @@ public class Install36from35 extends AbstractReconcilerTest {
 	}
 
 	public void from35To36() {
-		runDirectorToInstall("Installing 3.6 from 3.5", "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide");
+		assertEquals(0, runDirectorToInstall("Installing 3.6 from 3.5", "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide"));
 	}
 }

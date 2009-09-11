@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
 public class From35to36 extends AbstractReconcilerTest {
 
-	public void runDirectorToUpdate(String message, String sourceRepo, String iuToInstall, String iuToUninstall) {
+	public int runDirectorToUpdate(String message, String sourceRepo, String iuToInstall, String iuToUninstall) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -28,10 +28,10 @@ public class From35to36 extends AbstractReconcilerTest {
 		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall};
 		// command-line if you want to run and allow a remote debugger to connect
 		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
-		run(message, command);
+		return run(message, command);
 	}
 
-	public void runDirectorToRevert(String message, String sourceRepo) {
+	public int runDirectorToRevert(String message, String sourceRepo) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -40,7 +40,7 @@ public class From35to36 extends AbstractReconcilerTest {
 		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-revert"};
 		// command-line if you want to run and allow a remote debugger to connect
 		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-revert", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
-		run(message, command);
+		return run(message, command);
 	}
 
 	public From35to36(String string) {
@@ -54,10 +54,9 @@ public class From35to36 extends AbstractReconcilerTest {
 	}
 
 	public void from35To36() {
-		//TODO : IHave a variable that points to the 3.5 archive of the platform
 		//TODO Have a variable that points to the repo of teh build being tested
-		runDirectorToUpdate("Updating 3.5 to 3.6", "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide", "org.eclipse.platform.ide");
+		assertEquals(0, runDirectorToUpdate("Updating 3.5 to 3.6", "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide", "org.eclipse.platform.ide"));
 		//What do we check?
-		runDirectorToRevert("Reverting from 3.6 to 3.5", "http://download.eclipse.org/eclipse/updates/3.5");
+		assertEquals(0, runDirectorToRevert("Reverting from 3.6 to 3.5", "http://download.eclipse.org/eclipse/updates/3.5"));
 	}
 }

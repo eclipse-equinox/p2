@@ -81,7 +81,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Run the given command.
 	 */
-	protected static void run(String message, String[] commandArray) {
+	protected static int run(String message, String[] commandArray) {
 		BufferedReader reader = null;
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
@@ -94,11 +94,13 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				reader.close();
 			}
 			process.waitFor();
+			return process.exitValue();
 		} catch (IOException e) {
 			fail(message, e);
 		} catch (InterruptedException e) {
 			fail(message, e);
 		}
+		return -1;
 	}
 
 	/*
