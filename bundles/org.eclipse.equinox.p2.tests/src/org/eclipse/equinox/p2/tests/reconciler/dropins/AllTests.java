@@ -22,10 +22,10 @@ import junit.framework.*;
 public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTest(BasicTests.suite());
-		suite.addTest(ConfigurationTests.suite());
-		suite.addTest(FeaturePatchTest.suite());
-		suite.addTest(SharedInstallTests.suite());
+		//		suite.addTest(BasicTests.suite());
+		//		suite.addTest(ConfigurationTests.suite());
+		//		suite.addTest(FeaturePatchTest.suite());
+		//		suite.addTest(SharedInstallTests.suite());
 		return suite;
 	}
 }
