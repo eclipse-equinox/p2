@@ -39,7 +39,6 @@ public class VerifierApplication implements IApplication {
 	private static final File DEFAULT_PROPERTIES_FILE = new File("verifier.properties"); //$NON-NLS-1$
 	private static final String ARG_PROPERTIES = "-verifier.properties"; //$NON-NLS-1$
 	private Properties properties = null;
-	private List ignoreResolved = null;
 
 	/*
 	 * Create and return an error status with the given message.
@@ -92,7 +91,7 @@ public class VerifierApplication implements IApplication {
 		for (int i = 1; i < args.length; i++) {
 			if (ARG_PROPERTIES.equals(args[i - 1])) {
 				String filename = args[i];
-				if (filename.startsWith("-"))
+				if (filename.startsWith("-")) //$NON-NLS-1$
 					continue;
 				try {
 					properties = readProperties(new File(filename));
@@ -144,26 +143,6 @@ public class VerifierApplication implements IApplication {
 	 */
 	public void stop() {
 		// nothing to do
-	}
-
-	/*
-	 * Return a boolean value indicating whether or not the bundle with the given symbolic name
-	 * should be considered when looking at bundles which are not resolved in the system.
-	 */
-	private boolean shouldCheckResolved(String bundle) {
-		if (ignoreResolved == null) {
-			ignoreResolved = new ArrayList();
-			String list = properties.getProperty("ignore.unresolved");
-			if (list == null)
-				return true;
-			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();)
-				ignoreResolved.add(tokenizer.nextToken().trim());
-		}
-		for (Iterator iter = ignoreResolved.iterator(); iter.hasNext();) {
-			if (bundle.equals(iter.next()))
-				return false;
-		}
-		return true;
 	}
 
 	private List getAllBundles() {
@@ -226,7 +205,7 @@ public class VerifierApplication implements IApplication {
 				String generalMessage = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, description.getLocation());
 				ArrayList constraints = (ArrayList) missing.get(description);
 				for (Iterator inner = constraints.iterator(); inner.hasNext();) {
-					String message = generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage((VersionConstraint) inner.next());
+					String message = generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage((VersionConstraint) inner.next()); //$NON-NLS-1$
 					allProblems.add(createError(message));
 				}
 			}
@@ -247,18 +226,18 @@ public class VerifierApplication implements IApplication {
 				if (unsatisfied.length > 0) {
 					// the bundle wasn't resolved due to some of its constraints were unsatisfiable
 					for (int j = 0; j < unsatisfied.length; j++)
-						allProblems.add(createError(generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage(unsatisfied[j])));
+						allProblems.add(createError(generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage(unsatisfied[j]))); //$NON-NLS-1$
 				} else {
 					ResolverError[] resolverErrors = state.getResolverErrors(description);
 					for (int j = 0; j < resolverErrors.length; j++) {
 						if (shouldAdd(resolverErrors[j])) {
-							allProblems.add(createError(generalMessage + " Reason: " + resolverErrors[j].toString()));
+							allProblems.add(createError(generalMessage + " Reason: " + resolverErrors[j].toString())); //$NON-NLS-1$
 						}
 					}
 				}
 			}
 		}
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null);
+		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null); //$NON-NLS-1$
 		for (Iterator iter = allProblems.iterator(); iter.hasNext();)
 			result.add((IStatus) iter.next());
 		return result;
@@ -270,7 +249,7 @@ public class VerifierApplication implements IApplication {
 	 */
 	private boolean shouldAdd(ResolverError error) {
 		// ignore EE problems? default value is true
-		String prop = properties.getProperty("ignore.ee");
+		String prop = properties.getProperty("ignore.ee"); //$NON-NLS-1$
 		boolean ignoreEE = prop == null || Boolean.valueOf(prop).booleanValue();
 		if (ResolverError.MISSING_EXECUTION_ENVIRONMENT == error.getType() && ignoreEE)
 			return false;
@@ -283,13 +262,13 @@ public class VerifierApplication implements IApplication {
 	private IStatus checkProfileRegistry() {
 		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(Activator.getBundleContext(), IProfileRegistry.class.getName());
 		if (registry == null)
-			return createError("Profile registry service not available.");
+			return createError("Profile registry service not available."); //$NON-NLS-1$
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
-			return createError("SELF profile not available in profile registry.");
+			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
 		Collector results = profile.query(new InstallableUnitQuery(Activator.PLUGIN_ID), new Collector(), null);
 		if (results.isEmpty())
-			return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID));
+			return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
 		return Status.OK_STATUS;
 	}
 
@@ -297,7 +276,7 @@ public class VerifierApplication implements IApplication {
 	 * Perform all of the verification checks.
 	 */
 	public IStatus verify() {
-		String message = "Problems occurred during verification.";
+		String message = "Problems occurred during verification."; //$NON-NLS-1$
 		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, message, null);
 
 		// ensure all the bundles are resolved
