@@ -149,7 +149,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (property == null)
 			return null;
 		String result = TestActivator.getContext().getProperty(property);
-		if (archiveAndRepositoryProperties == null)
+		if (result == null && archiveAndRepositoryProperties == null)
 			return null;
 		if (result == null)
 			archiveAndRepositoryProperties.getProperty(property);
