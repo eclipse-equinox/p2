@@ -36,8 +36,13 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	protected static File output;
 	protected static Set toRemove = new HashSet();
 	private static boolean initialized = false;
+	private static Properties archiveAndRepositoryProperties = null;
 
 	private String propertyToPlatformArchive;
+
+	static {
+		loadPlatformZipPropertiesFromFile();
+	}
 
 	/*
 			 * Constructor for the class.
@@ -140,6 +145,19 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return URLUtil.toFile(url);
 	}
 
+	private String getValueFor(String property) {
+		if (property == null)
+			return null;
+		String result = TestActivator.getContext().getProperty(property);
+		if (archiveAndRepositoryProperties == null)
+			return null;
+		if (result == null)
+			archiveAndRepositoryProperties.getProperty(property);
+		if (result == null)
+			result = archiveAndRepositoryProperties.getProperty(property + '.' + Platform.getOS());
+		return result;
+	}
+
 	/*
 	 * Return a file handle pointing to the platform binary zip. Method never returns null because
 	 * it will fail an assert before that.
@@ -148,7 +166,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		String property = null;
 		File file = null;
 		if (propertyToPlatformArchive != null) {
-			property = TestActivator.getContext().getProperty(propertyToPlatformArchive);
+			property = getValueFor(propertyToPlatformArchive);
 			String message = "Need to set the " + "\"" + property + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
 			if (property == null) {
 				fail(message);
@@ -159,7 +177,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			return file;
 		}
 
-		property = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
+		property = getValueFor("org.eclipse.equinox.p2.reconciler.tests.platform.archive");
 		if (property == null) {
 			// the releng test framework copies the zip so let's look for it...
 			// it will be a sibling of the eclipse/ folder that we are running
@@ -571,5 +589,33 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			fail("Could not find the verifier bundle");
 		}
 		return runVerifierBundle(destination);
+	}
+
+	private static void loadPlatformZipPropertiesFromFile() {
+		File installLocation = getInstallLocation();
+		if (installLocation != null) {
+			// parent will be "eclipse" and the parent's parent will be "eclipse-testing"
+			File parent = installLocation.getParentFile();
+			if (parent != null) {
+				parent = parent.getParentFile();
+				if (parent != null) {
+					File propertiesFile = new File(parent, "equinoxp2tests.properties");
+					if (!propertiesFile.exists())
+						return;
+					archiveAndRepositoryProperties = new Properties();
+					try {
+						InputStream is = null;
+						try {
+							is = new BufferedInputStream(new FileInputStream(propertiesFile));
+							archiveAndRepositoryProperties.load(is);
+						} finally {
+							is.close();
+						}
+					} catch (IOException e) {
+						return;
+					}
+				}
+			}
+		}
 	}
 }

@@ -20,8 +20,8 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(End2EndTest.class);
-		//		suite.addTestSuite(From35to36.class);
-		//		suite.addTestSuite(Install36from35.class);
+		suite.addTest(From35to36.suite());
+		suite.addTest(Install36from35.suite());
 		return suite;
 	}
 
