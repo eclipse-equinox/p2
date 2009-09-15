@@ -77,7 +77,7 @@ public class VerifierApplication implements IApplication {
 		IStatus result = verify();
 		if (!result.isOK())
 			LogHelper.log(result);
-		return result;
+		return result.isOK() ? IApplication.EXIT_OK : new Integer(13);
 	}
 
 	/*
