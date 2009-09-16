@@ -74,7 +74,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (status == null || !status.matches(IStatus.ERROR | IStatus.CANCEL));
 	}
 
-	private static SAXParserFactory acquireXMLParsing(BundleContext context) {
+	private synchronized static SAXParserFactory acquireXMLParsing(BundleContext context) {
 		if (xmlTracker == null) {
 			xmlTracker = new ServiceTracker(context, SAXParserFactory.class.getName(), null);
 			xmlTracker.open();
@@ -82,9 +82,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (SAXParserFactory) xmlTracker.getService();
 	}
 
-	protected static void releaseXMLParsing() {
+	protected synchronized static void releaseXMLParsing() {
 		if (xmlTracker != null) {
 			xmlTracker.close();
+			xmlTracker = null;
 		}
 	}
 
