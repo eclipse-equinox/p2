@@ -491,6 +491,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			location = location.substring("reference:".length());
 		File source = new File(FileLocator.toFileURL(new URL(location)).getFile());
 		destination = new File(destination, source.getName());
+		if (destination.exists())
+			return;
 		FileUtils.copy(source, destination, new File(""), false);
 	}
 
@@ -541,6 +543,18 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return (IInstallableUnit) collector.iterator().next();
 	}
 
+	public int runInitialize(String message) {
+		File root = new File(Activator.getBundleContext().getProperty("java.home"));
+		root = new File(root, "bin");
+		File exe = new File(root, "javaw.exe");
+		if (!exe.exists())
+			exe = new File(root, "java");
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-initialize", "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		// command-line if you want to run and allow a remote debugger to connect
+		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
+		return run(message, command);
+	}
+
 	public int runDirectorToUpdate(String message, String sourceRepo, String iuToInstall, String iuToUninstall) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
@@ -561,7 +575,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			exe = new File(root, "java");
 		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", timestampToRevertTo, "-vmArgs", "-Dosgi.checkConfiguration=true"};
 		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
+		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", timestampToRevertTo, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
 		return run(message, command);
 	}
 
