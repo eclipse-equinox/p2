@@ -128,7 +128,7 @@ public class RecreateRepositoryApplication {
 
 				repository.addDescriptor(newDescriptor);
 			}
-			if (packFile != null && !files.contains(packFile)) {
+			if (packFile != null && !files.contains(packFile) && packFile.length() > 0) {
 				ArtifactDescriptor packDescriptor = createPack200ArtifactDescriptor(key, packFile, unpackedSize);
 				repository.addDescriptor(packDescriptor);
 			}
