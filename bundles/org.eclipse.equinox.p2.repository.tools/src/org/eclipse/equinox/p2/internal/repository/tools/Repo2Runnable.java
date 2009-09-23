@@ -110,7 +110,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 * Perform the transformation.
 	 */
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
-		SubMonitor progress = SubMonitor.convert(monitor, 4);
+		SubMonitor progress = SubMonitor.convert(monitor, 5);
 
 		initializeRepos(progress);
 
@@ -130,13 +130,12 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		IProfile profile = createProfile();
 		try {
 			ProvisioningContext context = new ProvisioningContext();
-			PhaseSet phaseSet = getPhaseSet();
 			Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
-			IStatus result = engine.perform(profile, phaseSet, operands, context, progress.newChild(1));
-			if (result.matches(IStatus.ERROR))
-				return result;
+
+			IStatus result = engine.perform(profile, getPhaseSet(), operands, context, progress.newChild(1));
+			engine.perform(profile, getNativePhase(), operands, context, progress.newChild(1));
 
 			// publish the metadata to a destination - if requested
 			publishMetadata(progress.newChild(1));
@@ -151,7 +150,11 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	}
 
 	protected PhaseSet getPhaseSet() {
-		return new PhaseSet(new Phase[] {new Collect(100), new CollectNativesPhase(100)}) { /* nothing to override */};
+		return new PhaseSet(new Phase[] {new Collect(100)}) { /* nothing to override */};
+	}
+
+	protected PhaseSet getNativePhase() {
+		return new PhaseSet(new Phase[] {new CollectNativesPhase(100)}) { /*nothing to override */};
 	}
 
 	/*

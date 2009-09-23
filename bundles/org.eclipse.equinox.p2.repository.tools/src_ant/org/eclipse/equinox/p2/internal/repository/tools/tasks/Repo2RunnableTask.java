@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.List;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -27,6 +28,8 @@ import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
  * @since 1.0
  */
 public class Repo2RunnableTask extends AbstractRepositoryTask {
+
+	private boolean failOnError = true;
 
 	/*
 	 * Constructor for the class. Create a new instance of the application
@@ -49,10 +52,18 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
-			if (result.matches(IStatus.ERROR))
+			if (failOnError && result.matches(IStatus.ERROR))
 				throw new ProvisionException(result);
 		} catch (ProvisionException e) {
-			throw new BuildException(Messages.Repo2RunnableTask_errorTransforming, e);
+			if (failOnError)
+				throw new BuildException(Messages.Repo2RunnableTask_errorTransforming, e);
+			/* else */
+			getProject().log(Messages.Repo2RunnableTask_errorTransforming, Project.MSG_WARN);
+			getProject().log(e.getMessage(), Project.MSG_WARN);
 		}
+	}
+
+	public void setFailOnError(boolean fail) {
+		this.failOnError = fail;
 	}
 }
