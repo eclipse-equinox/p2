@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.core;
 
 /**
  * An extension to {@link IServiceUI} for prompting the user about installing unsigned content.
+ * @TODO This should be merged into IServiceUI during API cleanup
  */
 public interface IServiceUICheckUnsigned {
 	/**
