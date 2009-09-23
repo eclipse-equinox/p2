@@ -100,6 +100,10 @@ public class SlicingOption extends Task {
 		options.followOnlyFilteredRequirements(onlyFiltered);
 	}
 
+	public void setLatestVersionOnly(boolean latest) {
+		options.latestVersionOnly(latest);
+	}
+
 	public SlicingOptions getOptions() {
 		return options;
 	}

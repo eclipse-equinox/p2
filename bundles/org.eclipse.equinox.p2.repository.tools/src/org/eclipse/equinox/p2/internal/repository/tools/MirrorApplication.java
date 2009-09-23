@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -190,6 +191,12 @@ public class MirrorApplication extends AbstractApplication {
 			slicingOptions = new SlicingOptions();
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
 		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
+
+		if (slice != null && slicingOptions.latestVersionOnly()) {
+			Collector collector = new Collector();
+			collector = slice.query(new LatestIUVersionQuery(), collector, monitor);
+			slice = collector;
+		}
 		if (slicer.getStatus().getSeverity() != IStatus.OK && mirrorLog != null) {
 			mirrorLog.log(slicer.getStatus());
 		}
