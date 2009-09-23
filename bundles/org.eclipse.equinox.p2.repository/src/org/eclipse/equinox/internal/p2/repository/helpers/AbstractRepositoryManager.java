@@ -80,11 +80,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * Set used to manage exclusive load locks on repository locations.
 	 */
 	private Map loadLocks = new HashMap();
+	protected IProvisioningEventBus eventBus;
 
 	protected AbstractRepositoryManager() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		if (bus != null)
-			bus.addListener(this);
+		super();
 	}
 
 	/**
@@ -197,9 +196,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	private void broadcastChangeEvent(URI location, int repositoryType, int kind, boolean isEnabled) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
-		if (bus != null)
-			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
+		if (eventBus != null)
+			eventBus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
 	}
 
 	/**
@@ -954,12 +952,37 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/**
+	 * Injects the event bus service to be used by this repository manager.
+	 * @param bus The event bus being added
+	 */
+	public void setEventBus(IProvisioningEventBus bus) {
+		if (eventBus == bus)
+			return;
+		if (eventBus != null)
+			unsetEventBus(eventBus);
+		this.eventBus = bus;
+		eventBus.addListener(this);
+	}
+
+	/**
+	 * Removes the event bus service used by this repository manager
+	 * @param bus The bus being removed
+	 */
+	public void unsetEventBus(IProvisioningEventBus bus) {
+		if (bus == eventBus) {
+			eventBus.removeListener(this);
+			eventBus = null;
+		}
+	}
+
+	/**
 	 * Shuts down the repository manager.
 	 */
 	public void shutdown() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		if (bus != null)
-			bus.removeListener(this);
+		if (eventBus != null) {
+			eventBus.removeListener(this);
+			eventBus = null;
+		}
 		//ensure all repository state in memory is written to disk
 		boolean changed = false;
 		synchronized (repositoryLock) {

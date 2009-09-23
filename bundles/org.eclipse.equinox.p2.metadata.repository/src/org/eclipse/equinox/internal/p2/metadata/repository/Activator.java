@@ -26,7 +26,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	private static CacheManager cacheManager;
 	private ServiceRegistration repositoryManagerRegistration;
 	private MetadataRepositoryManager repositoryManager;
-	private ServiceTracker tracker;
+	private ServiceTracker busTracker;
 
 	public static BundleContext getContext() {
 		return bundleContext;
@@ -40,14 +40,15 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		Activator.bundleContext = context;
 		cacheManager = new CacheManager();
 
-		// need to track event bus coming and going to make sure cache gets cleaned on
-		// repository removals
-		tracker = new ServiceTracker(context, IProvisioningEventBus.SERVICE_NAME, this);
-		tracker.open();
-
 		cacheManager.registerRepoEventListener();
 		repositoryManager = new MetadataRepositoryManager();
 		repositoryManagerRegistration = context.registerService(IMetadataRepositoryManager.class.getName(), repositoryManager, null);
+
+		// need to track event bus coming and going to make sure cache gets cleaned on
+		// repository removals
+		busTracker = new ServiceTracker(context, IProvisioningEventBus.SERVICE_NAME, this);
+		busTracker.open();
+
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -66,8 +67,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	}
 
 	public Object addingService(ServiceReference reference) {
-		cacheManager.registerRepoEventListener();
-		return null;
+		IProvisioningEventBus bus = (IProvisioningEventBus) bundleContext.getService(reference);
+		if (repositoryManager != null)
+			repositoryManager.setEventBus(bus);
+		if (cacheManager != null)
+			cacheManager.registerRepoEventListener();
+		return bus;
 	}
 
 	public void modifiedService(ServiceReference reference, Object service) {
@@ -76,7 +81,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	}
 
 	public void removedService(ServiceReference reference, Object service) {
-		// ignored
-
+		if (repositoryManager != null)
+			repositoryManager.unsetEventBus((IProvisioningEventBus) service);
 	}
 }

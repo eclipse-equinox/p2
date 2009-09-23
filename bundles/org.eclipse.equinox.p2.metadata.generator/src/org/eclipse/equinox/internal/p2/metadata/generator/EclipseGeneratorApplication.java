@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,6 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseIns
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
 
@@ -308,6 +307,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void registerDefaultArtifactRepoManager() {
 		if (ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName()) == null) {
 			defaultArtifactManager = new ArtifactRepositoryManager();
+			defaultArtifactManager.setEventBus(bus);
 			registrationDefaultArtifactManager = Activator.getContext().registerService(IArtifactRepositoryManager.class.getName(), defaultArtifactManager, null);
 		}
 	}
@@ -315,6 +315,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void registerDefaultMetadataRepoManager() {
 		if (ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName()) == null) {
 			defaultMetadataManager = new MetadataRepositoryManager();
+			defaultMetadataManager.setEventBus(bus);
 			registrationDefaultMetadataManager = Activator.getContext().registerService(IMetadataRepositoryManager.class.getName(), defaultMetadataManager, null);
 		}
 	}

@@ -120,7 +120,9 @@ public class Activator implements BundleActivator {
 		//register a metadata repository manager if there isn't one already registered
 		metadataRepositoryReference = context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		if (metadataRepositoryReference == null) {
-			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, new MetadataRepositoryManager(), null);
+			final MetadataRepositoryManager manager = new MetadataRepositoryManager();
+			manager.setEventBus(bus);
+			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
 			metadataRepositoryReference = registrationDefaultManager.getReference();
 		}
 	}
