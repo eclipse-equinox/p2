@@ -10,19 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
-
+import java.io.*;
+import java.util.*;
+import java.util.zip.*;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 
@@ -34,20 +24,20 @@ public class ZipProcessor {
 
 	private JarProcessorExecutor executor = null;
 	private JarProcessorExecutor.Options options = null;
-	
+
 	private String workingDirectory = null;
 	private Properties properties = null;
 	private Set packExclusions = null;
 	private Set signExclusions = null;
-	
+
 	public void setExecutor(JarProcessorExecutor executor) {
 		this.executor = executor;
 	}
-	
+
 	public void setOptions(JarProcessorExecutor.Options options) {
 		this.options = options;
 	}
-	
+
 	public void setWorkingDirectory(String dir) {
 		workingDirectory = dir;
 	}
@@ -61,7 +51,7 @@ public class ZipProcessor {
 	private boolean repacking() {
 		return options.repack || (options.pack && options.signCommand != null);
 	}
-	
+
 	public void processZip(File zipFile) throws ZipException, IOException {
 		if (options.verbose)
 			System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
@@ -180,7 +170,7 @@ public class ZipProcessor {
 						Utils.transferStreams(entryStream, zipOut, false);
 						zipOut.closeEntry();
 					} catch (ZipException e) {
-						if(options.verbose) {
+						if (options.verbose) {
 							System.out.println("Warning: " + name + " already exists in " + outputFile.getName() + ".  Skipping.");
 						}
 					}
@@ -189,7 +179,7 @@ public class ZipProcessor {
 
 				if (extractedFile != null)
 					Utils.clear(extractedFile);
-				
+
 				if (options.verbose) {
 					System.out.println();
 					System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$

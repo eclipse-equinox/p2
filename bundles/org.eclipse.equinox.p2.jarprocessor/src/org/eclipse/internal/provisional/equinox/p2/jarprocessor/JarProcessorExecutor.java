@@ -99,7 +99,7 @@ public class JarProcessorExecutor {
 	protected FileFilter createFileFilter(Options options) {
 		return options.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER;
 	}
-	
+
 	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException {
 		if (!input.exists())
 			throw new FileNotFoundException();
@@ -128,7 +128,7 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException{
+	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException {
 		if (!input.isDirectory())
 			return;
 		String dir = processor.getWorkingDirectory();
@@ -140,7 +140,7 @@ public class JarProcessorExecutor {
 		if (packProcessor != null)
 			packProcessor.setWorkingDirectory(dir);
 	}
-	
+
 	public void addPackUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new PackUnpackStep(properties, options.verbose));
 	}

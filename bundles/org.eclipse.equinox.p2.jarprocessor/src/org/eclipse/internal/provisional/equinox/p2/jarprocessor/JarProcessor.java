@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.jarprocessor.*;
 
 public class JarProcessor {
 	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
-	
+
 	private List steps = new ArrayList();
 	private String workingDirectory = ""; //$NON-NLS-1$
 	private int depth = -1;
@@ -54,15 +54,15 @@ public class JarProcessor {
 	}
 
 	public void setWorkingDirectory(String dir) {
-		if(dir != null)
+		if (dir != null)
 			workingDirectory = dir;
 	}
-	
+
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
-	
-	public void setProcessAll(boolean all){
+
+	public void setProcessAll(boolean all) {
 		this.processAll = all;
 	}
 
@@ -103,11 +103,11 @@ public class JarProcessor {
 							} catch (Exception e) {
 								if (verbose) {
 									e.printStackTrace();
-									System.out.println("Warning: Problem reading " +replacement.getPath() + ", using " + jar.getName() + File.separator + entry.getName()  + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									System.out.println("Warning: Problem reading " + replacement.getPath() + ", using " + jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								}
 							}
 						} else if (verbose) {
-							System.out.println("Warning: " + replacement.getPath() + " not found, using " + jar.getName() + File.separator + entry.getName() + " instead.");	 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							System.out.println("Warning: " + replacement.getPath() + " not found, using " + jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						}
 					}
 				}
@@ -115,8 +115,8 @@ public class JarProcessor {
 					try {
 						in = new BufferedInputStream(jar.getInputStream(entry));
 						newEntry = new JarEntry(entry.getName());
-					} catch( Exception e ) {
-						if(verbose) {
+					} catch (Exception e) {
+						if (verbose) {
 							e.printStackTrace();
 							System.out.println("ERROR: problem reading " + entry.getName() + " from " + jar.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 						}
@@ -166,28 +166,28 @@ public class JarProcessor {
 	}
 
 	private void extractEntries(JarFile jar, File tempDir, Map data, Properties inf) throws IOException {
-		if(inf != null ) {
+		if (inf != null) {
 			//skip if excluding children
-			if(inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)){
+			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)) {
 				String excludeChildren = inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN);
-				if( Boolean.valueOf(excludeChildren).booleanValue() )
-					if(verbose){
-						for(int i = 0; i <= depth; i++)
+				if (Boolean.valueOf(excludeChildren).booleanValue())
+					if (verbose) {
+						for (int i = 0; i <= depth; i++)
 							System.out.print("  "); //$NON-NLS-1$
 						System.out.println("Children of " + jar.getName() + "are excluded from processing."); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					return;
+				return;
 			}
 		}
-		
+
 		Enumeration entries = jar.entries();
 		if (entries.hasMoreElements()) {
 			for (JarEntry entry = (JarEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
 				String name = entry.getName();
 				String newName = recursionEffect(name);
 				if (newName != null) {
-					if(verbose){
-						for(int i = 0; i <= depth; i++)
+					if (verbose) {
+						for (int i = 0; i <= depth; i++)
 							System.out.print("  "); //$NON-NLS-1$
 						System.out.println("Processing nested file: " + name); //$NON-NLS-1$
 					}
@@ -325,10 +325,10 @@ public class JarProcessor {
 
 		//post
 		File result = postProcess(workingFile, workingDir);
-		
+
 		//have to normalize after the post steps
 		normalize(result, workingDir);
-		
+
 		if (!result.equals(workingFile) && !workingFile.equals(input))
 			workingFile.delete();
 		if (!result.getParentFile().equals(workingDir)) {
@@ -346,9 +346,9 @@ public class JarProcessor {
 		--depth;
 		return result;
 	}
-	
+
 	private void normalize(File input, File directory) {
-		if(input.getName().endsWith(JarProcessor.PACKED_SUFFIX)) {
+		if (input.getName().endsWith(JarProcessor.PACKED_SUFFIX)) {
 			//not a jar
 			return;
 		}
@@ -359,7 +359,7 @@ public class JarProcessor {
 				jar = new JarFile(input, false);
 			} catch (JarException e) {
 				//not a jar
-				return ;
+				return;
 			}
 			JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
 			InputStream in = null;
