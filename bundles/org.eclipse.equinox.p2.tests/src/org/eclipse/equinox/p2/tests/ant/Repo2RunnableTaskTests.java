@@ -30,7 +30,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 
 	public void setUp() throws Exception {
 		source = getTestData("Error loading data", "testData/mirror/mirrorSourceRepo1 with space").toURI();
-		destination = getTempFolder().toURI();
+		destination = getTestFolder(getName()).toURI();
 		super.setUp();
 	}
 
@@ -73,6 +73,38 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		runAntTask();
 		assertEquals("Number of artifact keys differs", iu.getArtifacts().length, getArtifactKeyCount(destination));
 		assertTrue("Unexpected format", expectedFormat(destination));
+	}
+
+	public void testRepo2RunnableFailOnError() {
+		source = getTestData("Error loading data", "testData/mirror/mirrorSourceRepo3").toURI();
+		URI binary = getTestData("Error loading binary data", "testData/testRepos/binary.repo").toURI();
+
+		AntTaskElement mirror = new AntTaskElement("p2.mirror");
+		AntTaskElement sourceRepo = new AntTaskElement("source");
+		sourceRepo.addElement(getRepositoryElement(source, TYPE_BOTH));
+		sourceRepo.addElement(getRepositoryElement(binary, TYPE_BOTH));
+		mirror.addElement(sourceRepo);
+		mirror.addElement(getRepositoryElement(destination, TYPE_BOTH));
+		addTask(mirror);
+
+		AntTaskElement delete = new AntTaskElement("delete");
+		delete.addAttribute("file", getTestFolder(getName()) + "/plugins/helloworld_1.0.0.jar");
+		addTask(delete);
+
+		getArtifactRepositoryManager().removeRepository(binary);
+		getMetadataRepositoryManager().removeRepository(binary);
+		getArtifactRepositoryManager().removeRepository(source);
+		getMetadataRepositoryManager().removeRepository(source);
+		source = destination;
+
+		File destinationFile = new File(getTestFolder(getName()), "repo2");
+		destination = destinationFile.toURI();
+
+		AntTaskElement task = createRepo2RunnableTaskElement(TYPE_BOTH);
+		task.addAttribute("failOnError", "false");
+
+		runAntTask();
+		assertTrue(new File(destinationFile, "binary/f_root_1.0.0").exists());
 	}
 
 	/*
