@@ -10,13 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor.ant;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-
+import java.io.*;
+import java.util.*;
 import org.apache.tools.ant.Project;
 import org.eclipse.equinox.internal.p2.jarprocessor.unsigner.UnsignCommand;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
@@ -29,7 +24,7 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 	private List inputFiles;
 	private HashSet filterSet = null;
 	private FileFilter baseFilter = null;
-	
+
 	public AntBasedProcessorExecutor(Properties signArguments, Project project, String antTaskName) {
 		this.signArguments = signArguments;
 		this.project = project;
@@ -54,15 +49,15 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		return filterSet;
 	}
 
-	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException{
-		if (filterSet != null && filterSet.contains(input)){
-			File [] files = input.listFiles();
+	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, Properties packProperties) throws FileNotFoundException {
+		if (filterSet != null && filterSet.contains(input)) {
+			File[] files = input.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isDirectory() || baseFilter.accept(files[i]))
 					filterSet.add(files[i]);
 			}
 		}
-		super.processDirectory(input, filter, verbose, processor, packProcessor);
+		super.processDirectory(input, filter, verbose, processor, packProperties);
 	}
 
 	public void addSignStep(JarProcessor processor, Properties properties, Options options) {

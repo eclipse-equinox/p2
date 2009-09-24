@@ -13,6 +13,7 @@ package org.eclipse.internal.provisional.equinox.p2.jarprocessor;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.Set;
 import java.util.zip.ZipException;
 import org.eclipse.equinox.internal.p2.jarprocessor.*;
 
@@ -28,7 +29,12 @@ public class JarProcessorExecutor {
 		public File input = null;
 	}
 
-	public void runJarProcessor(Options options) {
+	protected Options options = null;
+	private Set packExclusions = null;
+	private Set signExclusions = null;
+
+	public void runJarProcessor(Options processOptions) {
+		this.options = processOptions;
 		if (options.input.isFile() && options.input.getName().endsWith(".zip")) { //$NON-NLS-1$
 			ZipProcessor processor = new ZipProcessor();
 			processor.setWorkingDirectory(options.outputDir);
@@ -45,7 +51,6 @@ public class JarProcessorExecutor {
 			}
 		} else {
 			JarProcessor processor = new JarProcessor();
-			JarProcessor packProcessor = null;
 
 			processor.setWorkingDirectory(options.outputDir);
 			processor.setProcessAll(options.processAll);
@@ -67,28 +72,14 @@ public class JarProcessorExecutor {
 						Utils.close(in);
 					}
 				}
-			}
 
-			if (options.unpack)
-				addUnpackStep(processor, properties, options);
-
-			if (options.repack || (options.pack && options.signCommand != null))
-				addPackUnpackStep(processor, properties, options);
-
-			if (options.signCommand != null)
-				addSignStep(processor, properties, options);
-
-			if (options.pack) {
-				packProcessor = new JarProcessor();
-				packProcessor.setWorkingDirectory(options.outputDir);
-				packProcessor.setProcessAll(options.processAll);
-				packProcessor.setVerbose(options.verbose);
-				addPackStep(packProcessor, properties, options);
+				packExclusions = Utils.getPackExclusions(properties);
+				signExclusions = Utils.getSignExclusions(properties);
 			}
 
 			try {
 				FileFilter filter = createFileFilter(options);
-				process(options.input, filter, options.verbose, processor, packProcessor);
+				process(options.input, filter, options.verbose, processor, properties);
 			} catch (FileNotFoundException e) {
 				if (options.verbose)
 					e.printStackTrace();
@@ -96,11 +87,59 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	protected FileFilter createFileFilter(Options options) {
-		return options.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER;
+	protected FileFilter createFileFilter(Options processOptions) {
+		return processOptions.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER;
 	}
 
-	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException {
+	protected String getRelativeName(File file) {
+		if (options.input == null)
+			return file.toString();
+		try {
+			File input = options.input.getCanonicalFile();
+			File subFile = file.getCanonicalFile();
+
+			if (input.isFile())
+				return subFile.getName();
+
+			if (!subFile.toString().startsWith(input.toString())) {
+				// the file is not under the base folder.
+				return file.toString();
+			}
+
+			File parent = subFile.getParentFile();
+			String result = subFile.getName();
+			while (!parent.equals(input)) {
+				result = parent.getName() + '/' + result;
+				parent = parent.getParentFile();
+			}
+			return result;
+
+		} catch (IOException e) {
+			return file.getName();
+		}
+	}
+
+	private boolean shouldPack(String name) {
+		if (!options.pack)
+			return false;
+		return packExclusions == null ? true : !packExclusions.contains(name);
+	}
+
+	private boolean shouldSign(String name) {
+		if (options.signCommand == null)
+			return false;
+		return signExclusions == null ? true : !signExclusions.contains(name);
+	}
+
+	private boolean shouldRepack(String name) {
+		if (shouldSign(name) && shouldPack(name))
+			return true;
+		if (!options.repack)
+			return false;
+		return packExclusions == null ? true : !packExclusions.contains(name);
+	}
+
+	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor, Properties packProperties) throws FileNotFoundException {
 		if (!input.exists())
 			throw new FileNotFoundException();
 
@@ -113,12 +152,32 @@ public class JarProcessorExecutor {
 			return;
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
-				processDirectory(files[i], filter, verbose, processor, packProcessor);
+				processDirectory(files[i], filter, verbose, processor, packProperties);
 			} else if (filter.accept(files[i])) {
 				try {
-					File result = processor.processJar(files[i]);
-					if (packProcessor != null && result != null && result.exists()) {
-						packProcessor.processJar(result);
+					processor.clearProcessSteps();
+					if (options.unpack) {
+						addUnpackStep(processor, packProperties, options);
+						processor.processJar(files[i]);
+					} else {
+						String name = getRelativeName(files[i]);
+						boolean sign = shouldSign(name);
+						boolean repack = shouldRepack(name);
+
+						if (repack || sign) {
+							processor.clearProcessSteps();
+							if (repack)
+								addPackUnpackStep(processor, packProperties, options);
+							if (sign)
+								addSignStep(processor, packProperties, options);
+							files[i] = processor.processJar(files[i]);
+						}
+
+						if (shouldPack(name)) {
+							processor.clearProcessSteps();
+							addPackStep(processor, packProperties, options);
+							processor.processJar(files[i]);
+						}
 					}
 				} catch (IOException e) {
 					if (verbose)
@@ -128,32 +187,28 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, JarProcessor packProcessor) throws FileNotFoundException {
+	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, Properties packProperties) throws FileNotFoundException {
 		if (!input.isDirectory())
 			return;
 		String dir = processor.getWorkingDirectory();
 		processor.setWorkingDirectory(dir + "/" + input.getName()); //$NON-NLS-1$
-		if (packProcessor != null)
-			packProcessor.setWorkingDirectory(dir + "/" + input.getName()); //$NON-NLS-1$
-		process(input, filter, verbose, processor, packProcessor);
+		process(input, filter, verbose, processor, packProperties);
 		processor.setWorkingDirectory(dir);
-		if (packProcessor != null)
-			packProcessor.setWorkingDirectory(dir);
 	}
 
-	public void addPackUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
-		processor.addProcessStep(new PackUnpackStep(properties, options.verbose));
+	public void addPackUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options processOptions) {
+		processor.addProcessStep(new PackUnpackStep(properties, processOptions.verbose));
 	}
 
-	public void addSignStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
-		processor.addProcessStep(new SignCommandStep(properties, options.signCommand, options.verbose));
+	public void addSignStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options processOptions) {
+		processor.addProcessStep(new SignCommandStep(properties, processOptions.signCommand, processOptions.verbose));
 	}
 
-	public void addPackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
-		processor.addProcessStep(new PackStep(properties, options.verbose));
+	public void addPackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options processOptions) {
+		processor.addProcessStep(new PackStep(properties, processOptions.verbose));
 	}
 
-	public void addUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
-		processor.addProcessStep(new UnpackStep(properties, options.verbose));
+	public void addUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options processOptions) {
+		processor.addProcessStep(new UnpackStep(properties, processOptions.verbose));
 	}
 }

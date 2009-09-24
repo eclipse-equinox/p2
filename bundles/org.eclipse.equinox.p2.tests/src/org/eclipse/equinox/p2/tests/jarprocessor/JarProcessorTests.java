@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.jarprocessor;
 
 import java.io.*;
-import java.util.Properties;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.Verifier;
@@ -33,10 +32,14 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		Verifier verifier = new Verifier() {
 			@Override
 			public void verify(File workingDirectory, String[] input) {
-				Properties options = new Properties();
+				options = new Options();
+				options.verbose = false;
+				options.pack = true; // we are verifying during the pack phase.
+				options.outputDir = workingDirectory.toString();
+				options.input = workingDirectory;
+
 				JarProcessor processor = new JarProcessor();
 				processor.setWorkingDirectory(workingDirectory.getAbsolutePath());
-				processor.addProcessStep(new VerifyStep(options, false));
 
 				FileFilter filter = new FileFilter() {
 					public boolean accept(File pathname) {
