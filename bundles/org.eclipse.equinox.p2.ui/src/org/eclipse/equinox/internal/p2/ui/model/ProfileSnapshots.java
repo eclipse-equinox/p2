@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
+import org.eclipse.ui.progress.IElementCollector;
 
 /**
  * Element class for profile snapshots
  * 
  * @since 3.5
  */
-public class ProfileSnapshots extends ProvElement {
+public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchAdapter {
 
 	String profileId;
 
@@ -69,5 +73,27 @@ public class ProfileSnapshots extends ProvElement {
 	 */
 	public String getLabel(Object o) {
 		return ProvUIMessages.ProfileSnapshots_Label;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
+		Object[] children = getChildren(object);
+		collector.add(children, monitor);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#getRule(java.lang.Object)
+	 */
+	public ISchedulingRule getRule(Object object) {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#isContainer()
+	 */
+	public boolean isContainer() {
+		return false;
 	}
 }

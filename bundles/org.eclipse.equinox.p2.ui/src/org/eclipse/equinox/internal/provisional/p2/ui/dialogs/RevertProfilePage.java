@@ -112,9 +112,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		// prime the selection.  The selection accesses the
 		// revert action, so create it also.
 		createRevertAction();
-		Object element = configsViewer.getElementAt(0);
-		if (element != null)
-			configsViewer.setSelection(new StructuredSelection(element));
 	}
 
 	private void createConfigurationsSection(Composite parent) {
@@ -129,7 +126,14 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
 		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		configsViewer.setContentProvider(new RepositoryContentProvider());
+		ProvElementContentProvider provider = new ProvElementContentProvider() {
+			protected void finishedFetchingElements(Object o) {
+				Object element = configsViewer.getElementAt(0);
+				if (element != null)
+					configsViewer.setSelection(new StructuredSelection(element));
+			}
+		};
+		configsViewer.setContentProvider(provider);
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
 			// We override the ViewerComparator so that we don't get the labels of the elements

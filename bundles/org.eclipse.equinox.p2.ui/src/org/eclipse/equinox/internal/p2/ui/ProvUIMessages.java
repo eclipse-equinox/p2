@@ -92,6 +92,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvDropAdapter_InvalidDropTarget;
 	public static String ProvDropAdapter_NoIUsToDrop;
 	public static String ProvDropAdapter_UnsupportedDropOperation;
+	public static String ProvElementContentProvider_FetchJobTitle;
 
 	// Provisioning operations
 	public static String ProvisioningOperationRunner_CannotApplyChanges;
