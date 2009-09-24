@@ -107,6 +107,14 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		return getRepositoryElement(address, kind, null, null, null, null);
 	}
 
+	protected AntTaskElement getIUElement(String name, String version) {
+		AntTaskElement iuElement = new AntTaskElement("iu");
+		iuElement.addAttribute("id", name);
+		if (version != null)
+			iuElement.addAttribute("version", version);
+		return iuElement;
+	}
+
 	protected AntTaskElement getRepositoryElement(URI address, String kind, String name, String format, Boolean compressed, Boolean append) {
 		AntTaskElement repo = new AntTaskElement("repository");
 		repo.addAttributes(new String[] {"location", URIUtil.toUnencodedString(address)});

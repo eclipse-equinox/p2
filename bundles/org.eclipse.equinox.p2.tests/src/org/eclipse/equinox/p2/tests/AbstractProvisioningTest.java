@@ -760,6 +760,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
+	protected IInstallableUnit getIU(IMetadataRepository repository, String name) {
+		Collector collector = repository.query(new InstallableUnitQuery(name), new Collector(), null);
+
+		IInstallableUnit unit = null;
+		if (collector.size() > 0)
+			unit = (IInstallableUnit) collector.iterator().next();
+
+		return unit;
+	}
+
 	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 	}

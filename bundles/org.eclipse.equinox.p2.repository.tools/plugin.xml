@@ -27,6 +27,12 @@
 			name="p2.process.artifacts"
 			class="org.eclipse.equinox.p2.internal.repository.tools.tasks.ProcessRepoTask" >
 	  </antTask>
+	  
+	  <antTask
+			library="lib/repository-tools-ant.jar"
+			name="p2.remove.iu"
+			class="org.eclipse.equinox.p2.internal.repository.tools.tasks.RemoveIUTask" >
+	  </antTask>
   </extension>
   
   <extension
