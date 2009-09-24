@@ -27,20 +27,19 @@ import org.eclipse.osgi.util.NLS;
 
 public class RemoveIUTask extends AbstractRepositoryTask {
 
+	protected static class RemoveIUApplication extends AbstractApplication {
+		//Only need the application to reuse super's repo management.
+		public IStatus run(IProgressMonitor monitor) {
+			return null;
+		}
+
+		public void finalizeRepos() throws ProvisionException {
+			super.finalizeRepositories();
+		}
+	}
+
 	public RemoveIUTask() {
-		application = new AbstractApplication() {
-			public IStatus run(IProgressMonitor monitor) {
-				return null;
-			}
-
-			public IMetadataRepository getCompositeMetadataRepository() {
-				return destinationMetadataRepository;
-			}
-
-			public IArtifactRepository getCompositeArtifactRepository() {
-				return destinationArtifactRepository;
-			}
-		};
+		this.application = new RemoveIUApplication();
 	}
 
 	public void execute() throws BuildException {
@@ -52,8 +51,8 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			if (application.getCompositeMetadataRepository() == null)
 				throw new BuildException(Messages.AbstractApplication_no_valid_destinations); //need a repo
 
-			IMetadataRepository repository = application.getCompositeMetadataRepository();
-			IArtifactRepository artifacts = application.getCompositeArtifactRepository();
+			IMetadataRepository repository = application.getDestinationMetadataRepository();
+			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
 
 			for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 				IUDescription iu = (IUDescription) iter.next();
@@ -76,6 +75,12 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
+		} finally {
+			try {
+				((RemoveIUApplication) application).finalizeRepos();
+			} catch (ProvisionException e) {
+				throw new BuildException(e);
+			}
 		}
 	}
 }

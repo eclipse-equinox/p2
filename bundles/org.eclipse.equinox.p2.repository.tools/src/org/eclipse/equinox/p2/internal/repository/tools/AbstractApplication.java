@@ -118,6 +118,14 @@ public abstract class AbstractApplication {
 			throw new ProvisionException(Messages.AbstractApplication_no_valid_destinations);
 	}
 
+	public IMetadataRepository getDestinationMetadataRepository() {
+		return destinationMetadataRepository;
+	}
+
+	public IArtifactRepository getDestinationArtifactRepository() {
+		return destinationArtifactRepository;
+	}
+
 	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr) throws ProvisionException {
 		try {
 			IMetadataRepository repository = addRepository(mgr, toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
