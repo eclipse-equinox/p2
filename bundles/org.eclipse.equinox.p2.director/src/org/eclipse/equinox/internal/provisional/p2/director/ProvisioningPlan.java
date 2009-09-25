@@ -26,12 +26,13 @@ public class ProvisioningPlan {
 	ProvisioningPlan installerPlan;
 	RequestStatus globalRequestStatus;
 	ProfileChangeRequest originalChangeRequest;
+	IQueryable completeState;
 
 	public ProvisioningPlan(IStatus status, ProfileChangeRequest originalRequest, ProvisioningPlan installerPlan) {
-		this(status, new Operand[0], null, null, installerPlan, originalRequest);
+		this(status, new Operand[0], null, null, installerPlan, originalRequest, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus, ProvisioningPlan installerPlan, ProfileChangeRequest originalRequest) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus, ProvisioningPlan installerPlan, ProfileChangeRequest originalRequest, IQueryable futureState) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
@@ -41,6 +42,7 @@ public class ProvisioningPlan {
 		this.globalRequestStatus = globalStatus;
 		this.installerPlan = installerPlan;
 		originalChangeRequest = originalRequest;
+		completeState = futureState;
 	}
 
 	public IStatus getStatus() {
@@ -113,5 +115,13 @@ public class ProvisioningPlan {
 
 	public void setInstallerPlan(ProvisioningPlan p) {
 		installerPlan = p;
+	}
+
+	public IQueryable getCompleteState() {
+		return completeState;
+	}
+
+	protected void setCompleteState(IQueryable state) {
+		completeState = state;
 	}
 }

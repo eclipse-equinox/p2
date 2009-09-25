@@ -51,7 +51,7 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, changeRequest), null, installerPlan, changeRequest);
+		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, changeRequest), null, installerPlan, changeRequest, new QueryableArray((IInstallableUnit[]) toState.toArray(new IInstallableUnit[toState.size()])));
 	}
 
 	private Map[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
@@ -325,7 +325,7 @@ public class SimplePlanner implements IPlanner {
 				//Extract the explanation
 				Set explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
 				IStatus explanationStatus = convertExplanationToStatus(explanation);
-				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profileChangeRequest);
+				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profileChangeRequest, null);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
