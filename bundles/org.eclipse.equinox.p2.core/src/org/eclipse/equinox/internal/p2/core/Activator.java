@@ -171,6 +171,7 @@ public class Activator implements BundleActivator {
 
 	public void stop(BundleContext aContext) throws Exception {
 		instance = null;
+		agentDataLocation = null;
 		if (agentLocationRegistration != null)
 			agentLocationRegistration.unregister();
 		if (logTracker != null) {
