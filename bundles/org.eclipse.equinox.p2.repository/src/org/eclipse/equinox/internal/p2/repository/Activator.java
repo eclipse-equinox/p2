@@ -149,8 +149,8 @@ public class Activator implements BundleActivator {
 		if (bundles != null && bundles.length > 0) {
 			for (int i = 0; i < bundles.length; i++) {
 				try {
-					if ((bundles[0].getState() & Bundle.INSTALLED) == 0) {
-						bundles[0].start();
+					if ((bundles[i].getState() & Bundle.INSTALLED) == 0) {
+						bundles[i].start();
 						return true;
 					}
 				} catch (BundleException e) {
