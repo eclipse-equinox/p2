@@ -36,6 +36,7 @@ public class Messages extends NLS {
 	public static String Help_lb_lt_path_gt_rb;
 	public static String Help_List_all_IUs_found_in_repos;
 	public static String Help_lt_comma_separated_list_gt;
+	public static String Help_lb_lt_comma_separated_list_gt_rb;
 	public static String Help_lt_name_gt;
 	public static String Help_lt_path_gt;
 	public static String Help_Missing_argument;

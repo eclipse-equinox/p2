@@ -92,7 +92,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] {"-help", "-h", "-?"}, null, Messages.Help_Prints_this_command_line_help); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, null, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, Messages.Help_lb_lt_comma_separated_list_gt_rb, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_REVERT = new CommandLineOption(new String[] {"-revert"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Revert_to_previous_state); //$NON-NLS-1$
@@ -182,6 +182,7 @@ public class DirectorApplication implements IApplication {
 	private final List metadataRepositoryLocations = new ArrayList();
 	private final List rootsToInstall = new ArrayList();
 	private final List rootsToUninstall = new ArrayList();
+	private final List rootsToList = new ArrayList();
 
 	private String bundlePool = null;
 	private String destination;
@@ -477,15 +478,31 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void performList() throws CoreException {
-		Query query = new InstallableUnitQuery(null, VersionRange.emptyRange);
 		if (metadataRepositoryLocations.isEmpty())
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		Collector roots = collectRootIUs(query, null);
-		Iterator unitIterator = roots.iterator();
-		while (unitIterator.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
-			System.out.println(iu.getId());
+		ArrayList allRoots = new ArrayList();
+		if (rootsToList.size() == 0) {
+			Collector roots = collectRootIUs(InstallableUnitQuery.ANY, null);
+			allRoots.addAll(roots.toCollection());
+		} else {
+			Iterator r = rootsToList.iterator();
+			while (r.hasNext()) {
+				VersionedName rootName = (VersionedName) r.next();
+				Version v = rootName.getVersion();
+				Query query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+				Collector roots = collectRootIUs(query, null);
+				allRoots.addAll(roots.toCollection());
+			}
+		}
+
+		Collections.sort(allRoots);
+		Iterator i = allRoots.iterator();
+		while (i.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) i.next();
+			System.out.print(iu.getId());
+			System.out.print('\t');
+			System.out.println(iu.getVersion());
 		}
 	}
 
@@ -549,6 +566,11 @@ public class DirectorApplication implements IApplication {
 			String opt = args[i];
 			if (OPTION_LIST.isOption(opt)) {
 				printIUList = true;
+				String optionalArgument = getOptionalArgument(args, i);
+				if (optionalArgument != null) {
+					parseIUsArgument(rootsToList, optionalArgument);
+					i++;
+				}
 				continue;
 			}
 
