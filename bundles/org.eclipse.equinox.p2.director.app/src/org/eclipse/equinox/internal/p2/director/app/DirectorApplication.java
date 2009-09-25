@@ -500,9 +500,7 @@ public class DirectorApplication implements IApplication {
 		Iterator i = allRoots.iterator();
 		while (i.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) i.next();
-			System.out.print(iu.getId());
-			System.out.print('\t');
-			System.out.println(iu.getVersion());
+			System.out.println(iu.getId() + '=' + iu.getVersion());
 		}
 	}
 
