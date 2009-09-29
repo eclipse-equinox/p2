@@ -60,9 +60,17 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 
 		switch (columnIndex) {
 			case COL_NAME :
-				String name = ((IRepositoryElement) element).getName();
-				if (name != null) {
-					return name;
+				if (element instanceof IRepositoryElement) {
+					String name = ((IRepositoryElement) element).getName();
+					if (name != null) {
+						return name;
+					}
+				}
+				if (element instanceof IRepository) {
+					String name = ((IRepository) element).getName();
+					if (name != null) {
+						return name;
+					}
 				}
 				return ""; //$NON-NLS-1$
 			case COL_LOCATION :
