@@ -37,4 +37,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
-Service-Component: OSGI-INF/policy_component.xml
+Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/serviceui_component.xml

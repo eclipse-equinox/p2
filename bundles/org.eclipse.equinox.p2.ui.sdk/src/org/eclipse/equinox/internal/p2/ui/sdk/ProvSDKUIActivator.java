@@ -14,13 +14,13 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProfileFactory;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
@@ -31,7 +31,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Activator class for the p2 UI.
@@ -43,7 +44,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
-	private ServiceRegistration certificateUIRegistration;
 	private ScopedPreferenceStore preferenceStore;
 
 	private IPropertyChangeListener preferenceListener;
@@ -90,7 +90,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		ProvSDKUIActivator.context = bundleContext;
 		readLicenseRegistry();
 		PreferenceInitializer.migratePreferences();
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
 
@@ -138,7 +137,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	public void stop(BundleContext bundleContext) throws Exception {
 		writeLicenseRegistry();
 		plugin = null;
-		certificateUIRegistration.unregister();
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
 	}
