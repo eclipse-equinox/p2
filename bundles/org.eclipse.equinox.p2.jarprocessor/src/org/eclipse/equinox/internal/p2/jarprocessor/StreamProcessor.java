@@ -30,8 +30,7 @@ public class StreamProcessor {
 
 	static public void start(final InputStream is, final String name, final boolean verbose) {
 		if (haveJobs) {
-			StreamProcessorJob job = new StreamProcessorJob(is, name, verbose);
-			job.schedule();
+			new StreamProcessorJob(is, name, verbose).schedule();
 		} else {
 			Thread job = new Thread(STREAM_PROCESSOR) {
 				public void run() {
