@@ -13,7 +13,14 @@ package org.eclipse.equinox.internal.provisional.p2.core;
 import java.security.cert.Certificate;
 
 /**
- * Callback API for prompting for user information from within lower level code.
+ * Service used for prompting for user information from within lower level code.
+ * Implementors of this service are responsible for registering the service.
+ * 
+ * It is possible that the IServiceUI service is requested very early in the startup
+ * sequence for an application.  For example, applications that check for updates 
+ * during startup will trigger the service lookup if a server requiring authentication
+ * is detected.  For this reason, implementors of IServiceUI should ensure that the 
+ * bundle providing the service is partitioned appropriately.
  */
 public interface IServiceUI {
 	/**
