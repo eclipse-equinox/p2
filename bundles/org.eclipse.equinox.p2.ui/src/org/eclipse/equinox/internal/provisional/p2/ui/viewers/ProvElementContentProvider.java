@@ -31,6 +31,8 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 
 	private Viewer viewer;
 	private Job fetchJob;
+	// family is used by test cases
+	Object fetchFamily = new Object();
 
 	/**
 	 * 
@@ -83,6 +85,10 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 						}
 					});
 					return Status.OK_STATUS;
+				}
+
+				public boolean belongsTo(Object family) {
+					return family == fetchFamily;
 				}
 
 			};

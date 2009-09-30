@@ -50,7 +50,7 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 	/**
 	 * Tests the dialog
 	 */
-	public void testDialog() {
+	public void testDialogBackgroundFetch() {
 		TestDialog dialog = new TestDialog();
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -62,6 +62,9 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 			Object input = viewer.getInput();
 			Field jobField = ProvElementContentProvider.class.getDeclaredField("fetchJob");
 			jobField.setAccessible(true);
+			Field jobFamily = ProvElementContentProvider.class.getDeclaredField("fetchFamily");
+			jobFamily.setAccessible(true);
+
 			jobs = 0;
 			done = 0;
 			// hammer the elements repetitively to start multiple fast running fetch jobs
@@ -80,10 +83,11 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 							}
 						}
 					});
-					if (i == 4 && job != null)
-						job.join();
 				}
 			}
+			// We need to wait for all the fetch jobs to finish and then verify that they did
+			Object family = jobFamily.get(provider);
+			Job.getJobManager().join(family, null);
 			assertTrue("No fetch occurred", jobs > 0);
 			assertEquals("Not all jobs finished as expected", jobs, done);
 		} catch (Exception e) {
