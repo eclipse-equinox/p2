@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUICheckUnsigned;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -130,14 +129,12 @@ public class CertificateChecker {
 		if (EngineActivator.UNSIGNED_FAIL.equals(policy))
 			return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.CertificateChecker_UnsignedNotAllowed, unsigned));
 		//default policy is to prompt for confirmation if possible
-		if (serviceUI instanceof IServiceUICheckUnsigned) {
-			String[] details = new String[unsigned.size()];
-			for (int i = 0; i < details.length; i++) {
-				details[i] = unsigned.get(i).toString();
-			}
-			if (!((IServiceUICheckUnsigned) serviceUI).promptForUnsignedContent(details))
-				return Status.CANCEL_STATUS;
+		String[] details = new String[unsigned.size()];
+		for (int i = 0; i < details.length; i++) {
+			details[i] = unsigned.get(i).toString();
 		}
+		if (serviceUI != null && !serviceUI.promptForUnsignedContent(details))
+			return Status.CANCEL_STATUS;
 		return Status.OK_STATUS;
 	}
 

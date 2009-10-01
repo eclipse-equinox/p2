@@ -75,4 +75,11 @@ public interface IServiceUI {
 	 * @return An array of certificates that have been accepted.
 	 */
 	public Certificate[] showCertificates(Certificate[][] certificates);
+
+	/**
+	 * Prompts the user that they are installing unsigned content.
+	 * @param details Detailed information about the items that have unsigned content.
+	 * @return <code>true</code> if the installation should proceed, and <code>false</code> otherwise.
+	 */
+	public boolean promptForUnsignedContent(String[] details);
 }
