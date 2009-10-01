@@ -229,6 +229,10 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		public Certificate[] showCertificates(Certificate[][] certificates) {
 			return null;
 		}
+
+		public boolean promptForUnsignedContent(String[] details) {
+			return true;
+		}
 	}
 
 	public static class MonitorCancelation implements Runnable {

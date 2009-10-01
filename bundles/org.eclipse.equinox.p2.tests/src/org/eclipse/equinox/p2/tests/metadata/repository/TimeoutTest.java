@@ -177,6 +177,11 @@ public class TimeoutTest extends ServerBasedTestCase {
 		public Certificate[] showCertificates(Certificate[][] certificates) {
 			return null;
 		}
+
+		public boolean promptForUnsignedContent(String[] details) {
+			return true;
+		}
+
 	}
 
 	public static class MonitorCancelation implements Runnable {

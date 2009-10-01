@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.security.cert.Certificate;
+import java.util.Hashtable;
 import junit.framework.*;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -118,7 +119,11 @@ public class AllServerTests extends TestCase {
 		if (!startTransient(pkgAdmin, BUNDLE_TESTSERVER))
 			throw new IllegalStateException("Unable to start bundle " + BUNDLE_TESTSERVER);
 
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new DelegatingAuthService(), null);
+		// We must ensure that our IServiceUI service wins because the SDK registers one declaratively
+		Hashtable properties = new Hashtable(1);
+		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, new Integer(Integer.MAX_VALUE));
+
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new DelegatingAuthService(), properties);
 		setUpCounter = 1;
 	}
 
@@ -181,6 +186,13 @@ public class AllServerTests extends TestCase {
 		 */
 		public Certificate[] showCertificates(Certificate[][] certificates) {
 			return null;
+		}
+
+		/**
+		 * Not used
+		 */
+		public boolean promptForUnsignedContent(String[] details) {
+			return true;
 		}
 
 	}

@@ -192,5 +192,10 @@ public class HttpStatusTest extends ServerBasedTestCase {
 		public Certificate[] showCertificates(Certificate[][] certificates) {
 			return null;
 		}
+
+		public boolean promptForUnsignedContent(String[] details) {
+			return true;
+		}
+
 	}
 }

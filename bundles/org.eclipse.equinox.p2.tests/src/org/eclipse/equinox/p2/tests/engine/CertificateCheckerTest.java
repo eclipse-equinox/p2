@@ -13,10 +13,10 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.Hashtable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUICheckUnsigned;
 import org.eclipse.equinox.internal.provisional.p2.engine.CertificateChecker;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -26,7 +26,7 @@ import org.osgi.framework.ServiceRegistration;
  * Tests for {@link CertificateChecker}.
  */
 public class CertificateCheckerTest extends AbstractProvisioningTest {
-	class CertificateTestService implements IServiceUI, IServiceUICheckUnsigned {
+	class CertificateTestService implements IServiceUI {
 		public boolean unsignedReturnValue = true;
 		public boolean wasPrompted = false;
 
@@ -63,8 +63,12 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		}
 		assertTrue("1.0", unsigned != null);
 		assertTrue("1.0", unsigned.exists());
+		// We need to ensure the test service has a higher ranking than
+		// anything registered by the SDK via DS.
 		serviceUI = new CertificateTestService();
-		serviceReg = EngineActivator.getContext().registerService(IServiceUI.class.getName(), serviceUI, null);
+		Hashtable properties = new Hashtable(1);
+		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, new Integer(Integer.MAX_VALUE));
+		serviceReg = EngineActivator.getContext().registerService(IServiceUI.class.getName(), serviceUI, properties);
 	}
 
 	protected void tearDown() throws Exception {
