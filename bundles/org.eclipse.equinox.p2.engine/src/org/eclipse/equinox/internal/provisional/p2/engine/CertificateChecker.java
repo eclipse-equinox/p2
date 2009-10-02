@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.TrustInfo;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -81,25 +82,58 @@ public class CertificateChecker {
 				}
 			}
 		}
-		status = checkUnsigned(serviceUI, unsigned);
-		if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
-			return status;
-		if (!untrusted.isEmpty()) {
-			Certificate[][] certificates;
-			certificates = new Certificate[untrustedChain.size()][];
+		String policy = getUnsignedContentPolicy();
+		//if there is unsigned content and we should never allow it, then fail without further checking certificates
+		if (!unsigned.isEmpty() && EngineActivator.UNSIGNED_FAIL.equals(policy))
+			return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.CertificateChecker_UnsignedNotAllowed, unsigned));
+
+		String[] details;
+		// If we always allow unsigned content, or we don't have any, we don't prompt the user about it
+		if (EngineActivator.UNSIGNED_ALLOW.equals(policy) || unsigned.isEmpty())
+			details = null;
+		else {
+			details = new String[unsigned.size()];
+			for (int i = 0; i < details.length; i++) {
+				details[i] = unsigned.get(i).toString();
+			}
+		}
+		Certificate[][] unTrustedCertificateChains;
+		if (untrusted.isEmpty()) {
+			unTrustedCertificateChains = null;
+		} else {
+			unTrustedCertificateChains = new Certificate[untrustedChain.size()][];
 			for (int i = 0; i < untrustedChain.size(); i++) {
-				certificates[i] = (Certificate[]) untrustedChain.get(i);
+				unTrustedCertificateChains[i] = (Certificate[]) untrustedChain.get(i);
 			}
-			Certificate[] trustedCertificates = serviceUI.showCertificates(certificates);
-			if (trustedCertificates == null) {
-				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-			}
+		}
+
+		// If there was no unsigned content, and nothing untrusted, no need to prompt.
+		if (details == null && unTrustedCertificateChains == null)
+			return status;
+
+		TrustInfo trustInfo = serviceUI.getTrustInfo(unTrustedCertificateChains, details);
+
+		// If user doesn't trust unsigned content, cancel the operation
+		if (!trustInfo.trustUnsignedContent())
+			return Status.CANCEL_STATUS;
+
+		Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		// If we had untrusted chains and nothing was trusted, cancel the operation
+		if (unTrustedCertificateChains != null && trustedCertificates == null) {
+			return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+		}
+		// Anything that was trusted should be removed from the untrusted list
+		if (trustedCertificates != null) {
 			for (int i = 0; i < trustedCertificates.length; i++) {
 				untrusted.remove(trustedCertificates[i]);
 			}
-			if (untrusted.size() > 0)
-				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-			// add newly trusted certificates to trust engine
+		}
+
+		// If there is still untrusted content, cancel the operation
+		if (untrusted.size() > 0)
+			return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+		// If we should persist the trusted certificates, add them to the trust engine
+		if (trustInfo.persistTrust()) {
 			for (int i = 0; i < trustedCertificates.length; i++) {
 				try {
 					trustEngine.addTrustAnchor(trustedCertificates[i], trustedCertificates[i].toString());
@@ -116,26 +150,14 @@ public class CertificateChecker {
 	}
 
 	/**
-	 * Perform necessary checks on unsigned content.
+	 * Return the policy on unsigned content.
 	 */
-	private IStatus checkUnsigned(IServiceUI serviceUI, ArrayList unsigned) {
-		if (unsigned.isEmpty())
-			return Status.OK_STATUS;
+	private String getUnsignedContentPolicy() {
 		String policy = EngineActivator.getContext().getProperty(EngineActivator.PROP_UNSIGNED_POLICY);
-		//if the policy says we should always allow it, there is nothing more to do
-		if (EngineActivator.UNSIGNED_ALLOW.equals(policy))
-			return Status.OK_STATUS;
-		//if the policy says we should never allow unsigned, then fail
-		if (EngineActivator.UNSIGNED_FAIL.equals(policy))
-			return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.CertificateChecker_UnsignedNotAllowed, unsigned));
-		//default policy is to prompt for confirmation if possible
-		String[] details = new String[unsigned.size()];
-		for (int i = 0; i < details.length; i++) {
-			details[i] = unsigned.get(i).toString();
-		}
-		if (serviceUI != null && !serviceUI.promptForUnsignedContent(details))
-			return Status.CANCEL_STATUS;
-		return Status.OK_STATUS;
+		if (policy == null)
+			policy = EngineActivator.UNSIGNED_PROMPT;
+		return policy;
+
 	}
 
 	public void add(File toAdd) {

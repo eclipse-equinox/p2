@@ -38,13 +38,9 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			return null;
 		}
 
-		public boolean promptForUnsignedContent(String[] details) {
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			wasPrompted = true;
-			return unsignedReturnValue;
-		}
-
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
+			return new TrustInfo(null, false, unsignedReturnValue);
 		}
 
 	}
@@ -146,6 +142,31 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			IStatus result = checker.start();
 			assertEquals("1.0", IStatus.CANCEL, result.getSeverity());
 			assertTrue("1.1", serviceUI.wasPrompted);
+		} finally {
+			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
+		}
+	}
+
+	/**
+	 * Tests that trust checks that occur in a headless environment are properly treated
+	 * as permissive, but not persistent, the same way as it would be if the service registration
+	 * were not there.
+	 */
+	public void testBug291049() {
+		try {
+
+			// Intentionally unregister our service so that we get whatever the default (or null) service is
+			// in an SDK configuration.  
+			if (serviceReg != null) {
+				serviceReg.unregister();
+				serviceReg = null;
+			}
+			checker.add(unsigned);
+			// TODO need to add some untrusted files here, too.  To prove that we treated them as trusted temporarily
+
+			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
+			IStatus result = checker.start();
+			assertTrue("1.0", result.isOK());
 		} finally {
 			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
 		}

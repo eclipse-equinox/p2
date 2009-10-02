@@ -154,15 +154,10 @@ public class TestServerController {
 		}
 
 		/**
-		 * No need to implement
+		 * Not used
 		 */
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
 		}
-
-		public boolean promptForUnsignedContent(String[] details) {
-			return true;
-		}
-
 	}
 }

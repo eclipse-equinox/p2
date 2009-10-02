@@ -115,12 +115,11 @@ public class AbstractTestServerClientCase extends TestCase {
 			return previousInfo;
 		}
 
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
-		}
-
-		public boolean promptForUnsignedContent(String[] details) {
-			return true;
+		/**
+		 * Not used
+		 */
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
 		}
 	}
 
@@ -142,12 +141,11 @@ public class AbstractTestServerClientCase extends TestCase {
 			return previousInfo;
 		}
 
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
-		}
-
-		public boolean promptForUnsignedContent(String[] details) {
-			return true;
+		/**
+		 * Not used
+		 */
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
 		}
 
 	}

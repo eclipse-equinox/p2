@@ -60,7 +60,7 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	public AuthenticationInfo getUsernamePassword(final String location) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
-		if (!suppressAuthentication()) {
+		if (!suppressAuthentication() && !isHeadless()) {
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
@@ -88,24 +88,59 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#showCertificates(java.lang.Object)
 	 */
-	public Certificate[] showCertificates(final Certificate[][] certificates) {
-		final Object[] result = new Object[1];
-		final TreeNode[] input = createTreeNodes(certificates);
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-			public void run() {
-				Shell shell = ProvUI.getDefaultParentShell();
-				ILabelProvider labelProvider = new CertificateLabelProvider();
-				TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
-				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
-				trustCertificateDialog.open();
-				Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
-				for (int i = 0; i < values.length; i++) {
-					values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
+	public TrustInfo getTrustInfo(Certificate[][] untrustedChains, final String[] unsignedDetail) {
+		boolean trustUnsigned = true;
+		boolean persistTrust = false;
+		Certificate[] trusted = new Certificate[0];
+		// Some day we may summarize all of this in one UI, or perhaps we'll have a preference to honor regarding
+		// unsigned content.  For now we prompt separately first as to whether unsigned detail should be trusted
+		if (!isHeadless() && unsignedDetail != null && unsignedDetail.length > 0) {
+			final boolean[] result = new boolean[] {false};
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title, null, createStatus(), IStatus.WARNING);
+					result[0] = dialog.open() == IDialogConstants.OK_ID;
 				}
-				result[0] = values;
-			}
-		});
-		return (Certificate[]) result[0];
+
+				private IStatus createStatus() {
+					MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ServiceUI_unsigned_message, null);
+					for (int i = 0; i < unsignedDetail.length; i++) {
+						parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, unsignedDetail[i]));
+					}
+					return parent;
+				}
+			});
+			trustUnsigned = result[0];
+		}
+		// For now, there is no need to show certificates if there was unsigned content and we don't trust it.
+		if (!trustUnsigned)
+			return new TrustInfo(trusted, persistTrust, trustUnsigned);
+
+		// We've established trust for unsigned content, now examine the untrusted chains
+		if (!isHeadless() && untrustedChains != null && untrustedChains.length > 0) {
+
+			final Object[] result = new Object[1];
+			final TreeNode[] input = createTreeNodes(untrustedChains);
+
+			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					Shell shell = ProvUI.getDefaultParentShell();
+					ILabelProvider labelProvider = new CertificateLabelProvider();
+					TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
+					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
+					trustCertificateDialog.open();
+					Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
+					for (int i = 0; i < values.length; i++) {
+						values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
+					}
+					result[0] = values;
+				}
+			});
+			persistTrust = true;
+			trusted = (Certificate[]) result[0];
+		}
+		return new TrustInfo(trusted, persistTrust, trustUnsigned);
 	}
 
 	private TreeNode[] createTreeNodes(Certificate[][] certificates) {
@@ -127,7 +162,7 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
-		if (!suppressAuthentication()) {
+		if (!suppressAuthentication() && !isHeadless()) {
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
@@ -148,23 +183,10 @@ public class ValidationDialogServiceUI implements IServiceUI {
 		return result[0];
 	}
 
-	public boolean promptForUnsignedContent(final String[] details) {
-		final boolean[] result = new boolean[] {false};
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-			public void run() {
-				Shell shell = ProvUI.getDefaultParentShell();
-				OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title, null, createStatus(), IStatus.WARNING);
-				result[0] = dialog.open() == IDialogConstants.OK_ID;
-			}
-
-			private IStatus createStatus() {
-				MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ServiceUI_unsigned_message, null);
-				for (int i = 0; i < details.length; i++) {
-					parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, details[i]));
-				}
-				return parent;
-			}
-		});
-		return result[0];
+	private boolean isHeadless() {
+		// If there is no UI available and we are still the IServiceUI, 
+		// assume that the operation should proceed.  See
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
+		return !PlatformUI.isWorkbenchRunning();
 	}
 }

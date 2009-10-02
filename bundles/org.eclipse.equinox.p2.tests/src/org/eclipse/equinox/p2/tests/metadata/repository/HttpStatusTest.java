@@ -189,13 +189,11 @@ public class HttpStatusTest extends ServerBasedTestCase {
 			return previousInfo;
 		}
 
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
+		/**
+		 * Not used
+		 */
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
 		}
-
-		public boolean promptForUnsignedContent(String[] details) {
-			return true;
-		}
-
 	}
 }

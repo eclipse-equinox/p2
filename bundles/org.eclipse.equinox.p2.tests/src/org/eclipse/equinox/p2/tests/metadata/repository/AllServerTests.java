@@ -182,18 +182,10 @@ public class AllServerTests extends TestCase {
 		}
 
 		/**
-		 * No need to implement
-		 */
-		public Certificate[] showCertificates(Certificate[][] certificates) {
-			return null;
-		}
-
-		/**
 		 * Not used
 		 */
-		public boolean promptForUnsignedContent(String[] details) {
-			return true;
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
 		}
-
 	}
 }
