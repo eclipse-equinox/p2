@@ -35,6 +35,8 @@ public class IUProfilePropertyQuery extends IUPropertyQuery {
 	}
 
 	protected String getProperty(IInstallableUnit iu, String name) {
+		if (profile == null)
+			return null;
 		return profile.getInstallableUnitProperty(iu, name);
 	}
 }

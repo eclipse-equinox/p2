@@ -148,7 +148,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					Collector collector = profile.query(new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
+					Collector collector = profile.query(new IUProfilePropertyQuery(context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
@@ -164,7 +164,7 @@ public class DefaultQueryProvider extends QueryProvider {
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), new InstalledIUElementWrapper(profile, element));
+				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), new InstalledIUElementWrapper(profile, element));
 
 			case QueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
