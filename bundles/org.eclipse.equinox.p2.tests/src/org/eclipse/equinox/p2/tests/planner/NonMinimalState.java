@@ -65,7 +65,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	private void why(String id) {
 		System.out.println("=-=-=" + id + "=-=-=");
 		visited = new HashSet();
-		Collector roots = profile.query(new IUProfilePropertyQuery(profile, "org.eclipse.equinox.p2.type.root", "true"), new Collector(), null);
+		Collector roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), new Collector(), null);
 		searchedId = id;
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
 			IInstallableUnit type = (IInstallableUnit) iterator.next();

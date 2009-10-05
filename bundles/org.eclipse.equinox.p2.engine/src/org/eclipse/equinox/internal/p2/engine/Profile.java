@@ -12,8 +12,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.util.NLS;
@@ -159,20 +158,24 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		if (query instanceof IUProfilePropertyQuery) {
+			((IUProfilePropertyQuery) query).setProfile(this);
+			return query.perform(iuProperties.keySet().iterator(), collector);
+		}
 		return query.perform(ius.iterator(), collector);
 	}
 
 	public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
 		if (surrogateProfileHandler != null)
 			return surrogateProfileHandler.queryProfile(this, query, collector, monitor);
-		return query.perform(ius.iterator(), collector);
+		return query(query, collector, monitor);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit, java.lang.String)
 	 */
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(createIUKey(iu));
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null)
 			return null;
 
@@ -180,11 +183,11 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public String setInstallableUnitProperty(IInstallableUnit iu, String key, String value) {
-		String iuKey = createIUKey(iu);
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iuKey);
+		//		String iuKey = createIUKey(iu);
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null) {
 			properties = new OrderedProperties();
-			iuProperties.put(iuKey, properties);
+			iuProperties.put(iu, properties);
 		}
 
 		changed = true;
@@ -192,22 +195,22 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public String removeInstallableUnitProperty(IInstallableUnit iu, String key) {
-		String iuKey = createIUKey(iu);
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iuKey);
+		//		String iuKey = createIUKey(iu);
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null)
 			return null;
 
 		String oldValue = (String) properties.remove(key);
 		if (properties.isEmpty())
-			iuProperties.remove(iuKey);
+			iuProperties.remove(iu);
 
 		changed = true;
 		return oldValue;
 	}
 
-	private static String createIUKey(IInstallableUnit iu) {
-		return iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
-	}
+	//	private static String createIUKey(IInstallableUnit iu) {
+	//		return iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+	//	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperties()
@@ -256,7 +259,7 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit)
 	 */
 	public Map getInstallableUnitProperties(IInstallableUnit iu) {
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(createIUKey(iu));
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null)
 			properties = new OrderedProperties();
 
@@ -320,16 +323,28 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public void clearInstallableUnitProperties(IInstallableUnit iu) {
-		iuProperties.remove(createIUKey(iu));
+		iuProperties.remove(iu);
 		changed = true;
 	}
 
 	public void clearOrphanedInstallableUnitProperties() {
-		List iuKeys = new ArrayList();
-		for (Iterator it = ius.iterator(); it.hasNext();)
-			iuKeys.add(createIUKey((IInstallableUnit) it.next()));
+		Set keys = iuProperties.keySet();
+		//		Set orphans = new HashSet();
+		Collection toRemove = new ArrayList();
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			Object iu = iterator.next();
+			if (!ius.contains(iu))
+				toRemove.add(iu);
+		}
 
-		iuProperties.keySet().retainAll(iuKeys);
+		for (Iterator iterator = toRemove.iterator(); iterator.hasNext();) {
+			iuProperties.remove(iterator.next());
+		}
+		//		List iuKeys = new ArrayList();
+		//		for (Iterator it = ius.iterator(); it.hasNext();)
+		//			iuKeys.add((IInstallableUnit) it.next());
+		//
+		//		iuProperties.keySet().retainAll(iuKeys);
 	}
 
 	public long getTimestamp() {

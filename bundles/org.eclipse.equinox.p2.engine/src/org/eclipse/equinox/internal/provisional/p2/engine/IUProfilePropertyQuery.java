@@ -20,15 +20,18 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuer
 public class IUProfilePropertyQuery extends IUPropertyQuery {
 	private IProfile profile;
 
+	public void setProfile(IProfile profile) {
+		this.profile = profile;
+	}
+
 	/**
 	 * Creates a new query on the given property name and value.
 	 * Because the queryable for this query is typically the profile
 	 * instance, we use a reference to the profile rather than the
 	 * profile id for performance reasons.
 	 */
-	public IUProfilePropertyQuery(IProfile profile, String propertyName, String propertyValue) {
+	public IUProfilePropertyQuery(String propertyName, String propertyValue) {
 		super(propertyName, propertyValue);
-		this.profile = profile;
 	}
 
 	protected String getProperty(IInstallableUnit iu, String name) {

@@ -73,7 +73,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan3.getOperands(), null, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
-		assertEquals(1, profile1.query(new IUProfilePropertyQuery(profile1, "foo", "bar"), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, profile1.query(new IUProfilePropertyQuery("foo", "bar"), new Collector(), new NullProgressMonitor()).size());
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 	}
 }

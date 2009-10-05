@@ -57,7 +57,7 @@ public class IUProperties extends AbstractProvisioningTest {
 		IStatus s = engine.perform(profile, new DefaultPhaseSet(), pp1.getOperands(), null, null);
 		if (!s.isOK())
 			LogHelper.log(s);
-		Collector collector = getProfile(profileId).query(new IUProfilePropertyQuery(getProfile(profileId), "FOO", null), new Collector(), null);
+		Collector collector = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), new Collector(), null);
 		assertEquals(1, collector.size());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);

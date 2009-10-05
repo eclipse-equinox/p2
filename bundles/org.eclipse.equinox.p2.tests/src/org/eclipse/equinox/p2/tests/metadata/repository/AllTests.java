@@ -25,7 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SPIMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
 		suite.addTestSuite(NoFailOver.class);
-		suite.addTestSuite(ResumeDownloadTest.class);
+		//		suite.addTestSuite(ResumeDownloadTest.class);
 		// DISABLING until we get a test build
 		//		AllServerTests.addToSuite(suite);
 		return suite;

@@ -86,7 +86,7 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
-		Collection includedIUs = new HashSet(changeRequest.getProfile().query(new IUProfilePropertyQuery(changeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection());
+		Collection includedIUs = new HashSet(changeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, null), new Collector(), null).toCollection());
 		Map sideEffectStatus = new HashMap(includedIUs.size());
 		includedIUs.removeAll(toState);
 		for (Iterator iterator = includedIUs.iterator(); iterator.hasNext();) {
@@ -590,7 +590,7 @@ public class SimplePlanner implements IPlanner {
 	//It returns at index 0 a meta IU representing everything that needs to be installed
 	//It returns at index 1 all the IUs that are in the profile after the removal have been done, but before the addition have been done 
 	private Object[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest, ProvisioningContext context) {
-		Collection includedIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection();
+		Collection includedIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, null), new Collector(), null).toCollection();
 		Collection alreadyInstalled = new HashSet(includedIUs);
 
 		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();

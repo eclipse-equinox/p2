@@ -85,7 +85,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
 		assertEquals(allProfileIUs.size(), 1);
 
-		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(profile, SimplePlanner.INCLUSION_RULES, null), new Collector(), null);
+		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), new Collector(), null);
 		assertEquals(iuProfileProperties.size(), 1);
 
 		//Remove a1 optionality - should be a no-op

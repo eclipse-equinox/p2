@@ -54,7 +54,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profile = profileRegistry.getProfile(profile.getProfileId());
-		Collector c = profile.query(new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
+		Collector c = profile.query(new IUProfilePropertyQuery(IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
 		assertEquals(c.size(), 1);
 
 		System.gc();
