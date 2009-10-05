@@ -51,7 +51,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan provisioningPlan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
-		assertNull(provisioningPlan.getCompleteState());
+		assertNotNull(provisioningPlan.getCompleteState());
 	}
 
 	public void testExplanation() {
