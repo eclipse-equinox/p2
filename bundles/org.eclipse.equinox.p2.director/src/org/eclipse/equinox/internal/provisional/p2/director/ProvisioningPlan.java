@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -42,6 +43,8 @@ public class ProvisioningPlan {
 		this.globalRequestStatus = globalStatus;
 		this.installerPlan = installerPlan;
 		originalChangeRequest = originalRequest;
+		if (futureState == null)
+			futureState = new QueryableArray(new IInstallableUnit[0]);
 		completeState = futureState;
 	}
 
