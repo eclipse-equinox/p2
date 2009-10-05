@@ -17,8 +17,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleSingleton extends AbstractProvisioningTest {
@@ -52,9 +50,8 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan provisioningPlan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(1, provisioningPlan.getCompleteState().query(new InstallableUnitQuery("A"), new Collector(), null).size());
-		assertEquals(0, provisioningPlan.getInstallerPlan().getCompleteState().query(new InstallableUnitQuery("A"), new Collector(), null).size());
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
+		assertNull(provisioningPlan.getCompleteState());
 	}
 
 	public void testExplanation() {
