@@ -75,8 +75,16 @@ public class VerifierApplication implements IApplication {
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 		IStatus result = verify();
-		if (!result.isOK())
+		if (!result.isOK()) {
+			//			PrintWriter out = new PrintWriter(new FileWriter(new File("c:/tmp/dropins-debug.txt")));
+			PrintWriter out = new PrintWriter(new OutputStreamWriter(System.err));
+			out.println("Error from dropin verifier application: " + result.getMessage()); //$NON-NLS-1$
+			Throwable t = result.getException();
+			if (t != null)
+				t.printStackTrace(out);
+			out.close();
 			LogHelper.log(result);
+		}
 		return result.isOK() ? IApplication.EXIT_OK : new Integer(13);
 	}
 
