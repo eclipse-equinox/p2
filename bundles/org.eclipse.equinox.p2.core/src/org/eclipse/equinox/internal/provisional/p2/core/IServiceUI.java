@@ -119,7 +119,7 @@ public interface IServiceUI {
 	/**
 	 * Opens a UI prompt to capture information about trusted content.
 	 *  
-	 * @param certificates - an array of certificate chains for which there is no current trust anchor.  May be
+	 * @param untrustedChain - an array of certificate chains for which there is no current trust anchor.  May be
 	 * <code>null</code>, which means there are no untrusted certificate chains.
 	 * @param unsignedDetail - an array of strings, where each String describes content that is not signed.
 	 * May be <code>null</code>, which means there is no unsigned content
