@@ -87,17 +87,14 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the given command.
 	 */
 	protected static int run(String message, String[] commandArray) {
-		//		System.out.print("Executing ");
-		//		for (int i = 0; i < commandArray.length; i++) {
-		//			System.out.print(" " + commandArray[i]);
-		//		}
 		BufferedReader reader = null;
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
 			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 			try {
-				while (reader.readLine() != null) {
-					// do nothing
+				String line;
+				while ((line = reader.readLine()) != null) {
+					System.err.println(line);
 				}
 			} finally {
 				reader.close();
@@ -582,13 +579,13 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public int runVerifierBundle(File destination) {
 		if (destination == null)
 			destination = output;
-		String message = "Running the verifier bundle";
+		String message = "Running the verifier bundle at: " + destination;
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-dev", "bin", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
 		// command-line if you want to run and allow a remote debugger to connect
 		//String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
 		return run(message, command);
