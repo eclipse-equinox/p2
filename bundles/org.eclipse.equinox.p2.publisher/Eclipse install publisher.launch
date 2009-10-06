@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.pde.ui.EquinoxLauncher">
 <booleanAttribute key="append.args" value="true"/>
 <booleanAttribute key="automaticAdd" value="false"/>
@@ -15,9 +15,9 @@
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <booleanAttribute key="show_selected_only" value="true"/>
-<stringAttribute key="target_bundles" value="org.eclipse.equinox.app@default:true,org.eclipse.equinox.preferences@default:default,org.eclipse.ecf.ssl@default:false,org.eclipse.core.jobs@default:default,org.eclipse.osgi.services@default:default,org.eclipse.equinox.security@default:default,org.eclipse.core.net@default:default,org.eclipse.ecf.identity@default:default,org.eclipse.osgi@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.equinox.launcher@default:default,org.eclipse.equinox.p2.metadata.repository@default:default,org.eclipse.ecf.filetransfer@default:default,org.eclipse.equinox.frameworkadmin.equinox@3:true,org.eclipse.equinox.common@default:default,org.eclipse.equinox.frameworkadmin@3:true,org.eclipse.ecf@default:default,org.eclipse.equinox.p2.jarprocessor@default:default"/>
+<stringAttribute key="target_bundles" value="org.eclipse.equinox.p2.metadata.repository@default:default,org.eclipse.osgi.services@default:default,org.eclipse.core.jobs@default:default,org.eclipse.equinox.app@default:true,org.eclipse.ecf.ssl@default:false,org.eclipse.equinox.launcher@default:default,org.eclipse.equinox.common@2:true,org.eclipse.ecf@default:default,org.eclipse.equinox.frameworkadmin.equinox@3:true,org.eclipse.equinox.security@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.core.net@default:default,org.eclipse.osgi@-1:true,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.frameworkadmin@3:true,org.eclipse.ecf.identity@default:default,org.eclipse.ecf.filetransfer@default:default,org.eclipse.equinox.p2.jarprocessor@default:default"/>
 <booleanAttribute key="tracing" value="false"/>
 <booleanAttribute key="useDefaultConfigArea" value="true"/>
 <booleanAttribute key="useNamedJRE" value="true"/>
-<stringAttribute key="workspace_bundles" value="org.eclipse.equinox.p2.publisher@default:default,org.eclipse.equinox.p2.core@default:default,org.eclipse.equinox.simpleconfigurator@3:true,org.eclipse.equinox.p2.artifact.repository@default:default,org.eclipse.equinox.simpleconfigurator.manipulator@3:true,org.eclipse.equinox.p2.metadata@default:default"/>
+<stringAttribute key="workspace_bundles" value="org.eclipse.equinox.simpleconfigurator.manipulator@3:true,org.eclipse.equinox.p2.core@default:default,org.eclipse.equinox.p2.publisher@default:default,org.eclipse.equinox.p2.artifact.repository@default:default,org.eclipse.equinox.p2.metadata@default:default,org.eclipse.equinox.simpleconfigurator@3:true"/>
 </launchConfiguration>

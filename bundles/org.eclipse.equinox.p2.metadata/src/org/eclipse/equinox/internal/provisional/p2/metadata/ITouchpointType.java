@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
+
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
  * and a version.

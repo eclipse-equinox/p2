@@ -11,8 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 

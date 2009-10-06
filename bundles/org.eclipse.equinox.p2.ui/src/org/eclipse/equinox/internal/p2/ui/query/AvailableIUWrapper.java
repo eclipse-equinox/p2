@@ -11,16 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 
 /**

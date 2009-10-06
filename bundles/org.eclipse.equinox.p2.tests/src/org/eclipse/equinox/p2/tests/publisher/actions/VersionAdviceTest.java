@@ -9,8 +9,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
+import junit.framework.TestCase;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.tests.TestData;
 

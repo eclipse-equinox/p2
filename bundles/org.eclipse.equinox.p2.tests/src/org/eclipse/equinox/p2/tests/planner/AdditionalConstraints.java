@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.util.Arrays;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
+import java.util.Arrays;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;

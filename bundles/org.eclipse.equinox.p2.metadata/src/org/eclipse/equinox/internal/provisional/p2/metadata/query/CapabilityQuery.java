@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that provide

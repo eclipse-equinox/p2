@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,8 +24,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.osgi.util.NLS;
 

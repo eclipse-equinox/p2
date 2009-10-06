@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.io.*;
 import java.util.zip.ZipInputStream;
 import junit.framework.TestCase;
@@ -24,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class JarDeltaProcessorTest extends TestCase {
 

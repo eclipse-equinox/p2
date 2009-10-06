@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.ui.query;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**

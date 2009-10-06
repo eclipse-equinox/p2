@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.osgi.util.NLS;

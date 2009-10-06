@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -26,7 +28,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
  * The transformer takes an existing p2 repository (local or remote), iterates over 

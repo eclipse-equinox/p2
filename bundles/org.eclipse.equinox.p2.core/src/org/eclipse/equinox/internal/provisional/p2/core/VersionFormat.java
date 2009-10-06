@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+
 import java.io.Serializable;
 import java.util.*;
 import org.eclipse.osgi.util.NLS;

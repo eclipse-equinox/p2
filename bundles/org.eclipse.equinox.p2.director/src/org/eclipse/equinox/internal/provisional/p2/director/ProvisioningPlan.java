@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 public class ProvisioningPlan {
 	IStatus status;

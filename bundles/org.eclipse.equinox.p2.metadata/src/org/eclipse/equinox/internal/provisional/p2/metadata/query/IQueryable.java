@@ -8,7 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.query;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+
 
 import org.eclipse.core.runtime.IProgressMonitor;
 

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;

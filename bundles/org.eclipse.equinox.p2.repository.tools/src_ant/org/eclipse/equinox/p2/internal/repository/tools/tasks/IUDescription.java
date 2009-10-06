@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompositeQuery;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.query.CompositeQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * @since 1.0

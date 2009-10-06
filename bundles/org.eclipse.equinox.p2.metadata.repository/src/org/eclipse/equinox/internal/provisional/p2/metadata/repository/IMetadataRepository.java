@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 

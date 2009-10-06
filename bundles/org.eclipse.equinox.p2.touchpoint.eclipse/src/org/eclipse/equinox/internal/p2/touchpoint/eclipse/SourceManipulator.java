@@ -8,12 +8,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 

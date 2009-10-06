@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 
 /**
  * Collect a single element and stop the Query

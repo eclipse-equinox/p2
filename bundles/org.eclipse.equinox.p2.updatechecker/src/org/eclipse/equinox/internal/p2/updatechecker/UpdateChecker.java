@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -22,8 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 

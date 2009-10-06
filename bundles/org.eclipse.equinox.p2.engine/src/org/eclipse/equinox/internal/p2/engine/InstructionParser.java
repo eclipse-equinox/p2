@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.engine.MissingAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;

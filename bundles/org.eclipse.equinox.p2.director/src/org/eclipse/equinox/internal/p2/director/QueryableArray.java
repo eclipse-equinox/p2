@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 public class QueryableArray implements IQueryable {
 	static class IUCapability {

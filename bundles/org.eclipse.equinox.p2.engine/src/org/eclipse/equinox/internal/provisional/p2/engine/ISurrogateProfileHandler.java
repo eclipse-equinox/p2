@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 
 public interface ISurrogateProfileHandler {
 

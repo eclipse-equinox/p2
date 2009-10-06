@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -26,8 +33,6 @@ import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;

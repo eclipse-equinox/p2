@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
  * This action collects the set of bundle files on which the signature trust check

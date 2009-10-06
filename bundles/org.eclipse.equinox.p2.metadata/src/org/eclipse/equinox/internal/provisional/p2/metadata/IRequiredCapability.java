@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
+
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
  * Each capability represents something an {@link IInstallableUnit} needs that

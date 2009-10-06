@@ -7,7 +7,7 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.query;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.lang.reflect.Array;
 import java.util.*;

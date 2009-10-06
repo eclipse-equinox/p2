@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;

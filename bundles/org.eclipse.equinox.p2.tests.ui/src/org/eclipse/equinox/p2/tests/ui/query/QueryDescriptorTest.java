@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
 

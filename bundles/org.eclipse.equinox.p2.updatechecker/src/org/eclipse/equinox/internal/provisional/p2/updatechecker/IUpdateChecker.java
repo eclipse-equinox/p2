@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 
 /**
  * An update checker periodically polls for updates to specified profiles and

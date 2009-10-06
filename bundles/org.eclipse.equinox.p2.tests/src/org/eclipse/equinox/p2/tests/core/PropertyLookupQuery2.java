@@ -10,8 +10,8 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.ContextQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.ContextQuery;
 
 public class PropertyLookupQuery2 extends ContextQuery {
 

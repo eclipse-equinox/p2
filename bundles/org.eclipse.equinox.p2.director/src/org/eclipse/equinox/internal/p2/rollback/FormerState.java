@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
@@ -17,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 public class FormerState {
 

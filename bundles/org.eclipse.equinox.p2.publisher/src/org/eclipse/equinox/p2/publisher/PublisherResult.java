@@ -10,11 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 public class PublisherResult implements IPublisherResult {
 

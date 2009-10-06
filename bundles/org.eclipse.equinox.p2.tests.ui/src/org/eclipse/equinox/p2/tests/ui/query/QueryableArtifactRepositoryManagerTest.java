@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.RepositoryLocationQuery;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;

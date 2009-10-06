@@ -9,13 +9,15 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.query;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+
+
+import org.eclipse.equinox.internal.provisional.p2.core.Messages;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.core.Messages;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,

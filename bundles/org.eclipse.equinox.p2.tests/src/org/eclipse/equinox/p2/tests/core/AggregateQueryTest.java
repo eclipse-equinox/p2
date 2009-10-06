@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.util.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 /**
  * This tests both Compound and Composite queries

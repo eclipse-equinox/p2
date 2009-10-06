@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;

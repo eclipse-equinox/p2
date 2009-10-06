@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+
 /**
  * Exception thrown by the {@link VersionFormatParser}
  *

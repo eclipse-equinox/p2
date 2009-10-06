@@ -10,14 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 

@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,9 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Filter;

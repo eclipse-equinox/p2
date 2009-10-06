@@ -11,13 +11,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 
 /**
  * The <code>License</code> class represents a software license.  A license has required body text

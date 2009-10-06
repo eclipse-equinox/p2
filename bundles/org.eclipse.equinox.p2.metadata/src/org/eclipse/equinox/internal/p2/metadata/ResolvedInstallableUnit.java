@@ -11,8 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {

@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 /**
  * ElementQueryDescriptor represents everything needed to run a query, including

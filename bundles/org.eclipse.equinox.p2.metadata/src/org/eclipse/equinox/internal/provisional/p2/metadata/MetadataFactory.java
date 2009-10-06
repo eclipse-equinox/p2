@@ -12,13 +12,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 /**
  * A factory class for instantiating various p2 metadata objects.

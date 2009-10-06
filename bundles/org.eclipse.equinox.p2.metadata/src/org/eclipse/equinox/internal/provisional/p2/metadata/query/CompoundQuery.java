@@ -9,10 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.query;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
 
 /**
  * A query that combines a group of sub-queries.<P>

@@ -10,11 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
 
 @SuppressWarnings( {"restriction", "unchecked"})

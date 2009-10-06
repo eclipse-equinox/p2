@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
 public class Optimizer {
 

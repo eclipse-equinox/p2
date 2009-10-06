@@ -8,10 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+
 import java.util.Dictionary;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
 public class PermissiveSlicer extends Slicer {
 	private boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the

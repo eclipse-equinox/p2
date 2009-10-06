@@ -7,10 +7,10 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.query;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
 
 /**
  * A Composite Query is an aggregate query in which each sub-query

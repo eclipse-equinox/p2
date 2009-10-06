@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.core.*;

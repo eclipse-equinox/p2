@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+
 import org.eclipse.osgi.util.NLS;
 
 /**

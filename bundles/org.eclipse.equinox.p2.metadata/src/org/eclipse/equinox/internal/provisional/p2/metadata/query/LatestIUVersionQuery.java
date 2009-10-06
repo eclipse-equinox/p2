@@ -11,8 +11,6 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.ContextQuery;
 
 /**
  * This query returns the latest version for each unique IU Id.  

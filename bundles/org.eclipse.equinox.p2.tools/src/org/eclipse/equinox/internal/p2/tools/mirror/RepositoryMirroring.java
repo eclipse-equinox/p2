@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 
 import java.io.IOException;
@@ -31,8 +35,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * A utility class that performs mirroring of metadata and artifacts between repositories.

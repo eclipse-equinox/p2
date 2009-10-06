@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
+
 /**
  * Provide standardized artifact information to uniquely identify the 
  * corresponding bytes (perhaps not stored as a file). 

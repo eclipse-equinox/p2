@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.InstructionParser;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;

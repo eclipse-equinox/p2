@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.extensionlocation;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProvisioningTest {

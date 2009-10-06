@@ -11,11 +11,12 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
+
 import java.net.URI;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.core.helpers.QueryHelpers;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 
 /**

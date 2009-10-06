@@ -10,10 +10,9 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 /**
  * An IFilterAdvice that looks up the desired IU in the publisher's input metadata

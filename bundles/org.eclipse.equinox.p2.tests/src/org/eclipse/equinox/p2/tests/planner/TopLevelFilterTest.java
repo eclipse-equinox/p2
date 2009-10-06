@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;

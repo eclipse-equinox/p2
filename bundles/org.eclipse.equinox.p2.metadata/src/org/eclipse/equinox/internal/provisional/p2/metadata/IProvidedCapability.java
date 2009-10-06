@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 
+
 /**
  * Describes a capability as exposed or required by an installable unit
  * 

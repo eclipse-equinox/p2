@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.query.CategoryElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
 /**

@@ -22,9 +22,7 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	protected static final String TYPE_ARTIFACT = "A";

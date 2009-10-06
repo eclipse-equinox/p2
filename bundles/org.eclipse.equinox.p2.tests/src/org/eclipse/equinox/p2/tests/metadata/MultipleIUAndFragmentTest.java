@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
+import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+
 import java.util.Collection;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {

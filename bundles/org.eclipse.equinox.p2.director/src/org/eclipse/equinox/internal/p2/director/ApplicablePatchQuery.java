@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.

@@ -11,8 +11,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import java.util.Map;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
+import java.util.Map;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.

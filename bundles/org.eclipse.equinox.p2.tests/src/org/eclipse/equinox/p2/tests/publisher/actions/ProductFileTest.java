@@ -9,12 +9,13 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
+
 import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
 import org.eclipse.equinox.p2.tests.TestData;
 

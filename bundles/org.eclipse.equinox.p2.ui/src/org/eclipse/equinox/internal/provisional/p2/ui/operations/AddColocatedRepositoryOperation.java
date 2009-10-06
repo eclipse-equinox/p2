@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 
 /**
  * Operation that adds colocated artifact and metadata repositories

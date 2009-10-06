@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;

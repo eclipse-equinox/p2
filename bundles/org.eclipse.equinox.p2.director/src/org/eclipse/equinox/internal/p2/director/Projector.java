@@ -11,6 +11,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
@@ -20,8 +24,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;

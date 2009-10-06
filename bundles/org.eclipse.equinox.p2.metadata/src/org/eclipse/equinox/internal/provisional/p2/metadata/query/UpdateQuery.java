@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 
 public class UpdateQuery extends MatchQuery {
 	private IInstallableUnit updateFrom;

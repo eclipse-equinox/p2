@@ -7,11 +7,11 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.p2.core.helpers;
+package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * Static helper methods for the Query API.
