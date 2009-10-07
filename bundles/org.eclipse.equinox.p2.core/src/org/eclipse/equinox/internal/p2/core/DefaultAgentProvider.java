@@ -25,7 +25,7 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 		this.context = aContext;
 	}
 
-	public IProvisioningAgent createAgent(URI location) throws Exception {
+	public IProvisioningAgent createAgent(URI location) {
 		ProvisioningAgent result = new ProvisioningAgent();
 		result.setLocation(location);
 		result.setBundleContext(context);

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.core;
 
 import java.net.URI;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * A service that is used to create or obtain instances of an
@@ -18,6 +19,12 @@ import java.net.URI;
  * @since 1.1
  */
 public interface IProvisioningAgentProvider {
+
+	/**
+	 * Service name constant for the agent provider service.
+	 */
+	public static final String SERVICE_NAME = IProvisioningAgentProvider.class.getName();
+
 	/**
 	 * Creates a provisioning agent who metadata is stored at the given location.
 	 * If a <code>null</code> location is provided, the provisioning agent for the 
@@ -28,10 +35,10 @@ public interface IProvisioningAgentProvider {
 	 * @param location The location where the agent metadata is stored
 	 * @return A provisioning agent, or <code>null</code> if a <code>null</code>
 	 * parameter is provided an there is no currently running agent.
-	 * @throws Exception If agent creation failed. Reasons include:
+	 * @throws ProvisionException If agent creation failed. Reasons include:
 	 * <ul>
 	 * <li>The location is not writeable.</li>
 	 * </ul>
 	 */
-	public IProvisioningAgent createAgent(URI location) throws Exception;
+	public IProvisioningAgent createAgent(URI location) throws ProvisionException;
 }
