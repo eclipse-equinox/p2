@@ -17,6 +17,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 
+/**
+ * TODO Move concrete class to non-API package
+ */
 public class Engine implements IEngine {
 	private static final String ENGINE = "engine"; //$NON-NLS-1$
 
