@@ -20,8 +20,7 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -60,29 +59,32 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	ISurrogateProfileHandler surrogateProfileHandler;
 
-	public SimpleProfileRegistry() {
-		this(null, new SurrogateProfileHandler(), true);
+	private IProvisioningEventBus eventBus;
+
+	public SimpleProfileRegistry(File registryDirectory) {
+		this(registryDirectory, new SurrogateProfileHandler(), true);
 	}
 
 	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
-		store = (registryDirectory != null) ? registryDirectory : getDefaultRegistryDirectory();
+		store = registryDirectory;
 		surrogateProfileHandler = handler;
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+		Assert.isNotNull(store, "Profile registry requires a directory"); //$NON-NLS-1$
 		this.updateSelfProfile = updateSelfProfile;
 	}
 
-	private static File getDefaultRegistryDirectory() {
+	public static File getDefaultRegistryDirectory(AgentLocation agent) {
 		File registryDirectory = null;
-		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
 		if (agent == null)
 			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
+		final URL engineDataArea = agent.getDataArea(EngineActivator.ID);
 		try {
-			URL registryURL = new URL(agent.getDataArea(EngineActivator.ID), DEFAULT_STORAGE_DIR);
+			URL registryURL = new URL(engineDataArea, DEFAULT_STORAGE_DIR);
 			registryDirectory = new File(registryURL.getPath());
 			registryDirectory.mkdirs();
-
 		} catch (MalformedURLException e) {
 			//this is not possible because we know the above URL is valid
+			throw new IllegalStateException("Profile Registry inialization failed. Agent Location is invalid:" + engineDataArea); //$NON-NLS-1$
 		}
 		return registryDirectory;
 	}
@@ -373,7 +375,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private void broadcastChangeEvent(String profileId, byte reason) {
-		((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
+		if (eventBus != null)
+			eventBus.publishEvent(new ProfileEvent(profileId, reason));
 	}
 
 	/**
@@ -483,6 +486,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				// ignore
 			}
 		}
+	}
+
+	public void setEventBus(IProvisioningEventBus bus) {
+		this.eventBus = bus;
 	}
 
 	/**

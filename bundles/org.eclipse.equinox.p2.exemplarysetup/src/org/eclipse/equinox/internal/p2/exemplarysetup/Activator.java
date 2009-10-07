@@ -11,12 +11,14 @@
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.SimpleDirector;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -34,7 +36,7 @@ public class Activator implements BundleActivator {
 	//	private ArtifactRepositoryManager artifactRepoManager;
 	//	private ServiceRegistration registrationArtifactRepoManager;
 
-	private IProfileRegistry profileRegistry;
+	private SimpleProfileRegistry profileRegistry;
 	private ServiceRegistration registrationProfileRegistry;
 
 	private IDirector director;
@@ -43,12 +45,15 @@ public class Activator implements BundleActivator {
 	private IPlanner planner;
 	private ServiceRegistration registrationPlanner;
 
+	private AgentLocation agentLocation;
+
 	private ServiceReference metadataRepositoryReference;
 
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
 		Activator.context = aContext;
 
+		registerAgentLocation();
 		registerEventBus();
 		//create the profile registry
 		registerProfileRegistry();
@@ -62,6 +67,12 @@ public class Activator implements BundleActivator {
 
 		//create artifact repositories
 		//		registerDefaultArtifactRepoManager();
+	}
+
+	private void registerAgentLocation() {
+		//currently this is defined by p2.core but will be defined by the agent in the future
+		//for now continue to treat it as a singleton
+		agentLocation = (AgentLocation) ServiceHelper.getService(context, AgentLocation.SERVICE_NAME);
 	}
 
 	private void startGarbageCollector() {
@@ -102,7 +113,8 @@ public class Activator implements BundleActivator {
 	}
 
 	private void registerProfileRegistry() {
-		profileRegistry = new SimpleProfileRegistry();
+		profileRegistry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
+		profileRegistry.setEventBus(bus);
 		registrationProfileRegistry = context.registerService(IProfileRegistry.class.getName(), profileRegistry, null);
 	}
 
