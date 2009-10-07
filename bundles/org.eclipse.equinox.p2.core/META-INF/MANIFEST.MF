@@ -94,10 +94,13 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.engine,
-   org.eclipse.equinox.p2.touchpoint.eclipse"
+   org.eclipse.equinox.p2.touchpoint.eclipse",
+ org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.core.spi
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Bundle-Activator: org.eclipse.equinox.internal.p2.core.Activator
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
+Service-Component: OSGI-INF/eventBus.xml
