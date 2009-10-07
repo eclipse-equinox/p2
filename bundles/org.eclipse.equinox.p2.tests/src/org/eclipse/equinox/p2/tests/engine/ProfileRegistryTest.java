@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -254,8 +255,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
 		assertTrue(registry.isCurrent(profile));
-
-		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry();
+		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.SERVICE_NAME);
+		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
 		profile2 = (Profile) simpleRegistry2.getProfile(PROFILE_NAME);
 		simpleRegistry2.lockProfile(profile2);
 		try {
