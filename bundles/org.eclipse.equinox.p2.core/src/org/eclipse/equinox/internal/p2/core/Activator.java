@@ -122,11 +122,11 @@ public class Activator implements BundleActivator {
 		// if the instance location is not set, predict where the workspace will be and 
 		// put the instance area inside the workspace meta area.
 		if (location == null)
-			return new BasicLocation(property, defaultLocation, readOnly);
+			return new BasicLocation(defaultLocation);
 		if (location.equalsIgnoreCase(NONE))
 			return null;
 		if (location.equalsIgnoreCase(NO_DEFAULT))
-			return new BasicLocation(property, null, readOnly);
+			return new BasicLocation(null);
 		if (location.startsWith(VAR_USER_HOME)) {
 			String base = substituteVar(location, VAR_USER_HOME, PROP_USER_HOME);
 			location = new Path(base).toFile().getAbsolutePath();
@@ -140,8 +140,7 @@ public class Activator implements BundleActivator {
 		URL url = buildURL(location, addTrailingSlash);
 		BasicLocation result = null;
 		if (url != null) {
-			result = new BasicLocation(property, null, readOnly);
-			result.set(url, false);
+			result = new BasicLocation(url);
 		}
 		return result;
 	}

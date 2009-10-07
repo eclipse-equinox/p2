@@ -20,55 +20,13 @@ import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 public class BasicLocation implements AgentLocation {
 
 	private URL location = null;
-	private URL defaultValue;
 
-	public BasicLocation(String property, URL defaultValue, boolean isReadOnly) {
-		super();
-		this.defaultValue = defaultValue;
+	public BasicLocation(URL location) {
+		this.location = location;
 	}
 
 	public synchronized URL getURL() {
-		if (location == null && defaultValue != null)
-			setURL(defaultValue, false);
 		return location;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public synchronized boolean setURL(URL value, boolean lock) {
-		//		if (location != null)
-		//			throw new IllegalStateException(Messages.ECLIPSE_CANNOT_CHANGE_LOCATION);
-		////		File file = null;
-		////		if (value.getProtocol().equalsIgnoreCase("file")) { //$NON-NLS-1$
-		////			try {
-		////				String basePath = new File(value.getFile()).getCanonicalPath();
-		////				value = new URL("file:" + basePath); //$NON-NLS-1$
-		////			} catch (IOException e) {
-		////				// do nothing just use the original value
-		////			}
-		////			file = new File(value.getFile(), LOCK_FILENAME);
-		////		}
-		//		lock = lock && !isReadOnly;
-		//		if (lock) {
-		//			try {
-		//				if (!lock(file))
-		//					return false;
-		//			} catch (IOException e) {
-		//				return false;
-		//			}
-		//		}
-		//		lockFile = file;
-		location = value;
-		//		LocationManager.buildURL(value.toExternalForm(), true);
-		//		if (property != null)
-		//			System.setProperty(property, location.toExternalForm());
-		return lock;
-	}
-
-	public boolean set(URL value, boolean lock) {
-		location = value;
-		return lock;
 	}
 
 	public URI getArtifactRepositoryURI() {
