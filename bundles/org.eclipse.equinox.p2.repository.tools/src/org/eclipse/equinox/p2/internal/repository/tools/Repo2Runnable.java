@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
@@ -131,7 +130,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		IProfile profile = createProfile();
 		try {
 			ProvisioningContext context = new ProvisioningContext();
-			Engine engine = (Engine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
+			IEngine engine = (IEngine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
 
