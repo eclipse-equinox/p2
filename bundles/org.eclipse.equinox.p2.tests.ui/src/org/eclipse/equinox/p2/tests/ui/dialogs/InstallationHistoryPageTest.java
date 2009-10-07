@@ -29,8 +29,8 @@ import org.eclipse.swt.widgets.Control;
  * somewhere besides the about dialog
  */
 public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
-	int jobs;
-	int done;
+	volatile int jobs;
+	volatile int done;
 
 	class TestDialog extends Dialog {
 		RevertProfilePage page;
@@ -67,28 +67,32 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 
 			jobs = 0;
 			done = 0;
+			final Object family = jobFamily.get(provider);
+
+			Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+				public void done(IJobChangeEvent e) {
+					if (e.getJob().belongsTo(family)) {
+						done++;
+						int status = e.getResult().getSeverity();
+						if (status != IStatus.CANCEL && status != IStatus.OK) {
+							// something unexpected happened.
+							fail("Fetch job failed unexpectedly " + e.getResult().getMessage());
+						}
+					}
+				}
+			});
+
 			// hammer the elements repetitively to start multiple fast running fetch jobs
 			for (int i = 0; i < 5; i++) {
 				provider.getElements(input);
 				Job job = (Job) jobField.get(provider);
 				if (job != null) {
 					jobs++;
-					job.addJobChangeListener(new JobChangeAdapter() {
-						public void done(IJobChangeEvent e) {
-							done++;
-							int status = e.getResult().getSeverity();
-							if (status != IStatus.CANCEL && status != IStatus.OK) {
-								// something unexpected happened.
-								fail("Fetch job failed unexpectedly " + e.getResult().getMessage());
-							}
-						}
-					});
 				}
 			}
 			// We need to wait for all the fetch jobs to finish and then verify that they did
-			Object family = jobFamily.get(provider);
 			Job.getJobManager().join(family, null);
-			assertTrue("No fetch occurred", jobs > 0);
+			assertTrue("Something's wrong.  No fetch occurred", jobs > 0);
 			assertEquals("Not all jobs finished as expected", jobs, done);
 		} catch (Exception e) {
 			fail("Failure during reflection", e);
