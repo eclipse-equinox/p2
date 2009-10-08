@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;

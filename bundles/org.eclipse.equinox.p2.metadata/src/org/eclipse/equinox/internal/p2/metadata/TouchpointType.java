@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 

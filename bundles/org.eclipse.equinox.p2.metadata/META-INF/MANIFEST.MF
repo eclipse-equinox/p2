@@ -85,4 +85,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common,
- org.eclipse.equinox.p2.core
+ org.eclipse.equinox.p2.core,
+ org.eclipse.osgi;bundle-version="3.6.0"

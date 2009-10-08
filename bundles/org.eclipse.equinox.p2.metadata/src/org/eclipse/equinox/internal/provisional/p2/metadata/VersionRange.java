@@ -9,7 +9,9 @@
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - rewrite to handle non-OSGi versions.
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.internal.provisional.p2.metadata;
+
+import org.eclipse.equinox.internal.p2.metadata.Messages;
 
 import java.io.Serializable;
 import org.eclipse.osgi.util.NLS;

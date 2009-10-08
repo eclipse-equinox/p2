@@ -12,8 +12,8 @@
 package org.eclipse.equinox.p2.tests.omniVersion;
 
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 /**
  * Tests intersection of VersionRanges.

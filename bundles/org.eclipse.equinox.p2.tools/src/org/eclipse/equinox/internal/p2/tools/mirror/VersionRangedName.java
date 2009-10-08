@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 public class VersionRangedName {
 	private String id;

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.util.Collection;
 import java.util.Iterator;

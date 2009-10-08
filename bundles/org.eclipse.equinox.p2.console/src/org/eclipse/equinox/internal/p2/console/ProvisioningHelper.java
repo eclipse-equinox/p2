@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.net.URI;
 import java.util.*;

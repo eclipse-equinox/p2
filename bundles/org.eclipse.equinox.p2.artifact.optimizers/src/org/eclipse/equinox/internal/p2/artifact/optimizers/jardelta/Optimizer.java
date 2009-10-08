@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.io.IOException;
 import java.io.OutputStream;

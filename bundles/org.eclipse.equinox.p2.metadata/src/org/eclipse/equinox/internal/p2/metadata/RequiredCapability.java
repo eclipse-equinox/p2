@@ -11,11 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.

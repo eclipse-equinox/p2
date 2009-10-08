@@ -8,7 +8,7 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -120,7 +120,7 @@ public class Messages extends NLS {
 
 	public static String unbalanced_format_parenthesis;
 
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.provisional.p2.core.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.messages"; //$NON-NLS-1$
 
 	static {
 		// initialize resource bundle

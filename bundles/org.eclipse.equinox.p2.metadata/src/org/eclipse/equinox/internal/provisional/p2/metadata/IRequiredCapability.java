@@ -9,7 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
 
 
 /**

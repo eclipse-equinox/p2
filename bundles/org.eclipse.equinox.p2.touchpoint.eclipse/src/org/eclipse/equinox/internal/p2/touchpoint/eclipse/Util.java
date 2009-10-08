@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.io.*;
 import java.net.*;

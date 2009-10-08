@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.tests.omniVersion;
 
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 public class FormatPTest extends TestCase {
 	public void testPad() {

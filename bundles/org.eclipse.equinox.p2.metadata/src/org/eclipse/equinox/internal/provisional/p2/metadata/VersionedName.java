@@ -11,7 +11,7 @@
  *     Thomas Hallgreen - Fix for bug 268659
  *     IBM - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 

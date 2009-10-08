@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompositeQuery;
 

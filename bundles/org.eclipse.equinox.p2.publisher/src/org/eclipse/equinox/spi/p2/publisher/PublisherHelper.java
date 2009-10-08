@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.security.MessageDigest;

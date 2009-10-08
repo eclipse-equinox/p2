@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-import org.eclipse.equinox.internal.provisional.p2.core.VersionRange;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class RequirementChange implements IRequirementChange {
 	private IRequiredCapability applyOn;

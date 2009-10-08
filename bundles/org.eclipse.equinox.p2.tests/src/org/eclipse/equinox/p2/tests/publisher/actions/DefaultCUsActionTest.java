@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;

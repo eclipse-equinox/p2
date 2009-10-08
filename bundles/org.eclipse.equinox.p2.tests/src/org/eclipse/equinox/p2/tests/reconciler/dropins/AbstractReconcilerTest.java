@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;

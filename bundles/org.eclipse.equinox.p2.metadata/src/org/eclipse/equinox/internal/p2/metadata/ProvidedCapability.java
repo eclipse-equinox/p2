@@ -11,11 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
-
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * Describes a capability as exposed or required by an installable unit

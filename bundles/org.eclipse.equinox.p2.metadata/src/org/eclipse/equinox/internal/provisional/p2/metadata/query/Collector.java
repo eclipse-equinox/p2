@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
-import org.eclipse.equinox.internal.provisional.p2.core.Messages;
+import org.eclipse.equinox.internal.p2.metadata.Messages;
 
 import java.lang.reflect.Array;
 import java.util.*;

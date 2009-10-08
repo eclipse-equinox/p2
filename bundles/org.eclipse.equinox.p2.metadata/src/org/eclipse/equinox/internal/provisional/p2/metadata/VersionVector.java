@@ -8,7 +8,7 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import java.io.Serializable;
 

@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.core.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;

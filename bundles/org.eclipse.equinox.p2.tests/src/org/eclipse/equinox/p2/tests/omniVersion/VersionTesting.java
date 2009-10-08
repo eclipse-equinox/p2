@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.omniVersion;
 
 import java.io.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * Base class for version testing. Adds useful assert methods.
