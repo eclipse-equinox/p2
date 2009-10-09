@@ -56,6 +56,8 @@ public class Messages extends NLS {
 	public static String Repo2RunnableTask_errorTransforming;
 	public static String SlicingOption_invalidFilterFormat;
 
+	public static String skippingInvalidFilter;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

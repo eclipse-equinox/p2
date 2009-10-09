@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompositeQuery;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 
 /**
  * @since 1.0
@@ -32,6 +30,7 @@ public class IUDescription extends DataType {
 	private String version;
 	private String queryString;
 	private boolean required = true;
+	private String artifactFilter = null;
 
 	public IUDescription() {
 		super();
@@ -50,6 +49,17 @@ public class IUDescription extends DataType {
 	public void setQuery(String query) {
 		if (query != null && !query.startsWith(ANT_PREFIX))
 			this.queryString = query;
+	}
+
+	public void setArtifacts(String filter) {
+		if (filter != null && !filter.startsWith(ANT_PREFIX))
+			this.artifactFilter = filter;
+	}
+
+	public Filter getArtifactFilter() throws InvalidSyntaxException {
+		if (artifactFilter != null)
+			return Activator.getBundleContext().createFilter(artifactFilter);
+		return null;
 	}
 
 	public void setRequired(boolean required) {
