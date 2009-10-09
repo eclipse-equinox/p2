@@ -39,6 +39,7 @@ public class VerifierApplication implements IApplication {
 	private static final File DEFAULT_PROPERTIES_FILE = new File("verifier.properties"); //$NON-NLS-1$
 	private static final String ARG_PROPERTIES = "-verifier.properties"; //$NON-NLS-1$
 	private Properties properties = null;
+	private List ignoreResolved = null;
 
 	/*
 	 * Create and return an error status with the given message.
@@ -151,6 +152,27 @@ public class VerifierApplication implements IApplication {
 	 */
 	public void stop() {
 		// nothing to do
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the bundle with the given symbolic name
+	 * should be considered when looking at bundles which are not resolved in the system.
+	 * TODO the call to this method was removed. we should add it back
+	 */
+	protected boolean shouldCheckResolved(String bundle) {
+		if (ignoreResolved == null) {
+			ignoreResolved = new ArrayList();
+			String list = properties.getProperty("ignore.unresolved");
+			if (list == null)
+				return true;
+			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();)
+				ignoreResolved.add(tokenizer.nextToken().trim());
+		}
+		for (Iterator iter = ignoreResolved.iterator(); iter.hasNext();) {
+			if (bundle.equals(iter.next()))
+				return false;
+		}
+		return true;
 	}
 
 	private List getAllBundles() {
