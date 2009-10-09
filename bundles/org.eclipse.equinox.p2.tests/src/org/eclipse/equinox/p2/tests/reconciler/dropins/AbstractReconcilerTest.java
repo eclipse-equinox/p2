@@ -21,9 +21,9 @@ import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -475,18 +475,20 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Copy the bundle with the given id to the specified location. (location
 	 * is parent directory)
 	 */
-	public void copyBundle(String bundlename, File destination) throws IOException {
+	public void copyBundle(String bundlename, File source, File destination) throws IOException {
 		if (destination == null)
 			destination = output;
 		destination = new File(destination, "eclipse/plugins");
-		Bundle bundle = TestActivator.getBundle(bundlename);
-		if (bundle == null) {
-			throw new IOException("Could not find: " + bundlename);
+		if (source == null) {
+			Bundle bundle = TestActivator.getBundle(bundlename);
+			if (bundle == null) {
+				throw new IOException("Could not find: " + bundlename);
+			}
+			String location = bundle.getLocation();
+			if (location.startsWith("reference:"))
+				location = location.substring("reference:".length());
+			source = new File(FileLocator.toFileURL(new URL(location)).getFile());
 		}
-		String location = bundle.getLocation();
-		if (location.startsWith("reference:"))
-			location = location.substring("reference:".length());
-		File source = new File(FileLocator.toFileURL(new URL(location)).getFile());
 		destination = new File(destination, source.getName());
 		if (destination.exists())
 			return;
@@ -595,11 +597,42 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		try {
-			copyBundle(VERIFIER_BUNDLE_ID, destination);
+			copyBundle(VERIFIER_BUNDLE_ID, null, destination);
 		} catch (IOException e) {
 			fail("Could not find the verifier bundle");
 		}
-		return runVerifierBundle(destination);
+		int returnCode = runVerifierBundle(destination);
+		deleteVerifierBundle(destination);
+		return returnCode;
+	}
+
+	public int installAndRunVerifierBundle35(File destination) {
+		if (destination == null)
+			destination = output;
+		try {
+			copyBundle(VERIFIER_BUNDLE_ID, getTestData(VERIFIER_BUNDLE_ID + "3.5", "testData/VerifierBundle35/org.eclipse.equinox.p2.tests.verifier_1.0.0.jar"), destination);
+		} catch (IOException e) {
+			fail("Could not find the verifier bundle");
+		}
+		int returnCode = runVerifierBundle(destination);
+		deleteVerifierBundle(destination);
+		return returnCode;
+	}
+
+	private void deleteVerifierBundle(File destination) {
+		if (destination == null)
+			destination = output;
+		destination = new File(destination, "eclipse/plugins");
+		File[] verifierBundle = destination.listFiles(new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				if (name.startsWith(VERIFIER_BUNDLE_ID))
+					return true;
+				return false;
+			}
+		});
+		if (verifierBundle != null && verifierBundle.length > 0)
+			verifierBundle[0].delete();
 	}
 
 	private static void loadPlatformZipPropertiesFromFile() {
