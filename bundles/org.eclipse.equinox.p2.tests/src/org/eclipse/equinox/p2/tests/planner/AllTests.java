@@ -42,6 +42,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug271067.class);
 		suite.addTestSuite(Bug271954.class);
 		//		suite.addTestSuite(Bug272251.class);
+		suite.addTestSuite(Bug278668.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
@@ -68,6 +69,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MissingOptionalWithDependencies.class);
 		suite.addTestSuite(MissingOptionalWithDependencies2.class);
 		//		suite.addTestSuite(MissingOptionalWithDependencies3.class);	Disabled, see bug 277161
+		//		suite.addTestSuite(NegationTesting.class);
 		suite.addTestSuite(NonMinimalState.class);
 		suite.addTestSuite(NonMinimalState2.class);
 		suite.addTestSuite(MultipleProvider.class);
