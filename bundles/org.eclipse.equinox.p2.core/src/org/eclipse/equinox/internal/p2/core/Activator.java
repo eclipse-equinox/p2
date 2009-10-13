@@ -116,9 +116,6 @@ public class Activator implements BundleActivator {
 
 	private AgentLocation buildLocation(String property, URL defaultLocation, boolean readOnlyDefault, boolean addTrailingSlash) {
 		String location = Activator.context.getProperty(property);
-		// the user/product may specify a non-default readOnly setting   
-		String userReadOnlySetting = Activator.context.getProperty(property + READ_ONLY_AREA_SUFFIX);
-		boolean readOnly = (userReadOnlySetting == null ? readOnlyDefault : Boolean.valueOf(userReadOnlySetting).booleanValue());
 		// if the instance location is not set, predict where the workspace will be and 
 		// put the instance area inside the workspace meta area.
 		if (location == null)
