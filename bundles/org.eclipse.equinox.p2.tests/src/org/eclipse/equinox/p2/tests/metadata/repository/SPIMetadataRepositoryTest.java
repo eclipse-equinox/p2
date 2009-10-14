@@ -9,9 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -22,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
@@ -144,6 +141,18 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (!versionRange.equals(other.getRange()))
 				return false;
 			return true;
+		}
+
+		public boolean isNegation() {
+			return false;
+		}
+
+		public boolean satisfiedBy(IProvidedCapability cap) {
+			if (getName() == null || !getName().equals(cap.getName()))
+				return false;
+			if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
+				return false;
+			return getRange().isIncluded(cap.getVersion());
 		}
 
 	}
