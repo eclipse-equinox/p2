@@ -17,7 +17,7 @@ import java.util.Map;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
-public interface IInstallableUnit extends Comparable {
+public interface IInstallableUnit extends IVersionedId, Comparable {
 
 	/**
 	 * A capability namespace representing a particular profile flavor.
@@ -190,8 +190,6 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public IInstallableUnitFragment[] getFragments();
 
-	public String getId();
-
 	/**
 	 * Get an <i>unmodifiable copy</i> of the properties
 	 * associated with the installable unit.
@@ -211,8 +209,6 @@ public interface IInstallableUnit extends Comparable {
 	public ITouchpointData[] getTouchpointData();
 
 	public ITouchpointType getTouchpointType();
-
-	public Version getVersion();
 
 	public boolean isFragment();
 

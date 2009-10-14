@@ -11,11 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
 
 /**
  * An install information captures all the data needed to perform a product install.
@@ -31,7 +32,7 @@ public class InstallDescription {
 	private String launcherName;
 	private URI[] metadataRepos;
 	private String productName;
-	private VersionedName[] roots;
+	private IVersionedId[] roots;
 	private final Map profileProperties = new HashMap();
 
 	/**
@@ -147,7 +148,7 @@ public class InstallDescription {
 	 * Returns the set of roots to be installed for this installation
 	 * @return the roots to install
 	 */
-	public VersionedName[] getRoots() {
+	public IVersionedId[] getRoots() {
 		return roots;
 	}
 
@@ -155,7 +156,7 @@ public class InstallDescription {
 	 * Set the list of roots to install
 	 * @param value the set of roots to install
 	 */
-	public void setRoots(VersionedName[] value) {
+	public void setRoots(IVersionedId[] value) {
 		roots = value;
 	}
 

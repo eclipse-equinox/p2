@@ -8,7 +8,7 @@
  * Contributors:
  *     Code 9 - initial API and implementation
  *     EclipseSource - ongoing development
- *     Thomas Hallgreen - Fix for bug 268659
+ *     Thomas Hallgren - Fix for bug 268659
  *     IBM - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
@@ -16,101 +16,84 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 
 /**
- * An object representing a (name,version) pair. 
- * @TODO Should be consistent in calling the first part either "name" or "id", but not both.
+ * An object representing a (id,version) pair. 
  * 
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class VersionedName {
+public class VersionedId implements IVersionedId {
 	private final String id;
 	private final Version version;
 
 	/**
-	 * Creates and returns a new {@link VersionedName} from the given string specification.  
-	 * The specification must be of the form "name/version", or just "name" if the version is absent
+	 * Creates and returns a new {@link VersionedId} from the given string specification.  
+	 * The specification must be of the form "id/version", or just "id" if the version is absent
 	 * <p>
-	 * This factory method can be used to reconstruct a {@link VersionedName}
+	 * This factory method can be used to reconstruct a {@link VersionedId}
 	 * instance from the string representation produced by a previous invocation of 
 	 * {@link #toString()}.
 	 * 
-	 * @param spec the specification for the versioned name to create
-	 * @return the parsed versioned named
+	 * @param spec the specification for the versioned id to create
+	 * @return the parsed versioned id
 	 * @throws IllegalArgumentException If <code>spec</code> is improperly
 	 *         formatted.
 	 */
-	public static VersionedName parse(String spec) {
+	public static IVersionedId parse(String spec) {
 		String[] segments = StringHelper.getArrayFromString(spec, '/');
-		return new VersionedName(segments[0], segments.length == 1 ? null : segments[1]);
+		return new VersionedId(segments[0], segments.length == 1 ? null : segments[1]);
 	}
 
 	/**
-	 * Creates a new versioned name with the given id and version.
+	 * Creates a new versioned id with the given id and version.
 	 * 
 	 * @param id The identifier
 	 * @param version The version
 	 * @throws IllegalArgumentException If <code>version</code> is improperly
 	 *         formatted.
 	 */
-	public VersionedName(String id, String version) {
+	public VersionedId(String id, String version) {
 		this.id = id;
 		this.version = Version.parseVersion(version);
 	}
 
 	/**
-	 * Creates a new versioned name with the given id and version.
+	 * Creates a new versioned id with the given id and version.
 	 * 
 	 * @param id The identifier
 	 * @param version The version
 	 */
-	public VersionedName(String id, Version version) {
+	public VersionedId(String id, Version version) {
 		this.id = id;
 		this.version = (version == null) ? Version.emptyVersion : version;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 
-		if (!(obj instanceof VersionedName))
+		if (!(obj instanceof VersionedId))
 			return false;
 
-		VersionedName vname = (VersionedName) obj;
+		VersionedId vname = (VersionedId) obj;
 		return id.equals(vname.id) && version.equals(vname.version);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	public int hashCode() {
 		return id.hashCode() * 31 + version.hashCode();
 	}
 
-	/**
-	 * Returns the name portion of this versioned name.
-	 * @TODO Should be getName() for consistency?
-	 * 
-	 * @return The name portion of this versioned name.
-	 */
 	public String getId() {
 		return id;
 	}
 
-	/**
-	 * Returns the version portion of this versioned name.
-	 * @return the version portion of this versioned name.
-	 */
 	public Version getVersion() {
 		return version;
 	}
 
 	/**
-	 * Returns a string representation of this versioned name.
-	 * The result can be used to later construct an equal {@link VersionedName}
+	 * Returns a string representation of this versioned id.
+	 * The result can be used to later construct an equal {@link VersionedId}
 	 * instance using {{@link #parse(String)}.
-	 * @return A string representation of this name
+	 * @return A string representation of this versioned id
 	 */
 	public String toString() {
 		return Version.emptyVersion.equals(version) ? id : id + '/' + version.toString();

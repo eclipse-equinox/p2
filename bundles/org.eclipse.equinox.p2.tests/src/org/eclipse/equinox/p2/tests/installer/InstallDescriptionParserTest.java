@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.installer;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.io.File;
@@ -17,7 +19,6 @@ import java.io.IOException;
 import java.net.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -113,7 +114,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		assertEquals("1.4", "testFlavor", description.getProfileProperties().get("eclipse.p2.flavor"));
 		assertEquals("1.5", "Test Profile Name", description.getProductName());
 		assertEquals("1.5", "testLauncherName", description.getLauncherName());
-		VersionedName[] roots = description.getRoots();
+		IVersionedId[] roots = description.getRoots();
 		assertEquals("1.7", 2, roots.length);
 		assertEquals("1.8", "testRoot", roots[0].getId());
 		assertEquals("1.9", new Version("2.0"), roots[0].getVersion());
@@ -177,7 +178,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		assertEquals("1.4", "tooling", description.getProfileProperties().get("eclipse.p2.flavor"));
 		assertEquals("1.5", "Eclipse SDK", description.getProductName());
 		assertEquals("1.5", "eclipse", description.getLauncherName());
-		VersionedName[] roots = description.getRoots();
+		IVersionedId[] roots = description.getRoots();
 		assertEquals("1.7", 1, roots.length);
 		assertEquals("1.8", "sdk", roots[0].getId());
 		assertTrue("1.9", description.isAutoStart());

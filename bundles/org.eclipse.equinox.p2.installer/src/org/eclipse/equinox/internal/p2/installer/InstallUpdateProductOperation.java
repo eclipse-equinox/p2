@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -57,9 +59,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 */
 	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
 		ArrayList result = new ArrayList();
-		VersionedName roots[] = installDescription.getRoots();
+		IVersionedId roots[] = installDescription.getRoots();
 		for (int i = 0; i < roots.length; i++) {
-			VersionedName root = roots[i];
+			IVersionedId root = roots[i];
 			IInstallableUnit iu = findUnit(root);
 			if (iu != null)
 				result.add(iu);
@@ -140,7 +142,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Finds and returns the installable unit with the given id, and optionally the
 	 * given version.
 	 */
-	private IInstallableUnit findUnit(VersionedName spec) throws CoreException {
+	private IInstallableUnit findUnit(IVersionedId spec) throws CoreException {
 		String id = spec.getId();
 		if (id == null)
 			throw fail(Messages.Op_NoId);

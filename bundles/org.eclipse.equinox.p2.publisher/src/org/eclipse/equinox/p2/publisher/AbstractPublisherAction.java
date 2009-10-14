@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
@@ -163,8 +165,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
-			} else if (next instanceof VersionedName) {
-				VersionedName name = (VersionedName) next;
+			} else if (next instanceof IVersionedId) {
+				IVersionedId name = (IVersionedId) next;
 				Version version = name.getVersion();
 				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
 				String filter = getFilterAdvice(name);
@@ -174,7 +176,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return result;
 	}
 
-	private String getFilterAdvice(VersionedName name) {
+	private String getFilterAdvice(IVersionedId name) {
 		if (info == null)
 			return null;
 		Collection filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);

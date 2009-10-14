@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -159,7 +161,7 @@ public class DirectorApplication implements IApplication {
 	private static void parseIUsArgument(List vnames, String arg) {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
 		for (int i = 0; i < roots.length; ++i)
-			vnames.add(VersionedName.parse(roots[i]));
+			vnames.add(VersionedId.parse(roots[i]));
 	}
 
 	private static String processFileArgument(String arg) {
@@ -251,7 +253,7 @@ public class DirectorApplication implements IApplication {
 		ArrayList allRoots = new ArrayList();
 		int top = rootNames.size();
 		for (int i = 0; i < top; ++i) {
-			VersionedName rootName = (VersionedName) rootNames.get(i);
+			IVersionedId rootName = (IVersionedId) rootNames.get(i);
 			Version v = rootName.getVersion();
 			Query query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 			Collector roots;
@@ -486,7 +488,7 @@ public class DirectorApplication implements IApplication {
 		} else {
 			Iterator r = rootsToList.iterator();
 			while (r.hasNext()) {
-				VersionedName rootName = (VersionedName) r.next();
+				IVersionedId rootName = (IVersionedId) r.next();
 				Version v = rootName.getVersion();
 				Query query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 				Collector roots = collectRootIUs(query, null);

@@ -10,13 +10,15 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -146,7 +148,7 @@ public class ProductAction extends AbstractPublisherAction {
 		Collection versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
 		List result = new ArrayList();
 		for (Iterator i = elements.iterator(); i.hasNext();) {
-			VersionedName element = (VersionedName) i.next();
+			IVersionedId element = (IVersionedId) i.next();
 			Version elementVersion = element.getVersion();
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
 				Iterator advice = versionAdvice.iterator();
@@ -162,7 +164,7 @@ public class ProductAction extends AbstractPublisherAction {
 				result.add(unit);
 			} else if (elementVersion != null) {
 				//best effort
-				result.add(new VersionedName(element.getId(), elementVersion));
+				result.add(new VersionedId(element.getId(), elementVersion));
 			}
 			//TODO we could still add a requirement on version 0.0.0 to get any version, but if the
 			//bundle is platform specific we will have broken metadata due to a missing filter
@@ -175,8 +177,8 @@ public class ProductAction extends AbstractPublisherAction {
 			return elements;
 		ArrayList result = new ArrayList(elements.size());
 		for (Iterator i = elements.iterator(); i.hasNext();) {
-			VersionedName elementName = (VersionedName) i.next();
-			result.add(new VersionedName(elementName.getId() + suffix, elementName.getVersion()));
+			IVersionedId elementName = (IVersionedId) i.next();
+			result.add(new VersionedId(elementName.getId() + suffix, elementName.getVersion()));
 		}
 		return result;
 	}

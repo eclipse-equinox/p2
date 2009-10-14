@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import java.io.File;
@@ -19,7 +21,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
@@ -247,10 +248,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		set.addAll(Arrays.asList(data.getBundles()));
 
 		for (Iterator i = bundles.iterator(); i.hasNext();) {
-			VersionedName name = (VersionedName) i.next();
+			IVersionedId vid = (IVersionedId) i.next();
 			BundleInfo bundleInfo = new BundleInfo();
-			bundleInfo.setSymbolicName(name.getId());
-			bundleInfo.setVersion(name.getVersion().toString());
+			bundleInfo.setSymbolicName(vid.getId());
+			bundleInfo.setVersion(vid.getVersion().toString());
 			if (!set.contains(bundleInfo))
 				data.addBundle(bundleInfo);
 		}
@@ -265,10 +266,10 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		// if we find configuration information
 		List bundles = product.getBundles(true);
 		for (Iterator i = bundles.iterator(); i.hasNext();) {
-			VersionedName name = (VersionedName) i.next();
+			IVersionedId vid = (IVersionedId) i.next();
 			BundleInfo bundleInfo = new BundleInfo();
-			bundleInfo.setSymbolicName(name.getId());
-			bundleInfo.setVersion(name.getVersion().toString());
+			bundleInfo.setSymbolicName(vid.getId());
+			bundleInfo.setVersion(vid.getVersion().toString());
 			result.addBundle(bundleInfo);
 		}
 		return result;

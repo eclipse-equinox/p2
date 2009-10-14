@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,7 +20,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 
 /**
  * This class is responsible for loading install descriptions from a stream.
@@ -129,7 +131,7 @@ public class InstallDescriptionParser {
 		if (id != null) {
 			String version = properties.getProperty(PROP_ROOT_VERSION);
 			try {
-				description.setRoots(new VersionedName[] {new VersionedName(id, version)});
+				description.setRoots(new IVersionedId[] {new VersionedId(id, version)});
 			} catch (IllegalArgumentException e) {
 				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + version, e)); //$NON-NLS-1$
 			}
@@ -141,13 +143,13 @@ public class InstallDescriptionParser {
 			ArrayList roots = new ArrayList(rootList.length);
 			for (int i = 0; i < rootList.length; i++) {
 				try {
-					roots.add(VersionedName.parse(rootList[i]));
+					roots.add(VersionedId.parse(rootList[i]));
 				} catch (IllegalArgumentException e) {
 					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList[i], e)); //$NON-NLS-1$
 				}
 			}
 			if (!roots.isEmpty())
-				description.setRoots((VersionedName[]) roots.toArray(new VersionedName[roots.size()]));
+				description.setRoots((IVersionedId[]) roots.toArray(new IVersionedId[roots.size()]));
 		}
 		return description;
 	}

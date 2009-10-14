@@ -136,10 +136,9 @@ public class RootIUAction extends AbstractPublisherAction {
 						IInstallableUnit iu = queryForIU(result, childId, getVersionAdvice(childId));
 						if (iu != null)
 							children.add(iu);
-					} else if (object instanceof VersionedName) {
+					} else if (object instanceof IVersionedId) {
 						children.add(object);
-					} else if (object instanceof IInstallableUnit)
-						children.add(object);
+					}
 				}
 		}
 		return children;

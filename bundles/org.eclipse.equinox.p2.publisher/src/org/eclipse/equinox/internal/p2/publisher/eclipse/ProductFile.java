@@ -13,12 +13,14 @@
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedName;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -640,7 +642,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	private void processPlugin(Attributes attributes) {
 		String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
-		VersionedName name = new VersionedName(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
+		IVersionedId name = new VersionedId(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (fragment != null && new Boolean(fragment).booleanValue()) {
 			if (fragments == null)
 				fragments = new ArrayList();
@@ -653,7 +655,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processFeature(Attributes attributes) {
-		VersionedName name = new VersionedName(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
+		IVersionedId name = new VersionedId(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (features == null)
 			features = new ArrayList();
 		features.add(name);
