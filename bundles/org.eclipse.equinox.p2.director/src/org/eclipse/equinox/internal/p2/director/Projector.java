@@ -11,19 +11,15 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-
 import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.metadata.NotRequirement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
@@ -318,7 +314,33 @@ public class Projector {
 		}
 	}
 
+	private void expandNegatedRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
+		if (!isApplicable(negatedReq))
+			return;
+		List matches = getApplicableMatches(negatedReq);
+		if (matches.isEmpty()) {
+			return;
+		}
+		Explanation explanation;
+		if (isRootIu) {
+			IInstallableUnit reqIu = (IInstallableUnit) matches.iterator().next();
+			if (alreadyInstalledIUs.contains(reqIu)) {
+				explanation = new Explanation.IUInstalled(reqIu);
+			} else {
+				explanation = new Explanation.IUToInstall(reqIu);
+			}
+		} else {
+			explanation = new Explanation.HardRequirement(iu, req);
+		}
+		createNegationImplication(iu, matches, explanation);
+	}
+
 	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		if (req.isNegation()) {
+			expandNegatedRequirement(req, iu, optionalAbstractRequirements, isRootIu);
+			return;
+		}
 		if (!isApplicable(req))
 			return;
 		List matches = getApplicableMatches(req);
@@ -628,6 +650,17 @@ public class Projector {
 		}
 		optionalRequirements.add(noop);
 		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
+	}
+
+	//This will create as many implication as there is element in the right argument
+	private void createNegationImplication(Object left, List right, Explanation name) throws ContradictionException {
+		if (DEBUG) {
+			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		for (Iterator iterator = right.iterator(); iterator.hasNext();) {
+			dependencyHelper.implication(new Object[] {left}).impliesNot(iterator.next()).named(name);
+		}
+
 	}
 
 	private void createImplication(Object left, List right, Explanation name) throws ContradictionException {

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.ORRequirement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
@@ -45,6 +46,10 @@ public class QueryableArray implements IQueryable {
 		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
 		Collection resultIUs = null;
 		for (int i = 0; i < requiredCapabilities.length; i++) {
+			if (requiredCapabilities[i] instanceof ORRequirement) {
+				query.perform(dataSet.iterator(), collector);
+				continue;
+			}
 			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
 			if (matchingIUs == null)
 				return collector;
@@ -54,8 +59,9 @@ public class QueryableArray implements IQueryable {
 				resultIUs.retainAll(matchingIUs);
 		}
 
-		for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
-			collector.accept(iterator.next());
+		if (resultIUs != null)
+			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
+				collector.accept(iterator.next());
 
 		return collector;
 	}

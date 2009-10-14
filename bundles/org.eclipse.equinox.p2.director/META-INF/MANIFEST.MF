@@ -37,4 +37,5 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)",
  org.sat4j.core;bundle-version="2.1.0",
  org.sat4j.pb;bundle-version="2.1.0",
- org.eclipse.core.jobs;bundle-version="3.4.100"
+ org.eclipse.core.jobs;bundle-version="3.4.100",
+ org.eclipse.equinox.p2.metadata

@@ -180,4 +180,16 @@ public class RequiredCapability implements IRequiredCapability {
 			result.append(range);
 		return result.toString();
 	}
+
+	public boolean isNegation() {
+		return false;
+	}
+
+	public boolean satisfiedBy(IProvidedCapability cap) {
+		if (getName() == null || !getName().equals(cap.getName()))
+			return false;
+		if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
+			return false;
+		return getRange().isIncluded(cap.getVersion());
+	}
 }

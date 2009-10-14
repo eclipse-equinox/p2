@@ -65,11 +65,7 @@ public class ProvidedCapability implements IProvidedCapability {
 	 * capability, and <code>false</code> otherwise.
 	 */
 	public boolean satisfies(IRequiredCapability candidate) {
-		if (getName() == null || !getName().equals(candidate.getName()))
-			return false;
-		if (getNamespace() == null || !getNamespace().equals(candidate.getNamespace()))
-			return false;
-		return candidate.getRange().isIncluded(version);
+		return candidate.satisfiedBy(this);
 	}
 
 	public String toString() {

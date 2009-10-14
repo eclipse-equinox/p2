@@ -9,8 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-
-
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
  * Each capability represents something an {@link IInstallableUnit} needs that
@@ -84,5 +82,9 @@ public interface IRequiredCapability {
 	 * </ul> 
 	 */
 	public boolean equals(Object other);
+
+	public boolean isNegation();
+
+	public boolean satisfiedBy(IProvidedCapability cap);
 
 }

@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -161,6 +157,8 @@ public class Slicer {
 	}
 
 	private void expandRequirement(IInstallableUnit iu, IRequiredCapability req) {
+		if (req.isNegation())
+			return;
 		Collector matches = possibilites.query(new CapabilityQuery(req), new Collector(), null);
 		int validMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
