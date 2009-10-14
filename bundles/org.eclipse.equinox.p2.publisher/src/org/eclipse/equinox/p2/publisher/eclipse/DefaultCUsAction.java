@@ -30,7 +30,8 @@ public class DefaultCUsAction extends AbstractPublisherAction {
 		this.start = start;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		setPublisherInfo(publisherInfo);
 		generateDefaultConfigIU(results);
 		return Status.OK_STATUS;
 	}

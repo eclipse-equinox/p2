@@ -10,14 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 
@@ -33,6 +31,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	protected boolean start = false;
 
 	protected EclipseInstallAction() {
+		//hidden
 	}
 
 	public EclipseInstallAction(String source, String id, Version version, String name, String executableName, String flavor, IVersionedId[] topLevel, String[] nonRootFiles, boolean start) {
@@ -47,15 +46,15 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		this.start = start;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		monitor = SubMonitor.convert(monitor);
-		this.info = info;
+		this.info = publisherInfo;
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(actions[i].perform(info, results, monitor));
+			finalStatus.merge(actions[i].perform(publisherInfo, results, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;

@@ -33,14 +33,14 @@ public class ExecutablesDescriptor {
 		// TODO this may need to get more intelligent
 		// if MacOS its going to be baseName.app/Contents/MacOS/baseName
 		if (Constants.OS_MACOSX.equals(os)) {
-			return new File(root, baseName + ".app/Contents/MacOS/" + baseName);
+			return new File(root, baseName + ".app/Contents/MacOS/" + baseName); //$NON-NLS-1$
 		}
 		// if it is not Mac and not Windows it must be a UNIX flavor
 		if (!Constants.OS_WIN32.equals(os)) {
 			return new File(root, baseName);
 		}
 		// otherwise we are left with windows
-		return new File(root, baseName + ".exe");
+		return new File(root, baseName + ".exe"); //$NON-NLS-1$
 	}
 
 	/**
@@ -56,10 +56,10 @@ public class ExecutablesDescriptor {
 		if (executablesFeatureLocation == null || !executablesFeatureLocation.exists())
 			return null;
 		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
-		File result = new File(executablesFeatureLocation, "bin/" + config[0] + "/" + config[1] + "/" + config[2]);
+		File result = new File(executablesFeatureLocation, "bin/" + config[0] + "/" + config[1] + "/" + config[2]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if (!result.exists())
 			return null;
-		return new ExecutablesDescriptor(config[1], "launcher", result, new File[] {result});
+		return new ExecutablesDescriptor(config[1], "launcher", result, new File[] {result}); //$NON-NLS-1$
 	}
 
 	/**

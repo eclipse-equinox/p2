@@ -10,13 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
 
@@ -41,9 +40,10 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		this.configSpecs = configSpecs;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
-		publishCU(ORG_ECLIPSE_EQUINOX_LAUNCHER, null, info, results);
-		publishLauncherFragmentCUs(info, results);
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		setPublisherInfo(publisherInfo);
+		publishCU(ORG_ECLIPSE_EQUINOX_LAUNCHER, null, results);
+		publishLauncherFragmentCUs(results);
 		return Status.OK_STATUS;
 	}
 
@@ -51,11 +51,11 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 * For each of the configurations we are publishing, create a launcher fragment
 	 * CU if there is version advice for the fragment.
 	 */
-	private void publishLauncherFragmentCUs(IPublisherInfo info, IPublisherResult results) {
+	private void publishLauncherFragmentCUs(IPublisherResult results) {
 		for (int i = 0; i < configSpecs.length; i++) {
 			String configSpec = configSpecs[i];
 			String id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
-			publishCU(id, configSpec, info, results);
+			publishCU(id, configSpec, results);
 		}
 	}
 
@@ -64,7 +64,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 * launcher bundle iu then set it up as the startup JAR.  If it is a launcher fragment then 
 	 * configure it in as the launcher.library for this configuration.
 	 */
-	private void publishCU(String id, String configSpec, IPublisherInfo info, IPublisherResult results) {
+	private void publishCU(String id, String configSpec, IPublisherResult results) {
 		Collection advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
 		for (Iterator j = advice.iterator(); j.hasNext();) {
 			IVersionAdvice versionSpec = (IVersionAdvice) j.next();

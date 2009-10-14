@@ -10,19 +10,15 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 
 public class InstallPublisherApplication extends AbstractPublisherApplication {
 
 	protected String id;
-	protected Version version = new Version("1.0.0"); //$NON-NLS-1$
+	protected Version version = Version.parseVersion("1.0.0"); //$NON-NLS-1$
 	protected String name;
 	protected String executableName;
 	protected String flavor;
@@ -31,23 +27,24 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String[] rootExclusions;
 
 	public InstallPublisherApplication() {
+		//hidden
 	}
 
-	protected void processFlag(String arg, PublisherInfo info) {
-		super.processFlag(arg, info);
+	protected void processFlag(String arg, PublisherInfo publisherInfo) {
+		super.processFlag(arg, publisherInfo);
 
 		if (arg.equalsIgnoreCase("-startAll")) //$NON-NLS-1$
 			start = true;
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
-		super.processParameter(arg, parameter, info);
+	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
+		super.processParameter(arg, parameter, publisherInfo);
 
 		if (arg.equalsIgnoreCase("-id")) //$NON-NLS-1$
 			id = parameter;
 
 		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
-			version = new Version(parameter);
+			version = Version.parseVersion(parameter);
 
 		if (arg.equalsIgnoreCase("-name")) //$NON-NLS-1$
 			name = parameter;
@@ -62,7 +59,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			topLevel = createVersionedIdList(parameter);
 
 		if (arg.equalsIgnoreCase("-rootExclusions")) //$NON-NLS-1$
-			rootExclusions = AbstractPublisherAction.getArrayFromString(parameter, ",");
+			rootExclusions = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
 	}
 
 	private IVersionedId[] createVersionedIdList(String parameter) {

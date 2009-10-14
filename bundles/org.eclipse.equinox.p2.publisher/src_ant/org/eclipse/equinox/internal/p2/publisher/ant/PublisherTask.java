@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
 import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
@@ -68,7 +67,7 @@ public class PublisherTask extends AbstractPublishTask {
 			return new IPublisherAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
-			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, new Version(rootVersion), rootName, executableName, flavor, topLevel, nonRootFiles, start)};
+			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, Version.parseVersion(rootVersion), rootName, executableName, flavor, topLevel, nonRootFiles, start)};
 		// TODO what to do in this case?
 		return new IPublisherAction[] {};
 	}
@@ -81,11 +80,11 @@ public class PublisherTask extends AbstractPublishTask {
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace) {
-			File location = new File(source);
+			File sourceLocation = new File(source);
 			if (metadataLocation == null)
-				metadataLocation = location.toURI();
+				metadataLocation = sourceLocation.toURI();
 			if (artifactLocation == null)
-				artifactLocation = location.toURI();
+				artifactLocation = sourceLocation.toURI();
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		} else
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);

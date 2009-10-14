@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -50,6 +47,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	protected String flavor;
 
 	protected EquinoxExecutableAction() {
+		//hidden
 	}
 
 	public EquinoxExecutableAction(ExecutablesDescriptor executables, String configSpec, String idBase, Version version, String flavor) {
@@ -60,11 +58,12 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
-		ExecutablesDescriptor brandedExecutables = brandExecutables(info, executables);
+	public IStatus perform(IPublisherInfo publisherinfo, IPublisherResult result, IProgressMonitor monitor) {
+		setPublisherInfo(publisherinfo);
+		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
 		try {
-			publishExecutableIU(info, brandedExecutables, result);
-			publishExecutableCU(info, brandedExecutables, result);
+			publishExecutableIU(brandedExecutables, result);
+			publishExecutableCU(brandedExecutables, result);
 			publishExecutableSetter(brandedExecutables, result);
 		} finally {
 			if (brandedExecutables.isTemporary())
@@ -100,7 +99,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	 * Publishes IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	protected void publishExecutableIU(IPublisherInfo info, ExecutablesDescriptor execDescriptor, IPublisherResult result) {
+	protected void publishExecutableIU(ExecutablesDescriptor execDescriptor, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getExecutableId();
@@ -137,11 +136,11 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	private String getExecutableId() {
-		return createCUIdString(idBase, TYPE, "", configSpec);
+		return createCUIdString(idBase, TYPE, "", configSpec); //$NON-NLS-1$
 	}
 
 	// Create the CU that installs (e.g., unzips) the executable
-	private void publishExecutableCU(IPublisherInfo info, ExecutablesDescriptor execDescriptor, IPublisherResult result) {
+	private void publishExecutableCU(ExecutablesDescriptor execDescriptor, IPublisherResult result) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String id = createCUIdString(idBase, TYPE, flavor, configSpec);
 		cu.setId(id);
@@ -187,10 +186,10 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	 * @param descriptor the executable descriptor to brand.
 	 * @return the new descriptor
 	 */
-	protected ExecutablesDescriptor brandExecutables(IPublisherInfo info, ExecutablesDescriptor descriptor) {
+	protected ExecutablesDescriptor brandExecutables(ExecutablesDescriptor descriptor) {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(descriptor);
 		result.makeTemporaryCopy();
-		IBrandingAdvice advice = getBrandingAdvice(info);
+		IBrandingAdvice advice = getBrandingAdvice();
 		if (advice == null)
 			partialBrandExecutables(result);
 		else
@@ -198,7 +197,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		return result;
 	}
 
-	private IBrandingAdvice getBrandingAdvice(IPublisherInfo info) {
+	private IBrandingAdvice getBrandingAdvice() {
 		// there is expected to only be one branding advice for a given configspec so
 		// just return the first one we find.
 		Collection advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);

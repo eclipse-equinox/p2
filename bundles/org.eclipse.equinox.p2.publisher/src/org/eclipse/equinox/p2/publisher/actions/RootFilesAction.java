@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -46,15 +43,16 @@ public class RootFilesAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		setPublisherInfo(publisherInfo);
 		IPublisherResult innerResult = new PublisherResult();
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
-		String[] configSpecs = info.getConfigurations();
+		String[] configSpecs = publisherInfo.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			generateRootFileIUs(configSpecs[i], info, innerResult);
+			generateRootFileIUs(configSpecs[i], innerResult);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
@@ -77,7 +75,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 * Generates IUs and CUs for the files that make up the root files for a given
 	 * ws/os/arch combination.
 	 */
-	private void generateRootFileIUs(String configSpec, IPublisherInfo info, IPublisherResult result) {
+	private void generateRootFileIUs(String configSpec, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
@@ -119,7 +117,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		if ((info.getArtifactOptions() & (IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH)) > 0) {
 			// Create the artifact descriptor.  we have several files so no path on disk
 			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-			IRootFilesAdvice advice = getAdvice(configSpec, info);
+			IRootFilesAdvice advice = getAdvice(configSpec);
 			publishArtifact(descriptor, advice.getIncludedFiles(), advice.getExcludedFiles(), info, createPrefixComputer(advice.getRoot()));
 		}
 	}
@@ -137,7 +135,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 * @param info - the publisher info holding the advice.
 	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
 	 */
-	private IRootFilesAdvice getAdvice(String configSpec, IPublisherInfo info) {
+	private IRootFilesAdvice getAdvice(String configSpec) {
 		Collection advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
 		ArrayList inclusions = new ArrayList();
 		ArrayList exclusions = new ArrayList();

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -66,7 +64,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	}
 
 	public static String getAbstractCUCapabilityId(String id, String type, String flavor, String configSpec) {
-		return id + "." + type;
+		return id + "." + type; //$NON-NLS-1$
 	}
 
 	/**
@@ -85,22 +83,22 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		this.version = version;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherResult innerResult = new PublisherResult();
 		this.outerResults = results;
-		this.info = info;
+		this.info = publisherInfo;
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
-		String[] configSpecs = info.getConfigurations();
+		String[] configSpecs = publisherInfo.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			String configSpec = configSpecs[i];
-			Collection configAdvice = info.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
+			Collection configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
-			publishBundleCUs(info, bundles, configSpec, innerResult);
+			publishBundleCUs(publisherInfo, bundles, configSpec, innerResult);
 			publishConfigIUs(configAdvice, innerResult, configSpec);
-			Collection launchingAdvice = info.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
+			Collection launchingAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
 			publishIniIUs(launchingAdvice, innerResult, configSpec);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
@@ -290,7 +288,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * Publish the CUs related to the given set of bundles.  This generally covers the start-level and 
 	 * and whether or not the bundle is to be started.
 	 */
-	protected void publishBundleCUs(IPublisherInfo info, BundleInfo[] bundles, String configSpec, IPublisherResult result) {
+	protected void publishBundleCUs(IPublisherInfo publisherInfo, BundleInfo[] bundles, String configSpec, IPublisherResult result) {
 		if (bundles == null)
 			return;
 

@@ -8,9 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -60,8 +57,8 @@ public class AdviceFileParser {
 	private static final String ARTIFACTS_PREFIX = "artifacts."; //$NON-NLS-1$
 	private static final String HOST_REQUIREMENTS_PREFIX = "hostRequirements."; //$NON-NLS-1$
 
-	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
-	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+	public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 	private Properties adviceProperties = new Properties();
 	private List adviceProvides = new ArrayList();
@@ -116,7 +113,7 @@ public class AdviceFileParser {
 	}
 
 	private void checkAdviceVersion(String adviceVersion) {
-		Version version = new Version(adviceVersion);
+		Version version = Version.parseVersion(adviceVersion);
 		if (!VERSION_TOLERANCE.isIncluded(version))
 			throw new IllegalStateException("bad version: " + version + ". Expected range was " + VERSION_TOLERANCE); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -178,7 +175,7 @@ public class AdviceFileParser {
 			} else if (token.equals(NAMESPACE)) {
 				namespace = currentValue();
 			} else if (token.equals(VERSION)) {
-				capabilityVersion = new Version(substituteVersionAndQualifier(currentValue()));
+				capabilityVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
 			} else {
 				// we ignore elements we do not understand
 			}
@@ -304,7 +301,7 @@ public class AdviceFileParser {
 				unitId = currentValue();
 				next();
 			} else if (token.equals(VERSION)) {
-				unitVersion = new Version(substituteVersionAndQualifier(currentValue()));
+				unitVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(SINGLETON)) {
 				unitSingleton = Boolean.valueOf(currentValue()).booleanValue();
@@ -322,7 +319,7 @@ public class AdviceFileParser {
 				unitTouchpointId = currentValue();
 				next();
 			} else if (token.equals(TOUCHPOINT_VERSION)) {
-				unitTouchpointVersion = new Version(substituteVersionAndQualifier(currentValue()));
+				unitTouchpointVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(UPDATE_ID)) {
 				unitUpdateId = currentValue();
@@ -463,7 +460,7 @@ public class AdviceFileParser {
 			} else if (token.equals(ID)) {
 				artifactId = currentValue();
 			} else if (token.equals(VERSION)) {
-				artifactVersion = new Version(substituteVersionAndQualifier(currentValue()));
+				artifactVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
 			} else {
 				// we ignore elements we do not understand
 			}

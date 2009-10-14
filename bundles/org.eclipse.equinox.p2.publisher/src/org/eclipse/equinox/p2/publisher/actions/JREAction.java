@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -30,7 +27,7 @@ import org.osgi.framework.BundleException;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
-	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("1.6"); //$NON-NLS-1$
 	private static final String DEFAULT_PROFILE = "/profiles/JavaSE-1.6.profile"; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
@@ -139,7 +136,7 @@ public class JREAction extends AbstractPublisherAction {
 		int idx = profileName.indexOf('-');
 		if (idx != -1) {
 			try {
-				version = new Version(profileName.substring(idx + 1));
+				version = Version.parseVersion(profileName.substring(idx + 1));
 			} catch (IllegalArgumentException e) {
 				//ignore
 			}
@@ -148,14 +145,14 @@ public class JREAction extends AbstractPublisherAction {
 		if (version == null) {
 			try {
 				String targetVersion = profileProperties.getProperty(PROFILE_TARGET_VERSION);
-				version = targetVersion != null ? new Version(targetVersion) : null;
+				version = targetVersion != null ? Version.parseVersion(targetVersion) : null;
 			} catch (IllegalArgumentException e) {
 				//ignore
 			}
 		}
 
 		if (version == null)
-			version = new Version("1.6"); //$NON-NLS-1$
+			version = DEFAULT_JRE_VERSION;
 
 		iu.setVersion(version);
 

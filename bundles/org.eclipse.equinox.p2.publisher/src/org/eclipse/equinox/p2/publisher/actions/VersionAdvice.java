@@ -10,10 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.util.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
@@ -61,7 +60,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 				if (idSuffix != null)
 					key += idSuffix;
 				String value = properties.getProperty(key);
-				setVersion(namespace, key, new Version(value));
+				setVersion(namespace, key, Version.parseVersion(value));
 			}
 		}
 	}

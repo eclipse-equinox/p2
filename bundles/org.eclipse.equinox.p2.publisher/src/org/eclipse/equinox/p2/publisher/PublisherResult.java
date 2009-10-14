@@ -10,11 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 
 public class PublisherResult implements IPublisherResult {
@@ -102,7 +101,7 @@ public class PublisherResult implements IPublisherResult {
 		return result == null ? EMPTY_COLLECTION : result;
 	}
 
-	private List flatten(Collection values) {
+	protected List flatten(Collection values) {
 		ArrayList result = new ArrayList();
 		for (Iterator i = values.iterator(); i.hasNext();)
 			for (Iterator j = ((HashSet) i.next()).iterator(); j.hasNext();)

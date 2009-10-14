@@ -27,19 +27,19 @@ public class AccumulateConfigDataAction extends AbstractPublisherAction {
 		loader = new DataLoader(configurationLocation, executableLocation);
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
-		storeConfigData(info, configSpec, results);
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		storeConfigData(publisherInfo, configSpec, results);
 		return Status.OK_STATUS;
 	}
 
-	protected void storeConfigData(IPublisherInfo info, String configSpec, IPublisherResult result) {
+	protected void storeConfigData(IPublisherInfo publisherInfo, String config, IPublisherResult result) {
 		ConfigData data = loader.getConfigData();
 		if (data == null)
 			return;
-		info.addAdvice(new ConfigAdvice(data, configSpec));
+		publisherInfo.addAdvice(new ConfigAdvice(data, config));
 		LauncherData launcherData = loader.getLauncherData();
 		if (launcherData == null)
 			return;
-		info.addAdvice(new LaunchingAdvice(launcherData, configSpec));
+		publisherInfo.addAdvice(new LaunchingAdvice(launcherData, config));
 	}
 }

@@ -55,16 +55,16 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		this.location = location;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		// Create the basic actions and run them putting the IUs in a temporary result
-		Collection actions = createActions(info);
-		createAdvice(info, results);
+		Collection actions = createActions(publisherInfo);
+		createAdvice(publisherInfo, results);
 		IPublisherResult innerResult = new PublisherResult();
 		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (Iterator i = actions.iterator(); i.hasNext();) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(((IPublisherAction) i.next()).perform(info, innerResult, monitor));
+			finalStatus.merge(((IPublisherAction) i.next()).perform(publisherInfo, innerResult, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
@@ -77,15 +77,15 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	/**
 	 * Create advice needed by the actions related to and following this action
 	 */
-	private void createAdvice(IPublisherInfo info, IPublisherResult results) {
-		createLauncherAdvice(info, results);
+	private void createAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {
+		createLauncherAdvice(publisherInfo, results);
 	}
 
 	/**
 	 * Create and register advice that will tell people what versions of the launcher bundle and 
 	 * fragments are in use in this particular result.
 	 */
-	private void createLauncherAdvice(IPublisherInfo info, IPublisherResult results) {
+	private void createLauncherAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {
 		Collection ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
 		VersionAdvice advice = new VersionAdvice();
 		boolean found = false;
@@ -99,7 +99,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			found = true;
 		}
 		if (found)
-			info.addAdvice(advice);
+			publisherInfo.addAdvice(advice);
 	}
 
 	private Collection getIUs(Collection ius, String prefix) {
@@ -121,18 +121,18 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
-	private Collection createActions(IPublisherInfo info) {
+	private Collection createActions(IPublisherInfo publisherInfo) {
 		Collection actions = new ArrayList();
 		actions.add(new EquinoxLauncherCUAction(flavor, configSpecs));
 		actions.addAll(createExecutablesActions(configSpecs));
 		return actions;
 	}
 
-	protected Collection createExecutablesActions(String[] configSpecs) {
-		Collection actions = new ArrayList(configSpecs.length);
-		for (int i = 0; i < configSpecs.length; i++) {
-			ExecutablesDescriptor executables = computeExecutables(configSpecs[i]);
-			IPublisherAction action = new EquinoxExecutableAction(executables, configSpecs[i], id, version, flavor);
+	protected Collection createExecutablesActions(String[] configs) {
+		Collection actions = new ArrayList(configs.length);
+		for (int i = 0; i < configs.length; i++) {
+			ExecutablesDescriptor executables = computeExecutables(configs[i]);
+			IPublisherAction action = new EquinoxExecutableAction(executables, configs[i], id, version, flavor);
 			actions.add(action);
 		}
 		return actions;

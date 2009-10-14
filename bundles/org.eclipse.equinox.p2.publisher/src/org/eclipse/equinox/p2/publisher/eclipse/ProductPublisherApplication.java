@@ -24,6 +24,7 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	private String flavor;
 
 	public ProductPublisherApplication() {
+		//hidden
 	}
 
 	protected IPublisherAction[] createActions() {
@@ -44,8 +45,8 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 		return new ProductAction(source, productDescriptor, flavor, executablesFeature);
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
-		super.processParameter(arg, parameter, info);
+	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
+		super.processParameter(arg, parameter, publisherInfo);
 
 		if (arg.equalsIgnoreCase("-productFile")) //$NON-NLS-1$
 			product = parameter;

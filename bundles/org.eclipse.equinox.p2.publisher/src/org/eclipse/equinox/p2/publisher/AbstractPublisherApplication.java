@@ -77,30 +77,30 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return status;
 	}
 
-	protected void initialize(PublisherInfo info) throws ProvisionException {
+	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
 		if (inplace) {
 			File location = new File(source);
 			if (metadataLocation == null)
 				metadataLocation = location.toURI();
 			if (artifactLocation == null)
 				artifactLocation = location.toURI();
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
+			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		}
-		initializeRepositories(info);
+		initializeRepositories(publisherInfo);
 	}
 
 	protected IStatus createConfigurationEror(String message) {
 		return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.publisher", message); //$NON-NLS-1$
 	}
 
-	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
+	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		if (artifactLocation != null)
-			info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
-		else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+			publisherInfo.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
+		else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
-		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
+		publisherInfo.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
 
 		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
 			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
@@ -108,7 +108,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 				for (int i = 0; i < contextMetadataRepositories.length; i++)
 					contextMetadata.addChild(contextMetadataRepositories[i]);
 				if (contextMetadata.getChildren().size() > 0)
-					info.setContextMetadataRepository(contextMetadata);
+					publisherInfo.setContextMetadataRepository(contextMetadata);
 			}
 		}
 		if (contextArtifactRepositories != null && contextArtifactRepositories.length > 0) {
@@ -118,27 +118,27 @@ public abstract class AbstractPublisherApplication implements IApplication {
 					contextArtifact.addChild(contextArtifactRepositories[i]);
 
 				if (contextArtifact.getChildren().size() > 0)
-					info.setContextArtifactRepository(contextArtifact);
+					publisherInfo.setContextArtifactRepository(contextArtifact);
 			}
 		}
 	}
 
-	protected void processCommandLineArguments(String[] args, PublisherInfo info) throws Exception {
+	protected void processCommandLineArguments(String[] args, PublisherInfo publisherInfo) throws Exception {
 		if (args == null)
 			return;
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			processFlag(args[i], info);
+			processFlag(args[i], publisherInfo);
 
 			// check for args with parameters. If we are at the last argument or if the next one
 			// has a '-' as the first character, then we can't have an arg with a parm so continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;
-			processParameter(args[i], args[++i], info);
+			processParameter(args[i], args[++i], publisherInfo);
 		}
 	}
 
-	protected void processParameter(String arg, String parameter, PublisherInfo info) throws URISyntaxException {
+	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		try {
 			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = URIUtil.fromString(parameter);
@@ -146,7 +146,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			if (arg.equalsIgnoreCase("-artifactRepository") || arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactLocation = URIUtil.fromString(parameter);
 		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Repository location (" + parameter + ") must be a URL."); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_repoMustBeURL, parameter));
 		}
 
 		if (arg.equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
@@ -156,7 +156,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			// check here to see if the location actually exists so we can fail gracefully now rather than unpredictably later
 			// see bug 272956 where we would fail with an NPE if someone gave us a URL instead of a file-system path
 			if (!new File(parameter).exists())
-				throw new IllegalArgumentException("Source location (" + parameter + ") must be a valid file-system path.");
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_sourcePath, parameter));
 			source = parameter;
 		}
 
@@ -164,13 +164,13 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			artifactRepoName = parameter;
 
 		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
-			info.setConfigurations(AbstractPublisherAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
+			publisherInfo.setConfigurations(AbstractPublisherAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
 
 		if (arg.equalsIgnoreCase("-contextMetadata")) //$NON-NLS-1$
-			info.setContextMetadataRepository(processMetadataRepositoryList(parameter));
+			publisherInfo.setContextMetadataRepository(processMetadataRepositoryList(parameter));
 
 		if (arg.equalsIgnoreCase("-contextArtifacts")) //$NON-NLS-1$
-			info.setContextArtifactRepository(processArtifactRepositoryList(parameter));
+			publisherInfo.setContextArtifactRepository(processArtifactRepositoryList(parameter));
 	}
 
 	private IArtifactRepository processArtifactRepositoryList(String parameter) {
@@ -210,15 +210,15 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return result;
 	}
 
-	protected void processFlag(String arg, PublisherInfo info) {
+	protected void processFlag(String arg, PublisherInfo publisherInfo) {
 		if (arg.equalsIgnoreCase("-publishArtifacts") || arg.equalsIgnoreCase("-pa")) //$NON-NLS-1$ //$NON-NLS-2$
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
+			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
 
 		if (arg.equalsIgnoreCase("-publishArtifactRepository") || arg.equalsIgnoreCase("-par")) //$NON-NLS-1$ //$NON-NLS-2$
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX);
+			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX);
 
 		if (arg.equalsIgnoreCase("-overwriteArtifacts")) //$NON-NLS-1$ 
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_OVERWRITE);
+			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_OVERWRITE);
 
 		if (arg.equalsIgnoreCase("-append")) //$NON-NLS-1$
 			append = true;
@@ -276,18 +276,18 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return new PublisherInfo();
 	}
 
-	public Object run(PublisherInfo info) throws Exception {
+	public Object run(PublisherInfo publisherInfo) throws Exception {
 		try {
+			this.info = publisherInfo;
 			registerEventBus();
 			registerDefaultMetadataRepoManager();
 			registerDefaultArtifactRepoManager();
-			initialize(info);
-			validateInfo(info);
-			System.out.println(NLS.bind(Messages.message_generatingMetadata, info.getSummary()));
+			initialize(publisherInfo);
+			System.out.println(NLS.bind(Messages.message_generatingMetadata, publisherInfo.getSummary()));
 
 			long before = System.currentTimeMillis();
 			IPublisherAction[] actions = createActions();
-			Publisher publisher = createPublisher(info);
+			Publisher publisher = createPublisher(publisherInfo);
 			IStatus result = publisher.publish(actions, new NullProgressMonitor());
 			long after = System.currentTimeMillis();
 
@@ -307,15 +307,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	protected abstract IPublisherAction[] createActions();
 
-	protected Publisher createPublisher(PublisherInfo info) {
-		return new Publisher(info);
-	}
-
-	protected void validateInfo(PublisherInfo info) {
-		//		if (info.getBaseLocation() == null && info.getProduct() == null) {
-		//			System.out.println(Messages.exception_baseLocationNotSpecified);
-		//			return new Integer(-1);
-		//		}
+	protected Publisher createPublisher(PublisherInfo publisherInfo) {
+		return new Publisher(publisherInfo);
 	}
 
 	public Object start(IApplicationContext context) throws Exception {

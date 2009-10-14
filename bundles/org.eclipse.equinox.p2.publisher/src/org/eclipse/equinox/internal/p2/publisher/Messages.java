@@ -26,6 +26,8 @@ public class Messages extends NLS {
 	public static String exception_noFeaturesOrLocations;
 	public static String exception_invalidSiteReference;
 	public static String exception_invalidSiteReferenceInFeature;
+	public static String exception_repoMustBeURL;
+	public static String exception_sourcePath;
 
 	public static String message_generatingMetadata;
 	public static String message_generationCompleted;

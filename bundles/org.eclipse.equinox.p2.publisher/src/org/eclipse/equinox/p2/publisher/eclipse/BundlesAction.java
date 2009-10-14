@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
@@ -28,6 +25,8 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
@@ -80,8 +79,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
-	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
-	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
+	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
+	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$
 
@@ -98,7 +97,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	private BundleDescription[] bundles;
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
-		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
+		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, Version.parseVersion(version));
 	}
 
 	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
@@ -114,11 +113,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
 		cu.setHost(new IRequiredCapability[] { //
 				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), //
-						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
+						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -326,12 +325,12 @@ public class BundlesAction extends AbstractPublisherAction {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = PublisherHelper.createDefaultConfigUnitId(OSGI_BUNDLE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
-		Version configUnitVersion = new Version(1, 0, 0);
+		Version configUnitVersion = Version.createOSGi(1, 0, 0);
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on bundles
 		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
@@ -601,35 +600,35 @@ public class BundlesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions, IPublisherInfo info) {
-		IArtifactRepository destination = info.getArtifactRepository();
+	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions, IPublisherInfo publisherInfo) {
+		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (descriptor == null || destination == null)
 			return;
 
 		// publish the given files
-		publishArtifact(descriptor, inclusions, null, info, createRootPrefixComputer(base));
+		publishArtifact(descriptor, inclusions, null, publisherInfo, createRootPrefixComputer(base));
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File jarFile, IPublisherInfo info) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File jarFile, IPublisherInfo publisherInfo) {
 		// no files to publish so this is done.
-		if (jarFile == null || info == null)
+		if (jarFile == null || publisherInfo == null)
 			return;
 
 		// if the destination already contains the descriptor, there is nothing to do.
-		IArtifactRepository destination = info.getArtifactRepository();
+		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (destination == null || destination.contains(descriptor))
 			return;
 
-		super.publishArtifact(descriptor, jarFile, info);
+		super.publishArtifact(descriptor, jarFile, publisherInfo);
 
 		// if we are assimilating pack200 files then add the packed descriptor
 		// into the repo assuming it does not already exist.
 		boolean reuse = "true".equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS)); //$NON-NLS-1$
-		if (reuse && (info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
+		if (reuse && (publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
 			File packFile = new Path(jarFile.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 			if (packFile.exists()) {
 				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-				publishArtifact(ad200, packFile, info);
+				publishArtifact(ad200, packFile, publisherInfo);
 			}
 		}
 	}
@@ -722,14 +721,14 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * Adds advice for any p2.inf file found in this bundle.
 	 */
-	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo info) {
+	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
 		String location = bundleDescription.getLocation();
 		if (location == null)
 			return;
 
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), Version.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
-			info.addAdvice(advice);
+			publisherInfo.addAdvice(advice);
 
 	}
 

@@ -16,6 +16,7 @@ public class URLEntry {
 	private String url;
 
 	public URLEntry() {
+		//empty
 	}
 
 	public URLEntry(String url, String annotation) {
