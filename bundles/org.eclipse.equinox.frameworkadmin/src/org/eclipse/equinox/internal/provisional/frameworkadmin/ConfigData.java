@@ -136,6 +136,10 @@ public class ConfigData {
 			properties.setProperty(key, value);
 	}
 
+	public void appendProperties(Properties props) {
+		properties.putAll(props);
+	}
+
 	public void setProperties(Properties props) {
 		properties.clear();
 		appendProperties(properties, props);
