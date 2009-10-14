@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -255,7 +253,8 @@ public class Util {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		if (name == null || name.length() == 0)
 			name = "eclipse"; //$NON-NLS-1$
-		return new File(getInstallFolder(profile), getLauncherName(name, getOSFromProfile(profile)));
+		String launcherName = getLauncherName(name, getOSFromProfile(profile));
+		return launcherName == null ? null : new File(getInstallFolder(profile), launcherName);
 	}
 
 	/**
@@ -264,8 +263,9 @@ public class Util {
 	private static String getLauncherName(String name, String os) {
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
-			if (info != null)
-				os = info.getOS();
+			if (info == null)
+				return null;
+			os = info.getOS();
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
