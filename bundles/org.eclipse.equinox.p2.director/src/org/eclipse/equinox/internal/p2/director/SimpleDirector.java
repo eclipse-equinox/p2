@@ -22,7 +22,7 @@ public class SimpleDirector implements IDirector {
 	private IPlanner planner;
 
 	public SimpleDirector() {
-		engine = (IEngine) ServiceHelper.getService(DirectorActivator.context, IEngine.SERVICE_NAME);
+		engine = (IEngine) ServiceHelper.getService(DirectorActivator.context, IEngine.class.getName());
 		if (engine == null)
 			throw new IllegalStateException("Provisioning engine is not registered"); //$NON-NLS-1$
 		planner = (IPlanner) ServiceHelper.getService(DirectorActivator.context, IPlanner.class.getName());
