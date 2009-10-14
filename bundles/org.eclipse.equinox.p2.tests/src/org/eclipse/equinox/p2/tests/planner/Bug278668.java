@@ -92,8 +92,5 @@ public class Bug278668 extends AbstractProvisioningTest {
 		IPlanner planner4 = createPlanner();
 		ProvisioningPlan plan4 = planner4.getProvisioningPlan(request4, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan4.getStatus());
-
-		//		assertNoOperand(plan, patch);
-		//		assertNoOperand(plan, (IInstallableUnit) expectedIU.iterator().next());
 	}
 }
