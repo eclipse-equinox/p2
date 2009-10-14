@@ -44,7 +44,7 @@ public class EclipseLauncherParser {
 			//We can do 3 calls to getParentFile without checking because
 			launcherFolder = launcherFolder.getParentFile().getParentFile().getParentFile();
 		}
-		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getParentFile().getAbsolutePath()).equals(launcherFolder)) {
+		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
 		}
 	}
@@ -60,11 +60,11 @@ public class EclipseLauncherParser {
 		getFrameworkJar(lines, launcherFolder, launcherData);
 		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder);
 		if (osgiInstallArea == null) {
-			osgiInstallArea = launcherData.getFwJar() != null ? launcherData.getFwJar().getParentFile().toURI() : launcherFolder;
+			osgiInstallArea = launcherData.getFwJar() != null ? ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).toURI() : launcherFolder;
 		}
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
 		if (configArea == null)
-			throw new FrameworkAdminRuntimeException("config area is null", "");
+			throw new FrameworkAdminRuntimeException(Messages.exception_nullConfigArea, ""); //$NON-NLS-1$
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
 		getJVMArgs(lines, launcherData);
@@ -101,7 +101,7 @@ public class EclipseLauncherParser {
 			launcherData.setJvm(URIUtil.toFile(VMFullPath));
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, VMFullPath.toString(), lines);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + vm);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_absolute, vm));
 			return;
 		}
 	}
@@ -164,7 +164,7 @@ public class EclipseLauncherParser {
 			result = URIUtil.makeAbsolute(FileUtils.fromPath(launcherLibrary), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, result.toString(), lines);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + launcherLibrary);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_absolute, launcherLibrary));
 			return null;
 		}
 		return result;
@@ -179,7 +179,7 @@ public class EclipseLauncherParser {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(launcherLibrary), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, FileUtils.toPath(result).replace('\\', '/'), lines);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + launcherLibrary);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_absolute, launcherLibrary));
 			return;
 		}
 	}
@@ -199,7 +199,7 @@ public class EclipseLauncherParser {
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, result.toString(), lines);
 			data.setFwConfigLocation(URIUtil.toFile(result));
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + configuration);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_absolute, configuration));
 			return null;
 		}
 		return result;
@@ -230,7 +230,7 @@ public class EclipseLauncherParser {
 			result = URIUtil.makeAbsolute(FileUtils.fromPath(startup), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, result.toString(), lines);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make absolute of:" + startup);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_absolute, startup));
 			return null;
 		}
 		return result;
@@ -245,7 +245,7 @@ public class EclipseLauncherParser {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(startup), launcherFolder);
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_STARTUP, FileUtils.toPath(result).replace('\\', '/'), lines);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, "can't make relative of:" + startup);
+			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.log_failed_make_relative, startup));
 			return;
 		}
 	}

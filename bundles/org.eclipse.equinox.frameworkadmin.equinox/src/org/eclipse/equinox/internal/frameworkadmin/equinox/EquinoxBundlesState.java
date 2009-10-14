@@ -525,23 +525,11 @@ public class EquinoxBundlesState implements BundlesState {
 			composeNewState(launcherData, configData, bInfos);
 		} else {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
-				// TODO default value should be set more precisely.
-				File installArea = null;
-				String installAreaSt = configData.getProperty(EquinoxConstants.PROP_INSTALL);
-				if (installAreaSt == null) {
-					if (manipulator.getLauncherData().getLauncher() == null) {
-						// TODO implement
-					} else {
-						installArea = manipulator.getLauncherData().getLauncher().getParentFile();
-					}
-				} else {
-					if (installAreaSt.startsWith("file:")) //$NON-NLS-1$
-						installArea = new File(installAreaSt.substring("file:".length())); //$NON-NLS-1$
-					else
-						throw new IllegalStateException(NLS.bind(Messages.exception_fileURLExpected, EquinoxConstants.PROP_INSTALL, installAreaSt));
-				}
+				File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configData.getProperties(), launcherData);
 				if (DEBUG)
 					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
+				if (installArea == null)
+					throw new IllegalStateException(Messages.exception_noInstallArea);
 				File fwPersistentDataLocation = new File(installArea, "configuration"); //$NON-NLS-1$
 				manipulator.getLauncherData().setFwPersistentDataLocation(fwPersistentDataLocation, false);
 			}

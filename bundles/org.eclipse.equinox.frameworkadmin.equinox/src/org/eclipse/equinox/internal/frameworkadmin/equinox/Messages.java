@@ -19,9 +19,11 @@ public class Messages extends NLS {
 	public static String exception_failedToCreateDir;
 	public static String exception_failedToRename;
 	public static String exception_launcherLocationNotSet;
+	public static String exception_noInstallArea;
 	public static String exception_fileURLExpected;
 	public static String exception_bundleManifest;
 	public static String exception_createAbsoluteURI;
+	public static String exception_nullConfigArea;
 
 	public static String log_configFile;
 	public static String log_configProps;
@@ -32,6 +34,8 @@ public class Messages extends NLS {
 	public static String log_shared_config_relative_url;
 	public static String log_shared_config_file_missing;
 	public static String log_failed_reading_properties;
+	public static String log_failed_make_absolute;
+	public static String log_failed_make_relative;
 
 	static {
 		// load message values from bundle file

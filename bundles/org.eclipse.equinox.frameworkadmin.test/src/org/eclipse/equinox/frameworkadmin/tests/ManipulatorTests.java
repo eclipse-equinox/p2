@@ -46,6 +46,31 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		assertTrue(bundles.indexOf("org.eclipse.osgi") == -1);
 	}
 
+	public void testBug277553_installAreaFromFwJar() throws Exception {
+		File folder = getTestFolder("installAreaFromFwJar");
+		File fwJar = new File(folder, "plugins/org.eclipse.osgi.jar");
+		fwJar.getParentFile().mkdirs();
+
+		copyStream(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar").openStream(), true, new FileOutputStream(fwJar), true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", fwJar.toURI(), 0, true);
+		
+		File ini = new File(folder, "eclipse.ini");
+		writeEclipseIni(ini, new String[] {"-foo", "bar", "-vmargs", "-Xmx256m"});
+		
+		startSimpleConfiguratormManipulator();
+		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
+		
+		Manipulator manipulator = fwkAdmin.getManipulator();
+		manipulator.getConfigData().addBundle(osgiBi);
+		LauncherData launcherData = manipulator.getLauncherData();
+		launcherData.setFwJar(fwJar);
+		launcherData.setLauncher(new File(folder, "eclipse"));
+
+		manipulator.load();
+		
+		assertEquals(manipulator.getLauncherData().getFwPersistentDataLocation(), new File(folder, "configuration"));
+	}
+	
 	public void testBug258126_ProgramArgs_VMArgs() throws Exception {
 		File installFolder = getTestFolder("258126");
 		File ini = new File(installFolder, "eclipse.ini");
