@@ -104,7 +104,7 @@ public class UpdateWizard extends WizardWithLicenses {
 					// In the case of patches, it's possible that a patch is returned as an available update
 					// even though it is already installed, because we are querying each IU for updates individually.
 					// For now, we ignore any proposed update that is already installed.
-					Collector alreadyInstalled = profile.query(new InstallableUnitQuery(iu.getId(), iu.getVersion()), new Collector(), null);
+					Collector alreadyInstalled = profile.query(new InstallableUnitQuery(iu), new Collector(), null);
 					if (alreadyInstalled.isEmpty()) {
 						toBeUpdated.add(iusToUpdate[i]);
 						AvailableUpdateElement element = new AvailableUpdateElement(root, iu, iusToUpdate[i], profileId, true);

@@ -265,7 +265,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destination.query(new InstallableUnitQuery(sourceIU.getId(), sourceIU.getVersion()), new Collector(), null);
+			Collector destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
 			assertEquals(message, 1, destinationCollector.size());
 			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
 		}

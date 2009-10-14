@@ -20,7 +20,7 @@ public class InstallableUnitQuery extends MatchQuery {
 	 * A convenience query that will match any {@link IInstallableUnit}
 	 * it encounters.
 	 */
-	public static final InstallableUnitQuery ANY = new InstallableUnitQuery(null);
+	public static final InstallableUnitQuery ANY = new InstallableUnitQuery((String) null);
 
 	private String id;
 	private final VersionRange range;
@@ -57,7 +57,17 @@ public class InstallableUnitQuery extends MatchQuery {
 	 */
 	public InstallableUnitQuery(String id, Version version) {
 		this.id = id;
-		this.range = new VersionRange(version, true, version, true);
+		this.range = (version == null || Version.emptyVersion.equals(version)) ? null : new VersionRange(version, true, version, true);
+	}
+
+	/**
+	 * Creates a query that will match any {@link IInstallableUnit} with the given
+	 * id and version.
+	 * 
+	 * @param versionedId The precise id/version combination that a matching unit must have
+	 */
+	public InstallableUnitQuery(IVersionedId versionedId) {
+		this(versionedId.getId(), versionedId.getVersion());
 	}
 
 	/**

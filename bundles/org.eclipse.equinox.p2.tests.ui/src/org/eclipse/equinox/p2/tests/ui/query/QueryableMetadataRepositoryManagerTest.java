@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -19,6 +17,7 @@ import org.eclipse.core.tests.harness.CancelingProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.DefaultQueryProvider;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
@@ -176,7 +175,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		assertTrue("2.1", resultCollection.contains(broken));
 
 		// null IUPropertyQuery collects all IUs
-		result = manager.query(new InstallableUnitQuery(null), new Collector(), getMonitor());
+		result = manager.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
 		int iuCount = result.size();
 		result = manager.query(new IUPropertyQuery(null, null), new Collector(), getMonitor());
 		assertEquals("2.2", iuCount, result.size());

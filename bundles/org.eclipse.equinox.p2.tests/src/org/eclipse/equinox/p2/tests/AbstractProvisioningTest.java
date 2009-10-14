@@ -1169,7 +1169,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU.getId(), sourceIU.getVersion()), new Collector(), null);
+			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
 			assertEquals(message, 1, destinationCollector.size());
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -331,13 +329,13 @@ public class EngineTest extends AbstractProvisioningTest {
 		InstallableUnitOperand[] installOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, iu33)};
 		IStatus result = engine.perform(profile, phaseSet, installOperands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.query(new InstallableUnitQuery(iu33.getId(), iu33.getVersion()), new Collector(), null).iterator();
+		Iterator ius = profile.query(new InstallableUnitQuery(iu33), new Collector(), null).iterator();
 		assertTrue(ius.hasNext());
 
 		InstallableUnitOperand[] updateOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(iu33, iu34)};
 		result = engine.perform(profile, phaseSet, updateOperands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		ius = profile.query(new InstallableUnitQuery(iu34.getId(), iu34.getVersion()), new Collector(), null).iterator();
+		ius = profile.query(new InstallableUnitQuery(iu34), new Collector(), null).iterator();
 		assertTrue(ius.hasNext());
 	}
 

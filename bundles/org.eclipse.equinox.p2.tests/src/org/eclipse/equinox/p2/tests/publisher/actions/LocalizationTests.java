@@ -50,7 +50,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.group"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
@@ -64,7 +64,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.group"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -78,7 +78,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.group"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo German Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -92,7 +92,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
@@ -106,7 +106,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -120,7 +120,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foofeature", "");
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("fooFeature.feature.jar"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo German Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -134,7 +134,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foobundle", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foobundle"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -145,7 +145,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/foobundle", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foobundle"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -156,7 +156,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/barbundle", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barbundle"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Bar English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -167,7 +167,7 @@ public class LocalizationTests extends TestCase {
 		File file = TestData.getFile("localizationtests/barbundle", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barbundle"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Bar German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -180,7 +180,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foobundle2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo English Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -193,7 +193,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foobundle2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Foo German Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -206,7 +206,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barbundle2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Bar English Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -219,7 +219,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barbundle2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "Bar German Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -232,7 +232,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barfragment2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "English Fragment Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -245,7 +245,7 @@ public class LocalizationTests extends TestCase {
 		BundlesAction action = new BundlesAction(new File[] {bundle, fragment});
 		action.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("barfragment2"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "German Fragment Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
@@ -261,7 +261,7 @@ public class LocalizationTests extends TestCase {
 		action.perform(info, results, monitor);
 		siteAction.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foo.new_category_1"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "English Category Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH));
@@ -278,7 +278,7 @@ public class LocalizationTests extends TestCase {
 		action.perform(info, results, monitor);
 		siteAction.perform(info, results, monitor);
 
-		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery(null), new Collector(), monitor));
+		IUPropertyUtils utils = new IUPropertyUtils(results.query(new InstallableUnitQuery((String) null), new Collector(), monitor));
 		Collector collector = results.query(new InstallableUnitQuery("foo.new_category_1"), new Collector(), monitor);
 		IInstallableUnit iu = (IInstallableUnit) collector.iterator().next();
 		assertEquals("1.0", "German Category Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
