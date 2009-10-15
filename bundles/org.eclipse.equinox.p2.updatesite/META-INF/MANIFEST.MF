@@ -7,7 +7,6 @@ Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatesite.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-ActivationPolicy: lazy
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.app;version="1.0.0";resolution:=optional,
  org.eclipse.equinox.internal.p2.core.helpers,
