@@ -31,9 +31,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -60,7 +60,7 @@ public class P2Util {
 		// different query could be used if we are looking for updates to
 		// a subset. For example, the p2 UI only looks for updates to those
 		// IU's marked with a special property.
-		final Collector collector = profile.query(InstallableUnitQuery.ANY,
+		final org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector collector = profile.query(InstallableUnitQuery.ANY,
 				new Collector(), null);
 		if (collector.isEmpty())
 			return false;
