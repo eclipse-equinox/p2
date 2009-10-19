@@ -17,8 +17,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -61,23 +59,13 @@ public class CopyAction extends ProvisioningAction {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 
 		String originalSource = source;
-		if (source.equals(ActionConstants.PARM_ARTIFACT)) {
-			//TODO: fix wherever this occurs -- investigate as this is probably not desired
-			if (iu.getArtifacts() == null || iu.getArtifacts().length == 0)
-				return Status.OK_STATUS;
-
-			IArtifactKey artifactKey = iu.getArtifacts()[0];
-
-			IFileArtifactRepository downloadCache;
-			try {
-				downloadCache = Util.getDownloadCacheRepo();
-			} catch (ProvisionException e) {
-				return e.getStatus();
-			}
-			File fileLocation = downloadCache.getArtifactFile(artifactKey);
-			if ((fileLocation == null) || !fileLocation.exists())
+		if (source.equals(ActionConstants.PARM_AT_ARTIFACT)) {
+			String artifactLocation = (String) parameters.get(NativeTouchpoint.PARM_ARTIFACT_LOCATION);
+			if (artifactLocation == null) {
+				IArtifactKey artifactKey = (IArtifactKey) parameters.get(NativeTouchpoint.PARM_ARTIFACT);
 				return Util.createError(NLS.bind(Messages.artifact_not_available, artifactKey));
-			source = fileLocation.getAbsolutePath();
+			}
+			source = artifactLocation;
 		}
 
 		File sourceFile = new File(source);

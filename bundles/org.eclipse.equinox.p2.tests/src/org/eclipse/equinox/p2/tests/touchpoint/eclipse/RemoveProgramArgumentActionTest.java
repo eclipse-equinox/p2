@@ -91,6 +91,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
 		touchpoint.initializeOperand(profile, operand, parameters);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotNull(manipulator);
@@ -118,4 +119,60 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		keyAction.undo(keyParameters);
 		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
+	
+	public void testExecuteUndoWithArtifactLocation() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
+		File targetPlugins = new File(installFolder, "plugins");
+		assertTrue(targetPlugins.mkdir());
+		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
+		copy("2.0", osgiSource, osgiTarget);
+
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
+		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
+		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
+		bundlePool.addDescriptor(descriptor);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
+		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
+		touchpoint.initializeOperand(profile, operand, parameters);
+		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
+		assertNotNull(manipulator);
+
+		String programArg = "-somekey";
+		Map keyParameters = new HashMap(parameters);
+		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
+		manipulator.getLauncherData().addProgramArg(programArg);
+
+		programArg = (String) parameters.get("artifact.location");
+		String resolvedArtifact = osgiTarget.getAbsolutePath();
+
+		manipulator.getLauncherData().addProgramArg(resolvedArtifact);
+		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
+		parameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
+		parameters = Collections.unmodifiableMap(parameters);
+
+		RemoveProgramArgumentAction artifactAction = new RemoveProgramArgumentAction();
+		RemoveProgramArgumentAction keyAction = new RemoveProgramArgumentAction();
+
+		keyAction.execute(keyParameters);
+		artifactAction.execute(parameters);
+		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
+		artifactAction.undo(parameters);
+		keyAction.undo(keyParameters);
+		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
+	}
+
 }

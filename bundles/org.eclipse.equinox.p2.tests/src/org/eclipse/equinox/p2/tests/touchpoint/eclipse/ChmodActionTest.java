@@ -129,6 +129,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
 		touchpoint.initializeOperand(profile, operand, parameters);
 
 		parameters.put(ActionConstants.PARM_TARGET_DIR, "@artifact");
@@ -170,6 +171,83 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		// and check one that should fail
 		action = new ChmodAction();
 		parameters.put(ActionConstants.PARM_TARGET_DIR, "@artifact");
+		parameters.put(ActionConstants.PARM_TARGET_FILE, "JimmyHoffa");
+		parameters.put(ActionConstants.PARM_PERMISSIONS, "700");
+
+		xparameters = Collections.unmodifiableMap(parameters);
+		IStatus result = action.execute(xparameters);
+		assertFalse("Missing file should result in error", result.isOK());
+		action.undo(xparameters);
+	}
+
+	public void testExecuteUndoWithArtifactLocation() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
+		File targetPlugins = new File(installFolder, "plugins");
+		assertTrue(targetPlugins.mkdir());
+		File dirBundleTarget = new File(targetPlugins, "directoryBased_1.0.0");
+		copy("2.0", dirBundleSource, dirBundleTarget);
+
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(dirBundleTarget);
+		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, dirBundleTarget);
+		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
+		bundlePool.addDescriptor(descriptor);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
+		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
+		touchpoint.initializeOperand(profile, operand, parameters);
+
+		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
+		parameters.put(ActionConstants.PARM_TARGET_FILE, "plugin.xml");
+		parameters.put(ActionConstants.PARM_PERMISSIONS, "+x");
+		Map xparameters = Collections.unmodifiableMap(parameters);
+
+		// TODO: We need a way to verify
+		// one idea is to run an executable here (or chmod with -w, -r and then test that files are unreadable
+		// and unwriteable. But, that would make this test fail on non UN*X.
+		// This is currently just going through the paces to check for any runtime exceptions
+		ChmodAction action = new ChmodAction();
+		action.execute(xparameters);
+		// does nothing so should not alter parameters
+		action.undo(xparameters);
+
+		// make a recursive run as well...
+		action = new ChmodAction();
+		parameters.put(ActionConstants.PARM_OPTIONS, "-R"); // recursive
+		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
+		parameters.put(ActionConstants.PARM_TARGET_FILE, "..");
+
+		xparameters = Collections.unmodifiableMap(parameters);
+
+		action.execute(xparameters);
+		action.undo(xparameters);
+
+		// and one with two parameters
+		action = new ChmodAction();
+		parameters.put(ActionConstants.PARM_OPTIONS, "-R -H"); // recursive, modify symlinks (follow link).
+		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
+		parameters.put(ActionConstants.PARM_TARGET_FILE, "..");
+		parameters.put(ActionConstants.PARM_PERMISSIONS, "700");
+
+		xparameters = Collections.unmodifiableMap(parameters);
+		action.execute(xparameters);
+		action.undo(xparameters);
+
+		// and check one that should fail
+		action = new ChmodAction();
+		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "JimmyHoffa");
 		parameters.put(ActionConstants.PARM_PERMISSIONS, "700");
 

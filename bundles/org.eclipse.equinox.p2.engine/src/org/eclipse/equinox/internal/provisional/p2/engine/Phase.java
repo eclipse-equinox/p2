@@ -104,13 +104,15 @@ public abstract class Phase {
 
 			session.recordOperandStart(operand);
 			ProvisioningAction[] actions = getActions(operand);
-			Map tempOperandParameters = new HashMap(phaseParameters);
-			tempOperandParameters.put(PARM_OPERAND, operand);
-			mergeStatus(status, initializeOperand(profile, operand, tempOperandParameters, subMonitor));
-			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+			operandParameters = new HashMap(phaseParameters);
+			operandParameters.put(PARM_OPERAND, operand);
+			mergeStatus(status, initializeOperand(profile, operand, operandParameters, subMonitor));
+			if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
+				operandParameters = null;
 				return;
+			}
 
-			operandParameters = Collections.unmodifiableMap(tempOperandParameters);
+			operandParameters = Collections.unmodifiableMap(operandParameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
 					ProvisioningAction action = actions[j];
@@ -160,7 +162,7 @@ public abstract class Phase {
 		}
 	}
 
-	private IStatus initializeTouchpointParameters(IProfile profile, Operand operand, Touchpoint touchpoint, IProgressMonitor monitor) {
+	IStatus initializeTouchpointParameters(IProfile profile, Operand operand, Touchpoint touchpoint, IProgressMonitor monitor) {
 		if (touchpointToTouchpointOperandParameters.containsKey(touchpoint))
 			return Status.OK_STATUS;
 

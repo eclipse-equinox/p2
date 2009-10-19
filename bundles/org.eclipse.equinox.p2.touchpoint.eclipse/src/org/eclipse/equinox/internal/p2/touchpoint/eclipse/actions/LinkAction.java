@@ -13,12 +13,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 //This is basically a copy of the ln action in the native touchpoint only it provides @artifact support and does not support the backup store.
@@ -31,9 +27,9 @@ public class LinkAction extends ProvisioningAction {
 		if (targetDir == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ID));
 
-		if (targetDir.equals(ActionConstants.PARM_ARTIFACT)) {
+		if (targetDir.equals(ActionConstants.PARM_AT_ARTIFACT)) {
 			try {
-				targetDir = resolveArtifactParam(parameters);
+				targetDir = Util.resolveArtifactParam(parameters);
 			} catch (CoreException e) {
 				return e.getStatus();
 			}
@@ -103,20 +99,5 @@ public class LinkAction extends ProvisioningAction {
 				// ignore
 			}
 		}
-	}
-
-	private static String resolveArtifactParam(Map parameters) throws CoreException {
-		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
-		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
-			throw new CoreException(Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu)));
-
-		IArtifactKey artifactKey = artifacts[0];
-
-		File fileLocation = Util.getArtifactFile(artifactKey, profile);
-		if (fileLocation == null || !fileLocation.exists())
-			throw new CoreException(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
-		return fileLocation.getAbsolutePath();
 	}
 }

@@ -10,23 +10,44 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
 public class NativeTouchpoint extends Touchpoint {
 
 	public static final String PARM_BACKUP = "backup"; //$NON-NLS-1$
 
+	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
+
+	public static final String PARM_ARTIFACT_LOCATION = "artifact.location"; //$NON-NLS-1$
+
 	private static Map backups = new WeakHashMap();
+
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
+		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
+		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
+			try {
+				IFileArtifactRepository downloadCache = Util.getDownloadCacheRepo();
+				File fileLocation = downloadCache.getArtifactFile(artifactKey);
+				if (fileLocation != null && fileLocation.exists())
+					parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
+			} catch (ProvisionException e) {
+				return e.getStatus();
+			}
+		}
+		return Status.OK_STATUS;
+	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_BACKUP, getBackupStore(profile));
-
 		return null;
 	}
 

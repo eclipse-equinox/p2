@@ -147,7 +147,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		IInstallableUnit fullIU = touchpoint.prepareIU(iu, profile);
+		IInstallableUnit fullIU = touchpoint.prepareIU(iu, key, profile);
 		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 	}
 

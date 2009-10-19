@@ -63,7 +63,7 @@ public class Engine implements IEngine {
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				if (DebugHelper.DEBUG_ENGINE)
 					DebugHelper.debug(ENGINE, "Rolling back engine operation for profile=" + profile.getProfileId() + ". Reason was: " + result.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-				IStatus status = session.rollback(monitor, result.getSeverity());
+				IStatus status = session.rollback(actionManager, monitor, result.getSeverity());
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));

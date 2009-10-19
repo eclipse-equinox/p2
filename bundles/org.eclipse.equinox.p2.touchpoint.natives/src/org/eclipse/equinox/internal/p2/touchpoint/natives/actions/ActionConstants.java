@@ -20,7 +20,7 @@ public class ActionConstants {
 	public static final String PARM_SOURCE = "source"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PIPE = "|"; //$NON-NLS-1$
-	public static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
+	public static final String PARM_AT_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	public static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	public static final String PARM_PROFILE = "profile"; //$NON-NLS-1$

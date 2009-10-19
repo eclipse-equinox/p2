@@ -31,6 +31,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_PLATFORM_CONFIGURATION = "platformConfiguration"; //$NON-NLS-1$
 	public static final String PARM_SOURCE_BUNDLES = "sourceBundles"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_LOCATION = "artifact.location"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$
@@ -173,17 +175,24 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		if (iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue()) {
-			IInstallableUnit preparedIU = prepareIU(iu, profile);
+			IInstallableUnit preparedIU = prepareIU(iu, artifactKey, profile);
 			if (preparedIU == null)
 				return Util.createError(NLS.bind(Messages.failed_prepareIU, iu));
 
 			parameters.put(PARM_IU, preparedIU);
 		}
+
+		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
+			File fileLocation = Util.getArtifactFile(artifactKey, profile);
+			if (fileLocation != null && fileLocation.exists())
+				parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
+		}
 		return Status.OK_STATUS;
 	}
 
-	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
+	public IInstallableUnit prepareIU(IInstallableUnit iu, IArtifactKey artifactKey, IProfile profile) {
 		IInstallableUnit preparedIU = getPreparedIU(profile, iu);
 		if (preparedIU != null)
 			return preparedIU;
@@ -199,11 +208,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		if (c != null) {
-			IArtifactKey[] artifacts = iu.getArtifacts();
-			if (artifacts == null || artifacts.length == 0)
-				return iu;
-
-			IArtifactKey artifactKey = artifacts[0];
 			if (artifactKey == null)
 				return iu;
 

@@ -327,4 +327,18 @@ public class Util {
 		String launcherConfig = profile.getProperty(IProfile.PROP_LAUNCHER_CONFIGURATION);
 		return launcherConfig == null ? null : new File(launcherConfig);
 	}
+
+	public static String resolveArtifactParam(Map parameters) throws CoreException {
+		String artifactLocation = (String) parameters.get(EclipseTouchpoint.PARM_ARTIFACT_LOCATION);
+		if (artifactLocation != null)
+			return artifactLocation;
+
+		IArtifactKey artifactKey = (IArtifactKey) parameters.get(EclipseTouchpoint.PARM_ARTIFACT);
+		if (artifactKey == null) {
+			IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
+			throw new CoreException(Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu)));
+		}
+
+		throw new CoreException(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
+	}
 }

@@ -109,7 +109,7 @@ public class EngineSession {
 		return status;
 	}
 
-	IStatus rollback(IProgressMonitor monitor, int severity) {
+	IStatus rollback(ActionManager actionManager, IProgressMonitor monitor, int severity) {
 		if (severity == IStatus.CANCEL)
 			monitor.subTask(Messages.rollingback_cancel);
 
@@ -120,7 +120,7 @@ public class EngineSession {
 
 		if (currentPhaseActive) {
 			try {
-				IStatus result = rollBackPhase(currentPhase, currentActionRecords);
+				IStatus result = rollBackPhase(currentPhase, currentActionRecords, actionManager);
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -142,7 +142,7 @@ public class EngineSession {
 			Phase phase = (Phase) pair[0];
 			List actionRecords = (List) pair[1];
 			try {
-				final IStatus result = rollBackPhase(phase, actionRecords);
+				final IStatus result = rollBackPhase(phase, actionRecords, actionManager);
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -180,27 +180,32 @@ public class EngineSession {
 		return status;
 	}
 
-	private IStatus rollBackPhase(Phase phase, List actionRecords) {
+	private IStatus rollBackPhase(Phase phase, List actionRecords, ActionManager actionManager) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		try {
+			phase.actionManager = actionManager;
 
-		if (!currentPhaseActive)
-			phase.prePerform(result, this, profile, context, new NullProgressMonitor());
+			if (!currentPhaseActive)
+				phase.prePerform(result, this, profile, context, new NullProgressMonitor());
 
-		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
-			ActionsRecord record = (ActionsRecord) it.previous();
-			ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
-			try {
-				phase.undo(result, this, profile, record.operand, actions, context);
-			} catch (RuntimeException e) {
-				// "phase.undo" calls user code and might throw an unchecked exception
-				// we catch the error here to gather information on where the problem occurred.
-				result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
-			} catch (LinkageError e) {
-				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
-				result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+			for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
+				ActionsRecord record = (ActionsRecord) it.previous();
+				ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
+				try {
+					phase.undo(result, this, profile, record.operand, actions, context);
+				} catch (RuntimeException e) {
+					// "phase.undo" calls user code and might throw an unchecked exception
+					// we catch the error here to gather information on where the problem occurred.
+					result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+				} catch (LinkageError e) {
+					// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+					result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+				}
 			}
+			phase.postPerform(result, profile, context, new NullProgressMonitor());
+		} finally {
+			phase.actionManager = null;
 		}
-		phase.postPerform(result, profile, context, new NullProgressMonitor());
 		return result;
 	}
 

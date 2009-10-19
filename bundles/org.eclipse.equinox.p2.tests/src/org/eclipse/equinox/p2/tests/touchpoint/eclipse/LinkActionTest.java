@@ -93,9 +93,54 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
 		touchpoint.initializeOperand(profile, operand, parameters);
 
 		parameters.put(ActionConstants.PARM_TARGET_DIR, "@artifact");
+		parameters.put(ActionConstants.PARM_LINK_NAME, "plugin.xml.link");
+		parameters.put(ActionConstants.PARM_LINK_TARGET, "plugin.xml");
+		parameters = Collections.unmodifiableMap(parameters);
+
+		// TODO: We need a way to verify
+		// one idea is to run an executable here
+		// This is currently just going through the paces to check for any runtime exceptions
+		LinkAction action = new LinkAction();
+		action.execute(parameters);
+		// does nothing so should not alter parameters
+		action.undo(parameters);
+	}
+
+	public void testExecuteUndoWithArtifactLocation() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		IProfile profile = createProfile("test", null, profileProperties);
+
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
+		File targetPlugins = new File(installFolder, "plugins");
+		assertTrue(targetPlugins.mkdir());
+		File dirBundleTarget = new File(targetPlugins, "directoryBased_1.0.0");
+		copy("2.0", dirBundleSource, dirBundleTarget);
+
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(dirBundleTarget);
+		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		ArtifactDescriptor descriptor = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(key, dirBundleTarget);
+		descriptor.setProperty("artifact.folder", Boolean.TRUE.toString());
+		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
+		bundlePool.addDescriptor(descriptor);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
+		touchpoint.initializePhase(null, profile, "test", parameters);
+		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
+		parameters.put("iu", operand.second());
+		parameters.put("artifact", key);
+		touchpoint.initializeOperand(profile, operand, parameters);
+
+		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
 		parameters.put(ActionConstants.PARM_LINK_NAME, "plugin.xml.link");
 		parameters.put(ActionConstants.PARM_LINK_TARGET, "plugin.xml");
 		parameters = Collections.unmodifiableMap(parameters);

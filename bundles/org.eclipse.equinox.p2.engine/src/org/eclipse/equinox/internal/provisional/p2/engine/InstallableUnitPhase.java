@@ -39,6 +39,13 @@ public abstract class InstallableUnitPhase extends Phase {
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		mergeStatus(status, initializeOperand(profile, iuOperand, parameters, monitor));
+		IInstallableUnit unit = (IInstallableUnit) parameters.get(PARM_IU);
+		if (unit != null) {
+			Touchpoint touchpoint = getActionManager().getTouchpointPoint(unit.getTouchpointType());
+			if (touchpoint != null) {
+				mergeStatus(status, initializeTouchpointParameters(profile, iuOperand, touchpoint, monitor));
+			}
+		}
 		mergeStatus(status, super.initializeOperand(profile, operand, parameters, monitor));
 		return status;
 	}
