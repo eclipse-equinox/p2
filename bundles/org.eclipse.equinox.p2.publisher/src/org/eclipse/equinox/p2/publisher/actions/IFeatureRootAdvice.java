@@ -8,7 +8,7 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
- 
+
 package org.eclipse.equinox.p2.publisher.actions;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
@@ -19,7 +19,7 @@ public interface IFeatureRootAdvice extends IPublisherAdvice {
 
 	/**
 	 * Return an array of configSpecs for which this advice is applicable.
-	 * @see IPublisherAdvice#isApplicable(String, boolean, String, org.eclipse.equinox.internal.provisional.p2.core.Version)
+	 * @see IPublisherAdvice#isApplicable(String, boolean, String, org.eclipse.equinox.internal.provisional.p2.metadata.Version)
 	 * @return String [] : Array of configSpec ("ws,os,arch")
 	 */
 	public String[] getConfigurations();

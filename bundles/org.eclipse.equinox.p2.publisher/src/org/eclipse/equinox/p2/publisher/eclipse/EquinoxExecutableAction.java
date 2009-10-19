@@ -181,8 +181,8 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	/**
 	 * Brands a copy of the given executable descriptor with the information in the 
 	 * current product definition.  The files described in the descriptor are also copied
-	 * to a temporary location to avoid destructive modification
-	 * @param info the publisher info that sets the context for this operation
+	 * to a temporary location to avoid destructive modification.
+	 * 
 	 * @param descriptor the executable descriptor to brand.
 	 * @return the new descriptor
 	 */
