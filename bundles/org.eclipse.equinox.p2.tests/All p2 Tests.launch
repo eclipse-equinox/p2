@@ -57,7 +57,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consolelog"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.equinox.p2.tests"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/dev/Platform/zips/eclipse-platform-I20090825-1032-win32.zip&#10;-Dorg.eclipse.equinox.p2.reconciler.tests.platform.35.archive=c:/dev/Platform/zips/eclipse-platform-I20090825-1032-win32.zip&#10;-Dorg.eclipse.equinox.p2.repository&#13;&#10;-Xmx512m"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/builds/eclipse-platform-I20090811-0800-win32.zip&#13;&#10;-Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=c:/builds/eclipse-platform-3.5-win32.zip&#13;&#10;-Dorg.eclipse.equinox.p2.repository&#13;&#13;&#10;-Xmx512m"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value="org.eclipse.sdk.ide"/>
 <booleanAttribute key="run_in_ui_thread" value="true"/>
