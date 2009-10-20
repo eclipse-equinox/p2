@@ -642,8 +642,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		artifactManager.loadRepository(artifactRepo1.toURI(), new NullProgressMonitor());
 		metadataManager.loadRepository(metadataRepo1.toURI(), new NullProgressMonitor());
 
-		int numKnownRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		numKnownRepos += metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
+		final URI[] knownArtifactRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		final URI[] knownMetadataRepos = metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 
 		File artifactRepo2 = getTestData("12.2", "/testData/mirror/mirrorSourceRepo4");
 		File metadataRepo2 = getTestData("12.3", "/testData/mirror/mirrorSourceRepo4");
@@ -664,7 +664,10 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		assertLogContainsLine(new File(destinationRepo, "err.out"), "The installable unit yetanotherplugin has not been found.");
 
-		assertEquals(numKnownRepos, artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length + metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length);
+		final URI[] afterArtifactRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		final URI[] afterMetadataRepos = metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		assertEquals(knownMetadataRepos.length, afterMetadataRepos.length);
+		assertEquals(knownArtifactRepos.length, afterArtifactRepos.length);
 
 		artifactManager.removeRepository(artifactRepo1.toURI());
 		metadataManager.removeRepository(metadataRepo1.toURI());
