@@ -99,6 +99,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
+	public static String InstallIUOperationTask;
 	public static String InstallIUCommandLabel;
 	public static String InstallIUCommandTooltip;
 	public static String InstallIUProgress;
@@ -108,12 +109,14 @@ public class ProvUIMessages extends NLS {
 	public static String PreselectedIUInstallWizard_Description;
 	public static String UninstallDialog_UninstallMessage;
 	public static String UninstallIUOperationLabel;
+	public static String UninstallIUOperationTask;
 	public static String UninstallIUCommandLabel;
 	public static String UninstallIUCommandTooltip;
 	public static String UninstallIUProgress;
 	public static String UninstallWizardPage_Description;
 	public static String UninstallWizardPage_Title;
 	public static String UpdateIUOperationLabel;
+	public static String UpdateIUOperationTask;
 	public static String UpdateIUCommandLabel;
 	public static String UpdateIUCommandTooltip;
 	public static String UpdateIUProgress;

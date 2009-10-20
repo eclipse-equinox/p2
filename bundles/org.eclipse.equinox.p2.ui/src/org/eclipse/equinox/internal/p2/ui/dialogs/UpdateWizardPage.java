@@ -37,4 +37,8 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 	protected String getOperationLabel() {
 		return ProvUIMessages.UpdateIUOperationLabel;
 	}
+
+	protected String getOperationTaskName() {
+		return ProvUIMessages.UpdateIUOperationTask;
+	}
 }

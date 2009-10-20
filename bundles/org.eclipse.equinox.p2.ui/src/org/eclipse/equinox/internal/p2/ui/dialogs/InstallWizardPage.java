@@ -26,4 +26,9 @@ public class InstallWizardPage extends SizeComputingWizardPage {
 	protected String getOperationLabel() {
 		return ProvUIMessages.InstallIUOperationLabel;
 	}
+
+	protected String getOperationTaskName() {
+		return ProvUIMessages.InstallIUOperationTask;
+	}
+
 }

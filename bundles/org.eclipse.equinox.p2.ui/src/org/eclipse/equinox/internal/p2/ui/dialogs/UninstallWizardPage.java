@@ -29,6 +29,10 @@ public class UninstallWizardPage extends ResolutionResultsWizardPage {
 		return ProvUIMessages.UninstallIUOperationLabel;
 	}
 
+	protected String getOperationTaskName() {
+		return ProvUIMessages.UninstallIUOperationTask;
+	}
+
 	protected IQueryable getQueryable(ProvisioningPlan plan) {
 		return plan.getRemovals();
 	}

@@ -184,10 +184,20 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	private ProfileModificationOperation createProfileModificationOperation(PlannerResolutionOperation op) {
-		return new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
+		ProfileModificationOperation pmo = new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
+		pmo.setTaskName(getOperationTaskName());
+		return pmo;
 	}
 
 	protected abstract String getOperationLabel();
+
+	/**
+	 * Returns the task name for this operation, or <code>null</code> to display
+	 * a generic task name.
+	 */
+	protected String getOperationTaskName() {
+		return null;
+	}
 
 	protected TreeViewer createTreeViewer(Composite parent) {
 		return new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
