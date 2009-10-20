@@ -28,6 +28,11 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 public interface IDirector {
 
 	/**
+	 * Service name constant for the director service.
+	 */
+	public static final String SERVICE_NAME = IDirector.class.getName();
+
+	/**
 	 * performs the change request with the given context.
 	 * 
 	 * @param profileChangeRequest The change request

@@ -62,6 +62,8 @@ public class Messages extends NLS {
 	public static String Missing_profileid;
 	public static String Missing_Required_Argument;
 	public static String Missing_profile;
+
+	public static String Missing_registry;
 	public static String Operation_complete;
 	public static String Operation_failed;
 	public static String option_0_requires_an_argument;

@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
@@ -48,6 +48,8 @@ public class Activator implements BundleActivator {
 	private AgentLocation agentLocation;
 
 	private ServiceReference metadataRepositoryReference;
+
+	private MetadataRepositoryManager metadataRepositoryManager;
 
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
@@ -91,8 +93,9 @@ public class Activator implements BundleActivator {
 	}
 
 	private void registerDirector() {
-		director = new SimpleDirector();
-		registrationDirector = context.registerService(IDirector.class.getName(), director, null);
+		IEngine engine = (IEngine) ServiceHelper.getService(context, IEngine.SERVICE_NAME);
+		director = new SimpleDirector(engine, planner);
+		registrationDirector = context.registerService(IDirector.SERVICE_NAME, director, null);
 	}
 
 	private void unregisterDirector() {
@@ -102,8 +105,8 @@ public class Activator implements BundleActivator {
 	}
 
 	private void registerPlanner() {
-		planner = new SimplePlanner();
-		registrationPlanner = context.registerService(IPlanner.class.getName(), planner, null);
+		planner = new SimplePlanner(profileRegistry, metadataRepositoryManager);
+		registrationPlanner = context.registerService(IPlanner.SERVICE_NAME, planner, null);
 	}
 
 	private void unregisterPlanner() {
@@ -116,6 +119,9 @@ public class Activator implements BundleActivator {
 		profileRegistry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
 		profileRegistry.setEventBus(bus);
 		registrationProfileRegistry = context.registerService(IProfileRegistry.class.getName(), profileRegistry, null);
+		Engine engine = (Engine) ServiceHelper.getService(context, IEngine.SERVICE_NAME);
+		if (engine != null)
+			engine.setProfileRegistry(profileRegistry);
 	}
 
 	private void unregisterProfileRegistry() {
@@ -132,10 +138,12 @@ public class Activator implements BundleActivator {
 		//register a metadata repository manager if there isn't one already registered
 		metadataRepositoryReference = context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		if (metadataRepositoryReference == null) {
-			final MetadataRepositoryManager manager = new MetadataRepositoryManager();
-			manager.setEventBus(bus);
-			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
+			metadataRepositoryManager = new MetadataRepositoryManager();
+			metadataRepositoryManager.setEventBus(bus);
+			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, metadataRepositoryManager, null);
 			metadataRepositoryReference = registrationDefaultManager.getReference();
+		} else {
+			metadataRepositoryManager = (MetadataRepositoryManager) context.getService(metadataRepositoryReference);
 		}
 	}
 

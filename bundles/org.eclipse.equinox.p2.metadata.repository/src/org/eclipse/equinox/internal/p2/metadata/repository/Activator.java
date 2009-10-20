@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -37,23 +39,21 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	}
 
 	public void start(BundleContext context) throws Exception {
+		//TODO eventually there should be no singleton repository manager registered
 		Activator.bundleContext = context;
-		cacheManager = new CacheManager();
-
-		cacheManager.registerRepoEventListener();
+		cacheManager = new CacheManager((AgentLocation) ServiceHelper.getService(context, AgentLocation.SERVICE_NAME));
 		repositoryManager = new MetadataRepositoryManager();
 		repositoryManagerRegistration = context.registerService(IMetadataRepositoryManager.class.getName(), repositoryManager, null);
 
-		// need to track event bus coming and going to make sure cache gets cleaned on
-		// repository removals
+		// need to track event bus coming and going to make sure cache gets cleaned on repository removals
 		busTracker = new ServiceTracker(context, IProvisioningEventBus.SERVICE_NAME, this);
 		busTracker.open();
-
 	}
 
 	public void stop(BundleContext context) throws Exception {
+		IProvisioningEventBus bus = (IProvisioningEventBus) busTracker.getService();
 		if (cacheManager != null) {
-			cacheManager.unregisterRepoEventListener();
+			cacheManager.unsetEventBus(bus);
 			cacheManager = null;
 		}
 		Activator.bundleContext = null;
@@ -71,7 +71,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		if (repositoryManager != null)
 			repositoryManager.setEventBus(bus);
 		if (cacheManager != null)
-			cacheManager.registerRepoEventListener();
+			cacheManager.setEventBus(bus);
 		return bus;
 	}
 
@@ -81,7 +81,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	}
 
 	public void removedService(ServiceReference reference, Object service) {
+		final IProvisioningEventBus bus = (IProvisioningEventBus) service;
 		if (repositoryManager != null)
-			repositoryManager.unsetEventBus((IProvisioningEventBus) service);
+			repositoryManager.unsetEventBus(bus);
+		if (cacheManager != null)
+			cacheManager.unsetEventBus(bus);
 	}
 }

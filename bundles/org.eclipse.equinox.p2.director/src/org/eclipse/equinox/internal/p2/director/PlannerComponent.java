@@ -8,23 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.engine;
+package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 /**
- * Instantiates default instances of {@link IProfileRegistry}.
+ * A service factory that provides planner implementations
  */
-public class ProfileRegistryComponent implements IAgentServiceFactory {
+public class PlannerComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
-		AgentLocation location = (AgentLocation) agent.getService(AgentLocation.SERVICE_NAME);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(location));
-		registry.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
-		return registry;
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return new SimplePlanner(profileRegistry, repoManager);
 	}
 }

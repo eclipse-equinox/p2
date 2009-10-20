@@ -17,7 +17,8 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -36,6 +37,8 @@ import org.eclipse.osgi.util.NLS;
  * was created for the repository.
  */
 public class CacheManager {
+	private final AgentLocation agentLocation;
+
 	/**
 	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
 	 * a download operation.
@@ -56,6 +59,10 @@ public class CacheManager {
 			status = aStatus;
 		}
 
+	}
+
+	public CacheManager(AgentLocation agentLocation) {
+		this.agentLocation = agentLocation;
 	}
 
 	private static SynchronousProvisioningListener busListener;
@@ -234,7 +241,6 @@ public class CacheManager {
 	 * Returns the file corresponding to the data area to be used by the cache manager.
 	 */
 	private File getCacheDirectory() {
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		return URLUtil.toFile(dataArea);
 	}
@@ -327,12 +333,7 @@ public class CacheManager {
 	 * Adds a {@link SynchronousProvisioningListener} to the event bus for
 	 * deleting cache files when the corresponding repository is deleted.
 	 */
-	public void registerRepoEventListener() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		if (eventBus == null) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "ProvisioningEventBus could not be obtained. Metadata caches may not be cleaned up properly.")); //$NON-NLS-1$
-			return;
-		}
+	public void registerRepoEventListener(IProvisioningEventBus eventBus) {
 		if (busListener == null) {
 			busListener = new SynchronousProvisioningListener() {
 				public void notify(EventObject o) {
@@ -359,16 +360,21 @@ public class CacheManager {
 		return false;
 	}
 
+	public void setEventBus(IProvisioningEventBus newBus) {
+		registerRepoEventListener(newBus);
+	}
+
+	public void unsetEventBus(IProvisioningEventBus oldBus) {
+		unregisterRepoEventListener(oldBus);
+	}
+
 	/**
 	 * Removes the {@link SynchronousProvisioningListener} that cleans up the
 	 * cache file from the event bus.
 	 */
-	public void unregisterRepoEventListener() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		if (eventBus != null && busListener != null) {
-			eventBus.removeListener(busListener);
-			busListener = null;
-		}
+	public void unregisterRepoEventListener(IProvisioningEventBus bus) {
+		if (bus != null && busListener != null)
+			bus.removeListener(busListener);
 	}
 
 	private void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {

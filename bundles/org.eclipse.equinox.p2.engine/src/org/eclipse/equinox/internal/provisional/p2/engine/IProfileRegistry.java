@@ -19,6 +19,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public interface IProfileRegistry {
 	public static final String SELF = "_SELF_"; //$NON-NLS-1$
+	/**
+	 * Service name constant for the profile registry service.
+	 */
+	public static final String SERVICE_NAME = IProfileRegistry.class.getName();
 
 	/**
 	 * Return the profile in the registry that has the given id. If it does not exist, 

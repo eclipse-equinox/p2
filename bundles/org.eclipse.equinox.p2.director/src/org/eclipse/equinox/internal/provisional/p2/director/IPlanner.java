@@ -23,6 +23,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
  * provisioning operands that the engine should perform.  
  */
 public interface IPlanner {
+	/**
+	 * Service name constant for the planner service.
+	 */
+	public static final String SERVICE_NAME = IPlanner.class.getName();
+
 	public ProvisioningPlan getProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor);

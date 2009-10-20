@@ -11,20 +11,23 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 /**
- * Instantiates default instances of {@link IProfileRegistry}.
+ * Component that provides a factory that can create and initialize
+ * {@link IEngine} instances.
  */
-public class ProfileRegistryComponent implements IAgentServiceFactory {
+public class EngineComponent implements IAgentServiceFactory {
 
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentServiceFactory#createService(org.eclipse.equinox.p2.core.IProvisioningAgent)
+	 */
 	public Object createService(IProvisioningAgent agent) {
-		AgentLocation location = (AgentLocation) agent.getService(AgentLocation.SERVICE_NAME);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(location));
-		registry.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
-		return registry;
+		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		Engine result = new Engine(bus);
+		result.setProfileRegistry((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME));
+		return result;
 	}
 }

@@ -10,16 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -39,6 +37,9 @@ public class SimplePlanner implements IPlanner {
 	private static final String ID_IU_FOR_ACTIONS = "org.eclipse.equinox.p2.engine.actions.root"; //$NON-NLS-1$
 	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 	private static final String CONSIDER_METAREQUIREMENTS = "org.eclipse.equinox.p2.planner.resolveMetaRequirements"; //$NON-NLS-1$
+
+	private final IMetadataRepositoryManager repoManager;
+	private final IProfileRegistry profileRegistry;
 
 	private ProvisioningPlan generateProvisioningPlan(Collection fromState, Collection toState, ProfileChangeRequest changeRequest, ProvisioningPlan installerPlan) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
@@ -245,9 +246,8 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
@@ -255,7 +255,7 @@ public class SimplePlanner implements IPlanner {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
 
-				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
+				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
 					IInstallableUnit iu = (IInstallableUnit) it.next();
@@ -277,6 +277,13 @@ public class SimplePlanner implements IPlanner {
 		if (Boolean.valueOf(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue() && !Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
 			return true;
 		return false;
+	}
+
+	public SimplePlanner(IProfileRegistry profileRegistry, IMetadataRepositoryManager repoManager) {
+		Assert.isNotNull(profileRegistry);
+		Assert.isNotNull(repoManager);
+		this.profileRegistry = profileRegistry;
+		this.repoManager = repoManager;
 	}
 
 	private boolean satisfyMetaRequirements(Map props) {
@@ -402,7 +409,6 @@ public class SimplePlanner implements IPlanner {
 
 		try {
 			sub.setTaskName(Messages.Director_Task_installer_plan);
-			IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
 			if (profileRegistry == null)
 				return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry), initialRequest, null);
 
@@ -677,17 +683,16 @@ public class SimplePlanner implements IPlanner {
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
 		Map resultsMap = new HashMap();
 
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		URI[] repositories = context.getMetadataRepositories();
 		if (repositories == null)
-			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+			repositories = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
 		for (int i = 0; i < repositories.length; i++) {
 			try {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
-				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
+				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new UpdateQuery(toUpdate), new Collector(), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
 					IInstallableUnit iu = (IInstallableUnit) it.next();

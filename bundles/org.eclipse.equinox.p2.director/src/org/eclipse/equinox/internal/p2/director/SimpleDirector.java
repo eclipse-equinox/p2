@@ -9,7 +9,6 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -21,13 +20,13 @@ public class SimpleDirector implements IDirector {
 	private IEngine engine;
 	private IPlanner planner;
 
-	public SimpleDirector() {
-		engine = (IEngine) ServiceHelper.getService(DirectorActivator.context, IEngine.class.getName());
+	public SimpleDirector(IEngine engine, IPlanner planner) {
 		if (engine == null)
 			throw new IllegalStateException("Provisioning engine is not registered"); //$NON-NLS-1$
-		planner = (IPlanner) ServiceHelper.getService(DirectorActivator.context, IPlanner.class.getName());
+		this.engine = engine;
 		if (planner == null)
 			throw new IllegalStateException("Unable to find provisioning planner"); //$NON-NLS-1$
+		this.planner = planner;
 	}
 
 	public IStatus revert(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {

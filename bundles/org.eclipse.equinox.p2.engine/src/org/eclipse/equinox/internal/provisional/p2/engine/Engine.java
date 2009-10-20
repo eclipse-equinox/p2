@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.io.File;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 
@@ -23,12 +22,25 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 public class Engine implements IEngine {
 	private static final String ENGINE = "engine"; //$NON-NLS-1$
 
-	private final IProvisioningEventBus eventBus;
 	private ActionManager actionManager;
+	private final IProvisioningEventBus eventBus;
+
+	private SimpleProfileRegistry profileRegistry;
 
 	public Engine(IProvisioningEventBus eventBus) {
 		this.eventBus = eventBus;
 		this.actionManager = new ActionManager();
+	}
+
+	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		if (iprofile == null)
+			throw new IllegalArgumentException(Messages.null_profile);
+
+		if (phaseSet == null)
+			throw new IllegalArgumentException(Messages.null_phaseset);
+
+		if (operands == null)
+			throw new IllegalArgumentException(Messages.null_operands);
 	}
 
 	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
@@ -39,8 +51,6 @@ public class Engine implements IEngine {
 
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 
 		Profile profile = profileRegistry.validate(iprofile);
 
@@ -86,6 +96,17 @@ public class Engine implements IEngine {
 		}
 	}
 
+	public void setProfileRegistry(IProfileRegistry registry) {
+		//we can only work with our own registry implementation
+		if (registry instanceof SimpleProfileRegistry)
+			this.profileRegistry = (SimpleProfileRegistry) registry;
+	}
+
+	public void unsetProfileRegistry(IProfileRegistry registry) {
+		if (this.profileRegistry == registry)
+			this.profileRegistry = null;
+	}
+
 	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
@@ -96,16 +117,5 @@ public class Engine implements IEngine {
 			monitor = new NullProgressMonitor();
 
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
-	}
-
-	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		if (iprofile == null)
-			throw new IllegalArgumentException(Messages.null_profile);
-
-		if (phaseSet == null)
-			throw new IllegalArgumentException(Messages.null_phaseset);
-
-		if (operands == null)
-			throw new IllegalArgumentException(Messages.null_operands);
 	}
 }
