@@ -41,12 +41,21 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class Policy {
 
 	/**
-	 * A constant indicating that restart should be forced 
-	 * immediately after completion of a provisioning operation.
+	 * A constant indicating that restart should be forced (without
+	 * confirmation) immediately after completion of a provisioning operation.
 	 * 
 	 * @since 3.6
 	 */
 	public static final int FORCE_RESTART = 1;
+
+	/**
+	 * A constant indicating that restart should be forced immediately after 
+	 * completion of a provisioning operation, but that the user should be
+	 * notified when the restart is about to occur.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int FORCE_RESTART_NOTIFY = 2;
 
 	/**
 	 * A constant indicating that the user should be prompted to
@@ -54,7 +63,7 @@ public class Policy {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int PROMPT_RESTART = 2;
+	public static final int PROMPT_RESTART = 3;
 
 	/**
 	 * A constant indicating that, where possible, the user should 
@@ -63,7 +72,7 @@ public class Policy {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int PROMPT_RESTART_OR_APPLY = 3;
+	public static final int PROMPT_RESTART_OR_APPLY = 4;
 
 	private static Policy defaultInstance;
 
@@ -321,6 +330,7 @@ public class Policy {
 	 * handled.  
 	 * 
 	 * @see #FORCE_RESTART
+	 * @see #FORCE_RESTART_NOTIFY
 	 * @see #PROMPT_RESTART
 	 * @see #PROMPT_RESTART_OR_APPLY
 	 */
@@ -333,10 +343,11 @@ public class Policy {
 	 * completion of a provisioning operation.
 	 * 
 	 * @param policy an integer constant indicating how restarts are to be
-	 * handled.  Should be one of <code>FORCE_RESTART</code>, 
+	 * handled.  Should be one of <code>FORCE_RESTART</code>, <code>FORCE_RESTART_NOTIFY</code>, 
 	 * <code>PROMPT_RESTART</code>, or <code>PROMPT_RESTART_OR_APPLY</code>.
 	 * 
 	 * @see #FORCE_RESTART
+	 * @see #FORCE_RESTART_NOTIFY
 	 * @see #PROMPT_RESTART
 	 * @see #PROMPT_RESTART_OR_APPLY
 	 */

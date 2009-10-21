@@ -41,6 +41,34 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class ProvisioningOperationRunner {
 
+	/**
+	 * Constant which indicates that the operation or job being managed does
+	 * not require a restart upon completion.  This constant is typically used
+	 * for operations that do not modify the running profile.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int RESTART_NONE = 1;
+
+	/**
+	 * Constant which indicates that the operation or job being managed requires
+	 * the user to either restart or apply the configuration changes in order to 
+	 * pick up the provisioning changes.  This constant is typically used for
+	 * operations that modify the running profile.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int RESTART_OR_APPLY = 2;
+	/**
+	 * Constant which indicates that the operation or job being managed requires
+	 * the user to restart in order to pick up the provisioning changes.  This constant
+	 * is typically used for operations that modify the running profile but don't 
+	 * handle dynamic changes without restarting the workbench.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int RESTART_ONLY = 3;
+
 	private static final String PROPERTY_PREFIX = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 	private static final QualifiedName OPERATION_KEY = new QualifiedName(PROPERTY_PREFIX, "operationKey"); //$NON-NLS-1$
 	static HashSet scheduledJobs = new HashSet();
@@ -141,6 +169,10 @@ public class ProvisioningOperationRunner {
 		if (suppressRestart)
 			return;
 		if (restartPolicy == Policy.FORCE_RESTART) {
+			PlatformUI.getWorkbench().restart();
+			return;
+		}
+		if (restartPolicy == Policy.FORCE_RESTART_NOTIFY) {
 			IProduct product = Platform.getProduct();
 			String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
 			String message = NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ForceRestartMessage, productName);
@@ -246,8 +278,4 @@ public class ProvisioningOperationRunner {
 	public static void suppressRestart(boolean suppress) {
 		suppressRestart = suppress;
 	}
-
-	public static final int RESTART_NONE = 1;
-	public static final int RESTART_OR_APPLY = 2;
-	public static final int RESTART_ONLY = 3;
 }
