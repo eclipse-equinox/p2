@@ -38,6 +38,8 @@ public class ProvUIMessages extends NLS {
 	public static String AcceptLicensesWizardPage_Title;
 	public static String ApplicationInRestartDialog;
 	public static String ApplyProfileChangesDialog_ApplyChanges;
+	public static String ApplyProfileChangesDialog_Restart;
+	public static String ApplyProfileChangesDialog_NotYet;
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
 	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_ManageSites;
@@ -97,6 +99,7 @@ public class ProvUIMessages extends NLS {
 	// Provisioning operations
 	public static String ProvisioningOperationRunner_CannotApplyChanges;
 	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
+	public static String ProvisioningOperationRunner_ForceRestartMessage;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
 	public static String InstallIUOperationTask;
