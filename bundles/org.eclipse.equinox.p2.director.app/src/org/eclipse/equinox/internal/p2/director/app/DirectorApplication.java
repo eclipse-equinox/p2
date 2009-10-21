@@ -19,6 +19,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -28,8 +29,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
@@ -48,11 +47,10 @@ public class DirectorApplication implements IApplication {
 
 		public LocationQueryable(URI location) {
 			this.location = location;
-			Assert.isNotNull(location);
 		}
 
 		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			return getInstallableUnits(location, query, collector, monitor);
+			return ProvisioningHelper.getInstallableUnits(location, query, collector, monitor);
 		}
 	}
 
@@ -112,8 +110,15 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_P2_ARCH = new CommandLineOption(new String[] {"-p2.arch"}, null, Messages.Help_The_ARCH_when_profile_is_created); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_P2_NL = new CommandLineOption(new String[] {"-p2.nl"}, null, Messages.Help_The_NL_when_profile_is_created); //$NON-NLS-1$
 
+	static private final String BUNDLE_CORE = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
+	static private final String BUNDLE_ENGINE = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
+	static private final String BUNDLE_EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
+	static private final String BUNDLE_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
+	static private final String BUNDLE_SIMPLE_CONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
+	static private final String PROP_P2_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
+
 	static private final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
 
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
@@ -157,16 +162,16 @@ public class DirectorApplication implements IApplication {
 			vnames.add(VersionedId.parse(roots[i]));
 	}
 
-	private static File processFileArgument(String arg) {
+	private static String processFileArgument(String arg) {
 		if (arg.startsWith("file:")) //$NON-NLS-1$
 			arg = arg.substring(5);
 
 		// we create a path object here to handle ../ entries in the middle of paths
-		return Path.fromOSString(arg).toFile();
+		return Path.fromOSString(arg).toOSString();
 	}
 
 	private IArtifactRepositoryManager artifactManager;
-	IMetadataRepositoryManager metadataManager;
+	private IMetadataRepositoryManager metadataManager;
 
 	private URI[] artifactReposForRemoval;
 	private URI[] metadataReposForRemoval;
@@ -177,9 +182,9 @@ public class DirectorApplication implements IApplication {
 	private final List rootsToUninstall = new ArrayList();
 	private final List rootsToList = new ArrayList();
 
-	private File bundlePool = null;
-	private File destination;
-	private File sharedLocation;
+	private String bundlePool = null;
+	private String destination;
+	private String sharedLocation;
 	private String flavor;
 	private boolean printHelpInfo = false;
 	private boolean printIUList = false;
@@ -198,10 +203,13 @@ public class DirectorApplication implements IApplication {
 	private boolean noProfileId = false;
 	private PackageAdmin packageAdmin;
 	private ServiceReference packageAdminRef;
-	private ServiceReference agentProviderRef;
 	private IPlanner planner;
 
-	private IProvisioningAgent agent;
+	private String preservedDataArea;
+	private String preservedProfile;
+	private boolean restartCore;
+	private boolean restartEngine;
+	private boolean restartExemplarySetup;
 
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IInstallableUnit[] installs, IInstallableUnit[] uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -230,7 +238,7 @@ public class DirectorApplication implements IApplication {
 
 		int top = metadataRepositoryLocations.size();
 		if (top == 0)
-			return getInstallableUnits(null, query, collector, nullMonitor);
+			return ProvisioningHelper.getInstallableUnits(null, query, collector, nullMonitor);
 
 		Collector result = collector != null ? collector : new Collector();
 		IQueryable[] locationQueryables = new IQueryable[top];
@@ -291,12 +299,11 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private IProfile initializeProfile() throws CoreException {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 			noProfileId = true;
 		}
-		IProfile profile = profileRegistry.getProfile(profileId);
+		IProfile profile = ProvisioningHelper.getProfile(profileId);
 		if (profile == null) {
 			if (destination == null)
 				missingArgument("destination"); //$NON-NLS-1$
@@ -304,12 +311,12 @@ public class DirectorApplication implements IApplication {
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
 
 			Properties props = new Properties();
-			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toString());
+			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination);
 			props.setProperty(IProfile.PROP_FLAVOR, flavor);
 			if (bundlePool == null)
-				props.setProperty(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
+				props.setProperty(IProfile.PROP_CACHE, sharedLocation == null ? destination : sharedLocation);
 			else
-				props.setProperty(IProfile.PROP_CACHE, bundlePool.getAbsolutePath());
+				props.setProperty(IProfile.PROP_CACHE, bundlePool);
 			if (roamingProfile)
 				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
@@ -318,7 +325,7 @@ public class DirectorApplication implements IApplication {
 				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
-			profile = profileRegistry.addProfile(profileId, props);
+			profile = ProvisioningHelper.addProfile(profileId, props);
 			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
 			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
 				throw new RuntimeException(NLS.bind(Messages.flavor_0_inconsistent_with_flavor_1, flavor, currentFlavor));
@@ -334,7 +341,7 @@ public class DirectorApplication implements IApplication {
 		if (artifactRepositoryLocations == null)
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
 
-		artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (artifactManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -361,7 +368,7 @@ public class DirectorApplication implements IApplication {
 		if (metadataRepositoryLocations == null)
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (metadataManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -391,52 +398,63 @@ public class DirectorApplication implements IApplication {
 		BundleContext context = Activator.getContext();
 		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
-		agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
-		File p2DataArea;
 		if (destination != null || sharedLocation != null) {
-			p2DataArea = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
-		} else {
-			p2DataArea = null;
-		}
-		agent = provider.createAgent(p2DataArea.toURI());
-		if (profileId == null) {
-			if (destination != null) {
-				File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
-				InputStream in = null;
-				try {
-					Properties ciProps = new Properties();
-					in = new BufferedInputStream(new FileInputStream(configIni));
-					ciProps.load(in);
-					profileId = ciProps.getProperty(PROP_P2_PROFILE);
-				} catch (IOException e) {
-					// Ignore
-				} finally {
-					if (in != null)
-						try {
-							in.close();
-						} catch (IOException e) {
-							// Ignore;
-						}
-				}
-				if (profileId == null)
-					profileId = destination.toString();
-			}
-		}
-		if (profileId != null)
-			agent.registerService(PROP_P2_PROFILE, profileId);
-		else
-			agent.unregisterService(PROP_P2_PROFILE, null);
+			restartExemplarySetup = stopTransient(BUNDLE_EXEMPLARY_SETUP);
+			restartEngine = stopTransient(BUNDLE_ENGINE); // Since it uses the agent data location
+			restartCore = stopTransient(BUNDLE_CORE); // Since it manages the agent data location	
 
-		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);
+			// Set/Clear properties that we don't want to inherit from the caller
+			String p2DataArea = sharedLocation == null ? new File(destination, "p2").getAbsolutePath() : sharedLocation; //$NON-NLS-1$
+			preservedDataArea = System.setProperty(PROP_P2_DATA_AREA, p2DataArea);
+			if (profileId == null) {
+				if (destination != null) {
+					File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
+					InputStream in = null;
+					try {
+						Properties ciProps = new Properties();
+						in = new BufferedInputStream(new FileInputStream(configIni));
+						ciProps.load(in);
+						profileId = ciProps.getProperty(PROP_P2_PROFILE);
+					} catch (IOException e) {
+						// Ignore
+					} finally {
+						if (in != null)
+							try {
+								in.close();
+							} catch (IOException e) {
+								// Ignore;
+							}
+					}
+					if (profileId == null)
+						profileId = destination;
+				}
+			}
+			if (profileId != null)
+				preservedProfile = System.setProperty(PROP_P2_PROFILE, profileId);
+			else
+				preservedProfile = (String) System.getProperties().remove(PROP_P2_PROFILE);
+		}
+
+		if (!startTransient(BUNDLE_SIMPLE_CONFIGURATOR_MANIPULATOR))
+			throw new ProvisionException(NLS.bind(Messages.Missing_bundle, BUNDLE_SIMPLE_CONFIGURATOR_MANIPULATOR));
+		if (!startTransient(BUNDLE_FRAMEWORKADMIN_EQUINOX))
+			throw new ProvisionException(NLS.bind(Messages.Missing_bundle, BUNDLE_FRAMEWORKADMIN_EQUINOX));
+		if (!startTransient(BUNDLE_CORE))
+			throw new ProvisionException(NLS.bind(Messages.Missing_bundle, BUNDLE_CORE));
+		if (!startTransient(BUNDLE_ENGINE))
+			throw new ProvisionException(NLS.bind(Messages.Missing_bundle, BUNDLE_ENGINE));
+		if (!startTransient(BUNDLE_EXEMPLARY_SETUP))
+			throw new ProvisionException(NLS.bind(Messages.Missing_bundle, BUNDLE_EXEMPLARY_SETUP));
+
+		IDirector director = (IDirector) ServiceHelper.getService(context, IDirector.class.getName());
 		if (director == null)
 			throw new ProvisionException(Messages.Missing_director);
 
-		planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		planner = (IPlanner) ServiceHelper.getService(context, IPlanner.class.getName());
 		if (planner == null)
 			throw new ProvisionException(Messages.Missing_planner);
 
-		engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		engine = (IEngine) ServiceHelper.getService(context, IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException(Messages.Missing_Engine);
 	}
@@ -598,7 +616,7 @@ public class DirectorApplication implements IApplication {
 				}
 				if (sharedLocation == null)
 					// -shared without an argument means "Use default shared area"
-					sharedLocation = Path.fromOSString(System.getProperty("user.home")).append(".p2/").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
+					sharedLocation = Path.fromOSString(System.getProperty("user.home")).append(".p2/").toOSString(); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 
@@ -692,13 +710,34 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
-	private void cleanupServices() {
+	private void restoreServices() throws CoreException {
 		BundleContext context = Activator.getContext();
-		//dispose agent
-		if (agentProviderRef != null)
-			context.ungetService(agentProviderRef);
-		if (packageAdminRef != null)
+		try {
+			if (destination == null && sharedLocation == null)
+				return;
+
+			stopTransient(BUNDLE_EXEMPLARY_SETUP);
+			stopTransient(BUNDLE_CORE); // Since it manages the agent data location
+
+			if (preservedDataArea != null)
+				System.setProperty(PROP_P2_DATA_AREA, preservedDataArea);
+			else
+				System.getProperties().remove(PROP_P2_DATA_AREA);
+
+			if (preservedProfile != null)
+				System.setProperty(PROP_P2_PROFILE, preservedProfile);
+			else
+				System.getProperties().remove(PROP_P2_PROFILE);
+
+			if (restartCore)
+				startTransient(BUNDLE_CORE);
+			if (restartEngine)
+				startTransient(BUNDLE_ENGINE);
+			if (restartExemplarySetup)
+				startTransient(BUNDLE_EXEMPLARY_SETUP);
+		} finally {
 			context.ungetService(packageAdminRef);
+		}
 	}
 
 	public Object run(String[] args) throws CoreException {
@@ -729,14 +768,14 @@ public class DirectorApplication implements IApplication {
 		} finally {
 			if (packageAdminRef != null) {
 				cleanupRepositories();
-				cleanupServices();
+				restoreServices();
 			}
 		}
 	}
 
 	private void revertToPreviousState() throws CoreException {
 		IProfile profile = initializeProfile();
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		IProfile targetProfile = null;
 		if (revertToPreviousState == 0) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
@@ -770,22 +809,6 @@ public class DirectorApplication implements IApplication {
 	private static void appendLevelPrefix(PrintStream strm, int level) {
 		for (int idx = 0; idx < level; ++idx)
 			strm.print(' ');
-	}
-
-	Collector getInstallableUnits(URI location, Query query, Collector collector, IProgressMonitor monitor) {
-		IQueryable queryable = null;
-		if (location == null) {
-			queryable = metadataManager;
-		} else {
-			try {
-				queryable = metadataManager.loadRepository(location, monitor);
-			} catch (ProvisionException e) {
-				//repository is not available - just return empty result
-			}
-		}
-		if (queryable != null)
-			return queryable.query(query, collector, monitor);
-		return collector;
 	}
 
 	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {
@@ -854,6 +877,37 @@ public class DirectorApplication implements IApplication {
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
+	private boolean startTransient(String bundleName) throws CoreException {
+		Bundle bundle = getBundle(bundleName);
+		if (bundle == null)
+			return false;
+		try {
+			bundle.start(Bundle.START_TRANSIENT);
+		} catch (BundleException e) {
+			throw new ProvisionException(NLS.bind(Messages.unable_to_start_bundle_0, bundleName));
+		}
+		return true;
+	}
+
+	public void stop() {
+		// Nothing left to do here
+	}
+
+	private boolean stopTransient(String bundleName) throws CoreException {
+		Bundle bundle = getBundle(bundleName);
+		boolean wasActive = false;
+		if (bundle != null) {
+			wasActive = (bundle.getState() & (Bundle.ACTIVE | Bundle.STARTING)) != 0;
+			if (wasActive)
+				try {
+					bundle.stop(Bundle.STOP_TRANSIENT);
+				} catch (BundleException e) {
+					throw new ProvisionException(NLS.bind(Messages.unable_to_stop_bundle_0, bundleName));
+				}
+		}
+		return wasActive;
+	}
+
 	private String toString(Map context) {
 		StringBuffer result = new StringBuffer();
 		Iterator entries = context.entrySet().iterator();
@@ -885,9 +939,10 @@ public class DirectorApplication implements IApplication {
 			return;
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
+		File destinationFile = new File(destination);
+		if (!destinationFile.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
 			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination);
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
+		if (!destinationFile.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
 			request.setProfileProperty(IProfile.PROP_CACHE, destination);
 		if (request.getProfileProperties().size() == 0)
 			return;
@@ -903,9 +958,5 @@ public class DirectorApplication implements IApplication {
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
 			throw new CoreException(new MultiStatus(org.eclipse.equinox.internal.p2.director.app.Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
-	}
-
-	public void stop() {
-		// Nothing left to do here
 	}
 }
