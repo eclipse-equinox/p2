@@ -27,8 +27,8 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 
 	public IProvisioningAgent createAgent(URI location) {
 		ProvisioningAgent result = new ProvisioningAgent();
-		result.setLocation(location);
 		result.setBundleContext(context);
+		result.setLocation(location);
 		return result;
 	}
 

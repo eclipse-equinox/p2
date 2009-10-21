@@ -69,7 +69,17 @@ public class ProvisioningAgent implements IProvisioningAgent {
 
 	public void setLocation(URI location) {
 		try {
-			AgentLocation agentLocation = new BasicLocation(URIUtil.toURL(location));
+			//treat a null location as using the currently running platform
+			AgentLocation agentLocation = null;
+			if (location == null) {
+				ServiceReference ref = context.getServiceReference(AgentLocation.SERVICE_NAME);
+				if (ref != null) {
+					agentLocation = (AgentLocation) context.getService(ref);
+					context.ungetService(ref);
+				}
+			} else {
+				agentLocation = new BasicLocation(URIUtil.toURL(location));
+			}
 			agentServices.put(AgentLocation.SERVICE_NAME, agentLocation);
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Invalid agent location", e)); //$NON-NLS-1$

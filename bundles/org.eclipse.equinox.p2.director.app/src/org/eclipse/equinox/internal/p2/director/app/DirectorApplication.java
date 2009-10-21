@@ -393,13 +393,14 @@ public class DirectorApplication implements IApplication {
 		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
 		agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
-		File p2DataArea;
+		URI p2DataArea;
 		if (destination != null || sharedLocation != null) {
-			p2DataArea = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
+			File dataAreaFile = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
+			p2DataArea = dataAreaFile.toURI();
 		} else {
 			p2DataArea = null;
 		}
-		agent = provider.createAgent(p2DataArea.toURI());
+		agent = provider.createAgent(p2DataArea);
 		if (profileId == null) {
 			if (destination != null) {
 				File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
