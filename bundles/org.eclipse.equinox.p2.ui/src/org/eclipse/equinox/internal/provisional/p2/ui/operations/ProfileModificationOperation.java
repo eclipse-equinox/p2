@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -27,6 +29,7 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	PhaseSet phaseSet;
 	boolean isUser = true;
 	ProvisioningContext provisioningContext;
+	int restartPolicy = ProvisioningOperationRunner.RESTART_OR_APPLY;
 	private String taskName;
 
 	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, ProvisioningContext context) {
@@ -83,5 +86,13 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 
 	public boolean isUser() {
 		return isUser;
+	}
+
+	public int getRestartPolicy() {
+		return restartPolicy;
+	}
+
+	public void setRestartPolicy(int policy) {
+		restartPolicy = policy;
 	}
 }

@@ -11,18 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URL;
-import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -36,8 +32,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static PackageAdmin packageAdmin = null;
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
-	private ProvisioningListener profileChangeListener;
-
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
@@ -90,51 +84,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-
-		addProfileChangeListener();
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		try {
-			removeProfileChangeListener();
 			plugin = null;
 			ProvUIActivator.context = null;
 		} finally {
 			super.stop(bundleContext);
-		}
-	}
-
-	private void addProfileChangeListener() {
-		if (profileChangeListener == null) {
-			profileChangeListener = new SynchronousProvisioningListener() {
-				public void notify(EventObject o) {
-					if (o instanceof ProfileEvent) {
-						ProfileEvent event = (ProfileEvent) o;
-						try {
-							IProfile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
-							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfileId()))) {
-								if (event.getReason() == ProfileEvent.CHANGED)
-									ProvisioningOperationRunner.requestRestart(false);
-
-							}
-						} catch (ProvisionException e) {
-							ProvUI.handleException(e, ProvUIMessages.ProvUIActivator_ExceptionDuringProfileChange, StatusManager.LOG);
-
-						}
-					}
-				}
-			};
-		}
-		IProvisioningEventBus bus = getProvisioningEventBus();
-		if (bus != null)
-			bus.addListener(profileChangeListener);
-	}
-
-	private void removeProfileChangeListener() {
-		if (profileChangeListener != null) {
-			IProvisioningEventBus bus = getProvisioningEventBus();
-			if (bus != null)
-				bus.removeListener(profileChangeListener);
 		}
 	}
 

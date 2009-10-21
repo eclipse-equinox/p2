@@ -40,6 +40,31 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 public class Policy {
 
+	/**
+	 * A constant indicating that restart should be forced 
+	 * immediately after completion of a provisioning operation.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int FORCE_RESTART = 1;
+
+	/**
+	 * A constant indicating that the user should be prompted to
+	 * restart after completion of a provisioning operation.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int PROMPT_RESTART = 2;
+
+	/**
+	 * A constant indicating that, where possible, the user should 
+	 * be given the option to restart or dynamically apply the changes
+	 * after completion of a provisioning operation.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int PROMPT_RESTART_OR_APPLY = 3;
+
 	private static Policy defaultInstance;
 
 	private QueryProvider queryProvider;
@@ -48,6 +73,7 @@ public class Policy {
 	private IProfileChooser profileChooser;
 	private IUViewQueryContext queryContext;
 	private RepositoryManipulator repositoryManipulator;
+	private int restartPolicy = PROMPT_RESTART_OR_APPLY;
 
 	/**
 	 * Get the default policy that should be used for determining the behavior of the UI.
@@ -285,5 +311,36 @@ public class Policy {
 	 */
 	public IStatus getNoProfileChosenStatus() {
 		return null;
+	}
+
+	/**
+	 * Return a constant that indicates how restarts are handled after
+	 * completion of a provisioning operation.
+	 * 
+	 * @return an integer constant indicating how restarts are to be
+	 * handled.  
+	 * 
+	 * @see #FORCE_RESTART
+	 * @see #PROMPT_RESTART
+	 * @see #PROMPT_RESTART_OR_APPLY
+	 */
+	public int getRestartPolicy() {
+		return restartPolicy;
+	}
+
+	/**
+	 * Set a constant that indicates how restarts are handled after
+	 * completion of a provisioning operation.
+	 * 
+	 * @param policy an integer constant indicating how restarts are to be
+	 * handled.  Should be one of <code>FORCE_RESTART</code>, 
+	 * <code>PROMPT_RESTART</code>, or <code>PROMPT_RESTART_OR_APPLY</code>.
+	 * 
+	 * @see #FORCE_RESTART
+	 * @see #PROMPT_RESTART
+	 * @see #PROMPT_RESTART_OR_APPLY
+	 */
+	public void setRestartPolicy(int policy) {
+		restartPolicy = policy;
 	}
 }

@@ -30,7 +30,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -313,25 +312,6 @@ public class ProvisioningUtil {
 		return IIUElement.SIZE_UNAVAILABLE;
 	}
 
-	/**
-	 * Perform the specified provisioning plan.
-	 * 
-	 * @param plan the plan to perform
-	 * @param phaseSet the phase set to use
-	 * @param profile the profile to be changed.  This parameter is now ignored.
-	 * @param context the provisioning context to be used
-	 * @param monitor the progress monitor 
-	 * @return a status indicating the success of the plan
-	 * @throws ProvisionException
-	 * 
-	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, ProvisioningContext, IProgressMonitor)} 
-	 * because the profile argument is now ignored.
-	 */
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
-		// ignore the profile, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
-		return performProvisioningPlan(plan, phaseSet, context, monitor);
-	}
-
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
 		if (phaseSet == null)
@@ -374,16 +354,10 @@ public class ProvisioningUtil {
 			// Apply the configuration
 			Configurator configChanger = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 			try {
-				// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
-				ProvisioningOperationRunner.suppressRestart(true);
 				configChanger.applyConfiguration();
-				// We just applied the configuration so restart is no longer required.
-				ProvisioningOperationRunner.clearRestartRequests();
 			} catch (IOException e) {
 				mon.done();
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_InstallPlanConfigurationError, e);
-			} finally {
-				ProvisioningOperationRunner.suppressRestart(false);
 			}
 		}
 		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
@@ -425,26 +399,5 @@ public class ProvisioningUtil {
 	public static boolean isCategory(IInstallableUnit iu) {
 		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
 		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
-	}
-
-	/**
-	 * Perform the provisioning plan using a default context that contacts all repositories.
-	 * @param plan the plan to perform
-	 * @param phaseSet the phase set to use
-	 * @param profile the profile to be changed
-	 * @param monitor the progress monitor 
-	 * @return a status indicating the success of the plan
-	 * @throws ProvisionException
-	 * 
-	 * @deprecated clients should use {@linkplain #performProvisioningPlan(ProvisioningPlan, PhaseSet, IProfile, ProvisioningContext, IProgressMonitor)} 
-	 * to explicitly establish a provisioning context.  Otherwise all repositories will be contacted
-	 */
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {
-		PhaseSet set;
-		if (phaseSet == null)
-			set = new DefaultPhaseSet();
-		else
-			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), new ProvisioningContext(), monitor);
 	}
 }

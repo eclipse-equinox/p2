@@ -184,12 +184,28 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	private ProfileModificationOperation createProfileModificationOperation(PlannerResolutionOperation op) {
-		ProfileModificationOperation pmo = new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
-		pmo.setTaskName(getOperationTaskName());
-		return pmo;
+		ProfileModificationOperation modificationOperation = new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
+		modificationOperation.setRestartPolicy(getRestartPolicy());
+		modificationOperation.setTaskName(getOperationTaskName());
+		return modificationOperation;
 	}
 
 	protected abstract String getOperationLabel();
+
+	/**
+	 * Returns the restart policy for this operation.
+	 * 
+	 * @return an integer constant describing whether the running profile
+	 * needs to be restarted. 
+	 * 
+	 * @see ProvisioningOperationRunner#RESTART_NONE
+	 * @see ProvisioningOperationRunner#RESTART_ONLY
+	 * @see ProvisioningOperationRunner#RESTART_OR_APPLY
+	 *
+	 */
+	protected int getRestartPolicy() {
+		return ProvisioningOperationRunner.RESTART_OR_APPLY;
+	}
 
 	/**
 	 * Returns the task name for this operation, or <code>null</code> to display

@@ -245,7 +245,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		loadJob.setUser(false);
 		// Telling the operation runner about it ensures that listeners know we are running
 		// a provisioning-related job.
-		ProvisioningOperationRunner.manageJob(loadJob);
+		ProvisioningOperationRunner.manageJob(loadJob, ProvisioningOperationRunner.RESTART_NONE);
 		loadJob.schedule();
 	}
 

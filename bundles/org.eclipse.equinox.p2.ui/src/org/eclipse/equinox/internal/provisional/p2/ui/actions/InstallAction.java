@@ -97,7 +97,9 @@ public class InstallAction extends ProfileModificationAction {
 			} else {
 				// Install it and mark as a root
 				request.addInstallableUnits(new IInstallableUnit[] {ius[i]});
-				request.setInstallableUnitProfileProperty(ius[i], Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty(), Boolean.toString(true));
+				String propKey = Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty();
+				if (propKey != null)
+					request.setInstallableUnitProfileProperty(ius[i], propKey, Boolean.toString(true));
 			}
 			sub.worked(1);
 		}

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -23,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 public abstract class ProvisioningOperation {
 
 	private String label;
-
 	public ProvisioningOperation(String label) {
 		this.label = label;
 	}
@@ -81,6 +82,10 @@ public abstract class ProvisioningOperation {
 	 */
 	public boolean isUser() {
 		return true;
+	}
+
+	public int getRestartPolicy() {
+		return ProvisioningOperationRunner.RESTART_NONE;
 	}
 
 }

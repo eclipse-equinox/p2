@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -369,9 +371,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			if (plan[0].getStatus().isOK()) {
 				// We use a default provisioning context (all repos) because we have no other
 				// way currently to figure out which sites the user wants to contact
-				ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0], new ProvisioningContext(), new DefaultPhaseSet(), true);
+				ProfileModificationOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0], new ProvisioningContext(), new DefaultPhaseSet(), true);
+				// we want to force a restart (not allow apply changes)
+				op.setRestartPolicy(ProvisioningOperationRunner.RESTART_ONLY);
 				ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
-				ProvisioningOperationRunner.requestRestart(true);
 				reverted = true;
 			} else if (plan[0].getStatus().getSeverity() != IStatus.CANCEL) {
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG | StatusManager.SHOW);

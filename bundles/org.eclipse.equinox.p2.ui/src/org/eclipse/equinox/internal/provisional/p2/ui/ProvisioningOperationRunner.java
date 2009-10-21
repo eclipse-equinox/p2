@@ -23,6 +23,8 @@ import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
@@ -42,23 +44,8 @@ public class ProvisioningOperationRunner {
 	private static final String PROPERTY_PREFIX = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 	private static final QualifiedName OPERATION_KEY = new QualifiedName(PROPERTY_PREFIX, "operationKey"); //$NON-NLS-1$
 	static HashSet scheduledJobs = new HashSet();
-	static boolean restartRequested = false;
-	static boolean restartRequired = false;
-	static boolean subsequentRestartsRequested = false;
-	// used during automated testing to prevent a restart dialog from interrupting tests
-	static boolean suppressRestart = false;
 	static ListenerList jobListeners = new ListenerList();
-
-	/**
-	 * This method is temporary and will not appear in the final API.
-	 * 
-	 * @param suppress
-	 * 
-	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
-	 */
-	public static void suppressRestart(boolean suppress) {
-		suppressRestart = suppress;
-	}
+	static boolean suppressRestart = false;
 
 	/**
 	 * Run the provisioning operation synchronously
@@ -138,46 +125,35 @@ public class ProvisioningOperationRunner {
 		job.setUser(op.isUser());
 		job.setProperty(OPERATION_KEY, op);
 		job.setProperty(IProgressConstants.ICON_PROPERTY, ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
-		manageJob(job);
+		manageJob(job, op.getRestartPolicy());
 		job.schedule();
 		return job;
 	}
 
 	/**
-	 * This method is temporary and is not intended for the API.
+	 * Request a restart of the platform according to the specified
+	 * restart policy.  
 	 * 
-	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
+	 * @param restartPolicy
 	 */
-	public static void clearRestartRequests() {
-		restartRequired = false;
-		restartRequested = false;
-		subsequentRestartsRequested = false;
-	}
-
-	/**
-	 * This method will not appear in the final API.
-	 * 
-	 * @param force
-	 * @deprecated see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274876
-
-	 */
-	public static void requestRestart(boolean force) {
-		if (suppressRestart || hasScheduledOperations()) {
-			restartRequested = true;
-			subsequentRestartsRequested = true;
-			restartRequired = restartRequired || force;
+	private static void requestRestart(final int restartPolicy) {
+		// Global override of restart (used in test cases).
+		if (suppressRestart)
+			return;
+		if (restartPolicy == Policy.FORCE_RESTART) {
+			IProduct product = Platform.getProduct();
+			String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
+			String message = NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ForceRestartMessage, productName);
+			MessageDialog.openInformation(ProvUI.getDefaultParentShell(), ProvUIMessages.PlatformUpdateTitle, message);
+			PlatformUI.getWorkbench().restart();
 			return;
 		}
+
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
-				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartRequired);
-				// Now that we have asked, regardless of answer, we won't need to
-				// ask again until the next profile changing operation.  Don't reset
-				// the restart required flag so that the next time we ask, if it
-				// was required before, it will still be required.
-				restartRequested = false;
+				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.PROMPT_RESTART);
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
 					Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 					try {
@@ -230,17 +206,26 @@ public class ProvisioningOperationRunner {
 		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 	}
 
-	public static void manageJob(Job job) {
+	public static void manageJob(Job job, final int jobRestartPolicy) {
 		scheduledJobs.add(job);
-		subsequentRestartsRequested = false;
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				scheduledJobs.remove(event.getJob());
 				int severity = event.getResult().getSeverity();
-				if (severity != IStatus.CANCEL && severity != IStatus.ERROR && restartRequested) {
-					requestRestart(restartRequired);
-				} else {
-					restartRequested = subsequentRestartsRequested;
+				// If the job finished without error, see if restart is needed
+				if (severity != IStatus.CANCEL && severity != IStatus.ERROR) {
+					if (jobRestartPolicy == ProvisioningOperationRunner.RESTART_NONE) {
+						return;
+					}
+					int globalRestartPolicy = Policy.getDefault().getRestartPolicy();
+					// If the global policy allows apply changes, check the job policy to see if it supports it.
+					if (globalRestartPolicy == Policy.PROMPT_RESTART_OR_APPLY) {
+						if (jobRestartPolicy == ProvisioningOperationRunner.RESTART_OR_APPLY)
+							requestRestart(Policy.PROMPT_RESTART_OR_APPLY);
+						else
+							requestRestart(Policy.PROMPT_RESTART);
+					} else
+						requestRestart(globalRestartPolicy);
 				}
 			}
 		});
@@ -248,4 +233,21 @@ public class ProvisioningOperationRunner {
 		for (int i = 0; i < listeners.length; i++)
 			job.addJobChangeListener((IJobChangeListener) listeners[i]);
 	}
+
+	/**
+	 * This method is provided for use in automated test case.  It should
+	 * no longer be needed to be used by clients.
+	 * 
+	 * @param suppress <code>true</code> to suppress all restarts and <code>false</code>
+	 * to stop suppressing restarts.
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public static void suppressRestart(boolean suppress) {
+		suppressRestart = suppress;
+	}
+
+	public static final int RESTART_NONE = 1;
+	public static final int RESTART_OR_APPLY = 2;
+	public static final int RESTART_ONLY = 3;
 }
