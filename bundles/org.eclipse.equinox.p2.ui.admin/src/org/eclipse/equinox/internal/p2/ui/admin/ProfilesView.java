@@ -42,7 +42,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.4
  */
 public class ProfilesView extends ProvView {
-	private Action addProfileAction, removeProfileAction, uninstallAction;
+	protected Action addProfileAction, removeProfileAction, uninstallAction;
 	UpdateAction updateAction;
 	private PropertyDialogAction propertiesAction;
 	private StructuredViewerProvisioningListener listener;

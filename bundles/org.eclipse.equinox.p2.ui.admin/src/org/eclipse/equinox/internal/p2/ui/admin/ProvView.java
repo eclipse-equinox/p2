@@ -33,7 +33,7 @@ import org.eclipse.ui.part.ViewPart;
  * @since 3.4
  */
 abstract class ProvView extends ViewPart {
-	TreeViewer viewer;
+	protected TreeViewer viewer;
 	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
@@ -172,7 +172,7 @@ abstract class ProvView extends ViewPart {
 		return viewer.getControl();
 	}
 
-	IStructuredSelection getSelection() {
+	protected IStructuredSelection getSelection() {
 		return (IStructuredSelection) viewer.getSelection();
 	}
 
