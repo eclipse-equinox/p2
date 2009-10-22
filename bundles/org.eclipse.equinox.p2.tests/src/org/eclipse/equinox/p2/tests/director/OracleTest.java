@@ -8,15 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OracleTest extends AbstractProvisioningTest {
@@ -42,7 +38,7 @@ public class OracleTest extends AbstractProvisioningTest {
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 3.0.0)"), null);
 		b1 = createIU("B", requires, true);
 
-		d2 = createIU("D", new Version(2, 0, 0), true);
+		d2 = createIU("D", Version.createOSGi(2, 0, 0), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1, d1, b1});
 

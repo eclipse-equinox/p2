@@ -48,7 +48,7 @@ public class JBDiffStepTest extends TestCase {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/eclipse-3.2.exe");
 		MockableJBDiffStep differ = new MockableJBDiffStep(repoMock);
 		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.1"));
+		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		differ.initialize(stepDescriptor, descriptor);
 

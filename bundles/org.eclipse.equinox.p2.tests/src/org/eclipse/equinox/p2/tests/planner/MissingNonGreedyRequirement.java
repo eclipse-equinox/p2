@@ -30,14 +30,14 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		c1 = createIU("C", new Version("1.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
 
 		IRequiredCapability[] reqB = new IRequiredCapability[2];
 		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false);
 		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqB);
+		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});
 

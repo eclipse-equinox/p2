@@ -37,25 +37,25 @@ public class PatchTest8 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version(1, 0, 0), true);
-		a2 = createIU("A", new Version("2.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
-		b2 = createIU("B", new Version("2.0.0"), true);
-		c2 = createIU("C", new Version("2.0.0"), true);
+		a1 = createIU("A", Version.createOSGi(1, 0, 0), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
+		b2 = createIU("B", Version.create("2.0.0"), true);
+		c2 = createIU("C", Version.create("2.0.0"), true);
 
 		IRequiredCapability[] req = new IRequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
 		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
 		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.1.0)"), null, false, true);
-		f1 = createIU("F", new Version(1, 0, 0), req);
+		f1 = createIU("F", Version.createOSGi(1, 0, 0), req);
 
 		IRequirementChange changeA = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 3.0.0)"), null, false, false, true));
 		IRequiredCapability[][] scope = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "F", VersionRange.emptyRange, null, false, false, false)}};
-		p1 = createIUPatch("P", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeA}, scope, null, new IRequiredCapability[0]);
+		p1 = createIUPatch("P", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeA}, scope, null, new IRequiredCapability[0]);
 
 		IRequirementChange changeB = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false, true));
 		IRequiredCapability[][] scopePP = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "F", VersionRange.emptyRange, null, false, false, false)}};
-		r1 = createIUPatch("R", new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeB}, scopePP, null, new IRequiredCapability[0]);
+		r1 = createIUPatch("R", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeB}, scopePP, null, new IRequiredCapability[0]);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, b1, b2, c2, f1, p1, r1});
 

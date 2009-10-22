@@ -31,7 +31,7 @@ public class IUWithFilter extends AbstractProvisioningTest {
 		super.setUp();
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("A");
-		iud.setVersion(new Version("1.0.0"));
+		iud.setVersion(Version.create("1.0.0"));
 		iud.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null));
 		iud.setFilter("(invalid=true)");
 		a1 = MetadataFactory.createInstallableUnit(iud);

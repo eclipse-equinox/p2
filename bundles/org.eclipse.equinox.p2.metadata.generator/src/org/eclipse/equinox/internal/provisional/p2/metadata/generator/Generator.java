@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,8 +25,9 @@ import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -191,7 +189,7 @@ public class Generator {
 		}
 
 		String version = getProductVersion();
-		VersionRange range = new VersionRange(new Version(version), true, new Version(version), true);
+		VersionRange range = new VersionRange(Version.create(version), true, Version.create(version), true);
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, range, null, false, false));
@@ -223,7 +221,7 @@ public class Generator {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
-		root.setVersion(new Version(configurationVersion));
+		root.setVersion(Version.create(configurationVersion));
 		root.setProperty(IInstallableUnit.PROP_NAME, configurationName);
 
 		ArrayList reqsConfigurationUnits = new ArrayList(result.rootIUs.size());
@@ -241,7 +239,7 @@ public class Generator {
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(configurationIdentification, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		root.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion))});
+		root.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, Version.create(configurationVersion))});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 
@@ -400,7 +398,7 @@ public class Generator {
 							format = (String) bundleManifest.get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
-						IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, bd.getSymbolicName(), new Version(bd.getVersion().toString()));
+						IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, bd.getSymbolicName(), Version.create(bd.getVersion().toString()));
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 						File bundleFile = new File(bd.getLocation());
@@ -511,7 +509,7 @@ public class Generator {
 		while (i > -1) {
 			Version version = null;
 			try {
-				version = new Version(name.substring(i));
+				version = Version.create(name.substring(i));
 				bundleInfo.setSymbolicName(name.substring(0, i));
 				bundleInfo.setVersion(version.toString());
 				return new GeneratorBundleInfo(bundleInfo);
@@ -580,7 +578,7 @@ public class Generator {
 				continue;
 			}
 
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
 			if (cu != null) {
 				allCUs.add(cu);
 				result.rootIUs.add(cu);
@@ -658,7 +656,7 @@ public class Generator {
 			}
 			bundle.setVersion(configuredIU.getVersion().toString());
 			String filter = configuredIU == null ? null : configuredIU.getFilter();
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null) {
 				result.rootIUs.add(cu);
@@ -796,7 +794,7 @@ public class Generator {
 		String launcherIdPrefix = productNamespace + PRODUCT_LAUCHER_SUFFIX;
 		String launcherId = launcherIdPrefix + '.' + ws + '.' + os + '.' + arch;
 		iu.setId(launcherId);
-		Version launcherVersion = new Version(version);
+		Version launcherVersion = Version.create(version);
 		iu.setVersion(launcherVersion);
 		iu.setSingleton(true);
 		String filter = null;
@@ -933,7 +931,7 @@ public class Generator {
 			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
 
 			String version = getProductVersion();
-			Version cuVersion = new Version(version);
+			Version cuVersion = Version.create(version);
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
 			cu.setSingleton(true);
@@ -979,7 +977,7 @@ public class Generator {
 
 		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-		Version cuVersion = new Version(version);
+		Version cuVersion = Version.create(version);
 		cu.setId(configUnitId);
 		cu.setVersion(cuVersion);
 		cu.setSingleton(true);

@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -23,7 +20,7 @@ public class ProvidedCapabilityTest extends AbstractProvisioningTest {
 	public void testEquals() {
 		IProvidedCapability cap = MetadataFactory.createProvidedCapability("namespace", "name", DEFAULT_VERSION);
 		IProvidedCapability equal = MetadataFactory.createProvidedCapability("namespace", "name", DEFAULT_VERSION);
-		IProvidedCapability notEqual = MetadataFactory.createProvidedCapability("namespace", "name", new Version(2, 0, 0));
+		IProvidedCapability notEqual = MetadataFactory.createProvidedCapability("namespace", "name", Version.createOSGi(2, 0, 0));
 		assertEquals("1.0", cap, equal);
 		assertFalse("1.1", cap.equals(notEqual));
 		assertFalse("1.1", notEqual.equals(cap));

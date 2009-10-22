@@ -9,11 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -39,7 +38,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		Collector query = metadataRepositoryManager.query(new LatestIUVersionQuery(), new Collector(), null);
 		Collection collection = query.toCollection();
 		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(2, 1, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 	}
 
 	public void testLatestIUSingleRepo2() throws Exception {
@@ -56,7 +55,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		Collector query = metadataRepositoryManager.query(new LatestIUVersionQuery(), new Collector(), null);
 		Collection collection = query.toCollection();
 		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 	}
 
 	public void testLatestIUMultiRepo() throws Exception {
@@ -76,6 +75,6 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		Collector collector = metadataRepositoryManager.query(new LatestIUVersionQuery(), new Collector(), null);
 		Collection collection = collector.toCollection();
 		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 	}
 }

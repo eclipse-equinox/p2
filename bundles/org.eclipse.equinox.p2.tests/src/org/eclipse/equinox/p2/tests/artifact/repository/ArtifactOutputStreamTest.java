@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.Status;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactD
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -44,7 +43,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 		tempWritableLocation.mkdirs();
 		sar = new SimpleArtifactRepository("name", tempWritableLocation.toURI(), null);
 		destination = new Destination();
-		ak = new ArtifactKey("classifier", "id", new Version("1.0"));
+		ak = new ArtifactKey("classifier", "id", Version.create("1.0"));
 		ad = new ArtifactDescriptor(ak);
 		temp = File.createTempFile("ArtifactOutputStreamTest", ".tmp");
 		temp.deleteOnExit();

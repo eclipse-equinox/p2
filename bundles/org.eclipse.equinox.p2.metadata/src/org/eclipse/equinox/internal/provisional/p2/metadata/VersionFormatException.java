@@ -11,14 +11,13 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 /**
- * Exception thrown by the {@link VersionFormatParser}
- *
+ * Exception thrown when parsing Omni Version formats.
  */
-public class FormatException extends Exception {
+public class VersionFormatException extends Exception {
 
 	private static final long serialVersionUID = -867104101610941043L;
 
-	public FormatException(String message) {
+	public VersionFormatException(String message) {
 		super(message);
 	}
 }

@@ -12,10 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
@@ -36,7 +32,7 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
@@ -67,16 +63,16 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST2_PROVX_NAMESPACE = JAVA_PACKAGE;
 	private static final String TEST1_PROVZ_NAMESPACE = JAVA_PACKAGE;
 
-	private final Version BUNDLE1_VERSION = new Version("0.1.0");//$NON-NLS-1$
-	private final Version BUNDLE2_VERSION = new Version("1.0.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
+	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
 	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
 	private final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
 	private final Version TEST2_PROVY_VERSION = Version.emptyVersion;
 	private final Version TEST2_PROVX_VERSION = Version.emptyVersion;
 	private final VersionRange TEST2_IUA_VERSION_RANGE = VersionRange.emptyRange;
 	private final VersionRange TEST2_IUB_VERSION_RANGE = VersionRange.emptyRange;
-	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(new Version("1.0.0"), true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
-	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(new Version("1.3.0"), true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
+	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
+	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 
@@ -199,7 +195,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
-		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
+		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertEquals("2.1", 4, providedCapabilities.length);
 
 		ITouchpointData[] data = bundle1IU.getTouchpointData();
@@ -238,7 +234,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVY_NAMESPACE, TEST2_PROVY_NAME, TEST2_PROVY_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVX_NAMESPACE, TEST2_PROVX_NAME, TEST2_PROVX_VERSION);
-		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
+		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(providedCapabilities.length == 6 /*number of tested elements*/);
 
 		// check %bundle name is correct

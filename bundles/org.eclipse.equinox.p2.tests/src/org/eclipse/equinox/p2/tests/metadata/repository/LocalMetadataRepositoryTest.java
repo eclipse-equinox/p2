@@ -57,7 +57,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
-		descriptor.setVersion(new Version("3.2.1"));
+		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
 
@@ -154,7 +154,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
-		descriptor.setVersion(new Version("3.2.1"));
+		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
 

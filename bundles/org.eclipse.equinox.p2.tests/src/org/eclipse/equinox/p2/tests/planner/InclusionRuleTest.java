@@ -31,11 +31,11 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
 
-		a2 = createIU("A", new Version("2.0.0"), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
 
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});
 

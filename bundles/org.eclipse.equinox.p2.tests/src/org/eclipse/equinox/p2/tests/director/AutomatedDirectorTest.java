@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  * Various automated tests of the {@link IDirector} API.
  */
 public class AutomatedDirectorTest extends AbstractProvisioningTest {
-	//private static Version version = new Version(1, 0, 0);
+	//private static Version version = Version.createOSGi(1, 0, 0);
 
 	public static Test suite() {
 		return new TestSuite(AutomatedDirectorTest.class);

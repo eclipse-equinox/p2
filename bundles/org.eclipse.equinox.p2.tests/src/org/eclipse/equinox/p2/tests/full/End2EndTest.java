@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -149,7 +148,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatformSource35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.source.feature.group";
-		final Version version = new Version("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
+		final Version version = Version.create("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
 
 		IInstallableUnit toInstall = getIU(id, version);
 		if (toInstall == null)
@@ -168,13 +167,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 	private void installBogusIU(IProfile profile, File installFolder) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("org.eclipse.equinox.p2.tests.bogusIU.end2end");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", new Version("1.0.0"))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", Version.create("1.0.0"))});
 		Map data = new HashMap();
 		data.put("install", "org.eclipse.equinox.p2.osgi.removeJvmArg(programArg:-XX:+UnlockDiagnosticVMOptions);");
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(data));
 		IInstallableUnit bogusIU = MetadataFactory.createInstallableUnit(iud);
-		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version("1.0.0")));
+		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.create("1.0.0")));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {bogusIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
@@ -183,7 +182,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatform35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.ide";
-		final Version version = new Version("3.5.0.I20090611-1540");
+		final Version version = Version.create("3.5.0.I20090611-1540");
 
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);

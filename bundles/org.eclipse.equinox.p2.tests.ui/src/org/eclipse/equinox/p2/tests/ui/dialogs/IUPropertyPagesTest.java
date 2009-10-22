@@ -66,7 +66,7 @@ public class IUPropertyPagesTest extends AbstractProvisioningUITest {
 	private IInstallableUnit getIU() throws URISyntaxException {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		iuDescription.setId("TestIU");
-		iuDescription.setVersion(new Version(1, 0, 0));
+		iuDescription.setVersion(Version.createOSGi(1, 0, 0));
 		iuDescription.setProperty(IInstallableUnit.PROP_PROVIDER, "Test Cases");
 		iuDescription.setProperty(IInstallableUnit.PROP_DESCRIPTION, "A description");
 		iuDescription.setProperty(IInstallableUnit.PROP_NAME, "The Biggest Baddest Test IU");

@@ -35,32 +35,32 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
 
-		a2 = createIU("A", new Version("2.0.0"), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
 
-		a3 = createIU("A", new Version("3.0.0"), false);
+		a3 = createIU("A", Version.create("3.0.0"), false);
 
-		a4 = createIU("A", new Version("4.0.0"), false);
+		a4 = createIU("A", Version.create("4.0.0"), false);
 
-		x = createIU("X", new Version(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 4.1.0)"), null));
+		x = createIU("X", Version.createOSGi(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 4.1.0)"), null));
 
 		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
-		y = createIU("Y", new Version(2, 0, 0), new IRequiredCapability[] {c1, c2});
+		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c1, c2});
 
 		IRequiredCapability c3 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
 		IRequiredCapability c4 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[4.0.0, 4.0.0]"), null, false, false);
-		z = createIU("Z", new Version(2, 0, 0), new IRequiredCapability[] {c3, c4});
+		z = createIU("Z", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c3, c4});
 
 		IRequiredCapability c5 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		IRequiredCapability c6 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
-		w = createIU("W", new Version(2, 0, 0), new IRequiredCapability[] {c5, c6});
+		w = createIU("W", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c5, c6});
 
 		IRequiredCapability c7 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0]"), null, false, false);
 		IRequiredCapability c8 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 4.0.0]"), null, false, false);
-		v = createIU("V", new Version(2, 0, 0), new IRequiredCapability[] {c7});
-		u = createIU("U", new Version(2, 0, 0), new IRequiredCapability[] {c8});
+		v = createIU("V", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c7});
+		u = createIU("U", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c8});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, a3, a4, w, x, y, z});
 

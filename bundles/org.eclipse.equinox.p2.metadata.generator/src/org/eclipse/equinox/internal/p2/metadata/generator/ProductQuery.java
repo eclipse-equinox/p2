@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
@@ -94,7 +91,7 @@ public class ProductQuery extends MatchQuery {
 
 			VersionRange range = VersionRange.emptyRange;
 			if (versions.containsKey(item)) {
-				Version value = new Version(versions.getProperty(item));
+				Version value = Version.create(versions.getProperty(item));
 				range = new VersionRange(value, true, value, true);
 			}
 

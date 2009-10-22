@@ -91,7 +91,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
+		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
 		assertEquals("1.0", 0, result.size());
 
 		//null query collects repository URLs
@@ -161,7 +161,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), getMonitor());
+		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new Collector(), getMonitor());
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
@@ -229,7 +229,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		Collection collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
 		AvailableIUElement next = (AvailableIUElement) collection.iterator().next();
-		assertEquals("1.1", new Version(3, 0, 0), next.getIU().getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), next.getIU().getVersion());
 	}
 
 	/**

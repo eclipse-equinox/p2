@@ -28,15 +28,15 @@ public class MissingOptionalWithDependencies2 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
-		c1 = createIU("C", new Version("1.0.0"), true);
-		c2 = createIU("C", new Version("2.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
+		c2 = createIU("C", Version.create("2.0.0"), true);
 
 		//B's dependency on C can not be satisfied
 		IRequiredCapability[] reqB = new IRequiredCapability[2];
 		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.0.0]"), null, true, false, true);
 		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		b1 = createIU("B", new Version("1.0.0"), reqB);
+		b1 = createIU("B", Version.create("1.0.0"), reqB);
 
 		IRequiredCapability[] req = new IRequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);

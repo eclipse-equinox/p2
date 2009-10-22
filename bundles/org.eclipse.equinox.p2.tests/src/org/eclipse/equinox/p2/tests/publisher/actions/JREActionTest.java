@@ -12,10 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
@@ -29,7 +25,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings( {"unchecked"})
+@SuppressWarnings({"unchecked"})
 public class JREActionTest extends ActionTest {
 
 	private File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
@@ -47,28 +43,28 @@ public class JREActionTest extends ActionTest {
 	public void test14() throws Exception {
 		testAction = new JREAction(J14);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults("a.jre.j2se", 92, new Version("1.4.0"), true); //$NON-NLS-1$
+		verifyResults("a.jre.j2se", 92, Version.create("1.4.0"), true); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void test15() throws Exception {
 		testAction = new JREAction(J15);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults("a.jre.j2se", 119, new Version("1.5.0"), true); //$NON-NLS-1$
+		verifyResults("a.jre.j2se", 119, Version.create("1.5.0"), true); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void test16() throws Exception {
 		testAction = new JREAction(J16);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults("a.jre.javase", 117, new Version("1.6.0"), true); //$NON-NLS-1$
+		verifyResults("a.jre.javase", 117, Version.create("1.6.0"), true); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.javase,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public void testOSGiMin() throws Exception {
 		testAction = new JREAction("OSGi/Minimum-1.2");
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyResults("a.jre.osgi.minimum", 2, new Version("1.2.0"), false); //$NON-NLS-1$
+		verifyResults("a.jre.osgi.minimum", 2, Version.create("1.2.0"), false); //$NON-NLS-1$
 	}
 
 	private void verifyResults(String id, int numProvidedCapabilities, Version JREVersion, boolean testInstructions) {
@@ -81,7 +77,7 @@ public class JREActionTest extends ActionTest {
 
 		// check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.native")); //$NON-NLS-1$
-		assertTrue(foo.getTouchpointType().getVersion().equals(new Version("1.0.0"))); //$NON-NLS-1$
+		assertTrue(foo.getTouchpointType().getVersion().equals(Version.create("1.0.0"))); //$NON-NLS-1$
 
 		// check provided capabilities
 		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
@@ -97,7 +93,7 @@ public class JREActionTest extends ActionTest {
 			assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		IRequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
+		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
 		assertTrue(requiredCapability.length == 1);
 
 		IProvidedCapability[] providedCapability = bar.getProvidedCapabilities();

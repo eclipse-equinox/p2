@@ -43,7 +43,7 @@ public class RootFilesActionTest extends ActionTest {
 	protected String rootExclusions = null;
 	protected IArtifactRepository artifactRepository;
 	protected String idArg = "sdk"; //$NON-NLS-1$
-	protected Version versionArg = new Version("3.4.0.i0305"); //$NON-NLS-1$
+	protected Version versionArg = Version.create("3.4.0.i0305"); //$NON-NLS-1$
 	private File root = new File(TestActivator.getTestDataFolder(), "RootFilesActionTest/eclipse"); //$NON-NLS-1$
 	private File[] includedFiles;
 	private File[] excludedFiles;

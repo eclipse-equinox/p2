@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -162,8 +159,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	private IInstallableUnit createTestIU(String touchpointName) {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.test");
-		description.setVersion(new Version("1.0.0"));
-		description.setTouchpointType(MetadataFactory.createTouchpointType(touchpointName, new Version("1.0.0")));
+		description.setVersion(Version.create("1.0.0"));
+		description.setTouchpointType(MetadataFactory.createTouchpointType(touchpointName, Version.create("1.0.0")));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(description);
 		return createResolvedIU(unit);
 	}

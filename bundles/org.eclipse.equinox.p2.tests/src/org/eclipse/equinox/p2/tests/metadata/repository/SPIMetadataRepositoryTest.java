@@ -624,7 +624,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
-		repo.addInstallableUnits(new IInstallableUnit[] {new SPIInstallableUnit("foo", new Version(1, 1, 1))});
+		repo.addInstallableUnits(new IInstallableUnit[] {new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1))});
 
 		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
 
@@ -655,9 +655,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability("foo", "bar", new Version(1, 0, 0));
+		IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability("foo", "bar", Version.createOSGi(1, 0, 0));
 
-		SPIInstallableUnit spiInstallableUnit = new SPIInstallableUnit("foo", new Version(1, 1, 1));
+		SPIInstallableUnit spiInstallableUnit = new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1));
 		spiInstallableUnit.addProvidedCapability(providedCapability);
 		repo.addInstallableUnits(new IInstallableUnit[] {spiInstallableUnit});
 
@@ -698,8 +698,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		iuDescription.setId("foo");
-		iuDescription.setVersion(new Version(1, 1, 1));
-		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true));
+		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
+		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true));
 		Collection list = new ArrayList();
 		list.add(spiRequiredCapability);
 		iuDescription.addRequiredCapabilities(list);
@@ -741,16 +741,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		InstallableUnitPatchDescription iuPatchDescription = new InstallableUnitPatchDescription();
 		iuDescription.setId("foo");
-		iuDescription.setVersion(new Version(1, 1, 1));
+		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
 
-		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
-		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", false, false, false);
+		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", false, false, false);
 
 		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
 		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});
 
-		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
-		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", new Version(1, 1, 1));
+		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", Version.createOSGi(1, 1, 1));
 
 		ITouchpointData spiTouchpointData = new SPITouchpointData();
 		ITouchpointInstruction spiTouchpointInstruction = new SPITouchpointInstruction("the body", "the import attribute");
@@ -760,7 +760,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		SPILicense spiLicense = new SPILicense("body", new URI("http://example.com"));
 		iuDescription.setLicense(spiLicense);
 
-		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", new Version(3, 3, 3));
+		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", Version.createOSGi(3, 3, 3));
 		iuDescription.setTouchpointType(spiTouchpointType);
 
 		Collection requiredCapabilityList = new ArrayList();

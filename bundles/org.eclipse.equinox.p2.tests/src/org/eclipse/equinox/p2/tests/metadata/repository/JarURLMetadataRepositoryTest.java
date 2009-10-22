@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,8 +19,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -61,7 +58,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
-		descriptor.setVersion(new Version("3.2.1"));
+		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
 

@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,8 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepo
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -101,7 +98,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 			descriptor.setId("testIuId");
-			descriptor.setVersion(new Version("3.2.1"));
+			descriptor.setVersion(Version.create("3.2.1"));
 			IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 			compRepo.addInstallableUnits(new IInstallableUnit[] {iu});
 			fail("Should not be able to insert InstallableUnit");
@@ -459,7 +456,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), new Collector(), monitor);
 		Collection collection = collector.toCollection();
 		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -482,7 +479,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
-					if (iInstallableUnit.getVersion().compareTo(new Version(3, 0, 0)) < 0)
+					if (iInstallableUnit.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0)
 						return true;
 				}
 				return false;
@@ -491,7 +488,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		Collector collector = compositeRepo.query(cQuery, new Collector(), monitor);
 		Collection collection = collector.toCollection();
 		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}

@@ -26,8 +26,8 @@ public class MissingOptional extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		IRequiredCapability[] req = new IRequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);

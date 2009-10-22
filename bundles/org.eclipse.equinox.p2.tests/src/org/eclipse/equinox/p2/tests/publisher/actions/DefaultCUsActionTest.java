@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
 @SuppressWarnings( {"restriction", "unchecked"})
 public class DefaultCUsActionTest extends ActionTest {
 
-	private Version version = new Version("1.0.0"); //$NON-NLS-1$
+	private Version version = Version.create("1.0.0"); //$NON-NLS-1$
 
 	public void testAll() throws Exception {
 		testAction = new DefaultCUsAction(publisherInfo, flavorArg, 4 /*start level*/, true /*start*/);

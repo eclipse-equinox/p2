@@ -8,9 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -39,7 +36,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 		desc.setRequiredCapabilities(requires);
 		desc.setId("A");
-		desc.setVersion(new Version(2, 0, 0));
+		desc.setVersion(Version.createOSGi(2, 0, 0));
 		desc.setSingleton(true);
 		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("A", new VersionRange("[1.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
 
@@ -49,7 +46,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 		InstallableUnitDescription desc2 = new MetadataFactory.InstallableUnitDescription();
 		desc2.setId("C");
-		desc2.setVersion(new Version(2, 0, 0));
+		desc2.setVersion(Version.createOSGi(2, 0, 0));
 		desc2.setSingleton(true);
 		desc2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("C", new VersionRange("[1.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
 		c2 = MetadataFactory.createInstallableUnit(desc2);

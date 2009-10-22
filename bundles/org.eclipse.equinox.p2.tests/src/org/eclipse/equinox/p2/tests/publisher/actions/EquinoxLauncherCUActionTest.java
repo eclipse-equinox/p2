@@ -70,12 +70,12 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(new Version("1.0.0"), true, new Version("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(iu.getRequiredCapabilities().length == 2);
 
 				IProvidedCapability[] cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
-				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
+				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
 				assertTrue(cap.length == 2);
 
 				Map prop = iu.getProperties();
@@ -100,7 +100,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 		VersionAdvice versionAdvice = new VersionAdvice();
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
-		versionAdvice.setVersion("org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
+		versionAdvice.setVersion("org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
 
 		ArrayList versionList = new ArrayList();
 		versionList.add(versionAdvice);

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
 import java.io.Serializable;
+import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
 
 /**
  * The VersionVector represents an array of Comparable objects. The array can be
@@ -94,64 +95,17 @@ public class VersionVector implements Comparable, Serializable {
 	public static final Comparable MAXS_VALUE = new MaxStringValue();
 
 	/**
+	 * A value that is greater then {@link #MIN_VALUE} and less then any string,
+	 * Integer, or VersionVector (a.k.a. empty_string)
+	 */
+	public static final String MINS_VALUE = ""; //$NON-NLS-1$
+
+	/**
 	 * A value that is less then any other value
 	 */
 	public static final Comparable MIN_VALUE = new MinValue();
 
 	private static final long serialVersionUID = -8385373304298723744L;
-
-	static void rawToString(StringBuffer sb, boolean forRange, Comparable e) {
-		if (e instanceof String) {
-			writeQuotedString(sb, forRange, (String) e, '\'', 0, false);
-		} else if (e instanceof VersionVector) {
-			sb.append('<');
-			((VersionVector) e).toString(sb, forRange);
-			sb.append('>');
-		} else
-			sb.append(e);
-	}
-
-	/**
-	 * Write a string within quotes. If the string is found to contain the quote, an attempt is made
-	 * to flip quote character (single quote becomes double quote and vice versa). A string that contains
-	 * both will be written as several adjacent quoted strings so that each string is quoted with a
-	 * quote character that it does not contain.
-	 * @param sb The buffer that will receive the string
-	 * @param rangeSafe Set to <code>true</code> if the resulting string will be used in a range string
-	 *        and hence need to escape the range delimiter characters
-	 * @param s The string to be written
-	 * @param quote The quote character to start with. Must be the single or double quote character.
-	 * @param startPos The start position
-	 * @param didFlip True if the call is recursive and thus, cannot switch quotes in the first string.
-	 */
-	static void writeQuotedString(StringBuffer sb, boolean rangeSafe, String s, char quote, int startPos, boolean didFlip) {
-		int quotePos = sb.length();
-		sb.append(quote);
-		boolean otherSeen = false;
-		int top = s.length();
-		for (int idx = startPos; idx < top; ++idx) {
-			char c = s.charAt(idx);
-			if (c == '\'' || c == '"') {
-				if (c == quote) {
-					char otherQuote = quote == '\'' ? '"' : '\'';
-					if (didFlip || otherSeen) {
-						// We can only flip once
-						sb.append(quote);
-						writeQuotedString(sb, rangeSafe, s, otherQuote, idx, true);
-						return;
-					}
-					quote = otherQuote;
-					sb.setCharAt(quotePos, quote);
-					didFlip = true;
-				} else
-					otherSeen = true;
-			}
-			if (rangeSafe && (c == '\\' || c == '[' || c == '(' || c == ']' || c == ')' || c == ',' || c <= ' '))
-				sb.append('\\');
-			sb.append(c);
-		}
-		sb.append(quote);
-	}
 
 	private static int compareSegments(Comparable a, Comparable b) {
 		if (a == b)
@@ -185,15 +139,11 @@ public class VersionVector implements Comparable, Serializable {
 		throw new IllegalArgumentException();
 	}
 
-	private Comparable padValue;
+	private final Comparable padValue;
 
-	private Comparable[] vector;
+	private final Comparable[] vector;
 
-	VersionVector() {
-		// Constructor used in conjunction with init (when version is parsed from string)
-	}
-
-	VersionVector(Comparable[] vector, Comparable pad) {
+	public VersionVector(Comparable[] vector, Comparable pad) {
 		this.vector = vector;
 		this.padValue = (pad == MIN_VALUE) ? null : pad;
 	}
@@ -328,17 +278,17 @@ public class VersionVector implements Comparable, Serializable {
 			// Write one pad value as explicit. It will be considered
 			// redundant and removed by the parser but the raw format
 			// does not allow zero elements
-			rawToString(sb, rangeSafe, padValue == null ? MIN_VALUE : padValue);
+			VersionFormat.rawToString(sb, rangeSafe, padValue == null ? MIN_VALUE : padValue);
 		else {
 			for (int idx = 0; idx < top; ++idx) {
 				if (idx > 0)
 					sb.append('.');
-				rawToString(sb, rangeSafe, vector[idx]);
+				VersionFormat.rawToString(sb, rangeSafe, vector[idx]);
 			}
 		}
 		if (padValue != null) {
 			sb.append('p');
-			rawToString(sb, rangeSafe, padValue);
+			VersionFormat.rawToString(sb, rangeSafe, padValue);
 		}
 	}
 
@@ -349,11 +299,6 @@ public class VersionVector implements Comparable, Serializable {
 	 */
 	Comparable[] getVector() {
 		return vector;
-	}
-
-	void init(Comparable[] vec, Comparable pad) {
-		vector = vec;
-		padValue = (pad == MIN_VALUE) ? null : pad;
 	}
 
 	private int compareReminder(int idx, Comparable othersPad) {

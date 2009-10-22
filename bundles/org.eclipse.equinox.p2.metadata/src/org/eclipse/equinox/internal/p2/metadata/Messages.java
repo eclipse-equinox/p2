@@ -80,6 +80,8 @@ public class Messages extends NLS {
 
 	public static String only_format_specified_0;
 
+	public static String only_max_and_empty_string_defaults_can_have_translations;
+
 	public static String original_must_start_with_colon_0;
 
 	public static String original_stated_but_missing_0;

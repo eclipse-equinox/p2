@@ -40,7 +40,7 @@ public class JBDiffZipStepTest extends TestCase {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		MockableJBDiffZipStep differ = new MockableJBDiffZipStep(repoMock);
 		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.1"));
+		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		differ.initialize(stepDescriptor, descriptor);
 

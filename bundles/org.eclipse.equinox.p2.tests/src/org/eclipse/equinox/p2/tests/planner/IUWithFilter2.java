@@ -37,7 +37,7 @@ public class IUWithFilter2 extends AbstractProvisioningTest {
 		reqsA2[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, true, false);
 		a2 = createIU("A", reqsA2);
 
-		b1 = createIU("B", new Version("1.0.0"), "(invalid=true)", NO_PROVIDES);
+		b1 = createIU("B", Version.create("1.0.0"), "(invalid=true)", NO_PROVIDES);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, b1});
 		profile = createProfile(IUWithFilter2.class.getName());

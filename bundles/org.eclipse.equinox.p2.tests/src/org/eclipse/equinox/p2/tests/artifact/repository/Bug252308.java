@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.Method;
 import org.eclipse.core.runtime.*;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -119,10 +118,10 @@ public class Bug252308 extends AbstractProvisioningTest {
 			fail("failing setting up the tests", e);
 		}
 
-		IArtifactDescriptor sourceDescriptor = getArtifactKeyFor(source, "osgi.bundle", "missingFromFileSystem", new Version(1, 0, 0))[0];
+		IArtifactDescriptor sourceDescriptor = getArtifactKeyFor(source, "osgi.bundle", "missingFromFileSystem", Version.createOSGi(1, 0, 0))[0];
 		ArtifactDescriptor targetDescriptor = new ArtifactDescriptor(sourceDescriptor);
 		targetDescriptor.setRepositoryProperty("artifact.folder", "true");
-		MirrorRequest request = new MirrorRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", new Version(1, 0, 0)), target, null, null);
+		MirrorRequest request = new MirrorRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", Version.createOSGi(1, 0, 0)), target, null, null);
 		request.setSourceRepository(source);
 		IStatus s = transferSingle(request, targetDescriptor, sourceDescriptor, new NullProgressMonitor());
 		assertTrue(s.toString(), s.getException().getClass() == FileNotFoundException.class);

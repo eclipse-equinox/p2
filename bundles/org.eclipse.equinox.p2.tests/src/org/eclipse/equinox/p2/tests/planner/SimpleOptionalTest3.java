@@ -33,21 +33,21 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
-		b2 = createIU("B", new Version("2.0.0"), true);
-		b3 = createIU("B", new Version("3.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
+		b2 = createIU("B", Version.create("2.0.0"), true);
+		b3 = createIU("B", Version.create("3.0.0"), true);
 
-		c1 = createIU("C", new Version("1.0.0"), true);
-		c2 = createIU("C", new Version("2.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
+		c2 = createIU("C", Version.create("2.0.0"), true);
 
-		d1 = createIU("D", new Version("1.0.0"), true);
-		d2 = createIU("D", new Version("2.0.0"), true);
+		d1 = createIU("D", Version.create("1.0.0"), true);
+		d2 = createIU("D", Version.create("2.0.0"), true);
 
 		IRequiredCapability[] reqA = new IRequiredCapability[3];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
 		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
 		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		IRequiredCapability[] req = new IRequiredCapability[1];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 2.0.0]"), null, false, false, true);

@@ -8,25 +8,46 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
-
-import org.eclipse.equinox.internal.p2.metadata.Messages;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.equinox.internal.p2.metadata.VersionFormat.TreeInfo;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionFormatException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionVector;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * <p>The VersionFormat represents the Omni Version Format in compiled form. It
- * is also a parser for versions of that format.</p>
- * <p>An instance of VersionFormat is immutable and thus thread safe. The parser
- * does not maintain any state.</p>
- * 
- * @Immutable
- * @noextend This class is not intended to be subclassed by clients.
+ * This is the Omni Version Format parser. It will parse a version format in string form
+ * into a group of {@link VersionFormatParser.Fragment} elements. That group, wrapped in a
+ * {@link VersionFormat}, becomes the parser for versions corresponding to the format.
+ *
+ * The class is not intended to included in a public API. Instead VersionFormats should
+ * be created using {@link VersionFormat#parse(String)}
+ *
  */
-public class VersionFormat implements Serializable {
-	private static final long serialVersionUID = 6888925893926932754L;
+class VersionFormatParser {
+
+	static class Instructions {
+		char[] characters = null;
+		Comparable defaultValue = null;
+		char oppositeTranslationChar = 0;
+		int oppositeTranslationRepeat = 0;
+		boolean ignore = false;
+		boolean inverted = false;
+		Comparable padValue = null;
+		int rangeMax = Integer.MAX_VALUE;
+		int rangeMin = 0;
+	}
+
+	static final Qualifier EXACT_ONE_QUALIFIER = new Qualifier(1, 1);
+
+	static final Qualifier ONE_OR_MANY_QUALIFIER = new Qualifier(1, Integer.MAX_VALUE);
+
+	static final Qualifier ZERO_OR_MANY_QUALIFIER = new Qualifier(0, Integer.MAX_VALUE);
+
+	static final Qualifier ZERO_OR_ONE_QUALIFIER = new Qualifier(0, 1);
 
 	/**
 	 * Represents one fragment of a format (i.e. auto, number, string, delimiter, etc.)
@@ -157,9 +178,22 @@ public class VersionFormat implements Serializable {
 			for (;;) {
 				// Pad with default values unless the max is unbounded
 				//
-				if (max != Integer.MAX_VALUE) {
-					for (; idx < max; ++idx)
-						fragment.setDefaults(segments);
+				if (idx < max) {
+					if (max != Integer.MAX_VALUE) {
+						for (; idx < max; ++idx)
+							fragment.setDefaults(segments);
+					}
+				} else {
+					if (fragment instanceof StringFragment) {
+						// Check for translations if we default to for MINS or MAXS
+						StringFragment stringFrag = (StringFragment) fragment;
+						Comparable opposite = stringFrag.getOppositeDefaultValue();
+						if (opposite != null) {
+							idx = segments.size() - 1;
+							if (stringFrag.isOppositeTranslation(segments.get(idx)))
+								segments.set(idx, opposite);
+						}
+					}
 				}
 
 				if (fragIdx == fragments.length)
@@ -266,7 +300,7 @@ public class VersionFormat implements Serializable {
 					return false;
 
 				if (!isIgnored())
-					segments.add(Version.valueOf(value));
+					segments.add(VersionParser.valueOf(value));
 				info.setPosition(pos);
 				return true;
 			}
@@ -346,6 +380,77 @@ public class VersionFormat implements Serializable {
 		}
 	}
 
+	static void appendCharacterRange(StringBuffer sb, char[] range, boolean inverted) {
+		sb.append('=');
+		sb.append('[');
+		if (inverted)
+			sb.append('^');
+		int top = range.length;
+		for (int idx = 0; idx < top; ++idx) {
+			char b = range[idx];
+			if (b == '\\' || b == ']' || (b == '-' && idx + 1 < top))
+				sb.append('\\');
+
+			sb.append(b);
+			int ndx = idx + 1;
+			if (ndx + 2 < top) {
+				char c = b;
+				for (; ndx < top; ++ndx) {
+					char n = range[ndx];
+					if (c + 1 != n)
+						break;
+					c = n;
+				}
+				if (ndx <= idx + 3)
+					continue;
+
+				sb.append('-');
+				if (c == '\\' || c == ']' || (c == '-' && idx + 1 < top))
+					sb.append('\\');
+				sb.append(c);
+				idx = ndx - 1;
+			}
+		}
+		sb.append(']');
+		sb.append(';');
+	}
+
+	static Fragment createAutoFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
+		return new AutoFragment(instr, qualifier);
+	}
+
+	static Fragment createDelimiterFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
+		return new DelimiterFragment(instr, qualifier);
+	}
+
+	static Fragment createGroupFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, Fragment[] fragments, boolean array) {
+		return new GroupFragment(instr, qualifier, fragments, array);
+	}
+
+	static Fragment createLiteralFragment(Qualifier qualifier, String literal) {
+		return new LiteralFragment(qualifier, literal);
+	}
+
+	static Fragment createNumberFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, boolean signed) {
+		return new NumberFragment(instr, qualifier, signed);
+	}
+
+	static Fragment createPadFragment(Qualifier qualifier) {
+		return new PadFragment(qualifier);
+	}
+
+	static Fragment createQuotedFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
+		return new QuotedFragment(instr, qualifier);
+	}
+
+	static Fragment createRawFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
+		return new RawFragment(instr, qualifier);
+	}
+
+	static Fragment createStringFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, boolean unbound) {
+		return new StringFragment(instr, qualifier, unbound);
+	}
+
 	static boolean equalsAllowNull(Object a, Object b) {
 		return (a == null) ? (b == null) : (b != null && a.equals(b));
 	}
@@ -395,13 +500,13 @@ public class VersionFormat implements Serializable {
 			}
 			if (defaultValue != null) {
 				sb.append('=');
-				VersionVector.rawToString(sb, false, defaultValue);
+				VersionFormat.rawToString(sb, false, defaultValue);
 				sb.append(';');
 			}
 			if (padValue != null) {
 				sb.append('=');
 				sb.append('p');
-				VersionVector.rawToString(sb, false, padValue);
+				VersionFormat.rawToString(sb, false, padValue);
 				sb.append(';');
 			}
 			super.toString(sb);
@@ -517,7 +622,7 @@ public class VersionFormat implements Serializable {
 			String str = string;
 			if (str.length() != 1) {
 				sb.append('\'');
-				toStringEscaped(sb, str, "\'"); //$NON-NLS-1$
+				VersionFormatParser.toStringEscaped(sb, str, "\'"); //$NON-NLS-1$
 				sb.append('\'');
 			} else {
 				char c = str.charAt(0);
@@ -611,7 +716,7 @@ public class VersionFormat implements Serializable {
 				return false;
 
 			if (!isIgnored())
-				segments.add(Version.valueOf(value));
+				segments.add(VersionParser.valueOf(value));
 			info.setPosition(pos);
 			return true;
 		}
@@ -830,10 +935,49 @@ public class VersionFormat implements Serializable {
 	private static class StringFragment extends RangeFragment {
 		private static final long serialVersionUID = -2265924553606430164L;
 		final boolean anyChar;
+		private final char oppositeTranslationChar;
+		private final int oppositeTranslationRepeat;
 
 		StringFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, boolean noLimit) {
 			super(instr, qualifier);
 			anyChar = noLimit;
+			char otc = 0;
+			int otr = 0;
+			if (instr != null) {
+				otc = instr.oppositeTranslationChar;
+				otr = instr.oppositeTranslationRepeat;
+				if (instr.defaultValue == VersionVector.MINS_VALUE) {
+					if (otc == 0)
+						otc = 'z';
+					if (otr == 0)
+						otr = 3;
+				} else if (instr.defaultValue == VersionVector.MAXS_VALUE) {
+					if (otc == 0)
+						otc = '-';
+					otr = 1;
+				}
+			}
+			oppositeTranslationChar = otc;
+			oppositeTranslationRepeat = otr;
+		}
+
+		Comparable getOppositeDefaultValue() {
+			Comparable dflt = getDefaultValue();
+			return dflt == VersionVector.MAXS_VALUE ? VersionVector.MINS_VALUE : (dflt == VersionVector.MINS_VALUE ? VersionVector.MAXS_VALUE : null);
+		}
+
+		public boolean isOppositeTranslation(Object val) {
+			if (val instanceof String) {
+				String str = (String) val;
+				int idx = oppositeTranslationRepeat;
+				if (str.length() == idx) {
+					while (--idx >= 0)
+						if (str.charAt(idx) != oppositeTranslationChar)
+							break;
+					return idx < 0;
+				}
+			}
+			return false;
 		}
 
 		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
@@ -888,227 +1032,509 @@ public class VersionFormat implements Serializable {
 		}
 	}
 
-	private static class TreeInfo extends ArrayList {
-		private static final long serialVersionUID = 4770093863009659750L;
+	private int current;
 
-		private static class StateInfo {
-			Fragment fragment;
-			int segmentCount;
-			int position;
+	private List currentList;
 
-			StateInfo(int position, int segmentCount, Fragment fragment) {
-				this.fragment = fragment;
-				this.position = position;
-				this.segmentCount = segmentCount;
-			}
-		}
+	private int eos;
 
-		private Comparable padValue;
-		private int top;
+	private String format;
 
-		TreeInfo(Fragment frag, int pos) {
-			add(new StateInfo(pos, 0, frag));
-			top = 0;
-		}
+	private int start;
 
-		Comparable getPadValue() {
-			return padValue;
-		}
+	Fragment compile(String fmt, int pos, int maxPos) throws VersionFormatException {
+		format = fmt;
+		if (start >= maxPos)
+			throw new VersionFormatException(Messages.format_is_empty);
 
-		int getPosition() {
-			return ((StateInfo) get(top)).position;
-		}
+		start = pos;
+		current = pos;
+		eos = maxPos;
+		currentList = new ArrayList();
+		while (current < eos)
+			parseFragment();
 
-		void popState(List segments, Fragment frag) {
-			int idx = top;
-			while (idx > 0) {
-				StateInfo si = (StateInfo) get(idx);
-				if (si.fragment == frag) {
-					int nsegs = segments.size();
-					int segMax = si.segmentCount;
-					while (nsegs > segMax)
-						segments.remove(--nsegs);
-					top = idx - 1;
+		Fragment topFrag;
+		switch (currentList.size()) {
+			case 0 :
+				throw new VersionFormatException(Messages.format_is_empty);
+			case 1 :
+				Fragment frag = (Fragment) currentList.get(0);
+				if (frag.isGroup()) {
+					topFrag = frag;
 					break;
 				}
+				// Fall through to default
+			default :
+				topFrag = createGroupFragment(null, EXACT_ONE_QUALIFIER, (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), false);
+		}
+		currentList = null;
+		return topFrag;
+	}
+
+	private void assertChar(char expected) throws VersionFormatException {
+		if (current >= eos)
+			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, new String(new char[] {expected})));
+
+		char c = format.charAt(current);
+		if (c != expected)
+			throw formatException(c, new String(new char[] {expected}));
+		++current;
+	}
+
+	private VersionFormatException formatException(char found, String expected) {
+		return formatException(new String(new char[] {found}), expected);
+	}
+
+	private VersionFormatException formatException(String message) {
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_2, new Object[] {format.substring(start, eos), new Integer(current), message}));
+	}
+
+	private VersionFormatException formatException(String found, String expected) {
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_found_2_expected_3, new Object[] {format.substring(start, eos), new Integer(current), found, expected}));
+	}
+
+	private VersionFormatException illegalControlCharacter(char c) {
+		return formatException(NLS.bind(Messages.illegal_character_encountered_ascii_0, VersionParser.valueOf(c)));
+	}
+
+	private String parseAndConsiderEscapeUntil(char endChar) throws VersionFormatException {
+		StringBuffer sb = new StringBuffer();
+		while (current < eos) {
+			char c = format.charAt(current++);
+			if (c == endChar)
+				break;
+
+			if (c < 32)
+				throw illegalControlCharacter(c);
+
+			if (c == '\\') {
+				if (current == eos)
+					throw formatException(Messages.EOS_after_escape);
+				c = format.charAt(current++);
+				if (c < 32)
+					throw illegalControlCharacter(c);
 			}
+			sb.append(c);
 		}
-
-		void pushState(int segCount, Fragment fragment) {
-			int pos = ((StateInfo) get(top)).position;
-			if (++top == size())
-				add(new StateInfo(pos, segCount, fragment));
-			else {
-				StateInfo si = (StateInfo) get(top);
-				si.fragment = fragment;
-				si.position = pos;
-				si.segmentCount = segCount;
-			}
-		}
-
-		void setPadValue(Comparable pad) {
-			padValue = pad;
-		}
-
-		void setPosition(int pos) {
-			((StateInfo) get(top)).position = pos;
-		}
+		return sb.toString();
 	}
 
-	/**
-	 * The predefined OSGi format that is used when parsing OSGi
-	 * versions.
-	 */
-	public static final VersionFormat OSGI_FORMAT;
-
-	/**
-	 * The predefined OSGi format that is used when parsing raw
-	 * versions.
-	 */
-	public static final VersionFormat RAW_FORMAT;
-
-	private static final Map formatCache = Collections.synchronizedMap(new HashMap());
-
-	private static final String OSGI_FORMAT_STRING = "n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]"; //$NON-NLS-1$
-
-	private static final String RAW_FORMAT_STRING = "r(.r)*p?"; //$NON-NLS-1$
-
-	static {
-		try {
-			VersionFormatParser parser = new VersionFormatParser();
-			OSGI_FORMAT = new VersionFormat(parser.compile(OSGI_FORMAT_STRING, 0, OSGI_FORMAT_STRING.length()));
-			formatCache.put(OSGI_FORMAT_STRING, OSGI_FORMAT);
-			RAW_FORMAT = new RawFormat(parser.compile(RAW_FORMAT_STRING, 0, RAW_FORMAT_STRING.length()));
-			formatCache.put(RAW_FORMAT_STRING, RAW_FORMAT);
-		} catch (FormatException e) {
-			// If this happens, something is wrong with the actual
-			// implementation of the FormatCompiler.
-			//
-			throw new ExceptionInInitializerError(e);
+	private void parseAuto() throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.padValue != null)
+				throw formatException(Messages.auto_can_not_have_pad_value);
 		}
+		currentList.add(createAutoFragment(ep, parseQualifier()));
 	}
 
-	/**
-	 * Compile a version format string into a compiled format. This method is
-	 * shorthand for:<pre>CompiledFormat.compile(format, 0, format.length())</pre>.
-	 *
-	 * @param format The format to compile.
-	 * @return The compiled format
-	 * @throws FormatException If the format could not be compiled
-	 */
-	public static VersionFormat compile(String format) throws FormatException {
-		return compile(format, 0, format.length());
+	private void parseBracketGroup() throws VersionFormatException {
+		List saveList = currentList;
+		currentList = new ArrayList();
+		while (current < eos && format.charAt(current) != ']')
+			parseFragment();
+
+		if (current == eos)
+			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, "]")); //$NON-NLS-1$
+
+		++current;
+		VersionFormatParser.Instructions ep = parseProcessing();
+		saveList.add(createGroupFragment(ep, ZERO_OR_ONE_QUALIFIER, (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), false));
+		currentList = saveList;
 	}
 
-	/**
-	 * Compile a version format string into a compiled format. The parsing starts
-	 * at position start and ends at position end. The returned format is cached so
-	 * subsequent calls to this method using the same format string will yield the
-	 * same compiled format instance.
-	 *
-	 * @param format The format string to compile.
-	 * @param start Start position in the format string
-	 * @param end End position in the format string
-	 * @return The compiled format
-	 * @throws FormatException If the format could not be compiled
-	 */
-	public static VersionFormat compile(String format, int start, int end) throws FormatException {
-		String fmtString = format.substring(start, end).intern();
-		synchronized (fmtString) {
-			VersionFormat fmt = (VersionFormat) formatCache.get(fmtString);
-			if (fmt == null) {
-				VersionFormatParser parser = new VersionFormatParser();
-				fmt = new VersionFormat(parser.compile(format, start, end));
-				formatCache.put(fmtString, fmt);
-			}
-			return fmt;
-		}
-	}
+	private void parseCharacterGroup(VersionFormatParser.Instructions ep) throws VersionFormatException {
+		assertChar('[');
 
-	/**
-	 * Parse a version string using the {@link #RAW_FORMAT} parser.
-	 *
-	 * @param version The version to parse.
-	 * @param originalFormat The original format to assign to the created version. Can be <code>null</code>.
-	 * @param original The original version string to assign to the created version. Can be <code>null</code>.
-	 * @return A created version
-	 * @throws IllegalArgumentException If the version string could not be parsed.
-	 */
-	static Version parseRaw(String version, VersionFormat originalFormat, String original) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
-		return new Version(vector, padReturn[0], originalFormat, original);
-	}
-
-	static void appendCharacterRange(StringBuffer sb, char[] range, boolean inverted) {
-		sb.append('=');
-		sb.append('[');
-		if (inverted)
-			sb.append('^');
-		int top = range.length;
-		for (int idx = 0; idx < top; ++idx) {
-			char b = range[idx];
-			if (b == '\\' || b == ']' || (b == '-' && idx + 1 < top))
-				sb.append('\\');
-
-			sb.append(b);
-			int ndx = idx + 1;
-			if (ndx + 2 < top) {
-				char c = b;
-				for (; ndx < top; ++ndx) {
-					char n = range[ndx];
-					if (c + 1 != n)
-						break;
-					c = n;
-				}
-				if (ndx <= idx + 3)
+		StringBuffer sb = new StringBuffer();
+		outer: for (; current < eos; ++current) {
+			char c = format.charAt(current);
+			switch (c) {
+				case '\\' :
+					if (current + 1 < eos) {
+						sb.append(format.charAt(++current));
+						continue;
+					}
+					throw formatException(Messages.premature_end_of_format);
+				case '^' :
+					if (sb.length() == 0)
+						ep.inverted = true;
+					else
+						sb.append(c);
 					continue;
+				case ']' :
+					break outer;
+				case '-' :
+					if (sb.length() > 0 && current + 1 < eos) {
+						char rangeEnd = format.charAt(++current);
+						if (rangeEnd == ']') {
+							// Use dash verbatim when last in range
+							sb.append(c);
+							break outer;
+						}
 
-				sb.append('-');
-				if (c == '\\' || c == ']' || (c == '-' && idx + 1 < top))
-					sb.append('\\');
-				sb.append(c);
-				idx = ndx - 1;
+						char rangeStart = sb.charAt(sb.length() - 1);
+						if (rangeEnd < rangeStart)
+							throw formatException(Messages.negative_character_range);
+						while (++rangeStart <= rangeEnd)
+							sb.append(rangeStart);
+						continue;
+					}
+					// Fall through to default
+				default :
+					if (c < 32)
+						throw illegalControlCharacter(c);
+					sb.append(c);
 			}
 		}
-		sb.append(']');
-		sb.append(';');
+		assertChar(']');
+		int top = sb.length();
+		char[] chars = new char[top];
+		sb.getChars(0, top, chars, 0);
+		ep.characters = chars;
 	}
 
-	static Fragment createAutoFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
-		return new AutoFragment(instr, qualifier);
+	private void parseDelimiter() throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.rangeMin != 0 || ep.rangeMax != Integer.MAX_VALUE)
+				throw formatException(Messages.delimiter_can_not_have_range);
+			if (ep.ignore)
+				throw formatException(Messages.delimiter_can_not_be_ignored);
+			if (ep.defaultValue != null)
+				throw formatException(Messages.delimiter_can_not_have_default_value);
+			if (ep.padValue != null)
+				throw formatException(Messages.delimiter_can_not_have_pad_value);
+		}
+		currentList.add(createDelimiterFragment(ep, parseQualifier()));
 	}
 
-	static Fragment createDelimiterFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
-		return new DelimiterFragment(instr, qualifier);
+	private void parseFragment() throws VersionFormatException {
+		if (current == eos)
+			throw formatException(Messages.premature_end_of_format);
+		char c = format.charAt(current++);
+		switch (c) {
+			case '(' :
+				parseGroup(false);
+				break;
+			case '<' :
+				parseGroup(true);
+				break;
+			case '[' :
+				parseBracketGroup();
+				break;
+			case 'a' :
+				parseAuto();
+				break;
+			case 'r' :
+				parseRaw();
+				break;
+			case 'n' :
+				parseNumber(false);
+				break;
+			case 'N' :
+				parseNumber(true);
+				break;
+			case 's' :
+				parseString(false);
+				break;
+			case 'S' :
+				parseString(true);
+				break;
+			case 'd' :
+				parseDelimiter();
+				break;
+			case 'q' :
+				parseQuotedString();
+				break;
+			case 'p' :
+				parsePad();
+				break;
+			default :
+				parseLiteral(c);
+		}
 	}
 
-	static Fragment createGroupFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, Fragment[] fragments, boolean array) {
-		return new GroupFragment(instr, qualifier, fragments, array);
+	private void parseGroup(boolean array) throws VersionFormatException {
+		List saveList = currentList;
+		currentList = new ArrayList();
+		char expectedEnd = array ? '>' : ')';
+		while (current < eos && format.charAt(current) != expectedEnd)
+			parseFragment();
+		assertChar(expectedEnd);
+
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.characters != null)
+				throw formatException(Messages.array_can_not_have_character_group);
+			if (ep.rangeMax != Integer.MAX_VALUE && ep.padValue != null) {
+				throw formatException(Messages.cannot_combine_range_upper_bound_with_pad_value);
+			}
+		}
+
+		if (currentList.isEmpty())
+			throw formatException(array ? Messages.array_can_not_be_empty : Messages.group_can_not_be_empty);
+		saveList.add(createGroupFragment(ep, parseQualifier(), (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), array));
+		currentList = saveList;
 	}
 
-	static Fragment createLiteralFragment(Qualifier qualifier, String literal) {
-		return new LiteralFragment(qualifier, literal);
+	private int parseIntegerLiteral() throws VersionFormatException {
+		if (current == eos)
+			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, "<integer>")); //$NON-NLS-1$
+
+		char c = format.charAt(current);
+		if (!VersionParser.isDigit(c))
+			throw formatException(c, "<integer>"); //$NON-NLS-1$
+
+		int value = c - '0';
+		while (++current < eos) {
+			c = format.charAt(current);
+			if (!VersionParser.isDigit(c))
+				break;
+			value *= 10;
+			value += (c - '0');
+		}
+		return value;
 	}
 
-	static Fragment createNumberFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, boolean signed) {
-		return new NumberFragment(instr, qualifier, signed);
+	private void parseLiteral(char c) throws VersionFormatException {
+		String value;
+		switch (c) {
+			case '\'' :
+				value = parseAndConsiderEscapeUntil(c);
+				break;
+			case ')' :
+			case ']' :
+			case '{' :
+			case '}' :
+			case '?' :
+			case '*' :
+				throw formatException(c, "<literal>"); //$NON-NLS-1$
+			default :
+				if (VersionParser.isLetterOrDigit(c))
+					throw formatException(c, "<literal>"); //$NON-NLS-1$
+
+				if (c < 32)
+					throw illegalControlCharacter(c);
+
+				if (c == '\\') {
+					if (current == eos)
+						throw formatException(Messages.EOS_after_escape);
+					c = format.charAt(current++);
+					if (c < 32)
+						throw illegalControlCharacter(c);
+				}
+				value = new String(new char[] {c});
+		}
+		currentList.add(createLiteralFragment(parseQualifier(), value));
 	}
 
-	static Fragment createPadFragment(Qualifier qualifier) {
-		return new PadFragment(qualifier);
+	private int[] parseMinMax() throws VersionFormatException {
+
+		int max = Integer.MAX_VALUE;
+		++current;
+		int min = parseIntegerLiteral();
+		char c = format.charAt(current);
+		if (c == '}') {
+			max = min;
+			if (max == 0)
+				throw formatException(Messages.range_max_cannot_be_zero);
+			++current;
+		} else if (c == ',' && current + 1 < eos) {
+			if (format.charAt(++current) != '}') {
+				max = parseIntegerLiteral();
+				if (max == 0)
+					throw formatException(Messages.range_max_cannot_be_zero);
+				if (max < min)
+					throw formatException(Messages.range_max_cannot_be_less_then_range_min);
+			}
+			assertChar('}');
+		} else
+			throw formatException(c, "},"); //$NON-NLS-1$
+		return new int[] {min, max};
 	}
 
-	static Fragment createQuotedFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
-		return new QuotedFragment(instr, qualifier);
+	private void parseNumber(boolean signed) throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.padValue != null)
+				throw formatException(Messages.number_can_not_have_pad_value);
+		}
+		currentList.add(createNumberFragment(ep, parseQualifier(), signed));
 	}
 
-	static Fragment createRawFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
-		return new RawFragment(instr, qualifier);
+	private void parsePad() throws VersionFormatException {
+		currentList.add(createPadFragment(parseQualifier()));
 	}
 
-	static Fragment createStringFragment(VersionFormatParser.Instructions instr, Qualifier qualifier, boolean unbound) {
-		return new StringFragment(instr, qualifier, unbound);
+	private VersionFormatParser.Instructions parseProcessing() throws VersionFormatException {
+		if (current >= eos)
+			return null;
+
+		char c = format.charAt(current);
+		if (c != '=')
+			return null;
+
+		VersionFormatParser.Instructions ep = new VersionFormatParser.Instructions();
+		do {
+			current++;
+			parseProcessingInstruction(ep);
+		} while (current < eos && format.charAt(current) == '=');
+		return ep;
+	}
+
+	private void parseProcessingInstruction(VersionFormatParser.Instructions processing) throws VersionFormatException {
+		if (current == eos)
+			throw formatException(Messages.premature_end_of_format);
+
+		char c = format.charAt(current);
+		if (c == 'p') {
+			// =pad(<raw-element>);
+			//
+			if (processing.padValue != null)
+				throw formatException(Messages.pad_defined_more_then_once);
+			if (processing.ignore)
+				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+			++current;
+			processing.padValue = parseRawElement();
+		} else if (c == '!') {
+			// =ignore;
+			//
+			if (processing.ignore)
+				throw formatException(Messages.ignore_defined_more_then_once);
+			if (processing.padValue != null || processing.characters != null || processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE || processing.defaultValue != null)
+				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+			++current;
+			processing.ignore = true;
+		} else if (c == '[') {
+			// =[<character group];
+			//
+			if (processing.characters != null)
+				throw formatException(Messages.character_group_defined_more_then_once);
+			if (processing.ignore)
+				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+			parseCharacterGroup(processing);
+		} else if (c == '{') {
+			// ={min,max};
+			//
+			if (processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE)
+				throw formatException(Messages.range_defined_more_then_once);
+			if (processing.ignore)
+				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+			int[] minMax = parseMinMax();
+			processing.rangeMin = minMax[0];
+			processing.rangeMax = minMax[1];
+		} else {
+			// =<raw-element>;
+			if (processing.defaultValue != null)
+				throw formatException(Messages.default_defined_more_then_once);
+			if (processing.ignore)
+				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+			Comparable dflt = parseRawElement();
+			processing.defaultValue = dflt;
+			if (current < eos && format.charAt(current) == '{') {
+				// =m{<translated min char>}
+				// =''{<translated max char>,<max char repeat>}
+				if (++current == eos)
+					throw formatException(Messages.premature_end_of_format);
+				processing.oppositeTranslationChar = format.charAt(current++);
+				if (current == eos)
+					throw formatException(Messages.premature_end_of_format);
+
+				if (dflt == VersionVector.MINS_VALUE) {
+					processing.oppositeTranslationRepeat = 3;
+					if (format.charAt(current) == ',') {
+						++current;
+						processing.oppositeTranslationRepeat = parseIntegerLiteral();
+					}
+				} else if (dflt != VersionVector.MAXS_VALUE) {
+					current -= 2;
+					throw formatException(Messages.only_max_and_empty_string_defaults_can_have_translations);
+				}
+				assertChar('}');
+			}
+		}
+		assertChar(';');
+	}
+
+	private Qualifier parseQualifier() throws VersionFormatException {
+		if (current >= eos)
+			return EXACT_ONE_QUALIFIER;
+
+		char c = format.charAt(current);
+		if (c == '?') {
+			++current;
+			return ZERO_OR_ONE_QUALIFIER;
+		}
+
+		if (c == '*') {
+			++current;
+			return ZERO_OR_MANY_QUALIFIER;
+		}
+
+		if (c == '+') {
+			++current;
+			return ONE_OR_MANY_QUALIFIER;
+		}
+
+		if (c != '{')
+			return EXACT_ONE_QUALIFIER;
+
+		int[] minMax = parseMinMax();
+		int min = minMax[0];
+		int max = minMax[1];
+
+		// Use singletons for commonly used ranges
+		//
+		if (min == 0) {
+			if (max == 1)
+				return ZERO_OR_ONE_QUALIFIER;
+			if (max == Integer.MAX_VALUE)
+				return ZERO_OR_MANY_QUALIFIER;
+		} else if (min == 1) {
+			if (max == 1)
+				return EXACT_ONE_QUALIFIER;
+			if (max == Integer.MAX_VALUE)
+				return ONE_OR_MANY_QUALIFIER;
+		}
+		return new Qualifier(min, max);
+	}
+
+	private void parseQuotedString() throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.padValue != null)
+				throw formatException(Messages.string_can_not_have_pad_value);
+		}
+		currentList.add(createQuotedFragment(ep, parseQualifier()));
+	}
+
+	private void parseRaw() throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.padValue != null)
+				throw formatException(Messages.raw_element_can_not_have_pad_value);
+		}
+		currentList.add(createRawFragment(ep, parseQualifier()));
+	}
+
+	private Comparable parseRawElement() throws VersionFormatException {
+		int[] position = new int[] {current};
+		Comparable v = VersionParser.parseRawElement(format, position, eos);
+		if (v == null)
+			throw new VersionFormatException(NLS.bind(Messages.raw_element_expected_0, format));
+		current = position[0];
+		return v;
+	}
+
+	private void parseString(boolean unlimited) throws VersionFormatException {
+		VersionFormatParser.Instructions ep = parseProcessing();
+		if (ep != null) {
+			if (ep.padValue != null)
+				throw formatException(Messages.string_can_not_have_pad_value);
+		}
+		currentList.add(createStringFragment(ep, parseQualifier(), unlimited));
 	}
 
 	static void toStringEscaped(StringBuffer sb, String value, String escapes) {
@@ -1118,130 +1544,5 @@ public class VersionFormat implements Serializable {
 				sb.append('\\');
 			sb.append(c);
 		}
-	}
-
-	private final Fragment topFragment;
-
-	private String fmtString;
-
-	VersionFormat(Fragment topFragment) {
-		this.topFragment = topFragment;
-	}
-
-	public boolean equals(Object o) {
-		return this == o || o instanceof VersionFormat && toString().equals(o.toString());
-	}
-
-	public int hashCode() {
-		return 11 * toString().hashCode();
-	}
-
-	/**
-	 * Parse the given version string.
-	 * @param version The version string to parse.
-	 * @return A created version.
-	 * @throws IllegalArgumentException If the version string could not be parsed.
-	 */
-	public Version parse(String version) {
-		return parse(version, 0, version.length());
-	}
-
-	/**
-	 * Parse the given version string.
-	 * @param version The version string to parse.
-	 * @param start Start position in the version string
-	 * @return A created version.
-	 * @throws IllegalArgumentException If the version string could not be parsed.
-	 */
-	public Version parse(String version, int start, int maxPos) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = parse(version, start, maxPos, padReturn);
-		return new Version(vector, padReturn[0], this, version.substring(start, maxPos));
-	}
-
-	/**
-	 * Returns the string representation of this compiled format
-	 */
-	public synchronized String toString() {
-		if (fmtString == null) {
-			StringBuffer sb = new StringBuffer();
-			toString(sb);
-		}
-		return fmtString;
-	}
-
-	/**
-	 * Appends the string representation of this compiled format to
-	 * the given StringBuffer.
-	 * @param sb The buffer that will receive the string representation
-	 */
-	public synchronized void toString(StringBuffer sb) {
-		if (fmtString != null)
-			sb.append(fmtString);
-		else {
-			int start = sb.length();
-			sb.append("format"); //$NON-NLS-1$
-			if (topFragment.getPadValue() != null) {
-				sb.append('(');
-				topFragment.toString(sb);
-				sb.append(')');
-			} else
-				topFragment.toString(sb);
-			fmtString = sb.substring(start);
-		}
-	}
-
-	TreeInfo createInfo(int start) {
-		return new TreeInfo(topFragment, start);
-	}
-
-	Comparable[] parse(String version, int start, int maxPos, Comparable[] padReturn) {
-		ArrayList entries = new ArrayList();
-		if (start == maxPos)
-			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
-		TreeInfo info = new TreeInfo(topFragment, start);
-		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
-			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
-		Comparable pad = info.getPadValue();
-		VersionParser.removeRedundantTrail(entries, pad);
-		padReturn[0] = pad;
-		return (Comparable[]) entries.toArray(new Comparable[entries.size()]);
-	}
-
-	// Preserve cache during deserialization
-	private Object readResolve() {
-		synchronized (formatCache) {
-			String string = toString();
-			VersionFormat fmt = (VersionFormat) formatCache.put(string, this);
-			if (fmt == null)
-				fmt = this;
-			else
-				// Put old format back
-				formatCache.put(string, fmt);
-			return fmt;
-		}
-	}
-}
-
-class RawFormat extends VersionFormat {
-	private static final long serialVersionUID = 8851695938450999819L;
-
-	RawFormat(Fragment topFragment) {
-		super(topFragment);
-	}
-
-	/**
-	 * Parse but do not assign this format as the Version format nor the version
-	 * string as the original.
-	 */
-	public Version parse(String version, int start, int maxPos) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = parse(version, start, maxPos, padReturn);
-		return new Version(vector, padReturn[0], null, null);
-	}
-
-	// Preserve singleton when deserialized
-	private Object readResolve() {
-		return RAW_FORMAT;
 	}
 }

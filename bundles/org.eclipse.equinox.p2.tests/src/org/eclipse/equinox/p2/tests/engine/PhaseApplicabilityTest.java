@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -32,8 +31,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testCollectPhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Collect collectPhase = new Collect(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {
@@ -48,8 +47,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testSizingPhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Sizing sizingPhase = new Sizing(1, "collect") {
 			protected boolean isApplicable(InstallableUnitOperand op) {
@@ -64,8 +63,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testUnconfigurePhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Unconfigure unconfigurePhase = new Unconfigure(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {
@@ -80,8 +79,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testUninstallPhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Uninstall uninstallPhase = new Uninstall(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {
@@ -96,8 +95,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testInstallPhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Install installPhase = new Install(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {
@@ -112,8 +111,8 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 
 	public void testConfigurePhase() {
 
-		IInstallableUnit iuXv1 = createIU("iuX", new Version("1.0.0"));
-		IInstallableUnit iuXv2 = createIU("iuX", new Version("2.0.0"));
+		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
+		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Configure configurePhase = new Configure(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {

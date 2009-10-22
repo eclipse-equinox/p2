@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.Messages;
-
 import java.io.Serializable;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -26,8 +25,8 @@ import org.eclipse.osgi.util.NLS;
 public class VersionRange implements Serializable {
 	private static final long serialVersionUID = 4988030307298088028L;
 
-	static final Version OSGi_versionMin = new Version(0, 0, 0);
-	static final Version OSGi_versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	static final Version OSGi_versionMin = Version.emptyVersion;
+	static final Version OSGi_versionMax = Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
 	/**
 	 * TODO: This should not be OSGi but it has to be that for now since the resolver creates
@@ -131,7 +130,7 @@ public class VersionRange implements Serializable {
 		char c = versionRange.charAt(pos);
 		int[] position = new int[1];
 		boolean rawPrefix = false;
-		VersionFormat fmt = null;
+		IVersionFormat fmt = null;
 		if (VersionParser.isLetter(c)) {
 			if (versionRange.startsWith("raw:", pos)) { //$NON-NLS-1$
 				rawPrefix = true;
@@ -276,7 +275,7 @@ public class VersionRange implements Serializable {
 		validateRange();
 	}
 
-	private static VersionFormat parseFormat(String versionRange, int[] position) {
+	private static IVersionFormat parseFormat(String versionRange, int[] position) {
 		int pos = VersionParser.skipWhite(versionRange, position[0]);
 		if (!versionRange.startsWith("format(", pos)) //$NON-NLS-1$
 			return null;
@@ -286,7 +285,7 @@ public class VersionRange implements Serializable {
 		try {
 			position[0] = end + 1;
 			return VersionFormat.compile(versionRange, pos, end);
-		} catch (FormatException e) {
+		} catch (VersionFormatException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
@@ -294,7 +293,7 @@ public class VersionRange implements Serializable {
 	/**
 	 * Returns the version format.
 	 */
-	public VersionFormat getFormat() {
+	public IVersionFormat getFormat() {
 		return minVersion.equals(Version.MIN_VERSION) ? maxVersion.getFormat() : minVersion.getFormat();
 	}
 
@@ -426,7 +425,7 @@ public class VersionRange implements Serializable {
 	}
 
 	public void toString(StringBuffer result) {
-		VersionFormat fmt = getFormat();
+		IVersionFormat fmt = getFormat();
 		if (fmt == VersionFormat.OSGI_FORMAT) {
 			if (includeMin && includeMax && OSGi_versionMax.equals(maxVersion)) {
 				minVersion.toString(result);

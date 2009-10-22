@@ -27,7 +27,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a = createIU("A", new Version("1.0.0"));
+		a = createIU("A", Version.create("1.0.0"));
 		createTestMetdataRepository(new IInstallableUnit[] {a});
 		profile = createProfile(Bug207319.class.getName());
 		director = createDirector();

@@ -52,8 +52,8 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 	 */
 	public void testCollectLatestIU() {
 		LatestIUVersionQuery latestIuVersionElementQuery = new LatestIUVersionQuery();
-		IInstallableUnit unit1 = createIU("f1", new Version(1, 0, 0));
-		IInstallableUnit unit2 = createIU("f1", new Version(1, 0, 1));
+		IInstallableUnit unit1 = createIU("f1", Version.createOSGi(1, 0, 0));
+		IInstallableUnit unit2 = createIU("f1", Version.createOSGi(1, 0, 1));
 		List listOfIUs = new ArrayList();
 		listOfIUs.add(unit1);
 		listOfIUs.add(unit2);
@@ -65,11 +65,11 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 
 	public void testMultipleIUsAndVersions() {
 		LatestIUVersionQuery latestIuVersionElementQuery = new LatestIUVersionQuery();
-		IInstallableUnit unit1 = createIU("A", new Version(1, 0, 0));
-		IInstallableUnit unit2 = createIU("A", new Version(1, 0, 1));
-		IInstallableUnit unit3 = createIU("B", new Version(1, 0, 1));
-		IInstallableUnit unit4 = createIU("B", new Version(0, 1, 1));
-		IInstallableUnit unit5 = createIU("C", new Version(0, 1, 1));
+		IInstallableUnit unit1 = createIU("A", Version.createOSGi(1, 0, 0));
+		IInstallableUnit unit2 = createIU("A", Version.createOSGi(1, 0, 1));
+		IInstallableUnit unit3 = createIU("B", Version.createOSGi(1, 0, 1));
+		IInstallableUnit unit4 = createIU("B", Version.createOSGi(0, 1, 1));
+		IInstallableUnit unit5 = createIU("C", Version.createOSGi(0, 1, 1));
 
 		// We should get unit 2, unit 3 and unit 5 
 		List listOfIUs = new ArrayList();

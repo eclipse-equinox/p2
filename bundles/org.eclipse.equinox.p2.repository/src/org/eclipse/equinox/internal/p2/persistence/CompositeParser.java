@@ -26,8 +26,8 @@ import org.xml.sax.*;
  */
 public class CompositeParser extends XMLParser implements XMLConstants {
 
-	private static final Version CURRENT_VERSION = new Version(1, 0, 0);
-	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
+	private static final Version CURRENT_VERSION = Version.createOSGi(1, 0, 0);
+	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, Version.createOSGi(2, 0, 0), false);
 	private static final String REQUIRED_CAPABILITY_ELEMENT = "required"; //$NON-NLS-1$
 	private static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
 	String repositoryType;

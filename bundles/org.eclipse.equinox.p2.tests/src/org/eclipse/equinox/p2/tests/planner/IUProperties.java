@@ -31,13 +31,13 @@ public class IUProperties extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B1", new VersionRange("[1.0.0, 2.0.0)"), null));
+		a1 = createIU("A", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B1", new VersionRange("[1.0.0, 2.0.0)"), null));
 
-		b1 = createIU("B1", new Version("1.0.0"), true);
+		b1 = createIU("B1", Version.create("1.0.0"), true);
 
-		b11 = createIU("B1", new Version("1.1.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 3.0.0)"), null), NO_PROPERTIES, true);
+		b11 = createIU("B1", Version.create("1.1.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 3.0.0)"), null), NO_PROPERTIES, true);
 
-		c = createIU("C", new Version(2, 0, 0), true);
+		c = createIU("C", Version.createOSGi(2, 0, 0), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b11, c});
 

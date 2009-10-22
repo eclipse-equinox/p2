@@ -41,7 +41,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private String linuxConfig = "linux.gtk.x86"; //$NON-NLS-1$
 	private ExecutablesDescriptor executablesDescriptor;
 	private IArtifactRepository artifactRepository;
-	private Version version = new Version("1.2.3"); //$NON-NLS-1$
+	private Version version = Version.create("1.2.3"); //$NON-NLS-1$
 
 	public void setUp() throws Exception {
 		setupPublisherInfo();

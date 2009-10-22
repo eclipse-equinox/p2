@@ -10,16 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -122,7 +119,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		String versionString = feature.getFeatureVersion();
-		Version version = versionString != null && versionString.length() > 0 ? new Version(versionString) : Version.emptyVersion;
+		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
 		Query query = null;
 		Collector collector = null;
 		if (version.equals(Version.emptyVersion)) {

@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -144,7 +141,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private static String IU_TEST_TARGET = "installableUnitTest";
 
-	private static Version IU_TEST_VERSION = new Version("0.0.1");
+	private static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	// Randomly chose org.eclipse.osgi.services as the IU for testing persistence
 	// but 'enhanced' it for better coverage.
@@ -176,7 +173,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private static String[][] metaRequires = new String[][] {new String[] {PackagesNS, "some.actions1", "0.0.0", "true"}, //
 			new String[] {PackagesNS, "some.actions2", "1.2.0", "false"}}; //
 
-	private static Version version = new Version("3.1.200.v20070605");
+	private static Version version = Version.create("3.1.200.v20070605");
 
 	private Map propertyMap;
 
@@ -203,7 +200,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provided = new IProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
-			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
+			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], Version.create(nextTuple[2]));
 		}
 		// provided[provideTuples.length] = BUNDLE_CAPABILITY;
 		return provided;

@@ -33,7 +33,7 @@ public class RawWithOriginalTest extends VersionTesting {
 
 	public void testRawWithUnknownFormatSerialized() {
 		assertSerialized(Version.parseVersion("raw:1.0/:silver.moon"));
-		assertEquals("raw:1.0/:silver.moon", getSerialized(new Version("raw:1.0/:silver.moon")).toString());
+		assertEquals("raw:1.0/:silver.moon", getSerialized(Version.create("raw:1.0/:silver.moon")).toString());
 
 	}
 
@@ -49,7 +49,7 @@ public class RawWithOriginalTest extends VersionTesting {
 
 	public void testRawWithSimpleFormatSerialized() {
 		assertSerialized(Version.parseVersion("raw:1.0/format(n.n):1.0"));
-		assertEquals("raw:1.0/format(n.n):1.0", getSerialized(new Version("raw:1.0/format(n.n):1.0")).toString());
+		assertEquals("raw:1.0/format(n.n):1.0", getSerialized(Version.create("raw:1.0/format(n.n):1.0")).toString());
 	}
 
 	public void testOriginalStatedButMissing() {

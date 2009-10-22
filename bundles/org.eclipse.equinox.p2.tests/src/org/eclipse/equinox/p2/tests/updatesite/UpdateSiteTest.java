@@ -584,7 +584,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository missingUpdateURLFeature");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", new Version("1.0.0"));
+		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
 		Collector result = metadataRepo.query(query, new Collector(), null);
 		assertEquals("1.0", 1, result.size());
 	}
@@ -602,7 +602,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite243422");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", new Version("1.0.1"));
+		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
 		Collector result = metadataRepo.query(query, new Collector(), null);
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
@@ -750,7 +750,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", new Version("1.0.0"));
+		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", Version.create("1.0.0"));
 		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 
 		// Should have a packed & canonical version
@@ -783,7 +783,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File targetLocation = null;
 		URI siteURI = getTestData("0.1", testDataLocation).toURI();
 		try {
-			IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
+			IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", Version.create("1.0.0"));
 			// Load source repository
 			IArtifactRepository sourceRepo = getArtifactRepositoryManager().loadRepository(siteURI, getMonitor());
 

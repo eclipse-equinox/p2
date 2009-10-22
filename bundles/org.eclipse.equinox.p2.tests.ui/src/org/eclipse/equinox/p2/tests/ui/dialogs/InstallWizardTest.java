@@ -46,7 +46,7 @@ public class InstallWizardTest extends WizardTest {
 	public void testInstallWizardResolved() throws ProvisionException {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
 		iu.setLicense(new License(null, "There is a license to accept!"));
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});

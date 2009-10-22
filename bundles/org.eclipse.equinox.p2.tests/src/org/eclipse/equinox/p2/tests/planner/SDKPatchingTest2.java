@@ -42,25 +42,25 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 
 		//create a patch to install a new version of jdt.launching
 		MetadataFactory.InstallableUnitDescription newJDTLaunching = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.launching"), new Collector(), new NullProgressMonitor()).iterator().next());
-		Version newJDTLaunchingVersion = new Version(3, 5, 0, "zeNewVersion");
+		Version newJDTLaunchingVersion = Version.createOSGi(3, 5, 0, "zeNewVersion");
 		changeVersion(newJDTLaunching, newJDTLaunchingVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newJDTLaunching));
 
 		IRequirementChange change = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.launching", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.launching", new VersionRange(newJDTLaunchingVersion, true, newJDTLaunchingVersion, true), null, false, false, true));
 		IRequiredCapability lifeCycle = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.feature.group", new VersionRange("[3.5.0.v20081202-0800-7p83FGDFHmHuj2mNpJBSKZe, 3.5.0.v20081202-0800-7p83FGDFHmHuj2mNpJBSKZe]"), null, false, false, true);
-		patchInstallingJDTLaunching = createIUPatch("P", new Version("1.0.0"), true, new IRequirementChange[] {change}, new IRequiredCapability[0][0], lifeCycle);
+		patchInstallingJDTLaunching = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequiredCapability[0][0], lifeCycle);
 
 		newIUs.add(patchInstallingJDTLaunching);
 
 		//create a patch to install a new version of jdt.debug.ui
 		MetadataFactory.InstallableUnitDescription newDebugUI = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.debug.ui"), new Collector(), new NullProgressMonitor()).iterator().next());
-		Version newDebugVersion = new Version(3, 3, 0, "zeNewVersion");
+		Version newDebugVersion = Version.createOSGi(3, 3, 0, "zeNewVersion");
 		changeVersion(newDebugUI, newDebugVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newDebugUI));
 
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.debug.ui", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.debug.ui", new VersionRange(newDebugVersion, true, newDebugVersion, true), null, false, false, true));
 		IRequiredCapability lifeCycle2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.jdt.feature.group", new VersionRange("[3.5.0.v20081202-0800-7p83FGDFHmHuj2mNpJBSKZe, 3.5.0.v20081202-0800-7p83FGDFHmHuj2mNpJBSKZe]"), null, false, false, true);
-		patchInstallingDebugUI = createIUPatch("P2", new Version("1.0.0"), true, new IRequirementChange[] {change2}, new IRequiredCapability[0][0], lifeCycle2);
+		patchInstallingDebugUI = createIUPatch("P2", Version.create("1.0.0"), true, new IRequirementChange[] {change2}, new IRequiredCapability[0][0], lifeCycle2);
 
 		newIUs.add(patchInstallingDebugUI);
 

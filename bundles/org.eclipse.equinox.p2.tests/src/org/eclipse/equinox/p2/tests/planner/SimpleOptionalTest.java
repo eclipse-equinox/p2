@@ -29,12 +29,12 @@ public class SimpleOptionalTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		//B's dependency is missing
 		IRequiredCapability[] reqA = new IRequiredCapability[1];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
 

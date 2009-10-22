@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -69,7 +68,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		Collector c = repo.query(new InstallableUnitQuery(id, new Version(version)), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery(id, Version.create(version)), new Collector(), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		return (IInstallableUnit) c.iterator().next();
 	}
@@ -95,7 +94,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
 
 		IInstallableUnit featureGroup2 = getIU(repo, "hello.feature.2.feature.group", "1.0.0");
 		IInstallableUnit helloIU2 = getIU(repo, "hello", "1.0.2");
@@ -109,7 +108,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
 		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
 	}
 
 	public void testInstallFeaturePatchReverseOrder() {
@@ -125,7 +124,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
 		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.2")), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.2")), new Collector(), new NullProgressMonitor()).size());
 
 		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(getProfile(profileLoadedId));
 		IInstallableUnit featureGroup = getIU(repo, "hello.feature.1.feature.group", "1.0.0");
@@ -146,7 +145,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
 	}
 
 	public void installTogether() {
@@ -176,6 +175,6 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 		ProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
 	}
 }

@@ -45,8 +45,8 @@ public class FeaturesActionTest extends ActionTest {
 	private static File root = new File(TestActivator.getTestDataFolder().toString(), "FeaturesActionTest"); //$NON-NLS-1$
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 	protected TestMetadataRepository metadataRepository;
-	private Version fooVersion = new Version("1.0.0"); //$NON-NLS-1$
-	private Version barVersion = new Version("1.1.1"); //$NON-NLS-1$
+	private Version fooVersion = Version.create("1.0.0"); //$NON-NLS-1$
+	private Version barVersion = Version.create("1.1.1"); //$NON-NLS-1$
 	private String BAR = "bar"; //$NON-NLS-1$
 	private String FOO = "foo"; //$NON-NLS-1$
 	private Capture<ITouchpointAdvice> tpAdvice;

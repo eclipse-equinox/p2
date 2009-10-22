@@ -74,7 +74,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		long sTime = System.currentTimeMillis();
 		//Test the case of a missing requirement in the IU being installed
 		IRequiredCapability[] cap = createRequiredCapabilities("missing", "missing", new VersionRange("[0.0.0, 1.0.0)"), null);
-		IInstallableUnit otherIU2 = createIU("foo", new Version("0.9.0"), null, cap, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
+		IInstallableUnit otherIU2 = createIU("foo", Version.create("0.9.0"), null, cap, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr3 = new ProfileChangeRequest(SDKprofile);
 		pcr3.addInstallableUnits(new IInstallableUnit[] {otherIU2});
 		ProvisioningPlan plan3 = planner.getProvisioningPlan(pcr3, null, null);
@@ -88,7 +88,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 	public void testSingletonConflict() {
 		long sTime = System.currentTimeMillis();
 		//The IU being installed conflict with something already installed because of a singleton
-		IInstallableUnit otherIU = createIU("org.eclipse.equinox.p2.director", new Version("0.9.0"), null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
+		IInstallableUnit otherIU = createIU("org.eclipse.equinox.p2.director", Version.create("0.9.0"), null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr2 = new ProfileChangeRequest(SDKprofile);
 		pcr2.addInstallableUnits(new IInstallableUnit[] {otherIU});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(pcr2, null, null);

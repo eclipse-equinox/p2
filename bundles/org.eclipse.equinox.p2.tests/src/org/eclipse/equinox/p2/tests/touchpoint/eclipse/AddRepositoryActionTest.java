@@ -160,7 +160,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	 */
 	public void testFullInstall() {
 		String id = "AddRepositoryActionTest.testFullInstall";
-		Version version = new Version(1, 0, 0);
+		Version version = Version.createOSGi(1, 0, 0);
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
@@ -195,7 +195,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//install the old IU
 		String id = "AddRepositoryActionTest.testUpdate";
-		Version version = new Version(1, 0, 0);
+		Version version = Version.createOSGi(1, 0, 0);
 		IInstallableUnit oldIU = createIU(id, version);
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -207,7 +207,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", !getArtifactRepositoryManager().contains(locationURI));
 
 		//define new IU
-		version = new Version(1, 1, 0);
+		version = Version.createOSGi(1, 1, 0);
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);

@@ -8,9 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -116,7 +113,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
-		IInstallableUnit a2 = createIU("A", new Version(2, 0, 0));
+		IInstallableUnit a2 = createIU("A", Version.createOSGi(2, 0, 0));
 		createTestMetdataRepository(new IInstallableUnit[] {a, a2, act1});
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
@@ -236,7 +233,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IInstallableUnit act1b = createIU("Action1b", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1bCap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
 		IRequiredCapability[] metaReqb = createRequiredCapabilities("p2.action", "action1b", new VersionRange("[0.0.0, 1.0.0]"), null);
-		IInstallableUnit a111 = createIUWithMetaRequirement("A", new Version(1, 1, 1), true, NO_REQUIRES, metaReqb);
+		IInstallableUnit a111 = createIUWithMetaRequirement("A", Version.createOSGi(1, 1, 1), true, NO_REQUIRES, metaReqb);
 
 		IProvidedCapability act2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", DEFAULT_VERSION);
 		IInstallableUnit act2 = createIU("Action2", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
@@ -308,8 +305,8 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
-		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", new Version(2, 0, 0));
-		IInstallableUnit act1v2 = createIU("Action1", new Version("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", Version.createOSGi(2, 0, 0));
+		IInstallableUnit act1v2 = createIU("Action1", Version.create("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
 		IRequiredCapability[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"), null);
 		IInstallableUnit d = createIUWithMetaRequirement("D", DEFAULT_VERSION, true, NO_REQUIRES, metaReqd);

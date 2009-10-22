@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
@@ -180,10 +178,10 @@ public class IUImplementationGroup extends IUGroup {
 		if (iuElement == null || iuElement instanceof IInstallableUnit) {
 			InstallableUnitDescription unit = new InstallableUnitDescription();
 			unit.setId(id.getText().trim());
-			unit.setVersion(new Version(version.getText().trim()));
+			unit.setVersion(Version.create(version.getText().trim()));
 			unit.setProperty(IInstallableUnit.NAMESPACE_IU_ID, namespace.getText().trim());
 			// TODO this is bogus because we don't let user provide a touchpoint type version
-			unit.setTouchpointType(MetadataFactory.createTouchpointType(touchpointType.getText().trim(), new Version("1.0.0"))); //$NON-NLS-1$
+			unit.setTouchpointType(MetadataFactory.createTouchpointType(touchpointType.getText().trim(), Version.create("1.0.0"))); //$NON-NLS-1$
 			iuElement = MetadataFactory.createInstallableUnit(unit);
 		}
 	}

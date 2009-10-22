@@ -26,7 +26,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, false, false);
 		//		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.5.0, 2.0.0)"), null, false, false);
 		ORRequirement req = new ORRequirement(new IRequiredCapability[] {req1});
-		ProvidedCapability prov = new ProvidedCapability(NS, N, new Version(1, 5, 0));
+		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 5, 0));
 		assertFalse(prov.satisfies(req));
 	}
 
@@ -34,7 +34,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, false, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.5.0, 2.0.0)"), null, false, false);
 		ORRequirement req = new ORRequirement(new IRequiredCapability[] {req1, req2});
-		ProvidedCapability prov = new ProvidedCapability(NS, N, new Version(1, 5, 0));
+		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 5, 0));
 		assertTrue(prov.satisfies(req));
 	}
 

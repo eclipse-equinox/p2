@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.director.app.ant;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,6 +18,7 @@ import java.util.List;
 import org.apache.tools.ant.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.director.app.Application;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * An Ant task to call the p2 Director application.
@@ -171,7 +170,7 @@ public class DirectorTask extends Task {
 	}
 
 	public void setVersion(String value) {
-		version = new Version(value);
+		version = Version.create(value);
 	}
 
 	public void setWs(String value) {

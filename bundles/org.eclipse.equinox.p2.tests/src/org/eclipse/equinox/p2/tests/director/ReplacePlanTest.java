@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -40,8 +36,8 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		//base IU that others require
 		f1 = createIU("f1", DEFAULT_VERSION, true);
-		f1_1 = createIU("f1", new Version(1, 1, 0), true);
-		f1_4 = createIU("f1", new Version(1, 4, 0), true);
+		f1_1 = createIU("f1", Version.createOSGi(1, 1, 0), true);
+		f1_4 = createIU("f1", Version.createOSGi(1, 4, 0), true);
 
 		//fragments of base IU
 		frag1 = createIUFragment(f1, "frag1", f1.getVersion());
@@ -52,7 +48,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
 		fa = createIU("fa", requires, false);
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
-		fap = createIU("fa", new Version(1, 1, 0), requires, NO_PROPERTIES, false);
+		fap = createIU("fa", Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa, frag1});
 

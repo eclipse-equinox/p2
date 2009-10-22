@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -333,7 +332,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	private static String PROFILE_TEST_TARGET = "profileTest";
-	private static Version PROFILE_TEST_VERSION = new Version("0.0.1");
+	private static Version PROFILE_TEST_VERSION = Version.create("0.0.1");
 
 	private static String PROFILE_TEST_ELEMENT = "test";
 	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$

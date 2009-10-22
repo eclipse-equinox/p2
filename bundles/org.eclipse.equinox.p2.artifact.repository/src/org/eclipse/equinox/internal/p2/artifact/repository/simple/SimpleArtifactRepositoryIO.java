@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -28,8 +25,8 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -109,9 +106,9 @@ public class SimpleArtifactRepositoryIO {
 		// Constants defining the structure of the XML for a SimpleArtifactRepository
 
 		// A format version number for simple artifact repository XML.
-		public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
-		public static final Version CURRENT_VERSION = new Version(1, 1, 0);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+		public static final Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing instructions
 		public static final String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$

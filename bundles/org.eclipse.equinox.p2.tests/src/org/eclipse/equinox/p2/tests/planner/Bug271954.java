@@ -91,7 +91,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 		assertEquals(0, plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 		assertUninstallOperand(plan, (IInstallableUnit) c.iterator().next());
 		assertEquals(2, plan.getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("A", new Version(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("Action1", new Version(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("A", Version.createOSGi(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("Action1", Version.createOSGi(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
 	}
 }

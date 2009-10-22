@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
@@ -20,6 +18,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -81,7 +80,7 @@ public class FoldersRepositoryTest extends TestCase {
 			String identifier = fileName.substring(0, fileName.indexOf('_'));
 			String version = fileName.substring(fileName.indexOf('_') + 1);
 
-			ArtifactKey key = new ArtifactKey("osgi.bundle", identifier, new Version(version));
+			ArtifactKey key = new ArtifactKey("osgi.bundle", identifier, Version.create(version));
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 			if (file.isDirectory())
 				descriptor.setProperty("artifact.folder", "true");

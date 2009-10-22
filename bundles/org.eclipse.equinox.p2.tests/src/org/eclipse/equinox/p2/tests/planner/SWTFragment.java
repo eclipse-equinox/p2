@@ -27,15 +27,15 @@ public class SWTFragment extends AbstractProvisioningTest {
 
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("SWT.WIN32");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", new Version(1, 0, 0))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", Version.createOSGi(1, 0, 0))});
 		iud.setFilter("(os=win32)");
 		IInstallableUnit swtW = MetadataFactory.createInstallableUnit(iud);
 
 		MetadataFactory.InstallableUnitDescription iud2 = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("SWT.LINUX");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", new Version(1, 0, 0))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", Version.createOSGi(1, 0, 0))});
 		iud.setFilter("(os=linux)");
 		IInstallableUnit swtL = MetadataFactory.createInstallableUnit(iud2);
 

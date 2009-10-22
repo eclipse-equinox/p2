@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug203637 extends AbstractProvisioningTest {
 	public void test() {
 		IDirector d = createDirector();
 		IProfile profile = createProfile("TestProfile." + getName());
-		IInstallableUnit a1 = createIU("A", new Version(1, 0, 0), true);
+		IInstallableUnit a1 = createIU("A", Version.createOSGi(1, 0, 0), true);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a1});
 		request.removeInstallableUnits(new IInstallableUnit[0]);

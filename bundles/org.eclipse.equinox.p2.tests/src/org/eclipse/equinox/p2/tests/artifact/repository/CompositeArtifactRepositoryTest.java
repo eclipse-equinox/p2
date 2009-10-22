@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestArtifactRepository;
@@ -101,7 +100,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = createRepo(false);
 
 		//Setup create a descriptor
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 
 		try {
@@ -117,7 +116,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = createRepo(false);
 
 		//Setup create a descriptor
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 
 		//Setup: create an array of descriptors
@@ -137,7 +136,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = createRepo(false);
 
 		//Setup create a descriptor
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 
 		try {
@@ -153,7 +152,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = createRepo(false);
 
 		//Setup create a key
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 
 		try {
 			compRepo.removeDescriptor(key);
@@ -368,7 +367,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("Asserting key is in composite repo", compRepo.contains(keys[0]));
 
 		//Create a new key, not found in the composite repo
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		//test for a non existing key
 		assertFalse("Asserting key is not in composite repo", compRepo.contains(key));
 	}
@@ -398,7 +397,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("Asserting key is in composite repo", compRepo.contains(descriptors[0]));
 
 		//Create a new descriptor, not found in the composite repo
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 		//test for a non existing descriptor
 		assertFalse("Asserting key is not in composite repo", compRepo.contains(descriptor));
@@ -666,7 +665,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	public void testValidate() {
 		//Setup create descriptors with different md5 values
-		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
@@ -704,7 +703,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	public void testAddChildWithValidate() {
 		//Setup create descriptors with different md5 values
-		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
@@ -940,7 +939,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			repository.addChild(childOne.getLocation());
 			repository.addChild(childTwo.getLocation());
 
-			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
 
 			IStatus status = repository.getArtifact(descriptor, out, new NullProgressMonitor());
 			// We should have a failure
@@ -996,7 +995,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository destination = null;
 		BadMirrorSite child = null;
 		CompositeArtifactRepository source = null;
-		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
 		try {
 			destination = super.createArtifactRepository(getTempFolder().toURI(), null);
 			child = new BadMirrorSite(new URI("memory:/in/memory/child"));
@@ -1067,7 +1066,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			out = new FileOutputStream(destination);
 
 			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
-			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", new Version("1.5.1.v200803061910")));
+			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
 
 			// Create 'bad' child which returns an error in transfer
 			childOne = new BadSite(new URI("memory:/in/memory/one"));
@@ -1125,7 +1124,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
 		try {
-			IArtifactDescriptor desc = new ArtifactDescriptor(new ArtifactKey("osgi", "a", new Version("1.0.0")));
+			IArtifactDescriptor desc = new ArtifactDescriptor(new ArtifactKey("osgi", "a", Version.create("1.0.0")));
 			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
 			childOne = createChild();
 			source.addChild(childOne.getLocation());
@@ -1161,7 +1160,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
 		try {
-			IArtifactKey desc = new ArtifactKey("osgi", "a", new Version("1.0.0"));
+			IArtifactKey desc = new ArtifactKey("osgi", "a", Version.create("1.0.0"));
 			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
 			childOne = createChild();
 			source.addChild(childOne.getLocation());
@@ -1199,7 +1198,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		try {
 			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
-			IArtifactKey key = new ArtifactKey("classifier", "name", new Version("1.0.0"));
+			IArtifactKey key = new ArtifactKey("classifier", "name", Version.create("1.0.0"));
 
 			childOne = createChild();
 			((TestArtifactRepository) childOne).addArtifact(key, new byte[] {});
@@ -1236,7 +1235,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		try {
 			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
-			IArtifactKey key = new ArtifactKey("classifier", "name", new Version("1.0.0"));
+			IArtifactKey key = new ArtifactKey("classifier", "name", Version.create("1.0.0"));
 			IArtifactDescriptor desc = new ArtifactDescriptor(key);
 
 			childOne = createChild();

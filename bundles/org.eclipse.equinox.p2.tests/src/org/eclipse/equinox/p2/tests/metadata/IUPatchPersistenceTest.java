@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,7 +31,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	private static String PackagesNS = "osgi.packages";
 
 	private static String id = "org.eclipse.osgi.services";
-	private static Version version = new Version("3.1.200.v20070605");
+	private static Version version = Version.create("3.1.200.v20070605");
 	private static String filter = "(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"; // not really
 
 	private static String[][] properties = new String[][] {new String[] {"equinox.p2.name", "OSGi Release 4.0.1 Services"}, //
@@ -95,7 +92,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provided = new IProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
-			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
+			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], Version.create(nextTuple[2]));
 		}
 		// provided[provideTuples.length] = BUNDLE_CAPABILITY;
 		return provided;
@@ -120,7 +117,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String IU_TEST_TARGET = "installableUnitTest";
-	private static Version IU_TEST_VERSION = new Version("0.0.1");
+	private static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	private static String IU_TEST_ELEMENT = "test";
 

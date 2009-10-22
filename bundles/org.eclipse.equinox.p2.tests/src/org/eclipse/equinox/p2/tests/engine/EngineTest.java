@@ -550,7 +550,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	private IInstallableUnit createOSGiIU(String version) {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi");
-		description.setVersion(new Version(version));
+		description.setVersion(Version.create(version));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -568,7 +568,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
 		cus[0] = fragment;
 
-		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", Version.create("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
@@ -578,7 +578,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	private IInstallableUnit createBadIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi.bad");
-		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -594,7 +594,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
-		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", Version.create("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
@@ -604,7 +604,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	private IInstallableUnit createBadUninstallIUReturnsError() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi.bad");
-		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -620,7 +620,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
-		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", Version.create("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
@@ -630,7 +630,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	private IInstallableUnit createBadUninstallIUThrowsException() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi.bad");
-		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -646,7 +646,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
-		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", Version.create("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
@@ -656,7 +656,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	private IInstallableUnit createMissingActionIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi.bad");
-		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -672,7 +672,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
-		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", Version.create("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);

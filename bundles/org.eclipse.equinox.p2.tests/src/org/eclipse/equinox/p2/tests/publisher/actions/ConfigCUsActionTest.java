@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
 	private static File executableLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/run.exe"); //$NON-NLS-1$
-	private static Version version = new Version("1.0.0"); //$NON-NLS-1$
+	private static Version version = Version.create("1.0.0"); //$NON-NLS-1$
 	private static String id = "id"; //$NON-NLS-1$
 	private static String flavor = "tooling"; //$NON-NLS-1$
 	private IMetadataRepository metadataRepo;

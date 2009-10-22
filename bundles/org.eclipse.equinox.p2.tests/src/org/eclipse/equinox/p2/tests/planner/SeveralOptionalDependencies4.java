@@ -29,10 +29,10 @@ public class SeveralOptionalDependencies4 extends AbstractProvisioningTest {
 		super.setUp();
 		IRequiredCapability reqA = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, true, false, true); //optional dependency, will be satisfied
 		IRequiredCapability reqB = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true); //normal dependency
-		x1 = createIU("X", new Version("1.0.0"), new IRequiredCapability[] {reqA, reqB,});
-		a1 = createIU("A", new Version("1.0.0"), true);
-		a2 = createIU("A", new Version("2.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
+		x1 = createIU("X", Version.create("1.0.0"), new IRequiredCapability[] {reqA, reqB,});
+		a1 = createIU("A", Version.create("1.0.0"), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {x1, a1, b1, a2});
 

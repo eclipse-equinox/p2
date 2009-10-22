@@ -37,21 +37,21 @@ public class PatchTest4 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		f1 = createIU("F", new Version(1, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true)});
-		a1 = createIU("A", new Version("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, false, true)});
-		b1 = createIU("B", new Version(1, 0, 0), true);
-		c1 = createIU("C", new Version("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 1.1.0)"), null, false, false, true)});
-		d1 = createIU("D", new Version(1, 0, 0), true);
-		b2 = createIU("B", new Version(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 3.1.0)"), null, false, false, true)});
-		d2 = createIU("D", new Version(2, 0, 0), true);
+		f1 = createIU("F", Version.createOSGi(1, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true)});
+		a1 = createIU("A", Version.create("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, false, true)});
+		b1 = createIU("B", Version.createOSGi(1, 0, 0), true);
+		c1 = createIU("C", Version.create("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 1.1.0)"), null, false, false, true)});
+		d1 = createIU("D", Version.createOSGi(1, 0, 0), true);
+		b2 = createIU("B", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 3.1.0)"), null, false, false, true)});
+		d2 = createIU("D", Version.createOSGi(2, 0, 0), true);
 
 		IRequirementChange changeA = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.1.0)"), null, false, false, true));
 		IRequirementChange changeC = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 2.1.0)"), null, false, false, true));
 
 		IRequiredCapability lifeCycle = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "F", VersionRange.emptyRange, null, false, false, false);
 		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.1.0]"), null, false, false, false)}, {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.1.0]"), null, false, false, false)}};
-		p1 = createIUPatch("P", new Version("1.0.0"), true, new IRequirementChange[] {changeA, changeC}, scope, lifeCycle);
-		p2 = createIUPatch("P", new Version("2.0.0"), true, new IRequirementChange[] {changeA, changeC}, new IRequiredCapability[0][0], lifeCycle);
+		p1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {changeA, changeC}, scope, lifeCycle);
+		p2 = createIUPatch("P", Version.create("2.0.0"), true, new IRequirementChange[] {changeA, changeC}, new IRequiredCapability[0][0], lifeCycle);
 		createTestMetdataRepository(new IInstallableUnit[] {f1, a1, b1, b2, c1, d1, d2, p1});
 
 		profile1 = createProfile("TestProfile." + getName());

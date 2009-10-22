@@ -32,10 +32,10 @@ public class SimpleOptionalTest4 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), false);
-		b2 = createIU("B", new Version("2.0.0"), false);
-		b3 = createIU("B", new Version("3.0.0"), false);
-		b4 = createIU("B", new Version("4.0.0"), false);
+		b1 = createIU("B", Version.create("1.0.0"), false);
+		b2 = createIU("B", Version.create("2.0.0"), false);
+		b3 = createIU("B", Version.create("3.0.0"), false);
+		b4 = createIU("B", Version.create("4.0.0"), false);
 
 		//B's dependency is missing
 		IRequiredCapability[] reqA = new IRequiredCapability[4];
@@ -43,7 +43,7 @@ public class SimpleOptionalTest4 extends AbstractProvisioningTest {
 		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0,2.0.0]"), null, true, false, true);
 		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0,3.0.0]"), null, true, false, true);
 		reqA[3] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[4.0.0,4.0.0]"), null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, b4});
 

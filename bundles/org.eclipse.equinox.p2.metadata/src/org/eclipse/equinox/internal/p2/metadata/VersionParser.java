@@ -8,31 +8,48 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
-
-import org.eclipse.equinox.internal.p2.metadata.Messages;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 /**
  * The Omni Version parser. Not intended for public API. Instead use
- * {@link Version#Version(String)} or {@link Version#parseVersion(String)}.
+ * {@link Version#create(String)} or {@link Version#parseVersion(String)}.
  *
  * The class also contains some general purpose parser support methods
  *
  * @noextend This class is not intended to be subclassed by clients.
  */
-abstract class VersionParser {
+public abstract class VersionParser {
+	public static final Integer ZERO_INT = new Integer(0);
+
+	public static final Integer MAX_INT_OBJ = new Integer(Integer.MAX_VALUE);
+
+	private static final Integer cache[] = new Integer[100];
+
+	static {
+		cache[0] = ZERO_INT;
+		for (int i = 1; i < cache.length; i++)
+			cache[i] = new Integer(i);
+	}
+
+	public static Integer valueOf(int i) {
+		try {
+			return cache[i];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
+		}
+	}
+
 	static void removeRedundantTrail(List segments, Comparable padValue) {
 		Comparable redundantTrail = padValue == null ? VersionVector.MIN_VALUE : padValue;
 		int idx = segments.size();
 		while (--idx >= 0 && segments.get(idx).equals(redundantTrail))
 			segments.remove(idx);
 	}
-
-	static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
 
 	private VersionParser() {
 		// Prevent class from being instantiated
@@ -45,17 +62,16 @@ abstract class VersionParser {
 	 * @param version The string to be parsed
 	 * @param start Start position in the <code>version</code> string
 	 * @param maxPos End position in the <code>version</code> string
-	 * @param receiver The version to be filled in
-	 * @returns <code>true</code> if a version indeed was parsed or <code>false</code> if the string
+	 * @returns a version if one indeed was parsed or <code>null</code> if the string
 	 * contained only whitespace.
 	 * @throws IllegalArgumentException if the version is malformed
 	 */
-	static boolean parseInto(String version, int start, int maxPos, Version receiver) throws IllegalArgumentException {
+	public static Version parse(String version, int start, int maxPos) throws IllegalArgumentException {
 		// trim leading and trailing whitespace
 		int pos = skipWhite(version, start);
 		maxPos = skipTrailingWhite(version, start, maxPos);
 		if (pos == maxPos)
-			return false;
+			return null;
 
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = null;
@@ -65,14 +81,13 @@ abstract class VersionParser {
 		if (isDigit(c)) {
 			fmt = VersionFormat.OSGI_FORMAT;
 			vector = fmt.parse(version, pos, maxPos, padReturn);
-			receiver.init(vector, padReturn[0], fmt, version);
-			return true;
+			return new Version(vector, padReturn[0], fmt, version);
 		}
 
 		if (!isLetter(c))
 			throw new IllegalArgumentException();
 
-		if (version.startsWith(RAW_PREFIX, pos)) {
+		if (version.startsWith(Version.RAW_PREFIX, pos)) {
 			VersionFormat rawFmt = VersionFormat.RAW_FORMAT;
 			pos += 4;
 
@@ -107,12 +122,10 @@ abstract class VersionParser {
 			vector = rawFmt.parse(version, pos, end, padReturn);
 			pad = padReturn[0];
 			pos = end;
-			if (pos == maxPos) {
+			if (pos == maxPos)
 				// This was a pure raw version
 				//
-				receiver.init(vector, pad, null, null);
-				return true;
-			}
+				return new Version(vector, pad, null, null);
 
 			if (version.charAt(pos) != '/')
 				throw new IllegalArgumentException(NLS.bind(Messages.expected_slash_after_raw_vector_0, version.substring(start, maxPos)));
@@ -132,7 +145,7 @@ abstract class VersionParser {
 				int end = findEndOfFormat(version, pos, maxPos);
 				fmt = VersionFormat.compile(version, pos, end);
 				pos = end + 1;
-			} catch (FormatException e) {
+			} catch (VersionFormatException e) {
 				throw new IllegalArgumentException(e.getMessage());
 			}
 			if (pos == maxPos) {
@@ -140,8 +153,7 @@ abstract class VersionParser {
 				//
 				if (vector == null)
 					throw new IllegalArgumentException(NLS.bind(Messages.only_format_specified_0, version.substring(start, maxPos)));
-				receiver.init(vector, pad, fmt, null);
-				return true;
+				return new Version(vector, pad, fmt, null);
 			}
 		}
 
@@ -161,15 +173,14 @@ abstract class VersionParser {
 			vector = fmt.parse(version, pos, maxPos, padReturn);
 			pad = padReturn[0];
 		}
-		receiver.init(vector, pad, fmt, version.substring(pos));
-		return true;
+		return new Version(vector, pad, fmt, version.substring(pos));
 	}
 
 	static boolean isDigit(char c) {
 		return c >= '0' && c <= '9';
 	}
 
-	static boolean isLetter(char c) {
+	public static boolean isLetter(char c) {
 		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 	}
 
@@ -177,7 +188,7 @@ abstract class VersionParser {
 		return isDigit(c) || isLetter(c);
 	}
 
-	static int findEndOfFormat(String string, int pos, int maxPos) {
+	public static int findEndOfFormat(String string, int pos, int maxPos) {
 		int end = -1;
 		int depth = 1;
 		for (int idx = pos; idx < maxPos; ++idx) {
@@ -247,7 +258,7 @@ abstract class VersionParser {
 					if (c != '\'' && c != '"')
 						break;
 				}
-				v = sb.toString();
+				v = sb.length() == 0 ? VersionVector.MINS_VALUE : sb.toString();
 				break;
 			}
 			case '<' : {
@@ -289,7 +300,7 @@ abstract class VersionParser {
 					int val = Integer.parseInt(value.substring(start, current));
 					if (negate)
 						val = -val;
-					v = Version.valueOf(val);
+					v = valueOf(val);
 					break;
 				}
 				return null;
@@ -351,14 +362,14 @@ abstract class VersionParser {
 		return new VersionVector((Comparable[]) rawList.toArray(new Comparable[rawList.size()]), pad);
 	}
 
-	static int skipWhite(String string, int pos) {
+	public static int skipWhite(String string, int pos) {
 		int top = string.length();
 		while (pos < top && string.charAt(pos) <= ' ')
 			++pos;
 		return pos;
 	}
 
-	static int skipTrailingWhite(String string, int start, int end) {
+	public static int skipTrailingWhite(String string, int start, int end) {
 		while (end > start && string.charAt(end - 1) <= ' ')
 			--end;
 		return end;

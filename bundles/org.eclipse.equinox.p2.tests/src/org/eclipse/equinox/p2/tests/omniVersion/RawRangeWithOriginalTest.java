@@ -163,7 +163,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMinBoundary() {
-		String rangeString = "raw:[-M,2.1.0]/format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):-M,2.1.0";
+		String rangeString = "raw:[-M,2.1.0.'']/format(n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]):-M,2.1.0";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("[0.0.0,2.1.0]");
@@ -188,7 +188,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testRecreateUsingMaxUpper() {
-		Version v = new Version("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
+		Version v = Version.create("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
 		VersionRange range = new VersionRange(v, true, null, true);
 		Version min = range.getMinimum();
 		Version max = range.getMaximum();
@@ -197,7 +197,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testRecreateUsingMinLower() {
-		Version v = new Version("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
+		Version v = Version.create("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
 		VersionRange range = new VersionRange(null, true, v, true);
 		Version min = range.getMinimum();
 		Version max = range.getMaximum();
@@ -206,7 +206,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMaxBoundary() {
-		String rangeString = "raw:[2.1.0,MpM]/format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):2.1.0,MpM";
+		String rangeString = "raw:[2.1.0.'',MpM]/format(n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]):2.1.0,MpM";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("2.1.0");

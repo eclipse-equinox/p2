@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * @since 1.0
@@ -113,7 +110,7 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 		IArtifactKey[] artifacts = watcher.getArtifactKeys();
 		assertEquals("3.0", 1, ius.length);
 		assertEquals("3.1", "ccc", ius[0].getId());
-		assertEquals("3.2", new Version("2.0.0"), ius[0].getVersion());
+		assertEquals("3.2", Version.create("2.0.0"), ius[0].getVersion());
 		assertEquals("4.0", 1, artifacts.length);
 	}
 

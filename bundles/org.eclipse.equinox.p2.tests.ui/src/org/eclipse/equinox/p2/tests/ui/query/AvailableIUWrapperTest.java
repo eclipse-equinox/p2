@@ -76,7 +76,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		Collector collector = new Collector();
 		Map properties = new HashMap();
 		properties.put(IInstallableUnit.PROP_TYPE_CATEGORY, "true");
-		IInstallableUnit category = createIU("category", new Version(1, 0, 0), NO_REQUIRES, properties, false);
+		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
 		collector.accept(category);
 		collector.accept(unit);
@@ -105,7 +105,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		Collector collector = new Collector();
 		Map properties = new HashMap();
 		properties.put(IInstallableUnit.PROP_TYPE_CATEGORY, "true");
-		IInstallableUnit category = createIU("category", new Version(1, 0, 0), NO_REQUIRES, properties, false);
+		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
 		collector.accept(category);
 		collector.accept(unit);

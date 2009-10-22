@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
@@ -24,8 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.osgi.framework.ServiceReference;
 
@@ -57,7 +53,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 			List allFeatures = getAllFeatures(Configuration.load(new File(Util.getConfigurationFolder(profile), "org.eclipse.update/platform.xml"), null)); //$NON-NLS-1$
 			for (Iterator iterator = allFeatures.iterator(); iterator.hasNext();) {
 				Feature f = (Feature) iterator.next();
-				IArtifactKey match = searchArtifact(f.getId(), new Version(f.getVersion()), ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
+				IArtifactKey match = searchArtifact(f.getId(), Version.create(f.getVersion()), ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
 				if (match != null)
 					artifactKeyList.add(match);
 			}
@@ -130,7 +126,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	private ArrayList findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
 		ArrayList toRetain = new ArrayList();
 		for (int i = 0; i < bis.length; i++) {
-			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), new Version(bis[i].getVersion()), ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
+			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), Version.create(bis[i].getVersion()), ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
 			if (match != null)
 				toRetain.add(match);
 		}

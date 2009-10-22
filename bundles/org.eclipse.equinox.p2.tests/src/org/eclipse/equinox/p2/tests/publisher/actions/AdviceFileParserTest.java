@@ -65,13 +65,13 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("provides.0.name", "testName1");
 		map.put("provides.0.version", "1.2.3.$qualifier$");
 
-		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.create("1.0.0.v20090909"), map);
 		parser.parse();
 		IProvidedCapability[] capabilities = parser.getProvidedCapabilities();
 		assertEquals(1, capabilities.length);
 		assertEquals("testNamespace1", capabilities[0].getNamespace());
 		assertEquals("testName1", capabilities[0].getName());
-		assertEquals(new Version("1.2.3.v20090909"), capabilities[0].getVersion());
+		assertEquals(Version.create("1.2.3.v20090909"), capabilities[0].getVersion());
 
 		map.put("provides.1.namespace", "testNamespace2");
 		map.put("provides.1.name", "testName2");
@@ -83,7 +83,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(2, capabilities.length);
 		assertEquals("testNamespace1", capabilities[0].getNamespace());
 		assertEquals("testName1", capabilities[0].getName());
-		assertEquals(new Version("1.2.3"), capabilities[0].getVersion());
+		assertEquals(Version.create("1.2.3"), capabilities[0].getVersion());
 		assertEquals("testNamespace2", capabilities[1].getNamespace());
 		assertEquals("testName2", capabilities[1].getName());
 		assertEquals(Version.MIN_VERSION, capabilities[1].getVersion());
@@ -98,7 +98,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("requires.0.optional", Boolean.TRUE.toString());
 		map.put("requires.0.multiple", Boolean.TRUE.toString());
 
-		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.create("1.0.0.v20090909"), map);
 		parser.parse();
 		IRequiredCapability[] capabilities = parser.getRequiredCapabilities();
 		assertEquals(1, capabilities.length);
@@ -141,7 +141,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("metaRequirements.0.optional", Boolean.TRUE.toString());
 		map.put("metaRequirements.0.multiple", Boolean.TRUE.toString());
 
-		AdviceFileParser parser = new AdviceFileParser("id", new Version("1.0.0.v20090909"), map);
+		AdviceFileParser parser = new AdviceFileParser("id", Version.create("1.0.0.v20090909"), map);
 		parser.parse();
 		IRequiredCapability[] capabilities = parser.getMetaRequiredCapabilities();
 		assertEquals(1, capabilities.length);
@@ -271,7 +271,7 @@ public class AdviceFileParserTest extends TestCase {
 		InstallableUnitDescription[] descriptions = parser.getAdditionalInstallableUnitDescriptions();
 		IInstallableUnit iu0 = MetadataFactory.createInstallableUnit(descriptions[0]);
 		assertEquals("testid0", iu0.getId());
-		assertEquals(new Version("1.2.3"), iu0.getVersion());
+		assertEquals(Version.create("1.2.3"), iu0.getVersion());
 		assertFalse(iu0.isSingleton());
 		assertFalse(iu0.isFragment());
 		assertEquals(0, iu0.getArtifacts().length);
@@ -288,14 +288,14 @@ public class AdviceFileParserTest extends TestCase {
 
 		IInstallableUnit iu1 = MetadataFactory.createInstallableUnit(descriptions[1]);
 		assertEquals("testid1", iu1.getId());
-		assertEquals(new Version("1.2.4"), iu1.getVersion());
+		assertEquals(Version.create("1.2.4"), iu1.getVersion());
 		assertTrue(iu1.isSingleton());
 		assertEquals(2, iu1.getArtifacts().length);
 		assertEquals("testArtifact1", iu1.getArtifacts()[0].getId());
-		assertEquals(new Version("1.2.6"), iu1.getArtifacts()[0].getVersion());
+		assertEquals(Version.create("1.2.6"), iu1.getArtifacts()[0].getVersion());
 		assertEquals("testClassifier1", iu1.getArtifacts()[0].getClassifier());
 		assertEquals("testArtifact2", iu1.getArtifacts()[1].getId());
-		assertEquals(new Version("1.2.7"), iu1.getArtifacts()[1].getVersion());
+		assertEquals(Version.create("1.2.7"), iu1.getArtifacts()[1].getVersion());
 		assertEquals("testClassifier2", iu1.getArtifacts()[1].getClassifier());
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
@@ -324,7 +324,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(2, provided.length);
 		assertEquals("testNamespace1", provided[0].getNamespace());
 		assertEquals("testName1", provided[0].getName());
-		assertEquals(new Version("1.2.3"), provided[0].getVersion());
+		assertEquals(Version.create("1.2.3"), provided[0].getVersion());
 		assertEquals("testNamespace2", provided[1].getNamespace());
 		assertEquals("testName2", provided[1].getName());
 		assertEquals(Version.MIN_VERSION, provided[1].getVersion());
@@ -353,7 +353,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("some.removeProgramArg", unconfigure.getImportAttribute());
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 
-		assertEquals(MetadataFactory.createTouchpointType("testTouchpointId", new Version("1.2.5")), iu1.getTouchpointType());
+		assertEquals(MetadataFactory.createTouchpointType("testTouchpointId", Version.create("1.2.5")), iu1.getTouchpointType());
 		assertEquals("testid1", iu1.getUpdateDescriptor().getId());
 		assertEquals(new VersionRange("(1,2)"), iu1.getUpdateDescriptor().getRange());
 		assertEquals(2, iu1.getUpdateDescriptor().getSeverity());

@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import junit.framework.AssertionFailedError;
@@ -141,12 +138,12 @@ public class FragmentMethodTest extends TestCase {
 	public IInstallableUnit createIUFragment(String name) {
 		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
 		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setHost(reqs);
-		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", Version.createOSGi(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
@@ -154,10 +151,10 @@ public class FragmentMethodTest extends TestCase {
 	public IInstallableUnit createIU(String name) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_IU, "valueIU");
-		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", Version.createOSGi(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnit(iu);
 	}

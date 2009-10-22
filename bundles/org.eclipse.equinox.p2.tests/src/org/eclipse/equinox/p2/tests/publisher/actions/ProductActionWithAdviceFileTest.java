@@ -78,7 +78,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		info.addAdvice(new QueryableFilterAdvice(info.getContextMetadataRepository()));
 
 		testAction.perform(info, publisherResult, null);
-		Collector results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", new Version("3.5.0.I20081118")), new Collector(), null);
+		Collector results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), new Collector(), null);
 		assertEquals("1.0", 1, results.size());
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
 		IRequiredCapability[] requiredCapabilities = unit.getRequiredCapabilities();

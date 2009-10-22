@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -291,7 +289,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		instructions.put("test1", MetadataFactory.createTouchpointInstruction("test1.test()", null));
 		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test2.test()", null));
 		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
-		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new IProvidedCapability[0], NO_PROPERTIES, ITouchpointType.NONE, touchpointData, false);
+		IInstallableUnit unit = createIU("test", Version.create("1.0.0"), null, NO_REQUIRES, new IProvidedCapability[0], NO_PROPERTIES, ITouchpointType.NONE, touchpointData, false);
 		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		if (!status.isOK()) {
 			fail(status.toString());

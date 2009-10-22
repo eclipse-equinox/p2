@@ -137,7 +137,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					new Version(i, j, k, qualifierTemplate);
+					Version.createOSGi(i, j, k, qualifierTemplate);
 	}
 
 	public static void omniVersionCompare(Version versions[]) {
@@ -201,7 +201,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					versions[x++] = new Version(i, j, k, qualifierTemplate.substring(0, k + 1));
+					versions[x++] = Version.createOSGi(i, j, k, qualifierTemplate.substring(0, k + 1));
 		return versions;
 	}
 

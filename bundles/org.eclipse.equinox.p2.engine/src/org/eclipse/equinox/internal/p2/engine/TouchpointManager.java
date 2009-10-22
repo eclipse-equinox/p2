@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
@@ -65,7 +62,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		public Version getVersion() {
 			try {
-				return new Version(element.getAttribute(ATTRIBUTE_VERSION));
+				return Version.create(element.getAttribute(ATTRIBUTE_VERSION));
 			} catch (InvalidRegistryObjectException e) {
 				return null;
 			}

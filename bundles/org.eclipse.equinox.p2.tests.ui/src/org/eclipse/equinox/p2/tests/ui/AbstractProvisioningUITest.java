@@ -62,15 +62,15 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		ProvisioningOperationRunner.suppressRestart(true);
 		profile = createProfile(TESTPROFILE);
 		profileElement = new ProfileElement(null, TESTPROFILE);
-		install((top1 = createIU(TOPLEVELIU, new Version("1.0.0"))), true, false);
+		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
 		install((top2 = createIU(TOPLEVELIU2)), true, false);
 		install((nested = createIU(NESTEDIU)), false, false);
 		install((locked = createIU(LOCKEDIU)), true, true);
 		uninstalled = createIU(UNINSTALLEDIU);
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor(TOPLEVELIU, new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
-		upgrade = createIU(TOPLEVELIU, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
+		upgrade = createIU(TOPLEVELIU, Version.createOSGi(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
 
-		category = createNamedIU(CATEGORYIU, CATEGORYIU, new Version("1.0.0"), true);
+		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {top1, top2, uninstalled, upgrade});
 
 		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());

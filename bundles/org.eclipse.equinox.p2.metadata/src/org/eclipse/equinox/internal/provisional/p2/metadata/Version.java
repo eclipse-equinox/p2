@@ -11,8 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.Messages;
-
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -36,45 +35,38 @@ import org.eclipse.osgi.util.NLS;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Version extends VersionVector {
-	private static final Integer cache[] = new Integer[100];
-
 	private static final char[] allowedOSGiChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-".toCharArray(); //$NON-NLS-1$
 
-	public static final Integer ZERO_INT = new Integer(0);
-
-	public static final Integer MAX_INT_OBJ = new Integer(Integer.MAX_VALUE);
-
-	static {
-		cache[0] = ZERO_INT;
-		for (int i = 1; i < cache.length; i++)
-			cache[i] = new Integer(i);
-	}
-
-	static Integer valueOf(int i) {
-		try {
-			return cache[i];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
-		}
-	}
+	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
 
 	/**
 	 * The empty OSGi version "0.0.0". Equivalent to calling
-	 * <code>new Version(0,0,0)</code>.
+	 * <code>Version.createOSGi(0,0,0)</code>.
 	 */
-	public static final Version emptyVersion = new Version(0, 0, 0);
+	public static final Version emptyVersion = Version.createOSGi(0, 0, 0);
 
 	/**
 	 * The version that is semantically greater then all other versions.
 	 */
-	public static final Version MAX_VERSION = new Version("raw:MpM"); //$NON-NLS-1$
+	public static final Version MAX_VERSION = Version.create("raw:MpM"); //$NON-NLS-1$
 
 	/**
 	 * The version that is semantically less then all other versions.
 	 */
-	public static final Version MIN_VERSION = new Version("raw:-M"); //$NON-NLS-1$
+	public static final Version MIN_VERSION = Version.create("raw:-M"); //$NON-NLS-1$
 
 	private static final long serialVersionUID = 8202715438560849928L;
+
+	/**
+	 * Compile a version format string into a compiled format..
+	 *
+	 * @param format The format to compile.
+	 * @return The compiled format
+	 * @throws VersionFormatException If the format could not be compiled
+	 */
+	public static IVersionFormat compile(String format) throws VersionFormatException {
+		return VersionFormat.compile(format, 0, format.length());
+	}
 
 	/**
 	 * Creates an OSGi version identifier from the specified numerical components.
@@ -106,7 +98,19 @@ public class Version extends VersionVector {
 	 */
 	public static Version createOSGi(int major, int minor, int micro, String qualifier) {
 		// TODO: Eliminate duplicates
-		return new Version(major, minor, micro, qualifier);
+		Comparable[] vector = new Comparable[4];
+		vector[0] = VersionParser.valueOf(major);
+		vector[1] = VersionParser.valueOf(minor);
+		vector[2] = VersionParser.valueOf(micro);
+		if (qualifier == null || qualifier.length() == 0)
+			vector[3] = VersionVector.MINS_VALUE;
+		else if (qualifier.equals(VersionFormat.DEFAULT_MAX_STRING_TRANSLATION))
+			vector[3] = VersionVector.MAXS_VALUE;
+		else
+			vector[3] = qualifier;
+		Version v = new Version(vector, null, VersionFormat.OSGI_FORMAT, null);
+		v.validateOSGI(true);
+		return v;
 	}
 
 	/**
@@ -119,7 +123,7 @@ public class Version extends VersionVector {
 			return null;
 		if (version.equals(org.osgi.framework.Version.emptyVersion))
 			return emptyVersion;
-		return new Version(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
+		return createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
 	}
 
 	/**
@@ -135,12 +139,7 @@ public class Version extends VersionVector {
 	 */
 	public static Version create(String version) {
 		// TODO: Eliminate duplicates
-		if (version != null) {
-			Version v = new Version();
-			if (VersionParser.parseInto(version, 0, version.length(), v))
-				return v;
-		}
-		return null;
+		return version == null ? null : VersionParser.parse(version, 0, version.length());
 	}
 
 	/**
@@ -206,83 +205,24 @@ public class Version extends VersionVector {
 	/**
 	 * The optional format
 	 */
-	private VersionFormat format;
+	private final IVersionFormat format;
 
 	/**
 	 * The optional original string
 	 */
-	private String original;
+	private final String original;
 
-	/**
-	 * Creates an OSGi version identifier from the specified numerical components.
-	 * 
-	 * <p>
-	 * The qualifier is set to the empty string.
-	 * 
-	 * @param major Major component of the version identifier.
-	 * @param minor Minor component of the version identifier.
-	 * @param micro Micro component of the version identifier.
-	 * @throws IllegalArgumentException If the numerical components are
-	 *         negative.
-	 * @deprecated Use {@link #createOSGi(int, int, int)}. This constructor will not remain public
-	 */
-	public Version(int major, int minor, int micro) {
-		this(major, minor, micro, null);
-	}
-
-	/**
-	 * Creates an OSGi version identifier from the specified components.
-	 * 
-	 * @param major Major component of the version identifier.
-	 * @param minor Minor component of the version identifier.
-	 * @param micro Micro component of the version identifier.
-	 * @param qualifier Qualifier component of the version identifier. If
-	 *        <code>null</code> is specified, then the qualifier will be set to
-	 *        the empty string.
-	 * @throws IllegalArgumentException If the numerical components are negative
-	 *         or the qualifier string is invalid.
-	 * @deprecated Use {@link #createOSGi(int, int, int, String)}. This constructor will not remain public
-	 */
-	public Version(int major, int minor, int micro, String qualifier) {
-		if (qualifier != null && qualifier.length() == 0)
-			qualifier = null;
-		Comparable[] vector = new Comparable[qualifier == null ? 3 : 4];
-		vector[0] = valueOf(major);
-		vector[1] = valueOf(minor);
-		vector[2] = valueOf(micro);
-		if (qualifier != null)
-			vector[3] = qualifier;
-		init(vector, null, VersionFormat.OSGI_FORMAT, null);
-		validateOSGI(true);
-	}
-
-	/**
-	 * Created a version identifier from the specified string.
-	 * 
-	 * @param version String representation of the version identifier.
-	 * @throws IllegalArgumentException If <code>version</code> is improperly
-	 *         formatted.
-	 * @deprecated Use {@link #parseVersion(String)}. This constructor will not remain public
-	 */
-	public Version(String version) {
-		if (!VersionParser.parseInto(version, 0, version.length(), this)) {
-			// Version is OSGi empty
-			init(new Comparable[] {ZERO_INT, ZERO_INT, ZERO_INT}, null, VersionFormat.OSGI_FORMAT, null);
-		}
-	}
-
-	Version() {
-		// Empty constructor
-	}
-
-	Version(Comparable[] array, Comparable padValue, VersionFormat format, String original) {
-		init(array, padValue, format, original);
+	public Version(Comparable[] array, Comparable padValue, IVersionFormat format, String original) {
+		super(array, padValue);
+		this.format = format;
+		//don't need to retain original for OSGi version
+		this.original = format == VersionFormat.OSGI_FORMAT ? null : original;
 	}
 
 	/**
 	 * Returns the optional format.
 	 */
-	public VersionFormat getFormat() {
+	public IVersionFormat getFormat() {
 		return format;
 	}
 
@@ -344,11 +284,18 @@ public class Version extends VersionVector {
 	 */
 	public String getQualifier() {
 		Comparable[] vector = getVector();
-		if (vector.length < 4)
-			return null;
-		if (!(vector[3] instanceof String))
+		if (vector.length == 3)
+			return MINS_VALUE;
+
+		if (vector.length != 4)
 			throw new UnsupportedOperationException();
-		return (String) vector[3];
+
+		Comparable qualifier = vector[3];
+		if (qualifier == MAXS_VALUE)
+			return VersionFormat.DEFAULT_MAX_STRING_TRANSLATION;
+		if (!(qualifier instanceof String))
+			throw new UnsupportedOperationException();
+		return (String) qualifier;
 	}
 
 	/**
@@ -404,13 +351,14 @@ public class Version extends VersionVector {
 			sb.append(vector[1]);
 			sb.append('.');
 			sb.append(vector[2]);
-			if (vector.length > 3) {
+			Comparable qualifier = vector[3];
+			if (qualifier != MINS_VALUE) {
 				sb.append('.');
-				sb.append(vector[3]);
+				sb.append(qualifier == MAXS_VALUE ? VersionFormat.DEFAULT_MAX_STRING_TRANSLATION : qualifier);
 			}
 			return;
 		}
-		sb.append(VersionParser.RAW_PREFIX);
+		sb.append(RAW_PREFIX);
 		super.toString(sb, false);
 		if (format != null || original != null) {
 			sb.append('/');
@@ -421,14 +369,6 @@ public class Version extends VersionVector {
 				originalToString(sb, false);
 			}
 		}
-	}
-
-	void init(Comparable[] vec, Comparable pad, VersionFormat fmt, String orig) {
-		init(vec, pad);
-		format = fmt;
-		//don't need to retain original for OSGi version
-		if (fmt != VersionFormat.OSGI_FORMAT)
-			original = orig;
 	}
 
 	private int getIntElement(int i) {
@@ -458,7 +398,7 @@ public class Version extends VersionVector {
 		Comparable[] vector = getVector();
 		if (vector.length < 3 || vector.length > 4) {
 			if (throwDetailed)
-				throw new IllegalArgumentException(NLS.bind(Messages.illegal_number_of_entries_0_in_osgi_1, valueOf(vector.length), this));
+				throw new IllegalArgumentException(NLS.bind(Messages.illegal_number_of_entries_0_in_osgi_1, VersionParser.valueOf(vector.length), this));
 			return false;
 		}
 
@@ -476,28 +416,33 @@ public class Version extends VersionVector {
 				return false;
 			}
 		}
-		if (vector.length == 4) {
-			Object e = vector[3];
-			if (!(e instanceof String)) {
-				if (throwDetailed)
-					throw new IllegalArgumentException(NLS.bind(Messages._0_is_not_a_string_in_osgi_1, getOSGiEntryName(3), this));
-				return false;
-			}
 
-			String s = (String) e;
-			int idx = s.length();
-			char[] allowed = allowedOSGiChars;
-			int ctop = allowed.length;
-			outer: while (--idx >= 0) {
-				char c = s.charAt(idx);
-				int cdx = ctop;
-				while (--cdx >= 0)
-					if (c == allowed[cdx])
-						continue outer;
-				if (throwDetailed)
-					throw new IllegalArgumentException(NLS.bind(Messages._0_is_not_a_valid_qualifier_in_osgi_1, getOSGiEntryName(3), this));
-				return false;
-			}
+		if (vector.length == 3)
+			return true; // No qualifier. Still compatible
+
+		Object e = vector[3];
+		if (e == VersionVector.MAXS_VALUE)
+			return true;
+
+		if (!(e instanceof String)) {
+			if (throwDetailed)
+				throw new IllegalArgumentException(NLS.bind(Messages._0_is_not_a_string_in_osgi_1, getOSGiEntryName(3), this));
+			return false;
+		}
+
+		String s = (String) e;
+		int idx = s.length();
+		char[] allowed = allowedOSGiChars;
+		int ctop = allowed.length;
+		outer: while (--idx >= 0) {
+			char c = s.charAt(idx);
+			int cdx = ctop;
+			while (--cdx >= 0)
+				if (c == allowed[cdx])
+					continue outer;
+			if (throwDetailed)
+				throw new IllegalArgumentException(NLS.bind(Messages._0_is_not_a_valid_qualifier_in_osgi_1, getOSGiEntryName(3), this));
+			return false;
 		}
 		return true;
 	}

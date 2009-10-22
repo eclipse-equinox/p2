@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.installer;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 
@@ -117,9 +115,9 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		IVersionedId[] roots = description.getRoots();
 		assertEquals("1.7", 2, roots.length);
 		assertEquals("1.8", "testRoot", roots[0].getId());
-		assertEquals("1.9", new Version("2.0"), roots[0].getVersion());
+		assertEquals("1.9", Version.create("2.0"), roots[0].getVersion());
 		assertEquals("1.8", "anotherRoot", roots[1].getId());
-		assertEquals("1.9", new Version("1.0.1"), roots[1].getVersion());
+		assertEquals("1.9", Version.create("1.0.1"), roots[1].getVersion());
 		assertTrue("1.10", !description.isAutoStart());
 		assertEquals("1.11", new Path("/tmp/agent/"), description.getAgentLocation());
 		assertEquals("1.12", new Path("/tmp/bundles/"), description.getBundleLocation());
