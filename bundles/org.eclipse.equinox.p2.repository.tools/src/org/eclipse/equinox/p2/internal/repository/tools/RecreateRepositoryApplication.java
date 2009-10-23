@@ -116,9 +116,10 @@ public class RecreateRepositoryApplication {
 				ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptors[i]);
 				newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
 				newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
-				//only set an MD5 if there was one to start with
-				if (newDescriptor.getProperties().containsKey(IArtifactDescriptor.DOWNLOAD_MD5))
-					newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, RepositoryUtilities.computeMD5(artifactFile));
+
+				String md5 = RepositoryUtilities.computeMD5(artifactFile);
+				if (md5 != null)
+					newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 
 				File temp = new File(artifactFile.getParentFile(), artifactFile.getName() + ".pack.gz"); //$NON-NLS-1$
 				if (temp.exists()) {
