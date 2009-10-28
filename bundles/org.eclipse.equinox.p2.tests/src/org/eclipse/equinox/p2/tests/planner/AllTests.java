@@ -93,6 +93,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTest8.class);
 		suite.addTestSuite(PatchTest9.class);
 		suite.addTestSuite(PatchTestMultiplePatch.class);
+		suite.addTestSuite(PatchTestMultiplePatch2.class);
+		suite.addTestSuite(PatchTestMultiplePatch3.class);
 		suite.addTestSuite(PatchTestOptional.class);
 		suite.addTestSuite(PatchTestOptional2.class);
 		suite.addTestSuite(PatchTestOptional3.class);
