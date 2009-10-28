@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
@@ -172,12 +171,8 @@ public class ProvisioningOperationRunner {
 			PlatformUI.getWorkbench().restart();
 			return;
 		}
-		if (restartPolicy == Policy.FORCE_RESTART_NOTIFY) {
-			IProduct product = Platform.getProduct();
-			String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
-			String message = NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ForceRestartMessage, productName);
-			MessageDialog.openInformation(ProvUI.getDefaultParentShell(), ProvUIMessages.PlatformUpdateTitle, message);
-			PlatformUI.getWorkbench().restart();
+		if (restartPolicy == Policy.FORCE_APPLY) {
+			applyProfileChanges();
 			return;
 		}
 
@@ -187,20 +182,24 @@ public class ProvisioningOperationRunner {
 					return;
 				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.PROMPT_RESTART);
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
-					Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
-					try {
-						configurator.applyConfiguration();
-					} catch (IOException e) {
-						ProvUI.handleException(e, ProvUIMessages.ProvUI_ErrorDuringApplyConfig, StatusManager.LOG | StatusManager.BLOCK);
-					} catch (IllegalStateException e) {
-						IStatus illegalApplyStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProvisioningOperationRunner_CannotApplyChanges, e);
-						ProvUI.reportStatus(illegalApplyStatus, StatusManager.LOG | StatusManager.BLOCK);
-					}
+					applyProfileChanges();
 				} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
 					PlatformUI.getWorkbench().restart();
 				}
 			}
 		});
+	}
+
+	static void applyProfileChanges() {
+		Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
+		try {
+			configurator.applyConfiguration();
+		} catch (IOException e) {
+			ProvUI.handleException(e, ProvUIMessages.ProvUI_ErrorDuringApplyConfig, StatusManager.LOG | StatusManager.BLOCK);
+		} catch (IllegalStateException e) {
+			IStatus illegalApplyStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProvisioningOperationRunner_CannotApplyChanges, e);
+			ProvUI.reportStatus(illegalApplyStatus, StatusManager.LOG | StatusManager.BLOCK);
+		}
 	}
 
 	public static boolean hasScheduledOperations() {

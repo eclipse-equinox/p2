@@ -49,13 +49,13 @@ public class Policy {
 	public static final int FORCE_RESTART = 1;
 
 	/**
-	 * A constant indicating that restart should be forced immediately after 
-	 * completion of a provisioning operation, but that the user should be
-	 * notified when the restart is about to occur.
+	 * A constant indicating that the changes should be applied dynamically
+	 * to the profile (without confirmation) immediately after completion of 
+	 * a provisioning operation.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int FORCE_RESTART_NOTIFY = 2;
+	public static final int FORCE_APPLY = 2;
 
 	/**
 	 * A constant indicating that the user should be prompted to
