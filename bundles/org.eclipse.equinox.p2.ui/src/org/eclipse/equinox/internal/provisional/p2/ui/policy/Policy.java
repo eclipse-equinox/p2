@@ -330,7 +330,7 @@ public class Policy {
 	 * handled.  
 	 * 
 	 * @see #FORCE_RESTART
-	 * @see #FORCE_RESTART_NOTIFY
+	 * @see #FORCE_APPLY
 	 * @see #PROMPT_RESTART
 	 * @see #PROMPT_RESTART_OR_APPLY
 	 */
@@ -343,11 +343,11 @@ public class Policy {
 	 * completion of a provisioning operation.
 	 * 
 	 * @param policy an integer constant indicating how restarts are to be
-	 * handled.  Should be one of <code>FORCE_RESTART</code>, <code>FORCE_RESTART_NOTIFY</code>, 
+	 * handled.  Should be one of <code>FORCE_RESTART</code>, <code>FORCE_APPLY</code>, 
 	 * <code>PROMPT_RESTART</code>, or <code>PROMPT_RESTART_OR_APPLY</code>.
 	 * 
 	 * @see #FORCE_RESTART
-	 * @see #FORCE_RESTART_NOTIFY
+	 * @see #FORCE_APPLY
 	 * @see #PROMPT_RESTART
 	 * @see #PROMPT_RESTART_OR_APPLY
 	 */
