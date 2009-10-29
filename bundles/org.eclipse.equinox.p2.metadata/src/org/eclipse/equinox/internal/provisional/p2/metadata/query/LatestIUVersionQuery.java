@@ -10,10 +10,10 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 
 /**
- * This query returns the latest version for each unique IU Id.  
+ * This query returns the latest version for each unique VersionedID.  
  * All other elements are discarded.
  */
 public class LatestIUVersionQuery extends ContextQuery {
@@ -26,16 +26,16 @@ public class LatestIUVersionQuery extends ContextQuery {
 		while (iterator.hasNext()) {
 			Object next = iterator.next();
 
-			if (!(next instanceof IInstallableUnit))
+			if (!(next instanceof IVersionedId))
 				// Don't accept things if they are not IUs
 				continue;
-			IInstallableUnit iu = (IInstallableUnit) next;
-			if (greatestIUVersion.containsKey(iu.getId())) {
-				IInstallableUnit currentIU = (IInstallableUnit) greatestIUVersion.get(iu.getId());
-				if (currentIU.getVersion().compareTo(iu.getVersion()) < 0)
-					greatestIUVersion.put(iu.getId(), iu);
+			IVersionedId versionedID = (IVersionedId) next;
+			if (greatestIUVersion.containsKey(versionedID.getId())) {
+				IVersionedId currentIU = (IVersionedId) greatestIUVersion.get(versionedID.getId());
+				if (currentIU.getVersion().compareTo(versionedID.getVersion()) < 0)
+					greatestIUVersion.put(versionedID.getId(), versionedID);
 			} else
-				greatestIUVersion.put(iu.getId(), iu);
+				greatestIUVersion.put(versionedID.getId(), versionedID);
 		}
 
 		Collection values = greatestIUVersion.values();
@@ -43,7 +43,7 @@ public class LatestIUVersionQuery extends ContextQuery {
 		boolean continueGather = true;
 
 		while (valuesIterator.hasNext() && continueGather) {
-			IInstallableUnit nextIU = (IInstallableUnit) valuesIterator.next();
+			IVersionedId nextIU = (IVersionedId) valuesIterator.next();
 			continueGather = result.accept(nextIU);
 		}
 		return result;
