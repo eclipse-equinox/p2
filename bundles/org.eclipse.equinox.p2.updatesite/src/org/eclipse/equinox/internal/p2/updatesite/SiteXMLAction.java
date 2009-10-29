@@ -123,7 +123,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		Query query = null;
 		Collector collector = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
+			query = new PipedQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
 			collector = new Collector();
 		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
 			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
@@ -138,7 +138,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 					return false;
 				}
 			};
-			query = new CompositeQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
+			query = new PipedQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
 			collector = new Collector();
 		} else {
 			query = new InstallableUnitQuery(id, version);

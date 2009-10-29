@@ -203,7 +203,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		CompositeQuery cQuery = new CompositeQuery(new Query[] {query1, query2});
+		PipedQuery cQuery = new PipedQuery(new Query[] {query1, query2});
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -246,7 +246,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		CompositeQuery cQuery = new CompositeQuery(new Query[] {query1, query2});
+		PipedQuery cQuery = new PipedQuery(new Query[] {query1, query2});
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());

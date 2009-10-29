@@ -9,18 +9,17 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.util.Iterator;
 
 /**
- * A Composite Query is an aggregate query in which each sub-query
+ * A PipedQuery is an aggregate query in which each sub-query
  * is executed in succession.  The results from the ith sub-query
  * are piped as input into the i+1th sub-query.
  */
-public class CompositeQuery implements Query {
+public class PipedQuery implements Query {
 	protected Query[] queries;
 
-	public CompositeQuery(Query[] queries) {
+	public PipedQuery(Query[] queries) {
 		this.queries = queries;
 	}
 

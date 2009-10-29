@@ -28,7 +28,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		CompositeQuery query = new CompositeQuery(new Query[0]);
+		PipedQuery query = new PipedQuery(new Query[0]);
 		query.perform(getABCDE().iterator(), new Collector());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case
@@ -108,11 +108,11 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompositeQuery compoundQuery = new CompositeQuery(new Query[] {getLatest, getAllBut3});
+		PipedQuery compoundQuery = new PipedQuery(new Query[] {getLatest, getAllBut3});
 		Collector result = compoundQuery.perform(get123().iterator(), new Collector());
 		assertEquals(0, result.size());
 
-		compoundQuery = new CompositeQuery(new Query[] {getAllBut3, getLatest});
+		compoundQuery = new PipedQuery(new Query[] {getAllBut3, getLatest});
 		result = compoundQuery.perform(get123().iterator(), new Collector());
 		assertEquals(1, result.size());
 		assertEquals("2", result.toCollection().iterator().next());

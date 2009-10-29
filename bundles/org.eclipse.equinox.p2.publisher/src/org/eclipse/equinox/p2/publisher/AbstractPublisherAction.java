@@ -505,7 +505,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			query = new InstallableUnitQuery(iuId, version);
 			collector = new SingleElementCollector();
 		} else {
-			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
+			query = new PipedQuery(new Query[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
 			collector = new Collector();
 		}
 

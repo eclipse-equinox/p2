@@ -119,7 +119,7 @@ public class IUDescription extends DataType {
 
 		if (queries.size() == 1)
 			return (Query) queries.get(0);
-		return new CompositeQuery((Query[]) queries.toArray(new Query[queries.size()]));
+		return new PipedQuery((Query[]) queries.toArray(new Query[queries.size()]));
 	}
 
 	private Query processQueryString() {

@@ -93,7 +93,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest)
-							topLevelQuery = new CompositeQuery(new Query[] {topLevelQuery, new LatestIUVersionQuery()});
+							topLevelQuery = new PipedQuery(new Query[] {topLevelQuery, new LatestIUVersionQuery()});
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector(), wrapper);
@@ -116,12 +116,12 @@ public class DefaultQueryProvider extends QueryProvider {
 					// be visible in the category.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							meetsAnyRequirementQuery = new CompositeQuery(new Query[] {meetsAnyRequirementQuery, new LatestIUVersionQuery()});
+							meetsAnyRequirementQuery = new PipedQuery(new Query[] {meetsAnyRequirementQuery, new LatestIUVersionQuery()});
 						return new ElementQueryDescriptor(queryable, meetsAnyRequirementQuery, new Collector(), availableIUWrapper);
 					}
 					Query query = CompoundQuery.createCompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true);
 					if (showLatest)
-						query = new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()});
+						query = new PipedQuery(new Query[] {query, new LatestIUVersionQuery()});
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
 					return new ElementQueryDescriptor(queryable, query, new Collector(), availableIUWrapper);
 				}

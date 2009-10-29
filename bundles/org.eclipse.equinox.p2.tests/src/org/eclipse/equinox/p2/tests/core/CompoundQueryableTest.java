@@ -349,7 +349,7 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(new CompositeQuery(new Query[] {contextQuery, greatestNumberQuery}), new Collector(), monitor);
+		Collector collector = cQueryable.query(new PipedQuery(new Query[] {contextQuery, greatestNumberQuery}), new Collector(), monitor);
 		assertEquals("1.0", 1, collector.size());
 		Collection collection = collector.toCollection();
 		assertTrue("1.2", collection.contains(12));
