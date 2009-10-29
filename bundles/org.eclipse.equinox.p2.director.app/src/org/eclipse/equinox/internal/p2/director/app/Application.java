@@ -405,7 +405,7 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
+					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
 					if (roots.size() <= 0)
 						roots = profile.query(query, roots, new NullProgressMonitor());
 					if (roots.size() <= 0) {

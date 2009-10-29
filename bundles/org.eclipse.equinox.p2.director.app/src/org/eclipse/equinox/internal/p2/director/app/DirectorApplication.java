@@ -248,7 +248,7 @@ public class DirectorApplication implements IApplication {
 			Query query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 			Collector roots;
 			if (forInstall)
-				roots = collectRootIUs(new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
+				roots = collectRootIUs(new PipedQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
 			else
 				roots = new Collector();
 			if (roots.size() <= 0)
