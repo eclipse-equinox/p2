@@ -12,9 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
@@ -23,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -30,7 +28,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class RootFilesActionTest extends ActionTest {
 	private static final int INCLUDES_ROOT = 1;
 	private static final int ARTIFACT_REPO = 2;
@@ -68,6 +66,7 @@ public class RootFilesActionTest extends ActionTest {
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(configSpec, false, flavorArg + topArg, versionArg, ITouchpointAdvice.class)).andReturn(null).anyTimes();
 	}
 
 	private void setupTestCase(int testArg) throws Exception {

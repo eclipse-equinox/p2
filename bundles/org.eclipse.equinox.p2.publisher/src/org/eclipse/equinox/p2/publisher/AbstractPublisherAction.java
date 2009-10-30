@@ -10,11 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -24,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -372,18 +367,23 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param info The publisher info
 	 */
 	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
-		if (currentInstructions == null) {
-			if (advice.isEmpty())
-				return;
+		processTouchpointAdvice(iu, currentInstructions, info, null);
+	}
 
+	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info, String configSpec) {
+		Collection advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
+		if (currentInstructions == null) {
+			if (advice == null || advice.isEmpty())
+				return;
 			currentInstructions = Collections.EMPTY_MAP;
 		}
 
 		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
-			result = entry.getTouchpointData(result);
+		if (advice != null) {
+			for (Iterator i = advice.iterator(); i.hasNext();) {
+				ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
+				result = entry.getTouchpointData(result);
+			}
 		}
 		iu.addTouchpointData(result);
 	}

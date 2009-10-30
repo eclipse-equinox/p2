@@ -372,6 +372,48 @@ public class MetadataFactory {
 		return new TouchpointData(result);
 	}
 
+	/**
+	 * Merge the given touchpoint instructions with a pre-existing touchpoint data
+	 * @param initial - the initial ITouchpointData
+	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into the initial touchpoint data
+	 * @return the merged ITouchpointData
+	 */
+	public static ITouchpointData mergeTouchpointData(ITouchpointData initial, Map incomingInstructions) {
+		if (incomingInstructions == null || incomingInstructions.size() == 0)
+			return initial;
+
+		Map resultInstructions = new HashMap(initial.getInstructions());
+		for (Iterator iterator = incomingInstructions.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			Object incoming = incomingInstructions.get(key);
+			ITouchpointInstruction instruction = (incoming instanceof String) ? createTouchpointInstruction((String) incoming, null) : (ITouchpointInstruction) incoming;
+			ITouchpointInstruction existingInstruction = (ITouchpointInstruction) resultInstructions.get(key);
+
+			if (existingInstruction != null) {
+				String body = existingInstruction.getBody();
+				if (body == null || body.length() == 0)
+					body = instruction.getBody();
+				else if (instruction.getBody() != null) {
+					if (!body.endsWith(";")) //$NON-NLS-1$
+						body += ';';
+					body += instruction.getBody();
+				}
+
+				String importAttribute = existingInstruction.getImportAttribute();
+				if (importAttribute == null || importAttribute.length() == 0)
+					importAttribute = instruction.getImportAttribute();
+				else if (instruction.getImportAttribute() != null) {
+					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
+						importAttribute += ',';
+					importAttribute += instruction.getBody();
+				}
+				instruction = createTouchpointInstruction(body, importAttribute);
+			}
+			resultInstructions.put(key, instruction);
+		}
+		return createTouchpointData(resultInstructions);
+	}
+
 	public static ITouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {
 		return new TouchpointInstruction(body, importAttribute);
 	}

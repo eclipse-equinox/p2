@@ -32,6 +32,7 @@ import org.osgi.framework.Constants;
 public class ConfigCUsAction extends AbstractPublisherAction {
 
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
+	protected static final String DEFAULT_START_LEVEL = "osgi.bundles.defaultStartLevel"; //$NON-NLS-1$
 	private static Collection PROPERTIES_TO_SKIP;
 	private static HashSet PROGRAM_ARGS_TO_SKIP;
 	protected Version version;
@@ -122,9 +123,25 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		ArrayList result = new ArrayList();
 		for (Iterator j = configAdvice.iterator(); j.hasNext();) {
 			IConfigAdvice advice = (IConfigAdvice) j.next();
+
+			int defaultStart = BundleInfo.NO_LEVEL;
+			Properties adviceProperties = advice.getProperties();
+			if (adviceProperties.containsKey(DEFAULT_START_LEVEL)) {
+				try {
+					defaultStart = Integer.parseInt((String) adviceProperties.get(DEFAULT_START_LEVEL));
+				} catch (NumberFormatException e) {
+					//don't know default
+				}
+			}
+
 			BundleInfo[] bundles = advice.getBundles();
 			for (int i = 0; i < bundles.length; i++) {
 				BundleInfo bundleInfo = bundles[i];
+
+				if (bundleInfo.getStartLevel() != BundleInfo.NO_LEVEL && bundleInfo.getStartLevel() == defaultStart) {
+					bundleInfo.setStartLevel(BundleInfo.NO_LEVEL);
+				}
+
 				// prime the result with the current info.  This will be replaced if there is more info...
 				if ((bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null) || bundleInfo.getLocation() == null)
 					result.add(bundles[i]);

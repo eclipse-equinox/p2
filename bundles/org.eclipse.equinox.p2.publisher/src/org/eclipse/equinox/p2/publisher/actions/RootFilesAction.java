@@ -21,11 +21,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-// TODO need to merge this functionality with the FeaturesAction work on root files
 public class RootFilesAction extends AbstractPublisherAction {
 	private String idBase;
 	private Version version;
 	private String flavor;
+	private boolean createParent = true;
 
 	/**
 	 * Returns the id of the top level IU published by this action for the given id and flavor.
@@ -43,6 +43,10 @@ public class RootFilesAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
+	public void setCreateParent(boolean createParent) {
+		this.createParent = createParent;
+	}
+
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		setPublisherInfo(publisherInfo);
 		IPublisherResult innerResult = new PublisherResult();
@@ -56,7 +60,8 @@ public class RootFilesAction extends AbstractPublisherAction {
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
-		publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
+		if (createParent)
+			publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 		return Status.OK_STATUS;
@@ -110,7 +115,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		processTouchpointAdvice(cu, touchpointData, info, configSpec);
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 

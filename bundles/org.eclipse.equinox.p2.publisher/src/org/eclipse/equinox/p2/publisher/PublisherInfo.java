@@ -29,6 +29,10 @@ public class PublisherInfo implements IPublisherInfo {
 		adviceList.add(advice);
 	}
 
+	public List getAdvice() {
+		return adviceList;
+	}
+
 	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type) {
 		ArrayList result = new ArrayList();
 		for (Iterator i = adviceList.iterator(); i.hasNext();) {

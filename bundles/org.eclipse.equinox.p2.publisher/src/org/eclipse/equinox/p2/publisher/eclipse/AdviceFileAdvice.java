@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -152,38 +150,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	 * @see org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice#getTouchpointData()
 	 */
 	public ITouchpointData getTouchpointData(ITouchpointData existing) {
-		if (touchpointInstructions == null)
-			return existing;
-
-		Map resultInstructions = new HashMap(existing.getInstructions());
-		for (Iterator iterator = touchpointInstructions.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-			ITouchpointInstruction instruction = (ITouchpointInstruction) touchpointInstructions.get(key);
-			ITouchpointInstruction existingInstruction = (ITouchpointInstruction) resultInstructions.get(key);
-
-			if (existingInstruction != null) {
-				String body = existingInstruction.getBody();
-				if (body == null || body.length() == 0)
-					body = instruction.getBody();
-				else if (instruction.getBody() != null) {
-					if (!body.endsWith(";")) //$NON-NLS-1$
-						body += ';';
-					body += instruction.getBody();
-				}
-
-				String importAttribute = existingInstruction.getImportAttribute();
-				if (importAttribute == null || importAttribute.length() == 0)
-					importAttribute = instruction.getImportAttribute();
-				else if (instruction.getImportAttribute() != null) {
-					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
-						importAttribute += ',';
-					importAttribute += instruction.getBody();
-				}
-				instruction = MetadataFactory.createTouchpointInstruction(body, importAttribute);
-			}
-			resultInstructions.put(key, instruction);
-		}
-		return MetadataFactory.createTouchpointData(resultInstructions);
+		return MetadataFactory.mergeTouchpointData(existing, touchpointInstructions);
 	}
 
 	public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
