@@ -33,26 +33,38 @@ import org.xml.sax.SAXException;
  */
 public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
+	private static ILicense[] NO_LICENSES = new ILicense[0];
 
 	public boolean accept(IInstallableUnit iu) {
-		ILicense license = IUPropertyUtils.getLicense(iu);
-		if (license != null)
-			accepted.add(license.getDigest());
+		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		if (licenses.length > 0) {
+			for (int i = 0; i < licenses.length; i++) {
+				accepted.add(licenses[i].getDigest());
+			}
+		}
 		return true;
 	}
 
 	public boolean reject(IInstallableUnit iu) {
-		ILicense license = IUPropertyUtils.getLicense(iu);
-		if (license != null)
-			accepted.remove(license.getDigest());
+		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		if (licenses.length > 0)
+			for (int i = 0; i < licenses.length; i++) {
+				accepted.remove(licenses[i].getDigest());
+			}
 		return true;
 	}
 
-	public boolean isAccepted(IInstallableUnit iu) {
-		ILicense license = IUPropertyUtils.getLicense(iu);
-		if (license == null)
-			return true;
-		return accepted.contains(license.getDigest());
+	public ILicense[] isAccepted(IInstallableUnit iu) {
+		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		ArrayList nonAcceptedLicenses = new ArrayList(licenses.length);
+		for (int i = 0; i < licenses.length; i++) {
+			if (!accepted.contains(licenses[i].getDigest())) {
+				nonAcceptedLicenses.add(licenses[i]);
+			}
+		}
+		if (nonAcceptedLicenses.size() == 0)
+			return NO_LICENSES;
+		return (ILicense[]) nonAcceptedLicenses.toArray(new ILicense[nonAcceptedLicenses.size()]);
 	}
 
 	public boolean hasAcceptedLicenses() {

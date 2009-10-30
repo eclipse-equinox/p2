@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -28,6 +25,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 
 public abstract class MetadataParser extends XMLParser implements XMLConstants {
+	static final ILicense[] NO_LICENSES = new ILicense[0];
 
 	public MetadataParser(BundleContext context, String bundleId) {
 		super(context, bundleId);
@@ -286,8 +284,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				//End of backward compatibility
 
 				if (licensesHandler != null) {
-					ILicense license = licensesHandler.getLicense();
-					currentUnit.setLicense(license);
+					currentUnit.setLicenses(licensesHandler.getLicenses());
 				}
 
 				if (copyrightHandler != null) {
@@ -788,6 +785,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	 * 	Handler for a list of licenses.
 	 */
 	protected class LicensesHandler extends AbstractHandler {
+
 		// Note this handler is set up to handle multiple license elements, but for now
 		// the API for IInstallableUnit only reflects one.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
@@ -799,10 +797,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			licenses = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(2));
 		}
 
-		public ILicense getLicense() {
+		public ILicense[] getLicenses() {
 			if (licenses.size() == 0)
-				return null;
-			return (ILicense) licenses.get(0);
+				return NO_LICENSES;
+			return (ILicense[]) licenses.toArray(new ILicense[licenses.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {

@@ -664,7 +664,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		if (feature.getApplication() != null)
@@ -762,7 +762,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
@@ -832,7 +832,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));

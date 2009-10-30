@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -63,7 +60,7 @@ public class UpdateWizardTest extends WizardTest {
 		iu.setVersion(Version.createOSGi(4, 0, 0));
 		iu.setSingleton(true);
 		iu.setUpdateDescriptor(update);
-		iu.setLicense(new License(null, "Update Wizard Test License to Accept"));
+		iu.setLicenses(new ILicense[] {new License(null, "Update Wizard Test License to Accept")});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		mainUpgradeWithLicense = MetadataFactory.createInstallableUnit(iu);
 	}

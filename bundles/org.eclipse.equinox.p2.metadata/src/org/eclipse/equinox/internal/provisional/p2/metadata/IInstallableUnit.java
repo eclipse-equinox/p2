@@ -256,7 +256,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * Returns the license that applies to this installable unit.
 	 * @return the license that applies to this installable unit or <code>null</code>
 	 */
-	public ILicense getLicense();
+	public ILicense[] getLicenses();
 
 	/**
 	 * Returns the copyright that applies to this installable unit.

@@ -37,8 +37,8 @@ public class IUPropertyUtils {
 	private Map LocaleCollectorCache = new HashMap(2);
 
 	// Get the license in the default locale.
-	public ILicense getLicense(IInstallableUnit iu) {
-		return getLicense(iu, getCurrentLocale());
+	public ILicense[] getLicense(IInstallableUnit iu) {
+		return getLicenses(iu, getCurrentLocale());
 	}
 
 	// Get the copyright in the default locale.
@@ -51,14 +51,22 @@ public class IUPropertyUtils {
 		return getIUProperty(iu, propertyKey, getCurrentLocale());
 	}
 
-	public ILicense getLicense(IInstallableUnit iu, Locale locale) {
-		ILicense license = iu.getLicense();
+	public ILicense getLicense(IInstallableUnit iu, ILicense license, Locale locale) {
 		String body = (license != null ? license.getBody() : null);
 		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
 			return license;
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
 		return MetadataFactory.createLicense(license.getLocation(), body);
+	}
+
+	public ILicense[] getLicenses(IInstallableUnit iu, Locale locale) {
+		ILicense[] licenses = iu.getLicenses();
+		ILicense[] translatedLicenses = new ILicense[licenses.length];
+		for (int i = 0; i < licenses.length; i++) {
+			translatedLicenses[i] = getLicense(iu, licenses[i], locale);
+		}
+		return translatedLicenses;
 	}
 
 	public ICopyright getCopyright(IInstallableUnit iu, Locale locale) {

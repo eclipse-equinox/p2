@@ -23,6 +23,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
 	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
+	private static final ILicense[] NO_LICENSE = new ILicense[0];
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
 	private String filter;
@@ -44,7 +45,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private Version version;
 
 	private IUpdateDescriptor updateInfo;
-	private ILicense license;
+	private ILicense[] licenses = NO_LICENSE;
 	private ICopyright copyright;
 
 	public InstallableUnit() {
@@ -257,12 +258,12 @@ public class InstallableUnit implements IInstallableUnit {
 		this.updateInfo = updateInfo;
 	}
 
-	public void setLicense(ILicense license) {
-		this.license = license;
+	public void setLicenses(ILicense[] license) {
+		this.licenses = license;
 	}
 
-	public ILicense getLicense() {
-		return license;
+	public ILicense[] getLicenses() {
+		return licenses;
 	}
 
 	public void setCopyright(ICopyright copyright) {

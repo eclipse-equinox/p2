@@ -74,7 +74,7 @@ public class RootIUAction extends AbstractPublisherAction {
 			String licenseText = entry.getLicenseText() == null ? "" : entry.getLicenseText(); //$NON-NLS-1$
 			String licenseUrl = entry.getLicenseURL() == null ? "" : entry.getLicenseURL(); //$NON-NLS-1$
 			if (licenseText.length() > 0 || licenseUrl.length() > 0)
-				iu.setLicense(MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText));
+				iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText)});
 		}
 	}
 

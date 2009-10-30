@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import java.io.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 
 /**
  * Abstract class for a manager which tracks which licenses have been accepted.
@@ -24,7 +25,7 @@ public abstract class LicenseManager {
 
 	public abstract boolean reject(IInstallableUnit iu);
 
-	public abstract boolean isAccepted(IInstallableUnit iu);
+	public abstract ILicense[] isAccepted(IInstallableUnit iu);
 
 	public abstract boolean hasAcceptedLicenses();
 

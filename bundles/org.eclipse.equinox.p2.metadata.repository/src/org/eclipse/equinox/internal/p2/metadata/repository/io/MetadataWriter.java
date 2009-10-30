@@ -74,7 +74,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());
 		writeTouchpointData(iu.getTouchpointData());
-		writeLicenses(iu.getLicense());
+		writeLicenses(iu.getLicenses());
 		writeCopyright(iu.getCopyright());
 
 		end(INSTALLABLE_UNIT_ELEMENT);
@@ -262,27 +262,32 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	private void writeLicenses(ILicense license) {
-		if (license != null) {
+	private void writeLicenses(ILicense[] licenses) {
+		if (licenses != null && licenses.length > 0) {
 			// In the future there may be more than one license, so we write this 
 			// as a collection of one.
 			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
 			start(LICENSES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, 1);
-			start(LICENSE_ELEMENT);
-			if (license.getLocation() != null) {
-				attribute(URI_ATTRIBUTE, license.getLocation().toString());
+			attribute(COLLECTION_SIZE_ATTRIBUTE, licenses.length);
+			for (int i = 0; i < licenses.length; i++) {
+				ILicense license = licenses[i];
+				if (license == null)
+					continue;
+				start(LICENSE_ELEMENT);
+				if (license.getLocation() != null) {
+					attribute(URI_ATTRIBUTE, license.getLocation().toString());
 
-				try {
-					// we write the URL attribute for backwards compatibility with 3.4.x
-					// this attribute should be removed if we make a breaking format change.
-					attribute(URL_ATTRIBUTE, URIUtil.toURL(license.getLocation()).toExternalForm());
-				} catch (MalformedURLException e) {
-					attribute(URL_ATTRIBUTE, license.getLocation().toString());
+					try {
+						// we write the URL attribute for backwards compatibility with 3.4.x
+						// this attribute should be removed if we make a breaking format change.
+						attribute(URL_ATTRIBUTE, URIUtil.toURL(license.getLocation()).toExternalForm());
+					} catch (MalformedURLException e) {
+						attribute(URL_ATTRIBUTE, license.getLocation().toString());
+					}
 				}
+				cdata(license.getBody(), true);
+				end(LICENSE_ELEMENT);
 			}
-			cdata(license.getBody(), true);
-			end(LICENSE_ELEMENT);
 			end(LICENSES_ELEMENT);
 		}
 	}

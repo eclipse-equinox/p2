@@ -113,7 +113,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	Button declineButton;
 	SashForm sashForm;
 	private IInstallableUnit[] originalIUs;
-	HashMap licensesToIUs; // License -> IU Name
+	HashMap licensesToIUs; // License -> List of IInstallableUnit
 	private Policy policy;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
@@ -287,9 +287,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private String getLicenseBody(IInstallableUnit iu) {
-		ILicense license = IUPropertyUtils.getLicense(iu);
-		if (license != null && license.getBody() != null)
-			return license.getBody();
+		//FIXME
+		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		if (licenses.length > 0 && licenses[0].getBody() != null)
+			return licenses[0].getBody();
 		// shouldn't happen because we already reduced the list to those
 		// that have licenses and bodies are required.
 		return ""; //$NON-NLS-1$
@@ -319,28 +320,26 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		HashMap namesSeen = new HashMap(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
-			ILicense license = IUPropertyUtils.getLicense(iu);
-			// It has a license, is it already accepted?
-			if (license != null) {
-				if (!policy.getLicenseManager().isAccepted(iu)) {
-					String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
-					if (name == null)
-						name = iu.getId();
-					// Have we already found this license?  
-					if (licensesToIUs.containsKey(license)) {
-						HashSet names = (HashSet) namesSeen.get(license);
-						if (!names.contains(name)) {
-							names.add(name);
-							((ArrayList) licensesToIUs.get(license)).add(iu);
-						}
-					} else {
-						ArrayList list = new ArrayList(1);
-						list.add(iu);
-						licensesToIUs.put(license, list);
-						HashSet names = new HashSet(1);
+			// Have the licenses been already accepted?
+			ILicense[] notAccepted = policy.getLicenseManager().isAccepted(iu);
+			for (int k = 0; k < notAccepted.length; k++) {
+				String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+				if (name == null)
+					name = iu.getId();
+				// Have we already found this license?  
+				if (licensesToIUs.containsKey(notAccepted[k])) {
+					HashSet names = (HashSet) namesSeen.get(notAccepted[k]);
+					if (!names.contains(name)) {
 						names.add(name);
-						namesSeen.put(license, names);
+						((ArrayList) licensesToIUs.get(notAccepted[k])).add(iu);
 					}
+				} else {
+					ArrayList list = new ArrayList(1);
+					list.add(iu);
+					licensesToIUs.put(notAccepted[k], list);
+					HashSet names = new HashSet(1);
+					names.add(name);
+					namesSeen.put(notAccepted[k], names);
 				}
 			}
 		}

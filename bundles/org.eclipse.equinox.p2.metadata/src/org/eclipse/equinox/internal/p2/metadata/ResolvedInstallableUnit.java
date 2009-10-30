@@ -161,8 +161,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getUpdateDescriptor();
 	}
 
-	public ILicense getLicense() {
-		return original.getLicense();
+	public ILicense[] getLicenses() {
+		return original.getLicenses();
 	}
 
 	public ICopyright getCopyright() {

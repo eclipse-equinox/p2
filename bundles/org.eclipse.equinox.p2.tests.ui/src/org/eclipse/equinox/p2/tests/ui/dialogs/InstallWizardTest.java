@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.util.HashSet;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.metadata.License;
@@ -48,7 +46,7 @@ public class InstallWizardTest extends WizardTest {
 		iu.setId(MAIN_IU);
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
-		iu.setLicense(new License(null, "There is a license to accept!"));
+		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		IInstallableUnit toInstall = MetadataFactory.createInstallableUnit(iu);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

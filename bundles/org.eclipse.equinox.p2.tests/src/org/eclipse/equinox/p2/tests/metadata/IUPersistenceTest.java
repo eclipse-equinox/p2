@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -19,6 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
@@ -297,10 +299,35 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
+		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
-		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, metaRequirements);
+		InstallableUnitDescription iu1 = new MetadataFactory.InstallableUnitDescription();
+		iu1.setId(id);
+		iu1.setVersion(version);
+		iu1.setFilter(filter);
+		iu1.setLicenses(licenses);
+		IProvidedCapability[] provides1 = new IProvidedCapability[additionalProvides.length + 1];
+		provides1[0] = getSelfCapability(id, version);
+		for (int i = 0; i < additionalProvides.length; i++) {
+			provides1[i + 1] = additionalProvides[i];
+		}
+		for (Iterator iter = propertyMap.keySet().iterator(); iter.hasNext();) {
+			String nextKey = (String) iter.next();
+			String nextValue = (String) propertyMap.get(nextKey);
+			iu1.setProperty(nextKey, nextValue);
+		}
+		iu1.setCapabilities(provides1);
+		iu1.setRequiredCapabilities(requirements);
+		iu1.setTouchpointType(TOUCHPOINT_OSGI);
+		if (tpData != null)
+			iu1.addTouchpointData(tpData);
+		iu1.setSingleton(false);
+		iu1.setUpdateDescriptor(update);
+		if (metaRequirements == null)
+			metaRequirements = NO_REQUIRES;
+		iu1.setMetaRequiredCapabilities(metaRequirements);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iu1);
 		return iu;
 	}
 
@@ -367,6 +394,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 		InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();
 		validateIU(iu1);
+		assertEquals(2, iu1.getLicenses().length);
 		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
 		IUStringWriter writer = new IUStringWriter(output1);
 		writer.writeTest(iu1);

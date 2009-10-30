@@ -210,7 +210,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		ICopyright copyright = null;
 		String filter = null;
 		String id = null;
-		ILicense license = null;
+		ILicense[] license = null;
 		Map properties = new HashMap();
 		ITouchpointType touchpointType = null;
 		IUpdateDescriptor updateDescriptor = null;
@@ -248,7 +248,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.id;
 		}
 
-		public ILicense getLicense() {
+		public ILicense[] getLicenses() {
 			return this.license;
 		}
 
@@ -758,7 +758,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		iuDescription.addTouchpointData(spiTouchpointData);
 
 		SPILicense spiLicense = new SPILicense("body", new URI("http://example.com"));
-		iuDescription.setLicense(spiLicense);
+		iuDescription.setLicenses(new ILicense[] {spiLicense});
 
 		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", Version.createOSGi(3, 3, 3));
 		iuDescription.setTouchpointType(spiTouchpointType);
@@ -800,12 +800,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(unit.getProvidedCapabilities()[0], spiProvidedCapability);
 		assertEquals(unit.getTouchpointData()[0], spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
-		assertEquals(unit.getLicense(), spiLicense);
+		assertEquals(unit.getLicenses()[0], spiLicense);
 		assertEquals(spiRequiredCapability, unit.getRequiredCapabilities()[0]);
 		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities()[0]);
 		assertEquals(spiTouchpointData, unit.getTouchpointData()[0]);
 		assertEquals(spiTouchpointType, unit.getTouchpointType());
-		assertEquals(spiLicense, unit.getLicense());
+		assertEquals(spiLicense, unit.getLicenses()[0]);
 
 		assertEquals(patchUnit.getRequirementsChange().length, 1);
 		assertEquals(patchUnit.getRequirementsChange()[0], spiRequirementChange);
@@ -817,6 +817,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities()[0]);
 		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities()[0]);
 		assertFalse(spiTouchpointType == unit.getTouchpointType());
-		assertFalse(spiLicense == unit.getLicense());
+		assertFalse(spiLicense == unit.getLicenses()[0]);
 	}
 }

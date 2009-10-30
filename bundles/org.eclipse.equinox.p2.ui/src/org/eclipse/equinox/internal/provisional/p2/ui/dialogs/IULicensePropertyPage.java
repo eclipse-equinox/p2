@@ -33,8 +33,11 @@ public class IULicensePropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the license in the default locale
-		final ILicense license = IUPropertyUtils.getLicense(iu);
-		if (license != null && license.getBody().length() > 0) {
+		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		final ILicense license;
+		//FIXME
+		if (licenses.length > 0 && licenses[0].getBody() != null && licenses[0].getBody().length() > 0) {
+			license = licenses[0];
 			Composite composite = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();
 			layout.marginWidth = 0;

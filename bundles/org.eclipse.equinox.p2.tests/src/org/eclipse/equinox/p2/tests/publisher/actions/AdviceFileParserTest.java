@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -277,7 +274,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(0, iu0.getArtifacts().length);
 		assertEquals(null, iu0.getCopyright());
 		assertEquals(null, iu0.getFilter());
-		assertEquals(null, iu0.getLicense());
+		assertEquals(0, iu0.getLicenses().length);
 		assertEquals(0, iu0.getProperties().size());
 		assertEquals(0, iu0.getRequiredCapabilities().length);
 		assertEquals(0, iu0.getProvidedCapabilities().length);
@@ -300,8 +297,8 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
 		assertEquals("test=testFilter", iu1.getFilter());
-		assertEquals("testLicense", iu1.getLicense().getBody());
-		assertEquals("http://localhost/license", iu1.getLicense().getLocation().toString());
+		assertEquals("testLicense", iu1.getLicenses()[0].getBody());
+		assertEquals("http://localhost/license", iu1.getLicenses()[0].getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));
 		assertEquals("testValue2", iu1.getProperty("testName2"));
 
@@ -375,5 +372,4 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(false, hostRequired[1].isOptional());
 		assertEquals(false, hostRequired[1].isMultiple());
 	}
-
 }

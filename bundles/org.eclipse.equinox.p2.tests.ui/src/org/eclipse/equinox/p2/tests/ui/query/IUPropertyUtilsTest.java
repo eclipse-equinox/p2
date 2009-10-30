@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,7 +53,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 
 		ICopyright copyright = org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils.getCopyright(unit);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
-		ILicense license = IUPropertyUtils.getLicense(unit);
+		ILicense license = IUPropertyUtils.getLicenses(unit)[0];
 		assertEquals("1.2", "Test License", license.getBody());
 		//		assertEquals("1.3", "license.html", license.getURL().toExternalForm());
 		String name = IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME);
@@ -78,7 +76,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		iuDescription.setId("some IU");
 		iuDescription.setVersion(Version.createOSGi(1, 0, 0));
-		iuDescription.setLicense(MetadataFactory.createLicense(new URI("http://example.com"), "%license"));
+		iuDescription.setLicenses(new ILicense[] {MetadataFactory.createLicense(new URI("http://example.com"), "%license")});
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
 
 		// Create a bunch of fragments which spec our IU as their host
@@ -126,9 +124,9 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		profileRegistry.updateProfile(profile);
 		profileRegistry.unlockProfile(profile);
 
-		ILicense license = IUPropertyUtils.getLicense(iu, Locale.GERMAN);
+		ILicense license = IUPropertyUtils.getLicenses(iu, Locale.GERMAN)[0];
 		assertEquals("1.0", germanLicense, license.getBody());
-		license = IUPropertyUtils.getLicense(iu, Locale.CANADA_FRENCH);
+		license = IUPropertyUtils.getLicenses(iu, Locale.CANADA_FRENCH)[0];
 		assertEquals("1.1", canadianFRLicense, license.getBody());
 	}
 
@@ -136,7 +134,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		IInstallableUnit unit = createIU("f1");
 
 		assertNull("1.1", IUPropertyUtils.getCopyright(unit));
-		assertNull("1.2", IUPropertyUtils.getLicense(unit));
+		assertNull("1.2", IUPropertyUtils.getLicenses(unit)[0]);
 		assertNull("1.3", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME));
 		assertNull("1.4", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION));
 		assertNull("1.5", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER));

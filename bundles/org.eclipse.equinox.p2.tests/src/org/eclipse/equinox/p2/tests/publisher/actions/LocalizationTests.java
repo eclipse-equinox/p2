@@ -57,7 +57,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION));
 		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu).getBody());
-		assertEquals("1.5", "Foo English License", utils.getLicense(iu).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicense(iu)[0].getBody());
 	}
 
 	public void testFeatureLocalizationEN() throws IOException {
@@ -71,7 +71,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH));
 		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu, Locale.ENGLISH).getBody());
-		assertEquals("1.5", "Foo English License", utils.getLicense(iu, Locale.ENGLISH).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicenses(iu, Locale.ENGLISH)[0].getBody());
 	}
 
 	public void testFeatureLocalizatioDE() throws IOException {
@@ -85,7 +85,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN));
 		assertEquals("1.3", "Foo German Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN));
 		assertEquals("1.4", "Foo German Copyright", utils.getCopyright(iu, Locale.GERMAN).getBody());
-		assertEquals("1.5", "Foo German License", utils.getLicense(iu, Locale.GERMAN).getBody());
+		assertEquals("1.5", "Foo German License", utils.getLicenses(iu, Locale.GERMAN)[0].getBody());
 	}
 
 	public void testFeatureJarLocalizationDefault() throws IOException {
@@ -99,7 +99,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION));
 		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu).getBody());
-		assertEquals("1.5", "Foo English License", utils.getLicense(iu).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicense(iu)[0].getBody());
 	}
 
 	public void testFeatureJarLocalizationEN() throws IOException {
@@ -113,7 +113,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH));
 		assertEquals("1.4", "Foo English Copyright", utils.getCopyright(iu, Locale.ENGLISH).getBody());
-		assertEquals("1.5", "Foo English License", utils.getLicense(iu, Locale.ENGLISH).getBody());
+		assertEquals("1.5", "Foo English License", utils.getLicenses(iu, Locale.ENGLISH)[0].getBody());
 	}
 
 	public void testFeatureJarLocalizatioDE() throws IOException {
@@ -127,7 +127,7 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN));
 		assertEquals("1.3", "Foo German Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN));
 		assertEquals("1.4", "Foo German Copyright", utils.getCopyright(iu, Locale.GERMAN).getBody());
-		assertEquals("1.5", "Foo German License", utils.getLicense(iu, Locale.GERMAN).getBody());
+		assertEquals("1.5", "Foo German License", utils.getLicenses(iu, Locale.GERMAN)[0].getBody());
 	}
 
 	public void testBundleLocalizationEN() throws IOException {

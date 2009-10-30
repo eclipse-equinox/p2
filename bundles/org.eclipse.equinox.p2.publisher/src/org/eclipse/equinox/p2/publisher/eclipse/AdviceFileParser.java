@@ -375,7 +375,7 @@ public class AdviceFileParser {
 			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(unitUpdateId, unitUpdateRange, unitUpdateSeverity, unitUpdateDescription));
 
 		if (!unitLicenses.isEmpty())
-			description.setLicense((ILicense) unitLicenses.get(0));
+			description.setLicenses((ILicense[]) unitLicenses.toArray(new ILicense[unitLicenses.size()]));
 
 		if (!unitArtifacts.isEmpty())
 			description.setArtifacts((IArtifactKey[]) unitArtifacts.toArray(new IArtifactKey[unitArtifacts.size()]));

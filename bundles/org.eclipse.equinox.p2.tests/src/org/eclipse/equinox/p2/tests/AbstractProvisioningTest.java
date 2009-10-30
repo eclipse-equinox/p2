@@ -478,7 +478,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setCopyright(prototype.getCopyright());
 		desc.setFilter(prototype.getFilter());
 		desc.setId(prototype.getId());
-		desc.setLicense(prototype.getLicense());
+		desc.setLicenses(prototype.getLicenses());
 		IRequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
 		IRequiredCapability[] newRequirements = new IRequiredCapability[originalRequirements.length];
 		for (int i = 0; i < newRequirements.length; i++) {
@@ -581,7 +581,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
-	private static IProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
+	protected static IProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, installableUnitId, installableUnitVersion);
 	}
 
@@ -1027,7 +1027,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertEquals(message, iu1.getTouchpointType(), iu2.getTouchpointType());
 		assertEquals(message, iu1.getTouchpointData(), iu2.getTouchpointData());
 		assertEquals(message, iu1.getProperties(), iu2.getProperties());
-		assertEquals(message, iu1.getLicense(), iu2.getLicense());
+		assertEquals(message, iu1.getLicenses(), iu2.getLicenses());
 		assertEquals(message, iu1.getCopyright(), iu2.getCopyright());
 		assertEquals(message, iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
 		assertEquals(message, iu1.getFilter(), iu2.getFilter());

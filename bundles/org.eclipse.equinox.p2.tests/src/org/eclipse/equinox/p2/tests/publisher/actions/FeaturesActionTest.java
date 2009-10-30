@@ -12,10 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -85,7 +81,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getVersion().equals(fooVersion));
 		assertEquals("Foo Feature", foo.getProperty(IInstallableUnit.PROP_NAME));
 		assertEquals("Foo Description", foo.getProperty(IInstallableUnit.PROP_DESCRIPTION));
-		assertEquals("Foo License", foo.getLicense().getBody());
+		assertEquals("Foo License", foo.getLicenses()[0].getBody());
 		assertEquals("Foo Copyright", foo.getCopyright().getBody());
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$

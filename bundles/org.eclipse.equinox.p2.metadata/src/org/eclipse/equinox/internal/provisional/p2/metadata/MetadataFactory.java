@@ -115,8 +115,8 @@ public class MetadataFactory {
 			unit().setId(id);
 		}
 
-		public void setLicense(ILicense license) {
-			unit().setLicense(license);
+		public void setLicenses(ILicense[] licenses) {
+			unit().setLicenses(licenses);
 		}
 
 		public void setProperty(String key, String value) {
