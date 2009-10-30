@@ -22,23 +22,6 @@ import java.util.*;
  * @see Manipulator
  */
 public class ConfigData {
-
-	private static Properties appendProperties(Properties to, Properties from) {
-		if (from != null) {
-			if (to == null)
-				to = new Properties();
-			//			printoutProperties(System.out, "to", to);
-			//			printoutProperties(System.out, "from", from);
-
-			for (Enumeration enumeration = from.keys(); enumeration.hasMoreElements();) {
-				String key = (String) enumeration.nextElement();
-				to.setProperty(key, from.getProperty(key));
-			}
-		}
-		//		printoutProperties(System.out, "to", to);
-		return to;
-	}
-
 	final private String fwName;
 	final private String fwVersion;
 	final private String launcherName;
@@ -80,7 +63,7 @@ public class ConfigData {
 
 	public Properties getProperties() {
 		Properties ret = new Properties();
-		appendProperties(ret, properties);
+		ret.putAll(properties);
 		return ret;
 	}
 
@@ -142,7 +125,7 @@ public class ConfigData {
 
 	public void setProperties(Properties props) {
 		properties.clear();
-		appendProperties(properties, props);
+		properties.putAll(props);
 	}
 
 	public void setInitialBundleStartLevel(int startLevel) {

@@ -24,6 +24,8 @@ public class Messages extends NLS {
 	public static String exception_bundleManifest;
 	public static String exception_createAbsoluteURI;
 	public static String exception_nullConfigArea;
+	public static String exception_noFrameworkLocation;
+	public static String exception_errorSavingConfigIni;
 
 	public static String log_configFile;
 	public static String log_configProps;
