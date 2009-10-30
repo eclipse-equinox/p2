@@ -25,6 +25,7 @@ public abstract class Phase {
 	protected static final String PARM_PROFILE_DATA_DIRECTORY = "profileDataDirectory"; //$NON-NLS-1$
 	protected static final String PARM_CONTEXT = "context"; //$NON-NLS-1$
 	protected static final String PARM_FORCED = "forced"; //$NON-NLS-1$
+	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 
 	protected final String phaseId;
 	protected final int weight;
@@ -112,6 +113,15 @@ public abstract class Phase {
 				return;
 			}
 
+			Touchpoint operandTouchpoint = (Touchpoint) operandParameters.get(PARM_TOUCHPOINT);
+			if (operandTouchpoint != null) {
+				mergeStatus(status, initializeTouchpointParameters(profile, operand, operandTouchpoint, subMonitor));
+				if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+					return;
+
+				operandParameters = (Map) touchpointToTouchpointOperandParameters.get(operandTouchpoint);
+			}
+
 			operandParameters = Collections.unmodifiableMap(operandParameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
@@ -162,7 +172,7 @@ public abstract class Phase {
 		}
 	}
 
-	IStatus initializeTouchpointParameters(IProfile profile, Operand operand, Touchpoint touchpoint, IProgressMonitor monitor) {
+	private IStatus initializeTouchpointParameters(IProfile profile, Operand operand, Touchpoint touchpoint, IProgressMonitor monitor) {
 		if (touchpointToTouchpointOperandParameters.containsKey(touchpoint))
 			return Status.OK_STATUS;
 
@@ -202,6 +212,14 @@ public abstract class Phase {
 			operandParameters = new HashMap(phaseParameters);
 			operandParameters.put(PARM_OPERAND, operand);
 			mergeStatus(status, initializeOperand(profile, operand, operandParameters, new NullProgressMonitor()));
+			Touchpoint operandTouchpoint = (Touchpoint) operandParameters.get(PARM_TOUCHPOINT);
+			if (operandTouchpoint != null) {
+				mergeStatus(status, initializeTouchpointParameters(profile, operand, operandTouchpoint, new NullProgressMonitor()));
+				if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+					return;
+
+				operandParameters = (Map) touchpointToTouchpointOperandParameters.get(operandTouchpoint);
+			}
 			operandParameters = Collections.unmodifiableMap(operandParameters);
 		}
 		for (int j = 0; j < actions.length; j++) {
