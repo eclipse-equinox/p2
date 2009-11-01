@@ -324,7 +324,7 @@ public class Projector {
 		}
 		Explanation explanation;
 		if (isRootIu) {
-			IInstallableUnit reqIu = (IInstallableUnit) matches.iterator().next();
+			IInstallableUnit reqIu = (IInstallableUnit) matches.get(0);
 			if (alreadyInstalledIUs.contains(reqIu)) {
 				explanation = new Explanation.IUInstalled(reqIu);
 			} else {
@@ -351,7 +351,7 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+				IInstallableUnit reqIu = (IInstallableUnit) matches.get(0);
 				Explanation explanation;
 				if (isRootIu) {
 					if (alreadyInstalledIUs.contains(reqIu)) {
@@ -462,7 +462,7 @@ public class Projector {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
 						} else {
-							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+							IInstallableUnit reqIu = (IInstallableUnit) matches.get(0);
 							Explanation explanation;
 							if (isRootIu) {
 								if (alreadyInstalledIUs.contains(reqIu)) {
@@ -505,7 +505,7 @@ public class Projector {
 							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, null));
 						} else {
 							matches.add(patch);
-							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+							IInstallableUnit reqIu = (IInstallableUnit) matches.get(0);///(IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 
 							Explanation explanation;
 							if (isRootIu) {
@@ -577,7 +577,7 @@ public class Projector {
 				} else {
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
-					IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+					IInstallableUnit reqIu = (IInstallableUnit) matches.get(0);//(IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 					Explanation explanation;
 					if (isRootIu) {
 						if (alreadyInstalledIUs.contains(reqIu)) {
