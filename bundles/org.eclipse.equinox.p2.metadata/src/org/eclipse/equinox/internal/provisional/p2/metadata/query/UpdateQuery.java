@@ -22,7 +22,7 @@ public class UpdateQuery extends MatchQuery {
 	public boolean isMatch(Object obj) {
 		if (!(obj instanceof IInstallableUnit))
 			return false;
-		if (obj instanceof IInstallableUnitPatch) {
+		if (obj instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
 			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) obj;
 			IRequiredCapability lifeCycle = potentialPatch.getLifeCycle();
 			if (lifeCycle == null)
