@@ -181,4 +181,26 @@ public class ProfileChangeRequest implements Cloneable {
 		result.iuPropertiesToRemove = iuPropertiesToRemove == null ? null : (HashMap) iuPropertiesToRemove.clone();
 		return result;
 	}
+
+	public String toString() {
+		StringBuffer result = new StringBuffer(1000);
+		result.append("==Profile change request for ");
+		result.append(profile.getProfileId());
+		result.append('\n');
+		result.append("==Additions==");
+		result.append('\n');
+		for (Iterator iterator = iusToAdd.iterator(); iterator.hasNext();) {
+			result.append('\t');
+			result.append(iterator.next());
+			result.append('\n');
+		}
+		result.append("==Removals==");
+		result.append('\n');
+		for (Iterator iterator = iusToRemove.iterator(); iterator.hasNext();) {
+			result.append('\t');
+			result.append(iterator.next());
+			result.append('\n');
+		}
+		return result.toString();
+	}
 }
