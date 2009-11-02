@@ -106,8 +106,8 @@ public class IUPropertyUtils {
 
 		Collector localizationFragments = getLocalizationFragments(locale, locales);
 
-		Collector hostLocalizationCollector = new Collector() {
-			public boolean accept(Object object) {
+		MatchQuery hostLocalizationQuery = new MatchQuery() {
+			public boolean isMatch(Object object) {
 				boolean haveHost = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
@@ -123,12 +123,13 @@ public class IUPropertyUtils {
 						}
 					}
 				}
-				return (haveHost ? super.accept(object) : true);
+				return haveHost;
 			}
 		};
 
-		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = iuQuery.perform(localizationFragments.iterator(), hostLocalizationCollector);
+		Query iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
+		iuQuery = new PipedQuery(new Query[] {iuQuery, hostLocalizationQuery});
+		Collector collected = iuQuery.perform(localizationFragments.iterator(), new Collector());
 
 		if (!collected.isEmpty()) {
 			String translation = null;
@@ -179,8 +180,8 @@ public class IUPropertyUtils {
 
 		final List locales = localeVariants;
 
-		Collector localeFragmentCollector = new Collector() {
-			public boolean accept(Object object) {
+		MatchQuery localeFragmentQuery = new MatchQuery() {
+			public boolean isMatch(Object object) {
 				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
@@ -200,12 +201,13 @@ public class IUPropertyUtils {
 						}
 					}
 				}
-				return (haveLocale ? super.accept(object) : true);
+				return haveLocale;
 			}
 		};
 
-		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = queryable.query(iuQuery, localeFragmentCollector, null);
+		Query iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
+		iuQuery = new PipedQuery(new Query[] {iuQuery, localeFragmentQuery});
+		Collector collected = queryable.query(iuQuery, new Collector(), null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}
