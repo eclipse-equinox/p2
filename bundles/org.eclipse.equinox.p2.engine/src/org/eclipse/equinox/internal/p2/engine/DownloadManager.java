@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
@@ -45,9 +44,11 @@ public class DownloadManager {
 			return 0;
 		}
 	};
+	private final IArtifactRepositoryManager repositoryManager;
 
-	public DownloadManager(ProvisioningContext context) {
+	public DownloadManager(ProvisioningContext context, IArtifactRepositoryManager repositoryManager) {
 		provContext = context;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/*
@@ -84,26 +85,25 @@ public class DownloadManager {
 			if (requestsToProcess.isEmpty())
 				return Status.OK_STATUS;
 
-			IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
 			URI[] repositories = null;
 			if (provContext == null || provContext.getArtifactRepositories() == null)
-				repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+				repositories = repositoryManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 			else
 				repositories = provContext.getArtifactRepositories();
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception());
 			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
-			fetch(repoMgr, repositories, subMonitor);
+			fetch(repositories, subMonitor);
 			return overallStatus(monitor);
 		} finally {
 			subMonitor.done();
 		}
 	}
 
-	private void fetch(IArtifactRepositoryManager repoMgr, URI[] repositories, SubMonitor monitor) {
+	private void fetch(URI[] repositories, SubMonitor monitor) {
 		for (int i = 0; i < repositories.length && !requestsToProcess.isEmpty() && !monitor.isCanceled(); i++) {
 			try {
-				IArtifactRepository current = repoMgr.loadRepository(repositories[i], monitor.newChild(0));
+				IArtifactRepository current = repositoryManager.loadRepository(repositories[i], monitor.newChild(0));
 				IArtifactRequest[] requests = getRequestsForRepository(current);
 				IStatus dlStatus = current.getArtifacts(requests, monitor.newChild(requests.length));
 				if (dlStatus.getSeverity() == IStatus.CANCEL)

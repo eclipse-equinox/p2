@@ -264,7 +264,7 @@ public class CacheManager {
 		return RepositoryTransport.getInstance();
 	}
 
-	public boolean isResumeEnabled() {
+	private boolean isResumeEnabled() {
 		String resumeProp = System.getProperty(PROP_RESUMABLE, RESUME_DEFAULT);
 		return Boolean.valueOf(resumeProp).booleanValue();
 	}
@@ -333,7 +333,7 @@ public class CacheManager {
 	 * Adds a {@link SynchronousProvisioningListener} to the event bus for
 	 * deleting cache files when the corresponding repository is deleted.
 	 */
-	public void registerRepoEventListener(IProvisioningEventBus eventBus) {
+	private void registerRepoEventListener(IProvisioningEventBus eventBus) {
 		if (busListener == null) {
 			busListener = new SynchronousProvisioningListener() {
 				public void notify(EventObject o) {
@@ -372,7 +372,7 @@ public class CacheManager {
 	 * Removes the {@link SynchronousProvisioningListener} that cleans up the
 	 * cache file from the event bus.
 	 */
-	public void unregisterRepoEventListener(IProvisioningEventBus bus) {
+	private void unregisterRepoEventListener(IProvisioningEventBus bus) {
 		if (bus != null && busListener != null)
 			bus.removeListener(busListener);
 	}

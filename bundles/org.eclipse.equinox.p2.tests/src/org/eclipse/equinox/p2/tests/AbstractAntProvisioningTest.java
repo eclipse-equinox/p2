@@ -246,7 +246,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		assertContains(message, destination, source);
 	}
 
-	protected static void assertArtifactKeyContentEquals(String message, Collector ius, URI artifactRepositoryLocation) {
+	protected void assertArtifactKeyContentEquals(String message, Collector ius, URI artifactRepositoryLocation) {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
 			List fromIUs = getArtifactKeys(ius);

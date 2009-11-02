@@ -17,22 +17,17 @@ import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.ServiceReference;
 
 public abstract class AbstractPublisherApplication implements IApplication {
 
@@ -47,12 +42,6 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
-	private ArtifactRepositoryManager defaultArtifactManager;
-	private ServiceRegistration registrationDefaultArtifactManager;
-	private MetadataRepositoryManager defaultMetadataManager;
-	private ServiceRegistration registrationDefaultMetadataManager;
-	private IProvisioningEventBus bus;
-	private ServiceRegistration registrationBus;
 	protected PublisherInfo info;
 	protected String source;
 	protected URI metadataLocation;
@@ -68,6 +57,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
 	private IStatus status;
+
+	private ServiceReference agentRef;
+
+	private IProvisioningAgent agent;
 
 	/**
 	 * Returns the error message for this application, or the empty string
@@ -233,25 +226,22 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			inplace = true;
 	}
 
-	private void registerDefaultArtifactRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName()) == null) {
-			defaultArtifactManager = new ArtifactRepositoryManager();
-			registrationDefaultArtifactManager = Activator.getContext().registerService(IArtifactRepositoryManager.class.getName(), defaultArtifactManager, null);
+	private void setupAgent() throws ProvisionException {
+		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (agentRef != null) {
+			agent = (IProvisioningAgent) Activator.getContext().getService(agentRef);
+			if (agent != null)
+				return;
 		}
-	}
-
-	private void registerDefaultMetadataRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName()) == null) {
-			defaultMetadataManager = new MetadataRepositoryManager();
-			registrationDefaultMetadataManager = Activator.getContext().registerService(IMetadataRepositoryManager.class.getName(), defaultMetadataManager, null);
-		}
-	}
-
-	private void registerEventBus() {
-		if (ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME) == null) {
-			bus = new ProvisioningEventBus();
-			registrationBus = Activator.getContext().registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
-		}
+		ServiceReference providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (providerRef == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(providerRef);
+		if (provider == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		//obtain agent for currently running system
+		agent = provider.createAgent(null);
+		Activator.getContext().ungetService(providerRef);
 	}
 
 	public Object run(String args[]) throws Exception {
@@ -279,9 +269,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	public Object run(PublisherInfo publisherInfo) throws Exception {
 		try {
 			this.info = publisherInfo;
-			registerEventBus();
-			registerDefaultMetadataRepoManager();
-			registerDefaultArtifactRepoManager();
+			setupAgent();
 			initialize(publisherInfo);
 			System.out.println(NLS.bind(Messages.message_generatingMetadata, publisherInfo.getSummary()));
 
@@ -316,17 +304,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	public void stop() {
-		if (registrationDefaultMetadataManager != null) {
-			registrationDefaultMetadataManager.unregister();
-			registrationDefaultMetadataManager = null;
-		}
-		if (registrationDefaultArtifactManager != null) {
-			registrationDefaultArtifactManager.unregister();
-			registrationDefaultArtifactManager = null;
-		}
-		if (registrationBus != null) {
-			registrationBus.unregister();
-			registrationBus = null;
+		if (agentRef != null) {
+			Activator.getContext().ungetService(agentRef);
+			agentRef = null;
 		}
 	}
 

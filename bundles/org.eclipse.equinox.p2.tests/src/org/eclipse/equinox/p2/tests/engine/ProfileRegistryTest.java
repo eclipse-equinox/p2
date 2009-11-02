@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,14 +17,12 @@ import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -50,7 +46,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	protected void getServices() {
-		registryRef = TestActivator.getContext().getServiceReference(IProfileRegistry.class.getName());
+		registryRef = TestActivator.getContext().getServiceReference(IProfileRegistry.SERVICE_NAME);
 		registry = (IProfileRegistry) TestActivator.getContext().getService(registryRef);
 	}
 
@@ -75,12 +71,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private void restart() {
 		try {
 			ungetServices();
-			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").stop();
-			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").start();
-			//ensure artifact repository manager is registered with event bus. See bug 247584
-			IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-			IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
-			bus.addListener((ProvisioningListener) repoMan);
+			restartBundle(TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup"));
 			getServices();
 		} catch (Exception e) {
 			fail();

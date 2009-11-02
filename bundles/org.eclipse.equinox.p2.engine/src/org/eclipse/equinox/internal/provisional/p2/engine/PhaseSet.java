@@ -27,7 +27,7 @@ public abstract class PhaseSet {
 		this.phases = phases;
 	}
 
-	public final MultiStatus perform(ActionManager actionManager, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, Operand[] operands, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		int[] weights = getProgressWeights(operands);
 		int totalWork = getTotalWork(weights);
@@ -39,9 +39,9 @@ public abstract class PhaseSet {
 					return status;
 				}
 				Phase phase = phases[i];
-				phase.actionManager = actionManager;
+				phase.actionManager = (ActionManager) session.getService(ActionManager.SERVICE_NAME);
 				try {
-					phase.perform(status, session, profile, operands, context, pm.newChild(weights[i]));
+					phase.perform(status, session, operands, pm.newChild(weights[i]));
 				} catch (OperationCanceledException e) {
 					// propagate operation cancellation
 					status.add(new Status(IStatus.CANCEL, EngineActivator.ID, e.getMessage(), e));

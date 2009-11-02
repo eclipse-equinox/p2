@@ -45,7 +45,7 @@ public class CorruptedJar extends AbstractProvisioningTest {
 	public void testDownloadCorruptedJar() {
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setArtifactRepositories(new URI[] {getTestData("CorruptedJar repo", testDataLocation).toURI()});
-		DownloadManager mgr = new DownloadManager(ctx);
+		DownloadManager mgr = new DownloadManager(ctx, getArtifactRepositoryManager());
 		mgr.add(new MirrorRequest(source.getArtifactKeys()[0], target, null, null));
 		IStatus s = mgr.start(new NullProgressMonitor());
 		assertNotOK(s);

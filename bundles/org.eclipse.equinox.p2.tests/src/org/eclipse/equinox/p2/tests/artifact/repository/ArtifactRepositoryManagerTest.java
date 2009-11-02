@@ -121,14 +121,13 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 		//stop and restart the artifact repository bundle (kids, if I ever catch you doing this I'm taking PackageAdmin away)
 		try {
-			TestActivator.getBundle(REPO_BUNDLE).stop();
-			TestActivator.getBundle(REPO_BUNDLE).start();
+			restartBundle(TestActivator.getBundle(REPO_BUNDLE));
 		} catch (BundleException e) {
 			fail("1.99", e);
 		}
 
 		//everybody's happy again
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 		assertTrue("1.0", manager.contains(location));
 	}
 

@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
-public class RecreateRepositoryApplication {
+public class RecreateRepositoryApplication extends AbstractApplication {
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private RepositoryDescriptor descriptor;
 	private String repoName = null;
@@ -33,7 +33,7 @@ public class RecreateRepositoryApplication {
 	private Map repoProperties = null;
 	private Map repoMap = null;
 
-	public IStatus run(IProgressMonitor monitor) throws ProvisionException, IOException {
+	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 
 		try {
 			IArtifactRepository repository = initialize(monitor);
@@ -41,7 +41,7 @@ public class RecreateRepositoryApplication {
 			recreateRepository(monitor);
 		} finally {
 			if (removeArtifactRepo) {
-				IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+				IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
 				repositoryManager.removeRepository(descriptor.getRepoLocation());
 			}
 		}
@@ -54,7 +54,7 @@ public class RecreateRepositoryApplication {
 	}
 
 	private IArtifactRepository initialize(IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
 		removeArtifactRepo = !repositoryManager.contains(descriptor.getRepoLocation());
 
 		IArtifactRepository repository = repositoryManager.loadRepository(descriptor.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
@@ -77,20 +77,23 @@ public class RecreateRepositoryApplication {
 		return repository;
 	}
 
-	private void removeRepository(IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException, IOException {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+	private void removeRepository(IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		manager.removeRepository(repository.getLocation());
 
 		boolean compressed = Boolean.valueOf((String) repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
-		URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
-		File realFile = URIUtil.toFile(realLocation);
-
-		if (!realFile.exists() || !realFile.delete())
-			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
+		try {
+			URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
+			File realFile = URIUtil.toFile(realLocation);
+			if (!realFile.exists() || !realFile.delete())
+				throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
+		} catch (IOException e) {
+			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, repository.getLocation().toString()));
+		}
 	}
 
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
 		//add pack200 mappings, the existing repoProperties is not modifiable 
 		Map newProperties = new HashMap(repoProperties);

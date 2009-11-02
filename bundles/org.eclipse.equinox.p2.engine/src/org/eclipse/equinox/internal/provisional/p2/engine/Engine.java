@@ -10,26 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import java.io.File;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 
 /**
  * TODO Move concrete class to non-API package
  */
 public class Engine implements IEngine {
+
 	private static final String ENGINE = "engine"; //$NON-NLS-1$
+	private IProvisioningAgent agent;
 
-	private ActionManager actionManager;
-	private final IProvisioningEventBus eventBus;
-
-	private SimpleProfileRegistry profileRegistry;
-
-	public Engine(IProvisioningEventBus eventBus) {
-		this.eventBus = eventBus;
-		this.actionManager = new ActionManager();
+	public Engine(IProvisioningAgent agent) {
+		this.agent = agent;
+		agent.registerService(ActionManager.SERVICE_NAME, new ActionManager());
 	}
 
 	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
@@ -45,6 +42,8 @@ public class Engine implements IEngine {
 
 	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 
 		if (context == null)
 			context = new ProvisioningContext();
@@ -60,11 +59,9 @@ public class Engine implements IEngine {
 			if (DebugHelper.DEBUG_ENGINE)
 				DebugHelper.debug(ENGINE, "Beginning engine operation for profile=" + profile.getProfileId() + " [" + profile.getTimestamp() + "]:" + DebugHelper.LINE_SEPARATOR + DebugHelper.formatOperation(phaseSet, operands, context)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
-			File profileDataDirectory = profileRegistry.getProfileDataDirectory(profile.getProfileId());
+			EngineSession session = new EngineSession(agent, profile, context);
 
-			EngineSession session = new EngineSession(profile, profileDataDirectory, context);
-
-			MultiStatus result = phaseSet.perform(actionManager, session, profile, operands, context, monitor);
+			MultiStatus result = phaseSet.perform(session, operands, monitor);
 			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING)) {
 				if (DebugHelper.DEBUG_ENGINE)
 					DebugHelper.debug(ENGINE, "Preparing to commit engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
@@ -73,7 +70,7 @@ public class Engine implements IEngine {
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				if (DebugHelper.DEBUG_ENGINE)
 					DebugHelper.debug(ENGINE, "Rolling back engine operation for profile=" + profile.getProfileId() + ". Reason was: " + result.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-				IStatus status = session.rollback(actionManager, monitor, result.getSeverity());
+				IStatus status = session.rollback(monitor, result.getSeverity());
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
@@ -96,17 +93,6 @@ public class Engine implements IEngine {
 		}
 	}
 
-	public void setProfileRegistry(IProfileRegistry registry) {
-		//we can only work with our own registry implementation
-		if (registry instanceof SimpleProfileRegistry)
-			this.profileRegistry = (SimpleProfileRegistry) registry;
-	}
-
-	public void unsetProfileRegistry(IProfileRegistry registry) {
-		if (this.profileRegistry == registry)
-			this.profileRegistry = null;
-	}
-
 	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
@@ -116,6 +102,7 @@ public class Engine implements IEngine {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
+		ActionManager actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
 	}
 }

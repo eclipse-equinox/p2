@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class ActionManager implements IRegistryChangeListener {
@@ -29,6 +28,11 @@ public class ActionManager implements IRegistryChangeListener {
 	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_TYPE = "touchpointType"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_VERSION = "touchpointVersion"; //$NON-NLS-1$
+	/**
+	 * Service name constant for the action manager service. This service is used internally
+	 * by the engine implementation and should not be referenced directly by clients.
+	 */
+	public static final String SERVICE_NAME = ActionManager.class.getName();
 
 	private HashMap actionMap;
 	private TouchpointManager touchpointManager;

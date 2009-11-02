@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -70,6 +69,7 @@ public class Sizing extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
+		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
 		int statusCode = 0;
 
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
@@ -86,7 +86,7 @@ public class Sizing extends InstallableUnitPhase {
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		URI[] repositories = null;
 		if (context == null || context.getArtifactRepositories() == null)
 			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);

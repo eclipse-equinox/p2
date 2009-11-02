@@ -24,6 +24,10 @@ public abstract class Phase {
 	protected static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 	protected static final String PARM_PROFILE_DATA_DIRECTORY = "profileDataDirectory"; //$NON-NLS-1$
 	protected static final String PARM_CONTEXT = "context"; //$NON-NLS-1$
+	/**
+	 * Internal property.
+	 */
+	protected static final String PARM_SESSION = "session"; //$NON-NLS-1$
 	protected static final String PARM_FORCED = "forced"; //$NON-NLS-1$
 	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 
@@ -61,22 +65,22 @@ public abstract class Phase {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
-	public final void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	public final void perform(MultiStatus status, EngineSession session, Operand[] operands, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
 		session.recordPhaseEnter(this);
-		prePerform(status, session, profile, context, subMonitor.newChild(prePerformWork));
+		prePerform(status, session, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 		session.recordPhaseStart(this);
 
 		subMonitor.setWorkRemaining(mainPerformWork + postPerformWork);
-		mainPerform(status, session, profile, operands, context, subMonitor.newChild(mainPerformWork));
+		mainPerform(status, session, operands, subMonitor.newChild(mainPerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(postPerformWork);
-		postPerform(status, profile, context, subMonitor.newChild(postPerformWork));
+		postPerform(status, session, subMonitor.newChild(postPerformWork));
 		phaseParameters.clear();
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
@@ -84,16 +88,19 @@ public abstract class Phase {
 		subMonitor.done();
 	}
 
-	void prePerform(MultiStatus status, EngineSession session, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
+	void prePerform(MultiStatus status, EngineSession session, IProgressMonitor monitor) {
+		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
 		phaseParameters.put(PARM_PROFILE, profile);
 		phaseParameters.put(PARM_PROFILE_DATA_DIRECTORY, session.getProfileDataDirectory());
-		phaseParameters.put(PARM_CONTEXT, context);
+		phaseParameters.put(PARM_CONTEXT, session.getService(ProvisioningContext.class.getName()));
 		phaseParameters.put(PARM_PHASE_ID, phaseId);
 		phaseParameters.put(PARM_FORCED, Boolean.toString(forced));
+		phaseParameters.put(PARM_SESSION, session);
 		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 	}
 
-	private void mainPerform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, SubMonitor subMonitor) {
+	private void mainPerform(MultiStatus status, EngineSession session, Operand[] operands, SubMonitor subMonitor) {
+		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
 		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
@@ -202,7 +209,8 @@ public abstract class Phase {
 			multi.merge(status);
 	}
 
-	void postPerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
+	void postPerform(MultiStatus status, EngineSession session, IProgressMonitor monitor) {
+		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
 		mergeStatus(status, touchpointCompletePhase(monitor, profile, phaseParameters));
 		mergeStatus(status, completePhase(monitor, profile, phaseParameters));
 	}

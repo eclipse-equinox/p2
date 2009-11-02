@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -64,8 +65,10 @@ public class Collect extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
+		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
+		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
 
-		DownloadManager dm = new DownloadManager(context);
+		DownloadManager dm = new DownloadManager(context, repositoryManager);
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
 			IArtifactRequest[] requests = (IArtifactRequest[]) it.next();
 			dm.add(requests);

@@ -36,9 +36,10 @@ public class CheckTrust extends InstallableUnitPhase {
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_FILES);
+		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
 
 		// Instantiate a check trust manager
-		CertificateChecker certificateChecker = new CertificateChecker();
+		CertificateChecker certificateChecker = new CertificateChecker(session);
 		certificateChecker.add(artifactRequests.toArray());
 		IStatus status = certificateChecker.start();
 

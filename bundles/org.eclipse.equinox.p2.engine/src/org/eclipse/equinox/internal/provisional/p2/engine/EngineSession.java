@@ -14,8 +14,12 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * TODO: not API
+ */
 public class EngineSession {
 	private static final String ENGINE_SESSION = "enginesession"; //$NON-NLS-1$
 
@@ -40,20 +44,38 @@ public class EngineSession {
 
 	private IProfile profile;
 
-	private File profileDataDirectory;
-
 	private ProvisioningContext context;
+
+	private final HashMap sessionServices = new HashMap();
 
 	private Set touchpoints = new HashSet();
 
-	public EngineSession(IProfile profile, File profileDataDirectory, ProvisioningContext context) {
+	private final IProvisioningAgent agent;
+
+	public EngineSession(IProvisioningAgent agent, IProfile profile, ProvisioningContext context) {
+		super();
+		this.agent = agent;
 		this.profile = profile;
-		this.profileDataDirectory = profileDataDirectory;
 		this.context = context;
+		sessionServices.put(ProvisioningContext.class.getName(), context);
+		sessionServices.put(IProfile.class.getName(), profile);
 	}
 
 	public File getProfileDataDirectory() {
-		return profileDataDirectory;
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		return profileRegistry.getProfileDataDirectory(profile.getProfileId());
+	}
+
+	/**
+	 * This is the interface through which parts of the engine obtain the services they need
+	 * @param serviceName The name of the service to obtain
+	 * @return The service instance, or <code>null</code> if no such service is available
+	 */
+	public Object getService(String serviceName) {
+		Object result = sessionServices.get(serviceName);
+		if (result != null)
+			return result;
+		return agent.getService(serviceName);
 	}
 
 	IStatus prepare(IProgressMonitor monitor) {
@@ -109,7 +131,7 @@ public class EngineSession {
 		return status;
 	}
 
-	IStatus rollback(ActionManager actionManager, IProgressMonitor monitor, int severity) {
+	IStatus rollback(IProgressMonitor monitor, int severity) {
 		if (severity == IStatus.CANCEL)
 			monitor.subTask(Messages.rollingback_cancel);
 
@@ -120,7 +142,7 @@ public class EngineSession {
 
 		if (currentPhaseActive) {
 			try {
-				IStatus result = rollBackPhase(currentPhase, currentActionRecords, actionManager);
+				IStatus result = rollBackPhase(currentPhase, currentActionRecords);
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -142,7 +164,7 @@ public class EngineSession {
 			Phase phase = (Phase) pair[0];
 			List actionRecords = (List) pair[1];
 			try {
-				final IStatus result = rollBackPhase(phase, actionRecords, actionManager);
+				final IStatus result = rollBackPhase(phase, actionRecords);
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -180,13 +202,13 @@ public class EngineSession {
 		return status;
 	}
 
-	private IStatus rollBackPhase(Phase phase, List actionRecords, ActionManager actionManager) {
+	private IStatus rollBackPhase(Phase phase, List actionRecords) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		try {
-			phase.actionManager = actionManager;
+			phase.actionManager = (ActionManager) getService(ActionManager.SERVICE_NAME);
 
 			if (!currentPhaseActive)
-				phase.prePerform(result, this, profile, context, new NullProgressMonitor());
+				phase.prePerform(result, this, new NullProgressMonitor());
 
 			for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 				ActionsRecord record = (ActionsRecord) it.previous();
@@ -202,7 +224,7 @@ public class EngineSession {
 					result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
 				}
 			}
-			phase.postPerform(result, profile, context, new NullProgressMonitor());
+			phase.postPerform(result, this, new NullProgressMonitor());
 		} finally {
 			phase.actionManager = null;
 		}

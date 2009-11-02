@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
@@ -24,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.Bundle;
 
 /**
  * Tests for API of {@link IUpdateChecker}.
@@ -42,7 +39,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		TestActivator.getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT);
+		startBundle(TestActivator.getBundle("org.eclipse.equinox.p2.updatechecker"));
 		String id = "toInstall." + getName();
 		toInstallIU = createIU(id, Version.createOSGi(1, 0, 0));
 		IUpdateDescriptor updateDescriptor = createUpdateDescriptor(id, Version.createOSGi(2, 0, 0));

@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -25,10 +23,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	public static final String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories"; //$NON-NLS-1$
 
 	private static BundleContext bundleContext;
-	private static CacheManager cacheManager;
+	//hack - currently set by MetadataRepositoryComponent
+	static CacheManager cacheManager;
 	private ServiceRegistration repositoryManagerRegistration;
-	private MetadataRepositoryManager repositoryManager;
-	private ServiceTracker busTracker;
+	private ServiceTracker tracker;
 
 	public static BundleContext getContext() {
 		return bundleContext;
@@ -38,53 +36,39 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		return cacheManager;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		//TODO eventually there should be no singleton repository manager registered
-		Activator.bundleContext = context;
-		cacheManager = new CacheManager((AgentLocation) ServiceHelper.getService(context, AgentLocation.SERVICE_NAME));
-		repositoryManager = new MetadataRepositoryManager();
-		repositoryManagerRegistration = context.registerService(IMetadataRepositoryManager.class.getName(), repositoryManager, null);
-
-		// need to track event bus coming and going to make sure cache gets cleaned on repository removals
-		busTracker = new ServiceTracker(context, IProvisioningEventBus.SERVICE_NAME, this);
-		busTracker.open();
-	}
-
-	public void stop(BundleContext context) throws Exception {
-		IProvisioningEventBus bus = (IProvisioningEventBus) busTracker.getService();
-		if (cacheManager != null) {
-			cacheManager.unsetEventBus(bus);
-			cacheManager = null;
-		}
-		Activator.bundleContext = null;
-		if (repositoryManagerRegistration != null)
-			repositoryManagerRegistration.unregister();
-		repositoryManagerRegistration = null;
-		if (repositoryManager != null) {
-			repositoryManager.shutdown();
-			repositoryManager = null;
-		}
-	}
-
 	public Object addingService(ServiceReference reference) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) bundleContext.getService(reference);
-		if (repositoryManager != null)
-			repositoryManager.setEventBus(bus);
-		if (cacheManager != null)
-			cacheManager.setEventBus(bus);
-		return bus;
+		if (repositoryManagerRegistration == null) {
+			//TODO: eventually we shouldn't register a singleton manager automatically
+			IProvisioningAgent agent = (IProvisioningAgent) bundleContext.getService(reference);
+			IMetadataRepositoryManager manager = (MetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			repositoryManagerRegistration = bundleContext.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
+			return agent;
+		}
+		return null;
 	}
 
 	public void modifiedService(ServiceReference reference, Object service) {
-		// ignored
-
+		// nothing to do
 	}
 
 	public void removedService(ServiceReference reference, Object service) {
-		final IProvisioningEventBus bus = (IProvisioningEventBus) service;
-		if (repositoryManager != null)
-			repositoryManager.unsetEventBus(bus);
-		if (cacheManager != null)
-			cacheManager.unsetEventBus(bus);
+		if (repositoryManagerRegistration != null) {
+			repositoryManagerRegistration.unregister();
+			repositoryManagerRegistration = null;
+		}
+	}
+
+	public void start(BundleContext aContext) throws Exception {
+		bundleContext = aContext;
+		tracker = new ServiceTracker(aContext, IProvisioningAgent.SERVICE_NAME, this);
+		tracker.open();
+	}
+
+	public void stop(BundleContext aContext) throws Exception {
+		if (tracker != null) {
+			tracker.close();
+			tracker = null;
+		}
+		bundleContext = null;
 	}
 }

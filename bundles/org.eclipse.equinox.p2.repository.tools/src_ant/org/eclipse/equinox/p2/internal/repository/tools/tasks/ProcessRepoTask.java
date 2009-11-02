@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
@@ -101,9 +100,6 @@ public class ProcessRepoTask extends Task {
 		try {
 			application.run(new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

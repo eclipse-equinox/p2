@@ -18,7 +18,8 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
-import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
@@ -26,8 +27,11 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.ServiceReference;
 
 /**
  * An application that performs mirroring of artifacts between repositories.
@@ -45,7 +49,6 @@ public class MirrorApplication implements IApplication {
 	private boolean failOnError = true;
 	private boolean validate = false;
 	private boolean verbose = false;
-	private IArtifactRepositoryManager cachedManager;
 	private boolean sourceLoaded = false;
 	private boolean destinationLoaded = false;
 	private boolean baselineLoaded = false;
@@ -54,6 +57,8 @@ public class MirrorApplication implements IApplication {
 	private String destinationName;
 	private IArtifactMirrorLog mirrorLog;
 	private IArtifactMirrorLog comparatorLog;
+	private IProvisioningAgent agent;
+	private ServiceReference agentRef;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
@@ -62,6 +67,7 @@ public class MirrorApplication implements IApplication {
 		try {
 			Map args = context.getArguments();
 			initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
+			setupAgent();
 			setupRepositories();
 
 			Mirroring mirroring = new Mirroring(source, destination, raw);
@@ -90,21 +96,31 @@ public class MirrorApplication implements IApplication {
 		}
 	}
 
+	private void setupAgent() throws ProvisionException {
+		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (agentRef != null) {
+			agent = (IProvisioningAgent) Activator.getContext().getService(agentRef);
+			if (agent != null)
+				return;
+		}
+		ServiceReference providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (providerRef == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(providerRef);
+		if (provider == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		//obtain agent for currently running system
+		agent = provider.createAgent(null);
+		Activator.getContext().ungetService(providerRef);
+	}
+
 	/*
 	 * Return the artifact repository manager. We need to check the service here
 	 * as well as creating one manually in case we are running a stand-alone application
 	 * in which no one has registered a manager yet.
 	 */
 	private IArtifactRepositoryManager getManager() {
-		if (cachedManager != null)
-			return cachedManager;
-		IArtifactRepositoryManager result = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		// service not available... create one and hang onto it
-		if (result == null) {
-			cachedManager = new ArtifactRepositoryManager();
-			result = cachedManager;
-		}
-		return result;
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	private void setupRepositories() throws ProvisionException {
@@ -125,7 +141,7 @@ public class MirrorApplication implements IApplication {
 				baseline = getManager().loadRepository(baselineLocation, 0, null);
 			} catch (ProvisionException e) {
 				// catch the exception and log it. we will continue without doing a baseline comparison
-				System.err.println("Error occurred while trying to load baseline repository.");
+				System.err.println("Error occurred while trying to load baseline repository."); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 		}
@@ -154,7 +170,10 @@ public class MirrorApplication implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#stop()
 	 */
 	public void stop() {
-		// nothing to do
+		if (agentRef != null) {
+			Activator.getContext().ungetService(agentRef);
+			agentRef = null;
+		}
 	}
 
 	public void initializeFromArguments(String[] args) throws Exception {

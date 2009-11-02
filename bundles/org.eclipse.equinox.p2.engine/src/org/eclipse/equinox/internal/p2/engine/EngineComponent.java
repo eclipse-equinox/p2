@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.Engine;
+import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
@@ -25,9 +25,7 @@ public class EngineComponent implements IAgentServiceFactory {
 	 * @see org.eclipse.equinox.p2.core.spi.IAgentServiceFactory#createService(org.eclipse.equinox.p2.core.IProvisioningAgent)
 	 */
 	public Object createService(IProvisioningAgent agent) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		Engine result = new Engine(bus);
-		result.setProfileRegistry((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME));
-		return result;
+		//various parts of the engine may need an open-ended set of services, so we pass the agent to the engine directly
+		return new Engine(agent);
 	}
 }

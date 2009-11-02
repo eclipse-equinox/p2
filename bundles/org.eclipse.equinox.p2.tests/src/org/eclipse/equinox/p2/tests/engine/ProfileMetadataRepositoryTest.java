@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -21,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * Simple test of the engine API.
@@ -147,7 +145,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
 		assertTrue("1.3", timeStampedProfile.exists());
 
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		assertNotNull("2.0", manager);
 		assertFalse("2.1", manager.contains(tempFolder.toURI()));
 

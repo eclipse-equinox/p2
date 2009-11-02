@@ -46,13 +46,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit installableUnit = operand.second();
 
-			IArtifactRepositoryManager manager = null;
-			try {
-				manager = Activator.getArtifactRepositoryManager();
-			} catch (ProvisionException e) {
-				return e.getStatus();
-			}
-
+			IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 			IArtifactKey[] toDownload = installableUnit.getArtifacts();
 			if (toDownload == null)
 				return Status.OK_STATUS;
@@ -93,8 +87,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			List artifactRequests = (List) parameters.get(NATIVE_ARTIFACTS);
 			ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-
-			DownloadManager dm = new DownloadManager(context);
+			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
+			IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			DownloadManager dm = new DownloadManager(context, repositoryManager);
 			for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
 				dm.add((IArtifactRequest) it.next());
 			}

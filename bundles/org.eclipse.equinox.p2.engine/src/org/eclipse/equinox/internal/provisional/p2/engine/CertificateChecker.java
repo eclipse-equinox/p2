@@ -18,32 +18,44 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.TrustInfo;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class CertificateChecker {
 	private ArrayList artifacts;
-	private ServiceTracker trustEngineTracker;
+	private final EngineSession session;
 
 	public CertificateChecker() {
+		this(null);
+	}
+
+	public CertificateChecker(EngineSession session) {
+		this.session = session;
 		artifacts = new ArrayList();
-		trustEngineTracker = new ServiceTracker(EngineActivator.getContext(), TrustEngine.class.getName(), null);
-		trustEngineTracker.open();
 	}
 
 	public IStatus start() {
-		return checkCertificates();
+		final BundleContext context = EngineActivator.getContext();
+		ServiceReference contentFactoryRef = context.getServiceReference(SignedContentFactory.class.getName());
+		SignedContentFactory verifierFactory = (SignedContentFactory) context.getService(contentFactoryRef);
+		ServiceReference trustEngineRef = context.getServiceReference(TrustEngine.class.getName());
+		TrustEngine trustEngine = (TrustEngine) context.getService(trustEngineRef);
+		try {
+			return checkCertificates(trustEngine, verifierFactory);
+		} finally {
+			context.ungetService(contentFactoryRef);
+			context.ungetService(trustEngineRef);
+		}
 	}
 
-	private IStatus checkCertificates() {
-		SignedContentFactory verifierFactory = (SignedContentFactory) ServiceHelper.getService(EngineActivator.getContext(), SignedContentFactory.class.getName());
-		IServiceUI serviceUI = (IServiceUI) ServiceHelper.getService(EngineActivator.getContext(), IServiceUI.class.getName());
+	private IStatus checkCertificates(TrustEngine trustEngine, SignedContentFactory verifierFactory) {
+		IServiceUI serviceUI = (IServiceUI) session.getService(IServiceUI.SERVICE_NAME);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
 		ArrayList untrusted = new ArrayList();
@@ -52,7 +64,6 @@ public class CertificateChecker {
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
-		TrustEngine trustEngine = (TrustEngine) trustEngineTracker.getService();
 		for (Iterator it = artifacts.iterator(); it.hasNext();) {
 			File artifact = (File) it.next();
 			try {

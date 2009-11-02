@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -28,8 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 public class MirrorApplication extends AbstractApplication {
@@ -116,7 +111,7 @@ public class MirrorApplication extends AbstractApplication {
 	private IArtifactRepository initializeBaseline() throws ProvisionException {
 		if (baseline == null)
 			return null;
-		return addRepository(Activator.getArtifactRepositoryManager(), baseline, 0, null);
+		return addRepository(getArtifactRepositoryManager(), baseline, 0, null);
 	}
 
 	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {

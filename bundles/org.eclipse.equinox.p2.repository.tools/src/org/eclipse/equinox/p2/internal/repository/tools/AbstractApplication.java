@@ -23,7 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.ServiceReference;
 
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
@@ -40,24 +42,42 @@ public abstract class AbstractApplication {
 	private CompositeMetadataRepository compositeMetadataRepository = null;
 	private CompositeArtifactRepository compositeArtifactRepository = null;
 
+	protected IProvisioningAgent agent;
+
+	public AbstractApplication() {
+		super();
+		//note if we ever wanted these applications to act on a different agent than
+		//the currently running system we would need to set it here
+		ServiceReference ref = Activator.getBundleContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		agent = (IProvisioningAgent) Activator.getBundleContext().getService(ref);
+	}
+
 	public void setSourceIUs(List ius) {
 		sourceIUs = ius;
 	}
 
 	protected void finalizeRepositories() throws ProvisionException {
 		if (removeAddedRepositories) {
-			IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
+			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 			for (Iterator iter = artifactReposToRemove.iterator(); iter.hasNext();)
 				artifactRepositoryManager.removeRepository((URI) iter.next());
-			IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
+			IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
 				metadataRepositoryManager.removeRepository((URI) iter.next());
 		}
 	}
 
+	protected IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+	}
+
+	protected IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+	}
+
 	public void initializeRepos(IProgressMonitor progress) throws ProvisionException {
-		IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
-		IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
+		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		URI curLocation = null;
 		try {
 			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {

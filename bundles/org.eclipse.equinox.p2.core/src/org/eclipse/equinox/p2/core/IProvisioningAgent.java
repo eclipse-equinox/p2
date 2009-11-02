@@ -29,6 +29,14 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
  */
 public interface IProvisioningAgent {
 	/**
+	 * Service name constant for the agent service. Note that an agent obtained directly
+	 * as a service typically represents the agent of the currently running system. To
+	 * obtain an agent for a different system the {@link IProvisioningAgentProvider} 
+	 * service must be used.
+	 */
+	public static final String SERVICE_NAME = IProvisioningAgent.class.getName();
+
+	/**
 	 * Returns the service with the given service name, or <code>null</code>
 	 * if no such service is available in this agent.
 	 */

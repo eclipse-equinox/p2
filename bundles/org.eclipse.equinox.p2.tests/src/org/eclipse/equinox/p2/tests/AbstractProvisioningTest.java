@@ -32,10 +32,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -618,6 +621,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
+	public static void restartBundle(final Bundle bundle) throws BundleException {
+		bundle.stop(Bundle.STOP_TRANSIENT);
+		startBundle(bundle);
+	}
+
+	public static void startBundle(final Bundle bundle) throws BundleException {
+		//see http://dev.eclipse.org/mhonarc/lists/equinox-dev/msg05917.html
+		bundle.start(Bundle.START_ACTIVATION_POLICY);
+		bundle.start(Bundle.START_TRANSIENT);
+	}
+
 	private static void write(IStatus status, int indent, PrintStream output) {
 		indent(output, indent);
 		output.println("Severity: " + status.getSeverity());
@@ -732,7 +746,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit[] units) {
 		IMetadataRepository repo = new TestMetadataRepository(units);
-		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) getMetadataRepositoryManager();
 		assertNotNull(repoMan);
 		repoMan.addRepository(repo);
 		metadataRepos.add(repo);
@@ -746,8 +760,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
+	protected static IProvisioningAgent getAgent() {
+		//get the global agent for the currently running system
+		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+	}
+
 	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
@@ -775,7 +794,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	public static String getUniqueString() {
@@ -819,7 +838,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//remove all metadata repositories created by this test
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		if (!metadataRepos.isEmpty()) {
 			for (Iterator it = metadataRepos.iterator(); it.hasNext();) {
 				IMetadataRepository repo = (IMetadataRepository) it.next();
@@ -906,7 +925,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		URI[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
