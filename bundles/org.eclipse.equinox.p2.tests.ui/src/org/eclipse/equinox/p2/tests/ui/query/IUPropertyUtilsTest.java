@@ -134,7 +134,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		IInstallableUnit unit = createIU("f1");
 
 		assertNull("1.1", IUPropertyUtils.getCopyright(unit));
-		assertNull("1.2", IUPropertyUtils.getLicenses(unit)[0]);
+		assertEquals("1.2", 0, IUPropertyUtils.getLicenses(unit).length);;
 		assertNull("1.3", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME));
 		assertNull("1.4", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION));
 		assertNull("1.5", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER));
