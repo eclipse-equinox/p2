@@ -1,9 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2006-2009, Cloudsmith Inc.
- * The code, documentation and other materials contained herein have been
- * licensed under the Eclipse Public License - v 1.0 by the copyright holder
- * listed above, as the Initial Contributor under such license. The text or
- * such license is available at www.eclipse.org.
+ * Copyright (c) 2006, 2009 Cloudsmith Inc.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ * 	Cloudsmith Inc - initial API and implementation
+ * 	IBM Corporation - ongoing development
+ * 	Genuitec - Bug 291926
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
@@ -71,10 +76,8 @@ public class ProgressStatistics {
 
 	public long getAverageSpeed() {
 		long dur = getDuration();
-
-		if (dur >= 1000)
-			return m_current / (dur / 1000);
-
+		if (dur > 0)
+			return (int) (m_current / (dur / 1000.0));
 		return 0L;
 	}
 
