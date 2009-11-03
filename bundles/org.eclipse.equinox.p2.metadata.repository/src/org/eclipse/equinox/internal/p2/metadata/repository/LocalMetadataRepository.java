@@ -11,13 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -29,9 +22,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -146,7 +143,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return true;
 	}
 
-	public synchronized Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
 	}
 
@@ -155,7 +152,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
 		boolean changed = false;
 		Collector results = query.perform(units.iterator(), new Collector());
 		if (results.size() > 0) {

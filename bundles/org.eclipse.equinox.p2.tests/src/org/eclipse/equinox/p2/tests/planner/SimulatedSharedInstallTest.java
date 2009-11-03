@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
@@ -60,7 +59,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(c1));
 
 		IProfile availableWrapper = new IProfile() {
-			public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+			public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
 				profile.query(query, collector, monitor);
 
 				Collection ius = new ArrayList();
@@ -117,7 +116,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.isRootProfile();
 			}
 
-			public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 				return profile.query(query, collector, monitor);
 			}
 		};

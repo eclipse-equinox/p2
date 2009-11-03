@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;

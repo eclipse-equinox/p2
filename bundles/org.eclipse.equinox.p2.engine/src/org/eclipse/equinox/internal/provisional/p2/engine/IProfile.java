@@ -13,7 +13,9 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public interface IProfile extends IQueryable {
 
@@ -126,6 +128,6 @@ public interface IProfile extends IQueryable {
 
 	public long getTimestamp();
 
-	public Collector available(Query query, Collector collector, IProgressMonitor monitor);
+	public Collector available(IQuery query, Collector collector, IProgressMonitor monitor);
 
 }

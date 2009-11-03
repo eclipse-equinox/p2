@@ -10,16 +10,17 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A PipedQuery is an aggregate query in which each sub-query
  * is executed in succession.  The results from the ith sub-query
  * are piped as input into the i+1th sub-query.
  */
-public class PipedQuery implements Query {
-	protected Query[] queries;
+public class PipedQuery implements IQuery {
+	protected IQuery[] queries;
 
-	public PipedQuery(Query[] queries) {
+	public PipedQuery(IQuery[] queries) {
 		this.queries = queries;
 	}
 
@@ -42,7 +43,7 @@ public class PipedQuery implements Query {
 	 * Set the queries of this composite.  This is needed to allow subclasses of 
 	 * CompsiteQuery to set the queries in a constructor
 	 */
-	protected final void setQueries(Query[] queries) {
+	protected final void setQueries(IQuery[] queries) {
 		this.queries = queries;
 	}
 

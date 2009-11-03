@@ -9,6 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 

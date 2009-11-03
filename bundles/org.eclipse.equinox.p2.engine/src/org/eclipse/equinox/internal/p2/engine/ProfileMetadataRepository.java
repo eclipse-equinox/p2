@@ -22,10 +22,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
@@ -155,7 +155,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		// nothing to do
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		return profile.query(query, collector, monitor);
 	}
 

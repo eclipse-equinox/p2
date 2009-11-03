@@ -9,8 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * ContextQuery is the abstract superclass for Queries that require the entire
@@ -31,7 +31,7 @@ import java.util.Iterator;
  * execution of the query. <P>
  * 
  */
-public abstract class ContextQuery implements Query {
+public abstract class ContextQuery implements IQuery {
 
 	/**
 	 * Evaluates the query for a specific input.  

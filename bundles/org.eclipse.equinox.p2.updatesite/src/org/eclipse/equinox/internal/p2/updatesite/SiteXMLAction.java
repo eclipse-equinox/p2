@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
@@ -120,14 +121,14 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		String versionString = feature.getFeatureVersion();
 		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
-		Query query = null;
+		IQuery query = null;
 		Collector collector = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = new PipedQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
+			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
 			collector = new Collector();
 		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
 			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
-			Query qualifierQuery = new InstallableUnitQuery(id) {
+			IQuery qualifierQuery = new InstallableUnitQuery(id) {
 				private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
 
 				public boolean isMatch(Object object) {
@@ -138,7 +139,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 					return false;
 				}
 			};
-			query = new PipedQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
+			query = new PipedQuery(new IQuery[] {qualifierQuery, new LatestIUVersionQuery()});
 			collector = new Collector();
 		} else {
 			query = new InstallableUnitQuery(id, version);

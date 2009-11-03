@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -26,8 +24,10 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -150,7 +150,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
-		Query query = new InstallableUnitQuery(id, range);
+		IQuery query = new InstallableUnitQuery(id, range);
 		Collector collector = new Collector();
 		Iterator matches = metadataRepoMan.query(query, collector, null).iterator();
 		// pick the newest match

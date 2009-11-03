@@ -10,17 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
-import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * The common base class for all metadata repositories.
@@ -66,7 +63,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		assertModifiable();
 	}
 
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
 		assertModifiable();
 		return false;
 	}

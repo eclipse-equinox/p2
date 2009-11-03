@@ -17,7 +17,9 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class ProvisioningPlan {
 	IStatus status;
@@ -96,7 +98,7 @@ public class ProvisioningPlan {
 			this.addition = add;
 		}
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return collector;
 			Collection list = new ArrayList();

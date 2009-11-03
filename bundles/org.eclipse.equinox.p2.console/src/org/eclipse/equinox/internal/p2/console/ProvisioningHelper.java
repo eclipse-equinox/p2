@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
 public class ProvisioningHelper {
@@ -151,11 +152,11 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static Collector getInstallableUnits(URI location, Query query, IProgressMonitor monitor) {
+	public static Collector getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
 		return getInstallableUnits(location, query, new Collector(), monitor);
 	}
 
-	public static Collector getInstallableUnits(URI location, Query query, Collector collector, IProgressMonitor monitor) {
+	public static Collector getInstallableUnits(URI location, IQuery query, Collector collector, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());

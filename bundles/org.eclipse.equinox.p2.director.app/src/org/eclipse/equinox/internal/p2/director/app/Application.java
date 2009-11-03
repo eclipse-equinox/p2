@@ -30,6 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -405,7 +406,7 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
+					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}), new Collector());
 					if (roots.size() <= 0)
 						roots = profile.query(query, roots, new NullProgressMonitor());
 					if (roots.size() <= 0) {
@@ -484,12 +485,12 @@ public class Application implements IApplication {
 			this.location = location;
 		}
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			return ProvisioningHelper.getInstallableUnits(location, query, collector, monitor);
 		}
 	}
 
-	private Collector collectRootIUs(URI[] locations, Query query, Collector collector) {
+	private Collector collectRootIUs(URI[] locations, IQuery query, Collector collector) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)

@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Updates;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -37,7 +38,7 @@ public class DefaultQueryProvider extends QueryProvider {
 
 	private Policy policy;
 
-	private Query allQuery = new MatchQuery() {
+	private IQuery allQuery = new MatchQuery() {
 		public boolean isMatch(Object candidate) {
 			return true;
 		}
@@ -85,15 +86,15 @@ public class DefaultQueryProvider extends QueryProvider {
 					}
 				}
 
-				Query topLevelQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
-				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+				IQuery topLevelQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
+				IQuery categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest)
-							topLevelQuery = new PipedQuery(new Query[] {topLevelQuery, new LatestIUVersionQuery()});
+							topLevelQuery = new PipedQuery(new IQuery[] {topLevelQuery, new LatestIUVersionQuery()});
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector(), wrapper);
@@ -108,7 +109,7 @@ public class DefaultQueryProvider extends QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
+					IQuery meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDown);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
@@ -116,12 +117,12 @@ public class DefaultQueryProvider extends QueryProvider {
 					// be visible in the category.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							meetsAnyRequirementQuery = new PipedQuery(new Query[] {meetsAnyRequirementQuery, new LatestIUVersionQuery()});
+							meetsAnyRequirementQuery = new PipedQuery(new IQuery[] {meetsAnyRequirementQuery, new LatestIUVersionQuery()});
 						return new ElementQueryDescriptor(queryable, meetsAnyRequirementQuery, new Collector(), availableIUWrapper);
 					}
-					Query query = CompoundQuery.createCompoundQuery(new Query[] {topLevelQuery, meetsAnyRequirementQuery}, true);
+					IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, meetsAnyRequirementQuery}, true);
 					if (showLatest)
-						query = new PipedQuery(new Query[] {query, new LatestIUVersionQuery()});
+						query = new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()});
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
 					return new ElementQueryDescriptor(queryable, query, new Collector(), availableIUWrapper);
 				}
@@ -155,9 +156,9 @@ public class DefaultQueryProvider extends QueryProvider {
 			case QueryProvider.INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
-					Query meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
-					Query visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
-					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new Query[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
+					IQuery meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
+					IQuery visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
+					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)

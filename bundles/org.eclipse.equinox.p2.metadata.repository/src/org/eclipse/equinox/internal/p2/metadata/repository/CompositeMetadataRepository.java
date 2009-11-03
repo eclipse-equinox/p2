@@ -30,6 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository {
@@ -118,7 +119,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return result;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
@@ -200,7 +201,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 
-	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 

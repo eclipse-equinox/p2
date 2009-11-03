@@ -18,7 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -682,7 +684,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testIncompatibleProfile() {
 
 		IProfile profile = new IProfile() {
-			public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+			public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
 				return null;
 			}
 
@@ -734,7 +736,7 @@ public class EngineTest extends AbstractProvisioningTest {
 				return false;
 			}
 
-			public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 				return null;
 			}
 		};

@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.core;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
@@ -78,7 +79,7 @@ public class QueryTest extends TestCase {
 	 */
 	public void testPerformSimple() {
 		List items = Arrays.asList("red", "green", "blue");
-		Query query = new AnyStringQuery();
+		IQuery query = new AnyStringQuery();
 		Collector collector = new Collector();
 		query.perform(items.iterator(), collector);
 		Collection result = collector.toCollection();
@@ -93,7 +94,7 @@ public class QueryTest extends TestCase {
 	 */
 	public void testPerformSomeMatches() {
 		List items = Arrays.asList(new Object(), "green", new Object());
-		Query query = new AnyStringQuery();
+		IQuery query = new AnyStringQuery();
 		Collector collector = new Collector();
 		query.perform(items.iterator(), collector);
 		Collection result = collector.toCollection();
@@ -114,32 +115,32 @@ public class QueryTest extends TestCase {
 	}
 
 	public void testPropertyLookupMatchQuery() {
-		Query query1 = new PropertyLookupQuery1();
+		IQuery query1 = new PropertyLookupQuery1();
 		Object property = query1.getProperty("SomeProperty");
 		assertEquals("1.0", "foo", property);
 	}
 
 	public void testPropertyLookupContextQuery() {
-		Query query1 = new PropertyLookupQuery2();
+		IQuery query1 = new PropertyLookupQuery2();
 		Object property = query1.getProperty("SomeOtherProperty");
 		assertEquals("1.0", "bar", property);
 	}
 
 	public void testPropertyLookupInvalidProperty1() {
-		Query query1 = new PropertyLookupQuery1();
+		IQuery query1 = new PropertyLookupQuery1();
 		Object property = query1.getProperty("ThisProperty");
 		assertEquals("1.0", null, property);
 	}
 
 	public void testPropertyLookupInvalidProperty2() {
-		Query query1 = new PropertyLookupQuery1();
+		IQuery query1 = new PropertyLookupQuery1();
 		Object property = query1.getProperty("SomeOtherProperty");
 		assertEquals("1.0", null, property);
 	}
 
 	public void testIDLookup() {
-		Query query1 = new PropertyLookupQuery1();
-		Query query2 = new PropertyLookupQuery2();
+		IQuery query1 = new PropertyLookupQuery1();
+		IQuery query2 = new PropertyLookupQuery2();
 		assertEquals("1.0", "org.eclipse.equinox.p2.tests.core.PropertyLookupQuery1", query1.getId());
 		assertEquals("1.0", "org.eclipse.equinox.p2.tests.core.PropertyLookupQuery2", query2.getId());
 	}
@@ -165,7 +166,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, true);
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, true);
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -184,7 +185,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, false);
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, false);
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -203,7 +204,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		PipedQuery cQuery = new PipedQuery(new Query[] {query1, query2});
+		PipedQuery cQuery = new PipedQuery(new IQuery[] {query1, query2});
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -222,7 +223,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new Query[] {query1, query2}, true);
+		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, true);
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -246,7 +247,7 @@ public class QueryTest extends TestCase {
 		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		PipedQuery cQuery = new PipedQuery(new Query[] {query1, query2});
+		PipedQuery cQuery = new PipedQuery(new IQuery[] {query1, query2});
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -270,7 +271,7 @@ public class QueryTest extends TestCase {
 	 */
 	public void testShortCircuit() {
 		List items = Arrays.asList("red", "green", "blue");
-		Query query = new AnyStringQuery();
+		IQuery query = new AnyStringQuery();
 		Collector collector = new ShortCircuitCollector();
 		query.perform(items.iterator(), collector);
 		Collection result = collector.toCollection();

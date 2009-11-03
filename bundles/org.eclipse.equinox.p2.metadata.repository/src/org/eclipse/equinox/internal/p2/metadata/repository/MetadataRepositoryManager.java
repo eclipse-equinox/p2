@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -112,7 +113,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);

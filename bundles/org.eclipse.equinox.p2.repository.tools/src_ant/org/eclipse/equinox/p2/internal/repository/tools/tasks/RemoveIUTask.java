@@ -19,10 +19,12 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -62,7 +64,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			final Set toRemove = new HashSet();
 			for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 				IUDescription iu = (IUDescription) iter.next();
-				Query iuQuery = iu.createQuery();
+				IQuery iuQuery = iu.createQuery();
 
 				Collector collector = new Collector();
 				repository.query(iuQuery, collector, null);
@@ -104,7 +106,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			}
 
 			if (toRemove.size() > 0) {
-				Query removeQuery = new MatchQuery() {
+				IQuery removeQuery = new MatchQuery() {
 					public boolean isMatch(Object candidate) {
 						return toRemove.contains(candidate);
 					}

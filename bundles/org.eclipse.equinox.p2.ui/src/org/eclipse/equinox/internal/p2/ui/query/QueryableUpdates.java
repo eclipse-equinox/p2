@@ -19,8 +19,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -34,7 +36,7 @@ public class QueryableUpdates implements IQueryable {
 		this.iusToUpdate = iusToUpdate;
 	}
 
-	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector result, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;

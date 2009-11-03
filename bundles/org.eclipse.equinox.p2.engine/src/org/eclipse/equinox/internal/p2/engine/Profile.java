@@ -14,7 +14,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IQueryable, IProfile {
@@ -157,7 +159,7 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof IUProfilePropertyQuery) {
 			((IUProfilePropertyQuery) query).setProfile(this);
 			return query.perform(iuProperties.keySet().iterator(), collector);
@@ -165,7 +167,7 @@ public class Profile implements IQueryable, IProfile {
 		return query.perform(ius.iterator(), collector);
 	}
 
-	public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (surrogateProfileHandler != null)
 			return surrogateProfileHandler.queryProfile(this, query, collector, monitor);
 		return query(query, collector, monitor);

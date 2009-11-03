@@ -9,18 +9,22 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * Static helper methods for the Query API.
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class QueryHelpers {
 	/**
 	 * Gets the ID for a Query. 
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public static String getId(Query query) {
+	public static String getId(IQuery query) {
 		return query.getClass().getName();
 	}
 
@@ -28,8 +32,10 @@ public class QueryHelpers {
 	 * Gets a particular property of a query.
 	 * @param query The query to retrieve the property from
 	 * @param property The property to retrieve 
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public static Object getProperty(Query query, String property) {
+	public static Object getProperty(IQuery query, String property) {
 		Class clazz = query.getClass();
 		Object result = null;
 		try {

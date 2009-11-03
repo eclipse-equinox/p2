@@ -12,7 +12,9 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -47,7 +49,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 	public void testCompositeCollectors() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query numeric = new MatchQuery() {
+		IQuery numeric = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
@@ -57,7 +59,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;
@@ -78,7 +80,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 	public void testSameCollector() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query numeric = new MatchQuery() {
+		IQuery numeric = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
@@ -88,7 +90,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;
@@ -110,7 +112,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 	public void testEmptyCompositeCollectors() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query eightOrNine = new MatchQuery() {
+		IQuery eightOrNine = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("8") > 0 && ((String) candidate).compareTo("9") < 0) {
@@ -120,7 +122,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;

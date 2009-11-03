@@ -9,6 +9,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+import org.eclipse.equinox.p2.metadata.query.IQuery;
+
+
 /**
  * A query in which the elements can be evaluated by calling isMatch on. Each
  * element can be evaluated independently of all other elements.  Match queries
@@ -17,7 +20,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
  * 
  * @spi Clients should not implement this interface, but rather extend {@link MatchQuery}.
  */
-public interface IMatchQuery extends Query {
+public interface IMatchQuery extends IQuery {
 
 	/**
 	 * Returns whether the given object satisfies the parameters of this query.

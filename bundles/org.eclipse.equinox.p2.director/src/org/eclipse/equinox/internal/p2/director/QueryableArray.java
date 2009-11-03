@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ORRequirement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class QueryableArray implements IQueryable {
 	static class IUCapability {
@@ -34,7 +35,7 @@ public class QueryableArray implements IQueryable {
 		dataSet = Arrays.asList(ius);
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof CapabilityQuery)
 			return queryCapability((CapabilityQuery) query, collector, monitor);
 		return query.perform(dataSet.iterator(), collector);

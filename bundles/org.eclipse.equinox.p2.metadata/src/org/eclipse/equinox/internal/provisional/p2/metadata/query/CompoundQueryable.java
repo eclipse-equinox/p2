@@ -9,9 +9,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A queryable that holds a number of other IQueryables and provides
@@ -25,7 +27,7 @@ public class CompoundQueryable implements IQueryable {
 		this.queryables = queryables;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}

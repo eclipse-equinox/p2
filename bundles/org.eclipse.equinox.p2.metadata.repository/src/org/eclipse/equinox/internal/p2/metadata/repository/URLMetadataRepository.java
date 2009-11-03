@@ -11,15 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A metadata repository backed by an arbitrary URL.
@@ -79,7 +77,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return false;
 	}
 
-	public synchronized Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
 	}
 }

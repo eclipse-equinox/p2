@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.util.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A query that combines a group of sub-queries.<P>
@@ -20,15 +20,15 @@ import java.util.*;
  * In a CompoundQuery each sub-query is executed and the results are combined using
  * either logical AND or logical OR operations. <P>
  * 
- * Clients are expected to call {@link CompoundQuery#createCompoundQuery(Query[], boolean)}
+ * Clients are expected to call {@link CompoundQuery#createCompoundQuery(IQuery[], boolean)}
  * to create a concrete instance of a CompoundQuery.  If all Queries are instances of 
  * {@link IMatchQuery} then the resulting compound query will be a MatchCompoundQuery, otherwise the
  * resulting compound query will be a {@link ContextQuery}.
  * 
  * @noextend This class is not intended to be subclassed by clients.
  */
-public abstract class CompoundQuery implements Query {
-	protected Query[] queries;
+public abstract class CompoundQuery implements IQuery {
+	protected IQuery[] queries;
 	protected boolean and;
 
 	/**
@@ -45,7 +45,7 @@ public abstract class CompoundQuery implements Query {
 	 * @param and <code>true</code> if this query represents a logical 'and', and
 	 * <code>false</code> if this query represents a logical 'or'.
 	 */
-	public static CompoundQuery createCompoundQuery(Query[] queries, boolean and) {
+	public static CompoundQuery createCompoundQuery(IQuery[] queries, boolean and) {
 		if (isMatchQueries(queries)) {
 			return new CompoundQuery.MatchCompoundQuery(queries, and);
 		}
@@ -55,7 +55,7 @@ public abstract class CompoundQuery implements Query {
 	/**
 	 * Returns the queries that make up this compound query
 	 */
-	public Query[] getQueries() {
+	public IQuery[] getQueries() {
 		return queries;
 	}
 
@@ -69,7 +69,7 @@ public abstract class CompoundQuery implements Query {
 		return and;
 	}
 
-	protected CompoundQuery(Query[] queries, boolean and) {
+	protected CompoundQuery(IQuery[] queries, boolean and) {
 		this.queries = queries;
 		this.and = and;
 	}
@@ -77,7 +77,7 @@ public abstract class CompoundQuery implements Query {
 	/**
 	 * @param queries
 	 */
-	private static boolean isMatchQueries(Query[] queries) {
+	private static boolean isMatchQueries(IQuery[] queries) {
 		for (int i = 0; i < queries.length; i++) {
 			if (!(queries[i] instanceof IMatchQuery)) {
 				return false;
@@ -106,7 +106,7 @@ public abstract class CompoundQuery implements Query {
 	 */
 	private static class MatchCompoundQuery extends CompoundQuery implements IMatchQuery {
 
-		protected MatchCompoundQuery(Query[] queries, boolean and) {
+		protected MatchCompoundQuery(IQuery[] queries, boolean and) {
 			super(queries, and);
 		}
 
@@ -164,7 +164,7 @@ public abstract class CompoundQuery implements Query {
 	 */
 	private static class ContextCompoundQuery extends CompoundQuery {
 
-		protected ContextCompoundQuery(Query[] queries, boolean and) {
+		protected ContextCompoundQuery(IQuery[] queries, boolean and) {
 			super(queries, and);
 		}
 

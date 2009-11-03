@@ -13,7 +13,9 @@ package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * ElementQueryDescriptor represents everything needed to run a query, including
@@ -24,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
  */
 public class ElementQueryDescriptor {
 
-	private Query query;
+	private IQuery query;
 	private Collector collector;
 	private IQueryable queryable;
 	private ElementWrapper wrapper;
@@ -33,7 +35,7 @@ public class ElementQueryDescriptor {
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
 	 * on which it will run.
 	 */
-	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector collector) {
+	public ElementQueryDescriptor(IQueryable queryable, IQuery query, Collector collector) {
 		this(queryable, query, collector, null);
 	}
 
@@ -41,7 +43,7 @@ public class ElementQueryDescriptor {
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
 	 * on which it will run, and the transformer used to transform the results.
 	 */
-	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector collector, ElementWrapper wrapper) {
+	public ElementQueryDescriptor(IQueryable queryable, IQuery query, Collector collector, ElementWrapper wrapper) {
 		this.query = query;
 		this.collector = collector;
 		this.queryable = queryable;

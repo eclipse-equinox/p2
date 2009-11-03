@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.TestProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * Tests the compound queryable
@@ -56,7 +57,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable1 = new IQueryable() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			try {
 				monitor.beginTask("", 10);
 				collector = query.perform(createIterator(elements), collector);
@@ -71,7 +72,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable2 = new IQueryable() {
 		Integer[] elements = new Integer[] {4, 6, 8, 10, 12};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			try {
 				monitor.beginTask("", 10);
 				collector = query.perform(createIterator(elements), collector);
@@ -86,7 +87,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable3 = new IQueryable() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			try {
 				monitor.beginTask("", 10);
 				collector = query.perform(createIterator(elements), collector);
@@ -98,7 +99,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query matchQuery = new MatchQuery() {
+	IQuery matchQuery = new MatchQuery() {
 
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
@@ -110,7 +111,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query matchMod4query = new MatchQuery() {
+	IQuery matchMod4query = new MatchQuery() {
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
 				int x = ((Integer) candidate).intValue();
@@ -121,7 +122,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query contextQuery = new ContextQuery() {
+	IQuery contextQuery = new ContextQuery() {
 
 		public Collector perform(Iterator iterator, Collector result) {
 			while (iterator.hasNext()) {
@@ -135,7 +136,7 @@ public class CompoundQueryableTest extends TestCase {
 
 	};
 
-	Query greatestNumberQuery = new ContextQuery() {
+	IQuery greatestNumberQuery = new ContextQuery() {
 		public Collector perform(Iterator iterator, Collector result) {
 			int greatest = Integer.MIN_VALUE;
 			while (iterator.hasNext()) {
@@ -266,7 +267,7 @@ public class CompoundQueryableTest extends TestCase {
 	public void testCompoundMatchAndQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {matchQuery, matchMod4query}, true), new Collector(), monitor);
+		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, true), new Collector(), monitor);
 		assertEquals("1.0", 3, collector.size());
 		Collection collection = collector.toCollection();
 		assertTrue("1.2", collection.contains(4));
@@ -277,7 +278,7 @@ public class CompoundQueryableTest extends TestCase {
 	public void testCompoundMatchOrQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {matchQuery, matchMod4query}, false), new Collector(), monitor);
+		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, false), new Collector(), monitor);
 		assertEquals("1.0", 6, collector.size());
 		Collection collection = collector.toCollection();
 		assertTrue("1.2", collection.contains(2));
@@ -331,7 +332,7 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {contextQuery, greatestNumberQuery}, false), new Collector(), monitor);
+		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {contextQuery, greatestNumberQuery}, false), new Collector(), monitor);
 		assertEquals("1.0", 7, collector.size());
 		Collection collection = collector.toCollection();
 		assertTrue("1.2", collection.contains(2));
@@ -349,7 +350,7 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(new PipedQuery(new Query[] {contextQuery, greatestNumberQuery}), new Collector(), monitor);
+		Collector collector = cQueryable.query(new PipedQuery(new IQuery[] {contextQuery, greatestNumberQuery}), new Collector(), monitor);
 		assertEquals("1.0", 1, collector.size());
 		Collection collection = collector.toCollection();
 		assertTrue("1.2", collection.contains(12));

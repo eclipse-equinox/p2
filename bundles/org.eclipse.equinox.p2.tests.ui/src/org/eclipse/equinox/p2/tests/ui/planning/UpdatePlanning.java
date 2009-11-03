@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;

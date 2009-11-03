@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.core.CompoundQueryableTest.CompoundQueryTestProgressMonitor;
@@ -475,7 +476,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		PipedQuery cQuery = new PipedQuery(new Query[] {new MatchQuery() {
+		PipedQuery cQuery = new PipedQuery(new IQuery[] {new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;

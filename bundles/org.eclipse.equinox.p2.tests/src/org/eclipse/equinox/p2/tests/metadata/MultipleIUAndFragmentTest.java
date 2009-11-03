@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;

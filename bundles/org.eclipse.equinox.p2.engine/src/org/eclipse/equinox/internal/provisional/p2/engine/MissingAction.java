@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class MissingAction extends ProvisioningAction {

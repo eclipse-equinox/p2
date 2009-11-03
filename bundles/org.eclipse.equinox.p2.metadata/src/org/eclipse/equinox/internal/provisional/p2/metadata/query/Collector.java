@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-import org.eclipse.equinox.internal.p2.metadata.Messages;
-
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.Messages;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,
@@ -121,7 +121,7 @@ public class Collector implements IQueryable {
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		Iterator iter = collector == this ? toCollection().iterator() : iterator();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,10 +20,12 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * Default implementation of {@link IUpdateChecker}.
@@ -52,9 +50,9 @@ public class UpdateChecker implements IUpdateChecker {
 		long poll, delay;
 		IUpdateListener listener;
 		String profileId;
-		Query query;
+		IQuery query;
 
-		UpdateCheckThread(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, IQuery query, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
 			this.profileId = profileId;
@@ -96,7 +94,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
-	public void addUpdateCheck(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
+	public void addUpdateCheck(String profileId, IQuery query, long delay, long poll, IUpdateListener listener) {
 		if (checkers.containsKey(listener))
 			return;
 		trace("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -116,7 +114,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(String profileId, Query query) {
+	IInstallableUnit[] checkForUpdates(String profileId, IQuery query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList iusWithUpdates = new ArrayList();
 		if (profile == null)

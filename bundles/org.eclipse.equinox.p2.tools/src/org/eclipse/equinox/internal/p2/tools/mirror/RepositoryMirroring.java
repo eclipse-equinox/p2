@@ -11,12 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tools.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -32,9 +26,12 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A utility class that performs mirroring of metadata and artifacts between repositories.
@@ -92,7 +89,7 @@ public class RepositoryMirroring {
 		}
 	}
 
-	public void mirrorMetadata(Query query) throws ProvisionException {
+	public void mirrorMetadata(IQuery query) throws ProvisionException {
 		Collector result = metadataSourceRepository.query(query, new Collector(), null);
 		mirrorMetadata((IInstallableUnit[]) result.toArray(IInstallableUnit.class));
 	}

@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -44,7 +45,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SoftReference cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		Query rootIUQuery = new MatchQuery() {
+		IQuery rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -67,7 +68,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		Query rootIUQuery = new MatchQuery() {
+		IQuery rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -85,7 +86,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		Query rootIUQuery = new MatchQuery() {
+		IQuery rootIUQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -195,7 +196,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector queryProfile(IProfile profile, Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector queryProfile(IProfile profile, IQuery query, Collector collector, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
 		if (sharedProfile != null)
 			sharedProfile.query(query, collector, monitor);

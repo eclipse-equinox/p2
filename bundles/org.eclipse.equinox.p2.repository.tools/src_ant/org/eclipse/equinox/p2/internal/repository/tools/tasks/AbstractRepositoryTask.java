@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,8 +19,10 @@ import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractRepositoryTask extends Task {
@@ -168,7 +166,7 @@ public abstract class AbstractRepositoryTask extends Task {
 		List result = new ArrayList();
 		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 			IUDescription iu = (IUDescription) iter.next();
-			Query iuQuery = iu.createQuery();
+			IQuery iuQuery = iu.createQuery();
 			Collector collector = new Collector();
 
 			repository.query(iuQuery, collector, null);

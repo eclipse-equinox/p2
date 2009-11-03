@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -43,7 +43,7 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		Policy.getDefault().setQueryContext(null);
 	}
 
-	protected Query getMockQuery() {
+	protected IQuery getMockQuery() {
 		return new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return true;

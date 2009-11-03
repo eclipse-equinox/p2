@@ -8,11 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

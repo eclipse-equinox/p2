@@ -17,10 +17,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -71,7 +73,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector result, IProgressMonitor monitor) {
 		IRepositoryManager manager = getRepositoryManager();
 		if (manager == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
@@ -229,7 +231,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected abstract Collector query(URI[] uris, Query query, Collector collector, IProgressMonitor monitor);
+	protected abstract Collector query(URI[] uris, IQuery query, Collector collector, IProgressMonitor monitor);
 
 	public void setQueryContext(IUViewQueryContext queryContext) {
 		this.queryContext = queryContext;

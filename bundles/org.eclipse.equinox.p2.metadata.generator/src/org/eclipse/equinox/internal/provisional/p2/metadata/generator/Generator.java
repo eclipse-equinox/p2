@@ -30,9 +30,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
@@ -520,7 +522,7 @@ public class Generator {
 		}
 
 		//Query the repo
-		Query query = new InstallableUnitQuery(name);
+		IQuery query = new InstallableUnitQuery(name);
 		Collector collector = new Collector();
 		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
 		//pick the newest match
@@ -635,7 +637,7 @@ public class Generator {
 			if (configuredIU == null) {
 				if (!generateRootIU && data == null)
 					continue;
-				Query query = new InstallableUnitQuery(bundle.getSymbolicName());
+				IQuery query = new InstallableUnitQuery(bundle.getSymbolicName());
 				Collector collector = new Collector();
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository == null)

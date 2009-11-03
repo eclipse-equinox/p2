@@ -11,13 +11,12 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
-
 import java.net.URI;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * RepositoryLocationQuery is a query that gathers repository
@@ -27,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
  * 
  * @since 3.5
  */
-public class RepositoryLocationQuery implements Query {
+public class RepositoryLocationQuery implements IQuery {
 
 	/**
 	 * Gets the ID for this Query. 

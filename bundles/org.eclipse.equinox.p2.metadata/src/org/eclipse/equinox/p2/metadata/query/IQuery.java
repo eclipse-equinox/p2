@@ -9,22 +9,21 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
-
+package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * The superclass of all queries that can be performed on an {@link IQueryable}.
  * <p>
  * 
- * <B>NOTE:  This interface does not follow the proper naming convention. It should 
- * be IQuery, however, for historic reasons it is Query.  This is likely to change.</B>
- * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * 
  */
-public interface Query {
+public interface IQuery {
 
 	/**
 	 * Evaluates the query for a specific input.  

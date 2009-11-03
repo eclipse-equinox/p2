@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
@@ -201,7 +202,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static IInstallableUnit[] findPlannerMarkedIUs(final IProfile profile) {
-		Query markerQuery = new MatchQuery() {
+		IQuery markerQuery = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
@@ -718,7 +719,7 @@ public class SimplePlanner implements IPlanner {
 			profile = p;
 		}
 
-		public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
 			return profile.available(query, collector, monitor);
 		}
 
@@ -772,7 +773,7 @@ public class SimplePlanner implements IPlanner {
 			return profile.isRootProfile();
 		}
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 			return profile.query(query, collector, monitor);
 		}
 	}

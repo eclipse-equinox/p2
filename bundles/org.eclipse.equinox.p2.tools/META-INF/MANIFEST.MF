@@ -21,6 +21,7 @@ Import-Package: javax.servlet.http;version="2.4.0",
  org.eclipse.equinox.internal.provisional.p2.metadata.repository,
  org.eclipse.equinox.internal.provisional.p2.repository,
  org.eclipse.equinox.internal.provisional.p2.updatechecker,
+ org.eclipse.equinox.p2.metadata.query,
  org.osgi.framework;version="1.4.0",
  org.osgi.service.http;version="1.2.0"
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,

@@ -15,8 +15,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class UpdateSiteMetadataRepository implements IMetadataRepository {
 
@@ -43,7 +43,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
@@ -99,7 +99,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		return delegate.getAdapter(adapter);
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		return delegate.query(query, collector, monitor);
 	}
 }

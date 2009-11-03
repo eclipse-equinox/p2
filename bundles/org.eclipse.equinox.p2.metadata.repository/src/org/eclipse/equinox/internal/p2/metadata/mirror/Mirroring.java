@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A utility class that performs mirroring of metadatas between repositories.
@@ -43,7 +41,7 @@ public class Mirroring {
 		}
 	}
 
-	public void mirror(IMetadataRepository source, IMetadataRepository destination, Query query, boolean transitive) {
+	public void mirror(IMetadataRepository source, IMetadataRepository destination, IQuery query, boolean transitive) {
 		validate(source, destination);
 		Collector result = source.query(query, new Collector(), null);
 		mirror(source, destination, (IInstallableUnit[]) result.toArray(IInstallableUnit.class), transitive);

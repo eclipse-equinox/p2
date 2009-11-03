@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 
 /**
  * Abstract class representing provisioning operations.  ProvisioningOperations

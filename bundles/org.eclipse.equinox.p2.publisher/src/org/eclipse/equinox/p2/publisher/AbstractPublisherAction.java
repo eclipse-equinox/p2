@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Filter;
@@ -499,13 +500,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the first matching IU or <code>null</code> if none.
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
-		Query query = null;
+		IQuery query = null;
 		Collector collector = null;
 		if (version != null && !Version.emptyVersion.equals(version)) {
 			query = new InstallableUnitQuery(iuId, version);
 			collector = new SingleElementCollector();
 		} else {
-			query = new PipedQuery(new Query[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
+			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
 			collector = new Collector();
 		}
 
@@ -530,7 +531,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return The the IUs with the matching ids in the given range
 	 */
 	protected IInstallableUnit[] queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
-		Query query = null;
+		IQuery query = null;
 		Collector collector = new Collector();
 		query = new InstallableUnitQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();

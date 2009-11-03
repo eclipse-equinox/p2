@@ -15,6 +15,7 @@ import org.apache.tools.ant.types.DataType;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -100,7 +101,7 @@ public class IUDescription extends DataType {
 		return buffer.toString();
 	}
 
-	public Query createQuery() {
+	public IQuery createQuery() {
 		List queries = new ArrayList();
 		if (id != null) {
 			if (version == null || version.length() == 0) {
@@ -113,16 +114,16 @@ public class IUDescription extends DataType {
 			}
 		}
 
-		Query iuQuery = processQueryString();
+		IQuery iuQuery = processQueryString();
 		if (iuQuery != null)
 			queries.add(iuQuery);
 
 		if (queries.size() == 1)
-			return (Query) queries.get(0);
-		return new PipedQuery((Query[]) queries.toArray(new Query[queries.size()]));
+			return (IQuery) queries.get(0);
+		return new PipedQuery((IQuery[]) queries.toArray(new IQuery[queries.size()]));
 	}
 
-	private Query processQueryString() {
+	private IQuery processQueryString() {
 		if (queryString == null)
 			return null;
 		int startIdx = queryString.indexOf('[');

@@ -25,9 +25,11 @@ import org.eclipse.equinox.internal.p2.director.app.Application;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 
@@ -473,10 +475,10 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		URI metadataRepo1 = getTestData("10.1", "/testData/metadataRepo/good").toURI();
 		URI metadataRepo2 = getTestData("10.1", "/testData/metadataRepo/multipleversions1").toURI();
 		Application application = new Application();
-		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, Query.class, Collector.class);
+		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, IQuery.class, Collector.class);
 		method.setAccessible(true);
 		URI[] uris = new URI[] {metadataRepo1, metadataRepo2};
-		Query query = new MatchQuery() {
+		IQuery query = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;

@@ -10,8 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
+/**
+ * A query that finds all IUs that are considered an "Update" of the 
+ * specified IU.  
+ */
 public class UpdateQuery extends MatchQuery {
 	private IInstallableUnit updateFrom;
 

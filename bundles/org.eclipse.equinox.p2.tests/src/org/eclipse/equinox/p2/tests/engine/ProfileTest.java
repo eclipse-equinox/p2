@@ -21,7 +21,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
@@ -139,7 +141,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				return false;
 			}
 
-			public Collector queryProfile(IProfile profile, Query query, Collector collector, IProgressMonitor monitor) {
+			public Collector queryProfile(IProfile profile, IQuery query, Collector collector, IProgressMonitor monitor) {
 				return collector;
 			}
 

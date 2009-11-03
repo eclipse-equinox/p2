@@ -12,18 +12,14 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
@@ -230,7 +226,7 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private void setupFilterAdvice(int testSpec) {
-		Query query = null;
+		IQuery query = null;
 		rootIUAdviceCollection = new ArrayList();
 		if ((testSpec & CONTAINS_A) > 0) {
 			query = new MatchQuery() {

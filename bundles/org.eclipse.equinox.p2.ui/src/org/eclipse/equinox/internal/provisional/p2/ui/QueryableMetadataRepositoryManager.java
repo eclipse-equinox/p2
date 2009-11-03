@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * An object that adds provides specialized/optimized queryable support 
@@ -57,7 +58,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
-	protected Collector query(URI uris[], Query query, Collector collector, IProgressMonitor monitor) {
+	protected Collector query(URI uris[], IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof RepositoryLocationQuery) {
 			query.perform(Arrays.asList(uris).iterator(), collector);
 			monitor.done();

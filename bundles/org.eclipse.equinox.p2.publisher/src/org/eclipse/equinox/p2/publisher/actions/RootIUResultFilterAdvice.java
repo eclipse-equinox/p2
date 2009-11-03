@@ -11,14 +11,14 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 
 public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUAdvice {
-	private Query query;
+	private IQuery query;
 
-	public RootIUResultFilterAdvice(Query query) {
+	public RootIUResultFilterAdvice(IQuery query) {
 		this.query = query;
 	}
 

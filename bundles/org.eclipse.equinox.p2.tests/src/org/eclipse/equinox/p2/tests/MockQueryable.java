@@ -13,7 +13,9 @@ package org.eclipse.equinox.p2.tests;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A test queryable that contains a simple collection of objects.
@@ -35,7 +37,7 @@ public class MockQueryable implements IQueryable {
 
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(items.iterator(), collector);
 	}
 

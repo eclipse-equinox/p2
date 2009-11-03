@@ -20,10 +20,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * An object that adds provides queryable support 
@@ -59,7 +59,7 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
-	protected Collector query(URI[] uris, Query query, Collector collector, IProgressMonitor monitor) {
+	protected Collector query(URI[] uris, IQuery query, Collector collector, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, uris.length * 100);
 
 		if (sub.isCanceled())
