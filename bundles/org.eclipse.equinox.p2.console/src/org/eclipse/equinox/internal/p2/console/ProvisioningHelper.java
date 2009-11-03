@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.console;
 
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -34,7 +33,7 @@ public class ProvisioningHelper {
 	public static IMetadataRepository addMetadataRepository(URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
+			throw new IllegalStateException("No metadata repository manager found");
 		try {
 			return manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
@@ -42,7 +41,7 @@ public class ProvisioningHelper {
 		}
 
 		// for convenience create and add a repository here
-		String repositoryName = location + " - metadata"; //$NON-NLS-1$
+		String repositoryName = location + " - metadata";
 		try {
 			return manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
@@ -79,7 +78,7 @@ public class ProvisioningHelper {
 			//fall through and create a new repository
 		}
 		// could not load a repo at that location so create one as a convenience
-		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
+		String repositoryName = location + " - artifacts";
 		try {
 			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
@@ -113,7 +112,7 @@ public class ProvisioningHelper {
 		if (profileProperties.get(IProfile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
-				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch()); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else
 				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "");
 		}
@@ -156,6 +155,10 @@ public class ProvisioningHelper {
 		return getInstallableUnits(location, query, new Collector(), monitor);
 	}
 
+	public static Collector getInstallableUnits(IProfile profile, IQuery query, IProgressMonitor monitor) {
+		return profile.query(query, new Collector(), monitor);
+	}
+
 	public static Collector getInstallableUnits(URI location, IQuery query, Collector collector, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
@@ -185,7 +188,7 @@ public class ProvisioningHelper {
 	public static IStatus install(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		Collector units = getInstallableUnits(null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		Collector units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
@@ -234,4 +237,83 @@ public class ProvisioningHelper {
 		}
 		return null;
 	}
+
+	public static long[] getProfileTimestamps(String profileId) {
+		if (profileId == null) {
+			profileId = IProfileRegistry.SELF;
+		}
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+		if (profileRegistry == null)
+			return null;
+		return profileRegistry.listProfileTimestamps(profileId);
+	}
+
+	public static IStatus revertToPreviousState(IProfile profile, long revertToPreviousState) throws ProvisionException {
+		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		if (engine == null)
+			throw new ProvisionException("No p2 engine found.");
+		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		if (planner == null)
+			throw new ProvisionException("No planner found.");
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+		if (profileRegistry == null)
+			throw new ProvisionException("profile registry cannot be null");
+		// If given profile is null, then get/use the self profile
+		if (profile == null) {
+			profile = getProfile(IProfileRegistry.SELF);
+		}
+		IProfile targetProfile = null;
+		if (revertToPreviousState == 0) {
+			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
+			if (profiles.length == 0)
+				// Nothing to do, as the profile does not have any previous timestamps
+				return Status.OK_STATUS;
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
+		} else {
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(), revertToPreviousState);
+		}
+		if (targetProfile == null)
+			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found");
+		URI[] artifactRepos = getArtifactRepositories();
+		URI[] metadataRepos = getMetadataRepositories();
+		ProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
+		ProvisioningContext context = new ProvisioningContext(metadataRepos);
+		context.setArtifactRepositories(artifactRepos);
+		return PlanExecutionHelper.executePlan(plan, engine, context, new NullProgressMonitor());
+	}
+
+	/**
+	 * Install the described IU
+	 */
+	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
+		if (profile == null)
+			return null;
+		Collector units = getInstallableUnits(profile, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		if (units.isEmpty()) {
+			StringBuffer error = new StringBuffer();
+			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
+			error.append("Repositories searched:\n");
+			URI[] repos = getMetadataRepositories();
+			if (repos != null) {
+				for (int i = 0; i < repos.length; i++)
+					error.append(repos[i] + "\n"); //$NON-NLS-1$
+			}
+			throw new ProvisionException(error.toString());
+		}
+
+		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		if (planner == null)
+			throw new ProvisionException("No planner service found.");
+
+		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		if (engine == null)
+			throw new ProvisionException("No engine service found.");
+		IInstallableUnit[] toUninstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
+		ProvisioningContext context = new ProvisioningContext();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.removeInstallableUnits(toUninstall);
+		ProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
+		return PlanExecutionHelper.executePlan(result, engine, context, progress);
+	}
+
 }
