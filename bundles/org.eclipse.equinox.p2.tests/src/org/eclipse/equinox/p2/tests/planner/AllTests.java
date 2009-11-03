@@ -123,6 +123,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SWTFragment.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
+		suite.addTestSuite(UpdateQueryTest.class);
 		return suite;
 	}
 }

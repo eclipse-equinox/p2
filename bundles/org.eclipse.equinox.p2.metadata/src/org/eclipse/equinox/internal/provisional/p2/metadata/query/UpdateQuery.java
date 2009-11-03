@@ -36,8 +36,11 @@ public class UpdateQuery extends MatchQuery {
 		}
 		IInstallableUnit candidate = (IInstallableUnit) obj;
 		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
-		if (descriptor != null && descriptor.isUpdateOf(updateFrom) && updateFrom.getVersion().compareTo(candidate.getVersion()) < 0)
-			return true;
+		if (descriptor != null && descriptor.isUpdateOf(updateFrom)) {
+			if (!updateFrom.getId().equals(candidate.getId()))
+				return true;
+			return updateFrom.getVersion().compareTo(candidate.getVersion()) < 0;
+		}
 		return false;
 	}
 }

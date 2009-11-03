@@ -63,6 +63,5 @@ public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
 		IInstallableUnit[] updates = planner.updatesFor(anotherPatch2, new ProvisioningContext(), new NullProgressMonitor());
 		assertEquals(1, updates.length);
 		assertEquals("Checking updates", new IInstallableUnit[] {anotherPatch3}, updates, false);
-
 	}
 }
