@@ -67,7 +67,9 @@ public interface IRepositoryManager {
 
 	/**
 	 * Adds the repository at the given location to the list of repositories tracked by 
-	 * this repository manager.
+	 * this repository manager. This method does not attempt to contact or load
+	 * the repository, and makes no attempt to determine whether there is a valid
+	 * repository at the provided location.
 	 * <p>
 	 * If there is a known disabled repository at the given location, it will become
 	 * enabled as a result of this method. Thus the caller can be guaranteed that
