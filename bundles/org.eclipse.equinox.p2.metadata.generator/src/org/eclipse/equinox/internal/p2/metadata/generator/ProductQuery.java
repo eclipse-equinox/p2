@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 
 public class ProductQuery extends MatchQuery {
@@ -27,34 +26,11 @@ public class ProductQuery extends MatchQuery {
 	private final Map children = new HashMap();
 	private final String versionAdvice;
 
-	// Collector collects the largest version of each IU
-	private final Collector collector = new Collector() {
-		private final HashMap elements = new HashMap();
-
-		public boolean accept(Object object) {
-			if (!(object instanceof IInstallableUnit))
-				return true;
-			IInstallableUnit iu = (IInstallableUnit) object;
-			if (elements.containsKey(iu.getId())) {
-				IInstallableUnit existing = (IInstallableUnit) elements.get(iu.getId());
-				if (existing.getVersion().compareTo(iu.getVersion()) >= 0)
-					return true;
-				getCollection().remove(existing);
-			}
-			elements.put(iu.getId(), iu);
-			return super.accept(object);
-		}
-	};
-
 	public ProductQuery(ProductFile product, String flavor, Map configIUs, String versionAdvice) {
 		this.product = product;
 		this.flavor = flavor;
 		this.versionAdvice = versionAdvice;
 		initialize(configIUs);
-	}
-
-	public Collector getCollector() {
-		return this.collector;
 	}
 
 	private Properties loadVersions(String location) {

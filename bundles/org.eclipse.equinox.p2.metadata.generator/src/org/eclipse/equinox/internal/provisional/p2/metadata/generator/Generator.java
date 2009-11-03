@@ -30,8 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -184,8 +183,9 @@ public class Generator {
 
 		GeneratorResult productContents = new GeneratorResult();
 
-		ProductQuery query = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
-		Collector collector = info.getMetadataRepository().query(query, query.getCollector(), null);
+		ProductQuery productQuery = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
+		PipedQuery query = new PipedQuery(new IQuery[] {productQuery, new LatestIUVersionQuery()});
+		Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
 		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
 		}
