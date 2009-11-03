@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {
 
 	private static final File MAC_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/macosx/"); //$NON-NLS-1$
@@ -153,8 +153,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	protected void insertPublisherInfoBehavior() {
 		setupArtifactRepository();
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository);
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH);
+		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
+		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(Collections.emptyList());
 	}
 }

@@ -229,4 +229,8 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		ensureInitialized();
 		return oldValue;
 	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return new ArtifactDescriptor(key);
+	}
 }

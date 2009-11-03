@@ -101,7 +101,7 @@ public class JREAction extends AbstractPublisherAction {
 		results.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 
 		//Create the artifact descriptor
-		return PublisherHelper.createArtifactDescriptor(key, jreLocation);
+		return PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, jreLocation);
 	}
 
 	private IProvidedCapability[] generateJRECapability(String id, Version version) {

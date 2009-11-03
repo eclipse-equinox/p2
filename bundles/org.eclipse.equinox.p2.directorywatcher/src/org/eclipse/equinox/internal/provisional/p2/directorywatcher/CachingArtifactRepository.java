@@ -234,4 +234,8 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(descriptor);
 		return null;
 	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return innerRepo.createArtifactDescriptor(key);
+	}
 }

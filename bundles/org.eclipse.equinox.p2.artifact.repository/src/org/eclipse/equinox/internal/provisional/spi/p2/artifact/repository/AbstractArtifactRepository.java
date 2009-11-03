@@ -75,4 +75,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 		return (this.getLocation().toString().hashCode()) * 87;
 	}
 
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return new ArtifactDescriptor(key);
+	}
 }

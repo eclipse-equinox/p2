@@ -121,7 +121,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 
 		if ((info.getArtifactOptions() & (IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH)) > 0) {
 			// Create the artifact descriptor.  we have several files so no path on disk
-			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, null);
 			IRootFilesAdvice advice = getAdvice(configSpec);
 			publishArtifact(descriptor, advice.getIncludedFiles(), advice.getExcludedFiles(), info, createPrefixComputer(advice.getRoot()));
 		}

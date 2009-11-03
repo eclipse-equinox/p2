@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.util.NLS;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class TestArtifactRepository implements IArtifactRepository {
 	private static String provider = null;
 	private HashMap/*<IArtifactDescriptor, byte[]>*/repo;
@@ -291,5 +291,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return getArtifact(descriptor, destination, monitor);
+	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return new ArtifactDescriptor(key);
 	}
 }

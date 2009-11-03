@@ -608,7 +608,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		IArtifactKey[] artifacts = featureIU.getArtifacts();
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
-			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(artifacts[j], file);
+			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), artifacts[j], file);
 			processArtifactPropertiesAdvice(featureIU, ad, publisherInfo);
 			ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.

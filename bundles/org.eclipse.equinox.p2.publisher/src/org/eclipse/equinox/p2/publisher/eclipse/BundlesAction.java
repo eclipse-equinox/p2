@@ -678,7 +678,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				}
 
 				File location = new File(bd.getLocation());
-				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
+				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, location);
 				processArtifactPropertiesAdvice(bundleIU, (ArtifactDescriptor) ad, info);
 
 				// Publish according to the shape on disk

@@ -136,4 +136,8 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
 	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return delegate.createArtifactDescriptor(key);
+	}
 }

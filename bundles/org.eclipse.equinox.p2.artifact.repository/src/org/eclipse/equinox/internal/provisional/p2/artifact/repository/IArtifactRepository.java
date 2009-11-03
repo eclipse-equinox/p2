@@ -36,6 +36,13 @@ public interface IArtifactRepository extends IRepository {
 	public static int CODE_RETRY = 13;
 
 	/**
+	 * Create an instance of IArtifactDescriptor based on the given key
+	 * @param key
+	 * @return a new instanceof of IArtifactDescriptor
+	 */
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key);
+
+	/**
 	 * Add the given descriptor to the set of descriptors in this repository.  This is 
 	 * a relatively low-level operation that should be used only when the actual related 
 	 * content is in this repository and the given descriptor accurately describes 

@@ -18,8 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -89,16 +88,21 @@ public class PublisherHelper {
 	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, Version.createOSGi(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk) {
-		//TODO this size calculation is bogus
-		ArtifactDescriptor result = new ArtifactDescriptor(key);
-		if (pathOnDisk != null) {
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
-			// TODO - this is wrong but I'm testing a work-around for bug 205842
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		return createArtifactDescriptor(null, key, pathOnDisk);
+	}
+
+	public static IArtifactDescriptor createArtifactDescriptor(IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
+		IArtifactDescriptor result = artifactRepo != null ? artifactRepo.createArtifactDescriptor(key) : new ArtifactDescriptor(key);
+		if (result instanceof ArtifactDescriptor) {
+			ArtifactDescriptor descriptor = (ArtifactDescriptor) result;
+			if (pathOnDisk != null) {
+				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
+				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+			}
+			String md5 = computeMD5(pathOnDisk);
+			if (md5 != null)
+				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 		}
-		String md5 = computeMD5(pathOnDisk);
-		if (md5 != null)
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 		return result;
 	}
 
