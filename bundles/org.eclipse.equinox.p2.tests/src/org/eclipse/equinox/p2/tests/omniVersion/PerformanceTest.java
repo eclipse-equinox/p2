@@ -159,7 +159,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					Version.parseVersion(strings[x++]);
+					Version.create(strings[x++]);
 	}
 
 	public static void osgiVersionCompare(org.osgi.framework.Version versions[]) {

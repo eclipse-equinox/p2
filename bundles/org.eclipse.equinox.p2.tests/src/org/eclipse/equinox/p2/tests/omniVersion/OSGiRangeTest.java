@@ -99,11 +99,11 @@ public class OSGiRangeTest extends VersionTesting {
 	public void testNullConstructor() {
 		VersionRange range = new VersionRange(null);
 		assertEquals("1.0", range.getMinimum(), Version.createOSGi(0, 0, 0));
-		assertEquals("1.1", range.getMaximum(), Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		assertEquals("1.1", range.getMaximum(), Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, "zzz"));
 
 		range = new VersionRange(null, true, null, true);
 		assertEquals("2.0", range.getMinimum(), Version.createOSGi(0, 0, 0));
-		assertEquals("2.1", range.getMaximum(), Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		assertEquals("2.1", range.getMaximum(), Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, "zzz"));
 	}
 
 	public void testSerialize() {

@@ -103,19 +103,11 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 */
 	public static final VersionFormat OSGI_FORMAT;
 
-	public static final String DEFAULT_MAX_STRING_TRANSLATION = "zzz"; //$NON-NLS-1$
-
-	public static final String DEFAULT_MIN_STRING_TRANSLATION = "-"; //$NON-NLS-1$
-
-	private static final String OSGI_FORMAT_STRING = "n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]"; //$NON-NLS-1$
-
 	/**
 	 * The predefined OSGi format that is used when parsing raw
 	 * versions.
 	 */
 	public static final VersionFormat RAW_FORMAT;
-
-	private static final String RAW_FORMAT_STRING = "r(.r)*p?"; //$NON-NLS-1$
 
 	static {
 		try {
@@ -178,13 +170,24 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 * @return A created version
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
-	public static Version parseRaw(String version, IVersionFormat originalFormat, String original) {
+	public static BasicVersion parseRaw(String version, IVersionFormat originalFormat, String original) {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
-		return new Version(vector, padReturn[0], originalFormat, original);
+		Comparable pad = padReturn[0];
+		if (vector.length == 0) {
+			if (pad == null)
+				return (BasicVersion) Version.MIN_VERSION;
+			if (pad == VersionVector.MAX_VALUE)
+				return (BasicVersion) Version.MAX_VERSION;
+		}
+
+		if (originalFormat == OSGI_FORMAT)
+			return new OSGiVersion(vector);
+
+		return new OmniVersion(vector, pad, originalFormat, original);
 	}
 
-	public static void rawToString(StringBuffer sb, boolean forRange, Comparable e) {
+	static void rawToString(StringBuffer sb, boolean forRange, Comparable e) {
 		if (e instanceof String) {
 			writeQuotedString(sb, forRange, (String) e, '\'', 0, false);
 		} else if (e instanceof VersionVector) {
@@ -260,19 +263,28 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	public Version parse(String version) {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = parse(version, 0, version.length(), padReturn);
-		return new Version(vector, padReturn[0], this, version);
+		Comparable pad = padReturn[0];
+		if (vector.length == 0) {
+			if (pad == null)
+				return Version.MIN_VERSION;
+			if (pad == VersionVector.MAX_VALUE)
+				return Version.MAX_VERSION;
+		}
+
+		if (this == OSGI_FORMAT)
+			return new OSGiVersion(vector);
+
+		return new OmniVersion(vector, pad, this, version);
 	}
 
 	Comparable[] parse(String version, int start, int maxPos, Comparable[] padReturn) {
-		ArrayList entries = new ArrayList();
 		if (start == maxPos)
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
 		TreeInfo info = new TreeInfo(topFragment, start);
+		ArrayList entries = new ArrayList();
 		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
-		Comparable pad = info.getPadValue();
-		VersionParser.removeRedundantTrail(entries, pad);
-		padReturn[0] = pad;
+		padReturn[0] = VersionParser.removeRedundantTrail(entries, info.getPadValue());
 		return (Comparable[]) entries.toArray(new Comparable[entries.size()]);
 	}
 
@@ -332,7 +344,7 @@ class RawFormat extends VersionFormat {
 	public Version parse(String version, int start, int maxPos) {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = parse(version, start, maxPos, padReturn);
-		return new Version(vector, padReturn[0], null, null);
+		return new OmniVersion(vector, padReturn[0], null, null);
 	}
 
 	// Preserve singleton when deserialized

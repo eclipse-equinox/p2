@@ -477,7 +477,13 @@ public class AdviceFileParser {
 		}
 
 		if (version.indexOf(QUALIFIER_SUBSTITUTION) != -1) {
-			String qualifier = hostVersion.isOSGiCompatible() ? hostVersion.getQualifier() : null;
+			String qualifier = null;
+			try {
+				new org.osgi.framework.Version(hostVersion.toString());
+			} catch (IllegalStateException e) {
+				return version;
+			}
+			qualifier = hostVersion.getQualifier();
 			if (qualifier == null)
 				qualifier = ""; //$NON-NLS-1$
 			if (qualifier.length() == 0) {

@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.internal.p2.metadata.VersionVector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionVector;
 
 /**
  * Tests the OmniVersion raw version format.
@@ -23,84 +23,84 @@ public class RawVersionTest extends VersionTesting {
 	public void testBasicParsing() {
 
 		// should parse without exception
-		assertNotNull(Version.parseVersion("raw:1"));
-		assertNotNull(Version.parseVersion("raw:1.0"));
-		assertNotNull(Version.parseVersion("raw:1.0.0"));
-		assertNotNull(Version.parseVersion("raw:1.0.0.9"));
-		assertNotNull(Version.parseVersion("raw:1.0.0.'r12345'"));
-		assertNotNull(Version.parseVersion("raw:1.0.0.'r12345.hello'"));
+		assertNotNull(Version.create("raw:1"));
+		assertNotNull(Version.create("raw:1.0"));
+		assertNotNull(Version.create("raw:1.0.0"));
+		assertNotNull(Version.create("raw:1.0.0.9"));
+		assertNotNull(Version.create("raw:1.0.0.'r12345'"));
+		assertNotNull(Version.create("raw:1.0.0.'r12345.hello'"));
 
-		assertNotNull(Version.parseVersion("raw:1.0.m"));
-		assertNotNull(Version.parseVersion("raw:1.0.M"));
+		assertNotNull(Version.create("raw:1.0.m"));
+		assertNotNull(Version.create("raw:1.0.M"));
 
-		assertNotNull(Version.parseVersion("raw:1.0.M"));
-		assertNotNull(Version.parseVersion("raw:1.0.-M"));
+		assertNotNull(Version.create("raw:1.0.M"));
+		assertNotNull(Version.create("raw:1.0.-M"));
 
 	}
 
 	public void testSerialize() {
 		Version v = null;
 		// should parse without exception
-		assertNotNull(v = Version.parseVersion("raw:1"));
+		assertNotNull(v = Version.create("raw:1"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0"));
+		assertNotNull(v = Version.create("raw:1.0"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.0"));
+		assertNotNull(v = Version.create("raw:1.0.0"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.0.9"));
+		assertNotNull(v = Version.create("raw:1.0.0.9"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.0.'r12345'"));
+		assertNotNull(v = Version.create("raw:1.0.0.'r12345'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.0.'r12345.hello'"));
-		assertSerialized(v);
-
-		assertNotNull(v = Version.parseVersion("raw:1.0.m"));
-		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.M"));
+		assertNotNull(v = Version.create("raw:1.0.0.'r12345.hello'"));
 		assertSerialized(v);
 
-		assertNotNull(v = Version.parseVersion("raw:1.0.M"));
+		assertNotNull(v = Version.create("raw:1.0.m"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0.-M"));
+		assertNotNull(v = Version.create("raw:1.0.M"));
 		assertSerialized(v);
 
-		assertNotNull(v = Version.parseVersion("raw:0"));
+		assertNotNull(v = Version.create("raw:1.0.M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:0.1.2.3.4.5.6.7.8.9"));
+		assertNotNull(v = Version.create("raw:1.0.-M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9"));
+
+		assertNotNull(v = Version.create("raw:0"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:123456789.-1234567890"));
+		assertNotNull(v = Version.create("raw:0.1.2.3.4.5.6.7.8.9"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:123456789.-1234567890"));
+		assertNotNull(v = Version.create("raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:m"));
+		assertNotNull(v = Version.create("raw:123456789.-1234567890"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:M"));
+		assertNotNull(v = Version.create("raw:123456789.-1234567890"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:-M"));
+		assertNotNull(v = Version.create("raw:m"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.m"));
+		assertNotNull(v = Version.create("raw:M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.M"));
+		assertNotNull(v = Version.create("raw:-M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.-M"));
+		assertNotNull(v = Version.create("raw:1.m"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'a'"));
+		assertNotNull(v = Version.create("raw:1.M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:\"a\""));
+		assertNotNull(v = Version.create("raw:1.-M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'ab'"));
+		assertNotNull(v = Version.create("raw:'a'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
+		assertNotNull(v = Version.create("raw:\"a\""));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
+		assertNotNull(v = Version.create("raw:'ab'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'-_!\"#$%&/()=?+*;,:.'"));
+		assertNotNull(v = Version.create("raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:\"'\""));
+		assertNotNull(v = Version.create("raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:'\"'"));
+		assertNotNull(v = Version.create("raw:'-_!\"#$%&/()=?+*;,:.'"));
+		assertSerialized(v);
+		assertNotNull(v = Version.create("raw:\"'\""));
+		assertSerialized(v);
+		assertNotNull(v = Version.create("raw:'\"'"));
 		assertSerialized(v);
 
 	}
@@ -109,73 +109,73 @@ public class RawVersionTest extends VersionTesting {
 		Version v = null;
 		String s = null;
 		// should parse without exception
-		assertNotNull(v = Version.parseVersion(s = "raw:1"));
+		assertNotNull(v = Version.create(s = "raw:1"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0"));
+		assertNotNull(v = Version.create(s = "raw:1.0"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.0"));
+		assertNotNull(v = Version.create(s = "raw:1.0.0"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.0.9"));
+		assertNotNull(v = Version.create(s = "raw:1.0.0.9"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.0.'r12345'"));
+		assertNotNull(v = Version.create(s = "raw:1.0.0.'r12345'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.0.'r12345.hello'"));
-		assertEquals(s, v.toString());
-
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.m"));
-		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.M"));
+		assertNotNull(v = Version.create(s = "raw:1.0.0.'r12345.hello'"));
 		assertEquals(s, v.toString());
 
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0.M"));
+		assertNotNull(v = Version.create(s = "raw:1.0.m"));
+		assertEquals(s, v.toString());
+		assertNotNull(v = Version.create(s = "raw:1.0.M"));
+		assertEquals(s, v.toString());
+
+		assertNotNull(v = Version.create(s = "raw:1.0.M"));
 		assertEquals(s, v.toString());
 
 		// -M is normalized
-		assertNotNull(v = Version.parseVersion("raw:1.0.-M"));
+		assertNotNull(v = Version.create("raw:1.0.-M"));
 		s = "raw:1.0";
 		assertEquals(s, v.toString());
 
-		assertNotNull(v = Version.parseVersion(s = "raw:0"));
+		assertNotNull(v = Version.create(s = "raw:0"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:0.1.2.3.4.5.6.7.8.9"));
+		assertNotNull(v = Version.create(s = "raw:0.1.2.3.4.5.6.7.8.9"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9"));
+		assertNotNull(v = Version.create(s = "raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:123456789.-1234567890"));
+		assertNotNull(v = Version.create(s = "raw:123456789.-1234567890"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:123456789.-1234567890"));
+		assertNotNull(v = Version.create(s = "raw:123456789.-1234567890"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:m"));
+		assertNotNull(v = Version.create(s = "raw:m"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:M"));
+		assertNotNull(v = Version.create(s = "raw:M"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:-M"));
+		assertNotNull(v = Version.create(s = "raw:-M"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.m"));
+		assertNotNull(v = Version.create(s = "raw:1.m"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.M"));
+		assertNotNull(v = Version.create(s = "raw:1.M"));
 		assertEquals(s, v.toString());
 		// -M is normalized
-		assertNotNull(v = Version.parseVersion("raw:1.-M"));
+		assertNotNull(v = Version.create("raw:1.-M"));
 		s = "raw:1";
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'a'"));
+		assertNotNull(v = Version.create(s = "raw:'a'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:\"a\""));
+		assertNotNull(v = Version.create(s = "raw:\"a\""));
 		// " is normalized to '
 		s = "raw:'a'";
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'ab'"));
+		assertNotNull(v = Version.create(s = "raw:'ab'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
+		assertNotNull(v = Version.create(s = "raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
+		assertNotNull(v = Version.create(s = "raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'-_!\"#$%&/()=?+*;,:.'"));
+		assertNotNull(v = Version.create(s = "raw:'-_!\"#$%&/()=?+*;,:.'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:\"'\""));
+		assertNotNull(v = Version.create(s = "raw:\"'\""));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:'\"'"));
+		assertNotNull(v = Version.create(s = "raw:'\"'"));
 		assertEquals(s, v.toString());
 
 	}
@@ -183,24 +183,24 @@ public class RawVersionTest extends VersionTesting {
 	public void testIntegerParsing() {
 
 		// should parse without exception
-		Version v = Version.parseVersion("raw:0");
+		Version v = Version.create("raw:0");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), Integer.valueOf(0));
 
 		// single digits
-		v = Version.parseVersion("raw:0.1.2.3.4.5.6.7.8.9");
+		v = Version.create("raw:0.1.2.3.4.5.6.7.8.9");
 		assertNotNull(v);
 		for (int i = 0; i < 10; i++)
 			assertEquals(v.getSegment(i), Integer.valueOf(i));
 
 		// negative single digits
-		v = Version.parseVersion("raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9");
+		v = Version.create("raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9");
 		assertNotNull(v);
 		for (int i = 0; i < 10; i++)
 			assertEquals(v.getSegment(i), Integer.valueOf(-i));
 
 		// some larger numbers
-		v = Version.parseVersion("raw:123456789.-1234567890");
+		v = Version.create("raw:123456789.-1234567890");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), Integer.valueOf(123456789));
 		assertEquals(v.getSegment(1), Integer.valueOf(-1234567890));
@@ -209,33 +209,33 @@ public class RawVersionTest extends VersionTesting {
 	public void testWhiteSpaceExceptions() {
 
 		try {
-			Version.parseVersion("raw: 0 ");
+			Version.create("raw: 0 ");
 			fail("space not allowed 1");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 
 		try {
-			Version.parseVersion("raw:0 .1  . 'a'.   'b c d'. 4. 5. 6.   7. 8 .  9");
+			Version.create("raw:0 .1  . 'a'.   'b c d'. 4. 5. 6.   7. 8 .  9");
 			fail("space not allowed 2");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 
 		try {
-			Version.parseVersion("raw:< 1.2.3>");
+			Version.create("raw:< 1.2.3>");
 			fail("space not allowed in array 1");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 		try {
-			Version.parseVersion("raw:<1.2.3 >");
+			Version.create("raw:<1.2.3 >");
 			fail("space not allowed in array 2");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 		try {
-			Version.parseVersion("raw:1.- 1");
+			Version.create("raw:1.- 1");
 			fail("Uncaught error: space between minus and number in negative");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -244,140 +244,140 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testMaxParsing() {
 
-		assertNotNull(Version.parseVersion("raw:m"));
-		assertNotNull(Version.parseVersion("raw:M"));
-		assertNotNull(Version.parseVersion("raw:-M"));
+		assertNotNull(Version.create("raw:m"));
+		assertNotNull(Version.create("raw:M"));
+		assertNotNull(Version.create("raw:-M"));
 
-		assertNotNull(Version.parseVersion("raw:1.m"));
-		assertNotNull(Version.parseVersion("raw:1.M"));
-		assertNotNull(Version.parseVersion("raw:1.-M"));
+		assertNotNull(Version.create("raw:1.m"));
+		assertNotNull(Version.create("raw:1.M"));
+		assertNotNull(Version.create("raw:1.-M"));
 	}
 
 	public void testStringParsing() {
-		Version v = Version.parseVersion("raw:'a'");
+		Version v = Version.create("raw:'a'");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "a");
 
-		assertNotNull(v = Version.parseVersion("raw:\"a\""));
+		assertNotNull(v = Version.create("raw:\"a\""));
 		assertEquals(v.getSegment(0), "a");
 
-		assertNotNull(v = Version.parseVersion("raw:'ab'"));
+		assertNotNull(v = Version.create("raw:'ab'"));
 		assertEquals(v.getSegment(0), "ab");
 
-		assertNotNull(v = Version.parseVersion("raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
+		assertNotNull(v = Version.create("raw:'abcdefghijklmnopqrstuvwxyz0123456789'"));
 		assertEquals(v.getSegment(0), "abcdefghijklmnopqrstuvwxyz0123456789");
 
-		assertNotNull(v = Version.parseVersion("raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
+		assertNotNull(v = Version.create("raw:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"));
 		assertEquals(v.getSegment(0), "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-		assertNotNull(v = Version.parseVersion("raw:'-_!\"#$%&/()=?+*;,:.'"));
+		assertNotNull(v = Version.create("raw:'-_!\"#$%&/()=?+*;,:.'"));
 		assertEquals(v.getSegment(0), "-_!\"#$%&/()=?+*;,:.");
 
-		assertNotNull(v = Version.parseVersion("raw:\"'\""));
+		assertNotNull(v = Version.create("raw:\"'\""));
 		assertEquals(v.getSegment(0), "'");
 
-		assertNotNull(v = Version.parseVersion("raw:'\"'"));
+		assertNotNull(v = Version.create("raw:'\"'"));
 		assertEquals(v.getSegment(0), "\"");
 	}
 
 	public void testEmptyStringParsing() {
-		Version v = Version.parseVersion("raw:''");
+		Version v = Version.create("raw:''");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "");
 
-		v = Version.parseVersion("raw:\"\"");
+		v = Version.create("raw:\"\"");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "");
 	}
 
 	public void testStringConcatenation() {
-		Version v = Version.parseVersion("raw:'ab''cd'");
+		Version v = Version.create("raw:'ab''cd'");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "abcd");
 
-		v = Version.parseVersion("raw:'ab'\"cd\"");
+		v = Version.create("raw:'ab'\"cd\"");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "abcd");
 
-		v = Version.parseVersion("raw:\"ab\"\"cd\"");
+		v = Version.create("raw:\"ab\"\"cd\"");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "abcd");
 	}
 
 	public void testStringToString() {
 		// string is normalized
-		assertEquals("raw:'abcd'", Version.parseVersion("raw:'ab''cd'").toString());
+		assertEquals("raw:'abcd'", Version.create("raw:'ab''cd'").toString());
 
 		// string is normalized
-		assertEquals("raw:'abcd'", Version.parseVersion("raw:'ab'\"cd\"").toString());
+		assertEquals("raw:'abcd'", Version.create("raw:'ab'\"cd\"").toString());
 
 		// string is normalized
-		assertEquals("raw:'abcd'", Version.parseVersion("raw:\"ab\"\"cd\"").toString());
+		assertEquals("raw:'abcd'", Version.create("raw:\"ab\"\"cd\"").toString());
 
-		assertEquals("raw:\"'\"", Version.parseVersion("raw:\"'\"").toString());
+		assertEquals("raw:\"'\"", Version.create("raw:\"'\"").toString());
 
-		assertEquals("raw:'\"'", Version.parseVersion("raw:'\"'").toString());
+		assertEquals("raw:'\"'", Version.create("raw:'\"'").toString());
 
 		// quotes are normalized - default ' should be used until " is needed and vice versa.
-		assertEquals("raw:'abc\"xxx\"and '\"'yyy'\"", Version.parseVersion("raw:'abc\"xxx\"'\"and 'yyy'\"").toString());
+		assertEquals("raw:'abc\"xxx\"and '\"'yyy'\"", Version.create("raw:'abc\"xxx\"'\"and 'yyy'\"").toString());
 
 	}
 
 	public void testArrayParsing() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:<1>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:1"));
+		assertNotNull(v = Version.create("raw:<1>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1)}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<1.0>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:1.0"));
+		assertNotNull(v = Version.create("raw:<1.0>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(0)}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<'a'>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:'a'"));
+		assertNotNull(v = Version.create("raw:<'a'>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {"a"}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<'a'.'b'>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:'a'.'b'"));
+		assertNotNull(v = Version.create("raw:<'a'.'b'>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {"a", "b"}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<'a'.'b''c'>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:'a'.'bc'")); // with concatenation
+		assertNotNull(v = Version.create("raw:<'a'.'b''c'>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {"a", "bc"}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<1.2.-M>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:1.2.-M"));
+		assertNotNull(v = Version.create("raw:<1.2.-M>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2)}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<1.2.m>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:1.2.m"));
+		assertNotNull(v = Version.create("raw:<1.2.m>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2), VersionVector.MAXS_VALUE}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<1.2.M>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:1.2.M"));
+		assertNotNull(v = Version.create("raw:<1.2.M>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2), VersionVector.MAX_VALUE}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<<1>>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:<1>"));
+		assertNotNull(v = Version.create("raw:<<1>>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {new Integer(1)}, null)}, null));
 
-		assertNotNull(v = Version.parseVersion("raw:<<1.<2>>>"));
-		assertEquals(v.getSegment(0), Version.parseVersion("raw:<1.<2>>"));
+		assertNotNull(v = Version.create("raw:<<1.<2>>>"));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {new Integer(1), new VersionVector(new Comparable[] {new Integer(2)}, null)}, null)}, null));
 
 	}
 
 	public void testArraySerialize() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:<1>"));
+		assertNotNull(v = Version.create("raw:<1>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<1.0>"));
+		assertNotNull(v = Version.create("raw:<1.0>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<'a'>"));
+		assertNotNull(v = Version.create("raw:<'a'>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<'a'.'b'>"));
+		assertNotNull(v = Version.create("raw:<'a'.'b'>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<'a'.'b''c'>"));
+		assertNotNull(v = Version.create("raw:<'a'.'b''c'>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<1.2.-M>"));
+		assertNotNull(v = Version.create("raw:<1.2.-M>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<1.2.m>"));
+		assertNotNull(v = Version.create("raw:<1.2.m>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<1.2.M>"));
+		assertNotNull(v = Version.create("raw:<1.2.M>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<<1>>"));
+		assertNotNull(v = Version.create("raw:<<1>>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:<<1.<2>>>"));
+		assertNotNull(v = Version.create("raw:<<1.<2>>>"));
 		assertSerialized(v);
 
 	}
@@ -385,37 +385,37 @@ public class RawVersionTest extends VersionTesting {
 	public void testArraytoString() {
 		Version v = null;
 		String s = null;
-		assertNotNull(v = Version.parseVersion(s = "raw:<1>"));
+		assertNotNull(v = Version.create(s = "raw:<1>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<1.0>"));
+		assertNotNull(v = Version.create(s = "raw:<1.0>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<'a'>"));
+		assertNotNull(v = Version.create(s = "raw:<'a'>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<'a'.'b'>"));
+		assertNotNull(v = Version.create(s = "raw:<'a'.'b'>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<'a'.'bc'>"));
+		assertNotNull(v = Version.create(s = "raw:<'a'.'bc'>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion("raw:<1.2.-M>"));
+		assertNotNull(v = Version.create("raw:<1.2.-M>"));
 		s = "raw:<1.2>"; // is normalized
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<1.2.m>"));
+		assertNotNull(v = Version.create(s = "raw:<1.2.m>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<1.2.M>"));
+		assertNotNull(v = Version.create(s = "raw:<1.2.M>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<<1>>"));
+		assertNotNull(v = Version.create(s = "raw:<<1>>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:<<1.<2>>>"));
+		assertNotNull(v = Version.create(s = "raw:<<1.<2>>>"));
 		assertEquals(s, v.toString());
 	}
 
 	public void testArrayOrder() {
-		Version v1 = Version.parseVersion("raw:<1.0.0>");
-		Version v2 = Version.parseVersion("raw:<1.1.0>");
+		Version v1 = Version.create("raw:<1.0.0>");
+		Version v2 = Version.create("raw:<1.1.0>");
 
-		Version v3 = Version.parseVersion("raw:<1.0.0>.<1.0.0>");
-		Version v4 = Version.parseVersion("raw:<1.0.0>.<1.0.0>.'a'");
-		Version v5 = Version.parseVersion("raw:<1.0.0>.<1.0.1>");
-		Version v6 = Version.parseVersion("raw:<2.0.0>");
+		Version v3 = Version.create("raw:<1.0.0>.<1.0.0>");
+		Version v4 = Version.create("raw:<1.0.0>.<1.0.0>.'a'");
+		Version v5 = Version.create("raw:<1.0.0>.<1.0.1>");
+		Version v6 = Version.create("raw:<2.0.0>");
 
 		assertOrder(v1, v2);
 		assertOrder(v3, v4);
@@ -425,82 +425,82 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testPadParsing1() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:1.0p0"));
+		assertNotNull(v = Version.create("raw:1.0p0"));
 		assertPad(v, "raw:0");
-		assertNotNull(v = Version.parseVersion("raw:1.0p'foo'"));
+		assertNotNull(v = Version.create("raw:1.0p'foo'"));
 		assertPad(v, "raw:'foo'");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0>"));
+		assertNotNull(v = Version.create("raw:1.0p<0>"));
 		assertPad(v, "raw:<0>");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<'foo'>"));
+		assertNotNull(v = Version.create("raw:1.0p<'foo'>"));
 		assertPad(v, "raw:<'foo'>");
-		assertNotNull(v = Version.parseVersion("raw:1.0pm"));
+		assertNotNull(v = Version.create("raw:1.0pm"));
 		assertPad(v, "raw:m");
-		assertNotNull(v = Version.parseVersion("raw:1.0pM"));
+		assertNotNull(v = Version.create("raw:1.0pM"));
 		assertPad(v, "raw:M");
-		assertNotNull(v = Version.parseVersion("raw:1.0p-M"));
+		assertNotNull(v = Version.create("raw:1.0p-M"));
 		assertEquals(v.getPad(), null);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<m>"));
+		assertNotNull(v = Version.create("raw:1.0p<m>"));
 		assertPad(v, "raw:<m>");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<M>"));
+		assertNotNull(v = Version.create("raw:1.0p<M>"));
 		assertPad(v, "raw:<M>");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<-M>"));
 		assertPad(v, "raw:<-M>");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<1.0.0.'r12345'.m>"));
+		assertNotNull(v = Version.create("raw:1.0p<1.0.0.'r12345'.m>"));
 		assertPad(v, "raw:<1.0.0.'r12345'.m>");
 	}
 
 	public void testPadSerialize() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:1.0p0"));
+		assertNotNull(v = Version.create("raw:1.0p0"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p'foo'"));
+		assertNotNull(v = Version.create("raw:1.0p'foo'"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0>"));
+		assertNotNull(v = Version.create("raw:1.0p<0>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<'foo'>"));
+		assertNotNull(v = Version.create("raw:1.0p<'foo'>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0pm"));
+		assertNotNull(v = Version.create("raw:1.0pm"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0pM"));
+		assertNotNull(v = Version.create("raw:1.0pM"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p-M"));
+		assertNotNull(v = Version.create("raw:1.0p-M"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<m>"));
+		assertNotNull(v = Version.create("raw:1.0p<m>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<M>"));
+		assertNotNull(v = Version.create("raw:1.0p<M>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<-M>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<1.0.0.'r12345'.m>"));
+		assertNotNull(v = Version.create("raw:1.0p<1.0.0.'r12345'.m>"));
 		assertSerialized(v);
 	}
 
 	public void testPadtoString() {
 		Version v = null;
 		String s = null;
-		assertNotNull(v = Version.parseVersion("raw:1.0p0"));
+		assertNotNull(v = Version.create("raw:1.0p0"));
 		s = "raw:1p0"; // normalized
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p'foo'"));
+		assertNotNull(v = Version.create(s = "raw:1.0p'foo'"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<'foo'>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<'foo'>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0pm"));
+		assertNotNull(v = Version.create(s = "raw:1.0pm"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0pM"));
+		assertNotNull(v = Version.create(s = "raw:1.0pM"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion("raw:1.0p-M"));
+		assertNotNull(v = Version.create("raw:1.0p-M"));
 		s = "raw:1.0"; // normalized
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<m>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<m>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<M>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<M>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<-M>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<-M>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<1.0.0.'r12345'.m>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<1.0.0.'r12345'.m>"));
 		assertEquals(s, v.toString());
 	}
 
@@ -509,91 +509,92 @@ public class RawVersionTest extends VersionTesting {
 	 */
 	public void testNestedPadParsing() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p0>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p0>"));
 		assertPad(v, "raw:<0p0>");
-		assertPad(v.getPad(), "raw:0");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p'foo'>"));
+		assertPadPad(v, "raw:0");
+		assertNotNull(v = Version.create("raw:1.0p<0p'foo'>"));
 		assertPad(v, "raw:<0p'foo'>");
-		assertPad(v.getPad(), "raw:'foo'");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<0>>"));
+		assertPadPad(v, "raw:'foo'");
+		assertNotNull(v = Version.create("raw:1.0p<0p<0>>"));
 		assertPad(v, "raw:<0p<0>>");
-		assertPad(v.getPad(), "raw:<0>");
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<'foo'>>"));
+		assertPadPad(v, "raw:<0>");
+		assertNotNull(v = Version.create("raw:1.0p<0p<'foo'>>"));
 		assertPad(v, "raw:<0p<'foo'>>");
-		assertPad(v.getPad(), "raw:<'foo'>");
+		assertPadPad(v, "raw:<'foo'>");
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pm>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pm>"));
 		assertPad(v, "raw:<0pm>");
-		assertPad(v.getPad(), "raw:m");
+		assertPadPad(v, "raw:m");
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pM>"));
 		assertPad(v, "raw:<0pM>");
-		assertPad(v.getPad(), "raw:M");
+		assertPadPad(v, "raw:M");
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		assertPad(v, "raw:<0p-M>");
+		assertPadPad(v, null);
 		assertEquals(((VersionVector) v.getPad()).getPad(), null);
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<m>>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p<m>>"));
 		assertPad(v, "raw:<0p<m>>");
-		assertPad(v.getPad(), "raw:<m>");
+		assertPadPad(v, "raw:<m>");
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pM>"));
 		assertPad(v, "raw:<0pM>");
-		assertPad(v.getPad(), "raw:M");
+		assertPadPad(v, "raw:M");
 
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		assertPad(v, "raw:<0p-M>");
-		assertEquals(((VersionVector) v.getPad()).getPad(), null);
+		assertPadPad(v, null);
 	}
 
 	public void testNestedPadSerialize() {
 		Version v = null;
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p0>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p0>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p'foo'>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p'foo'>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<0>>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p<0>>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<'foo'>>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p<'foo'>>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pm>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pm>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pM>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p<m>>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p<m>>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create("raw:1.0p<0pM>"));
 		assertSerialized(v);
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		assertSerialized(v);
 	}
 
 	public void testNestedPadtoString() {
 		Version v = null;
 		String s = null;
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0p0>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0p0>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0p'foo'>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0p'foo'>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0p<0>>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0p<0>>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0p<'foo'>>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0p<'foo'>>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0pm>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0pm>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0pM>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		s = "raw:1.0p<0>"; // normalized
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0p<m>>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0p<m>>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion(s = "raw:1.0p<0pM>"));
+		assertNotNull(v = Version.create(s = "raw:1.0p<0pM>"));
 		assertEquals(s, v.toString());
-		assertNotNull(v = Version.parseVersion("raw:1.0p<0p-M>"));
+		assertNotNull(v = Version.create("raw:1.0p<0p-M>"));
 		s = "raw:1.0p<0>"; // normalized
 		assertEquals(s, v.toString());
 	}
@@ -603,15 +604,15 @@ public class RawVersionTest extends VersionTesting {
 	 * 		1p-M < 1.0.0 < 1.0.0p0 == 1p0 < 1.1 < 1.1.1 < 1p1 == 1.1p1 < 1pM
 	 */
 	public void testPadOrder() {
-		Version v1 = Version.parseVersion("raw:1p-M");
-		Version v2 = Version.parseVersion("raw:1.0.0");
-		Version v3 = Version.parseVersion("raw:1.0.0p0");
-		Version v4 = Version.parseVersion("raw:1p0");
-		Version v5 = Version.parseVersion("raw:1.1");
-		Version v6 = Version.parseVersion("raw:1.1.1");
-		Version v7 = Version.parseVersion("raw:1p1");
-		Version v8 = Version.parseVersion("raw:1.1p1");
-		Version v9 = Version.parseVersion("raw:1pM");
+		Version v1 = Version.create("raw:1p-M");
+		Version v2 = Version.create("raw:1.0.0");
+		Version v3 = Version.create("raw:1.0.0p0");
+		Version v4 = Version.create("raw:1p0");
+		Version v5 = Version.create("raw:1.1");
+		Version v6 = Version.create("raw:1.1.1");
+		Version v7 = Version.create("raw:1p1");
+		Version v8 = Version.create("raw:1.1p1");
+		Version v9 = Version.create("raw:1pM");
 
 		assertOrder(v1, v2);
 		assertOrder(v2, v3);
@@ -624,13 +625,13 @@ public class RawVersionTest extends VersionTesting {
 	}
 
 	public void testPadTypeOrder() {
-		Version v0 = Version.parseVersion("raw:1p-M");
-		Version v1 = Version.parseVersion("raw:1p'a'");
-		Version v2 = Version.parseVersion("raw:1p<0>");
-		Version v3 = Version.parseVersion("raw:1.0.0");
-		Version v4 = Version.parseVersion("raw:1p0");
-		Version v5 = Version.parseVersion("raw:1p1");
-		Version v6 = Version.parseVersion("raw:1pM");
+		Version v0 = Version.create("raw:1p-M");
+		Version v1 = Version.create("raw:1p'a'");
+		Version v2 = Version.create("raw:1p<0>");
+		Version v3 = Version.create("raw:1.0.0");
+		Version v4 = Version.create("raw:1p0");
+		Version v5 = Version.create("raw:1p1");
+		Version v6 = Version.create("raw:1pM");
 		assertOrder(v0, v1);
 		assertOrder(v1, v2);
 		assertOrder(v2, v3);
@@ -643,11 +644,11 @@ public class RawVersionTest extends VersionTesting {
 	 * Test that a / is not prematurely taken as the separator between raw and original when in a string
 	 */
 	public void testOriginalTerminator() {
-		Version v = Version.parseVersion("raw:'/'");
+		Version v = Version.create("raw:'/'");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "/");
 
-		v = Version.parseVersion("raw:\"/\"");
+		v = Version.create("raw:\"/\"");
 		assertNotNull(v);
 		assertEquals(v.getSegment(0), "/");
 	}
@@ -655,7 +656,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testEmptyInput() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:");
+			Version.create("raw:");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -665,7 +666,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testNewLine() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:1.'\n'.2");
+			Version.create("raw:1.'\n'.2");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -675,7 +676,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testSpaceInInt() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:1 2.2");
+			Version.create("raw:1 2.2");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -685,7 +686,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testFloatingPointl() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:1,2.2");
+			Version.create("raw:1,2.2");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -695,7 +696,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testScientific() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:1E3");
+			Version.create("raw:1E3");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -705,7 +706,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testHex() {
 		// should parse with exception 
 		try {
-			Version.parseVersion("raw:0xABCD");
+			Version.create("raw:0xABCD");
 			fail("Uncaught error: hexadecimal not allowed");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -714,7 +715,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedSingleQuoteRight() {
 		try {
-			Version.parseVersion("raw:'unbalanced");
+			Version.create("raw:'unbalanced");
 			fail("Uncaught error: unbalanced sngle quote");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -723,7 +724,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testMixedQuotes1() {
 		try {
-			Version.parseVersion("raw:1.\"unbalanced'.10");
+			Version.create("raw:1.\"unbalanced'.10");
 			fail("Uncaught error: mixed quotes");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -732,7 +733,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testMixedQuotes2() {
 		try {
-			Version.parseVersion("raw:1.'unbalanced\".10");
+			Version.create("raw:1.'unbalanced\".10");
 			fail("Uncaught error: mixed quotes");
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -741,7 +742,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedDoubleQuoteRight() {
 		try {
-			Version.parseVersion("raw:\"unbalanced");
+			Version.create("raw:\"unbalanced");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -750,7 +751,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedArrayRight() {
 		try {
-			Version.parseVersion("raw:<1.2.3");
+			Version.create("raw:<1.2.3");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -759,7 +760,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedArrayLeft() {
 		try {
-			Version.parseVersion("raw:1.2.3>");
+			Version.create("raw:1.2.3>");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -768,7 +769,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testBadDecimalInteger() {
 		try {
-			Version.parseVersion("raw:12af");
+			Version.create("raw:12af");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -777,7 +778,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnquotedStringFirstValue() {
 		try {
-			Version.parseVersion("raw:a");
+			Version.create("raw:a");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -786,7 +787,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnquotedStringSecondValue() {
 		try {
-			Version.parseVersion("raw:1.a");
+			Version.create("raw:1.a");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -795,7 +796,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testSinglePeriod() {
 		try {
-			Version.parseVersion("raw:.");
+			Version.create("raw:.");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -804,7 +805,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testTwoPeriods() {
 		try {
-			Version.parseVersion("raw:..");
+			Version.create("raw:..");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -813,7 +814,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testThreePeriods() {
 		try {
-			Version.parseVersion("raw:...");
+			Version.create("raw:...");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -823,7 +824,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testPadNotLast() {
 		try {
-			Version.parseVersion("raw:p10.10");
+			Version.create("raw:p10.10");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -833,7 +834,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testEmptyPad() {
 		try {
-			Version.parseVersion("raw:10p");
+			Version.create("raw:10p");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -842,7 +843,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testPadWithNull() {
 		try {
-			Version.parseVersion("raw:10p.");
+			Version.create("raw:10p.");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -851,7 +852,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testWrongPadSeparator() {
 		try {
-			Version.parseVersion("raw:10.p0");
+			Version.create("raw:10.p0");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -860,7 +861,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testMultiplePadElements() {
 		try {
-			Version.parseVersion("raw:10p1.2");
+			Version.create("raw:10p1.2");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -869,7 +870,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedPadElementsSQ() {
 		try {
-			Version.parseVersion("raw:10p'abc");
+			Version.create("raw:10p'abc");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -878,7 +879,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedPadElementsDQ() {
 		try {
-			Version.parseVersion("raw:10p\"abc");
+			Version.create("raw:10p\"abc");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -887,7 +888,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedPadArrayElementsRight() {
 		try {
-			Version.parseVersion("raw:10p<10");
+			Version.create("raw:10p<10");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -896,7 +897,7 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testUnbalancedPadArrayElementsLeft() {
 		try {
-			Version.parseVersion("raw:10p10>");
+			Version.create("raw:10p10>");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -904,11 +905,11 @@ public class RawVersionTest extends VersionTesting {
 	}
 
 	public void testOrder() {
-		Version v1 = Version.parseVersion("raw:1");
-		Version v2 = Version.parseVersion("raw:1.0");
-		Version v3 = Version.parseVersion("raw:1.0.0");
-		Version v4 = Version.parseVersion("raw:1.0.0.'9'");
-		Version v5 = Version.parseVersion("raw:1.0.0.'r12345'");
+		Version v1 = Version.create("raw:1");
+		Version v2 = Version.create("raw:1.0");
+		Version v3 = Version.create("raw:1.0.0");
+		Version v4 = Version.create("raw:1.0.0.'9'");
+		Version v5 = Version.create("raw:1.0.0.'r12345'");
 
 		assertOrder(v1, v2);
 		assertOrder(v2, v3);
@@ -918,14 +919,14 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testTypeOrder() {
 		// '' < 'z' < m < [0} < [M] < 0 < M
-		Version v0 = Version.parseVersion("raw:-M");
-		Version v1 = Version.parseVersion("raw:''");
-		Version v2 = Version.parseVersion("raw:'z'");
-		Version v3 = Version.parseVersion("raw:m");
-		Version v4 = Version.parseVersion("raw:<0>");
-		Version v5 = Version.parseVersion("raw:<M>");
-		Version v6 = Version.parseVersion("raw:0");
-		Version v7 = Version.parseVersion("raw:M");
+		Version v0 = Version.create("raw:-M");
+		Version v1 = Version.create("raw:''");
+		Version v2 = Version.create("raw:'z'");
+		Version v3 = Version.create("raw:m");
+		Version v4 = Version.create("raw:<0>");
+		Version v5 = Version.create("raw:<M>");
+		Version v6 = Version.create("raw:0");
+		Version v7 = Version.create("raw:M");
 
 		assertOrder(v0, v1);
 		assertOrder(v1, v2);
@@ -938,14 +939,14 @@ public class RawVersionTest extends VersionTesting {
 
 	public void testTypeOrder2() {
 		// '' < 'z' < m < [0] < [M] < 0 < M
-		Version v0 = Version.parseVersion("raw:0.-M");
-		Version v1 = Version.parseVersion("raw:0.''");
-		Version v2 = Version.parseVersion("raw:0.'z'");
-		Version v3 = Version.parseVersion("raw:0.m");
-		Version v4 = Version.parseVersion("raw:0.<0>");
-		Version v5 = Version.parseVersion("raw:0.<M>");
-		Version v6 = Version.parseVersion("raw:0.0");
-		Version v7 = Version.parseVersion("raw:0.M");
+		Version v0 = Version.create("raw:0.-M");
+		Version v1 = Version.create("raw:0.''");
+		Version v2 = Version.create("raw:0.'z'");
+		Version v3 = Version.create("raw:0.m");
+		Version v4 = Version.create("raw:0.<0>");
+		Version v5 = Version.create("raw:0.<M>");
+		Version v6 = Version.create("raw:0.0");
+		Version v7 = Version.create("raw:0.M");
 
 		assertOrder(v0, v1);
 		assertOrder(v1, v2);
@@ -957,17 +958,17 @@ public class RawVersionTest extends VersionTesting {
 	}
 
 	public void testShorterIsOlder() {
-		Version v1 = Version.parseVersion("raw:1.0");
-		Version v2 = Version.parseVersion("raw:1.0.0");
-		Version v3 = Version.parseVersion("raw:1.0.0.0");
+		Version v1 = Version.create("raw:1.0");
+		Version v2 = Version.create("raw:1.0.0");
+		Version v3 = Version.create("raw:1.0.0.0");
 
-		Version v4 = Version.parseVersion("raw:'a'");
-		Version v5 = Version.parseVersion("raw:'a'.'b'.'b'");
-		Version v6 = Version.parseVersion("raw:'a'.'b'.'b'.'b'");
+		Version v4 = Version.create("raw:'a'");
+		Version v5 = Version.create("raw:'a'.'b'.'b'");
+		Version v6 = Version.create("raw:'a'.'b'.'b'.'b'");
 
-		Version v7 = Version.parseVersion("raw:<1>");
-		Version v8 = Version.parseVersion("raw:<1>.<0>.<0>");
-		Version v9 = Version.parseVersion("raw:<1>.<0>.<0>.<0>");
+		Version v7 = Version.create("raw:<1>");
+		Version v8 = Version.create("raw:<1>.<0>.<0>");
+		Version v9 = Version.create("raw:<1>.<0>.<0>.<0>");
 
 		assertOrder(v1, v2);
 		assertOrder(v2, v3);
@@ -980,14 +981,14 @@ public class RawVersionTest extends VersionTesting {
 	}
 
 	public void testNumericVersionOrder() {
-		Version v1 = Version.parseVersion("1");
-		Version v2 = Version.parseVersion("1.0.1");
-		Version v3 = Version.parseVersion("1.1");
-		Version v4 = Version.parseVersion("1.1.1");
-		Version v5 = Version.parseVersion("1.1.1.-");
-		Version v6 = Version.parseVersion("1.2");
-		Version v7 = Version.parseVersion("2");
-		Version v8 = Version.parseVersion("10.0");
+		Version v1 = Version.create("1");
+		Version v2 = Version.create("1.0.1");
+		Version v3 = Version.create("1.1");
+		Version v4 = Version.create("1.1.1");
+		Version v5 = Version.create("1.1.1.-");
+		Version v6 = Version.create("1.2");
+		Version v7 = Version.create("2");
+		Version v8 = Version.create("10.0");
 
 		assertOrder(v1, v2);
 		assertOrder(v2, v3);

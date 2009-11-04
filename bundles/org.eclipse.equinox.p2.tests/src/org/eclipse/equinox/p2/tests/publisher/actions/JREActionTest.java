@@ -93,7 +93,7 @@ public class JREActionTest extends ActionTest {
 			assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		IRequiredCapability[] requiredCapability = bar.getRequiredCapabilities();
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true)); //$NON-NLS-1$ 
+		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, Version.OSGi_MAX, true)); //$NON-NLS-1$ 
 		assertTrue(requiredCapability.length == 1);
 
 		IProvidedCapability[] providedCapability = bar.getProvidedCapabilities();

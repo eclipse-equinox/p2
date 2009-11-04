@@ -11,8 +11,7 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * Tests inclusion of original version range string in raw format.
@@ -163,7 +162,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMinBoundary() {
-		String rangeString = "raw:[-M,2.1.0.'']/format(n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]):-M,2.1.0";
+		String rangeString = "raw:[-M,2.1.0.'']/format(" + IVersionFormat.OSGI_FORMAT_STRING + "):-M,2.1.0";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("[0.0.0,2.1.0]");
@@ -206,7 +205,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMaxBoundary() {
-		String rangeString = "raw:[2.1.0.'',MpM]/format(n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]):2.1.0,MpM";
+		String rangeString = "raw:[2.1.0.'',MpM]/format(" + IVersionFormat.OSGI_FORMAT_STRING + "):2.1.0,MpM";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("2.1.0");

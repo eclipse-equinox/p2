@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.metadata.VersionFormat.TreeInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionFormatException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionVector;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -545,7 +544,7 @@ class VersionFormatParser {
 				else
 					padValue = getPadValue();
 
-				VersionParser.removeRedundantTrail(segments, padValue);
+				padValue = VersionParser.removeRedundantTrail(segments, padValue);
 				segments.add(new VersionVector((Comparable[]) subSegs.toArray(new Comparable[subSegs.size()]), padValue));
 				return true;
 			}

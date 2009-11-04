@@ -8,10 +8,9 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.io.Serializable;
-import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
 
 /**
  * The VersionVector represents an array of Comparable objects. The array can be
@@ -53,13 +52,13 @@ public class VersionVector implements Comparable, Serializable {
 			return o == this ? 0 : 1;
 		}
 
-		public String toString() {
-			return "M"; //$NON-NLS-1$
-		}
-
 		// For singleton deserialization
 		private Object readResolve() {
 			return MAX_VALUE;
+		}
+
+		public String toString() {
+			return "M"; //$NON-NLS-1$
 		}
 	}
 
@@ -74,12 +73,12 @@ public class VersionVector implements Comparable, Serializable {
 			return o == this ? 0 : -1;
 		}
 
-		public String toString() {
-			return "-M"; //$NON-NLS-1$
-		}
-
 		private Object readResolve() {
 			return MIN_VALUE;
+		}
+
+		public String toString() {
+			return "-M"; //$NON-NLS-1$
 		}
 	}
 
@@ -95,17 +94,106 @@ public class VersionVector implements Comparable, Serializable {
 	public static final Comparable MAXS_VALUE = new MaxStringValue();
 
 	/**
+	 * A value that is less then any other value
+	 */
+	public static final Comparable MIN_VALUE = new MinValue();
+
+	/**
 	 * A value that is greater then {@link #MIN_VALUE} and less then any string,
 	 * Integer, or VersionVector (a.k.a. empty_string)
 	 */
 	public static final String MINS_VALUE = ""; //$NON-NLS-1$
 
-	/**
-	 * A value that is less then any other value
-	 */
-	public static final Comparable MIN_VALUE = new MinValue();
-
 	private static final long serialVersionUID = -8385373304298723744L;
+
+	static int compare(Comparable[] vectorA, Comparable padA, Comparable[] vectorB, Comparable padB) {
+		int top = vectorA.length;
+		if (top > vectorB.length)
+			top = vectorB.length;
+
+		for (int idx = 0; idx < top; ++idx) {
+			int cmp = compareSegments(vectorA[idx], vectorB[idx]);
+			if (cmp != 0)
+				return cmp;
+		}
+
+		// All elements compared equal up to this point. Check
+		// pad values
+		if (top < vectorA.length)
+			return (padB == null) ? 1 : compareReminder(top, vectorA, padA, padB);
+
+		if (top < vectorB.length)
+			return (padA == null) ? -1 : -compareReminder(top, vectorB, padB, padA);
+
+		// Lengths are equal. Compare pad values
+		return padA == null ? (padB == null ? 0 : -1) : (padB == null ? 1 : compareSegments(padA, padB));
+	}
+
+	static boolean equals(Comparable[] vectorA, Comparable padValueA, Comparable[] vectorB, Comparable padValueB) {
+		// We compare pad first since it is impossible for versions with
+		// different pad to be equal (versions are padded to infinity) 
+		if (padValueA == null) {
+			if (padValueB != null)
+				return false;
+		} else {
+			if (padValueB == null || !padValueA.equals(padValueB))
+				return false;
+		}
+
+		int idx = vectorA.length;
+
+		// If the length of the vector differs, the versions cannot be equal
+		// since segments equal to pad are stripped by the parser
+		if (idx != vectorB.length)
+			return false;
+
+		while (--idx >= 0)
+			if (!vectorA[idx].equals(vectorB[idx]))
+				return false;
+
+		return true;
+	}
+
+	static int hashCode(Comparable[] vector, Comparable padValue) {
+		int hashCode = padValue == null ? 31 : padValue.hashCode();
+		int idx = vector.length;
+		while (--idx >= 0) {
+			Object elem = vector[idx];
+			if (elem != null)
+				hashCode += elem.hashCode();
+			hashCode = hashCode * 31;
+		}
+		return hashCode;
+	}
+
+	static void toString(StringBuffer sb, Comparable[] vector, Comparable padValue, boolean rangeSafe) {
+		int top = vector.length;
+		if (top == 0)
+			// Write one pad value as explicit. It will be considered
+			// redundant and removed by the parser but the raw format
+			// does not allow zero elements
+			VersionFormat.rawToString(sb, rangeSafe, padValue == null ? MIN_VALUE : padValue);
+		else {
+			for (int idx = 0; idx < top; ++idx) {
+				if (idx > 0)
+					sb.append('.');
+				VersionFormat.rawToString(sb, rangeSafe, vector[idx]);
+			}
+		}
+		if (padValue != null) {
+			sb.append('p');
+			VersionFormat.rawToString(sb, rangeSafe, padValue);
+		}
+	}
+
+	private static int compareReminder(int idx, Comparable[] vector, Comparable padValue, Comparable othersPad) {
+		int cmp;
+		for (cmp = 0; idx < vector.length && cmp == 0; ++idx)
+			cmp = compareSegments(vector[idx], othersPad);
+		if (cmp == 0)
+			cmp = (padValue == null) ? -1 : padValue.compareTo(othersPad);
+		return cmp;
+	}
 
 	private static int compareSegments(Comparable a, Comparable b) {
 		if (a == b)
@@ -153,28 +241,7 @@ public class VersionVector implements Comparable, Serializable {
 			return 0;
 
 		VersionVector ov = (VersionVector) o;
-		Comparable[] t_vector = vector;
-		Comparable[] o_vector = ov.vector;
-		int top = t_vector.length;
-		if (top > o_vector.length)
-			top = o_vector.length;
-
-		for (int idx = 0; idx < top; ++idx) {
-			int cmp = compareSegments(t_vector[idx], o_vector[idx]);
-			if (cmp != 0)
-				return cmp;
-		}
-
-		// All elements compared equal up to this point. Check
-		// pad values
-		if (top < t_vector.length)
-			return (ov.padValue == null) ? 1 : compareReminder(top, ov.padValue);
-
-		if (top < o_vector.length)
-			return (padValue == null) ? -1 : -ov.compareReminder(top, padValue);
-
-		// Lengths are equal. Compare pad values
-		return padValue == null ? (ov.padValue == null ? 0 : -1) : (ov.padValue == null ? 1 : compareSegments(padValue, ov.padValue));
+		return compare(vector, padValue, ov.vector, ov.padValue);
 	}
 
 	public boolean equals(Object o) {
@@ -185,31 +252,7 @@ public class VersionVector implements Comparable, Serializable {
 			return false;
 
 		VersionVector ov = (VersionVector) o;
-
-		// We compare pad first since it is impossible for versions with
-		// different pad to be equal (versions are padded to infinity) 
-		if (padValue == null) {
-			if (ov.padValue != null)
-				return false;
-		} else {
-			if (ov.padValue == null || !padValue.equals(ov.padValue))
-				return false;
-		}
-
-		Comparable[] t_vector = vector;
-		Comparable[] o_vector = ov.vector;
-		int idx = t_vector.length;
-
-		// If the length of the vector differs, the versions cannot be equal
-		// since segments equal to pad are stripped by the parser
-		if (idx != o_vector.length)
-			return false;
-
-		while (--idx >= 0)
-			if (!t_vector[idx].equals(o_vector[idx]))
-				return false;
-
-		return true;
+		return equals(vector, padValue, ov.vector, ov.padValue);
 	}
 
 	/**
@@ -238,16 +281,17 @@ public class VersionVector implements Comparable, Serializable {
 		return vector.length;
 	}
 
+	/**
+	 * This method is package protected since it violates the immutable
+	 * contract.
+	 * @return The raw vector. Must be treated as read-only
+	 */
+	Comparable[] getVector() {
+		return vector;
+	}
+
 	public int hashCode() {
-		int hashCode = padValue == null ? 31 : padValue.hashCode();
-		int idx = vector.length;
-		while (--idx >= 0) {
-			Object elem = vector[idx];
-			if (elem != null)
-				hashCode += elem.hashCode();
-			hashCode = hashCode * 31;
-		}
-		return hashCode;
+		return hashCode(vector, padValue);
 	}
 
 	public String toString() {
@@ -262,7 +306,7 @@ public class VersionVector implements Comparable, Serializable {
 	 * @param sb The buffer to append to
 	 */
 	public void toString(StringBuffer sb) {
-		toString(sb, false);
+		toString(sb, vector, padValue, false);
 	}
 
 	/**
@@ -272,41 +316,7 @@ public class VersionVector implements Comparable, Serializable {
 	 * @param rangeSafe If <code>true</code>, the range delimiters will be escaped
 	 * with backslash.
 	 */
-	public void toString(StringBuffer sb, boolean rangeSafe) {
-		int top = vector.length;
-		if (top == 0)
-			// Write one pad value as explicit. It will be considered
-			// redundant and removed by the parser but the raw format
-			// does not allow zero elements
-			VersionFormat.rawToString(sb, rangeSafe, padValue == null ? MIN_VALUE : padValue);
-		else {
-			for (int idx = 0; idx < top; ++idx) {
-				if (idx > 0)
-					sb.append('.');
-				VersionFormat.rawToString(sb, rangeSafe, vector[idx]);
-			}
-		}
-		if (padValue != null) {
-			sb.append('p');
-			VersionFormat.rawToString(sb, rangeSafe, padValue);
-		}
-	}
-
-	/**
-	 * This method is package protected since it violates the immutable
-	 * contract.
-	 * @return The raw vector. Must be treated as read-only
-	 */
-	Comparable[] getVector() {
-		return vector;
-	}
-
-	private int compareReminder(int idx, Comparable othersPad) {
-		int cmp;
-		for (cmp = 0; idx < vector.length && cmp == 0; ++idx)
-			cmp = compareSegments(vector[idx], othersPad);
-		if (cmp == 0)
-			cmp = (padValue == null) ? -1 : padValue.compareTo(othersPad);
-		return cmp;
+	void toString(StringBuffer sb, boolean rangeSafe) {
+		toString(sb, vector, padValue, rangeSafe);
 	}
 }

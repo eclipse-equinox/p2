@@ -146,11 +146,11 @@ public class CommonPatternsTest extends VersionTesting {
 
 	public void testTripletPatternToOSGi() throws Exception {
 		IVersionFormat triplet = Version.compile(TRIPLET_FORMAT_STRING);
-		assertEquals(Version.createOSGi(1, 0, 0), triplet.parse("1.0.0.-"));
-		assertEquals(Version.create("1.0.0.zzz"), triplet.parse("1.0.0"));
-		assertEquals(Version.createOSGi(1, 0, 0, "zzz"), Version.create("raw:1.0.0.m"));
+		assertEquals(Version.createOSGi(1, 0, 0), triplet.parse("1.0.0." + IVersionFormat.DEFAULT_MIN_STRING_TRANSLATION));
+		assertEquals(Version.create("1.0.0." + IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION), triplet.parse("1.0.0"));
+		assertEquals(Version.createOSGi(1, 0, 0, IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION), Version.create("raw:1.0.0.m"));
 		assertEquals(triplet.parse("1.0"), Version.create("raw:1.0.0.m"));
-		assertEquals(triplet.parse("1.0.-"), Version.create("raw:1.0.0.''"));
+		assertEquals(triplet.parse("1.0." + IVersionFormat.DEFAULT_MIN_STRING_TRANSLATION), Version.create("raw:1.0.0.''"));
 		assertEquals(Version.createOSGi(1, 0, 0), Version.create("raw:1.0.0.''"));
 	}
 

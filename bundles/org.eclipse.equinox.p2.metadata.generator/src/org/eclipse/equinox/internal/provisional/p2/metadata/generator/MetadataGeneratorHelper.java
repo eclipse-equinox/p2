@@ -115,7 +115,7 @@ public class MetadataGeneratorHelper {
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = Version.createOSGi(1, 0, 0);
 
-	private static final Version versionMax = Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	private static final Version versionMax = Version.OSGi_MAX;
 
 	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
