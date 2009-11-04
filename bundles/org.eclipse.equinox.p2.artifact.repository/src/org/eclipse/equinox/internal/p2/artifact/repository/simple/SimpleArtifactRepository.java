@@ -472,7 +472,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		//download from the best available mirror
 		URI baseLocation = getLocation(descriptor);
 		if (baseLocation == null)
-			return new Status(IStatus.ERROR, Activator.ID, "Can not find the location of " + descriptor);
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.no_location, descriptor));
 		URI mirrorLocation = getMirror(baseLocation, monitor);
 		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, monitor);
 		IStatus result = reportStatus(descriptor, destination, status);

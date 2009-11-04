@@ -17,6 +17,7 @@ public class Messages extends NLS {
 
 	public static String artifact_not_found;
 	public static String available_already_in;
+	public static String no_location;
 	public static String downloading;
 	public static String error_closing_stream;
 	public static String io_failedRead;
