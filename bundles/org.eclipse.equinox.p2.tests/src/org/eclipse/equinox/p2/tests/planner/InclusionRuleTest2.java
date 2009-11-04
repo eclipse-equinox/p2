@@ -44,7 +44,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		//Add into the profile the version a1;
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		req.setInstallableUnitProfileProperty(a1, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		req.setInstallableUnitProfileProperty(a1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -52,14 +52,14 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profile = profileRegistry.getProfile(profile.getProfileId());
-		Collector c = profile.query(new IUProfilePropertyQuery(IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
+		Collector c = profile.query(new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
 		assertEquals(c.size(), 1);
 
 		System.gc();
 		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req2.removeInstallableUnits(new IInstallableUnit[] {a1});
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
-		//		req2.setInstallableUnitProfileProperty(a2, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		//		req2.setInstallableUnitProfileProperty(a2, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);

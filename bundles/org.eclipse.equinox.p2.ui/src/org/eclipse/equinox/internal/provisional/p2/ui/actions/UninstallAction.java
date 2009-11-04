@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -68,6 +69,6 @@ public class UninstallAction extends ExistingIUInProfileAction {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
 	 */
 	protected int getLockConstant() {
-		return IInstallableUnit.LOCK_UNINSTALL;
+		return IProfile.LOCK_UNINSTALL;
 	}
 }

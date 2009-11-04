@@ -32,7 +32,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String P2_ENGINE_DIR = "p2/" + EngineActivator.ID + "/"; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String ECLIPSE_INI_IGNORED = "eclipse.ini.ignored"; //$NON-NLS-1$
-	private static final String IU_LOCKED = Integer.toString(IInstallableUnit.LOCK_UNINSTALL | IInstallableUnit.LOCK_UPDATE);
+	private static final String IU_LOCKED = Integer.toString(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE);
 	private static final String PROP_SURROGATE = "org.eclipse.equinox.p2.surrogate"; //$NON-NLS-1$
 	private static final String PROP_SHARED_TIMESTAMP = "org.eclipse.equinox.p2.shared.timestamp"; //$NON-NLS-1$
 	private static final String PROP_BASE = "org.eclipse.equinox.p2.base"; //$NON-NLS-1$
@@ -62,7 +62,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.addInstallableUnit(iu);
 			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
-			userProfile.setInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
+			userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
 			userProfile.setInstallableUnitProperty(iu, PROP_BASE, Boolean.TRUE.toString());
 		}
 	}

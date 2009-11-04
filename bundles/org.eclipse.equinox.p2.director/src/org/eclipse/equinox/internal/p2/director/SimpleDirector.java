@@ -46,7 +46,7 @@ public class SimpleDirector implements IDirector {
 			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();
 			// mark the roots as such
 			for (int i = 0; i < installRoots.length; i++) {
-				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				request.setInstallableUnitProfileProperty(installRoots[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));

@@ -321,11 +321,11 @@ public class ProfileSynchronizer {
 			// if the IU is already installed in the profile then skip it
 			if (!profileIUs.contains(iu)) {
 				if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
-					request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+					request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				// mark all IUs with special property
 				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
 				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
-				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, Integer.toString(IInstallableUnit.LOCK_UNINSTALL));
+				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
 				toAdd.add(iu);
 
 				// as soon as we find something locally that needs to be installed, then 
@@ -348,7 +348,7 @@ public class ProfileSynchronizer {
 			// will stick.
 			if ("STRICT".equals(profile.getInstallableUnitProperty(iu, "org.eclipse.equinox.p2.internal.inclusion.rules"))) { //$NON-NLS-1$//$NON-NLS-2$
 				request.removeInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS);
-				request.removeInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+				request.removeInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
 				continue;
 			}
 			// remove the IUs that are in the intersection between the 2 sets

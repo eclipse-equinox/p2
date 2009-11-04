@@ -54,7 +54,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		//		The requirement from A to B is broken because there is no B satisfying. Therefore A can only install if the P is installed as well
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		req1.setInstallableUnitProfileProperty(p1, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+		req1.setInstallableUnitProfileProperty(p1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertOK("1.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan1.getOperands(), null, new NullProgressMonitor()));
@@ -67,7 +67,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("2.0", plan2.getStatus());
 		assertOK("2.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan2.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("2.2", profile1, new IInstallableUnit[] {a1, p2, b2});
-		assertEquals("true", profile1.getInstallableUnitProperty(p2, IInstallableUnit.PROP_PROFILE_ROOT_IU));
+		assertEquals("true", profile1.getInstallableUnitProperty(p2, IProfile.PROP_PROFILE_ROOT_IU));
 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {p3});
@@ -76,6 +76,6 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("3.0", plan3.getStatus());
 		assertOK("3.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan3.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("3.2", profile1, new IInstallableUnit[] {a1, p3, b3});
-		assertEquals("true", profile1.getInstallableUnitProperty(p3, IInstallableUnit.PROP_PROFILE_ROOT_IU));
+		assertEquals("true", profile1.getInstallableUnitProperty(p3, IProfile.PROP_PROFILE_ROOT_IU));
 	}
 }

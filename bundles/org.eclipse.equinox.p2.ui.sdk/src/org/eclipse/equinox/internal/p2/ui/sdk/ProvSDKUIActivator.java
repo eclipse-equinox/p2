@@ -178,7 +178,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
 		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
-		queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
+		queryContext.setVisibleInstalledIUProperty(IProfile.PROP_PROFILE_ROOT_IU);
 		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}

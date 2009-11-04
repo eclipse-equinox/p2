@@ -306,7 +306,6 @@ public class DirectorApplication implements IApplication {
 
 			Properties props = new Properties();
 			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toString());
-			props.setProperty(IProfile.PROP_FLAVOR, flavor);
 			if (bundlePool == null)
 				props.setProperty(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
 			else
@@ -320,9 +319,6 @@ public class DirectorApplication implements IApplication {
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
 			profile = profileRegistry.addProfile(profileId, props);
-			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-				throw new RuntimeException(NLS.bind(Messages.flavor_0_inconsistent_with_flavor_1, flavor, currentFlavor));
 		}
 		return profile;
 	}
@@ -452,7 +448,7 @@ public class DirectorApplication implements IApplication {
 
 	private void markRoots(ProfileChangeRequest request, IInstallableUnit[] roots) {
 		for (int idx = 0; idx < roots.length; ++idx)
-			request.setInstallableUnitProfileProperty(roots[idx], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			request.setInstallableUnitProfileProperty(roots[idx], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 	}
 
 	private void missingArgument(String argumentName) throws CoreException {

@@ -20,9 +20,39 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
 public interface IProfile extends IQueryable {
 
 	/**
-	 * Profile property constant indicating the flavor for the profile.
+	 * Constant used to indicate that an installable unit is not locked in anyway.
+	 * @see #PROP_PROFILE_LOCKED_IU
 	 */
-	public static final String PROP_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$
+	public static int LOCK_NONE = 0;
+	/**
+	 * Constant used to indicate that an installable unit is locked so that it may
+	 * not be uninstalled.
+	 * @see #PROP_PROFILE_LOCKED_IU
+	 */
+	public static int LOCK_UNINSTALL = 1 << 0;
+	/**
+	 * Constant used to indicate that an installable unit is locked so that it may
+	 * not be updated. updates.
+	 * @see #PROP_PROFILE_LOCKED_IU
+	 */
+	public static int LOCK_UPDATE = 1 << 1;
+
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.lock"</code>) for an
+	 * integer property indicating how an installable unit is locked in its profile.
+	 * The integer is a bit-mask indicating the different locks defined on the installable
+	 * unit.  The property should be obtained from a profile using 
+	 * IProfile#getInstallableUnitProperty(IInstallableUnit, String).
+	 * 
+	 * @see #LOCK_UNINSTALL
+	 * @see #LOCK_UPDATE
+	 * @see #LOCK_NONE
+	 */
+	public static final String PROP_PROFILE_LOCKED_IU = "org.eclipse.equinox.p2.type.lock"; //$NON-NLS-1$
+
+	//TODO Move to UI
+	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
+
 	/**
 	 * Profile property constant indicating the install folder for the profile.
 	 */

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.PlanAnalyzer;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
@@ -88,7 +89,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
 	 */
 	protected int getLockConstant() {
-		return IInstallableUnit.LOCK_UPDATE;
+		return IProfile.LOCK_UPDATE;
 	}
 
 	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {

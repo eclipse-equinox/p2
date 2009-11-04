@@ -42,7 +42,6 @@ public class ProfileGroup {
 	Text cache;
 	Text name;
 	Text description;
-	Text flavor;
 	Text environments;
 	Text nl;
 	IProfile profile;
@@ -122,9 +121,6 @@ public class ProfileGroup {
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Flavor);
-		flavor = new Text(composite, SWT.BORDER);
-		flavor.setLayoutData(gd);
-		setEditable(flavor, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Environments);
@@ -146,7 +142,6 @@ public class ProfileGroup {
 			location.setText(ProfileFactory.getDefaultLocation());
 			environments.setText(ProfileFactory.getDefaultEnvironments());
 			nl.setText(ProfileFactory.getDefaultNL());
-			flavor.setText(ProfileFactory.getDefaultFlavor());
 		} else {
 			String value = profile.getProfileId();
 			// Should not happen, profiles must have an id, but just in case.
@@ -172,8 +167,6 @@ public class ProfileGroup {
 			if (value != null) {
 				description.setText(value);
 			}
-			value = profile.getProperty(IProfile.PROP_FLAVOR);
-			flavor.setText(value != null ? value : ProfileFactory.getDefaultFlavor());
 
 			value = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 			if (value != null) {
@@ -206,10 +199,6 @@ public class ProfileGroup {
 			value = description.getText().trim();
 			if (value.length() > 0) {
 				profileProperties.put(IProfile.PROP_DESCRIPTION, value);
-			}
-			value = flavor.getText().trim();
-			if (value.length() > 0) {
-				profileProperties.put(IProfile.PROP_FLAVOR, value);
 			}
 			value = environments.getText().trim();
 			if (value.length() > 0) {

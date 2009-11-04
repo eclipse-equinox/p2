@@ -20,11 +20,6 @@ import java.util.Map;
 public interface IInstallableUnit extends IVersionedId, Comparable {
 
 	/**
-	 * A capability namespace representing a particular profile flavor.
-	 */
-	public static final String NAMESPACE_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$
-
-	/**
 	 * A capability namespace representing a particular InstallableUnit by id.
 	 * Each InstallableUnit automatically provides a capability in this namespace representing
 	 * itself, and other InstallableUnits can require such a capability to state that they
@@ -42,14 +37,6 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_PARTIAL_IU = "org.eclipse.equinox.p2.partial.iu"; //$NON-NLS-1$
-
-	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.profile"</code>) for a 
-	 * boolean property indicating that an installable unit is a profile.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_TYPE_PROFILE = "org.eclipse.equinox.p2.type.profile"; //$NON-NLS-1$	 
 
 	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
@@ -82,22 +69,6 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
-
-	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.lock"</code>) for an
-	 * integer property indicating how an installable unit is locked in its profile.
-	 * The integer is a bit-mask indicating the different locks defined on the installable
-	 * unit.  The property should be obtained from a profile using 
-	 * IProfile#getInstallableUnitProperty(IInstallableUnit, String).
-	 * 
-	 * @see #LOCK_UNINSTALL
-	 * @see #LOCK_UPDATE
-	 * @see #LOCK_NONE
-	 */
-	public static final String PROP_PROFILE_LOCKED_IU = "org.eclipse.equinox.p2.type.lock"; //$NON-NLS-1$
-
-	//TODO Move to UI
-	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 
 	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.contact"</code>) for a 
@@ -151,24 +122,6 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
-
-	/**
-	 * Constant used to indicate that an installable unit is not locked in anyway.
-	 * @see #PROP_PROFILE_LOCKED_IU
-	 */
-	public static int LOCK_NONE = 0;
-	/**
-	 * Constant used to indicate that an installable unit is locked so that it may
-	 * not be uninstalled.
-	 * @see #PROP_PROFILE_LOCKED_IU
-	 */
-	public static int LOCK_UNINSTALL = 1 << 0;
-	/**
-	 * Constant used to indicate that an installable unit is locked so that it may
-	 * not be updated. updates.
-	 * @see #PROP_PROFILE_LOCKED_IU
-	 */
-	public static int LOCK_UPDATE = 1 << 1;
 
 	public IArtifactKey[] getArtifacts();
 

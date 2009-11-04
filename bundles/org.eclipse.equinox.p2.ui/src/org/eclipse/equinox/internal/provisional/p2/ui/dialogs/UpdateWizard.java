@@ -180,7 +180,7 @@ public class UpdateWizard extends WizardWithLicenses {
 					initialSelections.add(element);
 			}
 			request.addInstallableUnits(new IInstallableUnit[] {theUpdate});
-			request.setInstallableUnitProfileProperty(theUpdate, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (Boolean.toString(true).equals(theUpdate.getProperty(IInstallableUnit.PROP_TYPE_PATCH))) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
 			} else {

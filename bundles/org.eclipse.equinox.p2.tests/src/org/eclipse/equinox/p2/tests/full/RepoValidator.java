@@ -49,7 +49,6 @@ public class RepoValidator extends AbstractProvisioningTest {
 		IMetadataRepository validatedRepo = mgr.loadRepository(repoLoc, null);
 
 		Map properties = new HashMap();
-		properties.put(IInstallableUnit.NAMESPACE_FLAVOR, "tooling");
 		properties.put("osgi.os", "win32");
 		properties.put("osgi.ws", "win32");
 		properties.put("osgi.arch", "x86");

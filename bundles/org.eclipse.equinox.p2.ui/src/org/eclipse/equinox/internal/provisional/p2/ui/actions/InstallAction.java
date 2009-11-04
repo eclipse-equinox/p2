@@ -64,9 +64,9 @@ public class InstallAction extends ProfileModificationAction {
 				// update request
 				if (compareTo > 0) {
 					boolean lockedForUpdate = false;
-					String value = profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+					String value = profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_LOCKED_IU);
 					if (value != null)
-						lockedForUpdate = (Integer.parseInt(value) & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
+						lockedForUpdate = (Integer.parseInt(value) & IProfile.LOCK_UPDATE) == IProfile.LOCK_UPDATE;
 					if (lockedForUpdate) {
 						// Add a status telling the user that this implies an update, but the
 						// iu should not be updated
@@ -77,14 +77,14 @@ public class InstallAction extends ProfileModificationAction {
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, ius[i]));
 						// Mark it as a root if it hasn't been already
-						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
-							request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_ROOT_IU)))
+							request.setInstallableUnitProfileProperty(ius[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, ius[i]));
 				} else {
-					if (Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
+					if (Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_ROOT_IU)))
 						// It is already a root, nothing to do. We tell the user it was already installed
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, ius[i]));
 					else {

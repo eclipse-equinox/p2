@@ -146,7 +146,6 @@ public class Application implements IApplication {
 
 			Properties props = new Properties();
 			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
-			props.setProperty(IProfile.PROP_FLAVOR, flavor);
 			if (bundlePool == null || bundlePool.equals(Messages.destination_commandline))
 				props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
 			else
@@ -161,9 +160,6 @@ public class Application implements IApplication {
 				putProperties(profileProperties, props);
 			}
 			profile = ProvisioningHelper.addProfile(profileId, props);
-			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-				throw new RuntimeException(NLS.bind("Install flavor {0} not consistent with profile flavor {1}", flavor, currentFlavor)); //$NON-NLS-1$
 		}
 		return profile;
 	}
@@ -246,7 +242,7 @@ public class Application implements IApplication {
 
 	private void markRoots(ProfileChangeRequest request, Collector roots) {
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
-			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
 	}
 

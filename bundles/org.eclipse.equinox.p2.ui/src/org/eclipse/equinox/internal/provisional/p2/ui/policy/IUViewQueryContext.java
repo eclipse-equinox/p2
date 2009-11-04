@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
@@ -54,7 +55,7 @@ public class IUViewQueryContext {
 	private int metadataRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
 
 	// Installed view settings
-	private String visibleInstalledIUProperty = IInstallableUnit.PROP_PROFILE_ROOT_IU;
+	private String visibleInstalledIUProperty = IProfile.PROP_PROFILE_ROOT_IU;
 
 	private String hidingInstalledDescription = ProvUIMessages.IUViewQueryContext_AllAreInstalledDescription;
 	private String groupingCategoriesDescription = ProvUIMessages.IUViewQueryContext_NoCategorizedItemsDescription;

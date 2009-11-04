@@ -246,15 +246,15 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected int getLock(IProfile profile, IInstallableUnit iu) {
 		if (profile == null)
-			return IInstallableUnit.LOCK_NONE;
+			return IProfile.LOCK_NONE;
 		try {
-			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+			String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
 			if (value != null)
 				return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}
-		return IInstallableUnit.LOCK_NONE;
+		return IProfile.LOCK_NONE;
 	}
 
 	protected String getProfileProperty(IProfile profile, IInstallableUnit iu, String propertyName) {

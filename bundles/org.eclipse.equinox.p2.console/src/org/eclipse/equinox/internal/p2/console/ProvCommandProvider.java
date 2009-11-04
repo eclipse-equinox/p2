@@ -183,7 +183,6 @@ public class ProvCommandProvider implements CommandProvider {
 		String environments = interpreter.nextArgument();
 		Properties props = new Properties();
 		props.setProperty(IProfile.PROP_INSTALL_FOLDER, location);
-		props.setProperty(IProfile.PROP_FLAVOR, flavor);
 		if (environments != null)
 			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
 

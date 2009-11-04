@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
@@ -118,7 +117,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		else
 			queryContext.setVisibleAvailableIUProperty(null);
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
-			queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
+			queryContext.setVisibleInstalledIUProperty(IProfile.PROP_PROFILE_ROOT_IU);
 		else
 			queryContext.setVisibleInstalledIUProperty(null);
 

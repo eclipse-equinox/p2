@@ -36,7 +36,6 @@ public class ProfileFactory {
 	public static IProfile makeProfile(String profileId) {
 		Map profileProperties = new HashMap();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getDefaultLocation());
-		profileProperties.put(IProfile.PROP_FLAVOR, getDefaultFlavor());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, getDefaultEnvironments());
 		profileProperties.put(IProfile.PROP_NL, getDefaultNL());
 

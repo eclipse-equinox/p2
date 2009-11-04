@@ -63,7 +63,6 @@ public class DirectorTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Profile registry service not available");
 		}
 
-		String newFlavor = System.getProperty("eclipse.p2.configurationFlavor");
 		boolean doUninstall = (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("eclipse.p2.doUninstall"))));
 
 		IProfile p = null;
@@ -74,7 +73,6 @@ public class DirectorTest extends AbstractProvisioningTest {
 		} else {
 			Map properties = new HashMap();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
-			properties.put(IProfile.PROP_FLAVOR, newFlavor);
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
 				properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
