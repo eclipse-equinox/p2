@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.directorywatcher;
 import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
@@ -135,7 +135,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 			IArtifactKey key = keys[i];
 			IArtifactDescriptor[] descriptors = watcher.getArtifactDescriptors(key);
 			assertEquals("8.0", 1, descriptors.length);
-			ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[0];
+			SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[0];
 			String isFolder = descriptor.getRepositoryProperty("artifact.folder");
 			if (Boolean.valueOf(isFolder).booleanValue()) {
 				assertNull("9.0", directoryDescriptor);

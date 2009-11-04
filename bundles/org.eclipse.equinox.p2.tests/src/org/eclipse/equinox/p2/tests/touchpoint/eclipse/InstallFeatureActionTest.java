@@ -12,11 +12,13 @@ import java.io.File;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.InstallFeatureAction;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -55,8 +57,8 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		Feature feature = parser.parse(featureTarget);
 
 		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, featureTarget);
-		((ArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(bundlePool, key, featureTarget);
+		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
 		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, new PublisherInfo());
 
 		bundlePool.addDescriptor(descriptor);
@@ -105,8 +107,8 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		Feature feature = parser.parse(featureTarget);
 
 		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, featureTarget);
-		((ArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(bundlePool, key, featureTarget);
+		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
 		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, new PublisherInfo());
 
 		bundlePool.addDescriptor(descriptor);

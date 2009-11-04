@@ -15,8 +15,7 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -260,5 +259,87 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Test failed", e);
 		}
+	}
+
+	private static class TestDescriptor implements IArtifactDescriptor {
+		private static final ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[0];
+		private IArtifactKey artifactKey;
+		private Properties properties = new Properties();
+
+		public TestDescriptor(IArtifactKey key) {
+			this.artifactKey = key;
+		}
+
+		public IArtifactKey getArtifactKey() {
+			return artifactKey;
+		}
+
+		public ProcessingStepDescriptor[] getProcessingSteps() {
+			return steps;
+		}
+
+		public Map getProperties() {
+			return properties;
+		}
+
+		public String getProperty(String key) {
+			return properties.getProperty(key);
+		}
+
+		public IArtifactRepository getRepository() {
+			return null;
+		}
+
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (!(obj instanceof IArtifactDescriptor))
+				return false;
+
+			IArtifactDescriptor other = (IArtifactDescriptor) obj;
+			if (!artifactKey.equals(other.getArtifactKey()))
+				return false;
+
+			if (!Arrays.equals(steps, other.getProcessingSteps()))
+				return false;
+
+			String format = getProperty(FORMAT);
+			String otherFormat = other.getProperty(FORMAT);
+			if (format != null ? !format.equals(otherFormat) : otherFormat != null)
+				return false;
+
+			return true;
+		}
+
+		public int hashCode() {
+			String format = getProperty(FORMAT);
+
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((artifactKey == null) ? 0 : artifactKey.hashCode());
+			result = prime * result + Arrays.asList(steps).hashCode();
+			result = prime * result + (format != null ? format.hashCode() : 0);
+			return result;
+		}
+	}
+
+	public void testAddContains() throws Exception {
+		File folder = getTestFolder("simple_AddContains");
+		repositoryURI = folder.toURI();
+
+		Map properties = new HashMap();
+		SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+
+		TestDescriptor descriptor = new TestDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
+		OutputStream stream = repo.getOutputStream(descriptor);
+		stream.write("I am an artifact\n".getBytes());
+		stream.close();
+
+		assertTrue(repo.contains(descriptor));
+
+		assertTrue(repo.contains(new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")))));
+
 	}
 }

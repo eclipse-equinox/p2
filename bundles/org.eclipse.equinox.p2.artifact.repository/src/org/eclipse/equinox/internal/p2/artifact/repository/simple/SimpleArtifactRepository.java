@@ -299,21 +299,42 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
-		// TODO perhaps the argument here should be ArtifactDescriptor.  IArtifactDescriptors are for 
-		// people who are reading the repository.
-		// TODO: here we may want to ensure that the artifact has not been added concurrently
-		((ArtifactDescriptor) toAdd).setRepository(this);
-		artifactDescriptors.add(toAdd);
-		mapDescriptor(toAdd);
+		if (artifactDescriptors.contains(toAdd))
+			return;
+
+		SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(toAdd);
+		artifactDescriptors.add(internalDescriptor);
+		mapDescriptor(internalDescriptor);
 		save();
 	}
 
-	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return new SimpleArtifactDescriptor(key);
+	}
 
+	private SimpleArtifactDescriptor createInternalDescriptor(IArtifactDescriptor descriptor) {
+		SimpleArtifactDescriptor internal = new SimpleArtifactDescriptor(descriptor);
+
+		internal.setRepository(this);
+		if (isFolderBased(descriptor))
+			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+		if (descriptor instanceof SimpleArtifactDescriptor) {
+			Map repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
+			for (Iterator iterator = repoProperties.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				internal.setRepositoryProperty(key, (String) repoProperties.get(key));
+			}
+		}
+		return internal;
+	}
+
+	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
 		for (int i = 0; i < descriptors.length; i++) {
-			((ArtifactDescriptor) descriptors[i]).setRepository(this);
-			artifactDescriptors.add(descriptors[i]);
-			mapDescriptor(descriptors[i]);
+			if (artifactDescriptors.contains(descriptors[i]))
+				continue;
+			ArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
+			artifactDescriptors.add(internalDescriptor);
+			mapDescriptor(internalDescriptor);
 		}
 		save();
 	}
@@ -404,7 +425,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * descriptor existed in the repository, and was successfully removed.
 	 */
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
-		if (((ArtifactDescriptor) descriptor).getRepositoryProperty(ArtifactDescriptor.ARTIFACT_REFERENCE) == null) {
+		SimpleArtifactDescriptor simple = null;
+		if (descriptor instanceof SimpleArtifactDescriptor)
+			simple = (SimpleArtifactDescriptor) descriptor;
+		else
+			simple = createInternalDescriptor(descriptor);
+		if (simple.getRepositoryProperty(SimpleArtifactDescriptor.ARTIFACT_REFERENCE) == null) {
 			File file = getArtifactFile(descriptor);
 			if (file == null)
 				return false;
@@ -638,8 +664,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		try {
 			// if the artifact is just a reference then return the reference location
-			if (descriptor instanceof ArtifactDescriptor) {
-				String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ArtifactDescriptor.ARTIFACT_REFERENCE);
+			if (descriptor instanceof SimpleArtifactDescriptor) {
+				String artifactReference = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperty(SimpleArtifactDescriptor.ARTIFACT_REFERENCE);
 				if (artifactReference != null) {
 					try {
 						return new URI(artifactReference);
@@ -685,9 +711,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		assertModifiable();
 
 		// Create a copy of the original descriptor that we can manipulate and add to our repo.
-		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-		if (isFolderBased(descriptor))
-			newDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+		ArtifactDescriptor newDescriptor = createInternalDescriptor(descriptor);
 
 		// Check if the artifact is already in this repository, check the newDescriptor instead of the original
 		// since the implementation of hash/equals on the descriptor matters here.
@@ -764,9 +788,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public synchronized void initializeAfterLoad(URI location) {
-		this.location = location;
-		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
+	public synchronized void initializeAfterLoad(URI repoLocation) {
+		this.location = repoLocation;
+		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
 		initializeMapper();
 		for (Iterator i = artifactDescriptors.iterator(); i.hasNext();) {
 			((ArtifactDescriptor) i.next()).setRepository(this);
@@ -779,13 +803,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private boolean isFolderBased(IArtifactDescriptor descriptor) {
-		// if the artifact is just a reference then return the reference location
-		if (descriptor instanceof ArtifactDescriptor) {
-			String useArtifactFolder = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_FOLDER);
+		// This is called from createInternalDescriptor, so if we aren't a
+		// SimpleArtifactDescriptor then just check the descriptor properties instead 
+		// of creating the interla descriptor.
+		SimpleArtifactDescriptor internalDescriptor = null;
+		if (descriptor instanceof SimpleArtifactDescriptor)
+			internalDescriptor = (SimpleArtifactDescriptor) descriptor;
+		if (internalDescriptor != null) {
+			String useArtifactFolder = internalDescriptor.getRepositoryProperty(ARTIFACT_FOLDER);
 			if (useArtifactFolder != null)
 				return Boolean.valueOf(useArtifactFolder).booleanValue();
 		}
-		//TODO: refactor this when the artifact folder property is consistently set in repository properties
 		return Boolean.valueOf(descriptor.getProperty(ARTIFACT_FOLDER)).booleanValue();
 	}
 

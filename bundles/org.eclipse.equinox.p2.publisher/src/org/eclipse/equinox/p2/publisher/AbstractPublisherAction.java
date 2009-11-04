@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.publisher;
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
@@ -249,7 +250,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param descriptor the descriptor to decorate
 	 * @param info the publisher info supplying the advice
 	 */
-	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, ArtifactDescriptor descriptor, IPublisherInfo info) {
+	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, IArtifactDescriptor descriptor, IPublisherInfo info) {
+		if (!(descriptor instanceof SimpleArtifactDescriptor))
+			return;
+
 		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IPropertyAdvice entry = (IPropertyAdvice) i.next();
@@ -258,7 +262,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				continue;
 			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
 				String key = (String) j.next();
-				descriptor.setRepositoryProperty(key, props.getProperty(key));
+				((SimpleArtifactDescriptor) descriptor).setRepositoryProperty(key, props.getProperty(key));
 			}
 		}
 	}

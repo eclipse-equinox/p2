@@ -15,8 +15,8 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.*;
 import java.util.Properties;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -27,8 +27,6 @@ import org.eclipse.osgi.util.NLS;
  * A request to mirror (copy) an artifact into a given destination artifact repository.
  */
 public class MirrorRequest extends ArtifactRequest {
-	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
-
 	protected final IArtifactRepository target;
 
 	private final Properties targetDescriptorProperties;
@@ -91,7 +89,7 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		ArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
+		IArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
 		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
 		if (status.getSeverity() == IStatus.CANCEL) {
@@ -125,21 +123,21 @@ public class MirrorRequest extends ArtifactRequest {
 			setResult(new MultiStatus(Activator.ID, canonicalStatus.getCode() != 0 ? canonicalStatus.getCode() : status.getCode(), new IStatus[] {status, canonicalStatus}, Messages.MirrorRequest_multipleDownloadProblems, null));
 	}
 
-	private ArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
+	private IArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
 		// Get the descriptor to use to store the artifact
 		// Since we are mirroring, ensure we clear out data from the original descriptor that may
 		// not apply in the new repo location.
 		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
 		// we really do need to give the repo the actual descriptor to use however...
-		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(sourceDescriptor);
-		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
-		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
-		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, null);
-		destinationDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
-		if (targetDescriptorProperties != null)
-			destinationDescriptor.addProperties(targetDescriptorProperties);
-		if (targetRepositoryProperties != null)
-			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
+		IArtifactDescriptor destinationDescriptor = target.createArtifactDescriptor(sourceDescriptor.getArtifactKey());
+		//		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
+		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
+		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, null);
+		//		destinationDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
+		if (targetDescriptorProperties != null && destinationDescriptor instanceof ArtifactDescriptor)
+			((ArtifactDescriptor) destinationDescriptor).addProperties(targetDescriptorProperties);
+		if (targetRepositoryProperties != null && destinationDescriptor instanceof SimpleArtifactDescriptor)
+			((SimpleArtifactDescriptor) destinationDescriptor).addRepositoryProperties(targetRepositoryProperties);
 		return destinationDescriptor;
 	}
 

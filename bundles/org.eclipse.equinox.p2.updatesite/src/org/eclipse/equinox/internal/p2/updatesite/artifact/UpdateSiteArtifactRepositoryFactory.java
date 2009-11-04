@@ -14,11 +14,13 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.Messages;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -106,14 +108,14 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
 			IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+			SimpleArtifactDescriptor featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 			URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
 			allSiteArtifacts.add(featureArtifactDescriptor);
 
 			if (packSupported) {
 				// Update site supports pack200, create a packed descriptor
-				featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+				featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 				featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
 				ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
@@ -127,7 +129,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				FeatureEntry entry = featureEntries[j];
 				if (entry.isPlugin() && !entry.isRequires()) {
 					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-					ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
+					SimpleArtifactDescriptor artifactDescriptor = new SimpleArtifactDescriptor(key);
 					URI pluginURL = updateSite.getPluginURI(entry);
 					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
 					allSiteArtifacts.add(artifactDescriptor);
@@ -135,7 +137,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					if (packSupported) {
 						// Update site supports pack200, create a packed descriptor
 						key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-						artifactDescriptor = new ArtifactDescriptor(key);
+						artifactDescriptor = new SimpleArtifactDescriptor(key);
 						pluginURL = updateSite.getPluginURI(entry);
 						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
 						ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$

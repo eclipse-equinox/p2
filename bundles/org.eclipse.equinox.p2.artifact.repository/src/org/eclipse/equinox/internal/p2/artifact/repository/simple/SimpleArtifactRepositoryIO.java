@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -177,7 +176,7 @@ public class SimpleArtifactRepositoryIO {
 			start(ARTIFACTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactDescriptors.size());
 			for (Iterator iter = artifactDescriptors.iterator(); iter.hasNext();) {
-				ArtifactDescriptor descriptor = (ArtifactDescriptor) iter.next();
+				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iter.next();
 				IArtifactKey key = descriptor.getArtifactKey();
 				start(ARTIFACT_ELEMENT);
 				attribute(ARTIFACT_CLASSIFIER_ATTRIBUTE, key.getClassifier());
@@ -403,7 +402,7 @@ public class SimpleArtifactRepositoryIO {
 			private final String[] required = new String[] {ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 			private Set artifacts;
-			ArtifactDescriptor currentArtifact = null;
+			SimpleArtifactDescriptor currentArtifact = null;
 
 			private PropertiesHandler propertiesHandler = null;
 			private PropertiesHandler repositoryPropertiesHandler = null;
@@ -415,7 +414,7 @@ public class SimpleArtifactRepositoryIO {
 				String[] values = parseRequiredAttributes(attributes, required);
 				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 				// TODO: resolve access restriction on ArtifactKey construction
-				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
+				currentArtifact = new SimpleArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
 			}
 
 			public void startElement(String name, Attributes attributes) {

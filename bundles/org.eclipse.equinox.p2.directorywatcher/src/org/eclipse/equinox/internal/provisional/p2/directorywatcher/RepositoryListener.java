@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -250,7 +251,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				IArtifactKey key = (IArtifactKey) it.next();
 				IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 				for (int i = 0; i < descriptors.length; i++) {
-					ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
+					SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[i];
 					String filename = descriptor.getRepositoryProperty(FILE_NAME);
 					if (filename == null) {
 						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
  * This represents information about a given artifact stored on a particular byte server.
  */
 public class ArtifactDescriptor implements IArtifactDescriptor {
-	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
-
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
 	protected IArtifactKey key; // The key associated with this artifact
@@ -31,11 +29,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
 	protected Map properties = new OrderedProperties();
-	protected Map repositoryProperties = new OrderedProperties();
-
 	protected transient IArtifactRepository repository;
-
-	// QUESTION: Do we need any description or user readable name
 
 	public ArtifactDescriptor(IArtifactDescriptor base) {
 		super();
@@ -43,15 +37,13 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		processingSteps = base.getProcessingSteps();
 		properties.putAll(base.getProperties());
 		repository = base.getRepository();
-		// TODO this property is hardcoded for the blob store.
-		//		setProperty("artifact.uuid", base.getProperty("artifact.uuid"));
 	}
 
 	public ArtifactDescriptor(ArtifactDescriptor base) {
 		super();
 		key = base.key;
 		processingSteps = base.processingSteps;
-		properties = base.properties;
+		properties.putAll(base.properties);
 		repository = base.repository;
 	}
 
@@ -87,29 +79,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
-	public String getRepositoryProperty(String propertyKey) {
-		return (String) repositoryProperties.get(propertyKey);
-	}
-
-	public void setRepositoryProperty(String key, String value) {
-		if (value == null)
-			repositoryProperties.remove(key);
-		else
-			repositoryProperties.put(key, value);
-	}
-
-	public void addRepositoryProperties(Map additionalProperties) {
-		repositoryProperties.putAll(additionalProperties);
-	}
-
-	/**
-	 * Returns a read-only collection of the repository properties of the artifact descriptor.
-	 * @return the repository properties of this artifact descriptor.
-	 */
-	public Map getRepositoryProperties() {
-		return OrderedProperties.unmodifiableProperties(repositoryProperties);
-	}
-
 	public ProcessingStepDescriptor[] getProcessingSteps() {
 		return processingSteps;
 	}
@@ -118,58 +87,42 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		processingSteps = value == null ? EMPTY_STEPS : value;
 	}
 
-	// Implementation of both equals and hash depends on the implementation of
-	// SimpleArtifactRepository#getOutputStream(IArtifactDescriptor)
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+
+		// Other implementations of IArtifactDescriptor must not be considered equal
+		if (!(obj instanceof ArtifactDescriptor))
 			return false;
+
 		ArtifactDescriptor other = (ArtifactDescriptor) obj;
 		if (key == null) {
-			if (other.key != null)
+			if (other.getArtifactKey() != null)
 				return false;
-		} else if (!key.equals(other.key))
-			return false;
-		if (!Arrays.equals(processingSteps, other.processingSteps))
+		} else if (!key.equals(other.getArtifactKey()))
 			return false;
 
-		//Properties affecting SimpleArtifactRepository#getLocation
-		String locationProperty = getRepositoryProperty(ARTIFACT_REFERENCE);
-		String otherProperty = other.getRepositoryProperty(ARTIFACT_REFERENCE);
-		// want not null and the same, or both null
-		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null)
+		if (!Arrays.equals(processingSteps, other.getProcessingSteps()))
 			return false;
 
-		locationProperty = getProperty(FORMAT);
-		otherProperty = other.getProperty(FORMAT);
-		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null)
+		String format = getProperty(FORMAT);
+		String otherFormat = other.getProperty(FORMAT);
+		if (format != null ? !format.equals(otherFormat) : otherFormat != null)
 			return false;
 
 		return true;
 	}
 
-	private int hashCode(Object[] array) {
-		int prime = 31;
-		if (array == null)
-			return 0;
-		int result = 1;
-		for (int index = 0; index < array.length; index++) {
-			result = prime * result + (array[index] == null ? 0 : array[index].hashCode());
-		}
-		return result;
-	}
-
 	public int hashCode() {
+		String format = getProperty(FORMAT);
+
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + hashCode(processingSteps);
-
-		String[] hashProperties = new String[] {getRepositoryProperty(ARTIFACT_REFERENCE), getProperty(FORMAT)};
-		result = prime * result + hashCode(hashProperties);
+		result = prime * result + Arrays.asList(processingSteps).hashCode();
+		result = prime * result + (format != null ? format.hashCode() : 0);
 		return result;
 	}
 
