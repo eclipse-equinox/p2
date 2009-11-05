@@ -214,16 +214,17 @@ public class JarProcessor {
 					extracted.setLastModified(entry.getTime());
 
 					//recurse
-					containingInfs.addFirst(inf);
 					String dir = getWorkingDirectory();
-					setWorkingDirectory(parentDir.getCanonicalPath());
-					File result = processJar(extracted);
-
-					newName = name.substring(0, name.length() - extracted.getName().length()) + result.getName();
-					data.put(name, newName);
-
-					setWorkingDirectory(dir);
-					containingInfs.removeFirst();
+					try {
+						containingInfs.addFirst(inf);
+						setWorkingDirectory(parentDir.getCanonicalPath());
+						File result = processJar(extracted);
+						newName = name.substring(0, name.length() - extracted.getName().length()) + result.getName();
+						data.put(name, newName);
+					} finally {
+						setWorkingDirectory(dir);
+						containingInfs.removeFirst();
+					}
 
 					//delete the extracted item leaving the recursion result
 					if (!name.equals(newName))
@@ -263,92 +264,93 @@ public class JarProcessor {
 	}
 
 	public File processJar(File input) throws IOException {
-		++depth;
-		long lastModified = input.lastModified();
-		File workingDir = new File(getWorkingDirectory());
-		if (!workingDir.exists())
-			workingDir.mkdirs();
-
-		boolean skip = Utils.shouldSkipJar(input, processAll, verbose);
-		if (depth == 0 && verbose) {
-			if (skip)
-				System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
-			else {
-				System.out.print("Running "); //$NON-NLS-1$ 
-				for (Iterator iter = steps.iterator(); iter.hasNext();) {
-					IProcessStep step = (IProcessStep) iter.next();
-					System.out.print(step.getStepName() + " "); //$NON-NLS-1$
-				}
-				System.out.println("on " + input.getPath()); //$NON-NLS-1$
-			}
-		}
-
-		if (skip) {
-			//This jar was not marked as conditioned, and we are only processing conditioned jars, so do nothing
-			--depth;
-			return input;
-		}
-
-		//pre
-		File workingFile = preProcess(input, workingDir);
-
-		//Extract entries from jar and recurse on them
 		File tempDir = null;
-		if (depth == 0) {
-			tempDir = new File(workingDir, "temp." + workingFile.getName()); //$NON-NLS-1$
-		} else {
-			File parent = workingDir.getParentFile();
-			tempDir = new File(parent, "temp_" + depth + '_' + workingFile.getName()); //$NON-NLS-1$
-		}
+		++depth;
+		try {
+			long lastModified = input.lastModified();
+			File workingDir = new File(getWorkingDirectory());
+			if (!workingDir.exists())
+				workingDir.mkdirs();
 
-		JarFile jar = new JarFile(workingFile, false);
-		Map replacements = new HashMap();
-		Properties inf = Utils.getEclipseInf(workingFile, verbose);
-		extractEntries(jar, tempDir, replacements, inf);
-
-		if (inf != null)
-			adjustInf(workingFile, inf);
-
-		//Recreate the jar with replacements. 
-		//TODO: This is not strictly necessary if we didn't change the inf file and didn't change any content
-		File tempJar = null;
-		tempJar = new File(tempDir, workingFile.getName());
-		File parent = tempJar.getParentFile();
-		if (!parent.exists())
-			parent.mkdirs();
-		JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
-		recreateJar(jar, jarOut, replacements, tempDir, inf);
-
-		jar.close();
-		if (tempJar != null) {
-			if (!workingFile.equals(input)) {
-				workingFile.delete();
+			boolean skip = Utils.shouldSkipJar(input, processAll, verbose);
+			if (depth == 0 && verbose) {
+				if (skip)
+					System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
+				else {
+					System.out.print("Running "); //$NON-NLS-1$ 
+					for (Iterator iter = steps.iterator(); iter.hasNext();) {
+						IProcessStep step = (IProcessStep) iter.next();
+						System.out.print(step.getStepName() + " "); //$NON-NLS-1$
+					}
+					System.out.println("on " + input.getPath()); //$NON-NLS-1$
+				}
 			}
-			workingFile = tempJar;
+
+			if (skip) {
+				//This jar was not marked as conditioned, and we are only processing conditioned jars, so do nothing
+				return input;
+			}
+
+			//pre
+			File workingFile = preProcess(input, workingDir);
+
+			//Extract entries from jar and recurse on them
+			if (depth == 0) {
+				tempDir = new File(workingDir, "temp." + workingFile.getName()); //$NON-NLS-1$
+			} else {
+				File parent = workingDir.getParentFile();
+				tempDir = new File(parent, "temp_" + depth + '_' + workingFile.getName()); //$NON-NLS-1$
+			}
+
+			JarFile jar = new JarFile(workingFile, false);
+			Map replacements = new HashMap();
+			Properties inf = Utils.getEclipseInf(workingFile, verbose);
+			extractEntries(jar, tempDir, replacements, inf);
+
+			if (inf != null)
+				adjustInf(workingFile, inf);
+
+			//Recreate the jar with replacements. 
+			//TODO: This is not strictly necessary if we didn't change the inf file and didn't change any content
+			File tempJar = null;
+			tempJar = new File(tempDir, workingFile.getName());
+			File parent = tempJar.getParentFile();
+			if (!parent.exists())
+				parent.mkdirs();
+			JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
+			recreateJar(jar, jarOut, replacements, tempDir, inf);
+
+			jar.close();
+			if (tempJar != null) {
+				if (!workingFile.equals(input)) {
+					workingFile.delete();
+				}
+				workingFile = tempJar;
+			}
+
+			//post
+			File result = postProcess(workingFile, workingDir);
+
+			//have to normalize after the post steps
+			normalize(result, workingDir);
+
+			if (!result.equals(workingFile) && !workingFile.equals(input))
+				workingFile.delete();
+			if (!result.getParentFile().equals(workingDir)) {
+				File finalFile = new File(workingDir, result.getName());
+				if (finalFile.exists())
+					finalFile.delete();
+				result.renameTo(finalFile);
+				result = finalFile;
+			}
+
+			result.setLastModified(lastModified);
+			return result;
+		} finally {
+			--depth;
+			if (tempDir != null && tempDir.exists())
+				Utils.clear(tempDir);
 		}
-
-		//post
-		File result = postProcess(workingFile, workingDir);
-
-		//have to normalize after the post steps
-		normalize(result, workingDir);
-
-		if (!result.equals(workingFile) && !workingFile.equals(input))
-			workingFile.delete();
-		if (!result.getParentFile().equals(workingDir)) {
-			File finalFile = new File(workingDir, result.getName());
-			if (finalFile.exists())
-				finalFile.delete();
-			result.renameTo(finalFile);
-			result = finalFile;
-		}
-
-		if (tempDir.exists())
-			Utils.clear(tempDir);
-
-		result.setLastModified(lastModified);
-		--depth;
-		return result;
 	}
 
 	private void normalize(File input, File directory) {
