@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
@@ -86,14 +87,18 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.publisher", message); //$NON-NLS-1$
 	}
 
+	protected IProvisioningAgent getProvisioningAgent() {
+		return (IProvisioningAgent) ServiceHelper.getService(Activator.context, IProvisioningAgent.SERVICE_NAME);
+	}
+
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		if (artifactLocation != null)
-			publisherInfo.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
+			publisherInfo.setArtifactRepository(Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
 		else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
-		publisherInfo.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
+		publisherInfo.setMetadataRepository(Publisher.createMetadataRepository(getProvisioningAgent(), metadataLocation, metadataRepoName, append, compress));
 
 		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
 			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
