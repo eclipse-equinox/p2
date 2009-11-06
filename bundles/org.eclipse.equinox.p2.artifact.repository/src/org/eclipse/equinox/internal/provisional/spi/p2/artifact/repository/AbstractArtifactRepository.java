@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactIterator;
+
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
@@ -17,7 +19,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public abstract class AbstractArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
@@ -77,5 +81,15 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		if (monitor != null && monitor.isCanceled())
+			return collector;
+
+		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
+		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
+		ArtifactIterator iterator = new ArtifactIterator(this, acceptKeys, acceptDescriptors);
+		return query.perform(iterator, collector);
 	}
 }

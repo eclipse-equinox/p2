@@ -79,6 +79,12 @@ public class ArtifactKey implements IArtifactKey {
 		this.version = version;
 	}
 
+	public ArtifactKey(IArtifactKey artifactKey) {
+		this.classifier = artifactKey.getClassifier();
+		this.id = artifactKey.getId();
+		this.version = artifactKey.getVersion();
+	}
+
 	public String getClassifier() {
 		return classifier;
 	}

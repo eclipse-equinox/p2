@@ -18,7 +18,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
@@ -231,6 +233,11 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
-		return new ArtifactDescriptor(key);
+		return artifactRepository.createArtifactDescriptor(key);
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		ensureInitialized();
+		return artifactRepository.query(query, collector, monitor);
 	}
 }

@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
@@ -133,5 +135,9 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return delegate.createArtifactDescriptor(key);
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		return delegate.query(query, collector, monitor);
 	}
 }

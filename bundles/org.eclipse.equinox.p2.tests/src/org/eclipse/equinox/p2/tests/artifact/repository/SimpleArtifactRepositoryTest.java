@@ -22,8 +22,8 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
@@ -78,7 +78,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
-	public void testCompressedRepository() throws URISyntaxException, ProvisionException {
+	public void testCompressedRepository() throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
@@ -111,7 +111,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Repository should not create artifact.xml");
 	}
 
-	public void testUncompressedRepository() throws URISyntaxException, ProvisionException {
+	public void testUncompressedRepository() throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
@@ -341,5 +341,123 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		assertTrue(repo.contains(new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")))));
 
+	}
+
+	public void testQuery() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testQuery");
+		repositoryURI = folder.toURI();
+
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
+		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+
+		repo.addDescriptor(d1);
+		repo.addDescriptor(d2);
+		repo.addDescriptor(d3);
+
+		Collector result = repo.query(new ArtifactDescriptorQuery("a", null, null), new Collector(), null);
+		assertEquals(3, result.size());
+
+		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), new Collector(), null);
+		assertEquals(2, result.size());
+		assertFalse(result.toCollection().contains(d1));
+
+		result = repo.query(new ArtifactDescriptorQuery(null, null, "packed"), new Collector(), null);
+		assertEquals(1, result.size());
+		assertTrue(result.toCollection().contains(d3));
+	}
+
+	public void testArtifactIterator() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testArtifactIterator");
+		repositoryURI = folder.toURI();
+
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
+		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+
+		repo.addDescriptor(d1);
+		repo.addDescriptor(d2);
+		repo.addDescriptor(d3);
+
+		ArtifactIterator iterator = new ArtifactIterator(repo, true, true);
+		assertTrue(iterator.hasNext());
+		Object o = iterator.next();
+		assertTrue(o instanceof IArtifactKey);
+		if (((IArtifactKey) o).getVersion().equals(Version.parseVersion("1.0.0"))) {
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.next() instanceof IArtifactKey);
+			assertTrue(iterator.hasNext());
+			assertFalse(iterator.hasNextKey());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertFalse(iterator.hasNext());
+		} else {
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertTrue(iterator.hasNext());
+			assertTrue(iterator.hasNextKey());
+			assertTrue(iterator.next() instanceof IArtifactKey);
+			assertTrue(iterator.hasNext());
+			assertFalse(iterator.hasNextKey());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertFalse(iterator.hasNext());
+		}
+	}
+
+	public void testArtifactIterator_2() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testArtifactIterator_2");
+		repositoryURI = folder.toURI();
+
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
+		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+
+		repo.addDescriptor(d1);
+		repo.addDescriptor(d2);
+		repo.addDescriptor(d3);
+
+		ArtifactIterator iterator = new ArtifactIterator(repo, true, false);
+		assertTrue(iterator.hasNext());
+		assertTrue(iterator.hasNextKey());
+		assertTrue(iterator.next() instanceof IArtifactKey);
+		assertTrue(iterator.next() instanceof IArtifactKey);
+		assertFalse(iterator.hasNext());
+
+		iterator = new ArtifactIterator(repo, false, true);
+		assertFalse(iterator.hasNextKey());
+		assertTrue(iterator.hasNext());
+		assertTrue(iterator.next() instanceof IArtifactDescriptor);
+		assertTrue(iterator.next() instanceof IArtifactDescriptor);
+		assertTrue(iterator.next() instanceof IArtifactDescriptor);
+		assertFalse(iterator.hasNext());
+
+		iterator = new ArtifactIterator(repo, true, true);
+		Object o = iterator.next();
+		assertTrue(o instanceof IArtifactKey);
+		if (((IArtifactKey) o).getVersion().equals(Version.parseVersion("1.0.0"))) {
+			assertNotNull(iterator.nextKey());
+			assertFalse(iterator.hasNextKey());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+		} else {
+			assertNotNull(iterator.nextKey());
+			assertFalse(iterator.hasNextKey());
+			assertTrue(iterator.next() instanceof IArtifactDescriptor);
+		}
+		assertFalse(iterator.hasNext());
 	}
 }
