@@ -53,6 +53,8 @@ public class Projector {
 	private MultiStatus result;
 
 	private Collection alreadyInstalledIUs;
+	private IQueryable lastState;
+
 	private boolean considerMetaRequirements;
 	private IInstallableUnit entryPoint;
 	private Map fragments = new HashMap();
@@ -131,8 +133,13 @@ public class Projector {
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
+	protected boolean isInstalled(IInstallableUnit iu) {
+		return lastState.query(new InstallableUnitQuery(iu), new Collector(), null).size() == 0 ? false : true;
+	}
+
+	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable installedIUs, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
+		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;

@@ -323,7 +323,7 @@ public class SimplePlanner implements IPlanner {
 			if (slice == null)
 				return new ProvisioningPlan(slicer.getStatus(), profileChangeRequest, null);
 			Projector projector = new Projector(slice, newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
-			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
+			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
 				return new ProvisioningPlan(s, profileChangeRequest, null);
