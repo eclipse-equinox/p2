@@ -26,9 +26,11 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.AbstractWrappedArtifactRepository;
 import org.w3c.dom.*;
@@ -302,6 +304,10 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
+		}
+
+		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+			return delegate.query(query, collector, monitor);
 		}
 	}
 

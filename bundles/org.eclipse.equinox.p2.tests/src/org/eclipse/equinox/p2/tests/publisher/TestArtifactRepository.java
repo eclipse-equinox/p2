@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactIterator;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -307,7 +305,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
 		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		ArtifactIterator iterator = new ArtifactIterator(this, acceptKeys, acceptDescriptors);
-		return query.perform(iterator, collector);
+		if (acceptKeys)
+			collector = query.perform(Arrays.asList(getArtifactKeys()).iterator(), collector);
+		if (acceptDescriptors)
+			collector = query.perform(repo.keySet().iterator(), collector);
+		return collector;
 	}
 }

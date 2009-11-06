@@ -24,9 +24,11 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, ICompositeRepository {
@@ -516,5 +518,11 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		boolean isGood() {
 			return good;
 		}
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		// Query all the all the repositories this composite repo contains
+		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
+		return queryable.query(query, collector, monitor);
 	}
 }

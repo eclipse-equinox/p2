@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactIterator;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -18,7 +18,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class CachingArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
@@ -243,13 +243,23 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.createArtifactDescriptor(key);
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 
-		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
-		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		ArtifactIterator iterator = new ArtifactIterator(this, acceptKeys, acceptDescriptors);
-		return query.perform(iterator, collector);
+		final boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
+		final boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
+		if (!acceptKeys && !acceptDescriptors)
+			return collector;
+
+		IQueryable cached = new IQueryable() {
+			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+				Iterator i = acceptDescriptors ? new MappedCollectionIterator(artifactMap, acceptKeys) : artifactMap.keySet().iterator();
+				return query.perform(i, collector);
+			}
+		};
+
+		CompoundQueryable compound = new CompoundQueryable(new IQueryable[] {cached, innerRepo});
+		return compound.query(query, collector, monitor);
 	}
 }

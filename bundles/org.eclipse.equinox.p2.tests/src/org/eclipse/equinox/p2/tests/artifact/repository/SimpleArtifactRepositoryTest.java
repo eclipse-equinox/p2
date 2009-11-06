@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -371,21 +373,20 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testArtifactIterator() throws Exception {
-		File folder = getTestFolder("ArtifactRepository_testArtifactIterator");
-		repositoryURI = folder.toURI();
+		HashMap map = new HashMap();
 
-		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0"));
+		map.put(key, new ArtifactDescriptor(key));
 
-		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
-		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
-		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
-		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		Collection collection = new ArrayList(2);
+		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
+		collection.add(new ArtifactDescriptor(key));
+		ArtifactDescriptor d = new ArtifactDescriptor(key);
+		d.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		collection.add(d);
+		map.put(key, collection);
 
-		repo.addDescriptor(d1);
-		repo.addDescriptor(d2);
-		repo.addDescriptor(d3);
-
-		ArtifactIterator iterator = new ArtifactIterator(repo, true, true);
+		MappedCollectionIterator iterator = new MappedCollectionIterator(map, true);
 		assertTrue(iterator.hasNext());
 		Object o = iterator.next();
 		assertTrue(o instanceof IArtifactKey);
@@ -416,28 +417,20 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testArtifactIterator_2() throws Exception {
-		File folder = getTestFolder("ArtifactRepository_testArtifactIterator_2");
-		repositoryURI = folder.toURI();
+		HashMap map = new HashMap();
 
-		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0"));
+		map.put(key, new ArtifactDescriptor(key));
 
-		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
-		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
-		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
-		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		Collection collection = new ArrayList(2);
+		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
+		collection.add(new ArtifactDescriptor(key));
+		ArtifactDescriptor d = new ArtifactDescriptor(key);
+		d.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		collection.add(d);
+		map.put(key, collection);
 
-		repo.addDescriptor(d1);
-		repo.addDescriptor(d2);
-		repo.addDescriptor(d3);
-
-		ArtifactIterator iterator = new ArtifactIterator(repo, true, false);
-		assertTrue(iterator.hasNext());
-		assertTrue(iterator.hasNextKey());
-		assertTrue(iterator.next() instanceof IArtifactKey);
-		assertTrue(iterator.next() instanceof IArtifactKey);
-		assertFalse(iterator.hasNext());
-
-		iterator = new ArtifactIterator(repo, false, true);
+		MappedCollectionIterator iterator = new MappedCollectionIterator(map, false);
 		assertFalse(iterator.hasNextKey());
 		assertTrue(iterator.hasNext());
 		assertTrue(iterator.next() instanceof IArtifactDescriptor);
@@ -445,7 +438,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(iterator.next() instanceof IArtifactDescriptor);
 		assertFalse(iterator.hasNext());
 
-		iterator = new ArtifactIterator(repo, true, true);
+		iterator = new MappedCollectionIterator(map, true);
 		Object o = iterator.next();
 		assertTrue(o instanceof IArtifactKey);
 		if (((IArtifactKey) o).getVersion().equals(Version.parseVersion("1.0.0"))) {

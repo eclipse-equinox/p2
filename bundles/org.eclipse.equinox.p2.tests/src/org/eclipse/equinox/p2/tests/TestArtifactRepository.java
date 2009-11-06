@@ -23,9 +23,11 @@ import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryMana
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A simple artifact repository implementation used for testing purposes.
@@ -193,5 +195,10 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

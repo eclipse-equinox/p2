@@ -17,7 +17,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class AggregatedBundleRepository extends AbstractArtifactRepository implements IFileArtifactRepository {
 
@@ -111,5 +113,11 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	 */
 	public Collection testGetBundleRepositories() {
 		return bundleRepositories;
+	}
+
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		// Query all the all the repositories
+		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) bundleRepositories.toArray(new IQueryable[bundleRepositories.size()]));
+		return queryable.query(query, collector, monitor);
 	}
 }

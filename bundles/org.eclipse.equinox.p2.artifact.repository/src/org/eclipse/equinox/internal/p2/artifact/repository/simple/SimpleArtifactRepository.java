@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,9 +32,11 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
@@ -976,5 +980,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public String toString() {
 		return location.toString();
+	}
+
+	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		if (monitor != null && monitor.isCanceled())
+			return collector;
+
+		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
+		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
+		if (!acceptKeys && !acceptDescriptors)
+			return collector;
+
+		Iterator iterator = acceptDescriptors ? new MappedCollectionIterator(artifactMap, acceptKeys) : artifactMap.keySet().iterator();
+		return query.perform(iterator, collector);
 	}
 }
