@@ -47,7 +47,6 @@ public class Application implements IApplication {
 	static private final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 	static private final String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
-	static private final String FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 	static private final String SIMPLE_CONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 
 	public static final int COMMAND_INSTALL = 0;
@@ -508,6 +507,7 @@ public class Application implements IApplication {
 		Bundle bundle = getBundle(bundleName);
 		if (bundle == null)
 			return false;
+		bundle.start(Bundle.START_ACTIVATION_POLICY);
 		bundle.start(Bundle.START_TRANSIENT);
 		return true;
 	}
@@ -523,11 +523,6 @@ public class Application implements IApplication {
 			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, SIMPLE_CONFIGURATOR_MANIPULATOR)));
 			return EXIT_ERROR;
 		}
-		if (!startEarly(FRAMEWORKADMIN_EQUINOX)) {
-			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, FRAMEWORKADMIN_EQUINOX)));
-			return EXIT_ERROR;
-		}
-
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 

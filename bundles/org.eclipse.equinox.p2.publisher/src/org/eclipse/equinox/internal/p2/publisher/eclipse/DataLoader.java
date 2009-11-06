@@ -35,7 +35,6 @@ public class DataLoader {
 
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
 	private Manipulator manipulator;
 	private File configurationLocation;
@@ -126,7 +125,6 @@ public class DataLoader {
 	private FrameworkAdmin getFrameworkAdmin() {
 		FrameworkAdmin frameworkAdmin = (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
 		if (frameworkAdmin == null) {
-			startBundle(ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX);
 			startBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR);
 			frameworkAdmin = (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
 		}

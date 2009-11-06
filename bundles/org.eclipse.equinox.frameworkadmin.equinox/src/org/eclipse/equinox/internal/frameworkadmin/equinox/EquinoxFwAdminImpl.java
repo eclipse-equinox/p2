@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,79 @@ import java.util.Dictionary;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulatorFactory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.osgi.framework.*;
+import org.osgi.service.startlevel.StartLevel;
 
 public class EquinoxFwAdminImpl implements FrameworkAdmin {
+
+	boolean active = false;
+
+	private ConfiguratorManipulator configuratorManipulator = null;
+
+	BundleContext context = null;
+
+	private boolean runningFw = false;
+
+	private PlatformAdmin platformAdmin;
+	private StartLevel startLevelService;
+
+	public EquinoxFwAdminImpl() {
+		this(null, false);
+	}
+
+	//	private String configuratorManipulatorFactoryName = null;
+
+	EquinoxFwAdminImpl(BundleContext context) {
+		this(context, false);
+	}
+
+	EquinoxFwAdminImpl(BundleContext context, boolean runningFw) {
+		this.context = context;
+		this.active = true;
+		this.runningFw = runningFw;
+	}
+
+	EquinoxFwAdminImpl(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		this.context = null;
+		this.active = true;
+		this.runningFw = false;
+		//		this.configuratorManipulatorFactoryName = configuratorManipulatorFactoryName;
+		loadConfiguratorManipulator(configuratorManipulatorFactoryName);
+	}
+
+	/**
+	 * DS component activator
+	 * @param aContext The bundle context
+	 */
+	public void activate(BundleContext aContext) {
+		this.context = aContext;
+		this.runningFw = isRunningFw();
+		Log.init(aContext);
+	}
+
+	void deactivate() {
+		active = false;
+		Log.dispose();
+	}
+
+	public ConfiguratorManipulator getConfiguratorManipulator() {
+		return configuratorManipulator;
+	}
+
+	public Manipulator getManipulator() {
+		return new EquinoxManipulatorImpl(context, this, platformAdmin, startLevelService, false);
+	}
+
+	public Manipulator getRunningManipulator() {
+		if (!this.runningFw)
+			return null;
+		return new EquinoxManipulatorImpl(context, this, platformAdmin, startLevelService, true);
+	}
+
+	public boolean isActive() {
+		return active;
+	}
 
 	/**
 	 * If both the vendor and the Bundle-Version in the manifest match, 
@@ -26,7 +96,7 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	 *  
 	 * @return flag true if the ManipulatorAdmin object can handle currently running fw launch. 
 	 */
-	static boolean isRunningFw(BundleContext context) {
+	boolean isRunningFw() {
 		//TODO implementation for Eclipse.exe and for Equinox
 		String fwVendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
 		if (!"Eclipse".equals(fwVendor)) //$NON-NLS-1$
@@ -43,29 +113,9 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		return false;
 	}
 
-	BundleContext context = null;
-
-	boolean active = false;
-
-	private boolean runningFw = false;
-	private ConfiguratorManipulator configuratorManipulator = null;
-
-	//	private String configuratorManipulatorFactoryName = null;
-
-	EquinoxFwAdminImpl() {
-		this(null, false);
-	}
-
-	EquinoxFwAdminImpl(BundleContext context) {
-		this(context, false);
-	}
-
-	EquinoxFwAdminImpl(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		this.context = null;
-		this.active = true;
-		this.runningFw = false;
-		//		this.configuratorManipulatorFactoryName = configuratorManipulatorFactoryName;
-		loadConfiguratorManipulator(configuratorManipulatorFactoryName);
+	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, FrameworkAdminRuntimeException, IOException {
+		//return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
+		return new EclipseLauncherImpl(this).launch(manipulator, cwd);
 	}
 
 	private void loadConfiguratorManipulator(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -76,37 +126,12 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		return;
 	}
 
-	EquinoxFwAdminImpl(BundleContext context, boolean runningFw) {
-		this.context = context;
-		this.active = true;
-		this.runningFw = runningFw;
+	public void setPlatformAdmin(PlatformAdmin admin) {
+		this.platformAdmin = admin;
 	}
 
-	void deactivate() {
-		active = false;
-	}
-
-	public Manipulator getManipulator() {
-		return new EquinoxManipulatorImpl(context, this);
-	}
-
-	public Manipulator getRunningManipulator() {
-		if (this.runningFw)
-			return new EquinoxManipulatorImpl(context, this, true);
-		return null;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, FrameworkAdminRuntimeException, IOException {
-		//return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
-		return new EclipseLauncherImpl(this).launch(manipulator, cwd);
-	}
-
-	public ConfiguratorManipulator getConfiguratorManipulator() {
-		return configuratorManipulator;
+	public void setStartLevel(StartLevel sl) {
+		this.startLevelService = sl;
 	}
 
 }

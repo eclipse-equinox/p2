@@ -46,7 +46,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
 	private String os;
@@ -353,15 +352,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 				e.printStackTrace();
 			}
 		}
-		//		try {
-		//			frameworkAdminTracker.waitForService(500);
-		//		} catch (InterruptedException e) {
-		//			// ignore
-		//		}
 
 		FrameworkAdmin admin = (FrameworkAdmin) frameworkAdminTracker.getService();
 		if (admin == null) {
-			startBundle(ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX);
 			startBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR);
 			admin = (FrameworkAdmin) frameworkAdminTracker.getService();
 		}
