@@ -57,8 +57,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), new Collector(), null);
 
 		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
-		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
-		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		if (profileRegistry == null) {
 			throw new RuntimeException("Profile registry service not available");
 		}

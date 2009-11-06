@@ -21,8 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 	private static final String PROFILE_NAME = "profile.SurrogateProfileHandlerTest";
@@ -33,7 +31,6 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		return new TestSuite(SurrogateProfileHandlerTest.class);
 	}
 
-	private ServiceReference registryRef;
 	private IProfileRegistry registry;
 	private SurrogateProfileHandler handler;
 
@@ -51,13 +48,11 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 	}
 
 	protected void getServices() {
-		registryRef = TestActivator.getContext().getServiceReference(IProfileRegistry.class.getName());
-		registry = (IProfileRegistry) TestActivator.getContext().getService(registryRef);
+		registry = getProfileRegistry();
 	}
 
 	private void ungetServices() {
 		registry = null;
-		TestActivator.getContext().ungetService(registryRef);
 	}
 
 	protected void setUp() throws Exception {

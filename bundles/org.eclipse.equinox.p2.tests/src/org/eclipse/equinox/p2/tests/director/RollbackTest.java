@@ -78,7 +78,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -112,7 +112,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackIUs() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -151,7 +151,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackIUProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -186,7 +186,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackDependentIUProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);

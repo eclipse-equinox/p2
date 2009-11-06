@@ -14,17 +14,16 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug271954 extends AbstractProvisioningTest {
 	private static final String profileLoadedId = "SDKProfile";
@@ -38,7 +37,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		//Tweak the running profile registry
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
@@ -59,7 +58,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	protected void tearDown() throws Exception {
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 
 		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
 		profilesMapField.setAccessible(true);

@@ -63,8 +63,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	protected IProfile createProfile(String profileId, String installFolder) {
-		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
-		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		if (profileRegistry == null) {
 			throw new RuntimeException("Profile registry service not available");
 		}
@@ -133,7 +132,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void rollbackPlatformSource35(IProfile profile2, File installFolder) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
 		assertEquals(3, timestamps.length);
 

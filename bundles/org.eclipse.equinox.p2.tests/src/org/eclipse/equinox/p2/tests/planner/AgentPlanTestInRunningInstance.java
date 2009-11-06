@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -19,7 +18,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 	private IProfile initialProfile = null;
@@ -33,7 +31,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 			return;
 
 		if (System.getProperty("eclipse.p2.profile") == null) {
-			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 			try {
 				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 				selfField.setAccessible(true);
@@ -50,7 +48,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 	public void tearDown() throws Exception {
 		if (initialProfile == null) {
 			if (System.getProperty("eclipse.p2.profile") == null) {
-				SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+				SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 				try {
 					Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 					selfField.setAccessible(true);

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.io.File;
 import java.lang.reflect.Field;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -23,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug271067 extends AbstractProvisioningTest {
 	private IProfile profile;
@@ -36,7 +34,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		File reporegistry1 = getTestData("test data bug 271067", "testData/bug271067/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		//Tweak the running profile registry
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
@@ -55,7 +53,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 	@Override
 	protected void tearDown() throws Exception {
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 
 		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
 		profilesMapField.setAccessible(true);

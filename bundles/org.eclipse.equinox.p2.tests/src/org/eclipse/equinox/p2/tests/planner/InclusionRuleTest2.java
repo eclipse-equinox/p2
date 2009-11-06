@@ -11,13 +11,11 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class InclusionRuleTest2 extends AbstractProvisioningTest {
 	IInstallableUnit a1;
@@ -50,7 +48,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
 
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		profile = profileRegistry.getProfile(profile.getProfileId());
 		Collector c = profile.query(new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
 		assertEquals(c.size(), 1);

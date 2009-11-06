@@ -712,7 +712,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IProfile createProfile(String name, String parentId, Map properties) {
 		//remove any existing profile with the same name
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		profileRegistry.removeProfile(name);
 		profilesToRemove.add(name);
 		//create and return a new profile
@@ -728,9 +728,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IProfile getProfile(String profileId) {
-		//remove any existing profile with the same name
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-		return profileRegistry.getProfile(profileId);
+		return getProfileRegistry().getProfile(profileId);
 	}
 
 	/**
@@ -767,6 +765,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+	}
+
+	protected IProfileRegistry getProfileRegistry() {
+		return (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
@@ -856,7 +858,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 		}
 		//remove all profiles created by this test
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
 			String toRemove = (String) it.next();
 			profileRegistry.removeProfile(toRemove);

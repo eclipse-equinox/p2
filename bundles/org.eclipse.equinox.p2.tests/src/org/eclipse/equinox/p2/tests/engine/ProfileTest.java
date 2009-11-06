@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -63,7 +62,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddRemoveProperty() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Properties properties = new Properties();
 		properties.put("test", "test");
@@ -81,7 +80,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddRemoveIU() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
@@ -94,7 +93,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddIUTwice() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
@@ -107,7 +106,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddRemoveIUProperty() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
@@ -126,7 +125,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testAvailable() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
