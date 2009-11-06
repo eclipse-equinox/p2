@@ -57,7 +57,7 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		File ini = new File(folder, "eclipse.ini");
 		writeEclipseIni(ini, new String[] {"-foo", "bar", "-vmargs", "-Xmx256m"});
 		
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		
 		Manipulator manipulator = fwkAdmin.getManipulator();

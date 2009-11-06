@@ -268,7 +268,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		fail("String:" + lines[idx] + " not found");
 	}
 
-	public void startSimpleConfiguratormManipulator() {
+	public void startSimpleConfiguratorManipulator() {
 		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
 		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
 		if (manipulatorBundle == null)
@@ -280,7 +280,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
-	public void stopSimpleConfiguratormManipulator() {
+	public void stopSimpleConfiguratorManipulator() {
 		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
 		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
 		if (manipulatorBundle == null)
@@ -366,7 +366,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 
 	protected Manipulator getFrameworkManipulator(File configuration, File launcher) throws BundleException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 

@@ -30,7 +30,7 @@ public class Bug196525 extends AbstractFwkAdminTest {
 	}
 
 	protected void setUp() throws Exception {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		//create a configuration with osgi and simpleconfigurator in it
 
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();

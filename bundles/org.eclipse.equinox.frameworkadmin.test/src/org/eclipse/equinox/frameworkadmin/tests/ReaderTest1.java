@@ -26,7 +26,7 @@ public class ReaderTest1 extends AbstractFwkAdminTest {
 
 
 	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();

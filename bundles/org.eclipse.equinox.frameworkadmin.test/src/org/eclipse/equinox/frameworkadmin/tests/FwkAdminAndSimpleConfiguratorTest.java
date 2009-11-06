@@ -28,7 +28,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 	}
 
 	protected Manipulator getNewManipulator(String workArea) throws FrameworkAdminRuntimeException, IOException, BundleException {
