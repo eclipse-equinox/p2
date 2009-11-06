@@ -82,7 +82,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		// TODO for now we need to manually start up the provisioning infrastructure
 		// because the Eclipse Application launch config won't let me specify bundles to start.
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {

@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
- * program and the accompanying materials are made available under the terms of
- * the Eclipse Public License v1.0 which accompanies this distribution, and is
- * available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2008, 2009 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,20 +21,20 @@ public interface SimpleConfiguratorManipulator extends ConfiguratorManipulator {
 	 * service with ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME =
 	 * SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.
 	 */
-	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = "org.eclipse.equinox.simpleconfigurator";
+	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 
 	/**
 	 * 
 	 * @param url
 	 * @param launcherLocation
-	 * @return
+	 * @return The loaded configuration
 	 * @throws IOException
 	 */
 	public BundleInfo[] loadConfiguration(URL url, File launcherLocation) throws IOException;
 
 	/**
 	 * 
-	 * @param bundleConfiguration
+	 * @param configuration
 	 * @param outputFile
 	 * @param base
 	 * @throws IOException

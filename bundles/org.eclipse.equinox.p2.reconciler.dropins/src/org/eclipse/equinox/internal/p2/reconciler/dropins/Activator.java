@@ -156,8 +156,6 @@ public class Activator implements BundleActivator {
 
 		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
 			return;
-		if (!startEarly("org.eclipse.equinox.simpleconfigurator.manipulator")) //$NON-NLS-1$
-			return;
 
 		checkConfigIni();
 

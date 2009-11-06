@@ -4,7 +4,6 @@ Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator;singleton:=true
 Bundle-Version: 1.0.200.qualifier
 Bundle-Localization: plugin
-Bundle-Activator: org.eclipse.equinox.internal.simpleconfigurator.manipulator.Activator
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.frameworkadmin.equinox,
  org.eclipse.equinox.internal.frameworkadmin.utils,
@@ -18,3 +17,4 @@ Export-Package: org.eclipse.equinox.internal.provisional.simpleconfigurator.mani
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
+Service-Component: OSGI-INF/configurator.xml

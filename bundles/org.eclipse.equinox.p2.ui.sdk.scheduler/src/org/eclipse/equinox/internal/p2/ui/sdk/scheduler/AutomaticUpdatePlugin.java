@@ -89,7 +89,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// Application launch config won't let me specify bundles to start.
 		// TODO how should we react if we are unable to start one of these bundles?
 		startEarly("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
-		startEarly("org.eclipse.equinox.simpleconfigurator.manipulator"); //$NON-NLS-1$
 		startEarly("org.eclipse.equinox.p2.updatechecker"); //$NON-NLS-1$
 
 		PreferenceInitializer.migratePreferences();
