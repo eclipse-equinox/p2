@@ -244,7 +244,7 @@ public final class ProxiesDialog {
 				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
 		} catch (Exception e) {
-			openMessage(Messages.ProxiesDialog_FailedTorSetProxySettings + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
+			openMessage(Messages.ProxiesDialog_FailedToSetProxyMessage + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
 		}
 	}
 

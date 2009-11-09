@@ -61,7 +61,6 @@ public class Messages extends NLS {
 	public static String ProxiesDialog_EmptyProtMessage;
 	public static String ProxiesDialog_EmptyUserMessage;
 	public static String ProxiesDialog_FailedToReadProxySettingsMessage;
-	public static String ProxiesDialog_FailedTorSetProxySettings;
 	public static String ProxiesDialog_FailedToSetProxyMessage;
 	public static String ProxiesDialog_HostLabel;
 	public static String ProxiesDialog_InvalitHostMessage;
