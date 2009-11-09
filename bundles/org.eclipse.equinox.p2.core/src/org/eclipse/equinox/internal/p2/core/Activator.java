@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -157,7 +157,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		instance = this;
 		Activator.context = aContext;
-		URI defaultLocation = new URI(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
+		URI defaultLocation = URIUtil.fromString(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
 		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
 		Dictionary locationProperties = new Hashtable();
 		if (agentDataLocation != null) {
