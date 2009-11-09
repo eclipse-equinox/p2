@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -19,7 +21,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
@@ -102,12 +103,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	 */
 	protected void restoreSpecialRepositories() {
 		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+		IAgentLocation location = (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
 		if (location == null)
 			// TODO should do something here since we are failing to restore.
 			return;
+		URI cacheLocation = URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		try {
-			loadRepository(location.getArtifactRepositoryURI(), null);
+			loadRepository(cacheLocation, null);
 			return;
 		} catch (ProvisionException e) {
 			// log but still continue and try to create a new one
@@ -117,7 +120,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			createRepository(location.getArtifactRepositoryURI(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
+			createRepository(cacheLocation, "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

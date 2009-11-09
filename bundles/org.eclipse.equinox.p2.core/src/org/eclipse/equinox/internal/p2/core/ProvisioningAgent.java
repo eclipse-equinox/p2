@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import java.net.MalformedURLException;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.framework.*;
@@ -68,22 +66,18 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	}
 
 	public void setLocation(URI location) {
-		try {
-			//treat a null location as using the currently running platform
-			AgentLocation agentLocation = null;
-			if (location == null) {
-				ServiceReference ref = context.getServiceReference(AgentLocation.SERVICE_NAME);
-				if (ref != null) {
-					agentLocation = (AgentLocation) context.getService(ref);
-					context.ungetService(ref);
-				}
-			} else {
-				agentLocation = new BasicLocation(URIUtil.toURL(location));
+		//treat a null location as using the currently running platform
+		IAgentLocation agentLocation = null;
+		if (location == null) {
+			ServiceReference ref = context.getServiceReference(IAgentLocation.SERVICE_NAME);
+			if (ref != null) {
+				agentLocation = (IAgentLocation) context.getService(ref);
+				context.ungetService(ref);
 			}
-			agentServices.put(AgentLocation.SERVICE_NAME, agentLocation);
-		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Invalid agent location", e)); //$NON-NLS-1$
+		} else {
+			agentLocation = new AgentLocation(location);
 		}
+		agentServices.put(IAgentLocation.SERVICE_NAME, agentLocation);
 	}
 
 	public void unregisterService(String serviceName, Object service) {

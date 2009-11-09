@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
@@ -22,7 +23,7 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 public class ProfileRegistryComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
-		AgentLocation location = (AgentLocation) agent.getService(AgentLocation.SERVICE_NAME);
+		IAgentLocation location = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(location));
 		registry.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
 		return registry;

@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.net.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -64,17 +65,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	private IMetadataRepository getRollbackRepository() throws ProvisionException {
-		try {
-			IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-			URL location = ((AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
-			return repoMan.loadRepository(URIUtil.toURI(new URL(location, "rollback")), null);
-		} catch (MalformedURLException e) {
-			fail("0.02", e);
-			return null;
-		} catch (URISyntaxException e) {
-			fail("0.03", e);
-			return null;
-		}
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		URI location = ((IAgentLocation) ServiceHelper.getService(DirectorActivator.context, IAgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
+		return repoMan.loadRepository(URIUtil.append(location, "rollback"), null);
 	}
 
 	public void testRollbackProfileProperties() {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
@@ -39,8 +40,8 @@ public class Util {
 		return profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
 	}
 
-	private static AgentLocation getAgentLocation() {
-		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+	private static IAgentLocation getAgentLocation() {
+		return (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
@@ -72,8 +73,10 @@ public class Util {
 	}
 
 	static private URI getDownloadCacheLocation() {
-		AgentLocation location = getAgentLocation();
-		return (location != null ? location.getArtifactRepositoryURI() : null);
+		IAgentLocation location = getAgentLocation();
+		if (location == null)
+			return null;
+		return URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

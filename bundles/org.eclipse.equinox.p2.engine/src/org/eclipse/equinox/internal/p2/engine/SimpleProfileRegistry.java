@@ -8,10 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.*;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -21,7 +22,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
@@ -70,19 +70,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		this.updateSelfProfile = updateSelfProfile;
 	}
 
-	public static File getDefaultRegistryDirectory(AgentLocation agent) {
+	public static File getDefaultRegistryDirectory(IAgentLocation agent) {
 		File registryDirectory = null;
 		if (agent == null)
 			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
-		final URL engineDataArea = agent.getDataArea(EngineActivator.ID);
-		try {
-			URL registryURL = new URL(engineDataArea, DEFAULT_STORAGE_DIR);
-			registryDirectory = new File(registryURL.getPath());
-			registryDirectory.mkdirs();
-		} catch (MalformedURLException e) {
-			//this is not possible because we know the above URL is valid
-			throw new IllegalStateException("Profile Registry inialization failed. Agent Location is invalid:" + engineDataArea); //$NON-NLS-1$
-		}
+		final URI engineDataArea = agent.getDataArea(EngineActivator.ID);
+		URI registryURL = URIUtil.append(engineDataArea, DEFAULT_STORAGE_DIR);
+		registryDirectory = new File(registryURL);
+		registryDirectory.mkdirs();
 		return registryDirectory;
 	}
 

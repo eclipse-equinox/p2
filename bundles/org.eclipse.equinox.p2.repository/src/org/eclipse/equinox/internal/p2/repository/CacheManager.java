@@ -11,20 +11,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -37,7 +36,7 @@ import org.eclipse.osgi.util.NLS;
  * was created for the repository.
  */
 public class CacheManager {
-	private final AgentLocation agentLocation;
+	private final IAgentLocation agentLocation;
 
 	/**
 	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
@@ -61,7 +60,7 @@ public class CacheManager {
 
 	}
 
-	public CacheManager(AgentLocation agentLocation) {
+	public CacheManager(IAgentLocation agentLocation) {
 		this.agentLocation = agentLocation;
 	}
 
@@ -241,8 +240,7 @@ public class CacheManager {
 	 * Returns the file corresponding to the data area to be used by the cache manager.
 	 */
 	private File getCacheDirectory() {
-		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
-		return URLUtil.toFile(dataArea);
+		return URIUtil.toFile(agentLocation.getDataArea(Activator.ID + "/cache/")); //$NON-NLS-1$
 	}
 
 	/**

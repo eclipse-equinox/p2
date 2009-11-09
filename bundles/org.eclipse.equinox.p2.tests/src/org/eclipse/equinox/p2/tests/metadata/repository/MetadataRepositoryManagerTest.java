@@ -10,23 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -327,9 +328,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testMetadataCachingLocalRepo() throws ProvisionException {
 		File repoLocation = getTempLocation();
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
-		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
-		File dataAreaFile = URLUtil.toFile(dataArea);
+		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class.getName());
+		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
+		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 
@@ -349,9 +350,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		if (!repoAvailable(repoLocation))
 			return;
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
-		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
-		File dataAreaFile = URLUtil.toFile(dataArea);
+		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class.getName());
+		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
+		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 		File cacheFile;

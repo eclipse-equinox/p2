@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -45,21 +47,21 @@ public class Activator implements BundleActivator {
 	private void registerAgent() {
 		//currently location is defined by p2.core but will be defined by the agent in the future
 		//for now continue to treat it as a singleton
-		ServiceReference locationRef = context.getServiceReference(AgentLocation.SERVICE_NAME);
+		ServiceReference locationRef = context.getServiceReference(IAgentLocation.SERVICE_NAME);
 		if (locationRef == null)
 			throw new RuntimeException("Unable to instantiate p2 agent because agent location is not available"); //$NON-NLS-1$
-		AgentLocation location = (AgentLocation) context.getService(locationRef);
+		IAgentLocation location = (IAgentLocation) context.getService(locationRef);
 		if (location == null)
 			throw new RuntimeException("Unable to instantiate p2 agent because agent location is not available"); //$NON-NLS-1$
 
 		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
 		try {
-			agent = provider.createAgent(URIUtil.toURI(location.getURL()));
+			agent = provider.createAgent(location.getRootLocation());
 			agentRegistration = context.registerService(IProvisioningAgent.class.getName(), agent, null);
 		} catch (Exception e) {
 			//we can't proceed without an agent, so fail early
-			final String msg = "Unable to instantiate p2 agent at location " + location.getURL(); //$NON-NLS-1$
+			final String msg = "Unable to instantiate p2 agent at location " + location.getRootLocation(); //$NON-NLS-1$
 			LogHelper.log(new Status(IStatus.ERROR, ID, msg, e));
 			throw new RuntimeException(msg);
 		}

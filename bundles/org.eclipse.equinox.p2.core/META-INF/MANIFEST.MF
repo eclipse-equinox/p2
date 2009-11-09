@@ -88,13 +88,6 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.touchpoint.natives,
    org.eclipse.equinox.p2.publisher,
    org.eclipse.equinox.p2.repository",
- org.eclipse.equinox.internal.provisional.p2.core.location;
-  x-friends:="org.eclipse.equinox.p2.artifact.repository,
-   org.eclipse.equinox.p2.touchpoint.natives,
-   org.eclipse.equinox.p2.metadata.repository,
-   org.eclipse.equinox.p2.director,
-   org.eclipse.equinox.p2.engine,
-   org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.spi
 Bundle-ActivationPolicy: lazy

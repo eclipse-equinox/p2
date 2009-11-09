@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -99,21 +98,5 @@ public class DirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] result = (IInstallableUnit[]) p.query(new InstallableUnitQuery(allRoots[0].getId(), VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
 		result = (IInstallableUnit[]) p.query(new InstallableUnitQuery("toolingdefault", VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
-
-		ensureFragmentAssociationIsNotPersisted(mgr);
-	}
-
-	private void ensureFragmentAssociationIsNotPersisted(IMetadataRepositoryManager mgr) throws ProvisionException {
-		//Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177661
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
-		mgr.removeRepository(location.getMetadataRepositoryURI());
-		IMetadataRepository repo = null;
-		repo = mgr.loadRepository(location.getMetadataRepositoryURI(), null);
-		Iterator it = repo.query(new InstallableUnitQuery("org.eclipse.equinox.simpleconfigurator", VersionRange.emptyRange), new Collector(), null).iterator();
-		if (!it.hasNext())
-			return;
-		IInstallableUnit sc = (IInstallableUnit) it.next();
-		if (sc.isResolved())
-			fail("The repository should not store resolved installable units");
 	}
 }

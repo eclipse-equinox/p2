@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
@@ -17,7 +19,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -122,12 +123,12 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	private IPath getDefaultLocation() {
 		//use engine agent location for preferences if there is no self profile
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.SERVICE_NAME);
+		IAgentLocation location = (IAgentLocation) ServiceHelper.getService(EngineActivator.getContext(), IAgentLocation.SERVICE_NAME);
 		if (location == null) {
 			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
 			return null;
 		}
-		IPath dataArea = new Path(URLUtil.toFile(location.getDataArea(EngineActivator.ID)).getAbsolutePath());
+		IPath dataArea = new Path(URIUtil.toFile(location.getDataArea(EngineActivator.ID)).getAbsolutePath());
 		return computeLocation(dataArea, qualifier);
 	}
 

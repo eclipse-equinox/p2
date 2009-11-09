@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.core.IAgentLocation;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
@@ -53,8 +54,8 @@ public class Util {
 	 */
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
-	public static AgentLocation getAgentLocation() {
-		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+	public static IAgentLocation getAgentLocation() {
+		return (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
@@ -65,16 +66,10 @@ public class Util {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			return new File(path).toURI();
-		AgentLocation location = getAgentLocation();
+		IAgentLocation location = getAgentLocation();
 		if (location == null)
 			return null;
-		try {
-			return URIUtil.toURI(location.getDataArea(Activator.ID));
-		} catch (URISyntaxException e) {
-			// unexpected, URLs should be pre-checked
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			throw new RuntimeException(e);
-		}
+		return location.getDataArea(Activator.ID);
 	}
 
 	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
