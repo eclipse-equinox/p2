@@ -29,7 +29,7 @@ public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuer
 	 * If any parameter is null, that attribute will be ignored
 	 * @param id - the id to match, or null
 	 * @param versionRange - the version range to match or null
-	 * @param format - {@link IArtifactDescriptor.FORMAT} value to match, or null
+	 * @param format - {@link IArtifactDescriptor#FORMAT} value to match, or null
 	 */
 	public ArtifactDescriptorQuery(String id, VersionRange versionRange, String format) {
 		this(id, versionRange, format, null);
@@ -40,7 +40,7 @@ public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuer
 	 * if any parameter is null, that attribute will be ignored
 	 * @param id - the id to match, or null
 	 * @param versionRange - the version range to match or null
-	 * @param format - {@link IArtifactDescriptor.FORMAT} value to match, or null
+	 * @param format - {@link IArtifactDescriptor#FORMAT} value to match, or null
 	 * @param repository
 	 */
 	public ArtifactDescriptorQuery(String id, VersionRange versionRange, String format, IArtifactRepository repository) {

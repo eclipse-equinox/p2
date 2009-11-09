@@ -20,14 +20,16 @@ public interface IArtifactQuery extends IMatchQuery {
 
 	/**
 	 * Return whether or not this query is interested in IArtifactKey objects
-	 * This method can be accessed using {@link IQuery#getProperty(ACCEPT_KEYS)}
+	 * This method can be accessed using {@link IQuery#getProperty(String)} with parameter
+	 * {@link #ACCEPT_KEYS}.
 	 * @return Boolean
 	 */
 	public Boolean getAcceptArtifactKeys();
 
 	/**
 	 * Return whether or not this query is interested in IArtifactDescriptor objects
-	 * This method can be accessed using {@link IQuery#getProperty(ACCEPT_DESCRIPTORS)}
+	 * This method can be accessed using {@link IQuery#getProperty(String)} with
+	 * parameter {@link #ACCEPT_DESCRIPTORS}.
 	 * @return Boolean
 	 */
 	public Boolean getAcceptArtifactDescriptors();
