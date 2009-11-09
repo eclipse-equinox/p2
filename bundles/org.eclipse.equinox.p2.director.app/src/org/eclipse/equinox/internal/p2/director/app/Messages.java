@@ -23,8 +23,6 @@ public class Messages extends NLS {
 	public static String Cant_change_roaming;
 	public static String destination_commandline;
 
-	public static String flavor_0_inconsistent_with_flavor_1;
-
 	public static String Help_A_list_of_properties_in_the_form_key_value_pairs;
 	public static String Help_A_list_of_URLs_denoting_artifact_repositories;
 	public static String Help_A_list_of_URLs_denoting_colocated_repositories;
@@ -63,13 +61,10 @@ public class Messages extends NLS {
 	public static String Missing_Required_Argument;
 	public static String Missing_profile;
 
-	public static String Missing_registry;
 	public static String Operation_complete;
 	public static String Operation_failed;
 	public static String option_0_requires_an_argument;
 	public static String unable_to_parse_0_to_uri_1;
-	public static String unable_to_start_bundle_0;
-	public static String unable_to_stop_bundle_0;
 	public static String Uninstalling;
 	public static String unknown_option_0;
 
