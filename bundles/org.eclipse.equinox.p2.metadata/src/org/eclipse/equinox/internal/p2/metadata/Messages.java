@@ -16,9 +16,6 @@ import org.eclipse.osgi.util.NLS;
  * TODO Shouldn't be a public class in an API package.
  */
 public class Messages extends NLS {
-	public static String _0_is_not_a_positive_integer_in_osgi_1;
-
-	public static String _0_is_not_a_string_in_osgi_1;
 
 	public static String _0_is_not_a_valid_qualifier_in_osgi_1;
 
@@ -68,8 +65,6 @@ public class Messages extends NLS {
 
 	public static String illegal_character_encountered_ascii_0;
 
-	public static String illegal_number_of_entries_0_in_osgi_1;
-
 	public static String missing_comma_in_range_0;
 
 	public static String negative_character_range;
@@ -87,8 +82,6 @@ public class Messages extends NLS {
 	public static String original_stated_but_missing_0;
 
 	public static String pad_defined_more_then_once;
-
-	public static String pad_not_allowed_in_osgi_0;
 
 	public static String performing_subquery;
 

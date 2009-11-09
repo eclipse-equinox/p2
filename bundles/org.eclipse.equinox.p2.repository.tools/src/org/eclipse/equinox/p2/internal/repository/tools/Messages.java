@@ -40,11 +40,8 @@ public class Messages extends NLS {
 
 	public static String MirrorApplication_artifactDestinationNoSource;
 	public static String MirrorApplication_metadataDestinationNoSource;
-	public static String MirrorApplication_missingIU;
-	public static String MirrorApplication_missingSourceForIUs;
 	public static String MirrorApplication_no_IUs;
 	public static String MirrorApplication_set_source_repositories;
-	public static String MirrorApplication_validateAndMirrorProblems;
 
 	public static String ProcessRepo_location_not_url;
 	public static String ProcessRepo_must_be_local;
