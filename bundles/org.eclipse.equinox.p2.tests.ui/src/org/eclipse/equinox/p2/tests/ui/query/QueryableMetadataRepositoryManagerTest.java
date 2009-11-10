@@ -41,6 +41,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	protected void setUp() throws Exception {
 		ui = ProvisioningUI.getDefaultUI();
 		session = ui.getSession();
+		super.setUp();
 	}
 
 	public void testBrokenRepository() {
