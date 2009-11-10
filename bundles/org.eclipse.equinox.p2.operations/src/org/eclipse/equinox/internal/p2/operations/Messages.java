@@ -45,7 +45,6 @@ public class Messages extends NLS {
 	public static String PlanAnalyzer_SideEffectUninstall;
 	public static String PlannerResolutionJob_NullProvisioningPlan;
 
-	public static String PlannerResolutionOperation_UnexpectedError;
 	public static String PlanAnalyzer_IgnoringImpliedDowngrade;
 	public static String PlanAnalyzer_ImpliedUpdate;
 	public static String PlanAnalyzer_Items;

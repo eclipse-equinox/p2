@@ -42,7 +42,6 @@ public class ProvUIMessages extends NLS {
 	public static String ApplyProfileChangesDialog_NotYet;
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
 	public static String ColocatedRepositoryManipulator_GotoPrefs;
-	public static String ColocatedRepositoryManipulator_ManageSites;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
@@ -71,14 +70,8 @@ public class ProvUIMessages extends NLS {
 	public static String IUGeneralInfoPropertyPage_VersionLabel;
 	public static String IULicensePropertyPage_NoLicense;
 	public static String IULicensePropertyPage_ViewLicenseLabel;
-	public static String ProfileChangeRequestBuildingRequest;
-	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationAction_InvalidSelections;
-	public static String ProfileModificationAction_NoChangeRequestProvided;
-	public static String ProfileModificationAction_NoExplanationProvided;
-	public static String ProfileModificationAction_ResolutionOperationLabel;
 	public static String ProfileModificationWizardPage_DetailsLabel;
-	public static String ProfileModificationWizardPage_ResolutionOperationLabel;
 	public static String ProfileModificationWizardPage_UnexpectedError;
 	public static String ProfileSnapshots_Label;
 
@@ -90,15 +83,11 @@ public class ProvUIMessages extends NLS {
 
 	// Provisioning operations
 	public static String ProvisioningOperationRunner_CannotApplyChanges;
-	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
-	public static String ProvisioningOperationRunner_ForceRestartMessage;
-	public static String ProvisioningOperationWizard_OperationAlreadyInProgress;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
 	public static String InstallIUOperationTask;
 	public static String InstallIUCommandLabel;
 	public static String InstallIUCommandTooltip;
-	public static String InstallIUProgress;
 	public static String InstallWizardPage_NoCheckboxDescription;
 	public static String InstallWizardPage_Title;
 	public static String PreselectedIUInstallWizard_Title;
@@ -166,12 +155,10 @@ public class ProvUIMessages extends NLS {
 	public static String ResolutionWizardPage_WarningInfoStatus;
 
 	// Dialogs
-	public static String AddRepositoryDialog_DuplicateURL;
 	public static String AddRepositoryDialog_InvalidURL;
 	public static String AddRepositoryDialog_LocationLabel;
 	public static String AddRepositoryDialog_NameLabel;
 	public static String AddRepositoryDialog_Title;
-	public static String AvailableIUElement_ProfileNotFound;
 	public static String AvailableIUGroup_LoadingRepository;
 	public static String AvailableIUGroup_NoSitesConfiguredDescription;
 	public static String AvailableIUGroup_NoSitesConfiguredExplanation;
@@ -195,7 +182,6 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_Title;
 	public static String AvailableIUWrapper_AllAreInstalled;
 	public static String IUViewQueryContext_AllAreInstalledDescription;
-	public static String DefaultQueryProvider_ErrorRetrievingProfile;
 	public static String DeferredFetchFilteredTree_RetrievingList;
 	public static String ElementUtils_UpdateJobTitle;
 	public static String Label_Profiles;
@@ -218,7 +204,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_PromptForSiteEdit;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
-	public static String ProvUIActivator_ExceptionDuringProfileChange;
 	public static String ProvUILicenseManager_ParsingError;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
 	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;
@@ -227,7 +212,6 @@ public class ProvUIMessages extends NLS {
 	public static String QueriedElementWrapper_NoCategorizedItemsExplanation;
 	public static String QueriedElementWrapper_NoItemsExplanation;
 	public static String QueriedElementWrapper_SiteNotFound;
-	public static String ColocatedRepositoryManipulator_SiteNotFoundDescription;
 	public static String QueryableMetadataRepositoryManager_LoadRepositoryProgress;
 	public static String QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
@@ -240,7 +224,6 @@ public class ProvUIMessages extends NLS {
 	public static String RevertDialog_RevertOperationLabel;
 	public static String RevertDialog_Title;
 	public static String RollbackProfileElement_CurrentInstallation;
-	public static String RollbackProfileElement_InvalidSnapshot;
 	public static String SelectableIUsPage_Select_All;
 	public static String SelectableIUsPage_Deselect_All;
 	public static String SelectableIUsPage_OperationInProgress;
@@ -248,18 +231,15 @@ public class ProvUIMessages extends NLS {
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;
 	// Operations
-	public static String URLValidator_UnrecognizedURL;
 	public static String UpdateManagerCompatibility_ExportSitesTitle;
 	public static String UpdateManagerCompatibility_ImportSitesTitle;
 	public static String UpdateManagerCompatibility_InvalidSiteFileMessage;
 	public static String UpdateManagerCompatibility_InvalidSitesTitle;
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
-	public static String UpdateOperation_NothingToUpdate;
 	public static String ServiceUI_LoginDetails;
 	public static String ServiceUI_LoginRequired;
 	public static String ServiceUI_unsigned_message;
-	public static String ServiceUI_unsigned_title;
 	public static String ServiceUI_warning_title;
 	public static String UpdateOrInstallWizardPage_Size;
 	public static String Updates_Label;
