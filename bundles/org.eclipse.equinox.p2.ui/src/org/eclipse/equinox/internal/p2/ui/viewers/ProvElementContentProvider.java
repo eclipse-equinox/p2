@@ -77,6 +77,8 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 					display.asyncExec(new Runnable() {
 						public void run() {
 							AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
+							if (viewer == null || viewer.getControl().isDisposed())
+								return;
 							tableViewer.getControl().setRedraw(false);
 							tableViewer.remove(pending);
 							tableViewer.add(children.toArray());
