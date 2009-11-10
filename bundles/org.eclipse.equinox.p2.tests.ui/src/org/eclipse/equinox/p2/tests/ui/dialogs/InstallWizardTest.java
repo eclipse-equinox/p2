@@ -82,7 +82,7 @@ public class InstallWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard
 	 */
-	public void testInstallWizardUnresolved() throws ProvisionException {
+	public void testInstallWizardUnresolved() {
 		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
 		getPolicy().getQueryContext().setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		job.runModal(getMonitor());

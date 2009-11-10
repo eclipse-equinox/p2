@@ -168,14 +168,15 @@ public class UpdateWizardTest extends WizardTest {
 	public void testUpdateWizardUnresolved() {
 		Update update = new Update(top1, upgrade);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {top1}, null);
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), null, new Object[] {update}, null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, new Object[] {update}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
-			assertFalse(page1.isPageComplete());
+			// Page 1 should have selections
+			assertTrue(page1.isPageComplete());
 			// Will cause computation of a plan.
 			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			dialog.showPage(page2);
@@ -185,8 +186,8 @@ public class UpdateWizardTest extends WizardTest {
 			ProvisioningJob job = getLongTestOperation();
 			getProvisioningUI().schedule(job, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
-			// causes recalculation of plan and status
-			wizard.getNextPage(page1);
+			// cause recalculation of plan and status
+			wizard.recomputePlan(dialog);
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
 			job.cancel();
@@ -199,7 +200,7 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when multiple versions are available.
 	 */
-	public void testBug277554MultipleVersions() throws ProvisionException {
+	public void testBug277554MultipleVersions() {
 
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
@@ -212,7 +213,7 @@ public class UpdateWizardTest extends WizardTest {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			// should already have a plan
 			assertTrue("1.0", page1.isPageComplete());
-			assertEquals("1.1", page1.getCheckedIUElements().length, 1);
+			assertEquals("1.1", 1, page1.getCheckedIUElements().length);
 			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			dialog.showPage(page2);
 			// should only have one root item in the resolution page
