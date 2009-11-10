@@ -95,7 +95,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		operation.setRootMarkerKey(IProfile.PROP_PROFILE_ROOT_IU);
 		IStatus status = operation.resolveModal(new NullProgressMonitor());
 
-		if (!status.isOK() || operation.getPossibleUpdates().length == 0) {
+		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
 			clearUpdatesAvailable();
 			return;
 		}
