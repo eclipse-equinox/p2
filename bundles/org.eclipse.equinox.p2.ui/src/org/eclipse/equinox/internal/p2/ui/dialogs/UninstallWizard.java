@@ -24,18 +24,6 @@ import org.eclipse.jface.wizard.IWizardPage;
  */
 public class UninstallWizard extends ProvisioningOperationWizard {
 
-	static IUElementListRoot makeElementRoot(Object[] selectedElements, String profileId) {
-		IUElementListRoot elementRoot = new IUElementListRoot();
-		ArrayList list = new ArrayList(selectedElements.length);
-		for (int i = 0; i < selectedElements.length; i++) {
-			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
-			if (iu != null)
-				list.add(new InstalledIUElement(elementRoot, profileId, iu));
-		}
-		elementRoot.setChildren(list.toArray());
-		return elementRoot;
-	}
-
 	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
@@ -54,8 +42,20 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return new UninstallWizardPage(ui, root, (UninstallOperation) operation);
 	}
 
-	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
-		return makeElementRoot(selectedElements, getProfileId());
+	protected void initializeResolutionModelElements(Object[] selectedElements) {
+		root = new IUElementListRoot();
+		ArrayList list = new ArrayList(selectedElements.length);
+		ArrayList selections = new ArrayList(selectedElements.length);
+		for (int i = 0; i < selectedElements.length; i++) {
+			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
+			if (iu != null) {
+				InstalledIUElement element = new InstalledIUElement(root, getProfileId(), iu);
+				list.add(element);
+				selections.add(element);
+			}
+		}
+		root.setChildren(list.toArray());
+		planSelections = selections.toArray();
 	}
 
 	/* (non-Javadoc)

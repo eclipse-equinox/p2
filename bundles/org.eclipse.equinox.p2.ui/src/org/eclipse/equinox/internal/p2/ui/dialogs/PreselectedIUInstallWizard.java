@@ -27,17 +27,6 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
 
-	static IUElementListRoot makeElementRoot(IInstallableUnit[] ius, String profileId) {
-		IUElementListRoot elementRoot = new IUElementListRoot();
-		Object[] elements = new Object[ius.length];
-		for (int i = 0; i < ius.length; i++) {
-			if (ius[i] != null)
-				elements[i] = new AvailableIUElement(elementRoot, ius[i], profileId, false);
-		}
-		elementRoot.setChildren(elements);
-		return elementRoot;
-	}
-
 	public PreselectedIUInstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
@@ -56,16 +45,20 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		return new InstallWizardPage(ui, root, (InstallOperation) operation);
 	}
 
-	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
-		IUElementListRoot elementRoot = new IUElementListRoot();
+	protected void initializeResolutionModelElements(Object[] selectedElements) {
+		root = new IUElementListRoot();
 		ArrayList list = new ArrayList(selectedElements.length);
+		ArrayList selected = new ArrayList(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
-			if (iu != null)
-				list.add(new AvailableIUElement(elementRoot, iu, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren()));
+			if (iu != null) {
+				AvailableIUElement element = new AvailableIUElement(root, iu, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				list.add(element);
+				selected.add(element);
+			}
 		}
-		elementRoot.setChildren(list.toArray());
-		return elementRoot;
+		root.setChildren(list.toArray());
+		planSelections = selected.toArray();
 	}
 
 	/* (non-Javadoc)

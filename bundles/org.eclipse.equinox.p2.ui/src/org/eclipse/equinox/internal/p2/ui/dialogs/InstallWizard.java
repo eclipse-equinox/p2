@@ -50,18 +50,22 @@ public class InstallWizard extends WizardWithLicenses {
 
 	}
 
-	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
+	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		if (selectedElements == null)
-			return null;
-		IUElementListRoot elementRoot = new IUElementListRoot();
+			return;
+		root = new IUElementListRoot();
 		ArrayList list = new ArrayList(selectedElements.length);
+		ArrayList selections = new ArrayList(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
-			if (iu != null)
-				list.add(new AvailableIUElement(elementRoot, iu, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren()));
+			if (iu != null) {
+				AvailableIUElement element = new AvailableIUElement(root, iu, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				list.add(element);
+				selections.add(element);
+			}
 		}
-		elementRoot.setChildren(list.toArray());
-		return elementRoot;
+		root.setChildren(list.toArray());
+		planSelections = selections.toArray();
 	}
 
 	public void createPageControls(Composite pageContainer) {

@@ -121,6 +121,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				checkboxViewer.getTree().setRedraw(false);
 				display.asyncExec(new Runnable() {
 					public void run() {
+						if (checkboxViewer.getTree().isDisposed())
+							return;
 						rememberExpansions();
 						restoreLeafCheckState();
 						rememberExpansions();
@@ -194,6 +196,9 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				if (event.getResult().isOK()) {
 					display.asyncExec(new Runnable() {
 						public void run() {
+							if (checkboxViewer.getTree().isDisposed())
+								return;
+
 							checkboxViewer.getTree().setRedraw(false);
 							// remember things expanded by the filter
 							rememberExpansions();

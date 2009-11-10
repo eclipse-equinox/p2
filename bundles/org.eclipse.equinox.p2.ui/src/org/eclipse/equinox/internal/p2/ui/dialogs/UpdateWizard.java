@@ -77,18 +77,25 @@ public class UpdateWizard extends WizardWithLicenses {
 		return new UpdateWizardPage(ui, root, (UpdateOperation) operation);
 	}
 
-	protected IUElementListRoot makeResolutionElementRoot(Object[] selectedElements) {
-		IUElementListRoot elementRoot = new IUElementListRoot();
+	protected void initializeResolutionModelElements(Object[] selectedElements) {
+		root = new IUElementListRoot();
 		ArrayList list = new ArrayList(selectedElements.length);
+		ArrayList selected = new ArrayList(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			if (selectedElements[i] instanceof AvailableUpdateElement) {
 				AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
-				AvailableUpdateElement newElement = new AvailableUpdateElement(elementRoot, element.getIU(), element.getIUToBeUpdated(), getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
 				list.add(newElement);
+				selected.add(newElement);
+			} else if (selectedElements[i] instanceof Update) {
+				Update update = (Update) selectedElements[i];
+				AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				list.add(newElement);
+				selected.add(newElement);
 			}
 		}
-		elementRoot.setChildren(list.toArray());
-		return elementRoot;
+		root.setChildren(list.toArray());
+		planSelections = selected.toArray();
 	}
 
 	public void createPageControls(Composite pageContainer) {

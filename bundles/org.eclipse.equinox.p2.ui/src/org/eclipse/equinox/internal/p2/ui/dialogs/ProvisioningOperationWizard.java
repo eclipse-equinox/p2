@@ -40,7 +40,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected ProvisioningUI ui;
 	protected IUElementListRoot root, originalRoot;
 	protected ProfileChangeOperation operation;
-	private Object[] planSelections;
+	protected Object[] planSelections;
 	protected ISelectableIUsPage mainPage;
 	protected IResolutionErrorReportingPage errorPage;
 	protected ResolutionResultsWizardPage resolutionPage;
@@ -53,14 +53,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, PreloadMetadataRepositoryJob job) {
 		super();
 		this.ui = ui;
-		this.root = makeResolutionElementRoot(initialSelections);
+		initializeResolutionModelElements(initialSelections);
 		this.originalRoot = root;
 		this.operation = operation;
 		this.repoPreloadJob = job;
-		if (initialSelections == null)
-			planSelections = new Object[0];
-		else
-			planSelections = initialSelections;
 		setForcePreviousAndNextButtons(true);
 		setNeedsProgressMonitor(true);
 	}
@@ -119,13 +115,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				operation = null;
 				provisioningContext = getProvisioningContext();
 				planSelections = currentPage.getCheckedIUElements();
-				root = makeResolutionElementRoot(planSelections);
+				initializeResolutionModelElements(planSelections);
 				operation = getProfileChangeOperation(planSelections);
 				recomputePlan(getContainer());
 				planChanged();
 			} else {
 				planSelections = currentPage.getCheckedIUElements();
-				root = makeResolutionElementRoot(planSelections);
+				initializeResolutionModelElements(planSelections);
 			}
 			return selectNextPage(page, getCurrentStatus());
 		}
@@ -208,7 +204,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		}
 	}
 
-	protected abstract IUElementListRoot makeResolutionElementRoot(Object[] selectedElements);
+	protected abstract void initializeResolutionModelElements(Object[] selectedElements);
 
 	protected ProvisioningContext getProvisioningContext() {
 		return null;
