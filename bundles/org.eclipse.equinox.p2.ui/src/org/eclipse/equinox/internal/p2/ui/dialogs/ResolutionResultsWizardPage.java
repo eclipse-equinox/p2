@@ -52,6 +52,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui); //$NON-NLS-1$
 		Assert.isNotNull(operation);
+		if (!operation.hasResolved()) {
+			operation.resolveModal(null);
+		}
 		this.resolvedOperation = operation;
 		if (input == null)
 			this.input = new IUElementListRoot();

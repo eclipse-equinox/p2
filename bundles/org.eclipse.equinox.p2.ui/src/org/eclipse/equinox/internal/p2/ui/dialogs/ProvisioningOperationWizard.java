@@ -115,7 +115,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (page == mainPage || page == errorPage) {
 			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
 			// Do we need to resolve?
-			boolean weResolved = false;
 			if (operation == null || (operation != null && shouldRecomputePlan(currentPage))) {
 				operation = null;
 				provisioningContext = getProvisioningContext();
@@ -124,17 +123,16 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				operation = getProfileChangeOperation(planSelections);
 				recomputePlan(getContainer());
 				planChanged();
-				weResolved = true;
 			} else {
 				planSelections = currentPage.getCheckedIUElements();
 				root = makeResolutionElementRoot(planSelections);
 			}
-			return selectNextPage(page, getCurrentStatus(), weResolved);
+			return selectNextPage(page, getCurrentStatus());
 		}
 		return super.getNextPage(page);
 	}
 
-	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status, boolean hasResolved) {
+	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status) {
 		// We have already established before calling this method that the
 		// current page is either the main page or the error page.  
 		if (status.getSeverity() == IStatus.CANCEL)
@@ -228,12 +226,15 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		try {
 			if (elements.length == 0) {
 				couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
-			} else
+			} else if (ui.hasScheduledOperations()) {
+				couldNotResolve(ProvUIMessages.ProvisioningOperationWizard_OperationAlreadyInProgress);
+			} else {
 				runnableContext.run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
 						operation.resolveModal(monitor);
 					}
 				});
+			}
 		} catch (InterruptedException e) {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
@@ -261,7 +262,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	public IStatus getCurrentStatus() {
-		return operation.getResolutionResult();
+		if (operation != null && operation.getResolutionResult() != null)
+			return operation.getResolutionResult();
+		// we haven't resolved yet, assume all is well.
+		return Status.OK_STATUS;
 	}
 
 	public String getDialogSettingsSectionName() {

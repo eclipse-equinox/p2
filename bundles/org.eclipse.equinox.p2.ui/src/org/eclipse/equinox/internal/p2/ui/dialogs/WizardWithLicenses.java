@@ -38,10 +38,6 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		return new AcceptLicensesWizardPage(getPolicy(), ius, plan);
 	}
 
-	public void addPages() {
-		super.addPages();
-	}
-
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page == resolutionPage) {
 			if (licensePage == null) {

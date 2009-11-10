@@ -40,7 +40,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		super(ui, root, initialResolution);
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
-		if (initialResolution != null)
+		if (initialResolution != null && initialResolution.hasResolved())
 			computeSizing(initialResolution.getProvisioningPlan(), getProfileId(), initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
