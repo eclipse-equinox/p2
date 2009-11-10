@@ -48,7 +48,7 @@ public class ProvisioningOperationRunner {
 	/**
 	 * Schedule a job to execute the supplied ProvisioningOperation.
 	 * 
-	 * @param op The operation to execute
+	 * @param job The operation to execute
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
 	public void schedule(final ProvisioningJob job, final int errorStyle) {

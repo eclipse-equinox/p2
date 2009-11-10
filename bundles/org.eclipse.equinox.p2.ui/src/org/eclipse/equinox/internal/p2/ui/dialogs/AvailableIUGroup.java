@@ -99,12 +99,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	/**
 	 * Create a group that represents the available IU's.
 	 * 
-	 * @param policy the policy to use for deciding what should be shown
+	 * @param ui the policy to use for deciding what should be shown
 	 * @param parent the parent composite for the group
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param queryable the queryable repository manager that should be used.  Used
-	 * by clients who want to preload repositories.
 	 * @param queryContext the IUViewQueryContext that determines additional
 	 * information about what is shown, such as the visible repositories
 	 * @param columnConfig the description of the columns that should be shown.  If <code>null</code>, a default

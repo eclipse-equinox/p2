@@ -146,7 +146,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	/**
 	 * This method must be called before the contents are created.
-	 * @param policy
+	 * @param ui
 	 */
 	public void setProvisioningUI(ProvisioningUI ui) {
 		this.ui = ui;

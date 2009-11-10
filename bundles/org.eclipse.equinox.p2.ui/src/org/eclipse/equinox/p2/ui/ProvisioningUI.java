@@ -42,7 +42,11 @@ public class ProvisioningUI {
 	private ProvisioningOperationRunner runner;
 
 	/**
-	 * @param 
+	 * Creates a new instance of the provisioning user interface.
+	 * 
+	 * @param session The current provisioning session
+	 * @param profileId The profile that this user interface is operating on
+	 * @param policy The user interface policy settings to use
 	 */
 	public ProvisioningUI(ProvisioningSession session, String profileId, Policy policy) {
 		this.policy = policy;
@@ -151,7 +155,7 @@ public class ProvisioningUI {
 	/**
 	 * Schedule a job to execute the supplied ProvisioningOperation.
 	 * 
-	 * @param op The operation to execute
+	 * @param job The operation to execute
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
 	public void schedule(final ProvisioningJob job, final int errorStyle) {

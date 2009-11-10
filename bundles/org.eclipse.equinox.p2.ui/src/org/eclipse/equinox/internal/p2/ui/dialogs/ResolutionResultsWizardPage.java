@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -181,9 +180,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	 * @return an integer constant describing whether the running profile
 	 * needs to be restarted. 
 	 * 
-	 * @see ProvisioningOperationRunner#RESTART_NONE
-	 * @see ProvisioningOperationRunner#RESTART_ONLY
-	 * @see ProvisioningOperationRunner#RESTART_OR_APPLY
+	 * @see ProvisioningJob#RESTART_NONE
+	 * @see ProvisioningJob#RESTART_ONLY
+	 * @see ProvisioningJob#RESTART_OR_APPLY
 	 *
 	 */
 	protected int getRestartPolicy() {
