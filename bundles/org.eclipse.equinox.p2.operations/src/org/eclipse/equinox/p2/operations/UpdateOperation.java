@@ -164,7 +164,10 @@ public class UpdateOperation extends ProfileChangeOperation {
 		while (iter.hasNext()) {
 			Update update = (Update) iter.next();
 			IInstallableUnit theUpdate = update.replacement;
-			if (defaultUpdates != null) {
+			if (defaultUpdates == null) {
+				defaultUpdates = new ArrayList();
+				defaultUpdates.add(update);
+			} else {
 				if (!defaultUpdates.contains(update))
 					defaultUpdates.add(update);
 			}

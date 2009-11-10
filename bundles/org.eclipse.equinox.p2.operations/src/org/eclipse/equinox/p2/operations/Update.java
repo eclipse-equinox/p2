@@ -52,4 +52,8 @@ public class Update {
 		return result;
 	}
 
+	public String toString() {
+		return "Update " + toUpdate.toString() + " ==> " + replacement.toString(); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 }

@@ -38,11 +38,11 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		this.session = session;
 		this.profileId = IProfileRegistry.SELF;
 		this.rootMarkerKey = IProfile.PROP_PROFILE_ROOT_IU;
-		this.context = null;
-		this.context = context;
 	}
 
 	public IStatus resolveModal(IProgressMonitor monitor) {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 		doResolve(monitor);
 		if (job != null) {
 			job.runModal(monitor);
@@ -93,6 +93,14 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	protected abstract String getProvisioningJobName();
 
+	/**
+	 * Return a status indicating the result of resolving this
+	 * operation.  A <code>null</code> return indicates that
+	 * resolving has not occurred yet.
+	 * 
+	 * @return the status of the resolution, or <code>null</code>
+	 * if it has not been resolved yet.
+	 */
 	public IStatus getResolutionResult() {
 		if (job != null && job.getResolutionResult() != null)
 			return job.getResolutionResult().getSummaryStatus();
@@ -145,6 +153,10 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	public String getProfileId() {
 		return profileId;
+	}
+
+	public boolean hasResolved() {
+		return getResolutionResult() != null;
 	}
 
 }
