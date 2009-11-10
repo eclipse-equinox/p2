@@ -21,6 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -81,6 +83,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 */
 	private Map loadLocks = new HashMap();
 	protected IProvisioningEventBus eventBus;
+	private IAgentLocation agentLocation;
 
 	protected AbstractRepositoryManager() {
 		super();
@@ -465,12 +468,16 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 
 	/**
 	 * Return the preference node which is the root for where we store the repository information.
+	 * Returns <code>null</code> if no preferences are available
 	 */
 	Preferences getPreferences() {
+		if (agentLocation == null)
+			return null;
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
-
 		try {
-			return prefService.getRootNode().node("/profile/_SELF_/" + getBundleId() + "/" + NODE_REPOSITORIES); //$NON-NLS-1$ //$NON-NLS-2$
+			//see ProfileScope for preference path format
+			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+			return prefService.getRootNode().node("/profile/" + locationString + "/_SELF_/" + getBundleId() + '/' + NODE_REPOSITORIES); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -835,7 +842,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			}
 			Preferences node = getPreferences();
 			if (node != null) {
-				getPreferences().node(repoKey).removeNode();
+				node.node(repoKey).removeNode();
 				saveToPreferences();
 			}
 			clearNotFound(toRemove);
@@ -949,6 +956,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			remember(info, true);
 		}
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ENABLEMENT, enablement);
+	}
+
+	/**
+	 * Injects the agent location service to be used by this repository manager
+	 * @param location The agent location
+	 */
+	public void setAgentLocation(IAgentLocation location) {
+		this.agentLocation = location;
 	}
 
 	/**

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
@@ -20,8 +18,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.security.storage.EncodingUtils;
+import org.osgi.framework.*;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -70,25 +70,26 @@ public class ProfilePreferences extends EclipsePreferences {
 
 	public ProfilePreferences(EclipsePreferences nodeParent, String nodeName) {
 		super(nodeParent, nodeName);
+		//path is /profile/{agent location}/{profile id}/qualifier
 
 		// cache the segment count
 		String path = absolutePath();
 		segmentCount = getSegmentCount(path);
 
-		if (segmentCount <= 1)
+		if (segmentCount <= 2)
 			return;
 
-		if (segmentCount == 2)
+		if (segmentCount == 3)
 			profileLock = new Object();
 
-		if (segmentCount < 3)
+		if (segmentCount < 4)
 			return;
 		// cache the qualifier
-		qualifier = getSegment(path, 2);
+		qualifier = getSegment(path, 3);
 	}
 
-	private boolean containsProfile(String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+	private boolean containsProfile(IProvisioningAgent agent, String profileId) {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileId == null || profileRegistry == null)
 			return false;
 		return profileRegistry.containsProfile(profileId);
@@ -100,22 +101,46 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected void doSave() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			String profileId = getSegment(absolutePath(), 1);
-			if (!containsProfile(profileId)) {
-				//use the default location for the self profile, otherwise just do nothing and return
-				if (IProfileRegistry.SELF.equals(profileId)) {
-					IPath location = getDefaultLocation();
-					if (location != null) {
-						super.save(location);
-						return;
+			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
+			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			try {
+				String profileId = getSegment(absolutePath(), 2);
+				if (!containsProfile(agent, profileId)) {
+					//use the default location for the self profile, otherwise just do nothing and return
+					if (IProfileRegistry.SELF.equals(profileId)) {
+						IPath location = getDefaultLocation();
+						if (location != null) {
+							super.save(location);
+							return;
+						}
 					}
+					if (Tracing.DEBUG_PROFILE_PREFERENCES)
+						Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+					return;
 				}
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
-					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
-				return;
+				super.save(getProfileLocation(agent, profileId));
+			} finally {
+				EngineActivator.getContext().ungetService(agentRef);
 			}
-			super.save(getProfileLocation(profileId));
 		}
+	}
+
+	/**
+	 * Returns a reference to the agent service corresponding to the given encoded
+	 * agent location. Never returns null; throws an exception if the agent could not be found.
+	 */
+	private ServiceReference getAgent(String segment) throws BackingStoreException {
+		String locationString = EncodingUtils.decodeSlashes(segment);
+		Exception failure = null;
+		try {
+			String filter = "(locationURI=" + locationString + ')'; //$NON-NLS-1$
+			ServiceReference[] refs = EngineActivator.getContext().getServiceReferences(IProvisioningAgent.SERVICE_NAME, filter);
+			if (refs != null && refs.length > 0)
+				return refs[0];
+		} catch (InvalidSyntaxException e) {
+			failure = e;
+		}
+		throw new BackingStoreException("Unable to determine provisioning agent from location: " + segment, failure); //$NON-NLS-1$
 	}
 
 	/**
@@ -140,7 +165,7 @@ public class ProfilePreferences extends EclipsePreferences {
 			// Walk backwards up the tree starting at this node.
 			// This is important to avoid a chicken/egg thing on startup.
 			IEclipsePreferences node = this;
-			for (int i = 3; i < segmentCount; i++)
+			for (int i = 4; i < segmentCount; i++)
 				node = (EclipsePreferences) node.parent();
 			loadLevel = node;
 		}
@@ -150,8 +175,8 @@ public class ProfilePreferences extends EclipsePreferences {
 	/**
 	 * Returns the location of the preference file for the given profile.
 	 */
-	private IPath getProfileLocation(String profileId) {
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+	private IPath getProfileLocation(IProvisioningAgent agent, String profileId) {
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		File profileDataDirectory = profileRegistry.getProfileDataDirectory(profileId);
 		return computeLocation(new Path(profileDataDirectory.getAbsolutePath()), qualifier);
 	}
@@ -174,21 +199,27 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected void load() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			String profileId = getSegment(absolutePath(), 1);
-			if (!containsProfile(profileId)) {
-				//use the default location for the self profile, otherwise just do nothing and return
-				if (IProfileRegistry.SELF.equals(profileId)) {
-					IPath location = getDefaultLocation();
-					if (location != null) {
-						load(location);
-						return;
+			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
+			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			try {
+				String profileId = getSegment(absolutePath(), 2);
+				if (!containsProfile(agent, profileId)) {
+					//use the default location for the self profile, otherwise just do nothing and return
+					if (IProfileRegistry.SELF.equals(profileId)) {
+						IPath location = getDefaultLocation();
+						if (location != null) {
+							load(location);
+							return;
+						}
 					}
+					if (Tracing.DEBUG_PROFILE_PREFERENCES)
+						Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+					return;
 				}
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
-					Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
-				return;
+				load(getProfileLocation(agent, profileId));
+			} finally {
+				EngineActivator.getContext().ungetService(agentRef);
 			}
-			load(getProfileLocation(profileId));
 		}
 	}
 

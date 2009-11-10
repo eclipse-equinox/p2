@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URI;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -377,7 +376,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 */
 	private Map restore() {
 		if (store == null || !store.isDirectory())
-			throw new IllegalStateException(Messages.reg_dir_not_available);
+			throw new IllegalStateException(NLS.bind(Messages.reg_dir_not_available, store));
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		File[] profileDirectories = store.listFiles(new FileFilter() {

@@ -13,7 +13,10 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
+import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 
 /**
  * An action that adds a repository to the list of known repositories.
@@ -23,13 +26,16 @@ public class AddRepositoryAction extends RepositoryAction {
 
 	public IStatus execute(Map parameters) {
 		try {
+			EngineSession session = getSession(parameters);
+			IProfileRegistry registry = (IProfileRegistry) session.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) session.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
+				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
-			if (isSelfProfile(profile))
-				addToSelf(event);
+			if (isSelfProfile(registry, profile))
+				addToSelf(agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();
@@ -42,13 +48,16 @@ public class AddRepositoryAction extends RepositoryAction {
 
 	public IStatus undo(Map parameters) {
 		try {
+			EngineSession session = getSession(parameters);
+			IProfileRegistry registry = (IProfileRegistry) session.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) session.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				removeRepositoryFromProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryType());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
-			if (isSelfProfile(profile))
-				removeFromSelf(event);
+			if (isSelfProfile(registry, profile))
+				removeFromSelf(agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();

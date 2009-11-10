@@ -19,21 +19,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
-import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.ServiceReference;
 
 public class EclipseGeneratorApplication implements IApplication {
 
@@ -48,12 +46,6 @@ public class EclipseGeneratorApplication implements IApplication {
 
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
-	private ArtifactRepositoryManager defaultArtifactManager;
-	private ServiceRegistration registrationDefaultArtifactManager;
-	private MetadataRepositoryManager defaultMetadataManager;
-	private ServiceRegistration registrationDefaultMetadataManager;
-	private IProvisioningEventBus bus;
-	private ServiceRegistration registrationBus;
 	private Generator.GeneratorResult incrementalResult = null;
 	private boolean generateRootIU = true;
 	private URI metadataLocation;
@@ -67,6 +59,9 @@ public class EclipseGeneratorApplication implements IApplication {
 	private String base;
 	//whether repository xml files should be compressed
 	private String compress = "false"; //$NON-NLS-1$
+
+	private ServiceReference agentRef;
+	private IProvisioningAgent agent;
 
 	private File getExecutableName(String base, EclipseInstallGeneratorInfoProvider provider) {
 		File location = provider.getExecutableLocation();
@@ -304,29 +299,6 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 	}
 
-	private void registerDefaultArtifactRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName()) == null) {
-			defaultArtifactManager = new ArtifactRepositoryManager();
-			defaultArtifactManager.setEventBus(bus);
-			registrationDefaultArtifactManager = Activator.getContext().registerService(IArtifactRepositoryManager.class.getName(), defaultArtifactManager, null);
-		}
-	}
-
-	private void registerDefaultMetadataRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName()) == null) {
-			defaultMetadataManager = new MetadataRepositoryManager();
-			defaultMetadataManager.setEventBus(bus);
-			registrationDefaultMetadataManager = Activator.getContext().registerService(IMetadataRepositoryManager.class.getName(), defaultMetadataManager, null);
-		}
-	}
-
-	private void registerEventBus() {
-		if (ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME) == null) {
-			bus = new ProvisioningEventBus();
-			registrationBus = Activator.getContext().registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
-		}
-	}
-
 	public Object run(String args[]) throws Exception {
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		processCommandLineArguments(args, provider);
@@ -338,9 +310,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	public Object run(EclipseInstallGeneratorInfoProvider provider) throws Exception {
-		registerEventBus();
-		registerDefaultMetadataRepoManager();
-		registerDefaultArtifactRepoManager();
+		initializeAgent();
 		initialize(provider);
 
 		if (provider.getBaseLocation() == null && provider.getProductFile() == null && !generateRootIU) {
@@ -373,6 +343,24 @@ public class EclipseGeneratorApplication implements IApplication {
 		return new Integer(1);
 	}
 
+	private void initializeAgent() throws ProvisionException {
+		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (agentRef != null) {
+			agent = (IProvisioningAgent) Activator.getContext().getService(agentRef);
+			if (agent != null)
+				return;
+		}
+		ServiceReference providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (providerRef == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(providerRef);
+		if (provider == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		//obtain agent for currently running system
+		agent = provider.createAgent(null);
+		Activator.getContext().ungetService(providerRef);
+	}
+
 	protected IStatus generate(EclipseInstallGeneratorInfoProvider provider) {
 		Generator generator = new Generator(provider);
 		if (incrementalResult != null)
@@ -388,17 +376,9 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	public void stop() {
-		if (registrationDefaultMetadataManager != null) {
-			registrationDefaultMetadataManager.unregister();
-			registrationDefaultMetadataManager = null;
-		}
-		if (registrationDefaultArtifactManager != null) {
-			registrationDefaultArtifactManager.unregister();
-			registrationDefaultArtifactManager = null;
-		}
-		if (registrationBus != null) {
-			registrationBus.unregister();
-			registrationBus = null;
+		if (agentRef != null) {
+			Activator.getContext().ungetService(agentRef);
+			agentRef = null;
 		}
 	}
 

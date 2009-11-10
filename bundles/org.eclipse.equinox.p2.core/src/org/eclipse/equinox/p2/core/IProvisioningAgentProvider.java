@@ -31,7 +31,10 @@ public interface IProvisioningAgentProvider {
 	 * currently running system is returned, if available. If a <code>null</code>
 	 * location is provided and the currently running system has not been provisioned
 	 * by any known agent, <code>null</code> is returned.
-	 * 
+	 * <p>
+	 * Callers of this method are responsible for stopping the agent
+	 * when they are finished using it by invoking {@link IProvisioningAgent#stop()}.
+	 * </p>
 	 * @param location The location where the agent metadata is stored
 	 * @return A provisioning agent, or <code>null</code> if a <code>null</code>
 	 * parameter is provided an there is no currently running agent.
@@ -39,6 +42,7 @@ public interface IProvisioningAgentProvider {
 	 * <ul>
 	 * <li>The location is not writeable.</li>
 	 * </ul>
+	 * @see IProvisioningAgent#stop()
 	 */
 	public IProvisioningAgent createAgent(URI location) throws ProvisionException;
 }

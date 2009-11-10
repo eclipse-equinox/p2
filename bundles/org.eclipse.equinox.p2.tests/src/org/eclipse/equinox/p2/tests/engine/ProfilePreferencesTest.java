@@ -14,8 +14,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.ProfilePreferences;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -34,7 +36,9 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 	public void testInvalidProfile() {
 		try {
 			//reading and storing for a non-existent profile shouldn't cause any errors
-			Preferences node = prefServ.getRootNode().node("/profile/NonExistantProfile/testing");
+			IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+			Preferences node = prefServ.getRootNode().node("/profile/" + locationString + "/NonExistantProfile/testing");
 			node.sync();
 		} catch (BackingStoreException e) {
 			fail("1.0", e);
@@ -46,8 +50,10 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		String key = "Test";
 		String value = "Value";
 
+		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
 		try {
-			pref = prefServ.getRootNode().node("/profile/_SELF_/testing");
+			pref = prefServ.getRootNode().node("/profile/" + locationString + "/_SELF_/testing");
 		} catch (IllegalArgumentException e) {
 			fail("IllegalArgumentException when accessing preferences for self profile");
 		}
@@ -68,7 +74,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 			//
 		}
 		waitForSave();
-		pref = prefServ.getRootNode().node("/profile/_SELF_/testing");
+		pref = prefServ.getRootNode().node("/profile/" + locationString + "/_SELF_/testing");
 		assertEquals("Value not present after load", value, pref.get(key, null));
 	}
 

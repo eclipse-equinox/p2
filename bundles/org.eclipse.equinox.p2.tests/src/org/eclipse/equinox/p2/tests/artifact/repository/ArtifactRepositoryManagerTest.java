@@ -23,7 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -109,7 +111,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		//bash the repository preference file (don't try this at home, kids)
 		final String REPO_BUNDLE = "org.eclipse.equinox.p2.artifact.repository";
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
-		Preferences prefs = prefService.getRootNode().node("/profile/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
+		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] children = prefs.childrenNames();
 			for (int i = 0; i < children.length; i++)

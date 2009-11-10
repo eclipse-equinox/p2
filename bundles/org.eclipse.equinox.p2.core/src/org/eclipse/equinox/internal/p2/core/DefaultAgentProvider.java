@@ -11,9 +11,10 @@
 package org.eclipse.equinox.internal.p2.core;
 
 import java.net.URI;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.osgi.framework.BundleContext;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import org.eclipse.equinox.p2.core.*;
+import org.osgi.framework.*;
 
 /**
  * Default implementation of {@link IProvisioningAgentProvider}.
@@ -29,7 +30,17 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 		ProvisioningAgent result = new ProvisioningAgent();
 		result.setBundleContext(context);
 		result.setLocation(location);
+		IAgentLocation agentLocation = (IAgentLocation) result.getService(IAgentLocation.SERVICE_NAME);
+		Dictionary properties = new Hashtable(5);
+		if (agentLocation != null)
+			properties.put("locationURI", String.valueOf(agentLocation.getRootLocation())); //$NON-NLS-1$
+		//make the currently running system have a higher service ranking
+		if (location == null) {
+			properties.put(Constants.SERVICE_RANKING, new Integer(100));
+			properties.put(IProvisioningAgent.SERVICE_CURRENT, Boolean.TRUE.toString());
+		}
+		ServiceRegistration reg = context.registerService(IProvisioningAgent.SERVICE_NAME, result, properties);
+		result.setServiceRegistration(reg);
 		return result;
 	}
-
 }

@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.net.URI;
 import java.util.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.framework.*;
@@ -24,13 +23,22 @@ import org.osgi.framework.*;
 public class ProvisioningAgent implements IProvisioningAgent {
 
 	private final Map agentServices = Collections.synchronizedMap(new HashMap());
-
 	private BundleContext context;
+	private boolean stopped = false;
+	private ServiceRegistration reg;
+
+	/**
+	 * Instantiates a provisioning agent.
+	 */
+	public ProvisioningAgent() {
+		super();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.core.IProvisioningAgent#getService(java.lang.String)
 	 */
 	public Object getService(String serviceName) {
+		checkRunning();
 		Object service = agentServices.get(serviceName);
 		if (service != null)
 			return service;
@@ -57,7 +65,13 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		return service;
 	}
 
+	private synchronized void checkRunning() {
+		if (stopped)
+			throw new RuntimeException("Attempt to access stopped agent: " + this);
+	}
+
 	public void registerService(String serviceName, Object service) {
+		checkRunning();
 		agentServices.put(serviceName, service);
 	}
 
@@ -81,9 +95,25 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	}
 
 	public void unregisterService(String serviceName, Object service) {
+		synchronized (this) {
+			if (stopped)
+				return;
+		}
 		synchronized (agentServices) {
 			if (agentServices.get(serviceName) == service)
 				agentServices.remove(serviceName);
 		}
+	}
+
+	public synchronized void stop() {
+		stopped = true;
+		if (reg != null) {
+			reg.unregister();
+			reg = null;
+		}
+	}
+
+	public void setServiceRegistration(ServiceRegistration reg) {
+		this.reg = reg;
 	}
 }

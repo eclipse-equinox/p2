@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -24,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceReference;
 
@@ -46,10 +48,32 @@ public abstract class AbstractApplication {
 
 	public AbstractApplication() {
 		super();
+		try {
+			setupAgent();
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
+	}
+
+	private void setupAgent() throws ProvisionException {
 		//note if we ever wanted these applications to act on a different agent than
 		//the currently running system we would need to set it here
-		ServiceReference ref = Activator.getBundleContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
-		agent = (IProvisioningAgent) Activator.getBundleContext().getService(ref);
+		ServiceReference agentRef = Activator.getBundleContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (agentRef != null) {
+			agent = (IProvisioningAgent) Activator.getBundleContext().getService(agentRef);
+			if (agent != null)
+				return;
+		}
+		//there is no agent around so we need to create one
+		ServiceReference providerRef = Activator.getBundleContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (providerRef == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getBundleContext().getService(providerRef);
+		if (provider == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		//obtain agent for currently running system
+		agent = provider.createAgent(null);
+		Activator.getBundleContext().ungetService(providerRef);
 	}
 
 	public void setSourceIUs(List ius) {

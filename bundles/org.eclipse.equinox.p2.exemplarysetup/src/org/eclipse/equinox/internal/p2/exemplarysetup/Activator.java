@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -21,15 +19,13 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.*;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
 	public static BundleContext context;
 	public static final String ID = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
 
-	private ServiceRegistration agentRegistration;
 	private IProvisioningAgent agent;
 	private IProvisioningEventBus bus;
 
@@ -57,8 +53,7 @@ public class Activator implements BundleActivator {
 		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
 		try {
-			agent = provider.createAgent(location.getRootLocation());
-			agentRegistration = context.registerService(IProvisioningAgent.class.getName(), agent, null);
+			agent = provider.createAgent(null);
 		} catch (Exception e) {
 			//we can't proceed without an agent, so fail early
 			final String msg = "Unable to instantiate p2 agent at location " + location.getRootLocation(); //$NON-NLS-1$
@@ -137,9 +132,9 @@ public class Activator implements BundleActivator {
 	}
 
 	private void unregisterAgent() {
-		if (agentRegistration != null) {
-			agentRegistration.unregister();
-			agentRegistration = null;
+		if (agent != null) {
+			agent.stop();
+			agent = null;
 		}
 	}
 

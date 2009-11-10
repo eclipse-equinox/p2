@@ -42,7 +42,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 		// need to track agent so we can register global artifact repository manager
-		agentTracker = new ServiceTracker(context, IProvisioningAgent.SERVICE_NAME, this);
+		String filter = "(&(objectClass=" + IProvisioningAgent.SERVICE_NAME + ")(agent.current=true))"; //$NON-NLS-1$ //$NON-NLS-2$
+		agentTracker = new ServiceTracker(context, aContext.createFilter(filter), this);
 		agentTracker.open();
 	}
 

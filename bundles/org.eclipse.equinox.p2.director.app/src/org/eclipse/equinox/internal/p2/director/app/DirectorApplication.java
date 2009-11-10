@@ -199,7 +199,6 @@ public class DirectorApplication implements IApplication {
 	private boolean noProfileId = false;
 	private PackageAdmin packageAdmin;
 	private ServiceReference packageAdminRef;
-	private ServiceReference agentProviderRef;
 	private IPlanner planner;
 
 	private IProvisioningAgent agent;
@@ -388,7 +387,7 @@ public class DirectorApplication implements IApplication {
 		BundleContext context = Activator.getContext();
 		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
-		agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
 		URI p2DataArea;
 		if (destination != null || sharedLocation != null) {
@@ -398,6 +397,7 @@ public class DirectorApplication implements IApplication {
 			p2DataArea = null;
 		}
 		agent = provider.createAgent(p2DataArea);
+		context.ungetService(agentProviderRef);
 		if (profileId == null) {
 			if (destination != null) {
 				File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
@@ -693,8 +693,10 @@ public class DirectorApplication implements IApplication {
 	private void cleanupServices() {
 		BundleContext context = Activator.getContext();
 		//dispose agent
-		if (agentProviderRef != null)
-			context.ungetService(agentProviderRef);
+		if (agent != null) {
+			agent.stop();
+			agent = null;
+		}
 		if (packageAdminRef != null)
 			context.ungetService(packageAdminRef);
 	}

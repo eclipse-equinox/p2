@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -26,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -247,7 +245,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
 		assertTrue(registry.isCurrent(profile));
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = getAgentLocation();
 		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
 		profile2 = (Profile) simpleRegistry2.getProfile(PROFILE_NAME);
 		simpleRegistry2.lockProfile(profile2);

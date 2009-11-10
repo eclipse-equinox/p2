@@ -32,6 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -761,6 +762,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static IProvisioningAgent getAgent() {
 		//get the global agent for the currently running system
 		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+	}
+
+	protected static IAgentLocation getAgentLocation() {
+		//get the location of the currently running system
+		return (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
 	}
 
 	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {

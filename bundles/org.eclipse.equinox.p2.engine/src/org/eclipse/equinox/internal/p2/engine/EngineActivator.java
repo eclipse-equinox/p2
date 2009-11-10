@@ -88,7 +88,9 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 
 	public void start(BundleContext aContext) throws Exception {
 		EngineActivator.context = aContext;
-		tracker = new ServiceTracker(aContext, IProvisioningAgent.SERVICE_NAME, this);
+		//only want to register a service for the agent of the currently running system
+		String filter = "(&(objectClass=" + IProvisioningAgent.SERVICE_NAME + ")(agent.current=true))"; //$NON-NLS-1$ //$NON-NLS-2$
+		tracker = new ServiceTracker(context, aContext.createFilter(filter), this);
 		tracker.open();
 	}
 
