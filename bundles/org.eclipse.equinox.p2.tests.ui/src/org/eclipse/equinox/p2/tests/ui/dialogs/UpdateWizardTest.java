@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.ui.dialogs;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -55,6 +54,8 @@ public class UpdateWizardTest extends WizardTest {
 		iu.setLicenses(new ILicense[] {new License(null, "Update Wizard Test License to Accept")});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		mainUpgradeWithLicense = MetadataFactory.createInstallableUnit(iu);
+		createTestMetdataRepository(new IInstallableUnit[] {main, mainUpgrade1, mainUpgrade2, mainUpgradeWithLicense});
+
 	}
 
 	/**
@@ -92,7 +93,7 @@ public class UpdateWizardTest extends WizardTest {
 		}
 	}
 
-	public void testUpdateWizardResolvedWithLicense() throws ProvisionException {
+	public void testUpdateWizardResolvedWithLicense() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
@@ -147,6 +148,7 @@ public class UpdateWizardTest extends WizardTest {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		wizard.setSkipSelectionsPage(true);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -164,8 +166,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is not the SDK workflow, but should be supported.
 	 */
 	public void testUpdateWizardUnresolved() {
-		AvailableUpdateElement element = new AvailableUpdateElement(null, upgrade, top1, TESTPROFILE, true);
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), null, new Object[] {element}, null);
+		Update update = new Update(top1, upgrade);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {top1}, null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), null, new Object[] {update}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();

@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -36,14 +37,21 @@ public class InstallWizardTest extends WizardTest {
 	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
 	private static final String MAIN_IU = "MainIU";
 
-	public void testInstallWizardResolved() throws ProvisionException {
+	IInstallableUnit toInstall;
+
+	protected void setUp() throws Exception {
+		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
 		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
-		IInstallableUnit toInstall = MetadataFactory.createInstallableUnit(iu);
+		toInstall = MetadataFactory.createInstallableUnit(iu);
+		createTestMetdataRepository(new IInstallableUnit[] {toInstall});
+	}
+
+	public void testInstallWizardResolved() throws ProvisionException {
 		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {toInstall});
 		op.setProfileId(TESTPROFILE);
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, new IInstallableUnit[] {toInstall}, null);
@@ -76,6 +84,7 @@ public class InstallWizardTest extends WizardTest {
 	 */
 	public void testInstallWizardUnresolved() throws ProvisionException {
 		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
+		getPolicy().getQueryContext().setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		job.runModal(getMonitor());
 		InstallWizard wizard = new InstallWizard(getProvisioningUI(), null, null, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
