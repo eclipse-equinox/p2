@@ -74,6 +74,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		}
 		assertNotNull(".99", firstPatch);
 		op.setDefaultUpdates(new Update[] {firstPatch});
+		op.resolveModal(getMonitor());
 		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(firstPatchForA1));
@@ -110,6 +111,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		}
 		assertNotNull(".99", notNewest);
 		op.setDefaultUpdates(new Update[] {notNewest});
+		op.resolveModal(getMonitor());
 		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		// selected was favored
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);

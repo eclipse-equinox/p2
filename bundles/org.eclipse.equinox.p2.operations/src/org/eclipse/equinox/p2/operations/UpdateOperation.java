@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.operations;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
+import org.eclipse.equinox.internal.p2.operations.PlanAnalyzer;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -28,7 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 public class UpdateOperation extends ProfileChangeOperation {
 
 	private IInstallableUnit[] iusToUpdate;
-	private List possibleUpdates = new ArrayList();
+	private HashMap possibleUpdatesByIU = new HashMap();
 	private List defaultUpdates;
 
 	public UpdateOperation(ProvisioningSession session, IInstallableUnit[] toBeUpdated) {
@@ -47,14 +48,21 @@ public class UpdateOperation extends ProfileChangeOperation {
 	}
 
 	public Update[] getPossibleUpdates() {
-		if (possibleUpdates == null)
-			return new Update[0];
-		return (Update[]) possibleUpdates.toArray(new Update[possibleUpdates.size()]);
+		ArrayList all = new ArrayList();
+		Iterator iter = possibleUpdatesByIU.values().iterator();
+		while (iter.hasNext()) {
+			all.addAll((List) iter.next());
+		}
+		return (Update[]) all.toArray(new Update[all.size()]);
 	}
 
 	private Update[] updatesFor(IInstallableUnit iu, IProfile profile, IProgressMonitor monitor) {
-		ArrayList updates;
-		if (possibleUpdates == null) {
+		List updates;
+		if (possibleUpdatesByIU.containsKey(iu)) {
+			// We've already looked them up in the planner, use the cache
+			updates = (List) possibleUpdatesByIU.get(iu);
+		} else {
+			// We must consult the planner
 			IInstallableUnit[] replacements = session.getPlanner().updatesFor(iu, context, monitor);
 			updates = new ArrayList(replacements.length);
 			for (int i = 0; i < replacements.length; i++) {
@@ -65,22 +73,12 @@ public class UpdateOperation extends ProfileChangeOperation {
 				Collector alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), new Collector(), null);
 				if (alreadyInstalled.isEmpty()) {
 					Update update = new Update(iu, replacements[i]);
-					possibleUpdates.add(update);
 					updates.add(update);
 				}
 			}
-		} else {
-			// We've already looked them up in the planner, check the cache for those that are updating this iu
-			updates = new ArrayList();
-			Iterator iter = possibleUpdates.iterator();
-			while (iter.hasNext()) {
-				Update update = (Update) iter.next();
-				if (update.toUpdate.equals(iu))
-					updates.add(update);
-			}
+			possibleUpdatesByIU.put(iu, updates);
 		}
 		return (Update[]) updates.toArray(new Update[updates.size()]);
-
 	}
 
 	/* (non-Javadoc)
@@ -157,6 +155,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 
 		if (toBeUpdated.size() <= 0 || elementsToPlan.isEmpty()) {
 			sub.done();
+			status.add(PlanAnalyzer.getStatus(IStatusCodes.NOTHING_TO_UPDATE, null));
 			return;
 		}
 
