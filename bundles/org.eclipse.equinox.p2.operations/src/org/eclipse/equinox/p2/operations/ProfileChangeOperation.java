@@ -73,9 +73,13 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	private void doResolve(IProgressMonitor monitor) {
 		noChangeRequest = PlanAnalyzer.getProfileChangeAlteredStatus();
-		computeProfileChangeRequest(noChangeRequest, monitor);
+		if (session.hasScheduledOperationsFor(profileId)) {
+			noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
+		} else {
+			computeProfileChangeRequest(noChangeRequest, monitor);
+		}
 		if (request == null) {
-			if (noChangeRequest == null)
+			if (noChangeRequest.getChildren().length == 0)
 				// No explanation for failure was provided.  It shouldn't happen, but...
 				noChangeRequest = new MultiStatus(Activator.ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, new IStatus[] {PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null)}, Messages.ProfileChangeOperation_NoProfileChangeRequest, null);
 			return;

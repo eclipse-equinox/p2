@@ -40,6 +40,7 @@ public class UninstallWizardTest extends WizardTest {
 		dialog.setBlockOnOpen(false);
 		dialog.create();
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
@@ -50,17 +51,19 @@ public class UninstallWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			ProfileModificationJob job = getLongTestOperation();
-			getProvisioningUI().schedule(job, StatusManager.LOG);
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
-			job.cancel();
+			longOp.cancel();
 
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 
@@ -76,6 +79,7 @@ public class UninstallWizardTest extends WizardTest {
 		dialog.setBlockOnOpen(false);
 		dialog.create();
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
@@ -86,16 +90,18 @@ public class UninstallWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			ProfileModificationJob job = getLongTestOperation();
-			getProvisioningUI().schedule(job, StatusManager.LOG);
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			// recalculate plan and status
 			wizard.recomputePlan(dialog);
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
-			job.cancel();
+			longOp.cancel();
 
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 }

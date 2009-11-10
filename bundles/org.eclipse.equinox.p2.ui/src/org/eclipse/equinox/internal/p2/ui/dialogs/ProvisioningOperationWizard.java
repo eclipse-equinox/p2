@@ -112,15 +112,12 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
 			// Do we need to resolve?
 			if (operation == null || (operation != null && shouldRecomputePlan(currentPage))) {
-				operation = null;
-				provisioningContext = getProvisioningContext();
-				planSelections = currentPage.getCheckedIUElements();
-				initializeResolutionModelElements(planSelections);
-				operation = getProfileChangeOperation(planSelections);
 				recomputePlan(getContainer());
 				planChanged();
 			} else {
-				planSelections = currentPage.getCheckedIUElements();
+				// the selections have not changed from an IU point of view, but we want
+				// to reinitialize the resolution model elements to ensure they are up to
+				// date.
 				initializeResolutionModelElements(planSelections);
 			}
 			return selectNextPage(page, getCurrentStatus());
@@ -217,20 +214,23 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 * @param runnableContext
 	 */
 	public void recomputePlan(IRunnableContext runnableContext) {
-		final Object[] elements = root.getChildren(root);
 		couldNotResolve = false;
 		try {
-			if (elements.length == 0) {
-				couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
-			} else if (ui.hasScheduledOperations()) {
-				couldNotResolve(ProvUIMessages.ProvisioningOperationWizard_OperationAlreadyInProgress);
-			} else {
-				runnableContext.run(true, true, new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
+			runnableContext.run(true, true, new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					operation = null;
+					provisioningContext = getProvisioningContext();
+					planSelections = ProvisioningOperationWizard.this.mainPage.getCheckedIUElements();
+					initializeResolutionModelElements(planSelections);
+					if (planSelections.length == 0) {
+						couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
+					} else {
+						operation = getProfileChangeOperation(planSelections);
 						operation.resolveModal(monitor);
 					}
-				});
-			}
+				}
+			});
+
 		} catch (InterruptedException e) {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
@@ -249,7 +249,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	void couldNotResolve(String message) {
-		operation = null;
 		couldNotResolve = true;
 		if (message != null) {
 			IStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);

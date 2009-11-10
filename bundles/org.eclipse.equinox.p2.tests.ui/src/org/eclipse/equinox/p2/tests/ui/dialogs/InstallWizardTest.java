@@ -93,6 +93,8 @@ public class InstallWizardTest extends WizardTest {
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
+		ProfileModificationJob longOp = null;
+
 		try {
 			AvailableIUsPage page1 = (AvailableIUsPage) wizard.getPage(AVAILABLE_SOFTWARE_PAGE);
 
@@ -124,24 +126,19 @@ public class InstallWizardTest extends WizardTest {
 			}
 			// must be done this way to force notification of listeners
 			group.setChecked(group.getCheckboxTreeViewer().getCheckedElements());
-
-			IWizardPage page = wizard.getNextPage(page1);
-			assertTrue(page instanceof IResolutionErrorReportingPage);
-			IResolutionErrorReportingPage page2 = (IResolutionErrorReportingPage) page;
 			assertTrue(group.getCheckedLeafIUs().length > 0);
-			dialog.showPage(page2);
-
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			ProfileModificationJob op = getLongTestOperation();
-			getProvisioningUI().schedule(op, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 
-			// causes recalculation of plan and status
-			dialog.showPage(page1);
-			wizard.getNextPage(page1);
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			wizard.recomputePlan(dialog);
+			assertFalse(page1.isPageComplete());
+
+			longOp.cancel();
+
+			// Now we should be ok
+			wizard.recomputePlan(dialog);
 			assertTrue(page1.isPageComplete());
-			assertFalse(page2.isPageComplete());
-			op.cancel();
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();
@@ -151,6 +148,8 @@ public class InstallWizardTest extends WizardTest {
 
 		} finally {
 			dialog.close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 }

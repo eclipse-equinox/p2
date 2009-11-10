@@ -167,7 +167,7 @@ public class ProvisioningUI {
 	}
 
 	public boolean hasScheduledOperations() {
-		return runner.hasScheduledOperationsFor(profileId);
+		return getSession().hasScheduledOperationsFor(profileId);
 	}
 
 	public ProvisioningOperationRunner getOperationRunner() {

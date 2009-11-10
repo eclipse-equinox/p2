@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
@@ -42,6 +43,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
+
+	HashSet scheduledJobs = new HashSet();
 
 	public ProvisioningSession(IProvisioningAgent agent) {
 		Assert.isNotNull(agent, Messages.ProvisioningSession_AgentNotFound);
@@ -309,4 +312,30 @@ public class ProvisioningSession {
 	public void signalBatchOperationComplete(boolean notify, Object item) {
 		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item, notify));
 	}
+
+	public boolean hasScheduledOperationsFor(String profileId) {
+		Job[] jobs = getScheduledJobs();
+		for (int i = 0; i < jobs.length; i++) {
+			if (jobs[i] instanceof IProfileChangeJob) {
+				String id = ((IProfileChangeJob) jobs[i]).getProfileId();
+				if (profileId.equals(id))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private Job[] getScheduledJobs() {
+		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
+	}
+
+	public void manageJob(Job job) {
+		scheduledJobs.add(job);
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				scheduledJobs.remove(event.getJob());
+			}
+		});
+	}
+
 }

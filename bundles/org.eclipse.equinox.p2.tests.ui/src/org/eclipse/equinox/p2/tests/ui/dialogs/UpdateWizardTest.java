@@ -70,6 +70,8 @@ public class UpdateWizardTest extends WizardTest {
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
+		ProfileModificationJob longOp = null;
+
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			// should already have a plan
@@ -79,17 +81,19 @@ public class UpdateWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			ProfileModificationJob job = getLongTestOperation();
-			getProvisioningUI().schedule(job, StatusManager.LOG);
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
-			job.cancel();
+			longOp.cancel();
 
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 
@@ -172,28 +176,27 @@ public class UpdateWizardTest extends WizardTest {
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			// Page 1 should have selections
 			assertTrue(page1.isPageComplete());
-			// Will cause computation of a plan.
-			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
-			dialog.showPage(page2);
-			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			ProvisioningJob job = getLongTestOperation();
-			getProvisioningUI().schedule(job, StatusManager.LOG);
-			assertTrue(page1.isPageComplete());
-			// cause recalculation of plan and status
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			wizard.recomputePlan(dialog);
-			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
-			job.cancel();
+
+			longOp.cancel();
+			wizard.recomputePlan(dialog);
+			assertTrue(page1.isPageComplete());
 
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 

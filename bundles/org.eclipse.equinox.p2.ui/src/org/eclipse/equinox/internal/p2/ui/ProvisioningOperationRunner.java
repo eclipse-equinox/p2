@@ -12,13 +12,12 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.io.IOException;
-import java.util.HashSet;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
-import org.eclipse.equinox.p2.operations.IProfileChangeJob;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -36,8 +35,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class ProvisioningOperationRunner {
 
-	HashSet scheduledJobs = new HashSet();
-	ListenerList jobListeners = new ListenerList();
 	boolean suppressRestart = false;
 	ProvisioningUI ui;
 
@@ -107,41 +104,10 @@ public class ProvisioningOperationRunner {
 		}
 	}
 
-	public boolean hasScheduledOperationsFor(String profileId) {
-		Job[] jobs = getScheduledJobs();
-		for (int i = 0; i < jobs.length; i++) {
-			if (jobs[i] instanceof IProfileChangeJob) {
-				String id = ((IProfileChangeJob) jobs[i]).getProfileId();
-				if (profileId.equals(id))
-					return true;
-			}
-		}
-		return false;
-	}
-
-	public void addJobChangeListener(IJobChangeListener listener) {
-		jobListeners.add(listener);
-		Job[] jobs = getScheduledJobs();
-		for (int i = 0; i < jobs.length; i++)
-			jobs[i].addJobChangeListener(listener);
-	}
-
-	public void removeJobChangeListener(IJobChangeListener listener) {
-		jobListeners.remove(listener);
-		Job[] jobs = getScheduledJobs();
-		for (int i = 0; i < jobs.length; i++)
-			jobs[i].removeJobChangeListener(listener);
-	}
-
-	private Job[] getScheduledJobs() {
-		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
-	}
-
 	public void manageJob(Job job, final int jobRestartPolicy) {
-		scheduledJobs.add(job);
+		ui.getSession().manageJob(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
-				scheduledJobs.remove(event.getJob());
 				int severity = event.getResult().getSeverity();
 				// If the job finished without error, see if restart is needed
 				if (severity != IStatus.CANCEL && severity != IStatus.ERROR) {
@@ -160,9 +126,6 @@ public class ProvisioningOperationRunner {
 				}
 			}
 		});
-		Object[] listeners = jobListeners.getListeners();
-		for (int i = 0; i < listeners.length; i++)
-			job.addJobChangeListener((IJobChangeListener) listeners[i]);
 	}
 
 	/**
