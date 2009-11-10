@@ -13,17 +13,18 @@ package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
  * @noextend
  * @since 2.0
  *
  */
-public abstract class ProfileChangeOperation {
+public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	protected ProvisioningSession session;
 	protected String profileId;
@@ -33,20 +34,29 @@ public abstract class ProfileChangeOperation {
 	PlannerResolutionJob job;
 	ProfileChangeRequest request;
 
-	public ProfileChangeOperation(ProvisioningSession session, String profileId, String rootMarkerKey, ProvisioningContext context) {
+	public ProfileChangeOperation(ProvisioningSession session) {
 		this.session = session;
-		this.profileId = profileId;
-		this.rootMarkerKey = rootMarkerKey;
+		this.profileId = IProfileRegistry.SELF;
+		this.rootMarkerKey = IProfile.PROP_PROFILE_ROOT_IU;
+		this.context = null;
 		this.context = context;
 	}
 
-	public IStatus resolveModal(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus resolveModal(IProgressMonitor monitor) {
 		doResolve(monitor);
 		if (job != null) {
 			job.runModal(monitor);
 		}
 		return getResolutionResult();
 
+	}
+
+	public void setProfileId(String id) {
+		this.profileId = id;
+	}
+
+	public void setRootMarkerKey(String propertyKey) {
+		this.rootMarkerKey = propertyKey;
 	}
 
 	/**
@@ -62,7 +72,8 @@ public abstract class ProfileChangeOperation {
 	}
 
 	private void doResolve(IProgressMonitor monitor) {
-		computeProfileChangeRequest(monitor);
+		noChangeRequest = PlanAnalyzer.getProfileChangeAlteredStatus();
+		computeProfileChangeRequest(noChangeRequest, monitor);
 		if (request == null) {
 			if (noChangeRequest == null)
 				// No explanation for failure was provided.  It shouldn't happen, but...
@@ -72,7 +83,7 @@ public abstract class ProfileChangeOperation {
 		createPlannerResolutionJob();
 	}
 
-	protected abstract void computeProfileChangeRequest(IProgressMonitor monitor);
+	protected abstract void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor);
 
 	void createPlannerResolutionJob() {
 		job = new PlannerResolutionJob(getResolveJobName(), session, profileId, request, context, noChangeRequest);
@@ -93,6 +104,13 @@ public abstract class ProfileChangeOperation {
 	public String getResolutionDetails() {
 		if (job != null && job.getResolutionResult() != null)
 			return job.getResolutionResult().getSummaryReport();
+		return null;
+
+	}
+
+	public String getResolutionDetails(IInstallableUnit iu) {
+		if (job != null && job.getResolutionResult() != null)
+			return job.getResolutionResult().getDetailedReport(new IInstallableUnit[] {iu});
 		return null;
 
 	}
@@ -119,6 +137,14 @@ public abstract class ProfileChangeOperation {
 		this.context = context;
 		if (job != null)
 			job.setProvisioningContext(context);
+	}
+
+	public ProvisioningContext getProvisioningContext() {
+		return context;
+	}
+
+	public String getProfileId() {
+		return profileId;
 	}
 
 }

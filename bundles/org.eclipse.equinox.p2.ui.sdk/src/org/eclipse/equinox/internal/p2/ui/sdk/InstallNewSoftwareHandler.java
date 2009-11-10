@@ -11,12 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard
@@ -32,29 +27,24 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		super();
 	}
 
-	protected void doExecute(String profileId, QueryableMetadataRepositoryManager manager) {
-		InstallWizard wizard = new InstallWizard(Policy.getDefault(), profileId, null, null, manager);
-		WizardDialog dialog = new ProvisioningWizardDialog(getShell(), wizard);
-		dialog.create();
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
-
-		dialog.open();
+	protected void doExecute(PreloadMetadataRepositoryJob job) {
+		getProvisioningUI().openInstallWizard(getShell(), null, null, job);
 	}
 
 	protected boolean waitForPreload() {
-		// If there is no way for the user to manipulate repositories,
-		// then we may as well wait for existing repos to load so that
-		// content is available.  If the user can manipulate the
-		// repositories, then we don't wait, because we don't know which
-		// ones they want to work with.
-		return Policy.getDefault().getRepositoryManipulator() == null;
+		// If the user cannot see repositories, then we may as well wait
+		// for existing repos to load so that content is available.  
+		// If the user can manipulate the repositories, then we don't wait, 
+		// because we don't know which ones they want to work with.
+		return !getProvisioningUI().getPolicy().getRepositoryManipulator().getRepositoriesVisible();
 	}
 
 	protected void setLoadJobProperties(Job loadJob) {
+		super.setLoadJobProperties(loadJob);
 		// If we are doing a background load, we do not wish to authenticate, as the
 		// user is unaware that loading was needed
 		if (!waitForPreload()) {
-			loadJob.setProperty(ValidationDialogServiceUI.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
+			loadJob.setProperty(PreloadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
 		}
 	}
 }

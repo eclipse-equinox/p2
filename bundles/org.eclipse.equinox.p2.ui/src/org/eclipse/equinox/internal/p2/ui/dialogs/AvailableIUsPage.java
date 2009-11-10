@@ -12,18 +12,14 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -50,10 +46,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String DETAILS_WEIGHT = "AvailableDetailsSashWeight"; //$NON-NLS-1$
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
 
-	String profileId;
-	Policy policy;
 	Object[] initialSelections;
-	QueryableMetadataRepositoryManager manager;
 	IUViewQueryContext queryContext;
 	AvailableIUGroup availableIUGroup;
 	Composite availableIUButtonBar;
@@ -67,11 +60,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	RepositorySelectionGroup repoSelector;
 	IUDetailsGroup iuDetailsGroup;
 
-	public AvailableIUsPage(Policy policy, String profileId, QueryableMetadataRepositoryManager manager) {
-		super("AvailableSoftwarePage"); //$NON-NLS-1$
-		this.policy = policy;
-		this.profileId = profileId;
-		this.manager = manager;
+	public AvailableIUsPage(ProvisioningUI ui) {
+		super("AvailableSoftwarePage", ui); //$NON-NLS-1$
 		makeQueryContext();
 		setTitle(ProvUIMessages.AvailableIUsPage_Title);
 		setDescription(ProvUIMessages.AvailableIUsPage_Description);
@@ -103,15 +93,15 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		sashForm.setLayoutData(data);
 
 		// Now the available group 
-		// If we have a repository manipulator, we want to default to showing no repos.  Otherwise all.
+		// If repositories are visible, we want to default to showing no repos.  Otherwise all.
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
-		if (policy.getRepositoryManipulator() == null)
+		if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible())
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
 		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 
 		getColumnWidthsFromSettings();
-		availableIUGroup = new AvailableIUGroup(policy, sashForm, JFaceResources.getDialogFont(), manager, queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
+		availableIUGroup = new AvailableIUGroup(getProvisioningUI(), sashForm, JFaceResources.getDialogFont(), queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons 
@@ -216,7 +206,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}, ProvUIMessages.AvailableIUsPage_GotoInstallInfo);
 		installLink.setLayoutData(gd);
 
-		if (policy.getRepositoryManipulator() != null) {
+		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
 			// Checkbox
 			resolveAllCheckbox = new Button(parent, SWT.CHECK);
 			resolveAllCheckbox.setText(ProvUIMessages.AvailableIUsPage_ResolveAllCheckbox);
@@ -229,8 +219,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private void createRepoArea(Composite parent) {
 		// Site controls are only available if a repository manipulator
 		// is specified.
-		if (policy.getRepositoryManipulator() != null) {
-			repoSelector = new RepositorySelectionGroup(getContainer(), parent, policy, queryContext);
+		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+			repoSelector = new RepositorySelectionGroup(getProvisioningUI(), getContainer(), parent, queryContext);
 			repoSelector.addRepositorySelectionListener(new IRepositorySelectionListener() {
 				public void repositorySelectionChanged(int repoChoice, URI repoLocation) {
 					repoComboSelectionChanged(repoChoice, repoLocation);
@@ -256,10 +246,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	void updateQueryContext() {
 		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
 		if (hideInstalledCheckbox.getSelection())
-			queryContext.hideAlreadyInstalled(profileId);
+			queryContext.hideAlreadyInstalled(getProfileId());
 		else {
 			queryContext.showAlreadyInstalled();
-			queryContext.setInstalledProfileId(profileId);
+			queryContext.setInstalledProfileId(getProfileId());
 		}
 		if (useCategoriesCheckbox.getSelection())
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
@@ -293,10 +283,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	private void setDropTarget(Control control) {
-		if (policy.getRepositoryManipulator() != null) {
+		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
-			target.addDropListener(new RepositoryManipulatorDropTarget(policy.getRepositoryManipulator(), control));
+			target.addDropListener(new RepositoryManipulatorDropTarget(getProvisioningUI(), control));
 		}
 	}
 
@@ -342,14 +332,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	private void makeQueryContext() {
 		// Make a local query context that is based on the default.
-		IUViewQueryContext defaultQueryContext = policy.getQueryContext();
+		IUViewQueryContext defaultQueryContext = getPolicy().getQueryContext();
 		queryContext = new IUViewQueryContext(defaultQueryContext.getViewType());
-		queryContext.setArtifactRepositoryFlags(defaultQueryContext.getArtifactRepositoryFlags());
-		queryContext.setMetadataRepositoryFlags(defaultQueryContext.getMetadataRepositoryFlags());
 		if (defaultQueryContext.getHideAlreadyInstalled()) {
-			queryContext.hideAlreadyInstalled(profileId);
+			queryContext.hideAlreadyInstalled(getProfileId());
 		} else {
-			queryContext.setInstalledProfileId(profileId);
+			queryContext.setInstalledProfileId(getProfileId());
 		}
 		queryContext.setShowLatestVersionsOnly(defaultQueryContext.getShowLatestVersionsOnly());
 		queryContext.setVisibleAvailableIUProperty(defaultQueryContext.getVisibleAvailableIUProperty());
@@ -377,9 +365,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			// Hide installed content
 			boolean hideContent = section.getBoolean(HIDE_INSTALLED_IUS);
 			if (hideContent)
-				queryContext.hideAlreadyInstalled(profileId);
+				queryContext.hideAlreadyInstalled(getProfileId());
 			else {
-				queryContext.setInstalledProfileId(profileId);
+				queryContext.setInstalledProfileId(getProfileId());
 				queryContext.showAlreadyInstalled();
 			}
 		}
@@ -547,7 +535,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 
 			protected void profileChanged(String id) {
-				if (id.equals(profileId)) {
+				if (id.equals(getProfileId())) {
 					asyncRefresh();
 				}
 			}
@@ -572,7 +560,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	public ProvisioningContext getProvisioningContext() {
 		// If the user can't manipulate repos, always resolve against everything
-		if (policy.getRepositoryManipulator() == null || repoSelector == null) {
+		if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible() || repoSelector == null) {
 			return new ProvisioningContext();
 		}
 		// Consult the checkbox to see if we should resolve against everything,

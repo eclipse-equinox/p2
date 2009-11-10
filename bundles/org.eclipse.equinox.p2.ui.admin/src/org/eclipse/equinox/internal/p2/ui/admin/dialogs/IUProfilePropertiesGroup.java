@@ -11,18 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An IUPropertiesGroup is a reusable UI component that displays and edits the 
@@ -79,11 +75,6 @@ public class IUProfilePropertiesGroup extends IUGroup {
 	}
 
 	private IProfile getProfile(InstalledIUElement element) {
-		try {
-			return ProvisioningUtil.getProfile(element.getProfileId());
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, NLS.bind(ProvAdminUIMessages.IUProfilePropertiesGroup_InvalidProfileID, element.getProfileId()), StatusManager.LOG);
-			return null;
-		}
+		return ProvisioningUI.getDefaultUI().getSession().getProfile(element.getProfileId());
 	}
 }

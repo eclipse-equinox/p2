@@ -11,14 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.p2.operations.InstallOperation;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class InstallWizardPage extends SizeComputingWizardPage {
 
-	public InstallWizardPage(Policy policy, String profileId, IUElementListRoot root, PlannerResolutionOperation initialResolution) {
-		super(policy, root, profileId, initialResolution);
+	public InstallWizardPage(ProvisioningUI ui, IUElementListRoot root, InstallOperation operation) {
+		super(ui, root, operation);
 		setTitle(ProvUIMessages.InstallWizardPage_Title);
 		setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}

@@ -13,14 +13,12 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
@@ -36,9 +34,11 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	URI location;
 	IArtifactRepository repo;
 	boolean isEnabled;
+	ProvisioningUI ui;
 
 	public ArtifactRepositoryElement(Object parent, URI location) {
 		this(parent, location, true);
+		ui = ProvUIActivator.getDefault().getProvisioningUI();
 	}
 
 	public ArtifactRepositoryElement(Object parent, URI location, boolean isEnabled) {
@@ -82,7 +82,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	public IRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
-				repo = ProvisioningUtil.loadArtifactRepository(location, monitor);
+				repo = ui.getSession().loadArtifactRepository(location, monitor);
 			} catch (ProvisionException e) {
 				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 			} catch (OperationCanceledException e) {
@@ -119,16 +119,12 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		try {
-			String name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null)
-				name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name == null)
-				name = ""; //$NON-NLS-1$
-			return name;
-		} catch (ProvisionException e) {
-			return ""; //$NON-NLS-1$
-		}
+		String name = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		if (name == null)
+			name = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+		if (name == null)
+			name = ""; //$NON-NLS-1$
+		return name;
 	}
 
 	/*
@@ -136,14 +132,10 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		try {
-			String description = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
-			if (description == null)
-				return ""; //$NON-NLS-1$
-			return description;
-		} catch (ProvisionException e) {
+		String description = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		if (description == null)
 			return ""; //$NON-NLS-1$
-		}
+		return description;
 	}
 
 	/* (non-Javadoc)

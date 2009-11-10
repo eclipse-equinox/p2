@@ -13,28 +13,24 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.p2.ui.actions.UninstallAction;
+import org.eclipse.equinox.internal.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.UninstallAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveProfilesOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This view allows users to interact with installed profiles.
@@ -63,8 +59,8 @@ public class ProfilesView extends ProvView {
 				if (selections[i] instanceof ProfileElement)
 					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
 			}
-			RemoveProfilesOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (String[]) profilesOnly.toArray(new String[profilesOnly.size()]));
-			ProvisioningOperationRunner.run(op, StatusManager.SHOW | StatusManager.LOG);
+			RemoveProfilesJob op = new RemoveProfilesJob(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, getProvisioningUI().getSession(), (String[]) profilesOnly.toArray(new String[profilesOnly.size()]));
+			ProfilesView.this.run(op);
 		}
 	}
 
@@ -97,7 +93,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(ProvAdminUIActivator.getDefault().getPolicy(), treeViewer);
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(getProvisioningUI(), treeViewer);
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
@@ -137,9 +133,9 @@ public class ProfilesView extends ProvView {
 		super.makeActions();
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
-		uninstallAction = new UninstallAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null);
+		uninstallAction = new UninstallAction(getProvisioningUI(), viewer, null);
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
-		updateAction = new UpdateAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null, true);
+		updateAction = new UpdateAction(getProvisioningUI(), viewer, null, true);
 		updateAction.setSkipSelectionPage(true);
 
 		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), propertiesAction);
@@ -183,22 +179,18 @@ public class ProfilesView extends ProvView {
 	}
 
 	protected Object getInput() {
-		return new Profiles(ProvAdminUIActivator.getDefault().getPolicy());
+		return new Profiles(getProvisioningUI());
 	}
 
-	IProfileChooser getProfileChooser() {
-		return new IProfileChooser() {
-			public String getProfileId(Shell shell) {
-				Object firstElement = getSelection().getFirstElement();
-				if (firstElement instanceof InstalledIUElement) {
-					return ((InstalledIUElement) firstElement).getProfileId();
-				}
-				IProfile profile = (IProfile) ProvUI.getAdapter(firstElement, IProfile.class);
-				if (profile != null)
-					return profile.getProfileId();
-				return null;
-			}
-		};
+	protected String getProfileId() {
+		Object firstElement = getSelection().getFirstElement();
+		if (firstElement instanceof InstalledIUElement) {
+			return ((InstalledIUElement) firstElement).getProfileId();
+		}
+		IProfile profile = (IProfile) ProvUI.getAdapter(firstElement, IProfile.class);
+		if (profile != null)
+			return profile.getProfileId();
+		return null;
 	}
 
 	protected List getVisualProperties() {
@@ -208,16 +200,14 @@ public class ProfilesView extends ProvView {
 	}
 
 	String[] getKnownProfileIds() {
-		try {
-			IProfile[] allProfiles = ProvisioningUtil.getProfiles();
-			String[] ids = new String[allProfiles.length];
-			for (int i = 0; i < allProfiles.length; i++)
-				ids[i] = allProfiles[i].getProfileId();
-			return ids;
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvAdminUIMessages.ProfilesView_ErrorRetrievingProfiles, StatusManager.LOG);
-			return new String[0];
-		}
+		IProfile[] allProfiles = getProvisioningUI().getSession().getProfiles();
+		String[] ids = new String[allProfiles.length];
+		for (int i = 0; i < allProfiles.length; i++)
+			ids[i] = allProfiles[i].getProfileId();
+		return ids;
+	}
 
+	protected ProvisioningUI getProvisioningUI() {
+		return ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
 	}
 }

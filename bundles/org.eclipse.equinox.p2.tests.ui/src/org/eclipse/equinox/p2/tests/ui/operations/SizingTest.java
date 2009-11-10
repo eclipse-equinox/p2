@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.operations.SizingPhaseSet;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
@@ -26,21 +24,12 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 public class SizingTest extends AbstractProvisioningUITest {
 	public void testEmptySizing() {
 		String profileId = "testEmptySizing";
-		IProfile profile = createProfile(profileId);
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		IProfile testProfile = createProfile(profileId);
+		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		ProvisioningPlan plan = null;
-		try {
-			plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.99", e);
-			return;
-		}
-		long size = IIUElement.SIZE_NOTAPPLICABLE;
-		try {
-			size = ProvisioningUtil.getSize(plan, profileId, new ProvisioningContext(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		long size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
+		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 
@@ -50,22 +39,13 @@ public class SizingTest extends AbstractProvisioningUITest {
 	public void testSimpleSizing() {
 		IInstallableUnit f1 = createIU("f1", DEFAULT_VERSION, true);
 		String profileId = "testSimpleSizing";
-		IProfile profile = createProfile(profileId);
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		IProfile testProfile = createProfile(profileId);
+		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1});
 		ProvisioningPlan plan = null;
-		try {
-			plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.99", e);
-			return;
-		}
-		long size = IIUElement.SIZE_NOTAPPLICABLE;
-		try {
-			size = ProvisioningUtil.getSize(plan, profileId, new ProvisioningContext(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		long size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
+		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 }

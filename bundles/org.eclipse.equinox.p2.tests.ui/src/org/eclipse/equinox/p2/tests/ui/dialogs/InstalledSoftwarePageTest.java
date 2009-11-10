@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage;
+import org.eclipse.equinox.p2.ui.InstalledSoftwarePage;
+
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;

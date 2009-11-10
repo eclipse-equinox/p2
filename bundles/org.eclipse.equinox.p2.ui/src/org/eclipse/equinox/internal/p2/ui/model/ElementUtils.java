@@ -15,14 +15,12 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -36,37 +34,39 @@ public class ElementUtils {
 	public static void updateRepositoryUsingElements(final MetadataRepositoryElement[] elements, final Shell shell) {
 		Job job = new Job(ProvUIMessages.ElementUtils_UpdateJobTitle) {
 			public IStatus run(IProgressMonitor monitor) {
-				ProvUI.startBatchOperation();
+				final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
+				final ProvisioningSession session = ui.getSession();
+				session.signalBatchOperationStart();
 				try {
-					int visibilityFlags = Policy.getDefault().getQueryContext().getMetadataRepositoryFlags();
-					URI[] currentlyEnabled = ProvisioningUtil.getMetadataRepositories(visibilityFlags);
-					URI[] currentlyDisabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
+					int visibilityFlags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags();
+					URI[] currentlyEnabled = session.getMetadataRepositories(visibilityFlags);
+					URI[] currentlyDisabled = session.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
 					for (int i = 0; i < elements.length; i++) {
 						URI location = elements[i].getLocation();
 						if (elements[i].isEnabled()) {
 							if (containsURI(currentlyDisabled, location))
 								// It should be enabled and is not currently
-								ProvisioningUtil.setColocatedRepositoryEnablement(location, true);
+								setColocatedRepositoryEnablement(ui, location, true);
 							else if (!containsURI(currentlyEnabled, location)) {
 								// It is not known as enabled or disabled.  Add it.
-								ProvisioningUtil.addMetadataRepository(location, false);
-								ProvisioningUtil.addArtifactRepository(location, false);
+								session.addMetadataRepository(location);
+								session.addArtifactRepository(location);
 							}
 						} else {
 							if (containsURI(currentlyEnabled, location))
 								// It should be disabled, and is currently enabled
-								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
+								setColocatedRepositoryEnablement(ui, location, false);
 							else if (!containsURI(currentlyDisabled, location)) {
 								// It is not known as enabled or disabled.  Add it and then disable it.
-								ProvisioningUtil.addMetadataRepository(location, false);
-								ProvisioningUtil.addArtifactRepository(location, false);
-								ProvisioningUtil.setColocatedRepositoryEnablement(location, false);
+								session.addMetadataRepository(location);
+								session.addArtifactRepository(location);
+								setColocatedRepositoryEnablement(ui, location, false);
 							}
 						}
 						String name = elements[i].getName();
 						if (name != null && name.length() > 0) {
-							ProvisioningUtil.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
-							ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+							session.setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+							session.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 						}
 					}
 					// Are there any elements that need to be deleted?  Go over the original state
@@ -76,25 +76,28 @@ public class ElementUtils {
 						nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
 					for (int i = 0; i < currentlyEnabled.length; i++) {
 						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyEnabled[i]))) {
-							ProvisioningUtil.removeMetadataRepository(currentlyEnabled[i]);
-							ProvisioningUtil.removeArtifactRepository(currentlyEnabled[i]);
+							session.removeMetadataRepository(currentlyEnabled[i]);
+							session.removeArtifactRepository(currentlyEnabled[i]);
 						}
 					}
 					for (int i = 0; i < currentlyDisabled.length; i++) {
 						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyDisabled[i]))) {
-							ProvisioningUtil.removeMetadataRepository(currentlyDisabled[i]);
-							ProvisioningUtil.removeArtifactRepository(currentlyDisabled[i]);
+							session.removeMetadataRepository(currentlyDisabled[i]);
+							session.removeArtifactRepository(currentlyDisabled[i]);
 						}
 					}
-				} catch (ProvisionException e) {
-					return e.getStatus();
 				} finally {
-					ProvUI.endBatchOperation(true);
+					session.signalBatchOperationComplete(true, null);
 				}
 				return Status.OK_STATUS;
 			}
 		};
 		job.schedule();
+	}
+
+	private static void setColocatedRepositoryEnablement(ProvisioningUI ui, URI location, boolean enable) {
+		ProvUIActivator.getDefault().getSession().setArtifactRepositoryEnablement(location, enable);
+		ProvUIActivator.getDefault().getSession().setMetadataRepositoryEnablement(location, enable);
 	}
 
 	public static IInstallableUnit getIU(Object element) {

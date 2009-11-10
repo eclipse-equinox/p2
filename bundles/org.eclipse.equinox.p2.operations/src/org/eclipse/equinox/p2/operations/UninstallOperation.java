@@ -12,9 +12,9 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
@@ -25,15 +25,15 @@ public class UninstallOperation extends ProfileChangeOperation {
 
 	private IInstallableUnit[] toUninstall;
 
-	public UninstallOperation(ProvisioningSession session, String profileId, String rootMarkerKey, ProvisioningContext context, IInstallableUnit[] toInstall) {
-		super(session, profileId, rootMarkerKey, context);
+	public UninstallOperation(ProvisioningSession session, IInstallableUnit[] toInstall) {
+		super(session);
 		this.toUninstall = toInstall;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	protected void computeProfileChangeRequest(IProgressMonitor monitor) {
+	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(profileId);
 		request.removeInstallableUnits(toUninstall);
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984

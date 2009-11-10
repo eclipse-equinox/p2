@@ -14,18 +14,18 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.DefaultQueryProvider;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Tests for {@link QueryableMetadataRepositoryManager}.
@@ -34,6 +34,15 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	/**
 	 * Tests querying against a non-existent repository
 	 */
+
+	ProvisioningUI ui;
+	ProvisioningSession session;
+
+	protected void setUp() throws Exception {
+		ui = ProvisioningUI.getDefaultUI();
+		session = ui.getSession();
+	}
+
 	public void testBrokenRepository() {
 		URI brokenRepo;
 		try {
@@ -93,10 +102,6 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 
 		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
 		assertEquals("1.0", 0, result.size());
-
-		//null query collects repository URLs
-		result = manager.query(null, new Collector(), new CancelingProgressMonitor());
-		assertEquals("2.0", 0, result.size());
 	}
 
 	public void testExistingRepository() {
@@ -198,8 +203,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		context.setShowLatestVersionsOnly(false);
 
-		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
-		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
+		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
 		Collection collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 5, collection.size());
@@ -222,9 +227,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		context.setShowLatestVersionsOnly(true);
 
-		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
-		manager.setQueryContext(context);
-		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
+		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
 		Collection collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
@@ -253,6 +257,6 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {
-		return new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false);
+		return new QueryableMetadataRepositoryManager(session, ui.getPolicy().getRepositoryManipulator(), false);
 	}
 }

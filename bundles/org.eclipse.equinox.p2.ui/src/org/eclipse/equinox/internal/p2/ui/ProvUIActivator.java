@@ -13,12 +13,17 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -33,6 +38,9 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
+
+	private ProvisioningSession session;
+	private ProvisioningUI ui;
 
 	public static BundleContext getContext() {
 		return context;
@@ -79,15 +87,32 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
 
+		initializeProvisioningUI();
+	}
+
+	private void initializeProvisioningUI() {
 		// TODO for now we need to manually start up the provisioning infrastructure
 		// because the Eclipse Application launch config won't let me specify bundles to start.
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		try {
+			getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		} catch (BundleException e) {
+			ProvUI.handleException(e, "Error initializing provisioning UI", StatusManager.LOG); //$NON-NLS-1$
+		}
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.class.getName());
+		session = new ProvisioningSession(agent);
+
+		Policy policy = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
+		if (policy == null)
+			policy = new Policy();
+
+		ui = new ProvisioningUI(session, IProfileRegistry.SELF, policy);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		try {
 			plugin = null;
 			ProvUIActivator.context = null;
+			ui = null;
 		} finally {
 			super.stop(bundleContext);
 		}
@@ -95,14 +120,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	public void addProvisioningListener(ProvUIProvisioningListener listener) {
 		getProvisioningEventBus().addListener(listener);
-	}
-
-	public void signalBatchOperationStart() {
-		getProvisioningEventBus().publishEvent(new BatchChangeBeginningEvent(this));
-	}
-
-	public void signalBatchOperationComplete(boolean notify) {
-		getProvisioningEventBus().publishEvent(new BatchChangeCompleteEvent(this, notify));
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
@@ -124,10 +141,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		createImageDescriptor(ProvUIImages.IMG_UPDATED_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_CATEGORY, reg);
 		createImageDescriptor(ProvUIImages.IMG_PROFILE, reg);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE, reg);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE_PROBLEMS, reg);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE, reg);
-		createImageDescriptor(ProvUIImages.IMG_TOOL_CLOSE_HOT, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL, reg);
@@ -142,4 +155,13 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		reg.put(id, desc);
 	}
+
+	public ProvisioningUI getProvisioningUI() {
+		return ui;
+	}
+
+	public ProvisioningSession getSession() {
+		return session;
+	}
+
 }

@@ -13,17 +13,14 @@ package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * An object that implements a query for available updates
@@ -31,8 +28,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class QueryableUpdates implements IQueryable {
 
 	private IInstallableUnit[] iusToUpdate;
+	ProvisioningUI ui;
 
-	public QueryableUpdates(IInstallableUnit[] iusToUpdate) {
+	public QueryableUpdates(ProvisioningUI ui, IInstallableUnit[] iusToUpdate) {
+		this.ui = ui;
 		this.iusToUpdate = iusToUpdate;
 	}
 
@@ -41,11 +40,7 @@ public class QueryableUpdates implements IQueryable {
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
-		IPlanner planner = (IPlanner) ServiceHelper.getService(ProvUIActivator.getContext(), IPlanner.class.getName());
-		if (planner == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoPlannerFound), StatusManager.SHOW | StatusManager.LOG);
-			return result;
-		}
+		IPlanner planner = ui.getSession().getPlanner();
 		try {
 			ArrayList allUpdates = new ArrayList();
 			for (int i = 0; i < iusToUpdate.length; i++) {

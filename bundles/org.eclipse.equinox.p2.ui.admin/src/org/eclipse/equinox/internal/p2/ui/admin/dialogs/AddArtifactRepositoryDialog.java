@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.admin.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.internal.p2.ui.dialogs.AddRepositoryDialog;
+import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -28,93 +28,33 @@ import org.eclipse.swt.widgets.Shell;
 public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 
 	class ArtifactRepositoryManipulator extends RepositoryManipulator {
-		RepositoryLocationValidator validator;
 
-		public AddRepositoryOperation getAddOperation(URI location) {
-			return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, location);
+		public AddRepositoryJob getAddOperation(URI location, ProvisioningUI ui) {
+			return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, ui.getSession(), location);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getAddOperationLabel()
-		 */
-		public String getAddOperationLabel() {
-			return ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel;
+		public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningUI ui) {
+			return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, ui.getSession(), repoLocations);
 		}
 
-		public String getManipulatorButtonLabel() {
-			// Not used in this dialog
-			return null;
-		}
-
-		public String getManipulatorLinkLabel() {
-			// Not used in this dialog
-			return null;
-		}
-
-		public RemoveRepositoryOperation getRemoveOperation(URI[] repoLocations) {
-			return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, repoLocations);
-		}
-
-		public String getRemoveOperationLabel() {
-			return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel;
-		}
-
-		public RepositoryLocationValidator getRepositoryLocationValidator(Shell shell) {
-			if (validator == null) {
-				validator = new RepositoryLocationValidator() {
-					public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
-						IStatus duplicateStatus = Status.OK_STATUS;
-						URI[] knownRepositories = getKnownRepositories();
-						for (int i = 0; i < knownRepositories.length; i++) {
-							if (knownRepositories[i].equals(location)) {
-								duplicateStatus = new Status(IStatus.ERROR, ProvAdminUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvAdminUIMessages.AddArtifactRepositoryDialog_DuplicateURL, null);
-								break;
-							}
-						}
-						return duplicateStatus;
-					}
-				};
-			}
-			return validator;
-		}
-
-		public boolean manipulateRepositories(Shell shell) {
+		public boolean manipulateRepositories(Shell shell, ProvisioningUI ui) {
 			// Not used in this dialog
 			return false;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
-		 */
-		public URI[] getKnownRepositories() {
-			try {
-				return ProvisioningUtil.getArtifactRepositories(ProvAdminUIActivator.getDefault().getPolicy().getQueryContext().getArtifactRepositoryFlags());
-			} catch (ProvisionException e) {
-				return new URI[0];
-			}
+		public URI[] getKnownRepositories(ProvisioningSession session) {
+			return session.getArtifactRepositories(getArtifactRepositoryFlags());
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getManipulatorInstructionString()
-		 */
-		public String getManipulatorInstructionString() {
-			// We don't have a manipulator
-			return null;
+		protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
+			return Status.OK_STATUS;
 		}
-
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getSiteNotFoundCorrectionString()
-		 */
-		public String getRepositoryNotFoundInstructionString() {
-			return ProvAdminUIMessages.AddArtifactRepositoryDialog_ManipulateRepositoryInstruction;
-		}
-
 	}
 
 	RepositoryManipulator manipulator;
 
-	public AddArtifactRepositoryDialog(Shell parentShell, Policy policy) {
-		super(parentShell, policy);
+	public AddArtifactRepositoryDialog(Shell parentShell, ProvisioningUI ui) {
+		super(parentShell, ui);
 	}
 
 	protected RepositoryManipulator getRepositoryManipulator() {

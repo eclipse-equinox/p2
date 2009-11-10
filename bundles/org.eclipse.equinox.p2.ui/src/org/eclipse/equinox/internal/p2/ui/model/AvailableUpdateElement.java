@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.operations.Update;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -39,12 +39,12 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		return iuToBeUpdated;
 	}
 
-	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) throws ProvisionException {
+	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
-		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return ProvUIActivator.getDefault().getSession().getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
 
 	public boolean equals(Object obj) {
@@ -68,5 +68,9 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		result = prime * result + ((iu == null) ? 0 : iu.hashCode());
 		result = prime * result + ((iuToBeUpdated == null) ? 0 : iuToBeUpdated.hashCode());
 		return result;
+	}
+
+	public Update getUpdate() {
+		return new Update(iuToBeUpdated, getIU());
 	}
 }

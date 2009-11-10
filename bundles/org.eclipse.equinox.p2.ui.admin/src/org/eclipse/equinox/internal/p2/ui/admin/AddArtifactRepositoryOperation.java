@@ -10,37 +10,35 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.operations.AddRepositoryJob;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Operation which adds an artifact repository given its URI.
  * 
  * @since 3.4
  */
-public class AddArtifactRepositoryOperation extends AddRepositoryOperation {
+public class AddArtifactRepositoryOperation extends AddRepositoryJob {
 
-	public AddArtifactRepositoryOperation(String label, URI location) {
-		super(label, new URI[] {location});
+	public AddArtifactRepositoryOperation(String label, ProvisioningSession session, URI location) {
+		super(label, session, new URI[] {location});
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.addArtifactRepository(locations[i], notify);
+			getSession().addArtifactRepository(locations[i]);
 			mon.worked(1);
 		}
-		return okStatus();
+		return Status.OK_STATUS;
 	}
 
-	protected void setNickname(URI location, String nickname) throws ProvisionException {
+	protected void setNickname(URI location, String nickname) {
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+			getSession().setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
 		}
 	}
 }

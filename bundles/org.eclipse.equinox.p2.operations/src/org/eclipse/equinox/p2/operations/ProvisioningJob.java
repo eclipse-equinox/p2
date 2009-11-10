@@ -154,14 +154,13 @@ public abstract class ProvisioningJob extends Job {
 	 */
 	public final IStatus run(IProgressMonitor monitor) {
 		IProgressMonitor wrappedMonitor = getCombinedProgressMonitor(monitor, additionalMonitor);
+		IStatus status = Status.OK_STATUS;
 		try {
-			runModal(wrappedMonitor);
+			status = runModal(wrappedMonitor);
 		} catch (OperationCanceledException e) {
-			return Status.CANCEL_STATUS;
-		} catch (ProvisionException e) {
-			return getErrorStatus(null, e);
+			status = Status.CANCEL_STATUS;
 		}
-		return Status.OK_STATUS;
+		return status;
 	}
 
 	/**
@@ -171,7 +170,7 @@ public abstract class ProvisioningJob extends Job {
 	 *            the progress monitor to use for the operation
 	 * 
 	 */
-	public abstract void runModal(IProgressMonitor monitor) throws ProvisionException;
+	public abstract IStatus runModal(IProgressMonitor monitor);
 
 	public int getRestartPolicy() {
 		return RESTART_NONE;

@@ -11,19 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
-import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.admin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddProfileOperation;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Dialog that allows a profile to be defined and added.
@@ -78,7 +74,8 @@ public class AddProfileDialog extends StatusDialog {
 		}
 		addedProfileId = profileGroup.getProfileId();
 		Map profileProperties = profileGroup.getProfileProperties();
-		ProvisioningOperationRunner.run(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfileId, profileProperties), StatusManager.SHOW | StatusManager.LOG);
+		AddProfileJob job = new AddProfileJob(ProvAdminUIMessages.AddProfileDialog_OperationLabel, ProvisioningUI.getDefaultUI().getSession(), addedProfileId, profileProperties);
+		job.runModal(new NullProgressMonitor());
 	}
 
 	void verifyComplete() {

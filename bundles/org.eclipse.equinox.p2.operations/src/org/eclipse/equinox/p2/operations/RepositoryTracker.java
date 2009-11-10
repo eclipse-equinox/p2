@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.Messages;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.operations.*;
+import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -36,20 +35,15 @@ public abstract class RepositoryTracker {
 	// What repositories to show
 	private int artifactRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
 	private int metadataRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
-	private ProvisioningSession session;
 	/**
 	 * List<URI> of repositories that have already been reported to the user as not found.
 	 */
 	private final List reposNotFound = Collections.synchronizedList(new ArrayList());
 
-	public RepositoryTracker(ProvisioningSession session) {
-		this.session = session;
-	}
-
 	/**
 	 * Return an array of URLs containing the repositories already known.
 	 */
-	public abstract URI[] getKnownRepositories();
+	public abstract URI[] getKnownRepositories(ProvisioningSession session);
 
 	public IStatus getInvalidLocationStatus(String urlText) {
 		return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, NLS.bind(Messages.RepositoryTracker_InvalidLocation, urlText), null);
@@ -69,7 +63,7 @@ public abstract class RepositoryTracker {
 		return userLocation;
 	}
 
-	public IStatus validateRepositoryLocation(URI location, boolean contactRepositories, IProgressMonitor monitor) {
+	public IStatus validateRepositoryLocation(ProvisioningSession session, URI location, boolean contactRepositories, IProgressMonitor monitor) {
 		// First validate syntax issues
 		IStatus localValidationStatus = RepositoryHelper.checkRepositoryLocationSyntax(location);
 		if (!localValidationStatus.isOK()) {
@@ -86,7 +80,7 @@ public abstract class RepositoryTracker {
 			return localValidationStatus;
 
 		// Syntax was ok, now look for duplicates
-		URI[] knownRepositories = getKnownRepositories();
+		URI[] knownRepositories = getKnownRepositories(session);
 		for (int i = 0; i < knownRepositories.length; i++) {
 			if (URIUtil.sameURI(knownRepositories[i], location)) {
 				localValidationStatus = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, Messages.RepositoryTracker_DuplicateLocation, null);
@@ -98,12 +92,12 @@ public abstract class RepositoryTracker {
 			return localValidationStatus;
 
 		if (contactRepositories)
-			return validateRepositoryLocationWithManager(location, monitor);
+			return validateRepositoryLocationWithManager(session, location, monitor);
 
 		return localValidationStatus;
 	}
 
-	protected abstract IStatus validateRepositoryLocationWithManager(URI location, IProgressMonitor monitor);
+	protected abstract IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor);
 
 	// This assumes that callers already checked whether it *should*
 	// be reported so that we don't need to loop through the list
@@ -144,9 +138,5 @@ public abstract class RepositoryTracker {
 
 	public void reportLoadFailure(final URI location, IStatus status) {
 		LogHelper.log(status);
-	}
-
-	public ProvisioningSession getSession() {
-		return session;
 	}
 }

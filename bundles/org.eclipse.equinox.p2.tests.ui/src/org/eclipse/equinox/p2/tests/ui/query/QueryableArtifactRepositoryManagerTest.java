@@ -11,11 +11,11 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.QueryableArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.ui.RepositoryLocationQuery;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.RepositoryLocationQuery;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	private static final String repositoryOne = "http://one.lan";
@@ -49,6 +49,6 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	}
 
 	private QueryableArtifactRepositoryManager getQueryableManager() {
-		return new QueryableArtifactRepositoryManager(Policy.getDefault().getQueryContext(), false);
+		return new QueryableArtifactRepositoryManager(ProvisioningUI.getDefaultUI().getSession(), ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator(), false);
 	}
 }

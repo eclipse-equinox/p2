@@ -11,42 +11,34 @@
 
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * @since 3.4
  *
  */
-public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
+public class RefreshMetadataRepositoriesOperation extends RepositoryJob {
 
 	/**
 	 * @param label
 	 * @param locations
 	 */
-	public RefreshMetadataRepositoriesOperation(String label, URI[] locations) {
-		super(label, locations);
+	public RefreshMetadataRepositoriesOperation(String label, ProvisioningSession session, URI[] locations) {
+		super(label, session, locations);
 	}
 
-	public RefreshMetadataRepositoriesOperation(String label, int flags) {
-		super(label, new URI[0]);
-		try {
-			this.locations = ProvisioningUtil.getMetadataRepositories(flags);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null, StatusManager.LOG);
-		}
+	public RefreshMetadataRepositoriesOperation(String label, ProvisioningSession session, int flags) {
+		super(label, session, session.getMetadataRepositories(flags));
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus runModal(IProgressMonitor monitor) {
 		// Clear the not found cache so that repos not found are reported again.
-		ProvUI.clearRepositoriesNotFound();
-		ProvisioningUtil.refreshMetadataRepositories(locations, monitor);
+		ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator().clearRepositoriesNotFound();
+		getSession().refreshMetadataRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 }

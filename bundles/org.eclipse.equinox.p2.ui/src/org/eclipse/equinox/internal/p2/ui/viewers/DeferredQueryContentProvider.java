@@ -16,7 +16,6 @@ import java.util.HashSet;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 

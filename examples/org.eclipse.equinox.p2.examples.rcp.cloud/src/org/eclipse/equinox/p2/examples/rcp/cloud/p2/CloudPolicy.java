@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.Policy;
 
 /**
  * CloudPolicy defines the RCP Cloud Example policies for the p2 UI. The policy

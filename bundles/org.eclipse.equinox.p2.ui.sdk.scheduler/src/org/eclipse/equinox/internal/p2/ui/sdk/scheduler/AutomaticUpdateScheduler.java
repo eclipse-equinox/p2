@@ -166,8 +166,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private IQuery getProfileQuery() {
-		// We specifically avoid going through the default policy's query provider or
-		// through the sdk ui bundle, so that we don't load all the p2 UI classes in doing so.  
+		// We specifically avoid using the default policy's root property so that we don't load all the
+		// p2 UI classes in doing so.  
 		return new IUProfilePropertyByIdQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 	}
 

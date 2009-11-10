@@ -14,6 +14,7 @@ import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -23,13 +24,12 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Abstract class to set up the colocated UI test repo
@@ -56,10 +56,13 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit upgrade;
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
+	private ProvisioningUI ui;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		ProvisioningOperationRunner.suppressRestart(true);
+		ui = ProvisioningUI.getDefaultUI();
+		ui = new ProvisioningUI(ui.getSession(), TESTPROFILE, ui.getPolicy());
+		ui.getOperationRunner().suppressRestart(true);
 		profile = createProfile(TESTPROFILE);
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
@@ -96,11 +99,23 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		return false;
 	}
 
+	protected ProvisioningSession getSession() {
+		return ui.getSession();
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ui;
+	}
+
+	protected Policy getPolicy() {
+		return ui.getPolicy();
+	}
+
 	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) throws ProvisionException {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
 		if (root) {
-			String rootProp = Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty();
+			String rootProp = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
 			if (rootProp != null)
 				req.setInstallableUnitProfileProperty(iu, rootProp, Boolean.toString(true));
 		}
@@ -108,10 +123,10 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, new Integer(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
 		}
 		// Use an empty provisioning context to prevent repo access
-		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
+		ProvisioningPlan plan = getSession().getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), new ProvisioningContext(), getMonitor());
+		return getSession().performProvisioningPlan(plan, new DefaultPhaseSet(), new ProvisioningContext(), getMonitor());
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {
@@ -124,9 +139,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	protected ProfileModificationOperation getLongTestOperation() {
-		return new ProfileModificationOperation("Test Operation", TESTPROFILE, null, null) {
-			protected IStatus doExecute(IProgressMonitor monitor) {
+	protected ProfileModificationJob getLongTestOperation() {
+		return new ProfileModificationJob("Test Operation", getSession(), TESTPROFILE, null, null) {
+			public IStatus runModal(IProgressMonitor monitor) {
 				while (true) {
 					// spin unless cancelled
 					if (monitor.isCanceled())

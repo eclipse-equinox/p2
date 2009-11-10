@@ -81,14 +81,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProfileModificationWizardPage_ResolutionOperationLabel;
 	public static String ProfileModificationWizardPage_UnexpectedError;
 	public static String ProfileSnapshots_Label;
-	public static String ProvisioningUtil_InstallPlanConfigurationError;
-	// utility error messages
-	public static String ProvisioningUtil_NoRepositoryManager;
-	public static String ProvisioningUtil_LoadRepositoryFailure;
-	public static String ProvisioningUtil_NoProfileRegistryFound;
-	public static String ProvisioningUtil_NoPlannerFound;
-	public static String ProvisioningUtil_NoDirectorFound;
-	public static String ProvisioningUtil_NoEngineFound;
 
 	// viewer support
 	public static String ProvDropAdapter_InvalidDropTarget;
@@ -167,7 +159,6 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
 	public static String RepositoryNameAndLocationDialog_Title;
 
-	public static String ResolutionReport_SummaryStatus;
 	public static String ResolutionWizardPage_Canceled;
 	public static String ResolutionWizardPage_ErrorStatus;
 	public static String ResolutionWizardPage_NoSelections;
@@ -208,31 +199,15 @@ public class ProvUIMessages extends NLS {
 	public static String ElementUtils_UpdateJobTitle;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
+	public static String LaunchUpdateManagerButton;
 	public static String MetadataRepositoryElement_NotFound;
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;
-	public static String PlanAnalyzer_IgnoringInstall;
-	public static String PlanAnalyzer_LockedImpliedUpdate0;
-	public static String PlanAnalyzer_PartialInstall;
-	public static String PlanAnalyzer_PartialUninstall;
-	public static String PlanAnalyzer_SideEffectInstall;
-	public static String PlanAnalyzer_SideEffectUninstall;
-	public static String PlannerResolutionOperation_UnexpectedError;
-	public static String PlanStatusHelper_IgnoringImpliedDowngrade;
-	public static String PlanStatusHelper_ImpliedUpdate;
-	public static String PlanStatusHelper_Items;
-	public static String PlanStatusHelper_NothingToDo;
-	public static String PlanStatusHelper_AlreadyInstalled;
-	public static String PlanStatusHelper_AnotherOperationInProgress;
-	public static String PlanStatusHelper_Launch;
-	public static String PlanStatusHelper_RequestAltered;
-	public static String PlanStatusHelper_RequiresUpdateManager;
-	public static String PlanStatusHelper_UnexpectedError;
-	public static String PlanStatusHelper_UpdateManagerPromptTitle;
-	public static String PlanStatusHelper_PromptForUpdateManagerUI;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
+	public static String Policy_RequiresUpdateManagerMessage;
+	public static String Policy_RequiresUpdateManagerTitle;
 	public static String ProvUI_ErrorDuringApplyConfig;
 	public static String ProvUI_InformationTitle;
 	public static String ProvUI_InstallDialogError;
@@ -255,9 +230,9 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableMetadataRepositoryManager_LoadRepositoryProgress;
 	public static String QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
+	public static String QueryableRepositoryManager_LoadFailure;
 	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizeComputingWizardPage_SizeJobTitle;
-	public static String SizingPhaseSet_PhaseSetName;
 	public static String RevertDialog_ConfigContentsLabel;
 	public static String RevertDialog_ConfigsLabel;
 	public static String RevertDialog_ConfirmRestartMessage;
@@ -267,6 +242,7 @@ public class ProvUIMessages extends NLS {
 	public static String RollbackProfileElement_InvalidSnapshot;
 	public static String SelectableIUsPage_Select_All;
 	public static String SelectableIUsPage_Deselect_All;
+	public static String SelectableIUsPage_OperationInProgress;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;

@@ -11,20 +11,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUDragAdapter;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUDragAdapter;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -50,7 +48,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new MetadataRepositories(ProvAdminUIActivator.getDefault().getPolicy());
+		return new MetadataRepositories(getProvisioningUI());
 	}
 
 	protected String getAddCommandLabel() {
@@ -66,21 +64,21 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected int openAddRepositoryDialog(Shell shell) {
-		return new AddMetadataRepositoryDialog(shell, ProvAdminUIActivator.getDefault().getPolicy()).open();
+		return new AddMetadataRepositoryDialog(shell, getProvisioningUI()).open();
 	}
 
-	protected RemoveRepositoryOperation getRemoveOperation(Object[] elements) {
+	protected RemoveRepositoryJob getRemoveOperation(Object[] elements) {
 		ArrayList locations = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IRepositoryElement)
 				locations.add(((IRepositoryElement) elements[i]).getLocation());
 		}
-		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URI[]) locations.toArray(new URI[locations.size()]));
+		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, getProvisioningUI().getSession(), (URI[]) locations.toArray(new URI[locations.size()]));
 	}
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(ProvAdminUIActivator.getDefault().getPolicy(), viewer, null);
+		installAction = new InstallAction(getProvisioningUI(), viewer, null);
 	}
 
 	protected void fillContextMenu(IMenuManager manager) {
@@ -109,7 +107,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
 	 */
 	protected int getListenerEventTypes() {
-		return StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
+		return ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
 	}
 
 	/*
@@ -117,7 +115,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
 	 */
 	protected void refreshUnderlyingModel() {
-		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), StatusManager.SHOW | StatusManager.LOG);
+		getProvisioningUI().schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getProvisioningUI().getSession(), getRepoFlags()), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 	protected List getVisualProperties() {

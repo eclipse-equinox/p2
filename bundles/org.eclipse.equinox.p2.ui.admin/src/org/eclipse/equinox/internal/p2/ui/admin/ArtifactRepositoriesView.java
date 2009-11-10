@@ -12,12 +12,11 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import java.util.ArrayList;
+import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ArtifactRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositories;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -36,7 +35,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new ArtifactRepositories(ProvAdminUIActivator.getDefault().getPolicy());
+		return new ArtifactRepositories(getProvisioningUI());
 	}
 
 	protected String getAddCommandLabel() {
@@ -52,16 +51,16 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected int openAddRepositoryDialog(Shell shell) {
-		return new AddArtifactRepositoryDialog(shell, ProvAdminUIActivator.getDefault().getPolicy()).open();
+		return new AddArtifactRepositoryDialog(shell, getProvisioningUI()).open();
 	}
 
-	protected RemoveRepositoryOperation getRemoveOperation(Object[] elements) {
+	protected RemoveRepositoryJob getRemoveOperation(Object[] elements) {
 		ArrayList locations = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IRepositoryElement)
 				locations.add(((IRepositoryElement) elements[i]).getLocation());
 		}
-		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URI[]) locations.toArray(new URI[locations.size()]));
+		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, getProvisioningUI().getSession(), (URI[]) locations.toArray(new URI[locations.size()]));
 	}
 
 	/*
@@ -69,7 +68,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
 	 */
 	protected int getListenerEventTypes() {
-		return StructuredViewerProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
+		return ProvUIProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
 	}
 
 	/*
@@ -77,7 +76,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
 	 */
 	protected void refreshUnderlyingModel() {
-		ProvisioningOperationRunner.schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, ProvAdminUIActivator.getDefault().getPolicy().getQueryContext().getArtifactRepositoryFlags()), StatusManager.SHOW | StatusManager.LOG);
+		getProvisioningUI().schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getProvisioningUI().getSession(), 0), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 }

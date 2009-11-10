@@ -11,40 +11,37 @@
 
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RepositoryOperation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryJob;
 
 /**
  * @since 3.4
  *
  */
-public class RefreshArtifactRepositoriesOperation extends RepositoryOperation {
+public class RefreshArtifactRepositoriesOperation extends RepositoryJob {
 
 	/**
 	 * @param label
 	 * @param locations
 	 */
-	public RefreshArtifactRepositoriesOperation(String label, URI[] locations) {
-		super(label, locations);
+	public RefreshArtifactRepositoriesOperation(String label, ProvisioningSession session, URI[] locations) {
+		super(label, session, locations);
 	}
 
-	public RefreshArtifactRepositoriesOperation(String label, int flags) {
-		super(label, new URI[0]);
+	public RefreshArtifactRepositoriesOperation(String label, ProvisioningSession session, int flags) {
+		super(label, session, new URI[0]);
+		this.locations = session.getArtifactRepositories(flags);
+	}
+
+	public IStatus runModal(IProgressMonitor monitor) {
 		try {
-			this.locations = ProvisioningUtil.getArtifactRepositories(flags);
+			getSession().refreshArtifactRepositories(locations, monitor);
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null, StatusManager.LOG);
+			return getErrorStatus(null, e);
 		}
-	}
-
-	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
-		ProvisioningUtil.refreshArtifactRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 }

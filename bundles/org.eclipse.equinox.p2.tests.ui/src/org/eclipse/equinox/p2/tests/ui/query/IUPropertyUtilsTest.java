@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,7 +31,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
@@ -51,7 +52,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 
-		ICopyright copyright = org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils.getCopyright(unit);
+		ICopyright copyright = IUPropertyUtils.getCopyright(unit);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
 		ILicense license = IUPropertyUtils.getLicenses(unit)[0];
 		assertEquals("1.2", "Test License", license.getBody());

@@ -12,9 +12,14 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.RefreshAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -25,6 +30,7 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 /**
  * This class supports the common characteristics for views that manipulate
@@ -37,6 +43,7 @@ abstract class ProvView extends ViewPart {
 	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
+	private ProvisioningUI ui;
 
 	/**
 	 * The constructor.
@@ -118,7 +125,7 @@ abstract class ProvView extends ViewPart {
 	protected abstract IAction getDoubleClickAction();
 
 	protected void makeActions() {
-		refreshAction = new RefreshAction(viewer, viewer.getControl()) {
+		refreshAction = new RefreshAction(ProvisioningUI.getDefaultUI(), viewer, viewer.getControl()) {
 			protected void refresh() {
 				refreshAll(true);
 			}
@@ -176,6 +183,18 @@ abstract class ProvView extends ViewPart {
 		return (IStructuredSelection) viewer.getSelection();
 	}
 
+	protected void run(ProvisioningJob job) {
+		IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite().getService(IWorkbenchSiteProgressService.class);
+		if (service != null)
+			service.schedule(job);
+		else
+			job.runModal(getProgressMonitor());
+	}
+
+	protected IProgressMonitor getProgressMonitor() {
+		return new NullProgressMonitor();
+	}
+
 	protected void configureViewer(final TreeViewer treeViewer) {
 		viewer.setComparator(new IUComparator(IUComparator.IU_ID));
 		viewer.setComparer(new ProvElementComparer());
@@ -223,5 +242,15 @@ abstract class ProvView extends ViewPart {
 		// are caching gets reset also.  The net effect is that everything 
 		// will get queried again.
 		viewer.setInput(getInput());
+	}
+
+	protected String getProfileId() {
+		return IProfileRegistry.SELF;
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		if (ui == null)
+			ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
+		return ui;
 	}
 }

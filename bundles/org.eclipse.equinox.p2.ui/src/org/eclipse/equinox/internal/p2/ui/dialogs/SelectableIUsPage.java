@@ -15,13 +15,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
@@ -46,7 +45,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	IUElementListRoot root;
 	Object[] initialSelections;
-	PlannerResolutionOperation resolvedOperation;
+	ProfileChangeOperation resolvedOperation;
 	CheckboxTableViewer tableViewer;
 	IUDetailsGroup iuDetailsGroup;
 	ProvElementContentProvider contentProvider;
@@ -55,12 +54,10 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Policy policy;
 	SashForm sashForm;
 
-	public SelectableIUsPage(Policy policy, IUElementListRoot root, Object[] initialSelections, String profileId) {
-		super("IUSelectionPage", profileId); //$NON-NLS-1$
+	public SelectableIUsPage(ProvisioningUI ui, IUElementListRoot root, Object[] initialSelections) {
+		super("IUSelectionPage", ui); //$NON-NLS-1$
 		this.root = root;
-		this.policy = policy;
 		this.initialSelections = initialSelections;
-		this.profileId = profileId;
 	}
 
 	/*
@@ -257,10 +254,10 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateStatus(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation)
 	 */
-	public void updateStatus(IUElementListRoot newRoot, PlannerResolutionOperation op) {
+	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		IStatus specialStatus = null;
-		if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
-			specialStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
+		if (getProvisioningUI().hasScheduledOperations()) {
+			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.SelectableIUsPage_OperationInProgress, null);
 		} else if (op == null) {
 			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
 		}
@@ -285,7 +282,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return tableViewer != null;
 	}
 
-	protected void updateCaches(IUElementListRoot newRoot, PlannerResolutionOperation op) {
+	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
 		if (root != newRoot && tableViewer != null)
 			tableViewer.setInput(newRoot);

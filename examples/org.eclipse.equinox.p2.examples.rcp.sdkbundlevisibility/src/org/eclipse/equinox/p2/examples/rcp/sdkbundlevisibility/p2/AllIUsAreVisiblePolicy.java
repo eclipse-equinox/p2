@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.ColocatedRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.ui.ColocatedRepositoryManipulator;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.Policy;
 
 /**
  * AllIUsAreVisiblePolicy redefines the IU visibility.  In this
@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public class AllIUsAreVisiblePolicy extends Policy {
 	public AllIUsAreVisiblePolicy() {
 		// XXX Use the pref-based repository manipulator
-		setRepositoryManipulator(new ColocatedRepositoryManipulator(this, PreferenceConstants.PREF_PAGE_SITES));
+		setRepositoryManipulator(new ColocatedRepositoryManipulator(PreferenceConstants.PREF_PAGE_SITES));
 		
 		// XXX Create an IUViewQueryContext to change the visibility of the IUs shown in the UI.
         // XXX Show the flat (non-categorized) view by default.

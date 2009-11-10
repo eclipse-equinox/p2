@@ -25,6 +25,7 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata,org.eclipse.equinox.p2.metadata,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.metadata.generator,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.metadata.repository,R3_6_api_cleanup"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.operations,org.eclipse.equinox.p2.operations,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/incubator/p2/bundles/org.eclipse.equinox.p2.profile.recovery,org.eclipse.equinox.p2.profile.recovery"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.publisher,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.reconciler.dropins,R3_6_api_cleanup"/>

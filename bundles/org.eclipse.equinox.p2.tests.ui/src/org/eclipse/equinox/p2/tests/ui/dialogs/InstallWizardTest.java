@@ -11,20 +11,15 @@
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import java.util.HashSet;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.metadata.License;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -49,10 +44,9 @@ public class InstallWizardTest extends WizardTest {
 		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		IInstallableUnit toInstall = MetadataFactory.createInstallableUnit(iu);
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(Policy.getDefault(), TESTPROFILE, new IInstallableUnit[] {toInstall}, op, null);
+		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {toInstall});
+		op.setProfileId(TESTPROFILE);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, new IInstallableUnit[] {toInstall}, null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -80,13 +74,10 @@ public class InstallWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard
 	 */
-	public void testInstallWizardUnresolved() {
-		Policy policy = Policy.getDefault();
-		IUViewQueryContext context = policy.getQueryContext();
-		context.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(context, false);
-		manager.loadAll(getMonitor());
-		InstallWizard wizard = new InstallWizard(policy, TESTPROFILE, null, null, manager);
+	public void testInstallWizardUnresolved() throws ProvisionException {
+		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
+		job.runModal(getMonitor());
+		InstallWizard wizard = new InstallWizard(getProvisioningUI(), null, null, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 
 		dialog.create();
@@ -132,7 +123,8 @@ public class InstallWizardTest extends WizardTest {
 			dialog.showPage(page2);
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			ProfileModificationJob op = getLongTestOperation();
+			getProvisioningUI().schedule(op, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 
 			// causes recalculation of plan and status
@@ -140,7 +132,7 @@ public class InstallWizardTest extends WizardTest {
 			wizard.getNextPage(page1);
 			assertTrue(page1.isPageComplete());
 			assertFalse(page2.isPageComplete());
-			job.cancel();
+			op.cancel();
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();

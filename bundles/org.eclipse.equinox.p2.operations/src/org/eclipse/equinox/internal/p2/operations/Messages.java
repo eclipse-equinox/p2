@@ -32,14 +32,10 @@ public class Messages extends NLS {
 	public static String ProfileChangeOperation_ResolveTaskName;
 
 	public static String ProvisioningJob_GenericErrorStatusMessage;
+	public static String ProvisioningSession_AgentNotFound;
+
 	public static String ProvisioningSession_InstallPlanConfigurationError;
-	public static String ProvisioningSession_NoRepositoryManager;
 	public static String ProvisioningSession_LoadRepositoryFailure;
-	public static String ProvisioningSession_NoProfileRegistryFound;
-	public static String ProvisioningSession_NoPlannerFound;
-	public static String ProvisioningSession_NoDirectorFound;
-	public static String ProvisioningSession_NoEngineFound;
-	public static String ProvisioningSession_NoEventBus;
 
 	public static String PlanAnalyzer_IgnoringInstall;
 	public static String PlanAnalyzer_LockedImpliedUpdate0;
@@ -47,6 +43,8 @@ public class Messages extends NLS {
 	public static String PlanAnalyzer_PartialUninstall;
 	public static String PlanAnalyzer_SideEffectInstall;
 	public static String PlanAnalyzer_SideEffectUninstall;
+	public static String PlannerResolutionJob_NullProvisioningPlan;
+
 	public static String PlannerResolutionOperation_UnexpectedError;
 	public static String PlanAnalyzer_IgnoringImpliedDowngrade;
 	public static String PlanAnalyzer_ImpliedUpdate;

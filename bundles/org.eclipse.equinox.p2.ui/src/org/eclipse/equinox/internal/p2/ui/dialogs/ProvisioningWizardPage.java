@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Control;
@@ -17,8 +18,11 @@ import org.eclipse.ui.PlatformUI;
 
 abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 
-	protected ProvisioningWizardPage(String pageName) {
+	private ProvisioningUI ui;
+
+	protected ProvisioningWizardPage(String pageName, ProvisioningUI ui) {
 		super(pageName);
+		this.ui = ui;
 	}
 
 	protected void activateCopy(Control control) {
@@ -43,5 +47,17 @@ abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 	 */
 	public void saveBoundsRelatedSettings() {
 		// Default is to do nothing
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ui;
+	}
+
+	protected Policy getPolicy() {
+		return ui.getPolicy();
+	}
+
+	String getProfileId() {
+		return ui.getProfileId();
 	}
 }

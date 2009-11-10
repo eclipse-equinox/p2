@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationPage;
+import org.eclipse.equinox.p2.ui.RepositoryManipulationPage;
+
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.widgets.Composite;

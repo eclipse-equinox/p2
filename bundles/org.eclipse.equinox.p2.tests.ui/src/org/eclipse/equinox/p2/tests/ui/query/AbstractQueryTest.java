@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 
 /**
  * Abstract class to set up the mock query provider
@@ -26,21 +27,22 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		// use test query provider
 		// This is really not how the default policy should be used in practice,
 		// but we need to reset it for the tests.
-		Policy.getDefault().setQueryProvider(new MockQueryProvider(getMockQuery()));
+		ProvUI.setQueryProvider(new MockQueryProvider(getMockQuery(), ProvisioningUI.getDefaultUI()));
 		// some of the test repos are set up as system repos so we need to
 		// query all repos, not just non-system repos
 		// TODO consider evolving these tests to distinguish between system
 		// and non-system
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
-		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
-		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
-		Policy.getDefault().setQueryContext(queryContext);
+		RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
+		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		Policy.getDefault().setQueryProvider(null);
-		Policy.getDefault().setQueryContext(null);
+		RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
+		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		ProvUI.setQueryProvider(null);
 	}
 
 	protected IQuery getMockQuery() {

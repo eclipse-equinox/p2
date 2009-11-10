@@ -13,10 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.p2.ui.*;
 
 /**
  * Element class that represents an element that gets its children
@@ -41,11 +40,15 @@ public abstract class QueriedElement extends ProvElement {
 		Object parent = getParent(this);
 		if (parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getPolicy();
-		return Policy.getDefault();
+		return ProvUIActivator.getDefault().getProvisioningUI().getPolicy();
 	}
 
-	public QueryProvider getQueryProvider() {
-		return getPolicy().getQueryProvider();
+	public ProvisioningUI getProvisioningUI() {
+		Object parent = getParent(this);
+		if (parent instanceof QueriedElement)
+			return ((QueriedElement) parent).getProvisioningUI();
+		return ProvUIActivator.getDefault().getProvisioningUI();
+
 	}
 
 	public IUViewQueryContext getQueryContext() {
@@ -57,6 +60,10 @@ public abstract class QueriedElement extends ProvElement {
 
 	public Object[] getChildren(Object o) {
 		return fetchChildren(o, new NullProgressMonitor());
+	}
+
+	public QueryProvider getQueryProvider() {
+		return ProvUI.getQueryProvider();
 	}
 
 	/*

@@ -30,22 +30,22 @@ public class OperationEndingEvent extends EventObject {
 	public boolean notify;
 
 	/**
-	 * The event that should be processed at the end of the batch
+	 * The last item touched in the batch.  Can help indicate what should be updated.
 	 */
-	private EventObject event;
+	private Object item;
 
 	/**
 	 * Construct a new instance of this event.
 	 * @param source the source of the event
 	 */
-	public OperationEndingEvent(Object source, EventObject event, boolean notify) {
+	public OperationEndingEvent(Object source, Object item, boolean notify) {
 		super(source);
 		this.notify = notify;
-		this.event = event;
+		this.item = item;
 	}
 
-	public EventObject getLastEvent() {
-		return event;
+	public Object getItem() {
+		return item;
 	}
 
 }

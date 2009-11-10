@@ -21,24 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
  */
 public interface IIUElement {
 
-	/**
-	 * Indicates that the size is currently unknown
-	 */
-	public static final long SIZE_UNKNOWN = -1L;
-
-	/**
-	 * Indicates that the size is unavailable (an
-	 * attempt was made to compute size but it failed)
-	 */
-	public static final long SIZE_UNAVAILABLE = -2L;
-
-	/**
-	 * Indicates that there was nothing to size (there
-	 * was no valid plan that could be used to compute
-	 * size).
-	 */
-	public static final long SIZE_NOTAPPLICABLE = -3L;
-
 	public IInstallableUnit getIU();
 
 	public boolean shouldShowSize();

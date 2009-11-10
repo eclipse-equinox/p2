@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -36,8 +38,9 @@ public abstract class StructuredIUGroup {
 	private FontMetrics fm;
 	protected StructuredViewer viewer;
 	private Composite composite;
-	private Policy policy;
+	private ProvisioningUI ui;
 	private IUColumnConfig[] columnConfig;
+	private QueryProvider queryProvider;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -49,8 +52,8 @@ public abstract class StructuredIUGroup {
 	 * not managed by the receiver.
 	 * @param columnConfig the columns to be shown
 	 */
-	protected StructuredIUGroup(Policy policy, Composite parent, Font font, IUColumnConfig[] columnConfig) {
-		this.policy = policy;
+	protected StructuredIUGroup(ProvisioningUI ui, Composite parent, Font font, IUColumnConfig[] columnConfig) {
+		this.ui = ui;
 		if (columnConfig == null)
 			this.columnConfig = ProvUI.getIUColumnConfig();
 		else
@@ -127,11 +130,21 @@ public abstract class StructuredIUGroup {
 	}
 
 	protected QueryProvider getQueryProvider() {
-		return policy.getQueryProvider();
+		if (queryProvider == null)
+			queryProvider = new QueryProvider(ui);
+		return queryProvider;
 	}
 
 	protected Policy getPolicy() {
-		return policy;
+		return ui.getPolicy();
+	}
+
+	protected ProvisioningSession getSession() {
+		return ui.getSession();
+	}
+
+	protected ProvisioningUI getUI() {
+		return ui;
 	}
 
 	protected Control getDefaultFocusControl() {

@@ -12,6 +12,39 @@
          <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository"/>
          <adapter type="org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository"/>
       </factory>
-
    </extension>
+   
+     <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            name="%IU.copyright"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IUCopyrightPropertyPage"
+            id="org.eclipse.equinox.p2.ui.IUCopyrightPropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>
+           <page
+            name="%IU.general"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IUGeneralInfoPropertyPage"
+            id="org.eclipse.equinox.p2.ui.IUGeneralInfoPropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>
+      <page
+            name="%IU.license"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IULicensePropertyPage"
+            id="org.eclipse.equinox.p2.ui.IULicensePropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>    
+      </extension>
 </plugin>

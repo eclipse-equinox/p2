@@ -11,19 +11,17 @@
 package org.eclipse.equinox.internal.p2.operations;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.operations.ProvisioningJob;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.*;
 
 /**
  * Class representing a provisioning profile plan
  *
  * @since 2.0
  */
-public class PlannerResolutionJob extends ProvisioningJob {
+public class PlannerResolutionJob extends ProvisioningJob implements IProfileChangeJob {
 
 	ProfileChangeRequest request;
 	String profileId;
@@ -64,8 +62,12 @@ public class PlannerResolutionJob extends ProvisioningJob {
 		this.provisioningContext = context;
 	}
 
-	public void runModal(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus runModal(IProgressMonitor monitor) {
 		plan = getSession().getProvisioningPlan(request, provisioningContext, monitor);
+		if (plan == null) {
+			return new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
+		}
+		return plan.getStatus();
 
 	}
 
@@ -74,5 +76,9 @@ public class PlannerResolutionJob extends ProvisioningJob {
 			report = PlanAnalyzer.computeResolutionResult(request, plan, additionalStatus);
 		}
 		return report;
+	}
+
+	public String getProfileId() {
+		return profileId;
 	}
 }

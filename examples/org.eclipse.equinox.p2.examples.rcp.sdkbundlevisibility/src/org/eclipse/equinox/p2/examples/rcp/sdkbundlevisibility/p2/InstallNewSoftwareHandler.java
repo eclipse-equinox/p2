@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.IProvHelpContextIds;
+import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningWizardDialog;
+import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.PlatformUI;
 

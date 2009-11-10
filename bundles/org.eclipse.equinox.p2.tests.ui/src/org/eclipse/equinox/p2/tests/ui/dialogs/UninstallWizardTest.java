@@ -10,18 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.operations.UninstallOperation;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -38,11 +32,10 @@ public class UninstallWizardTest extends WizardTest {
 	 */
 	public void testUninstallWizardResolved() throws ProvisionException {
 
-		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		IInstallableUnit[] iusInvolved = new IInstallableUnit[] {top1, top2};
-		req.removeInstallableUnits(iusInvolved);
-		PlannerResolutionOperation op = getResolvedOperation(req);
-		UninstallWizard wizard = new UninstallWizard(Policy.getDefault(), TESTPROFILE, iusInvolved, op);
+		UninstallOperation op = getProvisioningUI().getUninstallOperation(iusInvolved, null);
+		op.resolveModal(getMonitor());
+		UninstallWizard wizard = new UninstallWizard(getProvisioningUI(), op, iusInvolved, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.create();
@@ -57,7 +50,8 @@ public class UninstallWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			ProfileModificationJob job = getLongTestOperation();
+			getProvisioningUI().schedule(job, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
@@ -76,7 +70,7 @@ public class UninstallWizardTest extends WizardTest {
 	 */
 	public void testUninstallWizardUnresolved() {
 		// This test is pretty useless right now but at least it opens the wizard
-		UninstallWizard wizard = new UninstallWizard(Policy.getDefault(), TESTPROFILE, new IInstallableUnit[] {top1, top2}, null);
+		UninstallWizard wizard = new UninstallWizard(getProvisioningUI(), null, new IInstallableUnit[] {top1, top2}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.create();
@@ -91,7 +85,8 @@ public class UninstallWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			ProfileModificationJob job = getLongTestOperation();
+			getProvisioningUI().schedule(job, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);

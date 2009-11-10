@@ -12,27 +12,26 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
 
 /**
  * Operation which removes the artifact repository with the given URL.
  * 
  * @since 3.4
  */
-public class RemoveArtifactRepositoryOperation extends RemoveRepositoryOperation {
+public class RemoveArtifactRepositoryOperation extends RemoveRepositoryJob {
 
-	public RemoveArtifactRepositoryOperation(String label, URI[] repoLocations) {
-		super(label, repoLocations);
+	public RemoveArtifactRepositoryOperation(String label, ProvisioningSession session, URI[] repoLocations) {
+		super(label, session, repoLocations);
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.removeArtifactRepository(locations[i]);
+			getSession().removeArtifactRepository(locations[i]);
 			mon.worked(1);
 		}
-		return okStatus();
+		return Status.OK_STATUS;
 	}
 }

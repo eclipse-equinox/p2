@@ -11,11 +11,10 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
+import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 /**
  * @since 3.5
@@ -25,7 +24,7 @@ public class InstallActionTest extends ProfileModificationActionTest {
 
 	class TestInstallAction extends InstallAction {
 		TestInstallAction(Object[] sel) {
-			super(Policy.getDefault(), InstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
+			super(InstallActionTest.this.getProvisioningUI(), InstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
 		}
 
 		public IInstallableUnit[] getSelectedIUs() {

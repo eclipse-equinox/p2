@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -22,10 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
+import org.eclipse.equinox.p2.operations.SizingPhaseSet;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -37,7 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	IInstallableUnit iu;
-	boolean shouldShowChildren = Policy.getDefault().getQueryContext().getShowAvailableChildren();
+	boolean shouldShowChildren;
 	boolean isInstalled = false;
 	boolean isUpdate = false;
 
@@ -47,7 +44,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	// probably refer to some preference or policy to decide what to do.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=221087
 	private static boolean shouldShowSize = false;
-	long size = IIUElement.SIZE_UNKNOWN;
+	long size = SizingPhaseSet.SIZE_UNKNOWN;
 	String profileID;
 
 	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID, boolean showChildren) {
@@ -87,24 +84,19 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	public void computeSize(IProgressMonitor monitor) {
 		if (profileID == null)
 			return;
-		try {
-			SubMonitor mon = SubMonitor.convert(monitor, 100);
-			ProvisioningPlan plan = getSizingPlan(mon.newChild(50));
-			size = ProvisioningUtil.getSize(plan, profileID, getProvisioningContext(), mon.newChild(50));
-		} catch (ProvisionException e) {
-			handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
-			size = IIUElement.SIZE_UNAVAILABLE;
-		}
+		SubMonitor mon = SubMonitor.convert(monitor, 100);
+		ProvisioningPlan plan = getSizingPlan(mon.newChild(50));
+		size = getProvisioningUI().getSession().getSize(plan, profileID, getProvisioningContext(), mon.newChild(50));
 	}
 
-	protected IProfile getProfile() throws ProvisionException {
-		return ProvisioningUtil.getProfile(profileID);
+	protected IProfile getProfile() {
+		return getProvisioningUI().getSession().getProfile(profileID);
 	}
 
-	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) throws ProvisionException {
+	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
-		return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
+		return getProvisioningUI().getSession().getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}
 
 	public IInstallableUnit getIU() {

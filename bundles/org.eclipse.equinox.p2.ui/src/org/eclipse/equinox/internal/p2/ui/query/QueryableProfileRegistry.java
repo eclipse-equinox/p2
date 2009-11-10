@@ -12,30 +12,28 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.Arrays;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * An object that adds queryable support to the profile registry.
  */
 public class QueryableProfileRegistry implements IQueryable {
 
+	private ProvisioningUI ui;
+
+	public QueryableProfileRegistry(ProvisioningUI ui) {
+		this.ui = ui;
+	}
+
 	public Collector query(IQuery query, Collector result, IProgressMonitor monitor) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
-		if (profileRegistry == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound), StatusManager.SHOW | StatusManager.LOG);
-			return result;
-		}
-		IProfile[] profiles = profileRegistry.getProfiles();
+		IProfile[] profiles = ui.getSession().getProfileRegistry().getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {
 			query.perform(Arrays.asList(profiles).iterator(), result);

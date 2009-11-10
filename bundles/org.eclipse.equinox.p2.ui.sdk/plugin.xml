@@ -5,40 +5,7 @@
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
 	</extension>
-  <extension
-         point="org.eclipse.ui.propertyPages">
-      <page
-            name="%IU.copyright"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.IUCopyrightPropertyPage"
-            id="org.eclipse.equinox.p2.ui.sdk.IUCopyrightPropertyPage">
-            <enabledWhen>
-            <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
-             </adapt>
-          </enabledWhen>
-      </page>
-           <page
-            name="%IU.general"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.IUGeneralInfoPropertyPage"
-            id="org.eclipse.equinox.p2.ui.sdk.IUGeneralInfoPropertyPage">
-            <enabledWhen>
-            <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
-             </adapt>
-          </enabledWhen>
-      </page>
-      <page
-            name="%IU.license"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.IULicensePropertyPage"
-            id="org.eclipse.equinox.p2.ui.sdk.IULicensePropertyPage">
-            <enabledWhen>
-            <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
-             </adapt>
-          </enabledWhen>
-      </page>    
-      </extension>
-       <extension
+    <extension
          point="org.eclipse.ui.preferencePages">
               <page
             name="%provisioningPrefPage"
@@ -50,7 +17,7 @@
        <page
             name="%sitesPrefPage"
             category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationPage"
+            class="org.eclipse.equinox.p2.ui.RepositoryManipulationPage"
             id="org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
@@ -143,12 +110,12 @@
          point="org.eclipse.ui.installationPages">
           <page
             name="%installedSoftwarePage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage"
+            class="org.eclipse.equinox.p2.ui.InstalledSoftwarePage"
             id="10.org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
           </page>
           <page
             name="%installHistoryPage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertProfilePage"
+            class="org.eclipse.equinox.p2.ui.RevertProfilePage"
             id="11.org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
           </page>
           

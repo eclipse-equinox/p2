@@ -12,27 +12,26 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
 
 /**
  * Operation that removes the metadata repository with the given location.
  * 
  * @since 3.4
  */
-public class RemoveMetadataRepositoryOperation extends RemoveRepositoryOperation {
+public class RemoveMetadataRepositoryOperation extends RemoveRepositoryJob {
 
-	public RemoveMetadataRepositoryOperation(String label, URI[] repoLocations) {
-		super(label, repoLocations);
+	public RemoveMetadataRepositoryOperation(String label, ProvisioningSession session, URI[] repoLocations) {
+		super(label, session, repoLocations);
 	}
 
-	protected IStatus doBatchedExecute(IProgressMonitor monitor) throws ProvisionException {
+	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(locations[i]);
+			getSession().removeMetadataRepository(locations[i]);
 			mon.worked(1);
 		}
-		return okStatus();
+		return Status.OK_STATUS;
 	}
 }

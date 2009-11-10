@@ -13,6 +13,7 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.equinox.p2.extensionlocation,
    org.eclipse.equinox.p2.garbagecollector,
    org.eclipse.equinox.p2.installer,
+   org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.touchpoint.natives,
@@ -24,7 +25,12 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.pde.core",
- org.eclipse.equinox.internal.provisional.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.ui,org.eclipse.equinox.p2.repository.tools,org.eclipse.equinox.p2.director.app"
+ org.eclipse.equinox.internal.provisional.p2.engine.phases;
+  x-friends:="org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.operations,
+   org.eclipse.equinox.p2.ui.sdk.scheduler,
+   org.eclipse.equinox.p2.repository.tools,
+   org.eclipse.equinox.p2.director.app"
 Import-Package: javax.xml.parsers,
  org.eclipse.core.internal.preferences,
  org.eclipse.core.runtime.preferences,

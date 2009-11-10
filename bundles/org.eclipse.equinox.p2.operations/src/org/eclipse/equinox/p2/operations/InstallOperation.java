@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.operations.PlanAnalyzer;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -30,14 +29,13 @@ public class InstallOperation extends ProfileChangeOperation {
 
 	private IInstallableUnit[] toInstall;
 
-	public InstallOperation(ProvisioningSession session, String profileId, String rootMarkerKey, ProvisioningContext context, IInstallableUnit[] toInstall) {
-		super(session, profileId, rootMarkerKey, context);
+	public InstallOperation(ProvisioningSession session, IInstallableUnit[] toInstall) {
+		super(session);
 		this.toInstall = toInstall;
 	}
 
-	protected void computeProfileChangeRequest(IProgressMonitor monitor) {
+	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(profileId);
-		MultiStatus status = PlanAnalyzer.getProfileChangeAlteredStatus();
 		IProfile profile;
 		profile = session.getProfile(profileId);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.length);
@@ -59,9 +57,9 @@ public class InstallOperation extends ProfileChangeOperation {
 				// update request
 				if (compareTo > 0) {
 					boolean lockedForUpdate = false;
-					String value = profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+					String value = profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_LOCKED_IU);
 					if (value != null)
-						lockedForUpdate = (Integer.parseInt(value) & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
+						lockedForUpdate = (Integer.parseInt(value) & IProfile.LOCK_UPDATE) == IProfile.LOCK_UPDATE;
 					if (lockedForUpdate) {
 						// Add a status telling the user that this implies an update, but the
 						// iu should not be updated
@@ -72,8 +70,8 @@ public class InstallOperation extends ProfileChangeOperation {
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));
 						// Mark it as a root if it hasn't been already
-						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_ROOT_IU)))
-							request.setInstallableUnitProfileProperty(toInstall[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, rootMarkerKey)))
+							request.setInstallableUnitProfileProperty(toInstall[i], rootMarkerKey, Boolean.toString(true));
 					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user

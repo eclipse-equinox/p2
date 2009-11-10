@@ -12,11 +12,12 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.operations.SizingPhaseSet;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -67,7 +68,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	}
 
 	public long getSize() {
-		return SIZE_UNKNOWN;
+		return SizingPhaseSet.SIZE_UNKNOWN;
 	}
 
 	public boolean shouldShowSize() {

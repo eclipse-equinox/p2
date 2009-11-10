@@ -11,11 +11,17 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.io.IOException;
+import java.net.URL;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -27,6 +33,15 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
+	// bundle-relative icon path
+	public final static String ICON_PATH = "$nl$/icons/"; //$NON-NLS-1$
+
+	// tool icons
+	public final static String IMG_TOOL_UPDATE = "tool/update.gif"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.gif"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE = "tool/close.gif"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.gif"; //$NON-NLS-1$
+
 	private static AutomaticUpdatePlugin plugin;
 	private static BundleContext context;
 	private static PackageAdmin packageAdmin = null;
@@ -35,6 +50,8 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	private AutomaticUpdateScheduler scheduler;
 	private AutomaticUpdater updater;
 	private ScopedPreferenceStore preferenceStore;
+
+	private ProvisioningSession session;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
 
@@ -90,6 +107,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// TODO how should we react if we are unable to start one of these bundles?
 		startEarly("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
 		startEarly("org.eclipse.equinox.p2.updatechecker"); //$NON-NLS-1$
+
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.class.getName());
+		session = new ProvisioningSession(agent);
 
 		PreferenceInitializer.migratePreferences();
 	}
@@ -160,7 +180,27 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			try {
 				preferenceStore.save();
 			} catch (IOException e) {
-				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG | StatusManager.SHOW);
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, AutomaticUpdateMessages.ErrorSavingPreferences, e), StatusManager.LOG | StatusManager.SHOW);
 			}
+	}
+
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		createImageDescriptor(IMG_TOOL_UPDATE, reg);
+		createImageDescriptor(IMG_TOOL_UPDATE_PROBLEMS, reg);
+		createImageDescriptor(IMG_TOOL_CLOSE, reg);
+		createImageDescriptor(IMG_TOOL_CLOSE_HOT, reg);
+	}
+
+	/**
+	 * Creates the specified image descriptor and registers it
+	 */
+	private void createImageDescriptor(String id, ImageRegistry reg) {
+		URL url = FileLocator.find(getBundle(), new Path(ICON_PATH + id), null);
+		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
+		reg.put(id, desc);
+	}
+
+	public ProvisioningSession getSession() {
+		return session;
 	}
 }

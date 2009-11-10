@@ -14,16 +14,11 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProfileFactory;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -39,8 +34,6 @@ import org.osgi.framework.ServiceReference;
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
-	public static final boolean ANY_PROFILE = false;
-	private static final String DEFAULT_PROFILE_ID = "DefaultProfile"; //$NON-NLS-1$
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
@@ -97,11 +90,23 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (preferenceListener == null) {
 			preferenceListener = new IPropertyChangeListener() {
 				public void propertyChange(PropertyChangeEvent event) {
-					updateWithPreferences(Policy.getDefault().getQueryContext());
+					updateWithPreferences(getPolicy());
 				}
 			};
 		}
 		return preferenceListener;
+	}
+
+	public ProvisioningUI getProvisioningUI() {
+		return ProvisioningUI.getDefaultUI();
+	}
+
+	private Policy getPolicy() {
+		return getProvisioningUI().getPolicy();
+	}
+
+	private LicenseManager getLicenseManager() {
+		return getProvisioningUI().getPolicy().getLicenseManager();
 	}
 
 	private void readLicenseRegistry() {
@@ -111,26 +116,26 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (f.exists()) {
 			try {
 				stream = new BufferedInputStream(new FileInputStream(f));
-				Policy.getDefault().getLicenseManager().read(stream);
+				getLicenseManager().read(stream);
 				stream.close();
 			} catch (IOException e) {
-				ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e), StatusManager.LOG);
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e), StatusManager.LOG);
 			}
 		}
 	}
 
 	private void writeLicenseRegistry() {
-		if (!Policy.getDefault().getLicenseManager().hasAcceptedLicenses())
+		if (!getLicenseManager().hasAcceptedLicenses())
 			return;
 		IPath location = getStateLocation().append(LICENSE_STORAGE);
 		File f = location.toFile();
 		BufferedOutputStream stream = null;
 		try {
 			stream = new BufferedOutputStream(new FileOutputStream(f, false));
-			Policy.getDefault().getLicenseManager().write(stream);
+			getLicenseManager().write(stream);
 			stream.close();
 		} catch (IOException e) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e), StatusManager.LOG);
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e), StatusManager.LOG);
 		}
 	}
 
@@ -148,39 +153,19 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
-	/**
-	 * Get the id of the profile for the running system.  Throw a ProvisionException
-	 * if no self profile is available, unless configured to answer any
-	 * profile.  Getting any profile allows testing of the
-	 * UI even when the system is not self hosting.  
-	 */
-	public static String getSelfProfileId() throws ProvisionException {
-		// Get the profile of the running system.
-		IProfile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
-		if (profile == null) {
-			if (ANY_PROFILE) {
-				ProvUI.reportStatus(getNoSelfProfileStatus(), StatusManager.LOG);
-				IProfile[] profiles = ProvisioningUtil.getProfiles();
-				if (profiles.length > 0)
-					return profiles[0].getProfileId();
-				return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();
-			}
-			throw new ProvisionException(getNoSelfProfileStatus());
-		}
-		return profile.getProfileId();
-	}
-
 	static IStatus getNoSelfProfileStatus() {
 		return new Status(IStatus.WARNING, PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
 	}
 
-	void updateWithPreferences(IUViewQueryContext queryContext) {
+	void updateWithPreferences(Policy policy) {
+		IUViewQueryContext queryContext = policy.getQueryContext();
+		RepositoryManipulator manipulator = policy.getRepositoryManipulator();
 		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
 		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
 		queryContext.setVisibleInstalledIUProperty(IProfile.PROP_PROFILE_ROOT_IU);
-		queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-		queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}
 
 	/*
@@ -201,7 +186,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			try {
 				preferenceStore.save();
 			} catch (IOException e) {
-				ProvUI.handleException(e, ProvSDKMessages.ProvSDKUIActivator_ErrorSavingPrefs, StatusManager.LOG | StatusManager.SHOW);
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorSavingPrefs, e), StatusManager.LOG | StatusManager.SHOW);
 			}
 	}
 }

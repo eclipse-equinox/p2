@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -262,8 +261,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		ToolItem closeButton = new ToolItem(toolBar, SWT.PUSH, 0);
 
 		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
-		closeButton.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_CLOSE));
-		closeButton.setHotImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_CLOSE_HOT));
+		closeButton.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE)));
+		closeButton.setHotImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE_HOT)));
 		closeButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				close();

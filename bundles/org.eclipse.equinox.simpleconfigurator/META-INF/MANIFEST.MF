@@ -17,6 +17,7 @@ Import-Package: org.eclipse.osgi.framework.console;version="1.0.0";resolution:=o
 Export-Package: org.eclipse.equinox.internal.provisional.configurator;
   x-friends:="org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.equinox.p2.console,
+   org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.director",
  org.eclipse.equinox.internal.simpleconfigurator;x-internal:=true,

@@ -15,7 +15,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.p2.operations.IStatusCodes;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -37,13 +39,13 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 
 	Button okButton;
 	Text url, nickname;
-	Policy policy;
+	ProvisioningUI ui;
 	URI location;
 	String name;
 
-	public RepositoryNameAndLocationDialog(Shell parentShell, Policy policy) {
+	public RepositoryNameAndLocationDialog(Shell parentShell, ProvisioningUI ui) {
 		super(parentShell);
-		this.policy = policy;
+		this.ui = ui;
 		setTitle(ProvUIMessages.RepositoryNameAndLocationDialog_Title);
 	}
 
@@ -71,17 +73,6 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	}
 
 	/**
-	 * Return a location validator appropriate for this dialog.  The
-	 * default is to retrieve it from the repository manipulator.
-	 * Subclasses may override.
-	 * 
-	 * @return the validator
-	 */
-	protected RepositoryLocationValidator getRepositoryLocationValidator() {
-		return getRepositoryManipulator().getRepositoryLocationValidator(getShell());
-	}
-
-	/**
 	 * Return a RepositoryManipulator appropriate for validating and adding the
 	 * repository.
 	 * 
@@ -89,7 +80,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	 * @return the repository manipulator
 	 */
 	protected RepositoryManipulator getRepositoryManipulator() {
-		return policy.getRepositoryManipulator();
+		return ui.getPolicy().getRepositoryManipulator();
 	}
 
 	protected void okPressed() {
@@ -111,7 +102,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	 * @return the URL currently typed in by the user.
 	 */
 	protected URI getUserLocation() {
-		return RepositoryLocationValidator.locationFromString(url.getText().trim());
+		return getRepositoryManipulator().locationFromString(url.getText().trim());
 	}
 
 	/**
@@ -144,16 +135,16 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
-		status[0] = RepositoryLocationValidator.getInvalidLocationStatus(url.getText().trim());
+		status[0] = getRepositoryManipulator().getInvalidLocationStatus(url.getText().trim());
 		final URI userLocation = getUserLocation();
 		if (url.getText().length() == 0)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryLocationValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		else if (userLocation == null)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryLocationValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
 			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 				public void run() {
-					status[0] = getRepositoryLocationValidator().validateRepositoryLocation(userLocation, contactRepositories, null);
+					status[0] = getRepositoryManipulator().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
 				}
 			});
 		}
@@ -218,5 +209,9 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		url.setText(getInitialLocationText());
 		url.setSelection(0, url.getText().length());
 		return url;
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ui;
 	}
 }

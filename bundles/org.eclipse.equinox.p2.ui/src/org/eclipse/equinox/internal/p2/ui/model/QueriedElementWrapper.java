@@ -14,14 +14,11 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.ElementWrapper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -68,12 +65,10 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			// is empty and the parent is an IU, then being empty is not a big deal, it means
 			// we are in drilldown.
 			if (parent instanceof MetadataRepositoryElement) {
+				RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
 				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
-				if (ProvUI.hasNotFoundStatusBeenReported(repo.getLocation())) {
-					String description = null;
-					if (Policy.getDefault().getRepositoryManipulator() != null)
-						description = Policy.getDefault().getRepositoryManipulator().getRepositoryNotFoundInstructionString();
-					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), description);
+				if (manipulator.hasNotFoundStatusBeenReported(repo.getLocation())) {
+					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), ""); //$NON-NLS-1$
 				}
 			}
 			if (parent instanceof QueriedElement) {

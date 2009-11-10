@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
-import java.util.*;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import java.util.Arrays;
+import java.util.HashSet;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.Update;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 public class UpdatePlanning extends AbstractProvisioningUITest {
@@ -45,13 +44,15 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		patchFora2 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change2}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, lifeCycle2);
 
 		// Ensure that all versions, not just the latest, are considered by the UI
-		Policy.getDefault().getQueryContext().setShowLatestVersionsOnly(false);
+		getPolicy().getQueryContext().setShowLatestVersionsOnly(false);
 	}
 
 	public void testChooseUpdateOverPatch() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), null, null, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
 		assertTrue("1.2", request.getRemovedInstallableUnits().length == 1);
@@ -61,10 +62,19 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testForcePatchOverUpdate() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		AvailableUpdateElement patch = new AvailableUpdateElement(null, firstPatchForA1, a1, profile.getProfileId(), false);
-		ArrayList initialSelections = new ArrayList(1);
-		initialSelections.add(patch);
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), null, initialSelections, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		Update[] updates = op.getPossibleUpdates();
+		Update firstPatch = null;
+		for (int i = 0; i < updates.length; i++) {
+			if (updates[i].replacement.equals(firstPatchForA1)) {
+				firstPatch = updates[i];
+				break;
+			}
+		}
+		assertNotNull(".99", firstPatch);
+		op.setDefaultUpdates(new Update[] {firstPatch});
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(firstPatchForA1));
 		assertTrue("1.2", request.getRemovedInstallableUnits().length == 0);
@@ -74,36 +84,46 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		install(firstPatchForA1, true, false);
-		IUElementListRoot root = new IUElementListRoot();
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), root, null, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		// update was favored, that would happen even if patch was not installed
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
 		// the patch is not being shown to the user because we figured out it was already installed
 		// The elements showing are a130 and a120WithDifferentId
-		assertEquals("1.2", 2, root.getChildren(root).length);
+		assertEquals("1.2", 2, op.getPossibleUpdates().length);
 	}
 
 	public void testChooseNotTheNewest() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		AvailableUpdateElement notTheNewest = new AvailableUpdateElement(null, a120WithDifferentId, a1, profile.getProfileId(), false);
-		ArrayList initialSelections = new ArrayList(1);
-		initialSelections.add(notTheNewest);
-		IUElementListRoot root = new IUElementListRoot();
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), root, initialSelections, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		Update[] updates = op.getPossibleUpdates();
+		Update notNewest = null;
+		for (int i = 0; i < updates.length; i++) {
+			if (updates[i].replacement.equals(a120WithDifferentId)) {
+				notNewest = updates[i];
+				break;
+			}
+		}
+		assertNotNull(".99", notNewest);
+		op.setDefaultUpdates(new Update[] {notNewest});
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		// selected was favored
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a120WithDifferentId));
 		// The two updates and the patch were recognized
-		assertEquals("1.2", 3, root.getChildren(root).length);
+		assertEquals("1.2", 3, op.getPossibleUpdates().length);
 	}
 
 	public void testChooseLatestPatches() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1});
 		install(a1, true, false);
-		IUElementListRoot root = new IUElementListRoot();
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), root, null, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		// the latest two patches were selected
 		HashSet chosen = new HashSet();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 2);
@@ -111,18 +131,19 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		assertTrue("1.1", chosen.contains(secondPatchForA1));
 		assertTrue("1.2", chosen.contains(thirdPatchForA1));
 
-		assertEquals("1.2", 3, root.getChildren(root).length);
+		assertEquals("1.2", 3, op.getPossibleUpdates().length);
 	}
 
 	public void testLatestHasDifferentId() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1, a120WithDifferentId, a130, a140WithDifferentId});
 		install(a1, true, false);
-		IUElementListRoot root = new IUElementListRoot();
-		ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(new IInstallableUnit[] {a1}, profile.getProfileId(), root, null, getMonitor());
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		op.resolveModal(getMonitor());
+		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
 		// update 140 was recognized as the latest even though it had a different id
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a140WithDifferentId));
 		// All three patches and all three updates can be chosen
-		assertEquals("1.2", 6, root.getChildren(root).length);
+		assertEquals("1.2", 6, op.getPossibleUpdates().length);
 	}
 }

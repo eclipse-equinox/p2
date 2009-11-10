@@ -13,13 +13,12 @@ package org.eclipse.equinox.p2.tests.ui.operations;
 import java.net.URI;
 import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
+import org.eclipse.equinox.internal.p2.ui.AddColocatedRepositoryJob;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
- * Tests for {@link AddColocatedRepositoryOperation}.
+ * Tests for {@link AddColocatedRepositoryJob}.
  */
 public class AddColocatedRepositoryOperationTest extends AbstractProvisioningUITest {
 	public void testAddSingleRepository() {
@@ -29,15 +28,11 @@ public class AddColocatedRepositoryOperationTest extends AbstractProvisioningUIT
 		} catch (Exception e) {
 			fail("0.99", e);
 		}
-		AddColocatedRepositoryOperation op = new AddColocatedRepositoryOperation("label", repoLocation);
+		AddColocatedRepositoryJob op = new AddColocatedRepositoryJob("label", getSession(), repoLocation);
 		assertTrue("1.0", op.runInBackground());
 
-		try {
-			IStatus result = op.execute(getMonitor());
-			assertTrue("1.1", result.isOK());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+		IStatus status = op.runModal(getMonitor());
+		assertTrue("1.1", status.isOK());
 
 		URI[] repos = metaManager.getKnownRepositories(0);
 		assertTrue("2.0", Arrays.asList(repos).contains(repoLocation));

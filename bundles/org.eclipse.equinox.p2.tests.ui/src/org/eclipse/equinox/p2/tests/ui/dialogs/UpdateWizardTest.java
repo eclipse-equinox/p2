@@ -10,22 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.metadata.License;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -70,14 +62,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is the SDK 
 	 */
 	public void testUpdateWizardResolved() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, upgrade, top1, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {top1});
-		request.addInstallableUnits(new IInstallableUnit[] {upgrade});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {top1}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -91,7 +78,8 @@ public class UpdateWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			ProfileModificationJob job = getLongTestOperation();
+			getProvisioningUI().schedule(job, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
@@ -105,14 +93,9 @@ public class UpdateWizardTest extends WizardTest {
 	}
 
 	public void testUpdateWizardResolvedWithLicense() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgradeWithLicense, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgradeWithLicense});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -141,17 +124,11 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when a prior resolution has been done, but is in error.
 	 */
 	public void testUpdateWizardResolvedError() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		AvailableUpdateElement element2 = new AvailableUpdateElement(root, mainUpgrade2, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element, element2});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade1, mainUpgrade2});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element, element2}, op, null);
-		wizard.setSkipSelectionsPage(true);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		op.setDefaultUpdates(op.getPossibleUpdates());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -167,16 +144,10 @@ public class UpdateWizardTest extends WizardTest {
 	 * directly on the resolution page
 	 */
 	public void testUpdateWizardResolvedSkipSelections() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade1});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
-		wizard.setSkipSelectionsPage(true);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -193,11 +164,8 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is not the SDK workflow, but should be supported.
 	 */
 	public void testUpdateWizardUnresolved() {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, upgrade, top1, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, null, null);
+		AvailableUpdateElement element = new AvailableUpdateElement(null, upgrade, top1, TESTPROFILE, true);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), null, new Object[] {element}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -211,7 +179,8 @@ public class UpdateWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			ProvisioningJob job = getLongTestOperation();
+			getProvisioningUI().schedule(job, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
 			wizard.getNextPage(page1);
@@ -228,16 +197,11 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when multiple versions are available.
 	 */
 	public void testBug277554MultipleVersions() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		AvailableUpdateElement element2 = new AvailableUpdateElement(root, mainUpgrade2, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element, element2});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade2});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element2}, op, null);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 

@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
+import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;

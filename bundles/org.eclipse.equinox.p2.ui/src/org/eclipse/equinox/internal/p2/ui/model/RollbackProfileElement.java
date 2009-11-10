@@ -14,13 +14,9 @@ import com.ibm.icu.text.DateFormat;
 import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
 
 /**
  * Element class for a profile snapshot
@@ -57,17 +53,13 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 
 	public Object getAdapter(Class adapter) {
 		if (adapter == IProfile.class)
-			try {
-				return getProfileSnapshot(new NullProgressMonitor());
-			} catch (ProvisionException e) {
-				handleException(e, ProvUIMessages.RollbackProfileElement_InvalidSnapshot);
-			}
+			return getProfileSnapshot(new NullProgressMonitor());
 		return super.getAdapter(adapter);
 	}
 
-	public IProfile getProfileSnapshot(IProgressMonitor monitor) throws ProvisionException {
+	public IProfile getProfileSnapshot(IProgressMonitor monitor) {
 		if (snapshot == null) {
-			snapshot = ProvisioningUtil.getProfile(profileId, timestamp);
+			snapshot = getProvisioningUI().getSession().getProfile(profileId, timestamp);
 			setQueryable(snapshot);
 		}
 		return snapshot;
@@ -98,11 +90,6 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getQueryable()
 	 */
 	public IQueryable getQueryable() {
-		try {
-			return getProfileSnapshot(new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			handleException(e, null);
-			return null;
-		}
+		return getProfileSnapshot(new NullProgressMonitor());
 	}
 }

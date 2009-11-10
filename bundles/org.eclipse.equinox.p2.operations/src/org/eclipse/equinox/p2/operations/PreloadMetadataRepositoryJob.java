@@ -34,27 +34,28 @@ public class PreloadMetadataRepositoryJob extends RepositoryJob {
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 
-	public PreloadMetadataRepositoryJob(RepositoryTracker tracker) {
-		super(Messages.PreloadRepositoryJob_LoadJobName, tracker.getSession(), tracker.getKnownRepositories());
+	public PreloadMetadataRepositoryJob(ProvisioningSession session, RepositoryTracker tracker) {
+		super(Messages.PreloadRepositoryJob_LoadJobName, session, tracker.getKnownRepositories(session));
 		this.tracker = tracker;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void runModal(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus runModal(IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 100);
 		if (sub.isCanceled())
-			return;
+			return Status.CANCEL_STATUS;
 		for (int i = 0; i < locations.length; i++) {
 			if (sub.isCanceled())
-				return;
+				return Status.CANCEL_STATUS;
 			try {
 				repoCache.add(getSession().loadMetadataRepository(locations[i], sub.newChild(100)));
 			} catch (ProvisionException e) {
 				handleLoadFailure(e, locations[i]);
 			}
 		}
+		return getCurrentStatus();
 	}
 
 	protected void handleLoadFailure(ProvisionException e, URI location) {
@@ -83,17 +84,23 @@ public class PreloadMetadataRepositoryJob extends RepositoryJob {
 	}
 
 	public void reportAccumulatedStatus() {
-		// If we've discovered not found repos we didn't know about, report them
-		if (accumulatedStatus != null) {
-			// If there is only missing repo to report, use the specific message rather than the generic.
-			if (accumulatedStatus.getChildren().length == 1) {
-				tracker.reportLoadFailure(null, accumulatedStatus.getChildren()[0]);
-			} else {
-				tracker.reportLoadFailure(null, accumulatedStatus);
-			}
-		}
+		IStatus status = getCurrentStatus();
+		if (status.isOK() || status.getSeverity() == IStatus.CANCEL)
+			return;
+		// report status
+		tracker.reportLoadFailure(null, status);
 		// Reset the accumulated status so that next time we only report the newly not found repos.
 		accumulatedStatus = null;
+	}
+
+	private IStatus getCurrentStatus() {
+		if (accumulatedStatus != null) {
+			// If there is only missing repo to report, use the specific message rather than the generic.
+			if (accumulatedStatus.getChildren().length == 1)
+				return accumulatedStatus.getChildren()[0];
+			return accumulatedStatus;
+		}
+		return Status.OK_STATUS;
 	}
 
 	public boolean belongsTo(Object family) {

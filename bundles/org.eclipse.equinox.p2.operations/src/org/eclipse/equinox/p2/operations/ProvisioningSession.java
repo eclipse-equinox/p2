@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -40,66 +41,60 @@ import org.eclipse.osgi.util.NLS;
  *
  */
 public class ProvisioningSession {
-	protected IProfileRegistry profileRegistry;
-	protected IPlanner planner;
-	protected IEngine engine;
-	protected IMetadataRepositoryManager metadataRepositoryManager;
-	protected IArtifactRepositoryManager artifactRepositoryManager;
-	private IProvisioningEventBus eventBus;
+	private IProvisioningAgent agent;
 
-	public ProvisioningSession(IProfileRegistry profileRegistry, IPlanner planner, IEngine engine, IMetadataRepositoryManager metadataRepositoryManager, IArtifactRepositoryManager artifactRepositoryManager, IProvisioningEventBus eventBus) {
-		Assert.isNotNull(profileRegistry, Messages.ProvisioningSession_NoProfileRegistryFound);
-		Assert.isNotNull(engine, Messages.ProvisioningSession_NoEngineFound);
-		Assert.isNotNull(planner, Messages.ProvisioningSession_NoPlannerFound);
-		Assert.isNotNull(metadataRepositoryManager, Messages.ProvisioningSession_NoRepositoryManager);
-		Assert.isNotNull(artifactRepositoryManager, Messages.ProvisioningSession_NoRepositoryManager);
-		Assert.isNotNull(eventBus, Messages.ProvisioningSession_NoEventBus);
-		this.profileRegistry = profileRegistry;
-		this.planner = planner;
-		this.engine = engine;
-		this.metadataRepositoryManager = metadataRepositoryManager;
-		this.artifactRepositoryManager = artifactRepositoryManager;
-		this.eventBus = eventBus;
+	public ProvisioningSession(IProvisioningAgent agent) {
+		Assert.isNotNull(agent, Messages.ProvisioningSession_AgentNotFound);
+		this.agent = agent;
 	}
 
 	public IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return artifactRepositoryManager;
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.class.getName());
 	}
 
 	public IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return metadataRepositoryManager;
+		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.class.getName());
 	}
 
 	public IProfileRegistry getProfileRegistry() {
-		return profileRegistry;
+		return (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
+	}
+
+	public IEngine getEngine() {
+		return (IEngine) agent.getService(IEngine.class.getName());
+	}
+
+	public IProvisioningEventBus getProvisioningEventBus() {
+		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.class.getName());
 	}
 
 	public IPlanner getPlanner() {
-		return planner;
+		return (IPlanner) agent.getService(IPlanner.class.getName());
 	}
 
 	public void addMetadataRepository(URI location) {
-		metadataRepositoryManager.addRepository(location);
+		getMetadataRepositoryManager().addRepository(location);
 	}
 
 	public String getMetadataRepositoryProperty(URI location, String key) {
-		return metadataRepositoryManager.getRepositoryProperty(location, key);
+		return getMetadataRepositoryManager().getRepositoryProperty(location, key);
 	}
 
 	public void setMetadataRepositoryProperty(URI location, String key, String value) {
-		metadataRepositoryManager.setRepositoryProperty(location, key, value);
+		getMetadataRepositoryManager().setRepositoryProperty(location, key, value);
 	}
 
 	public boolean getMetadataRepositoryEnablement(URI location) {
-		return metadataRepositoryManager.isEnabled(location);
+		return getMetadataRepositoryManager().isEnabled(location);
 	}
 
 	public void setMetadataRepositoryEnablement(URI location, boolean enabled) {
-		metadataRepositoryManager.setEnabled(location, enabled);
+		getMetadataRepositoryManager().setEnabled(location, enabled);
 	}
 
 	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepository repo = metadataRepositoryManager.loadRepository(location, monitor);
+		signalBatchOperationStart();
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(location, monitor);
 		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 		// This will keep the name in the manager even when the repo is not loaded
 		String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
@@ -108,26 +103,27 @@ public class ProvisioningSession {
 			if (name != null && name.length() > 0)
 				setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 		}
+		signalBatchOperationComplete(true, location);
 		return repo;
 	}
 
 	public IStatus validateMetadataRepositoryLocation(URI location, IProgressMonitor monitor) {
-		return metadataRepositoryManager.validateRepositoryLocation(location, monitor);
+		return getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
 	}
 
 	public void removeMetadataRepository(URI location) {
-		metadataRepositoryManager.removeRepository(location);
+		getMetadataRepositoryManager().removeRepository(location);
 	}
 
 	public URI[] getMetadataRepositories(int flags) {
-		return metadataRepositoryManager.getKnownRepositories(flags);
+		return getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public void refreshMetadataRepositories(URI[] urls, IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
 		for (int i = 0; i < urls.length; i++) {
 			try {
-				metadataRepositoryManager.refreshRepository(urls[i], mon.newChild(100));
+				getMetadataRepositoryManager().refreshRepository(urls[i], mon.newChild(100));
 			} catch (ProvisionException e) {
 				//ignore problematic repositories when refreshing
 			}
@@ -135,27 +131,27 @@ public class ProvisioningSession {
 	}
 
 	public boolean getArtifactRepositoryEnablement(URI location) {
-		return artifactRepositoryManager.isEnabled(location);
+		return getArtifactRepositoryManager().isEnabled(location);
 	}
 
 	public void setArtifactRepositoryEnablement(URI location, boolean enabled) {
-		artifactRepositoryManager.setEnabled(location, enabled);
+		getArtifactRepositoryManager().setEnabled(location, enabled);
 	}
 
 	public void addArtifactRepository(URI location) {
-		artifactRepositoryManager.addRepository(location);
+		getArtifactRepositoryManager().addRepository(location);
 	}
 
 	public String getArtifactRepositoryProperty(URI location, String key) {
-		return artifactRepositoryManager.getRepositoryProperty(location, key);
+		return getArtifactRepositoryManager().getRepositoryProperty(location, key);
 	}
 
 	public void setArtifactRepositoryProperty(URI location, String key, String value) {
-		artifactRepositoryManager.setRepositoryProperty(location, key, value);
+		getArtifactRepositoryManager().setRepositoryProperty(location, key, value);
 	}
 
 	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepository repo = artifactRepositoryManager.loadRepository(location, monitor);
+		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(Messages.ProvisioningSession_LoadRepositoryFailure, location));
 		}
@@ -171,42 +167,42 @@ public class ProvisioningSession {
 	}
 
 	public void removeArtifactRepository(URI location) {
-		artifactRepositoryManager.removeRepository(location);
+		getArtifactRepositoryManager().removeRepository(location);
 	}
 
 	public URI[] getArtifactRepositories(int flags) {
-		return artifactRepositoryManager.getKnownRepositories(flags);
+		return getArtifactRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public void refreshArtifactRepositories(URI[] urls, IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
 		for (int i = 0; i < urls.length; i++) {
-			artifactRepositoryManager.refreshRepository(urls[i], mon.newChild(100));
+			getArtifactRepositoryManager().refreshRepository(urls[i], mon.newChild(100));
 		}
 	}
 
 	public IProfile addProfile(String profileId, Map properties, IProgressMonitor monitor) throws ProvisionException {
-		return profileRegistry.addProfile(profileId, properties);
+		return getProfileRegistry().addProfile(profileId, properties);
 	}
 
 	public void removeProfile(String profileId, IProgressMonitor monitor) {
-		profileRegistry.removeProfile(profileId);
+		getProfileRegistry().removeProfile(profileId);
 	}
 
 	public IProfile[] getProfiles() {
-		return profileRegistry.getProfiles();
+		return getProfileRegistry().getProfiles();
 	}
 
 	public long[] getProfileTimestamps(String id) {
-		return profileRegistry.listProfileTimestamps(id);
+		return getProfileRegistry().listProfileTimestamps(id);
 	}
 
 	public IProfile getProfile(String id) {
-		return profileRegistry.getProfile(id);
+		return getProfileRegistry().getProfile(id);
 	}
 
 	public IProfile getProfile(String id, long timestamp) {
-		return profileRegistry.getProfile(id, timestamp);
+		return getProfileRegistry().getProfile(id, timestamp);
 	}
 
 	/*
@@ -214,7 +210,7 @@ public class ProvisioningSession {
 	 */
 	public ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		try {
-			return planner.getProvisioningPlan(request, context, monitor);
+			return getPlanner().getProvisioningPlan(request, context, monitor);
 		} catch (OperationCanceledException e) {
 			return null;
 		}
@@ -226,7 +222,7 @@ public class ProvisioningSession {
 	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) {
 		Assert.isNotNull(currentProfile);
 		Assert.isNotNull(snapshot);
-		return planner.getDiffPlan(currentProfile, snapshot, monitor);
+		return getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
 	}
 
 	/*
@@ -242,14 +238,14 @@ public class ProvisioningSession {
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
 		if (plan.getInstallerPlan() != null) {
 			SizingPhaseSet set = new SizingPhaseSet();
-			IStatus status = engine.perform(getProfile(profileId), set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			IStatus status = getEngine().perform(getProfile(profileId), set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
 			if (status.isOK())
 				installPlanSize = set.getSizing().getDiskSize();
 		} else {
 			mon.worked(100);
 		}
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = engine.perform(getProfile(profileId), set, plan.getOperands(), context, mon.newChild(200));
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, mon.newChild(200));
 		if (status.isOK())
 			return installPlanSize + set.getSizing().getDiskSize();
 		return SizingPhaseSet.SIZE_UNAVAILABLE;
@@ -280,7 +276,7 @@ public class ProvisioningSession {
 				allOperands.addAll(Arrays.asList(plan.getOperands()));
 				allOperands.addAll(Arrays.asList(plan.getInstallerPlan().getOperands()));
 				PhaseSet download = new DownloadPhaseSet();
-				IStatus downloadStatus = engine.perform(profile, download, (Operand[]) allOperands.toArray(new Operand[allOperands.size()]), context, mon.newChild(300));
+				IStatus downloadStatus = getEngine().perform(profile, download, (Operand[]) allOperands.toArray(new Operand[allOperands.size()]), context, mon.newChild(300));
 				if (!downloadStatus.isOK()) {
 					mon.done();
 					return downloadStatus;
@@ -288,7 +284,7 @@ public class ProvisioningSession {
 				ticksUsed = 300;
 			}
 			// we pre-downloaded if necessary.  Now perform the plan against the original phase set.
-			IStatus installerPlanStatus = engine.perform(profile, set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			IStatus installerPlanStatus = getEngine().perform(profile, set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
 			if (!installerPlanStatus.isOK()) {
 				mon.done();
 				return installerPlanStatus;
@@ -303,14 +299,14 @@ public class ProvisioningSession {
 				return new Status(IStatus.ERROR, Activator.ID, Messages.ProvisioningSession_InstallPlanConfigurationError, e);
 			}
 		}
-		return engine.perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
+		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
 	}
 
 	public void signalBatchOperationStart() {
-		eventBus.publishEvent(new OperationBeginningEvent(this));
+		getProvisioningEventBus().publishEvent(new OperationBeginningEvent(this));
 	}
 
-	public void signalBatchOperationComplete(boolean notify, EventObject lastEvent) {
-		eventBus.publishEvent(new OperationEndingEvent(this, lastEvent, notify));
+	public void signalBatchOperationComplete(boolean notify, Object item) {
+		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item, notify));
 	}
 }

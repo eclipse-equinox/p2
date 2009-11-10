@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.ui.ICopyable;
+
 import org.eclipse.core.expressions.*;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;

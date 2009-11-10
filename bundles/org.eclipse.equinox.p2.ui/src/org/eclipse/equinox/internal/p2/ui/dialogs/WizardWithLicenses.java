@@ -14,10 +14,10 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AcceptLicensesWizardPage;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.ui.AcceptLicensesWizardPage;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.widgets.Display;
@@ -30,12 +30,12 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	AcceptLicensesWizardPage licensePage;
 
-	public WizardWithLicenses(Policy policy, String profileId, IUElementListRoot root, Object[] initialSelections, PlannerResolutionOperation initialResolution) {
-		super(policy, profileId, root, initialSelections, initialResolution);
+	public WizardWithLicenses(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, PreloadMetadataRepositoryJob job) {
+		super(ui, operation, initialSelections, job);
 	}
 
 	protected AcceptLicensesWizardPage createLicensesPage(IInstallableUnit[] ius, ProvisioningPlan plan) {
-		return new AcceptLicensesWizardPage(policy, ius, plan);
+		return new AcceptLicensesWizardPage(getPolicy(), ius, plan);
 	}
 
 	public void addPages() {
@@ -71,13 +71,13 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	protected void planChanged() {
 		super.planChanged();
-		if (resolutionOperation == null)
+		if (operation == null)
 			return;
 		if (licensePage == null) {
-			licensePage = createLicensesPage(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionOperation.getProvisioningPlan());
+			licensePage = createLicensesPage(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), operation.getProvisioningPlan());
 			addPage(licensePage);
 		} else
-			licensePage.update(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), resolutionOperation.getProvisioningPlan());
+			licensePage.update(ElementUtils.elementsToIUs(mainPage.getCheckedIUElements()), operation.getProvisioningPlan());
 		// Status of license page could change status of wizard next button
 		// If no current page has been set yet (ie, we are still being created)
 		// then the updateButtons() method will NPE.  This check is needed in

@@ -14,11 +14,10 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -243,9 +242,6 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		});
 		loadJob.setSystem(true);
 		loadJob.setUser(false);
-		// Telling the operation runner about it ensures that listeners know we are running
-		// a provisioning-related job.
-		ProvisioningOperationRunner.manageJob(loadJob, ProvisioningOperationRunner.RESTART_NONE);
 		loadJob.schedule();
 	}
 

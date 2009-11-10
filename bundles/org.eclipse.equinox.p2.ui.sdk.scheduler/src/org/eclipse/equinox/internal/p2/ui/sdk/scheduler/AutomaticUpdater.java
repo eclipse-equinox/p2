@@ -13,22 +13,18 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
@@ -40,15 +36,42 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AutomaticUpdater implements IUpdateListener {
 
 	StatusLineCLabelContribution updateAffordance;
-	AutomaticUpdateAction updateAction;
 	IStatusLineManager statusLineManager;
 	IInstallableUnit[] iusWithUpdates;
 	String profileId;
+	ProvisioningListener profileListener;
 	AutomaticUpdatesPopup popup;
-	IJobChangeListener provisioningJobListener;
-	boolean alreadyValidated = false;
 	boolean alreadyDownloaded = false;
+	UpdateOperation operation;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
+
+	public AutomaticUpdater() {
+		createProfileListener();
+	}
+
+	private void createProfileListener() {
+		profileListener = new ProvisioningListener() {
+			public void notify(EventObject o) {
+				if (o instanceof ProfileEvent) {
+					ProfileEvent event = (ProfileEvent) o;
+					if (event.getReason() == ProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
+						triggerNewUpdateNotification();
+					}
+				}
+			}
+		};
+		getProvisioningUI().getSession().getProvisioningEventBus().addListener(profileListener);
+	}
+
+	private boolean sameProfile(String another) {
+		if (another.equals(IProfileRegistry.SELF)) {
+			another = getSession().getProfile(another).getProfileId();
+		}
+		if (profileId.equals(IProfileRegistry.SELF)) {
+			profileId = getSession().getProfile(profileId).getProfileId();
+		}
+		return profileId.equals(another);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -63,87 +86,75 @@ public class AutomaticUpdater implements IUpdateListener {
 		final boolean download = getPreferenceStore().getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
 		iusWithUpdates = event.getIUs();
-		validateUpdates(null, true);
+		validateIusToUpdate();
 		alreadyDownloaded = false;
 
-		if (iusWithUpdates.length <= 0) {
+		// Create an update operation to reflect the new updates that are available.
+		operation = new UpdateOperation(getSession(), iusWithUpdates);
+		operation.setProfileId(event.getProfileId());
+		operation.setRootMarkerKey(IProfile.PROP_PROFILE_ROOT_IU);
+		IStatus status = operation.resolveModal(new NullProgressMonitor());
+
+		if (!status.isOK() || operation.getPossibleUpdates().length == 0) {
 			clearUpdatesAvailable();
 			return;
 		}
-		registerProvisioningJobListener();
+		// Download the items before notifying user if the
+		// preference dictates.
 
-		// Always get a profile change request and provisioning plan.
-		// A side-effect of making the change request is producing the model
-		// elements necessary for a wizard, so initialize the data structures
-		// for getting these.
-		final ArrayList initialSelections = new ArrayList();
-		final IUElementListRoot root = new IUElementListRoot();
-		try {
-			ProfileChangeRequest request = UpdateWizard.createProfileChangeRequest(event.getIUs(), event.getProfileId(), root, initialSelections, null);
-			if (request == null) {
-				clearUpdatesAvailable();
-				return;
-			}
-			final PlannerResolutionOperation operation = new PlannerResolutionOperation(AutomaticUpdateMessages.AutomaticUpdater_ResolutionOperationLabel, event.getProfileId(), request, null, new MultiStatus(AutomaticUpdatePlugin.PLUGIN_ID, 0, null, null), false);
-			if ((operation.execute(new NullProgressMonitor())).isOK()) {
-				// Download the items before notifying user if the
-				// preference dictates.
-
-				if (download) {
-					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext(), new DownloadPhaseSet(), false), StatusManager.LOG);
-					job.addJobChangeListener(new JobChangeAdapter() {
-						public void done(IJobChangeEvent jobEvent) {
-							alreadyDownloaded = true;
-							IStatus status = jobEvent.getResult();
-							if (status.isOK()) {
-								createUpdateAction(operation, root, initialSelections);
-								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-									public void run() {
-										updateAction.suppressWizard(true);
-										updateAction.run();
-									}
-								});
-							} else if (status.getSeverity() != IStatus.CANCEL) {
-								ProvUI.reportStatus(status, StatusManager.LOG);
+		if (download) {
+			Job job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext(), new DownloadPhaseSet(), false);
+			job.addJobChangeListener(new JobChangeAdapter() {
+				public void done(IJobChangeEvent jobEvent) {
+					IStatus jobStatus = jobEvent.getResult();
+					if (jobStatus.isOK()) {
+						alreadyDownloaded = true;
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								setUpdateAffordanceState(operation.getResolutionResult().isOK());
 							}
-						}
-					});
-				} else {
-					createUpdateAction(operation, root, initialSelections);
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						public void run() {
-							updateAction.suppressWizard(true);
-							updateAction.run();
-						}
-					});
+						});
+					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
+						StatusManager.getManager().handle(jobStatus, StatusManager.LOG);
+					}
 				}
-			}
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, AutomaticUpdateMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
+			});
+			job.schedule();
+		} else {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					setUpdateAffordanceState(operation.getResolutionResult().isOK());
+				}
+			});
 		}
 
 	}
 
+	ProvisioningSession getSession() {
+		return AutomaticUpdatePlugin.getDefault().getSession();
+	}
+
 	/*
-	 * Validate that iusToBeUpdated is valid, and reset the cache. If
-	 * isKnownToBeAvailable is false, then recheck that the update is available.
-	 * isKnownToBeAvailable should be false when the update list might be stale
-	 * (Reminding the user of updates may happen long after the update check.
-	 * This reduces the risk of notifying the user of updates and then not
-	 * finding them .)
+	 * Use with caution, as this still start the whole UI bundle.  Shouldn't be used
+	 * in any of the update checking code, only the code that presents updates when notified.
+	 */
+	ProvisioningUI getProvisioningUI() {
+		return ProvisioningUI.getDefaultUI();
+	}
+
+	/*
+	 * Filter out the ius that aren't visible to the user or are
+	 * locked for updating.
 	 */
 
-	void validateUpdates(IProgressMonitor monitor, boolean isKnownToBeAvailable) {
+	void validateIusToUpdate() {
 		ArrayList list = new ArrayList();
+		IProfile profile = getSession().getProfile(profileId);
+
 		for (int i = 0; i < iusWithUpdates.length; i++) {
 			try {
-				if (isKnownToBeAvailable || ProvisioningUtil.getPlanner().updatesFor(iusWithUpdates[i], new ProvisioningContext(), monitor).length > 0) {
-					if (validToUpdate(iusWithUpdates[i]))
-						list.add(iusWithUpdates[i]);
-				}
-			} catch (ProvisionException e) {
-				ProvUI.handleException(e, AutomaticUpdateMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
-				continue;
+				if (validToUpdate(profile, iusWithUpdates[i]))
+					list.add(iusWithUpdates[i]);
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}
@@ -154,18 +165,15 @@ public class AutomaticUpdater implements IUpdateListener {
 	// A proposed update is valid if it is still visible to the user as an
 	// installed item (it is a root)
 	// and if it is not locked for updating.
-	private boolean validToUpdate(IInstallableUnit iu) {
+	private boolean validToUpdate(IProfile profile, IInstallableUnit iu) {
 		int lock = IProfile.LOCK_NONE;
 		boolean isRoot = false;
 		try {
-			IProfile profile = ProvisioningUtil.getProfile(profileId);
 			String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
 			if (value != null)
 				lock = Integer.parseInt(value);
 			value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_ROOT_IU);
 			isRoot = value == null ? false : Boolean.valueOf(value).booleanValue();
-		} catch (ProvisionException e) {
-			// ignore
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}
@@ -238,10 +246,10 @@ public class AutomaticUpdater implements IUpdateListener {
 			return;
 		if (isValid) {
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdates);
-			updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
+			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
 		} else {
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdatesWithProblems);
-			updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE_PROBLEMS));
+			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE_PROBLEMS)));
 		}
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
@@ -254,7 +262,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		// so we hide it if it should not be enabled.
 		if (updateAffordance == null)
 			return;
-		boolean shouldBeVisible = !ProvisioningOperationRunner.hasScheduledOperations();
+		boolean shouldBeVisible = getProvisioningUI().hasScheduledOperations();
 		if (updateAffordance.isVisible() != shouldBeVisible) {
 			IStatusLineManager manager = getStatusLineManager();
 			if (manager != null) {
@@ -268,13 +276,6 @@ public class AutomaticUpdater implements IUpdateListener {
 		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, getPreferenceStore());
 		popup.open();
 
-	}
-
-	void createUpdateAction(PlannerResolutionOperation operation, IUElementListRoot root, ArrayList initialSelections) {
-		if (updateAction != null) {
-			updateAction.dispose();
-		}
-		updateAction = new AutomaticUpdateAction(this, getSelectionProvider(), profileId, operation, root, initialSelections);
 	}
 
 	void clearUpdatesAvailable() {
@@ -291,93 +292,10 @@ public class AutomaticUpdater implements IUpdateListener {
 			popup.close(false);
 			popup = null;
 		}
-		alreadyValidated = false;
-	}
-
-	ISelectionProvider getSelectionProvider() {
-		return new ISelectionProvider() {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @seeorg.eclipse.jface.viewers.ISelectionProvider#
-			 * addSelectionChangedListener
-			 * (org.eclipse.jface.viewers.ISelectionChangedListener)
-			 */
-			public void addSelectionChangedListener(ISelectionChangedListener listener) {
-				// Ignore because the selection won't change
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
-			 */
-			public ISelection getSelection() {
-				return new StructuredSelection(iusWithUpdates);
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @seeorg.eclipse.jface.viewers.ISelectionProvider#
-			 * removeSelectionChangedListener
-			 * (org.eclipse.jface.viewers.ISelectionChangedListener)
-			 */
-			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-				// ignore because the selection is static
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see
-			 * org.eclipse.jface.viewers.ISelectionProvider#setSelection(org
-			 * .eclipse.jface.viewers.ISelection)
-			 */
-			public void setSelection(ISelection sel) {
-				throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
-			}
-		};
 	}
 
 	public void launchUpdate() {
-		alreadyValidated = true;
-		updateAction.suppressWizard(false);
-		updateAction.run();
-	}
-
-	private void registerProvisioningJobListener() {
-		if (provisioningJobListener == null) {
-			provisioningJobListener = new JobChangeAdapter() {
-				public void done(IJobChangeEvent event) {
-					IWorkbench workbench = PlatformUI.getWorkbench();
-					if (workbench == null || workbench.isClosing())
-						return;
-					if (workbench.getDisplay() == null)
-						return;
-					workbench.getDisplay().asyncExec(new Runnable() {
-						public void run() {
-							checkUpdateAffordanceEnablement();
-						}
-					});
-				}
-
-				public void scheduled(final IJobChangeEvent event) {
-					IWorkbench workbench = PlatformUI.getWorkbench();
-					if (workbench == null || workbench.isClosing())
-						return;
-					if (workbench.getDisplay() == null)
-						return;
-					workbench.getDisplay().asyncExec(new Runnable() {
-						public void run() {
-							checkUpdateAffordanceEnablement();
-						}
-					});
-				}
-			};
-			ProvisioningOperationRunner.addJobChangeListener(provisioningJobListener);
-		}
+		getProvisioningUI().openUpdateWizard(getProvisioningUI().getDefaultParentShell(), true, operation, null);
 	}
 
 	/*
@@ -385,43 +303,29 @@ public class AutomaticUpdater implements IUpdateListener {
 	 * if there is nothing to update, get rid of the update popup and
 	 * affordance.
 	 */
-	void validateUpdates() {
-		Job validateJob = new Job("Update validate job") { //$NON-NLS-1$
+	void triggerNewUpdateNotification() {
+		Job notifyJob = new Job("Update validate job") { //$NON-NLS-1$
 			public IStatus run(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				validateUpdates(monitor, false);
-				// If there are no more updates, clear the indicators
-				if (iusWithUpdates.length == 0) {
-					if (PlatformUI.isWorkbenchRunning())
-						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								clearUpdatesAvailable();
-							}
-						});
-				} else {
-					// Run through the same update notification logic as before,
-					// which will cause a new plan to be created against the
-					// changed profile.
-					updatesAvailable(new UpdateEvent(profileId, iusWithUpdates));
-				}
+				// notify that updates are available for all roots.  We don't know for sure that
+				// there are any, but this will cause everything to be rechecked
+				updatesAvailable(new UpdateEvent(profileId, getProvisioningUI().getProfileRoots()));
 				return Status.OK_STATUS;
 			}
 		};
-		validateJob.setSystem(true);
-		validateJob.setPriority(Job.LONG);
-		validateJob.schedule();
+		notifyJob.setSystem(true);
+		notifyJob.setUser(false);
+		notifyJob.setPriority(Job.LONG);
+		notifyJob.schedule();
 	}
 
 	public void shutdown() {
-		if (updateAction != null)
-			updateAction.dispose();
-		if (provisioningJobListener != null) {
-			ProvisioningOperationRunner.removeJobChangeListener(provisioningJobListener);
-			provisioningJobListener = null;
-		}
 		statusLineManager = null;
-		updateAction = null;
+		if (profileListener != null) {
+			getSession().getProvisioningEventBus().removeListener(profileListener);
+			profileListener = null;
+		}
 	}
 
 	IPreferenceStore getPreferenceStore() {

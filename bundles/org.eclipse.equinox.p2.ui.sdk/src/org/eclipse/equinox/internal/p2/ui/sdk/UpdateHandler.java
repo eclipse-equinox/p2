@@ -10,16 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.util.Collection;
-import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator;
+import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.*;
 
 /**
  * UpdateHandler invokes the check for updates UI
@@ -30,59 +24,26 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	boolean hasNoRepos = false;
 
-	/**
-	 * The constructor.
-	 */
-	public UpdateHandler() {
-		// constructor
-	}
-
-	protected void doExecute(String profileId, QueryableMetadataRepositoryManager manager) {
+	protected void doExecute(PreloadMetadataRepositoryJob job) {
 		if (hasNoRepos) {
-			boolean goToSites = MessageDialog.openQuestion(getShell(), ProvSDKMessages.UpdateHandler_NoSitesTitle, ProvSDKMessages.UpdateHandler_NoSitesMessage);
-			if (goToSites) {
-				Policy.getDefault().getRepositoryManipulator().manipulateRepositories(getShell());
+			RepositoryManipulator repoManipulator = getProvisioningUI().getPolicy().getRepositoryManipulator();
+			if (repoManipulator.getRepositoriesVisible()) {
+				boolean goToSites = MessageDialog.openQuestion(getShell(), ProvSDKMessages.UpdateHandler_NoSitesTitle, ProvSDKMessages.UpdateHandler_NoSitesMessage);
+				if (goToSites) {
+					getProvisioningUI().getPolicy().getRepositoryManipulator().manipulateRepositories(getShell(), getProvisioningUI());
+				}
 			}
 			return;
 		}
-		// get the profile roots
-		ElementQueryDescriptor queryDescriptor = Policy.getDefault().getQueryProvider().getQueryDescriptor(new ProfileElement(null, profileId));
-		Collection collection = queryDescriptor.performQuery(null);
-		final IInstallableUnit[] roots = new IInstallableUnit[collection.size()];
-		Iterator iter = collection.iterator();
-		int i = 0;
-		while (iter.hasNext()) {
-			roots[i] = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
-			i++;
-		}
-		// now create an update action whose selection is all the roots
-		UpdateAction action = new UpdateAction(Policy.getDefault(), new ISelectionProvider() {
+		UpdateOperation operation = getProvisioningUI().getUpdateOperation(getProvisioningUI().getProfileRoots(), null);
+		getProvisioningUI().openUpdateWizard(getShell(), true, operation, job);
 
-			public void addSelectionChangedListener(ISelectionChangedListener listener) {
-				// not dynamic
-			}
-
-			public ISelection getSelection() {
-				return new StructuredSelection(roots);
-			}
-
-			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-				// not dynamic
-			}
-
-			public void setSelection(ISelection selection) {
-				// not mutable
-
-			}
-		}, profileId, false);
-		action.setRepositoryManager(manager);
-		action.run();
 	}
 
 	protected boolean preloadRepositories() {
 		hasNoRepos = false;
-		RepositoryManipulator repoMan = Policy.getDefault().getRepositoryManipulator();
-		if (repoMan != null && repoMan.getKnownRepositories().length == 0) {
+		RepositoryManipulator repoMan = getProvisioningUI().getPolicy().getRepositoryManipulator();
+		if (repoMan.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
 			hasNoRepos = true;
 			return false;
 		}

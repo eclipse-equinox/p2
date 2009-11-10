@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.operations;
 
 import java.net.URI;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -32,7 +31,7 @@ public abstract class BatchedRepositoryJob extends RepositoryJob {
 		return true;
 	}
 
-	public void runModal(IProgressMonitor monitor) throws ProvisionException {
+	public IStatus runModal(IProgressMonitor monitor) {
 		boolean batched = false;
 		if (locations != null && locations.length > 1) {
 			getSession().signalBatchOperationStart();
@@ -40,10 +39,13 @@ public abstract class BatchedRepositoryJob extends RepositoryJob {
 		}
 		try {
 			doBatchedOperation(monitor);
+		} catch (ProvisionException e) {
+			return getErrorStatus(null, e);
 		} finally {
 			if (batched && notify)
 				getSession().signalBatchOperationComplete(notify, null);
 		}
+		return Status.OK_STATUS;
 	}
 
 	protected abstract IStatus doBatchedOperation(IProgressMonitor monitor) throws ProvisionException;

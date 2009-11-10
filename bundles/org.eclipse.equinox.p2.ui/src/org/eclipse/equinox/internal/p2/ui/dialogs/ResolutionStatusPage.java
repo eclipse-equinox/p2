@@ -13,14 +13,13 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.swt.custom.SashForm;
@@ -42,17 +41,15 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
 	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
 	private IUColumnConfig nameColumn, versionColumn, idColumn;
-	protected String profileId;
 
 	/**
 	 * @param pageName
 	 */
-	protected ResolutionStatusPage(String pageName, String profileId) {
-		super(pageName);
-		this.profileId = profileId;
+	protected ResolutionStatusPage(String pageName, ProvisioningUI ui) {
+		super(pageName, ui);
 	}
 
-	protected abstract void updateCaches(IUElementListRoot root, PlannerResolutionOperation resolvedOperation);
+	protected abstract void updateCaches(IUElementListRoot root, ProfileChangeOperation resolvedOperation);
 
 	protected abstract boolean isCreated();
 
@@ -64,17 +61,17 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	 * Update the status area of the wizard to report the results of the operation.
 	 * 
 	 * @param newRoot the root that describes the root IUs involved in creating the plan
-	 * @param op the PlannerResolutionOperation that describes the plan that was created.  
+	 * @param op the ProfileChangeOperation that describes the plan that was created.  
 	 * Should not be <code>null</code>, but subclasses can be more forgiving.
 	 */
-	public void updateStatus(IUElementListRoot newRoot, PlannerResolutionOperation op) {
+	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		Assert.isNotNull(op);
 		updateCaches(newRoot, op);
 
 		IStatus currentStatus;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
-		currentStatus = op.getResolutionResult().getSummaryStatus();
+		currentStatus = op.getResolutionResult();
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();
@@ -115,7 +112,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		return ProvUIMessages.ResolutionWizardPage_WarningInfoStatus;
 	}
 
-	void setDetailText(PlannerResolutionOperation resolvedOperation) {
+	void setDetailText(ProfileChangeOperation resolvedOperation) {
 		String detail = null;
 		IInstallableUnit selectedIU = getSelectedIU();
 		IUDetailsGroup detailsGroup = getDetailsGroup();
@@ -136,15 +133,15 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 		// An IU is selected and we have resolved.  Look for information about the specific IU.
 		if (selectedIU != null) {
-			detail = resolvedOperation.getResolutionResult().getDetailedReport(new IInstallableUnit[] {selectedIU});
+			detail = resolvedOperation.getResolutionDetails(selectedIU);
 			if (detail != null) {
 				detailsGroup.enablePropertyLink(false);
 				detailsGroup.setDetailText(detail);
 				return;
 			}
 			// No specific error about this IU.  Show the overall error if it is in error.
-			if (resolvedOperation.getResolutionResult().getSummaryStatus().getSeverity() == IStatus.ERROR) {
-				detail = resolvedOperation.getResolutionResult().getSummaryReport();
+			if (resolvedOperation.getResolutionResult().getSeverity() == IStatus.ERROR) {
+				detail = resolvedOperation.getResolutionDetails();
 				detailsGroup.enablePropertyLink(false);
 				detailsGroup.setDetailText(detail);
 				return;
@@ -157,7 +154,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		}
 
 		//No IU is selected, give the overall report
-		detail = resolvedOperation.getResolutionResult().getSummaryReport();
+		detail = resolvedOperation.getResolutionDetails();
 		detailsGroup.enablePropertyLink(false);
 		if (detail == null)
 			detail = ""; //$NON-NLS-1$

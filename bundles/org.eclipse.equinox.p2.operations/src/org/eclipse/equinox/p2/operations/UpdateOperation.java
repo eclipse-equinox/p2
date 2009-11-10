@@ -12,13 +12,11 @@
 package org.eclipse.equinox.p2.operations;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -33,8 +31,8 @@ public class UpdateOperation extends ProfileChangeOperation {
 	private List possibleUpdates = new ArrayList();
 	private List defaultUpdates;
 
-	public UpdateOperation(ProvisioningSession session, String profileId, String rootMarkerKey, ProvisioningContext context, IInstallableUnit[] toBeUpdated) {
-		super(session, profileId, rootMarkerKey, context);
+	public UpdateOperation(ProvisioningSession session, IInstallableUnit[] toBeUpdated) {
+		super(session);
 		this.iusToUpdate = toBeUpdated;
 	}
 
@@ -88,7 +86,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	protected void computeProfileChangeRequest(IProgressMonitor monitor) {
+	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		// Here we create a profile change request by finding the latest version available for any replacement, unless
 		// otherwise specified in the selections.
 		// We have to consider the scenario where the only updates available are patches, in which case the original

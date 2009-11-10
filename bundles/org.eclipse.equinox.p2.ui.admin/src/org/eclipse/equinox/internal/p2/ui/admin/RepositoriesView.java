@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
+
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.viewers.RepositoryContentProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
@@ -26,7 +28,6 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This class supports the common characteristics for views that manipulate
@@ -46,7 +47,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), StatusManager.SHOW | StatusManager.LOG);
+			RepositoriesView.this.run(getRemoveOperation(getSelection().toArray()));
 		}
 	}
 
@@ -166,7 +167,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract int openAddRepositoryDialog(Shell shell);
 
-	protected abstract RemoveRepositoryOperation getRemoveOperation(Object[] elements);
+	protected abstract RemoveRepositoryJob getRemoveOperation(Object[] elements);
 
 	protected abstract String getAddCommandLabel();
 
