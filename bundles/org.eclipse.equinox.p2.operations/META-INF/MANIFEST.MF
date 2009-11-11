@@ -28,3 +28,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
 Export-Package: org.eclipse.equinox.p2.operations
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.common;bundle-version="[3.3.0,4.0)"
+Bundle-ActivationPolicy: lazy
