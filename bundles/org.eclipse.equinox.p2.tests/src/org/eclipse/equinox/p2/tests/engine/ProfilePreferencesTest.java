@@ -67,7 +67,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		props.put("locationURI", location.toString());
 		ServiceRegistration reg = TestActivator.getContext().registerService(IProvisioningAgent.SERVICE_NAME, agent, props);
 		try {
-			Preferences prefs = new ProfileScope(agentLocation, "TestProfile").getNode("org.eclipse.equinox.p2.ui.sdk.prefs");
+			Preferences prefs = new ProfileScope(agentLocation, "TestProfile").getNode("org.eclipse.equinox.p2.ui.sdk");
 			assertEquals("1.0", "always", prefs.get("allowNonOKPlan", ""));
 		} finally {
 			reg.unregister();
