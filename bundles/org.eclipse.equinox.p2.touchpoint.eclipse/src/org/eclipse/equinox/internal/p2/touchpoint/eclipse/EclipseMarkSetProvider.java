@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -110,15 +110,12 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private IArtifactKey searchArtifact(String searchedId, Version searchedVersion, String classifier, IArtifactRepository repo) {
 		//This is somewhat cheating since normally we should get the artifact key from the IUs that were representing the running system (e.g. we could get that info from the rollback repo)
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			if (keys[i].getClassifier().equals(classifier)) {
-				String id = keys[i].getId();
-				Version v = keys[i].getVersion();
-				if (id != null && id.equals(searchedId) && v != null && v.equals(searchedVersion))
-					return keys[i];
-			}
-		}
+		VersionRange range = searchedVersion != null ? new VersionRange(searchedVersion, true, searchedVersion, true) : null;
+		IArtifactQuery query = new ArtifactKeyQuery(classifier, searchedId, range);
+		//TODO short-circuit the query when we find one?
+		Collector keys = repo.query(query, new Collector(), null);
+		if (!keys.isEmpty())
+			return (IArtifactKey) keys.iterator().next();
 		return null;
 	}
 
