@@ -60,6 +60,7 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when a prior resolution has been done.
 	 * This is the SDK 
+	 * @throws InterruptedException 
 	 */
 	public void testUpdateWizardResolved() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
@@ -87,7 +88,6 @@ public class UpdateWizardTest extends WizardTest {
 			// can't move to next page while op is running
 			assertFalse(page2.isPageComplete());
 			longOp.cancel();
-
 		} finally {
 			dialog.getShell().close();
 			if (longOp != null)

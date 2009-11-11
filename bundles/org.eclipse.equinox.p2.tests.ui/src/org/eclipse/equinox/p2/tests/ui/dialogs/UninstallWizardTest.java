@@ -28,6 +28,7 @@ public class UninstallWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when the uninstall is preresolved.
 	 * This is the normal SDK workflow.
+	 * @throws InterruptedException 
 	 */
 	public void testUninstallWizardResolved() {
 
@@ -58,7 +59,6 @@ public class UninstallWizardTest extends WizardTest {
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
 			longOp.cancel();
-
 		} finally {
 			dialog.getShell().close();
 			if (longOp != null)

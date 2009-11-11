@@ -79,7 +79,7 @@ public class InstallWizardTest extends WizardTest {
 
 			// op is no longer running, recompute plan
 			wizard.recomputePlan(dialog);
-			assertTrue("1.3", page.isPageComplete());
+
 			// license needs approval
 			assertFalse("1.4", wizard.canFinish());
 			// finish button should be disabled
@@ -97,6 +97,7 @@ public class InstallWizardTest extends WizardTest {
 
 	/**
 	 * Tests the wizard
+	 * @throws InterruptedException 
 	 */
 	public void testInstallWizardUnresolved() {
 		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
@@ -156,10 +157,6 @@ public class InstallWizardTest extends WizardTest {
 			// can't move to next page while op is running
 			assertFalse("3.1", page.isPageComplete());
 			longOp.cancel();
-
-			// op is no longer running, recompute plan
-			wizard.recomputePlan(dialog);
-			assertTrue("3.2", page.isPageComplete());
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();
