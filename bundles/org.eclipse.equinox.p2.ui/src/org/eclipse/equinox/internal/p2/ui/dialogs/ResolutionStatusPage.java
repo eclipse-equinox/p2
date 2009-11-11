@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -65,13 +64,12 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	 * Should not be <code>null</code>, but subclasses can be more forgiving.
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
-		Assert.isNotNull(op);
 		updateCaches(newRoot, op);
 
 		IStatus currentStatus;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
-		currentStatus = op.getResolutionResult();
+		currentStatus = op == null ? null : op.getResolutionResult();
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();

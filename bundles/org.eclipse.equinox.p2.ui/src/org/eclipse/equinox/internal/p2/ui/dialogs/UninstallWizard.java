@@ -58,10 +58,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		planSelections = selections.toArray();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
-	 */
-	protected IResolutionErrorReportingPage getErrorReportingPage() {
+	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		return (SelectableIUsPage) mainPage;
 	}
 

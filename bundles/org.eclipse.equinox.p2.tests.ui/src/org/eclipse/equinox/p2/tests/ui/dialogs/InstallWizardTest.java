@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.*;
@@ -34,7 +32,6 @@ public class InstallWizardTest extends WizardTest {
 
 	private static final String SELECTION_PAGE = "IUSelectionPage";
 	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
-	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
 	private static final String MAIN_IU = "MainIU";
 
 	IInstallableUnit toInstall;
@@ -43,6 +40,7 @@ public class InstallWizardTest extends WizardTest {
 		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
+		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, "true");
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
 		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});
@@ -51,13 +49,14 @@ public class InstallWizardTest extends WizardTest {
 		createTestMetdataRepository(new IInstallableUnit[] {toInstall});
 	}
 
-	public void testInstallWizardResolved() throws ProvisionException {
+	public void testInstallWizardResolved() {
 		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {toInstall});
 		op.setProfileId(TESTPROFILE);
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, new IInstallableUnit[] {toInstall}, null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
@@ -66,16 +65,33 @@ public class InstallWizardTest extends WizardTest {
 			// simulate the next button by getting next page and showing
 			IWizardPage page = page1.getNextPage();
 			dialog.showPage(page);
+			// we should be ok
+			assertTrue("1.1", page.isPageComplete());
+
+			// if another operation is scheduled for this profile, we should not be allowed to proceed
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			// causes recalculation of plan and status
+			wizard.recomputePlan(dialog);
+			// can't move to next page while op is running
+			assertFalse("1.2", page.isPageComplete());
+			longOp.cancel();
+
+			// op is no longer running, recompute plan
+			wizard.recomputePlan(dialog);
+			assertTrue("1.3", page.isPageComplete());
 			// license needs approval
-			assertFalse("1.1", wizard.canFinish());
+			assertFalse("1.4", wizard.canFinish());
 			// finish button should be disabled
 			while (dialog.getShell().getDisplay().readAndDispatch()) {
 				// run event loop
 			}
 			Button finishButton = dialog.testGetButton(IDialogConstants.FINISH_ID);
-			assertFalse("1.2", finishButton.isEnabled());
+			assertFalse("1.5", finishButton.isEnabled());
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 
@@ -99,46 +115,51 @@ public class InstallWizardTest extends WizardTest {
 			AvailableIUsPage page1 = (AvailableIUsPage) wizard.getPage(AVAILABLE_SOFTWARE_PAGE);
 
 			// test initial wizard state
-			assertTrue(page1.getSelectedIUs().length == 0);
-			assertFalse(page1.isPageComplete());
+			assertTrue("1.0", page1.getSelectedIUs().length == 0);
+			assertFalse("1.1", page1.isPageComplete());
 
 			// Start reaching in...
 			AvailableIUGroup group = page1.testGetAvailableIUGroup();
 			group.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
 			// Now manipulate the tree itself.  we are reaching way in.
+			// We are trying to select everything in the repo apart from the IU we know is broken
 			DeferredQueryContentProvider provider = (DeferredQueryContentProvider) group.getCheckboxTreeViewer().getContentProvider();
 			provider.setSynchronous(true);
 			group.getCheckboxTreeViewer().refresh();
 			group.getCheckboxTreeViewer().expandAll();
 			Tree tree = (Tree) group.getCheckboxTreeViewer().getControl();
 			TreeItem[] items = tree.getItems();
-			HashSet ids = new HashSet();
-			ids.add(BROKEN_IU);
 			for (int i = 0; i < items.length; i++) {
 				Object element = items[i].getData();
 				if (element != null && element instanceof IIUElement) {
 					IInstallableUnit iu = ((IIUElement) element).getIU();
-					if (iu != null && !ids.contains(iu.getId())) {
-						ids.add(iu.getId());
+					if (iu != null && iu.getId().equals(MAIN_IU)) {
 						group.getCheckboxTreeViewer().setChecked(element, true);
 					}
 				}
 			}
 			// must be done this way to force notification of listeners
 			group.setChecked(group.getCheckboxTreeViewer().getCheckedElements());
-			assertTrue(group.getCheckedLeafIUs().length > 0);
-			assertTrue(page1.isPageComplete());
+			assertTrue("2.0", group.getCheckedLeafIUs().length > 0);
+			assertTrue("2.1", page1.isPageComplete());
 
+			// simulate the user clicking next
+			IWizardPage page = wizard.getNextPage(page1);
+			dialog.showPage(page);
+			assertTrue("3.0", page.isPageComplete());
+
+			// if another operation is scheduled for this profile, we should not be allowed to proceed
 			longOp = getLongTestOperation();
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			// causes recalculation of plan and status
 			wizard.recomputePlan(dialog);
-			assertFalse(page1.isPageComplete());
-
+			// can't move to next page while op is running
+			assertFalse("3.1", page.isPageComplete());
 			longOp.cancel();
 
-			// Now we should be ok
+			// op is no longer running, recompute plan
 			wizard.recomputePlan(dialog);
-			assertTrue(page1.isPageComplete());
+			assertTrue("3.2", page.isPageComplete());
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();

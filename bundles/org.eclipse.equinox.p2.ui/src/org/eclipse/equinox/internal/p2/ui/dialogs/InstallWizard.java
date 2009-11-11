@@ -29,8 +29,8 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class InstallWizard extends WizardWithLicenses {
 
-	AvailableIUsPage mainPage;
 	SelectableIUsPage errorReportingPage;
+	IUElementListRoot originalRoot;
 
 	public InstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
@@ -80,33 +80,39 @@ public class InstallWizard extends WizardWithLicenses {
 	}
 
 	protected ProvisioningContext getProvisioningContext() {
-		return mainPage.getProvisioningContext();
+		return ((AvailableIUsPage) mainPage).getProvisioningContext();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
-	 */
-	protected IResolutionErrorReportingPage getErrorReportingPage() {
-		if (errorReportingPage == null) {
-			originalRoot = root;
+	protected IResolutionErrorReportingPage createErrorReportingPage() {
+		if (root == null)
+			errorReportingPage = new SelectableIUsPage(ui, null, null);
+		else
 			errorReportingPage = new SelectableIUsPage(ui, root, root.getChildren(root));
-			errorReportingPage.setTitle(ProvUIMessages.InstallWizardPage_Title);
-			errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
-			errorReportingPage.updateStatus(root, operation);
-			errorReportingPage.setCheckedElements(root.getChildren(root));
-			addPage(errorReportingPage);
-		}
+		errorReportingPage.setTitle(ProvUIMessages.InstallWizardPage_Title);
+		errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
+		errorReportingPage.updateStatus(root, operation);
 		return errorReportingPage;
 	}
 
-	protected void showingErrorPage() {
-		// If we did a new resolution and are showing the error page,
-		// update the root.  We don't do this when the page is not the main
-		// page, or we might be updating the root of the showing page.
-		if (getContainer().getCurrentPage() == mainPage) {
-			originalRoot = root;
-			errorReportingPage.updateStatus(originalRoot, operation);
+	protected void planChanged() {
+		// the superclass may change the page root when we don't wish this to happen.
+		// The code below will correct that case.  We set redraw to avoid a big flash.
+		errorReportingPage.getControl().setRedraw(false);
+		try {
+			super.planChanged();
+			// We don't want the root of the error page to change unless we are on the
+			// main page.  For example, if we are on the error page, change checkmarks, and
+			// resolve again with an error, we wouldn't want the root items to change in the
+			// error page.
+			if (getContainer().getCurrentPage() == mainPage) {
+				originalRoot = root;
+			} else {
+				errorReportingPage.updateStatus(originalRoot, operation);
+			}
+			// we always update the checkmarks to the current root
 			errorReportingPage.setCheckedElements(root.getChildren(root));
+		} finally {
+			errorReportingPage.getControl().setRedraw(true);
 		}
 	}
 

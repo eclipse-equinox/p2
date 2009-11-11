@@ -119,7 +119,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 
 	public void updateStatus(IUElementListRoot root, ProfileChangeOperation op) {
 		super.updateStatus(root, op);
-		if (op.getProvisioningPlan() != null)
+		if (op != null && op.getProvisioningPlan() != null)
 			computeSizing(op.getProvisioningPlan(), getProfileId(), op.getProvisioningContext());
 	}
 

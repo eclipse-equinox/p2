@@ -57,7 +57,11 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	public SelectableIUsPage(ProvisioningUI ui, IUElementListRoot root, Object[] initialSelections) {
 		super("IUSelectionPage", ui); //$NON-NLS-1$
 		this.root = root;
+		if (root == null)
+			root = new IUElementListRoot();
 		this.initialSelections = initialSelections;
+		if (initialSelections == null)
+			initialSelections = new IInstallableUnit[0];
 	}
 
 	/*
@@ -204,7 +208,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	}
 
 	protected void setInitialCheckState() {
-		tableViewer.setCheckedElements(initialSelections);
+		if (initialSelections != null)
+			tableViewer.setCheckedElements(initialSelections);
 	}
 
 	/*
@@ -256,9 +261,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		IStatus specialStatus = null;
-		if (getProvisioningUI().hasScheduledOperations()) {
-			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.SelectableIUsPage_OperationInProgress, null);
-		} else if (op == null) {
+		if (op == null) {
 			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
 		}
 		if (specialStatus == null) {
@@ -270,7 +273,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 				return;
 			getDetailsGroup().setDetailText(specialStatus.getMessage());
 			setMessage(getMessageText(specialStatus), IMessageProvider.ERROR);
-
 		}
 	}
 

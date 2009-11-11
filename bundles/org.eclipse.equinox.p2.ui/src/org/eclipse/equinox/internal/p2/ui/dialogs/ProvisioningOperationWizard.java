@@ -38,7 +38,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	private static final String WIZARD_SETTINGS_SECTION = "WizardSettings"; //$NON-NLS-1$
 
 	protected ProvisioningUI ui;
-	protected IUElementListRoot root, originalRoot;
+	protected IUElementListRoot root;
 	protected ProfileChangeOperation operation;
 	protected Object[] planSelections;
 	protected ISelectableIUsPage mainPage;
@@ -54,7 +54,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		super();
 		this.ui = ui;
 		initializeResolutionModelElements(initialSelections);
-		this.originalRoot = root;
 		this.operation = operation;
 		this.repoPreloadJob = job;
 		setForcePreviousAndNextButtons(true);
@@ -68,9 +67,14 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void addPages() {
 		mainPage = createMainPage(root, planSelections);
 		addPage(mainPage);
+		errorPage = createErrorReportingPage();
+		if (errorPage != mainPage)
+			addPage(errorPage);
+		resolutionPage = createResolutionPage();
+		addPage(resolutionPage);
 	}
 
-	protected abstract IResolutionErrorReportingPage getErrorReportingPage();
+	protected abstract IResolutionErrorReportingPage createErrorReportingPage();
 
 	protected abstract ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections);
 
@@ -86,79 +90,30 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#canFinish()
-	 */
-	public boolean canFinish() {
-		if (resolutionPage == null)
-			return false;
-		if (!super.canFinish())
-			return false;
-		// Special case.  The error reporting page has to be complete in
-		// order to press next and perform a resolution.  But that doesn't
-		// mean the wizard can finish.
-		if (operation != null) {
-			int severity = operation.getResolutionResult().getSeverity();
-			return severity != IStatus.ERROR && severity != IStatus.CANCEL;
-		}
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
 	 */
 	public IWizardPage getNextPage(IWizardPage page) {
+		// If we are moving from the main page or error page, we may need to resolve before
+		// advancing.
 		if (page == mainPage || page == errorPage) {
 			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
 			// Do we need to resolve?
 			if (operation == null || (operation != null && shouldRecomputePlan(currentPage))) {
 				recomputePlan(getContainer());
-				planChanged();
 			} else {
 				// the selections have not changed from an IU point of view, but we want
 				// to reinitialize the resolution model elements to ensure they are up to
 				// date.
 				initializeResolutionModelElements(planSelections);
 			}
-			return selectNextPage(page, getCurrentStatus());
+			IStatus status = operation.getResolutionResult();
+			if (status == null || status.getSeverity() == IStatus.ERROR) {
+				return errorPage;
+			} else if (status.getSeverity() == IStatus.CANCEL) {
+				return page;
+			}
 		}
 		return super.getNextPage(page);
-	}
-
-	protected IWizardPage selectNextPage(IWizardPage currentPage, IStatus status) {
-		// We have already established before calling this method that the
-		// current page is either the main page or the error page.  
-		if (status.getSeverity() == IStatus.CANCEL)
-			return currentPage;
-		else if (status.getSeverity() == IStatus.ERROR) {
-			if (errorPage == null)
-				errorPage = getErrorReportingPage();
-			if (currentPage == errorPage) {
-				updateErrorPageStatus(errorPage);
-				return null;
-			}
-			showingErrorPage();
-			return errorPage;
-		} else {
-			if (resolutionPage == null) {
-				resolutionPage = createResolutionPage();
-				addPage(resolutionPage);
-			}
-			// need to clear any previous error status reported so that traversing
-			// back to the error page will not show the error
-			if (currentPage instanceof IResolutionErrorReportingPage)
-				updateErrorPageStatus((IResolutionErrorReportingPage) currentPage);
-			return resolutionPage;
-		}
-	}
-
-	/**
-	 * The error page is being shown for the first time given the
-	 * current plan.  Update any information needed before showing
-	 * the page.
-	 */
-	protected void showingErrorPage() {
-		// default is to do nothing
 	}
 
 	private boolean shouldRecomputePlan(ISelectableIUsPage page) {
@@ -188,16 +143,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	protected void planChanged() {
-		if (operation != null) {
-			IStatus status = operation.getResolutionResult();
-			if (status.getSeverity() != IStatus.ERROR && status.getSeverity() != IStatus.CANCEL) {
-				if (resolutionPage != null)
-					resolutionPage.updateStatus(root, operation);
-				else {
-					resolutionPage = createResolutionPage();
-					addPage(resolutionPage);
-				}
-			}
+		errorPage.updateStatus(root, operation);
+		if (errorPage != resolutionPage) {
+			resolutionPage.updateStatus(root, operation);
 		}
 	}
 
@@ -222,10 +170,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (planSelections.length == 0) {
 			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 		} else {
+			operation = getProfileChangeOperation(planSelections);
 			try {
 				runnableContext.run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
-						operation = getProfileChangeOperation(planSelections);
 						operation.resolveModal(monitor);
 					}
 				});
@@ -237,16 +185,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				couldNotResolve(null);
 			}
 		}
-		if (errorPage == null)
-			errorPage = getErrorReportingPage();
-		updateErrorPageStatus(errorPage);
+		planChanged();
 	}
 
 	protected abstract ProfileChangeOperation getProfileChangeOperation(Object[] elements);
-
-	void updateErrorPageStatus(IResolutionErrorReportingPage page) {
-		page.updateStatus(originalRoot, operation);
-	}
 
 	void couldNotResolve(String message) {
 		couldNotResolve = true;

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.ui.dialogs;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.*;
@@ -62,14 +61,13 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when a prior resolution has been done.
 	 * This is the SDK 
 	 */
-	public void testUpdateWizardResolved() throws ProvisionException {
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {top1}, null);
+	public void testUpdateWizardResolved() {
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
-
 		ProfileModificationJob longOp = null;
 
 		try {
@@ -83,11 +81,11 @@ public class UpdateWizardTest extends WizardTest {
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
 			longOp = getLongTestOperation();
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
-			assertTrue(page1.isPageComplete());
+			assertTrue(page2.isPageComplete());
 			// causes recalculation of plan and status
-			wizard.getNextPage(page1);
+			wizard.recomputePlan(dialog);
 			// can't move to next page while op is running
-			assertFalse(page1.isPageComplete());
+			assertFalse(page2.isPageComplete());
 			longOp.cancel();
 
 		} finally {
@@ -128,7 +126,7 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when a prior resolution has been done, but is in error.
 	 */
-	public void testUpdateWizardResolvedError() throws ProvisionException {
+	public void testUpdateWizardResolvedError() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
 		op.setDefaultUpdates(op.getPossibleUpdates());
@@ -148,7 +146,7 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when we have a successful resolution and want to open
 	 * directly on the resolution page
 	 */
-	public void testUpdateWizardResolvedSkipSelections() throws ProvisionException {
+	public void testUpdateWizardResolvedSkipSelections() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
@@ -170,33 +168,24 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is not the SDK workflow, but should be supported.
 	 */
 	public void testUpdateWizardUnresolved() {
-		Update update = new Update(top1, upgrade);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {top1}, null);
+		Update update = new Update(main, mainUpgrade1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, new Object[] {update}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
-		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			// Page 1 should have selections
 			assertTrue(page1.isPageComplete());
-
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			longOp = getLongTestOperation();
-			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			// Should be able to resolve an unresolved operation
 			wizard.recomputePlan(dialog);
-			assertFalse(page1.isPageComplete());
-
-			longOp.cancel();
-			wizard.recomputePlan(dialog);
+			// Everything is still good
 			assertTrue(page1.isPageComplete());
 
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
-				longOp.cancel();
 		}
 	}
 

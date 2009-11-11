@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
-
 import java.util.*;
 import java.util.List;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -24,6 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.*;
@@ -130,11 +131,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return buf.toString();
 	}
 
-	public AcceptLicensesWizardPage(Policy policy, IInstallableUnit[] ius, ProvisioningPlan plan) {
+	public AcceptLicensesWizardPage(Policy policy, IInstallableUnit[] ius, ProfileChangeOperation operation) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
 		this.policy = policy;
-		update(ius, plan);
+		update(ius, operation);
 	}
 
 	public void createControl(Composite parent) {
@@ -270,12 +271,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return licensesToIUs != null && licensesToIUs.size() > 0;
 	}
 
-	public void update(IInstallableUnit[] theIUs, ProvisioningPlan currentPlan) {
+	public void update(IInstallableUnit[] theIUs, ProfileChangeOperation operation) {
 		this.originalIUs = theIUs;
 		if (theIUs == null)
 			licensesToIUs = new HashMap();
 		else
-			findUnacceptedLicenses(theIUs, currentPlan);
+			findUnacceptedLicenses(theIUs, operation);
 		setDescription();
 		setPageComplete(licensesToIUs.size() == 0);
 		if (getControl() != null) {
@@ -296,20 +297,28 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return ""; //$NON-NLS-1$
 	}
 
-	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, ProvisioningPlan currentPlan) {
-		IInstallableUnit[] iusToCheck;
-		if (currentPlan == null)
-			iusToCheck = selectedIUs;
-		else {
-			List allIUs = new ArrayList();
-			Operand[] operands = currentPlan.getOperands();
-			for (int i = 0; i < operands.length; i++)
-				if (operands[i] instanceof InstallableUnitOperand) {
-					IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
-					if (addedIU != null)
-						allIUs.add(addedIU);
+	/*
+	 * Find the unaccepted licenses and update the licensesToIUs map to reflect this.
+	 */
+	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, ProfileChangeOperation operation) {
+		IInstallableUnit[] iusToCheck = selectedIUs;
+
+		if (operation != null && operation.hasResolved()) {
+			int sev = operation.getResolutionResult().getSeverity();
+			if (sev != IStatus.ERROR && sev != IStatus.CANCEL) {
+				ProvisioningPlan plan = operation.getProvisioningPlan();
+				if (plan != null) {
+					List allIUs = new ArrayList();
+					Operand[] operands = operation.getProvisioningPlan().getOperands();
+					for (int i = 0; i < operands.length; i++)
+						if (operands[i] instanceof InstallableUnitOperand) {
+							IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
+							if (addedIU != null)
+								allIUs.add(addedIU);
+						}
+					iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
 				}
-			iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
+			}
 		}
 
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532

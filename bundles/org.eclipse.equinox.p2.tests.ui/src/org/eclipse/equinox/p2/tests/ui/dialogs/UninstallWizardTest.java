@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
 import org.eclipse.equinox.p2.operations.UninstallOperation;
@@ -30,7 +29,7 @@ public class UninstallWizardTest extends WizardTest {
 	 * Tests the wizard when the uninstall is preresolved.
 	 * This is the normal SDK workflow.
 	 */
-	public void testUninstallWizardResolved() throws ProvisionException {
+	public void testUninstallWizardResolved() {
 
 		IInstallableUnit[] iusInvolved = new IInstallableUnit[] {top1, top2};
 		UninstallOperation op = getProvisioningUI().getUninstallOperation(iusInvolved, null);
@@ -55,7 +54,7 @@ public class UninstallWizardTest extends WizardTest {
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			assertTrue(page1.isPageComplete());
 			// causes recalculation of plan and status
-			wizard.getNextPage(page1);
+			wizard.recomputePlan(dialog);
 			// can't move to next page while op is running
 			assertFalse(page1.isPageComplete());
 			longOp.cancel();
@@ -79,29 +78,17 @@ public class UninstallWizardTest extends WizardTest {
 		dialog.setBlockOnOpen(false);
 		dialog.create();
 		dialog.open();
-		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			assertTrue(page1.isPageComplete());
-			// Will cause computation of a plan.
-			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
-			dialog.showPage(page2);
-			assertTrue(page2.isPageComplete());
-
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			longOp = getLongTestOperation();
-			getProvisioningUI().schedule(longOp, StatusManager.LOG);
-			// recalculate plan and status
+			// Should be able to resolve a plan
 			wizard.recomputePlan(dialog);
-			// can't move to next page while op is running
-			assertFalse(page1.isPageComplete());
-			longOp.cancel();
+			// Still ok
+			assertTrue(page1.isPageComplete());
 
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
-				longOp.cancel();
 		}
 	}
 }

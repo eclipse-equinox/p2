@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -51,8 +50,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui); //$NON-NLS-1$
-		Assert.isNotNull(operation);
-		if (!operation.hasResolved()) {
+		// We can exist as an empty page, but if there is an operation, we need to know that it's resolved.
+		if (operation != null && !operation.hasResolved()) {
 			operation.resolveModal(null);
 		}
 		this.resolvedOperation = operation;
@@ -114,7 +113,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
 		treeViewer.setLabelProvider(labelProvider);
 
-		setDrilldownElements(input, resolvedOperation.getProvisioningPlan());
+		setDrilldownElements(input, resolvedOperation);
 		treeViewer.setInput(input);
 
 		// Optional area to show the size
@@ -146,7 +145,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	public ProvisioningPlan getCurrentPlan() {
-		return resolvedOperation.getProvisioningPlan();
+		if (resolvedOperation != null)
+			return resolvedOperation.getProvisioningPlan();
+		return null;
 	}
 
 	protected Object[] getSelectedElements() {
@@ -164,13 +165,13 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return ElementUtils.elementsToIUs(input.getChildren(input));
 	}
 
-	void setDrilldownElements(IUElementListRoot root, ProvisioningPlan plan) {
-		if (plan == null)
+	void setDrilldownElements(IUElementListRoot root, ProfileChangeOperation operation) {
+		if (operation == null || operation.getProvisioningPlan() == null)
 			return;
 		Object[] elements = root.getChildren(root);
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof QueriedElement) {
-				((QueriedElement) elements[i]).setQueryable(getQueryable(plan));
+				((QueriedElement) elements[i]).setQueryable(getQueryable(operation.getProvisioningPlan()));
 			}
 		}
 	}
@@ -220,7 +221,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
-		setDrilldownElements(newRoot, resolvedOperation.getProvisioningPlan());
+		setDrilldownElements(newRoot, resolvedOperation);
 		if (treeViewer != null) {
 			if (input != newRoot)
 				treeViewer.setInput(newRoot);
