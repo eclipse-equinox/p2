@@ -136,7 +136,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Returns the list of metadata repositories that are currently available.
 	 */
 	private URI[] getAvailableRepositories() {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		ArrayList available = new ArrayList();
 		for (int i = 0; i < repositories.length; i++) {
@@ -163,7 +163,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IPlanner getPlanner() {
 		if (planner == null) {
-			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
 			if (planner == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}
@@ -173,7 +173,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
-			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
 			if (profileRegistry == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}

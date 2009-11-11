@@ -100,7 +100,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		if (artifactLocation == null)
 			return;
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.SERVICE_NAME);
 		URI location = artifactLocation;
 
 		String repositoryName = (artifactRepoName != null && artifactRepoName.length() > 0) ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
@@ -164,7 +164,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		Map properties = new HashMap(1);
 		properties.put(IRepository.PROP_COMPRESSED, compress);
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.SERVICE_NAME);
 		try {
 			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.removeRepository(location);

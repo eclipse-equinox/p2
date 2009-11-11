@@ -65,7 +65,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map properties) throws ProvisionException {
 		BundleContext context = getContext();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
@@ -84,7 +84,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		BundleContext context = getContext();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		IMetadataRepository repository = manager.loadRepository(location, monitor);
@@ -103,7 +103,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map properties) throws ProvisionException {
 		BundleContext context = getContext();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
@@ -122,7 +122,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		BundleContext context = getContext();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		IArtifactRepository repository = manager.loadRepository(location, monitor);
@@ -621,7 +621,7 @@ public class Activator implements BundleActivator {
 	 * Return the current profile or null if it cannot be retrieved.
 	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
-		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference reference = context.getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) context.getService(reference);
@@ -656,12 +656,12 @@ public class Activator implements BundleActivator {
 
 	// TODO Fix this up to get the services in a better way
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	// TODO Fix this up to get the services in a better way
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 }

@@ -38,7 +38,7 @@ public class Application implements IApplication {
 	}
 
 	private IArtifactRepository setupRepository(URI location) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return null;

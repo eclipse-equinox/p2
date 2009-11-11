@@ -46,17 +46,17 @@ public class End2EndTest extends AbstractProvisioningTest {
 	private ServiceTracker fwAdminTracker;
 
 	protected void setUp() throws Exception {
-		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
+		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
 		if (sr == null)
 			throw new RuntimeException("Director service not available");
 		director = createDirector();
 		//		planner = createPlanner();
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		metadataRepoManager = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (metadataRepoManager == null)
 			throw new RuntimeException("Metadata repository manager could not be loaded");
 
-		ServiceReference sr3 = TestActivator.context.getServiceReference(IArtifactRepositoryManager.class.getName());
+		ServiceReference sr3 = TestActivator.context.getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
 		artifactRepoManager = (IArtifactRepositoryManager) TestActivator.context.getService(sr3);
 		if (artifactRepoManager == null)
 			throw new RuntimeException("Artifact repo manager could not be loaded");

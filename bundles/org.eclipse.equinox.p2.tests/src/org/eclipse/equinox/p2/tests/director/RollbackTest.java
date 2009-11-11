@@ -65,7 +65,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	private IMetadataRepository getRollbackRepository() throws ProvisionException {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		URI location = ((IAgentLocation) ServiceHelper.getService(DirectorActivator.context, IAgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
 		return repoMan.loadRepository(URIUtil.append(location, "rollback"), null);
 	}

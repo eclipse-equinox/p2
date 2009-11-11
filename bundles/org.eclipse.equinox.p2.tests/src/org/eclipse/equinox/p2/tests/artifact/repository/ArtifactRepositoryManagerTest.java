@@ -62,7 +62,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	/**

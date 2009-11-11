@@ -167,7 +167,7 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
-			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 			if (artifactManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -197,7 +197,7 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("metadataRepository"); //$NON-NLS-1$
 		} else {
-			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (metadataManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -225,11 +225,11 @@ public class Application implements IApplication {
 	}
 
 	private void initializeServices() {
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
+		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.SERVICE_NAME);
 		if (director == null)
 			throw new RuntimeException(Messages.Missing_director);
 
-		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new RuntimeException(Messages.Missing_planner);
 

@@ -31,7 +31,7 @@ public class ResumeDownloadTest extends TestCase {
 		repoLoc = new URI(UPDATE_SITE);
 		originalResumeProp = System.getProperty("org.eclipse.equinox.p2.metadata.repository.resumable", "true");
 
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");

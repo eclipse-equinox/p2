@@ -38,7 +38,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
  */
 public class IUPropertyUtilsTest extends AbstractQueryTest {
 	public void testFeatureProperties() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
 		URI location = site.toURI();
 		IMetadataRepository repository;
@@ -66,7 +66,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 	}
 
 	public void testLocalizedLicense() throws URISyntaxException {
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.SERVICE_NAME);
 		Profile profile = (Profile) profileRegistry.getProfile(IProfileRegistry.SELF);
 		profileRegistry.lockProfile(profile);
 		String germanLicense = "German License";

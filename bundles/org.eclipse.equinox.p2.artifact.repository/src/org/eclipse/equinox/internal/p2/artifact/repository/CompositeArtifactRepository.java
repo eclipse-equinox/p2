@@ -74,7 +74,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	static private IArtifactRepositoryManager getManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	/*

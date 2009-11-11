@@ -572,7 +572,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
 		IMetadataRepository metadataRepo = null;
@@ -590,7 +590,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * Tests that a feature requiring a bundle with no range is converted correctly.
 	 */
 	public void testBug243422() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
 		IMetadataRepository metadataRepo = null;
@@ -612,7 +612,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testShortenVersionNumberInFeature() {
-		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
 		IArtifactRepository artifactRepo = null;
@@ -636,7 +636,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * unzipping the feature on install.
 	 */
 	public void testFeatureJarUnzipInstruction() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI location = null;
 		location = site.toURI();
@@ -666,7 +666,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
 		URI testDiscoverySite = new URI("http://download.eclipse.org/test/discoverysite");
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(manager);
 		manager.removeRepository(testUpdateSite);
 		manager.removeRepository(testDiscoverySite);
@@ -688,7 +688,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(metadataRepoMan);
 
 		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -714,7 +714,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactRepoMan);
 
 		URI[] knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);

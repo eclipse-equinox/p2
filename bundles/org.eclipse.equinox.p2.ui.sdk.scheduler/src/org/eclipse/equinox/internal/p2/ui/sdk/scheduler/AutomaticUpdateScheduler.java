@@ -87,7 +87,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 		private IProfile getProfile() {
 			if (cachedProfile == null) {
-				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.class.getName());
+				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.SERVICE_NAME);
 				if (profileRegistry != null)
 					cachedProfile = profileRegistry.getProfile(profileId);
 			}

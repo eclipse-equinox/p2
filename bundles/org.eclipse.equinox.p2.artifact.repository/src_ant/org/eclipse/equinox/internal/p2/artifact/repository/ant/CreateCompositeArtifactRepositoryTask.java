@@ -41,7 +41,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	 */
 	public void execute() {
 		validate();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to aquire artifact repository manager service.");
 

@@ -52,27 +52,27 @@ public class ProvisioningSession {
 	}
 
 	public IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	public IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	public IProfileRegistry getProfileRegistry() {
-		return (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
+		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	public IEngine getEngine() {
-		return (IEngine) agent.getService(IEngine.class.getName());
+		return (IEngine) agent.getService(IEngine.SERVICE_NAME);
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
-		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.class.getName());
+		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 	}
 
 	public IPlanner getPlanner() {
-		return (IPlanner) agent.getService(IPlanner.class.getName());
+		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 	}
 
 	public void addMetadataRepository(URI location) {

@@ -106,7 +106,7 @@ public class MirrorApplication implements IApplication {
 	private IMetadataRepositoryManager getManager() {
 		if (cachedManager != null)
 			return cachedManager;
-		IMetadataRepositoryManager result = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager result = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		// service not available... create one and hang onto it
 		if (result == null) {
 			cachedManager = new MetadataRepositoryManager();

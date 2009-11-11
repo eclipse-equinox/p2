@@ -45,7 +45,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.class.getName());
+		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		manager = (IMetadataRepositoryManager) TestActivator.getContext().getService(managerRef);
 
 		String tempDir = System.getProperty("java.io.tmpdir");

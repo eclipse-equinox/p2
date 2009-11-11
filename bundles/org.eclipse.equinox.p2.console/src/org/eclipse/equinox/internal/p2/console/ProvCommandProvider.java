@@ -258,7 +258,7 @@ public class ProvCommandProvider implements CommandProvider {
 		String urlString = processArgument(interpreter.nextArgument());
 		IQueryable queryable = null;
 		if (urlString == null) {
-			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (queryable == null)
 				return;
 		} else {

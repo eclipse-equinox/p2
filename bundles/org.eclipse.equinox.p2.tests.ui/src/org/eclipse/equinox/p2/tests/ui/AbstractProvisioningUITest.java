@@ -76,8 +76,8 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {top1, top2, uninstalled, upgrade});
 
-		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());
-		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.SERVICE_NAME);
+		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 		File site = new File(TestActivator.getTestDataFolder().toString(), TEST_REPO_PATH);
 		testRepoLocation = site.toURI();
 		metaManager.addRepository(testRepoLocation);

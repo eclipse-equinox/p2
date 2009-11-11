@@ -574,8 +574,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("12.0", "/testData/mirror/mirrorSourceRepo3");
 		File metadataRepo1 = getTestData("12.1", "/testData/mirror/mirrorSourceRepo3");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -621,8 +621,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
 		File metadataRepo1 = getTestData("13.1", "/testData/mirror/mirrorSourceRepo4");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 

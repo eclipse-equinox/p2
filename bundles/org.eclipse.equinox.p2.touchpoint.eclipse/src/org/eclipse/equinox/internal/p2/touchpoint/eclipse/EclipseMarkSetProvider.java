@@ -78,7 +78,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private IProfile getCurrentProfile() {
-		ServiceReference sr = Activator.getContext().getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference sr = Activator.getContext().getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (sr == null)
 			return null;
 		IProfileRegistry pr = (IProfileRegistry) Activator.getContext().getService(sr);

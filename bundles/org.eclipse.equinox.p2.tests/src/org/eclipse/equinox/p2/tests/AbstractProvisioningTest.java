@@ -229,7 +229,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IDirector createDirector() {
-		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
+		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.SERVICE_NAME);
 	}
 
 	/**
@@ -503,7 +503,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IPlanner createPlanner() {
-		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
+		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.SERVICE_NAME);
 	}
 
 	/**

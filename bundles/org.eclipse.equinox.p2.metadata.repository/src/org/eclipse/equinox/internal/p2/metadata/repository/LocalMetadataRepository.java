@@ -211,7 +211,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			save();
 		}
 		//force repository manager to reload this repository because it caches properties
-		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;

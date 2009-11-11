@@ -28,7 +28,7 @@ public class ProfileChangeRequest implements Cloneable {
 	private HashMap iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
 
 	public static ProfileChangeRequest createByProfileId(String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			throw new IllegalStateException(Messages.Planner_no_profile_registry);
 		IProfile profile = profileRegistry.getProfile(profileId);

@@ -35,7 +35,7 @@ public class RemoveChildTask extends Task {
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

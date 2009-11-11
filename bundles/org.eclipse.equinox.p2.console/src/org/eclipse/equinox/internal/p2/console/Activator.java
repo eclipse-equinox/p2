@@ -44,7 +44,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		}
 
 		if (registerCommands) {
-			profileTracker = new ServiceTracker(context, IProfileRegistry.class.getName(), this);
+			profileTracker = new ServiceTracker(context, IProfileRegistry.SERVICE_NAME, this);
 			profileTracker.open();
 		}
 	}

@@ -63,7 +63,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IProfile getCurrentProfile() {
-		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
@@ -75,7 +75,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IFileArtifactRepository getBundlePoolRepository() {
-		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);

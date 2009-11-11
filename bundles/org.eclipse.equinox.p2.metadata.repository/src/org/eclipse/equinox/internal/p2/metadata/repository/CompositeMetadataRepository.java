@@ -75,7 +75,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	static private IMetadataRepositoryManager getManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	private boolean isLocal() {

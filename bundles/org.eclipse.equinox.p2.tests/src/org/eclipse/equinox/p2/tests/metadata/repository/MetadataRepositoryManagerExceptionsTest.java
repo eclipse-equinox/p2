@@ -42,7 +42,7 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());
+		manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	protected void tearDown() throws Exception {

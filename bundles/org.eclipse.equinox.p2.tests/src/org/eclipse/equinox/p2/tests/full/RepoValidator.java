@@ -32,7 +32,7 @@ import org.osgi.framework.ServiceReference;
 public class RepoValidator extends AbstractProvisioningTest {
 	public void testValidate() throws ProvisionException, URISyntaxException {
 		URI repoLoc = new URI("http://fullmoon.ottawa.ibm.com/eclipse/updates/3.5-I-builds/");
-		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.class.getName());
+		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.SERVICE_NAME);
 		if (sr == null) {
 			throw new RuntimeException("Planner service not available");
 		}
@@ -41,7 +41,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 			throw new RuntimeException("Planner could not be loaded");
 		}
 
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");

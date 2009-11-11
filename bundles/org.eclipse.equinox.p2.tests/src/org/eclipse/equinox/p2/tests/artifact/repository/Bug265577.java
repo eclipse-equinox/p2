@@ -37,7 +37,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 		super.setUp();
 		profile = createProfile(Bug265577.class.getName());
 
-		engine = (IEngine) ServiceHelper.getService(TestActivator.context, IEngine.class.getName());
+		engine = (IEngine) ServiceHelper.getService(TestActivator.context, IEngine.SERVICE_NAME);
 		// Load repositories
 		File repoLocation = getTestData("Repository location", "/testData/bug265577/zipRepo.zip");
 		if (repoLocation == null)

@@ -38,7 +38,7 @@ public class FoldersRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IArtifactRepositoryManager.class.getName());
+		managerRef = TestActivator.getContext().getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
 		manager = (IArtifactRepositoryManager) TestActivator.getContext().getService(managerRef);
 	}
 

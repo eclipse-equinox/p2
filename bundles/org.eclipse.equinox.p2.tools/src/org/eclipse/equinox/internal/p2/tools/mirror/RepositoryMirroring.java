@@ -208,7 +208,7 @@ public class RepositoryMirroring {
 	}
 
 	private IArtifactRepository initializeArtifactDestination(ArtifactRepositoryManager repoManager, URI destinationLocation) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		IArtifactRepository repository;
 		try {
 			String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$

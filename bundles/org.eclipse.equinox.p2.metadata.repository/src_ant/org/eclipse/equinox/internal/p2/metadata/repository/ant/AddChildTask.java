@@ -34,7 +34,7 @@ public class AddChildTask extends Task {
 	 */
 	public void execute() {
 		validate();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

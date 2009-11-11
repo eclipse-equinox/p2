@@ -243,10 +243,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private void preInstall() throws CoreException {
 		//obtain required services
 		serviceReferences.clear();
-		director = (IDirector) getService(IDirector.class.getName());
-		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.class.getName());
-		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.class.getName());
-		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
+		director = (IDirector) getService(IDirector.SERVICE_NAME);
+		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.SERVICE_NAME);
+		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.SERVICE_NAME);
+		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	private void prepareArtifactRepositories() throws ProvisionException {

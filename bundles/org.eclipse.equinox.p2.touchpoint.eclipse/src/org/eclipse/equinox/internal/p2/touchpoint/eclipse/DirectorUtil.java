@@ -23,7 +23,7 @@ public class DirectorUtil {
 	public static IStatus validateProfile(IProfile profile) {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
-		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
 		return planner.getProvisioningPlan(pcr, ctx, null).getStatus();
 	}
 }

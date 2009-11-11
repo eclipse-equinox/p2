@@ -291,7 +291,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private IProfile initializeProfile() throws CoreException {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 			noProfileId = true;
@@ -736,7 +736,7 @@ public class DirectorApplication implements IApplication {
 
 	private void revertToPreviousState() throws CoreException {
 		IProfile profile = initializeProfile();
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile targetProfile = null;
 		if (revertToPreviousState == 0) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());

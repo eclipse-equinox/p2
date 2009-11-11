@@ -427,7 +427,7 @@ public class ProfileSynchronizer {
 
 	private ProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IPlanner.class.getName());
+		ServiceReference reference = context.getServiceReference(IPlanner.SERVICE_NAME);
 		IPlanner planner = (IPlanner) context.getService(reference);
 
 		try {
@@ -439,7 +439,7 @@ public class ProfileSynchronizer {
 
 	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
+		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
 			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
@@ -451,7 +451,7 @@ public class ProfileSynchronizer {
 
 	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
+		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
 			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);

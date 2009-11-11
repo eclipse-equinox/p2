@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceReference;
 public class DirectorTest extends AbstractProvisioningTest {
 
 	public void testInstallIU() throws ProvisionException {
-		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
+		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
 		if (sr == null) {
 			throw new RuntimeException("Director service not available");
 		}
@@ -46,7 +46,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Director could not be loaded");
 		}
 
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");

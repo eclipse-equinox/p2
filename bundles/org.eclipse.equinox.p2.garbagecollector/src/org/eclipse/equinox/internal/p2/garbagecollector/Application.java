@@ -29,7 +29,7 @@ public class Application implements IApplication {
 	 * Return the profile with the given id, or null if not found.
 	 */
 	private IProfile getProfile(String id) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(GCActivator.getContext(), IProfileRegistry.SERVICE_NAME);
 		return profileRegistry == null ? null : profileRegistry.getProfile(id);
 	}
 

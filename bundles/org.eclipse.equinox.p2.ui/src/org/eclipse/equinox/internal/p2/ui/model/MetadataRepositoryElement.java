@@ -203,7 +203,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return true;
 		if (location == null)
 			return false;
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null || !(manager instanceof MetadataRepositoryManager))
 			return false;
 		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);

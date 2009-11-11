@@ -34,7 +34,7 @@ public class AddChildTask extends Task {
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to acquire artifact repository manager service.");
 

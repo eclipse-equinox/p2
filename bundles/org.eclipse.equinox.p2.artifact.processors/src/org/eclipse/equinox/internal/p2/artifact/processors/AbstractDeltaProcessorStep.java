@@ -43,7 +43,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 	private void fetchLocalArtifactRepository() {
 		if (repository != null)
 			return;
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (repoMgr == null) {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager."));
 			return;

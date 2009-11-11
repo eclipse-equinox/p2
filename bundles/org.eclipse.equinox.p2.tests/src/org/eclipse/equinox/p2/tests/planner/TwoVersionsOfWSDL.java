@@ -33,7 +33,7 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepository repo = repoMan.loadRepository(getTestData("repository for wsdl test", "testData/metadataRepo/wsdlTestRepo/").toURI(), new NullProgressMonitor());
 		wsdl15 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), new Collector(), null).iterator().next();
 		wsdl14 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), new Collector(), null).iterator().next();

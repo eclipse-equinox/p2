@@ -91,7 +91,7 @@ public class GarbageCollector {
 				continue;
 			}
 
-			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
+			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.SERVICE_NAME);
 			if (profileRegistry == null)
 				return;
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
