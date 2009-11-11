@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -208,7 +208,7 @@ public class IUPropertyUtils {
 		};
 
 		//Due to performance problems we restrict locale lookup to the current profile (see bug 233958)
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
 			return new Collector();
