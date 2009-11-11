@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -64,9 +65,28 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
 		store = registryDirectory;
 		surrogateProfileHandler = handler;
-		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 		Assert.isNotNull(store, "Profile registry requires a directory"); //$NON-NLS-1$
+		findSelf();
 		this.updateSelfProfile = updateSelfProfile;
+	}
+
+	/**
+	 * Determine the id of the "self" profile. This is only applicable for the registry
+	 * of the currently running system.
+	 */
+	private void findSelf() {
+		//the location for the currently running system is registered as a service
+		ServiceReference ref = EngineActivator.getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (ref == null)
+			return;
+		IAgentLocation location = (IAgentLocation) EngineActivator.getContext().getService(ref);
+		if (location == null)
+			return;
+		if (store.equals(getDefaultRegistryDirectory(location))) {
+			//we are the registry for the currently running system
+			self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+		}
+		EngineActivator.getContext().ungetService(ref);
 	}
 
 	public static File getDefaultRegistryDirectory(IAgentLocation agent) {
