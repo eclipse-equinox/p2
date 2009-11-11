@@ -10,14 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.io.File;
+import java.net.URI;
+import java.util.Hashtable;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.ProfilePreferences;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.security.storage.EncodingUtils;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -43,6 +50,29 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		} catch (BackingStoreException e) {
 			fail("1.0", e);
 		}
+	}
+
+	/**
+	 * Profile preferences looks up the agent location using an LDAP filter. Make
+	 * sure it can handle an agent location that contains characters that are not valid in an LDAP filter
+	 */
+	public void testInvalidFilterChars() {
+		File folder = getTestData("Prefs", "/testData/ProfilePreferencesTest/with(invalid)chars/");
+		URI location = folder.toURI();
+		ProvisioningAgent agent = new ProvisioningAgent();
+		agent.setLocation(location);
+		agent.setBundleContext(TestActivator.getContext());
+		IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		Hashtable props = new Hashtable();
+		props.put("locationURI", location.toString());
+		ServiceRegistration reg = TestActivator.getContext().registerService(IProvisioningAgent.SERVICE_NAME, agent, props);
+		try {
+			Preferences prefs = new ProfileScope(agentLocation, "TestProfile").getNode("org.eclipse.equinox.p2.ui.sdk.prefs");
+			assertEquals("1.0", "always", prefs.get("allowNonOKPlan", ""));
+		} finally {
+			reg.unregister();
+		}
+
 	}
 
 	public void testProfilePreference() {
