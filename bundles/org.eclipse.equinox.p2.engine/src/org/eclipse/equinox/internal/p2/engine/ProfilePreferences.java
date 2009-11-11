@@ -133,7 +133,7 @@ public class ProfilePreferences extends EclipsePreferences {
 		String locationString = EncodingUtils.decodeSlashes(segment);
 		Exception failure = null;
 		try {
-			String filter = "(locationURI=" + locationString + ')'; //$NON-NLS-1$
+			String filter = "(locationURI=" + encodeForFilter(locationString) + ')'; //$NON-NLS-1$
 			ServiceReference[] refs = EngineActivator.getContext().getServiceReferences(IProvisioningAgent.SERVICE_NAME, filter);
 			if (refs != null && refs.length > 0)
 				return refs[0];
@@ -141,6 +141,28 @@ public class ProfilePreferences extends EclipsePreferences {
 			failure = e;
 		}
 		throw new BackingStoreException("Unable to determine provisioning agent from location: " + segment, failure); //$NON-NLS-1$
+	}
+
+	/**
+	 * Encodes a string so that it is suitable for use as a value for a filter property.
+	 * Any reserved filter characters are escaped.
+	 */
+	private String encodeForFilter(String string) {
+		StringBuffer result = new StringBuffer(string.length());
+		char[] input = string.toCharArray();
+		for (int i = 0; i < input.length; i++) {
+			switch (input[i]) {
+				case '(' :
+				case ')' :
+				case '*' :
+				case '\\' :
+					result.append('\\');
+					//fall through
+				default :
+					result.append(input[i]);
+			}
+		}
+		return result.toString();
 	}
 
 	/**
