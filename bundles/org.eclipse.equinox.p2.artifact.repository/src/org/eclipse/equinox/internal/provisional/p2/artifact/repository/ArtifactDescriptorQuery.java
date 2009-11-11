@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
  * An implementation of IArtifactQuery that matches IArtifactDescriptors
  */
 public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuery {
+	public static final ArtifactDescriptorQuery ALL_DESCRIPTORS = new ArtifactDescriptorQuery();
 	private VersionRange range = null;
 	private String id = null;
 	private String format = null;
@@ -48,6 +49,10 @@ public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuer
 		this.range = versionRange;
 		this.format = format;
 		this.repository = repository;
+	}
+
+	public ArtifactDescriptorQuery() {
+		//matches everything
 	}
 
 	/**

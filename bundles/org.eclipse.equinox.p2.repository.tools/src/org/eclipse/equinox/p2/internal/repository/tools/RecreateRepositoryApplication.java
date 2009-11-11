@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -68,10 +69,11 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		repoProperties = repository.getProperties();
 
 		repoMap = new HashMap();
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(keys[i]);
-			repoMap.put(keys[i], descriptors);
+		Collector keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
+			repoMap.put(key, descriptors);
 		}
 
 		return repository;

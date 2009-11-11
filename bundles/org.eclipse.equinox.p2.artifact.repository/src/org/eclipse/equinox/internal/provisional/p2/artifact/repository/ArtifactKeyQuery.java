@@ -20,7 +20,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
  * An IArtifactQuery returning matching IArtifactKey objects.
  */
 public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
+	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
+
 	private String id;
+	private String classifier;
 	private VersionRange range;
 	private ArtifactKey artifactKey;
 
@@ -30,9 +33,14 @@ public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
 	 * @param id - the IArtifactKey id
 	 * @param range - A version range
 	 */
-	public ArtifactKeyQuery(String id, VersionRange range) {
+	public ArtifactKeyQuery(String classifier, String id, VersionRange range) {
 		this.id = id;
+		this.classifier = classifier;
 		this.range = range;
+	}
+
+	public ArtifactKeyQuery() {
+		//matches everything
 	}
 
 	public ArtifactKeyQuery(IArtifactKey key) {
@@ -47,6 +55,10 @@ public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
 			return matchKey((IArtifactKey) candidate);
 
 		IArtifactKey key = (IArtifactKey) candidate;
+
+		if (classifier != null && !key.getClassifier().equals(classifier))
+			return false;
+
 		if (id != null && !key.getId().equals(id))
 			return false;
 

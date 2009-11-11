@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -246,21 +245,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (artifactRepository == null)
 			return;
 		if (!removedFiles.isEmpty()) {
-			final List keys = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
-			for (Iterator it = keys.iterator(); it.hasNext();) {
-				IArtifactKey key = (IArtifactKey) it.next();
-				IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
-				for (int i = 0; i < descriptors.length; i++) {
-					SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[i];
-					String filename = descriptor.getRepositoryProperty(FILE_NAME);
-					if (filename == null) {
-						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
-					} else {
-						File artifactFile = new File(filename);
-						if (removedFiles.contains(artifactFile))
-							artifactRepository.removeDescriptor(descriptor);
-					}
+			Collector descriptors = artifactRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+			for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
+				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
+				String filename = descriptor.getRepositoryProperty(FILE_NAME);
+				if (filename == null) {
+					String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				} else {
+					File artifactFile = new File(filename);
+					if (removedFiles.contains(artifactFile))
+						artifactRepository.removeDescriptor(descriptor);
 				}
 			}
 		}
