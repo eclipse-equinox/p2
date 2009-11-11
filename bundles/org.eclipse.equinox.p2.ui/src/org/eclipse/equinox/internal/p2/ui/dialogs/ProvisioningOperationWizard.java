@@ -215,27 +215,27 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 */
 	public void recomputePlan(IRunnableContext runnableContext) {
 		couldNotResolve = false;
-		try {
-			runnableContext.run(true, true, new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					operation = null;
-					provisioningContext = getProvisioningContext();
-					planSelections = ProvisioningOperationWizard.this.mainPage.getCheckedIUElements();
-					initializeResolutionModelElements(planSelections);
-					if (planSelections.length == 0) {
-						couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
-					} else {
+		operation = null;
+		provisioningContext = getProvisioningContext();
+		planSelections = ProvisioningOperationWizard.this.mainPage.getCheckedIUElements();
+		initializeResolutionModelElements(planSelections);
+		if (planSelections.length == 0) {
+			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
+		} else {
+			try {
+				runnableContext.run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
 						operation = getProfileChangeOperation(planSelections);
 						operation.resolveModal(monitor);
 					}
-				}
-			});
+				});
 
-		} catch (InterruptedException e) {
-			// Nothing to report if thread was interrupted
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-			couldNotResolve(null);
+			} catch (InterruptedException e) {
+				// Nothing to report if thread was interrupted
+			} catch (InvocationTargetException e) {
+				ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
+				couldNotResolve(null);
+			}
 		}
 		if (errorPage == null)
 			errorPage = getErrorReportingPage();
