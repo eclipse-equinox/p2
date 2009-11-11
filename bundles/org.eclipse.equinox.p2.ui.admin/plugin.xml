@@ -83,7 +83,7 @@
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.InstalledIUPropertyPage">
             <enabledWhen>
              <instanceof
-                  value="org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement">
+                  value="org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement">
              </instanceof>
           </enabledWhen>
       </page>
