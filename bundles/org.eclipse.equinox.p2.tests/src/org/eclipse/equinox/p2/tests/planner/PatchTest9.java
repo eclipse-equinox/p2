@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -17,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTest9 extends AbstractProvisioningTest {
@@ -55,7 +58,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		//The application of the patch does not succeed because there is no C matching the requirement imposed by the patch
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}
 
@@ -63,10 +66,11 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		//The application of the patch does not succeed because there is no C matching the requirement imposed by the patch
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		ProvisioningPlan plan1 = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan1.getRequestStatus().getShortExplanation());
-		Set conflictingRoots = plan1.getRequestStatus().getConflictsWithInstalledRoots();
+		final RequestStatus requestStatus = (RequestStatus) plan1.getRequestStatus();
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
+		Set conflictingRoots = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoots.size());
 		assertTrue(conflictingRoots.contains(p1));
 	}
@@ -75,7 +79,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		//The application of the patch succeed because the dependency that PP puts on C is optional
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, pp1});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a1);
 		assertInstallOperand(plan2, pp1);

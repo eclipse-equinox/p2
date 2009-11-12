@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -46,7 +48,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {b});
 		req.setInstallableUnitInclusionRules(b, PlannerHelper.createStrictInclusionRule(b));
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -58,7 +60,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req2.addInstallableUnits(new IInstallableUnit[] {a});
 		req2.setInstallableUnitInclusionRules(a, PlannerHelper.createStrictInclusionRule(a));
 		req2.setInstallableUnitProfileProperty(a, "foo", "bar");
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertNull(plan2.getRequestStatus(b));
 		Map m = plan2.getSideEffectChanges();
@@ -72,7 +74,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.removeInstallableUnits(new IInstallableUnit[] {b});
 		req3.removeInstallableUnitProfileProperty(b, "foo");
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		assertEquals(IStatus.ERROR, plan3.getRequestStatus(b).getSeverity());
 	}

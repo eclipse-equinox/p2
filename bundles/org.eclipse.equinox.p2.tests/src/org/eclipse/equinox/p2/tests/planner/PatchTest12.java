@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -17,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTest12 extends AbstractProvisioningTest {
@@ -51,7 +54,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertNoOperand(plan2, p1);
 		assertNoOperand(plan2, b2);
@@ -62,7 +65,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		//Try to install a1 and p1. This should fail because the patch adds an invalid filter 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
 
 	}
@@ -70,10 +73,11 @@ public class PatchTest12 extends AbstractProvisioningTest {
 	public void testExplanation1() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
-		Set conflictRootIUs = plan3.getRequestStatus().getConflictsWithInstalledRoots();
+		final RequestStatus requestStatus = (RequestStatus) plan3.getRequestStatus();
+		Set conflictRootIUs = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictRootIUs.contains(p1));
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getRequestStatus().getShortExplanation());
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 	}
 }

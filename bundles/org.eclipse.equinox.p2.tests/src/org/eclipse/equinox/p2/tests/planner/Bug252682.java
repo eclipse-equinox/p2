@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -38,7 +40,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		newIUs.add(createEclipseIU("org.eclipse.equinox.p2.core", Version.createOSGi(1, 0, 100, "v20081024")));
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertOK("validate profile", plan.getStatus());
 	}
 
@@ -53,7 +55,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {patch});
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Installation plan", plan.getStatus());
 	}
 }

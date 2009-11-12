@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
@@ -49,7 +51,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 			if (!iu.getId().equals("javax.wsdl"))
 				req1.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
 		}
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		Operand[] ops = plan1.getOperands();
 		int count = 0;
 		for (int i = 0; i < ops.length; i++) {
@@ -75,7 +77,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		Operand[] ops = plan1.getOperands();
 		int count = 0;
 		for (int i = 0; i < ops.length; i++) {
@@ -103,7 +105,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		Operand[] ops = plan1.getOperands();
 		int count = 0;
 		for (int i = 0; i < ops.length; i++) {

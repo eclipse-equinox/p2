@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.Policy;
@@ -49,7 +49,7 @@ public class SDKPolicy extends Policy {
 		if (!ok)
 			return false;
 
-		ProvisioningPlan plan = operation.getProvisioningPlan();
+		IProvisioningPlan plan = operation.getProvisioningPlan();
 		if (plan == null)
 			return false;
 

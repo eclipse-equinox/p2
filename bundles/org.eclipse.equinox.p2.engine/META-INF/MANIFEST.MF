@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.engine;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.natives",
  org.eclipse.equinox.internal.provisional.p2.engine;
   x-friends:="org.eclipse.equinox.p2.console,
@@ -30,7 +30,8 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.equinox.p2.repository.tools,
-   org.eclipse.equinox.p2.director.app"
+   org.eclipse.equinox.p2.director.app",
+ org.eclipse.equinox.p2.engine
 Import-Package: javax.xml.parsers,
  org.eclipse.core.internal.preferences,
  org.eclipse.core.runtime.preferences,

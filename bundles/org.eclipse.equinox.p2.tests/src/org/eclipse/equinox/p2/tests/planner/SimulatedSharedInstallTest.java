@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -48,7 +50,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan, engine, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
 		assertFalse(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
@@ -123,7 +125,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req = new ProfileChangeRequest(availableWrapper);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		//expect to have both (a1+inclusion rule) and b1 added

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -69,7 +71,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery("X"), new Collector(), null).size());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
@@ -84,14 +86,15 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void testExplanation2() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getRequestStatus().getExplanations();
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
-		assertEquals(1, plan.getRequestStatus().getConflictsWithInstalledRoots().size());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(y));
+		assertEquals(1, requestStatus.getConflictsWithInstalledRoots().size());
 
 	}
 
@@ -112,13 +115,14 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void testExplanation4() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {w});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getRequestStatus().getExplanations();
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(w));
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(w));
 
 	}
 
@@ -146,13 +150,14 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void testExplanation5() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {u, v});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getRequestStatus().getExplanations();
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(u));
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(v));
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(u));
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(v));
 		// System.out.println(explanation);
 
 	}

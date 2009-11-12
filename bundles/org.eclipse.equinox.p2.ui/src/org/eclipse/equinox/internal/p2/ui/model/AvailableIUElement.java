@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -85,7 +86,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		if (profileID == null)
 			return;
 		SubMonitor mon = SubMonitor.convert(monitor, 100);
-		ProvisioningPlan plan = getSizingPlan(mon.newChild(50));
+		IProvisioningPlan plan = getSizingPlan(mon.newChild(50));
 		size = getProvisioningUI().getSession().getSize(plan, profileID, getProvisioningContext(), mon.newChild(50));
 	}
 
@@ -93,7 +94,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return getProvisioningUI().getSession().getProfile(profileID);
 	}
 
-	protected ProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
+	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
 		return getProvisioningUI().getSession().getProvisioningPlan(request, getProvisioningContext(), monitor);

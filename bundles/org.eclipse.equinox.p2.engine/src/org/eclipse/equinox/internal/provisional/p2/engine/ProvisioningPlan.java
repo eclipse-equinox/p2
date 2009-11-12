@@ -8,34 +8,35 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.director;
+package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
-public class ProvisioningPlan {
+/**
+ * @since 2.0
+ */
+public class ProvisioningPlan implements IProvisioningPlan {
 	IStatus status;
 	Operand[] operands;
 	Map actualChangeRequest;
 	Map sideEffectChanges;
-	ProvisioningPlan installerPlan;
-	RequestStatus globalRequestStatus;
-	ProfileChangeRequest originalChangeRequest;
+	IProvisioningPlan installerPlan;
+	IStatus globalRequestStatus;
+	IProfile profile;
 	IQueryable completeState;
 
-	public ProvisioningPlan(IStatus status, ProfileChangeRequest originalRequest, ProvisioningPlan installerPlan) {
-		this(status, new Operand[0], null, null, installerPlan, originalRequest, null);
+	public ProvisioningPlan(IStatus status, IProfile profile, IProvisioningPlan installerPlan) {
+		this(status, new Operand[0], null, null, installerPlan, profile, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, RequestStatus globalStatus, ProvisioningPlan installerPlan, ProfileChangeRequest originalRequest, IQueryable futureState) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, IStatus globalStatus, IProvisioningPlan installerPlan, IProfile profile, IQueryable futureState) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
@@ -44,47 +45,68 @@ public class ProvisioningPlan {
 		}
 		this.globalRequestStatus = globalStatus;
 		this.installerPlan = installerPlan;
-		originalChangeRequest = originalRequest;
-		if (futureState == null)
-			futureState = new QueryableArray(new IInstallableUnit[0]);
+		this.profile = profile;
+		if (futureState == null) {
+			futureState = new IQueryable() {
+				public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+					return collector;
+				}
+			};
+		}
 		completeState = futureState;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getStatus()
+	 */
 	public IStatus getStatus() {
 		return status;
 	}
 
-	public ProfileChangeRequest getProfileChangeRequest() {
-		return originalChangeRequest;
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getProfile()
+	 */
+	public IProfile getProfile() {
+		return profile;
 	}
 
-	/**
-	 * The operands to pass to the engine.
-	 * @return the operands to be executed. This may be an empty array if the
-	 * plan has errors or if there is nothing to do.
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getOperands()
 	 */
 	public Operand[] getOperands() {
 		return operands;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getRemovals()
+	 */
 	public IQueryable getRemovals() {
 		return new QueryablePlan(false);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getAdditions()
+	 */
 	public IQueryable getAdditions() {
 		return new QueryablePlan(true);
 	}
 
-	public RequestStatus getRequestStatus(IInstallableUnit iu) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getRequestStatus(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit)
+	 */
+	public IStatus getRequestStatus(IInstallableUnit iu) {
 		if (actualChangeRequest == null)
 			return null;
-		return (RequestStatus) actualChangeRequest.get(iu);
+		return (IStatus) actualChangeRequest.get(iu);
 	}
 
-	public RequestStatus getRequestStatus() {
+	public IStatus getRequestStatus() {
 		return globalRequestStatus;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getSideEffectChanges()
+	 */
 	public Map getSideEffectChanges() {
 		if (sideEffectChanges == null)
 			return Collections.EMPTY_MAP;
@@ -114,19 +136,18 @@ public class ProvisioningPlan {
 		}
 	}
 
-	public ProvisioningPlan getInstallerPlan() {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getInstallerPlan()
+	 */
+	public IProvisioningPlan getInstallerPlan() {
 		return installerPlan;
 	}
 
-	public void setInstallerPlan(ProvisioningPlan p) {
+	public void setInstallerPlan(IProvisioningPlan p) {
 		installerPlan = p;
 	}
 
 	public IQueryable getCompleteState() {
 		return completeState;
-	}
-
-	protected void setCompleteState(IQueryable state) {
-		completeState = state;
 	}
 }

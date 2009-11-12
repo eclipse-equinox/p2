@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -81,7 +83,7 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(true, IStatus.ERROR != plan.getStatus().getSeverity());
 
 		engine.perform(getProfile("TestProfile." + getName()), new DefaultPhaseSet(), plan.getOperands(), null, null);

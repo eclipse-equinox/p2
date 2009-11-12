@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
@@ -67,7 +69,7 @@ public class PatchTestMultiplePatch2 extends AbstractProvisioningTest {
 		install(profile1, new IInstallableUnit[] {}, true, planner, engine);
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.addInstallableUnits(new IInstallableUnit[] {p2Feature, pp1, pp2});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 }

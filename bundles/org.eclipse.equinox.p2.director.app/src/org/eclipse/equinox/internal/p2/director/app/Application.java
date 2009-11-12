@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -249,7 +251,7 @@ public class Application implements IApplication {
 	}
 
 	private IStatus planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) {
-		ProvisioningPlan result;
+		IProvisioningPlan result;
 		IStatus operationStatus;
 		result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		if (!result.getStatus().isOK())
@@ -571,7 +573,7 @@ public class Application implements IApplication {
 
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
@@ -583,7 +585,7 @@ public class Application implements IApplication {
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 

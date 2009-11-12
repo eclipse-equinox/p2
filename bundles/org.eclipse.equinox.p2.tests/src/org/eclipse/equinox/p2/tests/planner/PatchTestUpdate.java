@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -17,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTestUpdate extends AbstractProvisioningTest {
@@ -74,7 +77,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 
@@ -84,11 +87,12 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set conflictingRoot = plan.getRequestStatus().getConflictsWithInstalledRoots();
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoot.size());
 		assertTrue(conflictingRoot.contains(p2Feature20));
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -52,7 +54,7 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setAdditionalRequirements(Arrays.asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null)[0]));
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, b2);

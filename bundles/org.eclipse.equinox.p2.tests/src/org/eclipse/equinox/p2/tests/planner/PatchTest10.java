@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
@@ -52,7 +54,7 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		//a1 and p1 can be installed together  
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, a1);
 		assertInstallOperand(plan1, p1);
@@ -61,7 +63,7 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		//a1 and pp1 can be installed together
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, pp1});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a1);
 		assertInstallOperand(plan2, pp1);
@@ -70,14 +72,14 @@ public class PatchTest10 extends AbstractProvisioningTest {
 		//a1, p1, and pp1 can not be installed together
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 	}
 
 	public void testExplanation() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 		// Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();
 		// System.out.println(problems);

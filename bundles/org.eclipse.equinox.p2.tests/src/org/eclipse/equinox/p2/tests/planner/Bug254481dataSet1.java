@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -50,7 +52,7 @@ public class Bug254481dataSet1 extends AbstractProvisioningTest {
 		request.addInstallableUnits(new IInstallableUnit[] {patch});
 		request.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertInstallOperand(plan, patch);
 		//[[R]com.ibm.rational.test.lt.arm 7.0.250.v200810021504 --> [R]com.ibm.rational.test.lt.arm 7.0.300.200811041300, 
 		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("com.ibm.rational.test.lt.arm"), new Collector(), null).size());

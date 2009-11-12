@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -41,7 +43,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 	public void testWithoutIUProperty() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 	}
@@ -50,7 +52,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		req.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 	}
@@ -59,7 +61,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		//Add a1, strictly ;
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
@@ -69,14 +71,14 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		//Add a2 with a1. This is an error
 		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req4.addInstallableUnits(new IInstallableUnit[] {a2});
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.ERROR, plan4.getStatus().getSeverity());
 
 		//Add a2, making a1 optional;
 		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);
 
@@ -91,7 +93,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		//Remove a1 optionality - should be a no-op
 		ProfileChangeRequest req3 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req3.removeInstallableUnitInclusionRules(a1);
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile, new DefaultPhaseSet(), plan3.getOperands(), null, null);
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -58,7 +60,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {jdt1, jdt2});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
 		LogHelper.log(plan.getStatus());
 		//		System.out.println(plan.getRequestStatus().getExplanations());
@@ -73,7 +75,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		IInstallableUnit otherIU2 = createIU("foo", Version.create("0.9.0"), null, cap, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr3 = new ProfileChangeRequest(SDKprofile);
 		pcr3.addInstallableUnits(new IInstallableUnit[] {otherIU2});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(pcr3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(pcr3, null, null);
 		assertNotOK(plan3.getStatus());
 		LogHelper.log(plan3.getStatus());
 		//		System.out.println(plan3.getRequestStatus().getExplanations());
@@ -87,7 +89,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		IInstallableUnit otherIU = createIU("org.eclipse.equinox.p2.director", Version.create("0.9.0"), null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr2 = new ProfileChangeRequest(SDKprofile);
 		pcr2.addInstallableUnits(new IInstallableUnit[] {otherIU});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(pcr2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(pcr2, null, null);
 		assertNotOK(plan2.getStatus());
 		LogHelper.log(plan2.getStatus());
 		//		System.out.println(plan2.getRequestStatus().getExplanations());
@@ -104,7 +106,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(SDKprofile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cvs});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
 		LogHelper.log(plan.getStatus());
 		//		System.out.println(plan.getRequestStatus().getExplanations());

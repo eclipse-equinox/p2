@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -43,7 +45,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		req.setInstallableUnitProfileProperty(a1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
@@ -58,7 +60,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		req2.removeInstallableUnits(new IInstallableUnit[] {a1});
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
 		//		req2.setInstallableUnitProfileProperty(a2, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);
 		engine.perform(profile, new DefaultPhaseSet(), plan2.getOperands(), null, null);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -50,7 +52,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a});
 		req.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -62,7 +64,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		req2.addInstallableUnits(new IInstallableUnit[] {b2});
 		req2.setInstallableUnitInclusionRules(b2, PlannerHelper.createStrictInclusionRule(b2));
 		req2.removeInstallableUnits(new IInstallableUnit[] {b});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertNotNull(plan2.getRequestStatus(b));
 		assertNotNull(plan2.getRequestStatus(b2));
@@ -79,18 +81,18 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a});
 		req3.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertNotNull(plan3.getRequestStatus(a));
 		assertEquals(IStatus.ERROR, plan3.getRequestStatus(a).getSeverity());
-		assertEquals(RequestStatus.ADDED, plan3.getRequestStatus(a).getInitialRequestType());
+		assertEquals(RequestStatus.ADDED, ((RequestStatus) plan3.getRequestStatus(a)).getInitialRequestType());
 
 		//Try to Install A
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a});
 		req4.setInstallableUnitInclusionRules(a, PlannerHelper.createStrictInclusionRule(a));
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertNotNull(plan4.getRequestStatus(a));
 		assertEquals(IStatus.ERROR, plan4.getRequestStatus(a).getSeverity());
-		assertEquals(RequestStatus.ADDED, plan4.getRequestStatus(a).getInitialRequestType());
+		assertEquals(RequestStatus.ADDED, ((RequestStatus) plan4.getRequestStatus(a)).getInitialRequestType());
 	}
 }

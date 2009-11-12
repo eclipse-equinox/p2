@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -17,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTest2 extends AbstractProvisioningTest {
@@ -56,37 +59,37 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		//p6 applies to all IUs therefore A's installation succeed
 		ProfileChangeRequest req8 = new ProfileChangeRequest(profile1);
 		req8.addInstallableUnits(new IInstallableUnit[] {a1, p6});
-		ProvisioningPlan plan8 = planner.getProvisioningPlan(req8, null, null);
+		IProvisioningPlan plan8 = planner.getProvisioningPlan(req8, null, null);
 		assertEquals(IStatus.OK, plan8.getStatus().getSeverity());
 
 		//p5 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req6 = new ProfileChangeRequest(profile1);
 		req6.addInstallableUnits(new IInstallableUnit[] {a1, p5});
-		ProvisioningPlan plan6 = planner.getProvisioningPlan(req6, null, null);
+		IProvisioningPlan plan6 = planner.getProvisioningPlan(req6, null, null);
 		assertEquals(IStatus.OK, plan6.getStatus().getSeverity());
 
 		//Ensure that p1 causes a1 to resolve
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 
 		//p2 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p2});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 
 		//Ensure that p3 causes a1 to resolve since it has two scopes where one is applicable
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a1, p3});
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 
 		//p4 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, p4});
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 
 	}
@@ -95,11 +98,12 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		//p2 does not cause a1 to resolve therefore the application fails
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p2});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan3.getRequestStatus().getShortExplanation());
+		final RequestStatus requestStatus = (RequestStatus) plan3.getRequestStatus();
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan3.getRequestStatus().getExplanations());
-		Set conflictingRoot = plan3.getRequestStatus().getConflictsWithInstalledRoots();
+		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictingRoot.contains(a1));
 		assertEquals(1, conflictingRoot.size());
 	}
@@ -108,11 +112,12 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		//p4 does not cause a1 to resolve therefore the application fails
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, p4});
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		ProvisioningPlan plan5 = (ProvisioningPlan) planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan5.getRequestStatus().getShortExplanation());
+		final RequestStatus requestStatus = (RequestStatus) plan5.getRequestStatus();
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan5.getRequestStatus().getExplanations());
-		Set conflictingRoot = plan5.getRequestStatus().getConflictsWithInstalledRoots();
+		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictingRoot.contains(a1));
 		assertEquals(1, conflictingRoot.size());
 	}

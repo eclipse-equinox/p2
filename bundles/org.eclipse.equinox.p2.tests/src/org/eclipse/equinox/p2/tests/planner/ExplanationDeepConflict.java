@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -50,12 +52,13 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, cdtPart, innerInnerSDKPart2});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
 		//Here we verify that we only return the roots we asked the installation of. The SDK is installable since it is already installed
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
-		assertTrue(plan.getRequestStatus().getConflictsWithAnyRoots().contains(sdk));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));
+		assertTrue(requestStatus.getConflictsWithAnyRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().contains(sdk));
 	}

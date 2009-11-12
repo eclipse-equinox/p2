@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -211,7 +213,7 @@ public class ProvisioningSession {
 	/*
 	 * Get the plan for the specified install operation
 	 */
-	public ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+	public IProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		try {
 			return getPlanner().getProvisioningPlan(request, context, monitor);
 		} catch (OperationCanceledException e) {
@@ -222,7 +224,7 @@ public class ProvisioningSession {
 	/*
 	 * Get a plan for reverting to a specified profile snapshot
 	 */
-	public ProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) {
+	public IProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) {
 		Assert.isNotNull(currentProfile);
 		Assert.isNotNull(snapshot);
 		return getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
@@ -231,7 +233,7 @@ public class ProvisioningSession {
 	/*
 	 * Get sizing info for the specified plan
 	 */
-	public long getSize(ProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) {
+	public long getSize(IProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) {
 		// If there is nothing to size, return 0
 		if (plan == null)
 			return SizingPhaseSet.SIZE_NOTAPPLICABLE;
@@ -254,7 +256,7 @@ public class ProvisioningSession {
 		return SizingPhaseSet.SIZE_UNAVAILABLE;
 	}
 
-	public IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
+	public IStatus performProvisioningPlan(IProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();
@@ -268,7 +270,7 @@ public class ProvisioningSession {
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
 		// The exact profile instance used in the profile change request and passed to the engine must be used for all
 		// of these operations, otherwise we can get profile out of synch errors.	
-		IProfile profile = plan.getProfileChangeRequest().getProfile();
+		IProfile profile = plan.getProfile();
 
 		if (plan.getInstallerPlan() != null) {
 			if (set instanceof DefaultPhaseSet) {

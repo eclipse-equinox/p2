@@ -10,26 +10,27 @@
 package org.eclipse.equinox.internal.provisional.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUInstalled;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.osgi.util.NLS;
 
-public class RequestStatus {
+public class RequestStatus extends Status {
 	public static final byte ADDED = 0;
 	public static final byte REMOVED = 1;
 
 	private byte initialRequestType;
 	private IInstallableUnit iu;
-	private int severity;
 	private Set explanation;
 	private Explanation detailedExplanation;
 	private Set conflictingRootIUs;
 	private Set conflictingInstalledIUs;
 
 	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int severity, Set explanation) {
+		super(severity, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.RequestStatus_message, iu));
 		this.iu = iu;
-		this.severity = severity;
 		this.initialRequestType = initialRequesType;
 		this.explanation = explanation;
 		conflictingRootIUs = new HashSet();
@@ -56,10 +57,6 @@ public class RequestStatus {
 
 	public IInstallableUnit getIu() {
 		return iu;
-	}
-
-	public int getSeverity() {
-		return severity;
 	}
 
 	//Return the already installed roots with which this IU is in conflict

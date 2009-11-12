@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -43,7 +46,7 @@ public class DisabledExplanation extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1, b1});
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setProperty("org.eclipse.equinox.p2.director.explain", "false");
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		assertNull(plan.getRequestStatus());
 	}

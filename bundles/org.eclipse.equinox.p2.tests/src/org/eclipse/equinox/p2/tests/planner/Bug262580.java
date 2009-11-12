@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -31,7 +32,7 @@ public class Bug262580 extends AbstractProvisioningTest {
 		assertNotNull(revertProfile);
 		IPlanner planner = createPlanner();
 
-		ProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, getMonitor());
+		IProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, getMonitor());
 		assertTrue(plan.getStatus().isOK());
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -69,7 +71,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(oldUnits);
 		request.addInstallableUnits(newUnits);
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 		assertProfileContainsAll("1.1", profile, oldUnits);
 		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -82,7 +84,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {frag1});
 		request.addInstallableUnits(new IInstallableUnit[] {frag1_4});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 	}
 

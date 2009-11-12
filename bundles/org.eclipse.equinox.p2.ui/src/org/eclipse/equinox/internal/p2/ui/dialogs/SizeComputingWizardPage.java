@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.operations.*;
@@ -34,7 +35,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	protected Label sizeInfo;
 	protected long size;
 	Job sizingJob;
-	private ProvisioningPlan lastComputedPlan = null;
+	private IProvisioningPlan lastComputedPlan = null;
 
 	protected SizeComputingWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, ProfileChangeOperation initialResolution) {
 		super(ui, wizard, root, initialResolution);
@@ -47,7 +48,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
 	}
 
-	protected void computeSizing(final ProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
+	protected void computeSizing(final IProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
 		if (plan == lastComputedPlan)
 			return;
 		lastComputedPlan = plan;
@@ -123,7 +124,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			computeSizing(op.getProvisioningPlan(), getProfileId(), op.getProvisioningContext());
 	}
 
-	protected IQueryable getQueryable(ProvisioningPlan plan) {
+	protected IQueryable getQueryable(IProvisioningPlan plan) {
 		return plan.getAdditions();
 	}
 }

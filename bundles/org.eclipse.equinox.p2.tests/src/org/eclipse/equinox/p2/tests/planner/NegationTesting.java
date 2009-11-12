@@ -1,14 +1,18 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class NegationTesting extends AbstractProvisioningTest {
@@ -83,14 +87,14 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
 		assertEquals(0, plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), new Collector(), null).size());
 		assertEquals(2, plan.getCompleteState().query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
 		changeRequest2.addInstallableUnits(new IInstallableUnit[] {iu1, iu3});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
 		assertNotOK("The resolution should be failing because of the negation requirement.", plan2.getStatus());
 	}
 
@@ -173,7 +177,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
 		assertEquals(0, plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), new Collector(), null).size());
 		assertEquals(2, plan.getCompleteState().query(InstallableUnitQuery.ANY, new Collector(), null).size());
 	}
@@ -227,14 +231,14 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
 		assertEquals(0, plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), new Collector(), null).size());
 		assertEquals(2, plan.getCompleteState().query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
 		changeRequest2.addInstallableUnits(new IInstallableUnit[] {iu1, iu3});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
 		assertNotOK("The resolution should be failing because of the negation requirement.", plan2.getStatus());
 	}
 
@@ -299,14 +303,14 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
 		assertEquals(0, plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), new Collector(), null).size());
 		assertEquals(2, plan.getCompleteState().query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
 		//Verify that the installing iu1 and iu4 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
 		changeRequest2.addInstallableUnits(new IInstallableUnit[] {iu1, iu4});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
 		assertNotOK("The resolution should be failing because of the negation requirement.", plan2.getStatus());
 	}
 }

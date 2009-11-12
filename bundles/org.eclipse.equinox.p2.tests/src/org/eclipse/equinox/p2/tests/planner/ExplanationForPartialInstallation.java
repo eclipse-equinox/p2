@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -50,11 +52,12 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(emf));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getSeverity() == IStatus.ERROR);
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
@@ -77,11 +80,12 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(emf));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getSeverity() == IStatus.ERROR);
 		//		assertEquals(0, plan.getRequestStatus(cdt).getConflictsWithAnyRoots().size());

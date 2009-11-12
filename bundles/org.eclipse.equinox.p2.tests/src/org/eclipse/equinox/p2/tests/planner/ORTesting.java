@@ -1,5 +1,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -89,7 +91,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testOR3");
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
 		assertOK("Plan OK", plan.getStatus());
 		//		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery(id), collector, monitor))
 	}
@@ -118,7 +120,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		IProfile profile = createProfile("TestOr4");
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
 		assertOK("Plan OK", plan.getStatus());
 		//		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery(id), collector, monitor))
 	}
@@ -143,7 +145,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		IProfile profile = createProfile("TestOr4");
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
 		assertNotOK("Plan Not OK", plan.getStatus());
 		//		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery(id), collector, monitor))
 	}

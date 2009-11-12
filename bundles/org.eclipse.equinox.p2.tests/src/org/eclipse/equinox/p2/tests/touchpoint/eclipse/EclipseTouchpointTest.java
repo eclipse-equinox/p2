@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.net.*;
 import java.util.*;
@@ -229,7 +231,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(newIUs);
 
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue("1.0", plan.getStatus().isOK());
 		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), getMonitor());
 		assertFalse("2.0", result.isOK());

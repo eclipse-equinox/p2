@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -83,7 +84,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
 		ctx.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
 		assertOK("Uninstall plan for myBundle", plan.getStatus());
 		assertEquals(0, plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
 		assertEquals(0, plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());

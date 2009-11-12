@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -67,7 +69,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setExtraIUs(newIUs);
 		ProfileChangeRequest validationRequest = new ProfileChangeRequest(profile);
-		ProvisioningPlan validationPlan = createPlanner().getProvisioningPlan(validationRequest, null, null);
+		IProvisioningPlan validationPlan = createPlanner().getProvisioningPlan(validationRequest, null, null);
 		assertOK("validation", validationPlan.getStatus());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -75,7 +77,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		request.setInstallableUnitInclusionRules(patchInstallingJDTLaunching, PlannerHelper.createOptionalInclusionRule(patchInstallingJDTLaunching));
 		request.setInstallableUnitInclusionRules(patchInstallingDebugUI, PlannerHelper.createOptionalInclusionRule(patchInstallingDebugUI));
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Installation plan", plan.getStatus());
 		assertEquals(8, plan.getOperands().length);
 	}

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -26,7 +27,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		String profileId = "testEmptySizing";
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
-		ProvisioningPlan plan = null;
+		IProvisioningPlan plan = null;
 		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
 		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
@@ -42,7 +43,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1});
-		ProvisioningPlan plan = null;
+		IProvisioningPlan plan = null;
 		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
 		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());

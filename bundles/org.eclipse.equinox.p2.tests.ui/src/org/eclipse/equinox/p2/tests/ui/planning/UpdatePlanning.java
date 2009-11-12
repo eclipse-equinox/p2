@@ -52,7 +52,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		install(a1, true, false);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
 		assertTrue("1.2", request.getRemovedInstallableUnits().length == 1);
@@ -75,7 +75,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		assertNotNull(".99", firstPatch);
 		op.setDefaultUpdates(new Update[] {firstPatch});
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(firstPatchForA1));
 		assertTrue("1.2", request.getRemovedInstallableUnits().length == 0);
@@ -87,7 +87,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		install(firstPatchForA1, true, false);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		// update was favored, that would happen even if patch was not installed
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
@@ -112,7 +112,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		assertNotNull(".99", notNewest);
 		op.setDefaultUpdates(new Update[] {notNewest});
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		// selected was favored
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a120WithDifferentId));
@@ -125,7 +125,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		install(a1, true, false);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		// the latest two patches were selected
 		HashSet chosen = new HashSet();
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 2);
@@ -141,7 +141,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		install(a1, true, false);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProvisioningPlan().getProfileChangeRequest();
+		ProfileChangeRequest request = op.getProfileChangeRequest();
 		// update 140 was recognized as the latest even though it had a different id
 		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a140WithDifferentId));

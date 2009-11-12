@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -59,7 +61,7 @@ public class PlanAnalyzer {
 		return (MultiStatus) getStatus(IStatusCodes.PROFILE_CHANGE_ALTERED, null);
 	}
 
-	public static ResolutionResult computeResolutionResult(ProfileChangeRequest originalRequest, ProvisioningPlan plan, MultiStatus originalStatus) {
+	public static ResolutionResult computeResolutionResult(ProfileChangeRequest originalRequest, IProvisioningPlan plan, MultiStatus originalStatus) {
 		Assert.isNotNull(originalRequest);
 		Assert.isNotNull(plan);
 		Assert.isNotNull(originalStatus);
@@ -100,7 +102,7 @@ public class PlanAnalyzer {
 		if (plan.getStatus().getSeverity() != IStatus.ERROR) {
 			IInstallableUnit[] iusAdded = originalRequest.getAddedInstallableUnits();
 			for (int i = 0; i < iusAdded.length; i++) {
-				RequestStatus rs = plan.getRequestStatus(iusAdded[i]);
+				RequestStatus rs = (RequestStatus) plan.getRequestStatus(iusAdded[i]);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// This is a serious error so it must also appear in the overall status
 					IStatus fail = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(iusAdded[i])), null);
@@ -110,7 +112,7 @@ public class PlanAnalyzer {
 			}
 			IInstallableUnit[] iusRemoved = originalRequest.getRemovedInstallableUnits();
 			for (int i = 0; i < iusRemoved.length; i++) {
-				RequestStatus rs = plan.getRequestStatus(iusRemoved[i]);
+				RequestStatus rs = (RequestStatus) plan.getRequestStatus(iusRemoved[i]);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
 					// We are making assumptions here about why the planner chose to ignore an uninstall.

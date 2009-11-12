@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -47,7 +49,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
-		ProvisioningPlan provisioningPlan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
 		assertNotNull(provisioningPlan.getCompleteState());
 	}
@@ -55,9 +57,10 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(y));
 	}
 }

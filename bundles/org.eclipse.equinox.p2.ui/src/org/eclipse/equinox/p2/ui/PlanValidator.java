@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -40,6 +41,6 @@ public abstract class PlanValidator {
 	 * <code>false</code> if the caller should stop. If <code>false</code> it is expected that
 	 * any error reporting has already been completed.
 	 */
-	public abstract boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell);
+	public abstract boolean continueWorkingWithPlan(IProvisioningPlan plan, Shell shell);
 
 }

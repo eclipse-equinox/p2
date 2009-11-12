@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.*;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -306,7 +307,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		if (operation != null && operation.hasResolved()) {
 			int sev = operation.getResolutionResult().getSeverity();
 			if (sev != IStatus.ERROR && sev != IStatus.CANCEL) {
-				ProvisioningPlan plan = operation.getProvisioningPlan();
+				IProvisioningPlan plan = operation.getProvisioningPlan();
 				if (plan != null) {
 					List allIUs = new ArrayList();
 					Operand[] operands = operation.getProvisioningPlan().getOperands();

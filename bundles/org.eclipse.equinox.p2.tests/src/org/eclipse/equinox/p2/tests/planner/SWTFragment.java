@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -43,7 +45,7 @@ public class SWTFragment extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.setProfileProperty("os", "win32");
 		req.addInstallableUnits(new IInstallableUnit[] {swt});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan", plan.getStatus());
 		Collector c = plan.getAdditions().query(new InstallableUnitQuery("SWT"), new Collector(), null);
 		plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), c, null);

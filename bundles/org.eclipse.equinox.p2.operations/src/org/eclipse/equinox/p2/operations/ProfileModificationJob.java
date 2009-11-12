@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 /**
@@ -22,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
  */
 public class ProfileModificationJob extends ProvisioningJob implements IProfileChangeJob {
 
-	ProvisioningPlan plan;
+	IProvisioningPlan plan;
 	String profileId;
 	PhaseSet phaseSet;
 	boolean isUser = true;
@@ -30,11 +31,11 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 	int restartPolicy = ProvisioningJob.RESTART_OR_APPLY;
 	private String taskName;
 
-	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, ProvisioningPlan plan, ProvisioningContext context) {
+	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, IProvisioningPlan plan, ProvisioningContext context) {
 		this(label, session, profileId, plan, context, null, true);
 	}
 
-	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, ProvisioningPlan plan, ProvisioningContext context, PhaseSet set, boolean isUser) {
+	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, IProvisioningPlan plan, ProvisioningContext context, PhaseSet set, boolean isUser) {
 		super(label, session);
 		this.plan = plan;
 		this.profileId = profileId;

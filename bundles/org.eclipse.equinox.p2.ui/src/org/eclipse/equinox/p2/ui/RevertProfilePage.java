@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +27,6 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
@@ -331,7 +332,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		final IProfile snapshot = getSelectedSnapshot();
 		if (snapshot == null)
 			return false;
-		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
+		final IProvisioningPlan[] plan = new IProvisioningPlan[1];
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				IProfile currentProfile;

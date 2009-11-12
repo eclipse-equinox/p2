@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -19,16 +21,16 @@ import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 public class PlanExecutionHelper {
-	public static IStatus executePlan(ProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {
+	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {
 		return executePlan(result, engine, new DefaultPhaseSet(), context, progress);
 	}
 
-	public static IStatus executePlan(ProvisioningPlan result, IEngine engine, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
+	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
 		if (result.getInstallerPlan() != null) {
-			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan().getProfileChangeRequest().getProfile(), phaseSet, result.getInstallerPlan().getOperands(), context, progress);
+			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan().getProfile(), phaseSet, result.getInstallerPlan().getOperands(), context, progress);
 			if (!installerPlanStatus.isOK())
 				return installerPlanStatus;
 			Configurator configChanger = (Configurator) ServiceHelper.getService(DirectorActivator.context, Configurator.class.getName());
@@ -38,6 +40,6 @@ public class PlanExecutionHelper {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_error_applying_configuration, e);
 			}
 		}
-		return engine.perform(result.getProfileChangeRequest().getProfile(), phaseSet, result.getOperands(), context, progress);
+		return engine.perform(result.getProfile(), phaseSet, result.getOperands(), context, progress);
 	}
 }

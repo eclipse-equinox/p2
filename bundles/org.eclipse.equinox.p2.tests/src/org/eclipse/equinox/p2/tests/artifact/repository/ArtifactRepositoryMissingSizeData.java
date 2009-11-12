@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -54,7 +56,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.addInstallableUnits(new IInstallableUnit[] {missingArtifactIU});
 		req.setInstallableUnitInclusionRules(missingArtifactIU, PlannerHelper.createStrictInclusionRule(missingArtifactIU));
 
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100, "");
@@ -72,7 +74,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.addInstallableUnits(new IInstallableUnit[] {missingSizeIU});
 		req.setInstallableUnitInclusionRules(missingSizeIU, PlannerHelper.createStrictInclusionRule(missingSizeIU));
 
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100, "");

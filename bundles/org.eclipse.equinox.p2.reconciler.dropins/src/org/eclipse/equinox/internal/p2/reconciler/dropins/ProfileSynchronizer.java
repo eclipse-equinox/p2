@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -92,7 +94,7 @@ public class ProfileSynchronizer {
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try {
 			//create the provisioning plan
-			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
+			IProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
 			IStatus status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
 				return status;
@@ -425,7 +427,7 @@ public class ProfileSynchronizer {
 		return allRepos;
 	}
 
-	private ProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+	private IProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IPlanner.SERVICE_NAME);
 		IPlanner planner = (IPlanner) context.getService(reference);
@@ -449,7 +451,7 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+	private IStatus executePlan(IProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);

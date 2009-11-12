@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -51,7 +53,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		//	Install a1
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {f1});
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, b1);
 		assertInstallOperand(plan1, a1);
@@ -65,7 +67,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {p1});
 		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, p1);
 		assertInstallOperand(plan2, b2);
@@ -78,7 +80,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		//Try to uninstall p1, this causes b1 to come back and b2 to go away
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.removeInstallableUnits(new IInstallableUnit[] {p1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR != plan3.getStatus().getSeverity());
 		assertInstallOperand(plan3, b1);
 		assertUninstallOperand(plan3, b2);
@@ -87,7 +89,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		//Try to uninstall f should not be blocked by p1 since it is installed optionally
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.removeInstallableUnits(new IInstallableUnit[] {f1});
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertTrue(IStatus.ERROR != plan4.getStatus().getSeverity());
 		assertUninstallOperand(plan4, b2);
 		assertUninstallOperand(plan4, a1);
@@ -98,7 +100,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.removeInstallableUnits(new IInstallableUnit[] {f1});
 		req5.addInstallableUnits(new IInstallableUnit[] {f2});
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertTrue(IStatus.ERROR != plan5.getStatus().getSeverity());
 		assertUninstallOperand(plan5, b2);
 		assertUninstallOperand(plan5, a1);

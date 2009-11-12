@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -504,14 +506,14 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) throws CoreException {
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus operationStatus = result.getStatus();
 		if (!operationStatus.isOK())
 			throw new CoreException(operationStatus);
 		executePlan(context, result);
 	}
 
-	private void executePlan(ProvisioningContext context, ProvisioningPlan result) throws CoreException {
+	private void executePlan(ProvisioningContext context, IProvisioningPlan result) throws CoreException {
 		IStatus operationStatus;
 		if (!verifyOnly) {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
@@ -748,7 +750,7 @@ public class DirectorApplication implements IApplication {
 		}
 		if (targetProfile == null)
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
-		ProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
 		ProvisioningContext context = new ProvisioningContext((URI[]) metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
 		context.setArtifactRepositories((URI[]) artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
@@ -846,7 +848,7 @@ public class DirectorApplication implements IApplication {
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
@@ -899,7 +901,7 @@ public class DirectorApplication implements IApplication {
 
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
 			throw new CoreException(new MultiStatus(org.eclipse.equinox.internal.p2.director.app.Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));

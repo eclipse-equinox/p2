@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
@@ -46,18 +49,19 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 		//The planner returns an error because the requirement from A on B is non greedy and no one brings in B
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getRequestStatus().getExplanations();
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(a1));
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(a1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 	}
 }

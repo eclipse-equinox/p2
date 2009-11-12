@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -894,7 +896,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return null;
 	}
 
-	protected static void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -906,7 +908,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fail("Can't find " + iu + " in the plan");
 	}
 
-	protected static void assertUninstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -918,7 +920,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fail("Can't find " + iu + " in the plan");
 	}
 
-	protected static void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -947,7 +949,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			req.setInstallableUnitInclusionRules(ius[i], strict ? PlannerHelper.createStrictInclusionRule(ius[i]) : PlannerHelper.createOptionalInclusionRule(ius[i]));
 		}
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -957,7 +959,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(ius);
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}
 

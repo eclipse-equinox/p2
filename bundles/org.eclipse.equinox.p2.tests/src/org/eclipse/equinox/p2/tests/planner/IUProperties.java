@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -50,7 +52,7 @@ public class IUProperties extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {a1});
 		req1.setInstallableUnitProfileProperty(a1, "FOO", "BAR");
 		req1.setInstallableUnitProfileProperty(b1, "FOO", "BAR");
-		ProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		IStatus s = engine.perform(profile, new DefaultPhaseSet(), pp1.getOperands(), null, null);
 		if (!s.isOK())
@@ -60,7 +62,7 @@ public class IUProperties extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");
-		ProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(0, pp2.getOperands().length);
 	}
 }

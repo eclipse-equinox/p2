@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.operations.*;
 
@@ -25,7 +26,7 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 
 	ProfileChangeRequest request;
 	String profileId;
-	ProvisioningPlan plan;
+	IProvisioningPlan plan;
 	MultiStatus additionalStatus;
 	ResolutionResult report;
 	ProvisioningContext provisioningContext;
@@ -46,7 +47,7 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		this.additionalStatus = additionalStatus;
 	}
 
-	public ProvisioningPlan getProvisioningPlan() {
+	public IProvisioningPlan getProvisioningPlan() {
 		return plan;
 	}
 

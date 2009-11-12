@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -212,7 +214,7 @@ public class ProvisioningHelper {
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(toInstall);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 
@@ -276,7 +278,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found");
 		URI[] artifactRepos = getArtifactRepositories();
 		URI[] metadataRepos = getMetadataRepositories();
-		ProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 		ProvisioningContext context = new ProvisioningContext(metadataRepos);
 		context.setArtifactRepositories(artifactRepos);
 		return PlanExecutionHelper.executePlan(plan, engine, context, new NullProgressMonitor());
@@ -312,7 +314,7 @@ public class ProvisioningHelper {
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(toUninstall);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 

@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -49,7 +51,7 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {wsdl15, wsdl14});
 		req1.setInstallableUnitInclusionRules(wsdl15, PlannerHelper.createStrictInclusionRule(wsdl15));
 		req1.setInstallableUnitInclusionRules(wsdl14, PlannerHelper.createStrictInclusionRule(wsdl14));
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, wsdl15);
 		assertInstallOperand(plan1, wsdl14);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -42,7 +44,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	public void testValidateProfileWithRepository() {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
 		why("slf4j.api");
@@ -55,7 +57,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
 	}

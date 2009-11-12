@@ -11,11 +11,12 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
@@ -131,9 +132,15 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	}
 
-	public ProvisioningPlan getProvisioningPlan() {
+	public IProvisioningPlan getProvisioningPlan() {
 		if (job != null)
 			return job.getProvisioningPlan();
+		return null;
+	}
+
+	public ProfileChangeRequest getProfileChangeRequest() {
+		if (job != null)
+			return job.getProfileChangeRequest();
 		return null;
 	}
 

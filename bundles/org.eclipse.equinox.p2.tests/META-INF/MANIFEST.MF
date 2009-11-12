@@ -17,7 +17,6 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
  org.eclipse.equinox.internal.p2.director.app,
- org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.p2.extensionlocation,
  org.eclipse.equinox.internal.p2.jarprocessor,
  org.eclipse.equinox.internal.p2.jarprocessor.verifier,
@@ -41,8 +40,6 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.directorywatcher,
- org.eclipse.equinox.internal.provisional.p2.engine,
- org.eclipse.equinox.internal.provisional.p2.engine.phases,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
  org.eclipse.equinox.internal.provisional.p2.metadata.repository,
@@ -83,7 +80,8 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.simpleconfigurator.manipulator;bundle-version="1.0.100",
  org.eclipse.equinox.p2.repository;bundle-version="1.0.0",
  org.eclipse.equinox.p2.tests.verifier;bundle-version="1.0.0",
- org.eclipse.equinox.security;bundle-version="1.0.0"
+ org.eclipse.equinox.security;bundle-version="1.0.0",
+ org.eclipse.equinox.p2.engine;bundle-version="2.0.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

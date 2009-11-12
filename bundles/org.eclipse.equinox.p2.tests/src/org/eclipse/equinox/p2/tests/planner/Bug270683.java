@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
@@ -51,8 +53,8 @@ public class Bug270683 extends AbstractProvisioningTest {
 	public void testExplanationContainsExplicitMentionOfPatch() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		assertTrue(plan3.getRequestStatus().getExplanations().toString().contains("patched"));
+		assertTrue(((RequestStatus) plan3.getRequestStatus()).getExplanations().toString().contains("patched"));
 	}
 }

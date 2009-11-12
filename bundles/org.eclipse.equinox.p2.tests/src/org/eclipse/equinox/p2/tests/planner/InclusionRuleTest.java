@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -46,7 +48,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
@@ -55,7 +57,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
@@ -64,7 +66,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {b1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan3.getOperands(), null, null);
 		assertProfileContainsAll("A1 or B1 is missing", profile1, new IInstallableUnit[] {a1, b1});
@@ -73,7 +75,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Add a2, this removes a1.
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a2});
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 		engine.perform(profile1, new DefaultPhaseSet(), plan4.getOperands(), null, null);
 		assertProfileContainsAll("A2 is missing", profile1, new IInstallableUnit[] {a2});
@@ -83,7 +85,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Try to add a1 again. This will fail because since a1 has been uninstalled in the previous step and we no longer know about its optional inclusion
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 	}
 
@@ -92,7 +94,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install a1
 		ProfileChangeRequest req = new ProfileChangeRequest(profile2);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile2, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile2, new IInstallableUnit[] {a1});
@@ -101,7 +103,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile2);
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(profile2, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile2, new IInstallableUnit[] {a1});
@@ -110,7 +112,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile2);
 		req3.addInstallableUnits(new IInstallableUnit[] {b1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(profile2, new DefaultPhaseSet(), plan3.getOperands(), null, null);
 		assertProfileContainsAll("A1 or B1 is missing", profile2, new IInstallableUnit[] {a1, b1});
@@ -119,7 +121,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Remove the optional inclusion rule from a1. a1 and b1 are still here 
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile2);
 		req5.removeInstallableUnitInclusionRules(a1);
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.OK, plan5.getStatus().getSeverity());
 		engine.perform(profile2, new DefaultPhaseSet(), plan5.getOperands(), null, null);
 		assertProfileContainsAll("A1 or B1 is missing", profile2, new IInstallableUnit[] {a1, b1});
@@ -130,7 +132,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		profile3 = createProfile("TestProfile3." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile3);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile3, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile3, new IInstallableUnit[] {a1});
@@ -139,7 +141,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile3);
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(profile3, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A1 is missing", profile3, new IInstallableUnit[] {a1});
@@ -148,7 +150,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile3);
 		req3.addInstallableUnits(new IInstallableUnit[] {b1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(profile3, new DefaultPhaseSet(), plan3.getOperands(), null, null);
 		assertProfileContainsAll("A1 or B1 is missing", profile3, new IInstallableUnit[] {a1, b1});
@@ -158,7 +160,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile3);
 		req5.removeInstallableUnits(new IInstallableUnit[] {a1});
 		req5.removeInstallableUnitInclusionRules(a1);
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.OK, plan5.getStatus().getSeverity());
 		engine.perform(profile3, new DefaultPhaseSet(), plan5.getOperands(), null, null);
 		assertProfileContainsAll("bB1 is missing", profile3, new IInstallableUnit[] {b1});
@@ -170,14 +172,14 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Try to Install a1 and a2
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile4);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, a2});
-		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
+		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 
 		//Install a1 and a2 marking a1 optional 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile4);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, a2});
 		req.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(profile4, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertProfileContainsAll("A2 is missing", profile4, new IInstallableUnit[] {a2});
@@ -186,7 +188,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Make a1 optional, this is a no-op since a1 is not in the system
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile4);
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(profile4, new DefaultPhaseSet(), plan2.getOperands(), null, null);
 		assertProfileContainsAll("A2 is missing", profile4, new IInstallableUnit[] {a2});
@@ -195,7 +197,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install a1, this is expected to fail
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile4);
 		req3.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 	}
 }

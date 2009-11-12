@@ -1,5 +1,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+
 import java.util.ArrayList;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -48,7 +50,7 @@ public class Bug278668 extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {group});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan should be OK", plan.getStatus());
 
 		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
@@ -70,19 +72,19 @@ public class Bug278668 extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c.iterator().next()});
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
 		request2.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c2.iterator().next()});
 		IPlanner planner2 = createPlanner();
-		ProvisioningPlan plan2 = planner2.getProvisioningPlan(request2, null, new NullProgressMonitor());
+		IProvisioningPlan plan2 = planner2.getProvisioningPlan(request2, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan2.getStatus());
 
 		ProfileChangeRequest request3 = new ProfileChangeRequest(profile);
 		request3.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c.iterator().next(), (IInstallableUnit) c2.iterator().next()});
 		IPlanner planner3 = createPlanner();
-		ProvisioningPlan plan3 = planner3.getProvisioningPlan(request3, null, new NullProgressMonitor());
+		IProvisioningPlan plan3 = planner3.getProvisioningPlan(request3, null, new NullProgressMonitor());
 		assertNotOK("Plan Not OK", plan3.getStatus());
 
 		ProfileChangeRequest request4 = new ProfileChangeRequest(profile);
@@ -90,7 +92,7 @@ public class Bug278668 extends AbstractProvisioningTest {
 		request4.setInstallableUnitInclusionRules((IInstallableUnit) c.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c.iterator().next()));
 		request4.setInstallableUnitInclusionRules((IInstallableUnit) c2.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c2.iterator().next()));
 		IPlanner planner4 = createPlanner();
-		ProvisioningPlan plan4 = planner4.getProvisioningPlan(request4, null, new NullProgressMonitor());
+		IProvisioningPlan plan4 = planner4.getProvisioningPlan(request4, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan4.getStatus());
 	}
 }
