@@ -547,10 +547,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						// We temporarily add it, but we must remove it in case the user cancels out of this page.
 						if (!includesRepo(manipulator.getKnownRepositories(ui.getSession()), location)) {
 							// Start a batch operation so we can swallow events
+							remove[0] = true;
 							ui.getSession().signalOperationStart();
 							AddRepositoryJob op = manipulator.getAddOperation(location, ui);
 							op.runModal(mon.newChild(100));
-							remove[0] = true;
 						}
 						ui.getSession().refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
 						ui.getSession().refreshMetadataRepositories(new URI[] {location}, mon.newChild(100));

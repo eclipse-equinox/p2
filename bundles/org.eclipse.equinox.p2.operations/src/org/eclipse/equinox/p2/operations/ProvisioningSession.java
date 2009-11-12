@@ -102,17 +102,21 @@ public class ProvisioningSession {
 	}
 
 	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		signalOperationStart();
-		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(location, monitor);
-		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
-		// This will keep the name in the manager even when the repo is not loaded
-		String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
-		if (name == null || name.length() == 0) {
-			name = repo.getName();
-			if (name != null && name.length() > 0)
-				setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+		IMetadataRepository repo;
+		try {
+			signalOperationStart();
+			repo = getMetadataRepositoryManager().loadRepository(location, monitor);
+			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// This will keep the name in the manager even when the repo is not loaded
+			String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			if (name == null || name.length() == 0) {
+				name = repo.getName();
+				if (name != null && name.length() > 0)
+					setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+			}
+		} finally {
+			signalOperationComplete(location);
 		}
-		signalOperationComplete(location);
 		return repo;
 	}
 
