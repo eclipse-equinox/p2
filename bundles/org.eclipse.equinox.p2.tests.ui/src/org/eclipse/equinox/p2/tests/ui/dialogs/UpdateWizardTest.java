@@ -60,7 +60,6 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when a prior resolution has been done.
 	 * This is the SDK 
-	 * @throws InterruptedException 
 	 */
 	public void testUpdateWizardResolved() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);

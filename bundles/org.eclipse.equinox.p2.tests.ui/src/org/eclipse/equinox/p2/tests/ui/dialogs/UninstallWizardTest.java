@@ -28,7 +28,6 @@ public class UninstallWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when the uninstall is preresolved.
 	 * This is the normal SDK workflow.
-	 * @throws InterruptedException 
 	 */
 	public void testUninstallWizardResolved() {
 

@@ -97,7 +97,6 @@ public class InstallWizardTest extends WizardTest {
 
 	/**
 	 * Tests the wizard
-	 * @throws InterruptedException 
 	 */
 	public void testInstallWizardUnresolved() {
 		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
