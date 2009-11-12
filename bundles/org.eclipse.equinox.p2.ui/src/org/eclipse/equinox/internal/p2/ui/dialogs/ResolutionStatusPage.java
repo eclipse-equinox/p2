@@ -44,8 +44,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	/**
 	 * @param pageName
 	 */
-	protected ResolutionStatusPage(String pageName, ProvisioningUI ui) {
-		super(pageName, ui);
+	protected ResolutionStatusPage(String pageName, ProvisioningUI ui, ProvisioningOperationWizard wizard) {
+		super(pageName, ui, wizard);
 	}
 
 	protected abstract void updateCaches(IUElementListRoot root, ProfileChangeOperation resolvedOperation);
@@ -60,16 +60,14 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	 * Update the status area of the wizard to report the results of the operation.
 	 * 
 	 * @param newRoot the root that describes the root IUs involved in creating the plan
-	 * @param op the ProfileChangeOperation that describes the plan that was created.  
-	 * Should not be <code>null</code>, but subclasses can be more forgiving.
+	 * @param op the ProfileChangeOperation that describes the operation
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
+		IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
 		updateCaches(newRoot, op);
 
-		IStatus currentStatus;
 		int messageType = IMessageProvider.NONE;
 		boolean pageComplete = true;
-		currentStatus = op == null ? null : op.getResolutionResult();
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();

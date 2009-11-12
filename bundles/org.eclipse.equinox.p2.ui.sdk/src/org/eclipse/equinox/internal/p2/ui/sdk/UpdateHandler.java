@@ -36,8 +36,11 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 			return;
 		}
 		UpdateOperation operation = getProvisioningUI().getUpdateOperation(getProvisioningUI().getProfileRoots(), null);
-		getProvisioningUI().openUpdateWizard(getShell(), true, operation, job);
-
+		// check for updates
+		operation.resolveModal(null);
+		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {
+			getProvisioningUI().openUpdateWizard(getShell(), true, operation, job);
+		}
 	}
 
 	protected boolean preloadRepositories() {

@@ -46,7 +46,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected ResolutionResultsWizardPage resolutionPage;
 	private ProvisioningContext provisioningContext;
 	protected PreloadMetadataRepositoryJob repoPreloadJob;
-	boolean couldNotResolve;
+	IStatus couldNotResolveStatus = Status.OK_STATUS; // we haven't tried and failed
 
 	boolean waitingForOtherJobs = false;
 
@@ -111,6 +111,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				return errorPage;
 			} else if (status.getSeverity() == IStatus.CANCEL) {
 				return page;
+			} else {
+				return resolutionPage;
 			}
 		}
 		return super.getNextPage(page);
@@ -162,12 +164,11 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 * @param runnableContext
 	 */
 	public void recomputePlan(IRunnableContext runnableContext) {
-		couldNotResolve = false;
-		operation = null;
+		couldNotResolveStatus = Status.OK_STATUS;
 		provisioningContext = getProvisioningContext();
-		planSelections = ProvisioningOperationWizard.this.mainPage.getCheckedIUElements();
-		initializeResolutionModelElements(planSelections);
+		initializeResolutionModelElements(mainPage.getCheckedIUElements());
 		if (planSelections.length == 0) {
+			operation = null;
 			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 		} else {
 			operation = getProfileChangeOperation(planSelections);
@@ -191,18 +192,18 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected abstract ProfileChangeOperation getProfileChangeOperation(Object[] elements);
 
 	void couldNotResolve(String message) {
-		couldNotResolve = true;
 		if (message != null) {
-			IStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);
-			StatusManager.getManager().handle(status, StatusManager.LOG);
+			couldNotResolveStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, message, null);
+		} else {
+			couldNotResolveStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.ProvisioningOperationWizard_UnexpectedFailureToResolve, null);
 		}
+		StatusManager.getManager().handle(couldNotResolveStatus, StatusManager.LOG);
 	}
 
 	public IStatus getCurrentStatus() {
 		if (operation != null && operation.getResolutionResult() != null)
 			return operation.getResolutionResult();
-		// we haven't resolved yet, assume all is well.
-		return Status.OK_STATUS;
+		return couldNotResolveStatus;
 	}
 
 	public String getDialogSettingsSectionName() {

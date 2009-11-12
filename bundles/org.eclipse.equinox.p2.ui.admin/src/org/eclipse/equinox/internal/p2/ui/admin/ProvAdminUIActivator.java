@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
@@ -21,7 +20,6 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -128,13 +126,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	}
 
 	void initializePolicy() {
-		policy = new Policy() {
-			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-				if (plan == null)
-					return false;
-				return true;
-			}
-		};
+		policy = new Policy();
 		// Manipulate the default query context according to our preferences
 		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
 		policy.setQueryContext(queryContext);

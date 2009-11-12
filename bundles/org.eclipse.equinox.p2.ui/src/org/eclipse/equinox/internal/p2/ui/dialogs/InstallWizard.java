@@ -39,11 +39,11 @@ public class InstallWizard extends WizardWithLicenses {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new InstallWizardPage(ui, root, (InstallOperation) operation);
+		return new InstallWizardPage(ui, this, root, (InstallOperation) operation);
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new AvailableIUsPage(ui);
+		mainPage = new AvailableIUsPage(ui, this);
 		if (selections != null && selections.length > 0)
 			mainPage.setCheckedElements(selections);
 		return mainPage;
@@ -85,9 +85,9 @@ public class InstallWizard extends WizardWithLicenses {
 
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		if (root == null)
-			errorReportingPage = new SelectableIUsPage(ui, null, null);
+			errorReportingPage = new SelectableIUsPage(ui, this, null, null);
 		else
-			errorReportingPage = new SelectableIUsPage(ui, root, root.getChildren(root));
+			errorReportingPage = new SelectableIUsPage(ui, this, root, root.getChildren(root));
 		errorReportingPage.setTitle(ProvUIMessages.InstallWizardPage_Title);
 		errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
 		errorReportingPage.updateStatus(root, operation);

@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class UpdateWizardPage extends SizeComputingWizardPage {
 
-	public UpdateWizardPage(ProvisioningUI ui, IUElementListRoot root, UpdateOperation operation) {
-		super(ui, root, operation);
+	public UpdateWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, UpdateOperation operation) {
+		super(ui, wizard, root, operation);
 		setTitle(ProvUIMessages.UpdateWizardPage_Title);
 		setDescription(ProvUIMessages.UpdateWizardPage_Description);
 	}

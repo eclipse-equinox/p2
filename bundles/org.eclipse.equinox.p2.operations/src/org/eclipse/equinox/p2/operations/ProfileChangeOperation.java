@@ -108,8 +108,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	public IStatus getResolutionResult() {
 		if (job != null && job.getResolutionResult() != null)
 			return job.getResolutionResult().getSummaryStatus();
-		if (request == null)
+		if (request == null && noChangeRequest != null) {
+			// If there is only one child message, use the specific message
+			if (noChangeRequest.getChildren().length == 1)
+				return noChangeRequest.getChildren()[0];
 			return noChangeRequest;
+		}
 		return null;
 	}
 

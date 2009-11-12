@@ -31,7 +31,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new SelectableIUsPage(ui, input, selections);
+		mainPage = new SelectableIUsPage(ui, this, input, selections);
 		mainPage.setTitle(ProvUIMessages.UninstallIUOperationLabel);
 		mainPage.setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 		((SelectableIUsPage) mainPage).updateStatus(input, operation);
@@ -39,7 +39,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new UninstallWizardPage(ui, root, (UninstallOperation) operation);
+		return new UninstallWizardPage(ui, this, root, (UninstallOperation) operation);
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
@@ -68,10 +68,6 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	 */
 	public IWizardPage getStartingPage() {
 		if (getCurrentStatus().isOK()) {
-			if (resolutionPage == null) {
-				resolutionPage = createResolutionPage();
-				addPage(resolutionPage);
-			}
 			((SelectableIUsPage) mainPage).setPageComplete(true);
 			return resolutionPage;
 		}

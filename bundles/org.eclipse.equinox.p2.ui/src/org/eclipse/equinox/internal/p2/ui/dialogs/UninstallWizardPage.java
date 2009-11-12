@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class UninstallWizardPage extends ResolutionResultsWizardPage {
 
-	public UninstallWizardPage(ProvisioningUI ui, IUElementListRoot root, UninstallOperation initialResolution) {
-		super(ui, root, initialResolution);
+	public UninstallWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, UninstallOperation initialResolution) {
+		super(ui, wizard, root, initialResolution);
 		setTitle(ProvUIMessages.UninstallWizardPage_Title);
 		setDescription(ProvUIMessages.UninstallWizardPage_Description);
 	}

@@ -72,7 +72,6 @@ public class ProvUIMessages extends NLS {
 	public static String IULicensePropertyPage_ViewLicenseLabel;
 	public static String ProfileModificationAction_InvalidSelections;
 	public static String ProfileModificationWizardPage_DetailsLabel;
-	public static String ProfileModificationWizardPage_UnexpectedError;
 	public static String ProfileSnapshots_Label;
 
 	// viewer support
@@ -83,6 +82,7 @@ public class ProvUIMessages extends NLS {
 
 	// Provisioning operations
 	public static String ProvisioningOperationRunner_CannotApplyChanges;
+	public static String ProvisioningOperationWizard_UnexpectedFailureToResolve;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;
 	public static String InstallIUOperationTask;
@@ -226,7 +226,6 @@ public class ProvUIMessages extends NLS {
 	public static String RollbackProfileElement_CurrentInstallation;
 	public static String SelectableIUsPage_Select_All;
 	public static String SelectableIUsPage_Deselect_All;
-	public static String SelectableIUsPage_OperationInProgress;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;

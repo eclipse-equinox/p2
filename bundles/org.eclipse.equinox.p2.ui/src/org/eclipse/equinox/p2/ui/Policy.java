@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.operations.IStatusCodes;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -164,21 +165,38 @@ public class Policy {
 		repositoryManipulator = null;
 	}
 
-	public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-		if (plan == null)
-			return false;
-		if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+	/**
+	 * Answer a boolean indicating whether the caller should continue to work with the
+	 * specified operation.  This method is used when an operation has been resolved, but
+	 * the UI may have further restrictions on continuing with it.
+	 * 
+	 * @param operation the operation in question.  It must already be resolved.
+	 * @param shell the shell to use for any interaction with the user
+	 * @return <code>true</code> if processing of the operation should continue, <code>false</code> if
+	 * not.  It is up to the implementor to report any errors to the user when answering <code>false</code>.
+	 */
+	public boolean continueWorkingWithOperation(ProfileChangeOperation operation, Shell shell) {
+		Assert.isTrue(operation.hasResolved());
+		IStatus status = operation.getResolutionResult();
+		// user cancelled
+		if (status.getSeverity() == IStatus.CANCEL)
 			return false;
 
 		// Special case those statuses where we would never want to open a wizard
-		if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
-			ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
+		if (status.getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
+			ProvUI.reportStatus(status, StatusManager.BLOCK);
+			return false;
+		}
+
+		// there is no plan, so we can't continue.  Report any reason found
+		if (operation.getProvisioningPlan() == null && !status.isOK()) {
+			StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
 			return false;
 		}
 
 		// If the plan requires install handler support, we want to open the old update UI and
 		// cancel this operation
-		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
+		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(operation.getProvisioningPlan())) {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();

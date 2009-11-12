@@ -34,7 +34,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new SelectableIUsPage(ui, input, selections);
+		mainPage = new SelectableIUsPage(ui, this, input, selections);
 		mainPage.setTitle(ProvUIMessages.PreselectedIUInstallWizard_Title);
 		mainPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
 		((SelectableIUsPage) mainPage).updateStatus(input, operation);
@@ -42,7 +42,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new InstallWizardPage(ui, root, (InstallOperation) operation);
+		return new InstallWizardPage(ui, this, root, (InstallOperation) operation);
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {

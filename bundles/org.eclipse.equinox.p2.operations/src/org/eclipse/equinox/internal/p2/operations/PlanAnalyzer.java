@@ -11,13 +11,12 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.p2.operations.IStatusCodes;
-
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.IStatusCodes;
 import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 
@@ -31,6 +30,8 @@ public class PlanAnalyzer {
 
 	public static IStatus getStatus(int statusCode, IInstallableUnit affectedIU) {
 		switch (statusCode) {
+			case IStatusCodes.NOTHING_TO_UPDATE :
+				return new Status(IStatus.INFO, Activator.ID, statusCode, Messages.PlanAnalyzer_NoUpdates, null);
 			case IStatusCodes.PROFILE_CHANGE_ALTERED :
 				return new MultiStatus(Activator.ID, statusCode, Messages.PlanAnalyzer_RequestAltered, null);
 			case IStatusCodes.ALTERED_IMPLIED_UPDATE :

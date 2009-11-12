@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
@@ -76,21 +75,17 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		} else {
 			job.addJobChangeListener(new JobChangeAdapter() {
 				public void done(IJobChangeEvent event) {
-					final ProvisioningPlan plan = operation.getProvisioningPlan();
-					if (plan != null) {
-						if (PlatformUI.isWorkbenchRunning()) {
-							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-								public void run() {
-									if (validatePlan(plan))
-										performAction(operation, ius);
-									userChosenProfileId = null;
-								}
-							});
-						}
-					} else {
-						// Couldn't get a plan at all
-						ProvUI.reportStatus(operation.getResolutionResult(), StatusManager.SHOW);
+
+					if (PlatformUI.isWorkbenchRunning()) {
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								if (validateOperation(operation))
+									performAction(operation, ius);
+								userChosenProfileId = null;
+							}
+						});
 					}
+
 				}
 
 			});
@@ -115,19 +110,15 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	/**
-	 * Validate the plan and return true if the operation should
+	 * Validate the operation and return true if the operation should
 	 * be performed with plan.  Report any errors to the user before returning false.
-	 * @param plan
-	 * @return a boolean indicating whether the plan should be used in a
+	 * @param operation
+	 * @return a boolean indicating whether the operation should be used in a
 	 * provisioning operation.
 	 */
-	protected boolean validatePlan(ProvisioningPlan plan) {
-		if (plan != null) {
-			// Don't validate the plan if the user cancelled
-			if (plan.getStatus().getSeverity() == IStatus.CANCEL)
-				return false;
-			return getPolicy().continueWorkingWithPlan(plan, getShell());
-
+	protected boolean validateOperation(ProfileChangeOperation operation) {
+		if (operation != null) {
+			return getPolicy().continueWorkingWithOperation(operation, getShell());
 		}
 		return false;
 	}

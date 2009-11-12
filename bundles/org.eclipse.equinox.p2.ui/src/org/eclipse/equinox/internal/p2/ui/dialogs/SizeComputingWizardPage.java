@@ -36,8 +36,8 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	Job sizingJob;
 	private ProvisioningPlan lastComputedPlan = null;
 
-	protected SizeComputingWizardPage(ProvisioningUI ui, IUElementListRoot root, ProfileChangeOperation initialResolution) {
-		super(ui, root, initialResolution);
+	protected SizeComputingWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, ProfileChangeOperation initialResolution) {
+		super(ui, wizard, root, initialResolution);
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
 		if (initialResolution != null && initialResolution.hasResolved())

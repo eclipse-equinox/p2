@@ -48,8 +48,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	private IUDetailsGroup iuDetailsGroup;
 	SashForm sashForm;
 
-	protected ResolutionResultsWizardPage(ProvisioningUI ui, IUElementListRoot input, ProfileChangeOperation operation) {
-		super("ResolutionPage", ui); //$NON-NLS-1$
+	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
+		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
 		// We can exist as an empty page, but if there is an operation, we need to know that it's resolved.
 		if (operation != null && !operation.hasResolved()) {
 			operation.resolveModal(null);

@@ -43,7 +43,7 @@ public class PreloadMetadataRepositoryJob extends RepositoryJob {
 	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus runModal(IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.PreloadMetadataRepositoryJob_ContactingSites, locations.length * 100);
 		if (sub.isCanceled())
 			return Status.CANCEL_STATUS;
 		for (int i = 0; i < locations.length; i++) {

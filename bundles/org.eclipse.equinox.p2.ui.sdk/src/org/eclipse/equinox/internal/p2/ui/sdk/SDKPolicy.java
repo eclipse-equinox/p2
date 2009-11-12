@@ -13,7 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -41,10 +43,14 @@ public class SDKPolicy extends Policy {
 		return ProvSDKUIActivator.getNoSelfProfileStatus();
 	}
 
-	public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+	public boolean continueWorkingOperation(ProfileChangeOperation operation, Shell shell) {
 		// don't continue if superclass has already identified problem scenarios
-		boolean ok = super.continueWorkingWithPlan(plan, shell);
+		boolean ok = super.continueWorkingWithOperation(operation, shell);
 		if (!ok)
+			return false;
+
+		ProvisioningPlan plan = operation.getProvisioningPlan();
+		if (plan == null)
 			return false;
 
 		// Check the preference to see whether to continue.

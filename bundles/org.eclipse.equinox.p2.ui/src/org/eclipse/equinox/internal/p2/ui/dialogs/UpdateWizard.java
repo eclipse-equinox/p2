@@ -66,7 +66,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new SelectableIUsPage(ui, input, selections);
+		mainPage = new SelectableIUsPage(ui, this, input, selections);
 		mainPage.setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		mainPage.setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 		((SelectableIUsPage) mainPage).updateStatus(input, operation);
@@ -74,7 +74,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new UpdateWizardPage(ui, root, (UpdateOperation) operation);
+		return new UpdateWizardPage(ui, this, root, (UpdateOperation) operation);
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {

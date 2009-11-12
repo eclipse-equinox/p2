@@ -60,8 +60,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	RepositorySelectionGroup repoSelector;
 	IUDetailsGroup iuDetailsGroup;
 
-	public AvailableIUsPage(ProvisioningUI ui) {
-		super("AvailableSoftwarePage", ui); //$NON-NLS-1$
+	public AvailableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
+		super("AvailableSoftwarePage", ui, wizard); //$NON-NLS-1$
 		makeQueryContext();
 		setTitle(ProvUIMessages.AvailableIUsPage_Title);
 		setDescription(ProvUIMessages.AvailableIUsPage_Description);

@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -21,8 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
@@ -54,8 +53,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Policy policy;
 	SashForm sashForm;
 
-	public SelectableIUsPage(ProvisioningUI ui, IUElementListRoot root, Object[] initialSelections) {
-		super("IUSelectionPage", ui); //$NON-NLS-1$
+	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, Object[] initialSelections) {
+		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
 		this.root = root;
 		if (root == null)
 			root = new IUElementListRoot();
@@ -252,28 +251,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		if (units.length == 0)
 			return null;
 		return units[0];
-	}
-
-	/*
-	 * Overridden to handle conditions where continuing with the operation should not be allowed.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateStatus(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation)
-	 */
-	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
-		IStatus specialStatus = null;
-		if (op == null) {
-			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
-		}
-		if (specialStatus == null) {
-			super.updateStatus(newRoot, op);
-		} else {
-			updateCaches(newRoot, op);
-			setPageComplete(false);
-			if (!isCreated())
-				return;
-			getDetailsGroup().setDetailText(specialStatus.getMessage());
-			setMessage(getMessageText(specialStatus), IMessageProvider.ERROR);
-		}
 	}
 
 	protected IUDetailsGroup getDetailsGroup() {

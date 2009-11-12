@@ -17,8 +17,8 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class InstallWizardPage extends SizeComputingWizardPage {
 
-	public InstallWizardPage(ProvisioningUI ui, IUElementListRoot root, InstallOperation operation) {
-		super(ui, root, operation);
+	public InstallWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, InstallOperation operation) {
+		super(ui, wizard, root, operation);
 		setTitle(ProvUIMessages.InstallWizardPage_Title);
 		setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}

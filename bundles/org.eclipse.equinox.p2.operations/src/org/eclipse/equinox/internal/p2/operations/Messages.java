@@ -25,6 +25,8 @@ public class Messages extends NLS {
 	public static String InstallOperation_InstallJobName;
 	public static String InstallOperation_ResolveJobName;
 
+	public static String PreloadMetadataRepositoryJob_ContactingSites;
+
 	public static String PreloadMetadataRepositoryJob_SomeSitesNotFound;
 	public static String PreloadRepositoryJob_LoadJobName;
 
@@ -49,6 +51,8 @@ public class Messages extends NLS {
 	public static String PlanAnalyzer_ImpliedUpdate;
 	public static String PlanAnalyzer_Items;
 	public static String PlanAnalyzer_NothingToDo;
+
+	public static String PlanAnalyzer_NoUpdates;
 	public static String PlanAnalyzer_AlreadyInstalled;
 	public static String PlanAnalyzer_AnotherOperationInProgress;
 	public static String PlanAnalyzer_RequestAltered;
