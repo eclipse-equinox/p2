@@ -37,6 +37,10 @@ public class UpdateOperation extends ProfileChangeOperation {
 		this.iusToUpdate = toBeUpdated;
 	}
 
+	public UpdateOperation(ProvisioningSession session) {
+		this(session, null);
+	}
+
 	public void setDefaultUpdates(Update[] defaultUpdates) {
 		this.defaultUpdates = Arrays.asList(defaultUpdates);
 	}
@@ -196,6 +200,17 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 */
 	protected String getResolveJobName() {
 		return Messages.UpdateOperation_ResolveJobName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#prepareToResolve()
+	 */
+	protected void prepareToResolve() {
+		super.prepareToResolve();
+		if (iusToUpdate == null) {
+			iusToUpdate = session.getProfileRoots(profileId, rootMarkerKey);
+		}
 	}
 
 }

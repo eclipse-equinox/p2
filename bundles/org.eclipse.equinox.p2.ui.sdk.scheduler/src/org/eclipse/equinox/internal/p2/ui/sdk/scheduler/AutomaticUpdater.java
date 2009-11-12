@@ -310,7 +310,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					return Status.CANCEL_STATUS;
 				// notify that updates are available for all roots.  We don't know for sure that
 				// there are any, but this will cause everything to be rechecked
-				updatesAvailable(new UpdateEvent(profileId, getProvisioningUI().getProfileRoots()));
+				updatesAvailable(new UpdateEvent(profileId, getSession().getProfileRoots(profileId, IProfile.PROP_PROFILE_ROOT_IU)));
 				return Status.OK_STATUS;
 			}
 		};

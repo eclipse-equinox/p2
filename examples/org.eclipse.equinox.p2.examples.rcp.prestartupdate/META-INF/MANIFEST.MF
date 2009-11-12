@@ -7,7 +7,6 @@ Bundle-Activator: org.eclipse.equinox.p2.examples.rcp.prestartupdate.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.core,
- org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.operations,
  org.eclipse.ecf;bundle-version="3.0.0",

@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	protected void doExecute(PreloadMetadataRepositoryJob job) {
-		UpdateOperation operation = getProvisioningUI().getUpdateOperation(getProvisioningUI().getProfileRoots(), null);
+		UpdateOperation operation = getProvisioningUI().getUpdateOperation(null, null);
 		// check for updates
 		operation.resolveModal(null);
 		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {

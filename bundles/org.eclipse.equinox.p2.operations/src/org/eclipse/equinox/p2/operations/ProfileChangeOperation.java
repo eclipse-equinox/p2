@@ -11,14 +11,13 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 /**
  * @noextend
@@ -41,9 +40,10 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		this.rootMarkerKey = IProfile.PROP_PROFILE_ROOT_IU;
 	}
 
-	public IStatus resolveModal(IProgressMonitor monitor) {
+	public final IStatus resolveModal(IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
+		prepareToResolve();
 		doResolve(monitor);
 		if (job != null) {
 			job.runModal(monitor);
@@ -65,11 +65,16 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * @param monitor a progress monitor to use to report the job's progress.  This monitor will be called from a background thread.
 	 * @return a job that can be scheduled to perform the provisioning operation.
 	 */
-	public ProvisioningJob getResolveJob(IProgressMonitor monitor) {
+	public final ProvisioningJob getResolveJob(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, Messages.ProfileChangeOperation_ResolveTaskName, 1000);
+		prepareToResolve();
 		doResolve(mon.newChild(100));
 		job.setAdditionalProgressMonitor(mon.newChild(900));
 		return job;
+	}
+
+	protected void prepareToResolve() {
+		// default is to do nothing
 	}
 
 	private void doResolve(IProgressMonitor monitor) {

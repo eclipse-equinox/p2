@@ -17,11 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -43,22 +38,11 @@ public class P2Util {
 		if (agent == null)
 			return false;
 		ProvisioningSession session = new ProvisioningSession(agent);
-		IProfile profile = session.getProfile(IProfileRegistry.SELF);
-		if (profile == null)
-			return false;
-
-		// We are going to look for updates to all IU's in the profile. A
-		// different query could be used if we are looking for updates to
-		// a subset. For example, the p2 UI only looks for updates to those
-		// IU's marked with a special property.
-		Collector collector = profile.query(InstallableUnitQuery.ANY,
-				new Collector(), null);
-		if (collector.isEmpty())
-			return false;
-		IInstallableUnit[] installed = (IInstallableUnit[]) collector
-				.toArray(IInstallableUnit.class);
-		final UpdateOperation operation = new UpdateOperation(session,
-				installed);
+		// the default update operation looks for updates to the currently running
+		// profile, using the default profile root marker.  To change which installable
+		// units are being updated, the profile, or the root marker,
+		// use the more detailed constructors.
+		final UpdateOperation operation = new UpdateOperation(session);
 		
 		final boolean [] didWeUpdate = new boolean [] {true};
 

@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -26,12 +24,18 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -338,6 +342,19 @@ public class ProvisioningSession {
 				scheduledJobs.remove(event.getJob());
 			}
 		});
+	}
+
+	public IInstallableUnit[] getProfileRoots(String profileId, String rootMarkerKey) {
+		IProfile profile = this.getProfile(profileId);
+		if (profile == null)
+			return new IInstallableUnit[0];
+		IQuery query;
+		if (rootMarkerKey == null)
+			query = InstallableUnitQuery.ANY;
+		else
+			query = new IUProfilePropertyQuery(rootMarkerKey, Boolean.toString(true));
+		Collector collector = profile.query(query, new Collector(), null);
+		return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 	}
 
 }

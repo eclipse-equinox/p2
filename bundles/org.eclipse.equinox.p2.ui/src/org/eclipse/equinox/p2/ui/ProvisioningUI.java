@@ -12,12 +12,9 @@
 package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -137,19 +134,6 @@ public class ProvisioningUI {
 
 	public Shell getDefaultParentShell() {
 		return ProvUI.getDefaultParentShell();
-	}
-
-	public IInstallableUnit[] getProfileRoots() {
-		ElementQueryDescriptor queryDescriptor = ProvUI.getQueryProvider().getQueryDescriptor(new ProfileElement(null, profileId));
-		Collection collection = queryDescriptor.performQuery(null);
-		final IInstallableUnit[] roots = new IInstallableUnit[collection.size()];
-		Iterator iter = collection.iterator();
-		int i = 0;
-		while (iter.hasNext()) {
-			roots[i] = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
-			i++;
-		}
-		return roots;
 	}
 
 	/**
