@@ -21,9 +21,9 @@ import org.eclipse.equinox.p2.ui.Policy;
  */
 public class CloudPolicy extends Policy {
 	public CloudPolicy() {
-		// XXX User has no access to manipulate repositories
-		setRepositoryManipulator(null);
-
+		// XXX User has no visibility for repos
+		getRepositoryManipulator().setRepositoriesVisible(false);
+		
 		// XXX Default view is by category
 		IUViewQueryContext queryContext = new IUViewQueryContext(
 				IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);

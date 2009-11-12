@@ -19,7 +19,6 @@ public class Messages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
-	public static String InstallNewSoftwareHandler_LoadRepositoryJobLabel;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;

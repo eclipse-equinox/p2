@@ -12,27 +12,19 @@ package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.ui.Policy;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * PreloadingRepositoryHandler provides background loading of repositories
- * before executing the provisioning handler.
+ * PreloadingRepositoryHandler provides background loading of
+ * repositories before executing the provisioning handler.
  * 
  * @since 3.5
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
-
-	Object LOAD_FAMILY = new Object();
 
 	/**
 	 * The constructor.
@@ -45,46 +37,26 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	 * Execute the command.
 	 */
 	public Object execute(ExecutionEvent event) {
-		final String profileId = IProfileRegistry.SELF;
-		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-			public void run() {
-				doExecuteAndLoad(profileId, preloadRepositories());
-			}
-		});
+		doExecuteAndLoad();
 		return null;
 	}
 
-	void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
-		// cancel any load that is already running
-		Job.getJobManager().cancel(LOAD_FAMILY);
-		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(
-				Policy.getDefault().getQueryContext(), false);
-		if (preloadRepositories) {
-			Job loadJob = new Job(
-					Messages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
-
-				protected IStatus run(IProgressMonitor monitor) {
-					queryableManager.loadAll(monitor);
-					return Status.OK_STATUS;
-				}
-
-				public boolean belongsTo(Object family) {
-					return family == LOAD_FAMILY;
-				}
-
-			};
+	void doExecuteAndLoad() {
+		if (preloadRepositories()) {
+			//cancel any load that is already running
+			Job.getJobManager().cancel(PreloadMetadataRepositoryJob.LOAD_FAMILY);
+			final PreloadMetadataRepositoryJob loadJob = new PreloadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getPolicy().getRepositoryManipulator());
+			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					public void done(IJobChangeEvent event) {
 						if (PlatformUI.isWorkbenchRunning())
 							if (event.getResult().isOK()) {
-								PlatformUI.getWorkbench().getDisplay()
-										.asyncExec(new Runnable() {
-											public void run() {
-												doExecute(profileId,
-														queryableManager);
-											}
-										});
+								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									public void run() {
+										doExecute(loadJob);
+									}
+								});
 							}
 					}
 				});
@@ -95,15 +67,14 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				loadJob.setSystem(true);
 				loadJob.setUser(false);
 				loadJob.schedule();
-				doExecute(profileId, queryableManager);
+				doExecute(null);
 			}
 		} else {
-			doExecute(profileId, queryableManager);
+			doExecute(null);
 		}
 	}
 
-	protected abstract void doExecute(String profileId,
-			QueryableMetadataRepositoryManager manager);
+	protected abstract void doExecute(PreloadMetadataRepositoryJob job);
 
 	protected boolean preloadRepositories() {
 		return true;
@@ -113,12 +84,19 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		return true;
 	}
 
+	protected void setLoadJobProperties(Job loadJob) {
+		loadJob.setProperty(PreloadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS, Boolean.toString(true));
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ProvisioningUI.getDefaultUI();
+	}
+
 	/**
 	 * Return a shell appropriate for parenting dialogs of this handler.
-	 * 
 	 * @return a Shell
 	 */
 	protected Shell getShell() {
-		return ProvUI.getDefaultParentShell();
+		return getProvisioningUI().getDefaultParentShell();
 	}
 }
