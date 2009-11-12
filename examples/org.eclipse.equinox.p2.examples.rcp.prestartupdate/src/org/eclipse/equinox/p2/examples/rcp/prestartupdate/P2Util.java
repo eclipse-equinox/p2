@@ -44,7 +44,7 @@ public class P2Util {
 		// use the more detailed constructors.
 		final UpdateOperation operation = new UpdateOperation(session);
 		
-		final boolean [] didWeUpdate = new boolean [] {true};
+		final boolean [] didWeUpdate = new boolean [] {false};
 
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor)
@@ -60,7 +60,7 @@ public class P2Util {
 					if (status.getSeverity() == IStatus.CANCEL)
 						throw new InterruptedException();
 					if (status.getSeverity() != IStatus.ERROR) {
-						didWeUpdate[0] = false;
+						didWeUpdate[0] = true;
 					}
 				}
 			}
