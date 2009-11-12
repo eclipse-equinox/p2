@@ -10,5 +10,6 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility,org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.cloud,org.eclipse.equinox.p2.examples.rcp.cloud,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.prestartupdate,org.eclipse.equinox.p2.examples.rcp.prestartupdate,R3_6_api_cleanup"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/webtools,servertools/plugins/org.eclipse.wst.server.discovery,org.eclipse.wst.server.discovery,HEAD"/>
 </provider>
 </psf>
