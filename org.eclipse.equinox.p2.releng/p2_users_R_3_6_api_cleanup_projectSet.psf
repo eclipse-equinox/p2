@@ -7,5 +7,7 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,pde/build/org.eclipse.pde.build,org.eclipse.pde.build,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,pde/build/org.eclipse.pde.build.tests,org.eclipse.pde.build.tests,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.ui.ide,org.eclipse.ui.ide,R3_6_p2_api_cleanup"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility,org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility,R3_6_api_cleanup"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.cloud,org.eclipse.equinox.p2.examples.rcp.cloud,R3_6_api_cleanup"/>
 </provider>
 </psf>
