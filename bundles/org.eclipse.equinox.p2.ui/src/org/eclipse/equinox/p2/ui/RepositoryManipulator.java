@@ -77,20 +77,19 @@ public abstract class RepositoryManipulator extends RepositoryTracker {
 							if (ret == Window.OK) {
 								URI correctedLocation = dialog.getLocation();
 								if (correctedLocation != null) {
-									ui.getSession().signalBatchOperationStart();
+									ui.getSession().signalOperationStart();
 									ProvisioningJob op = getRemoveOperation(new URI[] {location}, ui);
 									op.runModal(null);
-									ui.getSession().signalBatchOperationComplete(false, location);
 									op = getAddOperation(correctedLocation, ui);
 									IStatus addStatus = op.runModal(null);
 									if (addStatus.getSeverity() == IStatus.ERROR) {
 										ProvUI.reportStatus(addStatus, StatusManager.SHOW | StatusManager.LOG);
-										ui.getSession().signalBatchOperationComplete(true, null);
+										ui.getSession().signalOperationComplete(null);
 									} else {
 										String nickname = dialog.getName();
 										if (nickname != null && nickname.length() > 0)
 											ui.getSession().setMetadataRepositoryProperty(correctedLocation, IRepository.PROP_NICKNAME, nickname);
-										ui.getSession().signalBatchOperationComplete(true, correctedLocation);
+										ui.getSession().signalOperationComplete(correctedLocation);
 									}
 								}
 							}

@@ -102,7 +102,7 @@ public class ProvisioningSession {
 	}
 
 	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		signalBatchOperationStart();
+		signalOperationStart();
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(location, monitor);
 		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 		// This will keep the name in the manager even when the repo is not loaded
@@ -112,7 +112,7 @@ public class ProvisioningSession {
 			if (name != null && name.length() > 0)
 				setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 		}
-		signalBatchOperationComplete(true, location);
+		signalOperationComplete(location);
 		return repo;
 	}
 
@@ -129,6 +129,7 @@ public class ProvisioningSession {
 	}
 
 	public void refreshMetadataRepositories(URI[] urls, IProgressMonitor monitor) {
+		signalOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
 		for (int i = 0; i < urls.length; i++) {
 			try {
@@ -137,6 +138,10 @@ public class ProvisioningSession {
 				//ignore problematic repositories when refreshing
 			}
 		}
+		if (urls.length == 1)
+			signalOperationComplete(urls[0]);
+		else
+			signalOperationComplete(null);
 	}
 
 	public boolean getArtifactRepositoryEnablement(URI location) {
@@ -311,12 +316,12 @@ public class ProvisioningSession {
 		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
 	}
 
-	public void signalBatchOperationStart() {
+	public void signalOperationStart() {
 		getProvisioningEventBus().publishEvent(new OperationBeginningEvent(this));
 	}
 
-	public void signalBatchOperationComplete(boolean notify, Object item) {
-		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item, notify));
+	public void signalOperationComplete(Object item) {
+		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item));
 	}
 
 	public boolean hasScheduledOperationsFor(String profileId) {

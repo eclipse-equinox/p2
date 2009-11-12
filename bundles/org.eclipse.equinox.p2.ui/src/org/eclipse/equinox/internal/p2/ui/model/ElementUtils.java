@@ -36,7 +36,7 @@ public class ElementUtils {
 			public IStatus run(IProgressMonitor monitor) {
 				final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
 				final ProvisioningSession session = ui.getSession();
-				session.signalBatchOperationStart();
+				session.signalOperationStart();
 				try {
 					int visibilityFlags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags();
 					URI[] currentlyEnabled = session.getMetadataRepositories(visibilityFlags);
@@ -87,7 +87,7 @@ public class ElementUtils {
 						}
 					}
 				} finally {
-					session.signalBatchOperationComplete(true, null);
+					session.signalOperationComplete(null);
 				}
 				return Status.OK_STATUS;
 			}

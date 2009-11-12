@@ -477,11 +477,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private StructuredViewerProvisioningListener getViewerProvisioningListener() {
 		return new StructuredViewerProvisioningListener(repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryDiscovered(RepositoryEvent e) {
-				RepositoryManipulationPage.this.asyncRefresh(null);
+				RepositoryManipulationPage.this.safeRefresh(null);
 			}
 
 			protected void repositoryChanged(RepositoryEvent e) {
-				RepositoryManipulationPage.this.asyncRefresh(null);
+				RepositoryManipulationPage.this.safeRefresh(null);
 			}
 		};
 	}
@@ -547,9 +547,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						// We temporarily add it, but we must remove it in case the user cancels out of this page.
 						if (!includesRepo(manipulator.getKnownRepositories(ui.getSession()), location)) {
 							// Start a batch operation so we can swallow events
-							ui.getSession().signalBatchOperationStart();
+							ui.getSession().signalOperationStart();
 							AddRepositoryJob op = manipulator.getAddOperation(location, ui);
-							op.setNotify(false);
 							op.runModal(mon.newChild(100));
 							remove[0] = true;
 						}
@@ -569,10 +568,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
 							RemoveRepositoryJob op = manipulator.getRemoveOperation(new URI[] {location}, ui);
-							op.setNotify(false);
 							op.runModal(new NullProgressMonitor());
 							// stop swallowing events
-							ui.getSession().signalBatchOperationComplete(false, null);
+							ui.getSession().signalOperationComplete(null);
 						}
 					}
 				}
@@ -633,7 +631,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					changed = true;
 					for (int i = 0; i < imported.length; i++)
 						repos.put(URIUtil.toUnencodedString(imported[i].getLocation()), imported[i]);
-					asyncRefresh(null);
+					safeRefresh(null);
 				}
 			}
 		});
@@ -698,14 +696,18 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 	}
 
-	void asyncRefresh(final MetadataRepositoryElement elementToSelect) {
-		display.asyncExec(new Runnable() {
+	void safeRefresh(final MetadataRepositoryElement elementToSelect) {
+		Runnable runnable = new Runnable() {
 			public void run() {
 				repositoryViewer.refresh();
 				if (elementToSelect != null)
 					repositoryViewer.setSelection(new StructuredSelection(elementToSelect), true);
 			}
-		});
+		};
+		if (Display.getCurrent() == null)
+			display.asyncExec(runnable);
+		else
+			runnable.run();
 	}
 
 	void applyFilter() {
@@ -763,7 +765,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				for (int i = 0; i < selections.length; i++) {
 					getInput().cachedElements.remove(URIUtil.toUnencodedString(selections[i].getLocation()));
 				}
-				asyncRefresh(null);
+				safeRefresh(null);
 			}
 		}
 	}
@@ -775,7 +777,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			localCacheRepoManipulator = new RepositoryManipulator() {
 				public AddRepositoryJob getAddOperation(URI location, ProvisioningUI ui) {
 					return new AddRepositoryJob("Cached add repo operation", ui.getSession(), new URI[] {location}) { //$NON-NLS-1$
-						protected IStatus doExecute(IProgressMonitor monitor) {
+						public IStatus runModal(IProgressMonitor monitor) {
 							MetadataRepositoryElement element = null;
 							for (int i = 0; i < locations.length; i++) {
 								element = new MetadataRepositoryElement(getInput(), locations[i], true);
@@ -784,7 +786,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 								getInput().cachedElements.put(URIUtil.toUnencodedString(locations[i]), element);
 							}
 							changed = true;
-							asyncRefresh(element);
+							safeRefresh(element);
 							return Status.OK_STATUS;
 						}
 

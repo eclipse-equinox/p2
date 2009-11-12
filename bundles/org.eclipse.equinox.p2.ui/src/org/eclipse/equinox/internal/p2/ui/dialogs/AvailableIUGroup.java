@@ -168,11 +168,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
-				// Only make the repo visible if the UI triggered this event.
-				// This allows us to ignore the addition of system repositories, as
-				// well as recognize specifically a user-add that resulted in
-				// the enablement of a repository.  
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=248989
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
 
@@ -326,10 +321,19 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	void makeRepositoryVisible(final URI location) {
 		// If we are viewing by anything other than site, there is no specific way
 		// to make a repo visible. 
-		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO))
+		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)) {
+			if (Display.getCurrent() == null)
+				display.asyncExec(new Runnable() {
+					public void run() {
+						updateAvailableViewState();
+					}
+				});
+			else
+				updateAvailableViewState();
 			return;
+		}
 		// First reset the input so that the new repo shows up
-		display.asyncExec(new Runnable() {
+		Runnable runnable = new Runnable() {
 			public void run() {
 				final TreeViewer treeViewer = filteredTree.getViewer();
 				final Tree tree = treeViewer.getTree();
@@ -340,17 +344,18 @@ public class AvailableIUGroup extends StructuredIUGroup {
 					updateAvailableViewState();
 				}
 			}
-		});
-
+		};
+		if (Display.getCurrent() == null)
+			display.asyncExec(runnable);
+		else
+			runnable.run();
 		// We don't know if loading will be a fast or slow operation.
 		// We do it in a job to be safe, and when it's done, we update
 		// the UI.
 		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, URIUtil.toUnencodedString(location))) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					getSession().signalBatchOperationStart();
 					getSession().loadMetadataRepository(location, monitor);
-					getSession().signalBatchOperationComplete(true, location);
 					return Status.OK_STATUS;
 				} catch (ProvisionException e) {
 					return e.getStatus();

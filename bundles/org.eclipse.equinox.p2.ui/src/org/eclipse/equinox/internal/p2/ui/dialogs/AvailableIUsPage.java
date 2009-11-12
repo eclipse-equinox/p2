@@ -536,7 +536,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 			protected void profileChanged(String id) {
 				if (id.equals(getProfileId())) {
-					asyncRefresh();
+					safeRefresh();
 				}
 			}
 		};

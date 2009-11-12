@@ -11,10 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
-
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
-
+import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
@@ -49,7 +47,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryAdded(RepositoryEvent event) {
-		asyncRefresh();
+		safeRefresh();
 	}
 
 	/**
@@ -60,7 +58,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryRemoved(RepositoryEvent event) {
-		asyncRefresh();
+		safeRefresh();
 	}
 
 	/**
@@ -113,7 +111,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * @param profileId the id of the profile that has been added.
 	 */
 	protected void profileAdded(final String profileId) {
-		asyncRefresh();
+		safeRefresh();
 	}
 
 	/**
@@ -124,10 +122,15 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * @param profileId the id of the profile that has been removed.
 	 */
 	protected void profileRemoved(final String profileId) {
-		asyncRefresh();
+		safeRefresh();
 	}
 
-	protected void asyncRefresh() {
+	protected void safeRefresh() {
+		if (Display.getCurrent() != null) {
+			refreshViewer();
+			return;
+		}
+
 		display.asyncExec(new Runnable() {
 			public void run() {
 				if (isClosing())
@@ -138,7 +141,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	}
 
 	protected void refreshAll() {
-		asyncRefresh();
+		safeRefresh();
 	}
 
 	/**

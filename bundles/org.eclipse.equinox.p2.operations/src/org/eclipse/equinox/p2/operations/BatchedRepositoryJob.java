@@ -21,8 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public abstract class BatchedRepositoryJob extends RepositoryJob {
 
-	protected boolean notify = true;
-
 	public BatchedRepositoryJob(String label, ProvisioningSession session, URI[] locations) {
 		super(label, session, locations);
 	}
@@ -32,26 +30,24 @@ public abstract class BatchedRepositoryJob extends RepositoryJob {
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {
-		boolean batched = false;
-		if (locations != null && locations.length > 1) {
-			getSession().signalBatchOperationStart();
-			batched = true;
-		}
+		if (locations == null || locations.length == 0)
+			return Status.OK_STATUS;
+
+		// We batch all the time as a way of distinguishing client-initiated repository 
+		// jobs from low level repository manipulation.
+		getSession().signalOperationStart();
 		try {
 			doBatchedOperation(monitor);
 		} catch (ProvisionException e) {
 			return getErrorStatus(null, e);
 		} finally {
-			if (batched && notify)
-				getSession().signalBatchOperationComplete(notify, null);
+			Object item = null;
+			if (locations.length == 1)
+				item = locations[0];
+			getSession().signalOperationComplete(item);
 		}
 		return Status.OK_STATUS;
 	}
 
 	protected abstract IStatus doBatchedOperation(IProgressMonitor monitor) throws ProvisionException;
-
-	public void setNotify(boolean notify) {
-		this.notify = notify;
-	}
-
 }

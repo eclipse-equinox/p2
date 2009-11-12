@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.operations;
 
 import java.net.URI;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -37,29 +37,5 @@ public abstract class AddRepositoryJob extends BatchedRepositoryJob {
 		return true;
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor) throws ProvisionException {
-		boolean batched = false;
-		if (locations != null && locations.length > 1) {
-			getSession().signalBatchOperationStart();
-			batched = true;
-		}
-		IStatus status = doBatchedOperation(monitor);
-		if (nicknames != null) {
-			for (int i = 0; i < nicknames.length; i++) {
-				setNickname(locations[i], nicknames[i]);
-			}
-		}
-		if (batched)
-			getSession().signalBatchOperationComplete(notify, null);
-		return status;
-	}
-
 	protected abstract void setNickname(URI location, String nickname) throws ProvisionException;
-
-	protected abstract IStatus doBatchedOperation(IProgressMonitor monitor) throws ProvisionException;
-
-	public void setNotify(boolean notify) {
-		this.notify = notify;
-	}
-
 }

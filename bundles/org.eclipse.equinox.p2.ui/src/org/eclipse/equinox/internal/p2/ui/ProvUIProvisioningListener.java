@@ -46,9 +46,8 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 			batchCount++;
 		} else if (o instanceof OperationEndingEvent) {
 			batchCount--;
-			// A batch operation completed.  Refresh if we are
-			// to honor it.
-			if (batchCount <= 0 && ((OperationEndingEvent) o).notify) {
+			// A batch operation completed.  Refresh.
+			if (batchCount <= 0) {
 				OperationEndingEvent event = (OperationEndingEvent) o;
 				if (event.getItem() == null)
 					refreshAll();
@@ -200,8 +199,9 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 	 * non-UI thread.
 	 */
 	protected void refreshItem(Object item) {
-		// Some repository has changed after a batch operation.  Since repos can add other repos, it's best to
-		// behave as if this URI has just been added so that all related views will refresh
+		// Something has changed after a batch operation.  
+		// If a repo has been refreshed, behave as if the URI has just been
+		// added, so that all related views will refresh.
 		if (item instanceof URI) {
 			repositoryAdded(new RepositoryEvent((URI) item, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true));
 		}

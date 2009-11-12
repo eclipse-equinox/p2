@@ -24,12 +24,6 @@ public class OperationEndingEvent extends EventObject {
 	private static final long serialVersionUID = -4513769756968621852L;
 
 	/**
-	 * When the batch event is received, do we treat it as notification
-	 * or ignore it?
-	 */
-	public boolean notify;
-
-	/**
 	 * The last item touched in the batch.  Can help indicate what should be updated.
 	 */
 	private Object item;
@@ -38,9 +32,8 @@ public class OperationEndingEvent extends EventObject {
 	 * Construct a new instance of this event.
 	 * @param source the source of the event
 	 */
-	public OperationEndingEvent(Object source, Object item, boolean notify) {
+	public OperationEndingEvent(Object source, Object item) {
 		super(source);
-		this.notify = notify;
 		this.item = item;
 	}
 

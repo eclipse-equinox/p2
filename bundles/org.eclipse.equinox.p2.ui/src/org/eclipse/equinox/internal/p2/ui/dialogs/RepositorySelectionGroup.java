@@ -341,8 +341,6 @@ public class RepositorySelectionGroup {
 				repoComboSelectionChanged();
 			}
 		};
-		// Only run the UI code async if we have to.  If we always async the code,
-		// the automated tests (which are in the UI thread) can get out of sync
 		if (Display.getCurrent() == null)
 			repoCombo.getDisplay().asyncExec(runnable);
 		else
@@ -502,7 +500,6 @@ public class RepositorySelectionGroup {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(repoCombo.getShell(), ui) {
 				protected AddRepositoryJob getOperation(URI repositoryLocation) {
 					AddRepositoryJob op = manipulator.getAddOperation(repositoryLocation, ui);
-					op.setNotify(false);
 					return op;
 				}
 
@@ -538,7 +535,6 @@ public class RepositorySelectionGroup {
 						}
 						if (status.isOK() && location != null) {
 							AddRepositoryJob op = manipulator.getAddOperation(location, ui);
-							op.setNotify(false);
 							status = op.runModal(monitor);
 							if (status.isOK())
 								fillRepoCombo(getSiteString(location));
