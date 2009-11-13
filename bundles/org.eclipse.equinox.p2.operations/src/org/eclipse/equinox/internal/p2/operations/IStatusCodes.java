@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.operations;
+package org.eclipse.equinox.internal.p2.operations;
 
 /**
  * IStatusCodes defines codes for common status conditions when

@@ -11,7 +11,6 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.p2.operations.IStatusCodes;
 
 import java.util.HashMap;
 import org.eclipse.core.runtime.*;

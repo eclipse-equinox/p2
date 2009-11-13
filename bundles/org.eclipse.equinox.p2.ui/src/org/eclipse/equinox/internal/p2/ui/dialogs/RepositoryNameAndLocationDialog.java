@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.operations.IStatusCodes;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.jface.dialogs.*;
@@ -138,9 +138,9 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		status[0] = getRepositoryManipulator().getInvalidLocationStatus(url.getText().trim());
 		final URI userLocation = getUserLocation();
 		if (url.getText().length() == 0)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryGroup_URLRequired, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvisioningSession.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		else if (userLocation == null)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvisioningSession.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
 			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 				public void run() {

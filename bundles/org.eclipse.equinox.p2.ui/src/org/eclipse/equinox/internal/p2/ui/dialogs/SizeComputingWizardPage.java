@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
@@ -45,14 +44,14 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			computeSizing(initialResolution.getProvisioningPlan(), getProfileId(), initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
-			size = SizingPhaseSet.SIZE_NOTAPPLICABLE;
+			size = ProvisioningSession.SIZE_NOTAPPLICABLE;
 	}
 
 	protected void computeSizing(final IProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
 		if (plan == lastComputedPlan)
 			return;
 		lastComputedPlan = plan;
-		size = SizingPhaseSet.SIZE_UNKNOWN;
+		size = ProvisioningSession.SIZE_UNKNOWN;
 		updateSizingInfo();
 		if (sizingJob != null)
 			sizingJob.cancel();
@@ -92,7 +91,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 
 	protected void updateSizingInfo() {
 		if (sizeInfo != null && !sizeInfo.isDisposed()) {
-			if (size == SizingPhaseSet.SIZE_NOTAPPLICABLE)
+			if (size == ProvisioningSession.SIZE_NOTAPPLICABLE)
 				sizeInfo.setVisible(false);
 			else {
 				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
@@ -102,7 +101,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	}
 
 	protected String getFormattedSize() {
-		if (size == SizingPhaseSet.SIZE_UNKNOWN || size == SizingPhaseSet.SIZE_UNAVAILABLE)
+		if (size == ProvisioningSession.SIZE_UNKNOWN || size == ProvisioningSession.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

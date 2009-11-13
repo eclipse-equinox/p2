@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;

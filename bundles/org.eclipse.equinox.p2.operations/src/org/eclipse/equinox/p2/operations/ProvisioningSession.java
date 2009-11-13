@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -51,6 +53,27 @@ public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
 	HashSet scheduledJobs = new HashSet();
+
+	/**
+	 * Indicates that there was nothing to size (there
+	 * was no valid plan that could be used to compute
+	 * size).
+	 */
+	public static final long SIZE_NOTAPPLICABLE = -3L;
+
+	/**
+	 * Indicates that the size is unavailable (an
+	 * attempt was made to compute size but it failed)
+	 */
+	public static final long SIZE_UNAVAILABLE = -2L;
+
+	/**
+	 * Indicates that the size is currently unknown
+	 */
+	public static final long SIZE_UNKNOWN = -1L;
+
+	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
+	public static final int STATUS_INVALID_REPOSITORY_LOCATION = IStatusCodes.INVALID_REPOSITORY_LOCATION;
 
 	public ProvisioningSession(IProvisioningAgent agent) {
 		Assert.isNotNull(agent, Messages.ProvisioningSession_AgentNotFound);
@@ -169,7 +192,7 @@ public class ProvisioningSession {
 	public long getSize(IProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) {
 		// If there is nothing to size, return 0
 		if (plan == null)
-			return SizingPhaseSet.SIZE_NOTAPPLICABLE;
+			return SIZE_NOTAPPLICABLE;
 		if (plan.getOperands().length == 0)
 			return 0;
 		long installPlanSize = 0;
@@ -186,7 +209,7 @@ public class ProvisioningSession {
 		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, mon.newChild(200));
 		if (status.isOK())
 			return installPlanSize + set.getSizing().getDiskSize();
-		return SizingPhaseSet.SIZE_UNAVAILABLE;
+		return SIZE_UNAVAILABLE;
 	}
 
 	public IStatus performProvisioningPlan(IProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {

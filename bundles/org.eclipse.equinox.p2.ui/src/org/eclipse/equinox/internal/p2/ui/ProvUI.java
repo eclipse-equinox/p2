@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IStatusCodes;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -76,7 +76,7 @@ public class ProvUI {
 				// unset logging for statuses that should never be logged.
 				// Ideally the caller would do this but this bug keeps coming back.
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274074
-				if (status.getCode() == IStatusCodes.NOTHING_TO_UPDATE)
+				if (status.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE)
 					style = 0;
 			} else if (status.getSeverity() == IStatus.WARNING) {
 				MessageDialog.openWarning(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_WarningTitle, status.getMessage());

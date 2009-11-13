@@ -13,8 +13,8 @@ package org.eclipse.equinox.p2.ui;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.p2.operations.IStatusCodes;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -183,7 +183,7 @@ public class Policy {
 			return false;
 
 		// Special case those statuses where we would never want to open a wizard
-		if (status.getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
+		if (status.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE) {
 			ProvUI.reportStatus(status, StatusManager.BLOCK);
 			return false;
 		}

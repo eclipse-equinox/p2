@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.operations.SizingPhaseSet;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Element wrapper class for installed IU's. Used instead of the plain IU when
@@ -64,7 +64,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	// TODO Later we might consider showing this in the installed views,
 	// but it is less important than before install.
 	public long getSize() {
-		return SizingPhaseSet.SIZE_UNKNOWN;
+		return ProvisioningSession.SIZE_UNKNOWN;
 	}
 
 	public boolean shouldShowSize() {

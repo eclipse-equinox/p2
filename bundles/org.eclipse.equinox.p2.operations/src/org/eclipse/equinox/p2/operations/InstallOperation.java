@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.p2.operations.PlanAnalyzer;

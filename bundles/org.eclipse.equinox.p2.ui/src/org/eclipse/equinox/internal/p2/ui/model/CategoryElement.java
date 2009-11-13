@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.operations.IUPropertyUtils;
-import org.eclipse.equinox.p2.operations.SizingPhaseSet;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -68,7 +68,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	}
 
 	public long getSize() {
-		return SizingPhaseSet.SIZE_UNKNOWN;
+		return ProvisioningSession.SIZE_UNKNOWN;
 	}
 
 	public boolean shouldShowSize() {

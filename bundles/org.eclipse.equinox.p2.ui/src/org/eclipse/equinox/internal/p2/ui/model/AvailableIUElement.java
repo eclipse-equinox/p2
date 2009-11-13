@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -23,7 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.p2.operations.SizingPhaseSet;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -45,7 +44,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	// probably refer to some preference or policy to decide what to do.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=221087
 	private static boolean shouldShowSize = false;
-	long size = SizingPhaseSet.SIZE_UNKNOWN;
+	long size = ProvisioningSession.SIZE_UNKNOWN;
 	String profileID;
 
 	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID, boolean showChildren) {

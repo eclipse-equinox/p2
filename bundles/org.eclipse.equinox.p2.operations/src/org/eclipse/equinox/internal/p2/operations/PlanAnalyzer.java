@@ -18,7 +18,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IStatusCodes;
 import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 
