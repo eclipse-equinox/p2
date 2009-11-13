@@ -32,7 +32,7 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryJob {
 	}
 
 	public RefreshMetadataRepositoriesOperation(String label, ProvisioningSession session, int flags) {
-		super(label, session, session.getMetadataRepositories(flags));
+		super(label, session, session.getMetadataRepositoryManager().getKnownRepositories(flags));
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {

@@ -39,7 +39,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object o) {
-		long[] timestamps = ProvUIActivator.getDefault().getProvisioningUI().getSession().getProfileTimestamps(profileId);
+		long[] timestamps = ProvUIActivator.getDefault().getSession().getProfileRegistry().listProfileTimestamps(profileId);
 		RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length];
 		boolean skipFirst = false;
 		for (int i = 0; i < timestamps.length; i++) {

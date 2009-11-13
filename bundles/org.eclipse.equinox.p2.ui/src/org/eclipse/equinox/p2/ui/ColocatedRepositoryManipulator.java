@@ -88,7 +88,7 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
 	 */
 	public URI[] getKnownRepositories(ProvisioningSession session) {
-		return session.getMetadataRepositories(getMetadataRepositoryFlags());
+		return session.getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
 	}
 
 	/*
@@ -100,6 +100,6 @@ public class ColocatedRepositoryManipulator extends RepositoryManipulator {
 	}
 
 	protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
-		return session.validateMetadataRepositoryLocation(location, monitor);
+		return session.getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
 	}
 }

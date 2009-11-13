@@ -820,7 +820,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				}
 
 				protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
-					return session.validateMetadataRepositoryLocation(location, monitor);
+					return session.getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
 				}
 			};
 		return localCacheRepoManipulator;

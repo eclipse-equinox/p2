@@ -46,6 +46,6 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	 * Transforms the item to a UI element
 	 */
 	protected Object wrap(Object item) {
-		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUI.getDefaultUI().getSession().getMetadataRepositoryEnablement((URI) item)));
+		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUI.getDefaultUI().getSession().getMetadataRepositoryManager().isEnabled((URI) item)));
 	}
 }

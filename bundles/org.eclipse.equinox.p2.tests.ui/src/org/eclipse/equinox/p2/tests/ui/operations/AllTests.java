@@ -21,7 +21,6 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(AddColocatedRepositoryOperationTest.class);
 		suite.addTestSuite(SizingTest.class);
-		suite.addTestSuite(ProvisioningUtilTest.class);
 		return suite;
 	}
 }

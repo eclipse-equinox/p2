@@ -119,9 +119,9 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		String name = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		String name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		if (name == null)
-			name = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+			name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
 		if (name == null)
 			name = ""; //$NON-NLS-1$
 		return name;
@@ -132,7 +132,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		String description = ui.getSession().getArtifactRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;

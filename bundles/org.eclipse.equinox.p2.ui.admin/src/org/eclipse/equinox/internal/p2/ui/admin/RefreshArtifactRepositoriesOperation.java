@@ -33,7 +33,7 @@ public class RefreshArtifactRepositoriesOperation extends RepositoryJob {
 
 	public RefreshArtifactRepositoriesOperation(String label, ProvisioningSession session, int flags) {
 		super(label, session, new URI[0]);
-		this.locations = session.getArtifactRepositories(flags);
+		this.locations = session.getArtifactRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {

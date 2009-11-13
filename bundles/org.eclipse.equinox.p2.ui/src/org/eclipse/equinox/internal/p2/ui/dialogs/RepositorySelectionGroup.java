@@ -348,7 +348,7 @@ public class RepositorySelectionGroup {
 	}
 
 	String getSiteString(URI uri) {
-		String nickname = ui.getSession().getMetadataRepositoryProperty(uri, IRepository.PROP_NICKNAME);
+		String nickname = ui.getSession().getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
 		if (nickname != null && nickname.length() > 0)
 			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, nickname, URIUtil.toUnencodedString(uri));
 		return URIUtil.toUnencodedString(uri);
@@ -407,7 +407,7 @@ public class RepositorySelectionGroup {
 	private URI[] getLocalSites() {
 		// use our current visibility flags plus the local filter
 		int flags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
-		return ui.getSession().getMetadataRepositories(flags);
+		return ui.getSession().getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	String[] getComboProposals() {
@@ -415,7 +415,7 @@ public class RepositorySelectionGroup {
 		String[] items = repoCombo.getItems();
 		// Clear any previously remembered disabled repos
 		disabledRepoProposals = new HashMap();
-		URI[] disabled = ui.getSession().getMetadataRepositories(flags);
+		URI[] disabled = ui.getSession().getMetadataRepositoryManager().getKnownRepositories(flags);
 		String[] disabledItems = new String[disabled.length];
 		for (int i = 0; i < disabledItems.length; i++) {
 			disabledItems[i] = getSiteString(disabled[i]);

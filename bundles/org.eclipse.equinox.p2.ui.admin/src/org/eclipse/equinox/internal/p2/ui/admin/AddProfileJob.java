@@ -34,7 +34,7 @@ public class AddProfileJob extends ProvisioningJob {
 	public IStatus runModal(IProgressMonitor monitor) {
 		IStatus status = Status.OK_STATUS;
 		try {
-			getSession().addProfile(profileId, profileProperties, monitor);
+			getSession().getProfileRegistry().addProfile(profileId, profileProperties);
 		} catch (ProvisionException e) {
 			status = getErrorStatus(null, e);
 		}

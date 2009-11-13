@@ -29,7 +29,7 @@ public class RemoveProfilesJob extends ProvisioningJob {
 
 	public IStatus runModal(IProgressMonitor monitor) {
 		for (int i = 0; i < profileIds.length; i++) {
-			getSession().removeProfile(profileIds[i], monitor);
+			getSession().getProfileRegistry().removeProfile(profileIds[i]);
 		}
 		return Status.OK_STATUS;
 

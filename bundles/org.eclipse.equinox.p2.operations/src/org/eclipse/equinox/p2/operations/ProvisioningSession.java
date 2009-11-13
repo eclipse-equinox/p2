@@ -81,26 +81,6 @@ public class ProvisioningSession {
 		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 	}
 
-	public void addMetadataRepository(URI location) {
-		getMetadataRepositoryManager().addRepository(location);
-	}
-
-	public String getMetadataRepositoryProperty(URI location, String key) {
-		return getMetadataRepositoryManager().getRepositoryProperty(location, key);
-	}
-
-	public void setMetadataRepositoryProperty(URI location, String key, String value) {
-		getMetadataRepositoryManager().setRepositoryProperty(location, key, value);
-	}
-
-	public boolean getMetadataRepositoryEnablement(URI location) {
-		return getMetadataRepositoryManager().isEnabled(location);
-	}
-
-	public void setMetadataRepositoryEnablement(URI location, boolean enabled) {
-		getMetadataRepositoryManager().setEnabled(location, enabled);
-	}
-
 	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepository repo;
 		try {
@@ -108,28 +88,16 @@ public class ProvisioningSession {
 			repo = getMetadataRepositoryManager().loadRepository(location, monitor);
 			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
-			String name = getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			String name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null || name.length() == 0) {
 				name = repo.getName();
 				if (name != null && name.length() > 0)
-					setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+					getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} finally {
 			signalOperationComplete(location);
 		}
 		return repo;
-	}
-
-	public IStatus validateMetadataRepositoryLocation(URI location, IProgressMonitor monitor) {
-		return getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
-	}
-
-	public void removeMetadataRepository(URI location) {
-		getMetadataRepositoryManager().removeRepository(location);
-	}
-
-	public URI[] getMetadataRepositories(int flags) {
-		return getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public void refreshMetadataRepositories(URI[] urls, IProgressMonitor monitor) {
@@ -148,26 +116,6 @@ public class ProvisioningSession {
 			signalOperationComplete(null);
 	}
 
-	public boolean getArtifactRepositoryEnablement(URI location) {
-		return getArtifactRepositoryManager().isEnabled(location);
-	}
-
-	public void setArtifactRepositoryEnablement(URI location, boolean enabled) {
-		getArtifactRepositoryManager().setEnabled(location, enabled);
-	}
-
-	public void addArtifactRepository(URI location) {
-		getArtifactRepositoryManager().addRepository(location);
-	}
-
-	public String getArtifactRepositoryProperty(URI location, String key) {
-		return getArtifactRepositoryManager().getRepositoryProperty(location, key);
-	}
-
-	public void setArtifactRepositoryProperty(URI location, String key, String value) {
-		getArtifactRepositoryManager().setRepositoryProperty(location, key, value);
-	}
-
 	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, monitor);
 		if (repo == null) {
@@ -175,21 +123,13 @@ public class ProvisioningSession {
 		}
 		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 		// This will keep the name in the manager even when the repo is not loaded
-		String name = getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		if (name == null) {
-			name = getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
+			name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
 			if (name != null)
-				setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+				getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 		}
 		return repo;
-	}
-
-	public void removeArtifactRepository(URI location) {
-		getArtifactRepositoryManager().removeRepository(location);
-	}
-
-	public URI[] getArtifactRepositories(int flags) {
-		return getArtifactRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public void refreshArtifactRepositories(URI[] urls, IProgressMonitor monitor) throws ProvisionException {
@@ -199,28 +139,8 @@ public class ProvisioningSession {
 		}
 	}
 
-	public IProfile addProfile(String profileId, Map properties, IProgressMonitor monitor) throws ProvisionException {
-		return getProfileRegistry().addProfile(profileId, properties);
-	}
-
-	public void removeProfile(String profileId, IProgressMonitor monitor) {
-		getProfileRegistry().removeProfile(profileId);
-	}
-
-	public IProfile[] getProfiles() {
-		return getProfileRegistry().getProfiles();
-	}
-
-	public long[] getProfileTimestamps(String id) {
-		return getProfileRegistry().listProfileTimestamps(id);
-	}
-
 	public IProfile getProfile(String id) {
 		return getProfileRegistry().getProfile(id);
-	}
-
-	public IProfile getProfile(String id, long timestamp) {
-		return getProfileRegistry().getProfile(id, timestamp);
 	}
 
 	/*

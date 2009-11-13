@@ -30,7 +30,7 @@ public class AddArtifactRepositoryOperation extends AddRepositoryJob {
 	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			getSession().addArtifactRepository(locations[i]);
+			getSession().getArtifactRepositoryManager().addRepository(locations[i]);
 			mon.worked(1);
 		}
 		return Status.OK_STATUS;
@@ -38,7 +38,7 @@ public class AddArtifactRepositoryOperation extends AddRepositoryJob {
 
 	protected void setNickname(URI location, String nickname) {
 		for (int i = 0; i < locations.length; i++) {
-			getSession().setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+			getSession().getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
 		}
 	}
 }

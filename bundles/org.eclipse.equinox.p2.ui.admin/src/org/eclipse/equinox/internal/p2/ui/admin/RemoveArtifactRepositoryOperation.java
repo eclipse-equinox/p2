@@ -29,7 +29,7 @@ public class RemoveArtifactRepositoryOperation extends RemoveRepositoryJob {
 	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			getSession().removeArtifactRepository(locations[i]);
+			getSession().getArtifactRepositoryManager().removeRepository(locations[i]);
 			mon.worked(1);
 		}
 		return Status.OK_STATUS;

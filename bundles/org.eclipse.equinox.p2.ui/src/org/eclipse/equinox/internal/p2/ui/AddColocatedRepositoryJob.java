@@ -35,9 +35,9 @@ public class AddColocatedRepositoryJob extends AddRepositoryJob {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
 
 		for (int i = 0; i < locations.length; i++) {
-			getSession().addMetadataRepository(locations[i]);
+			getSession().getMetadataRepositoryManager().addRepository(locations[i]);
 			mon.worked(1);
-			getSession().addArtifactRepository(locations[i]);
+			getSession().getArtifactRepositoryManager().addRepository(locations[i]);
 			mon.worked(1);
 		}
 		return Status.OK_STATUS;
@@ -45,8 +45,8 @@ public class AddColocatedRepositoryJob extends AddRepositoryJob {
 
 	protected void setNickname(URI location, String nickname) {
 		for (int i = 0; i < locations.length; i++) {
-			getSession().setMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
-			getSession().setArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+			getSession().getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
+			getSession().getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, nickname);
 		}
 	}
 }

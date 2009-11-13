@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
-
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
 
 /**
  * Operation that removes the colocated repositories with the given locations. *
@@ -31,9 +30,9 @@ public class RemoveColocatedRepositoryJob extends RemoveRepositoryJob {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
 
 		for (int i = 0; i < locations.length; i++) {
-			getSession().removeMetadataRepository(locations[i]);
+			getSession().getMetadataRepositoryManager().removeRepository(locations[i]);
 			mon.worked(1);
-			getSession().removeArtifactRepository(locations[i]);
+			getSession().getArtifactRepositoryManager().removeRepository(locations[i]);
 			mon.worked(1);
 		}
 		return Status.OK_STATUS;

@@ -142,9 +142,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	public String getName() {
 		ProvisioningSession session = getProvisioningUI().getSession();
 		if (name == null) {
-			name = session.getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null)
-				name = session.getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
+				name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
 			if (name == null)
 				name = ""; //$NON-NLS-1$
 		}
@@ -168,7 +168,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		ProvisioningSession session = getProvisioningUI().getSession();
 		if (getPolicy().getRepositoryManipulator().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
-		String description = session.getMetadataRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;

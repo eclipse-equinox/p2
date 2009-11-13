@@ -69,7 +69,7 @@ public abstract class RepositoryManipulator extends RepositoryTracker {
 								}
 
 								protected String getInitialNameText() {
-									String nickname = ui.getSession().getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
+									String nickname = ui.getSession().getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 									return nickname == null ? "" : nickname; //$NON-NLS-1$
 								}
 							};
@@ -88,7 +88,7 @@ public abstract class RepositoryManipulator extends RepositoryTracker {
 									} else {
 										String nickname = dialog.getName();
 										if (nickname != null && nickname.length() > 0)
-											ui.getSession().setMetadataRepositoryProperty(correctedLocation, IRepository.PROP_NICKNAME, nickname);
+											ui.getSession().getMetadataRepositoryManager().setRepositoryProperty(correctedLocation, IRepository.PROP_NICKNAME, nickname);
 										ui.getSession().signalOperationComplete(correctedLocation);
 									}
 								}

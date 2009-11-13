@@ -39,7 +39,7 @@ public class ProfileFactory {
 		profileProperties.put(IProfile.PROP_NL, getDefaultNL());
 
 		try {
-			return ProvAdminUIActivator.getDefault().getProvisioningUI(null).getSession().addProfile(profileId, profileProperties, null);
+			return ProvAdminUIActivator.getDefault().getProvisioningUI(null).getSession().getProfileRegistry().addProfile(profileId, profileProperties);
 		} catch (ProvisionException e) {
 			// log
 		}

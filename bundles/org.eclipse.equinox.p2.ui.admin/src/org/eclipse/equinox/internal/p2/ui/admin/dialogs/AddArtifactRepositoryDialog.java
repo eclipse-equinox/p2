@@ -43,7 +43,7 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		}
 
 		public URI[] getKnownRepositories(ProvisioningSession session) {
-			return session.getArtifactRepositories(getArtifactRepositoryFlags());
+			return session.getArtifactRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
 		}
 
 		protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
