@@ -106,7 +106,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		CachedMetadataRepositories() {
 			super(ui);
-			setIncludeDisabledRepositories(manipulator != null);
+			setIncludeDisabledRepositories(manipulator.getRepositoriesVisible());
 		}
 
 		public int getQueryType() {
@@ -157,7 +157,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	protected Control createContents(Composite parent) {
 		display = parent.getDisplay();
 		// The help refers to the full-blown dialog.  No help if it's read only.
-		if (manipulator != null)
+		if (manipulator.getRepositoriesVisible())
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
 
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -165,7 +165,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		composite.setLayoutData(gd);
 
 		GridLayout layout = new GridLayout();
-		layout.numColumns = manipulator == null ? 1 : 2;
+		layout.numColumns = manipulator.getRepositoriesVisible() ? 2 : 1;
 		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
 		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
@@ -216,7 +216,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		pattern.setLayoutData(gd);
 
 		// spacer to fill other column
-		if (manipulator != null)
+		if (manipulator.getRepositoriesVisible())
 			new Label(composite, SWT.NONE);
 
 		// Table of available repositories
@@ -280,7 +280,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (manipulator != null)
+				if (manipulator.getRepositoriesVisible())
 					validateButtons();
 				setDetails();
 			}
@@ -295,7 +295,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		table.setLayoutData(data);
 
 		// Drop targets and vertical buttons only if repository manipulation is provided.
-		if (manipulator != null) {
+		if (manipulator.getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 			target.addDropListener(new RepositoryManipulatorDropTarget(ui, table));
@@ -358,7 +358,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private void setTableColumns() {
 		table.setHeaderVisible(true);
 		String[] columnHeaders;
-		if (manipulator != null)
+		if (manipulator.getRepositoriesVisible())
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle, ProvUIMessages.RepositoryManipulationPage_EnabledColumnTitle};
 		else
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle};

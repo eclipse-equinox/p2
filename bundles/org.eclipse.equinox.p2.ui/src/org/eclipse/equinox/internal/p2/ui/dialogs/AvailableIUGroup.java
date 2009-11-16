@@ -216,8 +216,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 					String description;
 					String name;
 					int severity;
-					if (getPolicy().getRepositoryManipulator() == null) {
-						// shouldn't get here ideally.  No sites and no way to add.
+					if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+						// shouldn't get here ideally.  No sites and no way to add any.
 						severity = IStatus.ERROR;
 						name = ProvUIMessages.AvailableIUGroup_NoSitesConfiguredExplanation;
 						description = ProvUIMessages.AvailableIUGroup_NoSitesConfiguredDescription;
