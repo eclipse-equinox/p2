@@ -9,11 +9,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.repository.tools.analyzer.IIUAnalyzer;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IIUAnalyzer;
 
 /**
  * This service just counts the total number of IUs
@@ -31,11 +31,11 @@ public class IUCounting implements IIUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
 		totalIUs++;
-		if (hasProperty(iu, IInstallableUnit.PROP_TYPE_FRAGMENT))
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_FRAGMENT))
 			totalFragments++;
-		if (hasProperty(iu, IInstallableUnit.PROP_TYPE_GROUP))
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_GROUP))
 			totalGroups++;
-		if (hasProperty(iu, IInstallableUnit.PROP_TYPE_CATEGORY))
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_CATEGORY))
 			totalCategories++;
 	}
 

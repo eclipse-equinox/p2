@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
@@ -20,7 +21,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 public class LicenseAnalyzer extends IUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
-		if (Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP))) {
+		if (Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
 			if (iu.getLicenses() == null || iu.getLicenses().length == 0) {
 				// If there is no license then this is an error
 				error(iu, "[ERROR] " + iu.getId() + " has no license");
