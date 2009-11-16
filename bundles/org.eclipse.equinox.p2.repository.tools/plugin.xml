@@ -2,6 +2,38 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+ <extension
+         point="org.eclipse.equinox.p2.repository.tools.verifier">
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.IUCounting"
+            name="IU Counting Tool">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.CopyrightAnalyzer"
+            name="Copyright Analyzer">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.LicenseAnalyzer"
+            name="License Analyzer">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.HostCheckAnalyzer"
+            name="Fragment Host Analyzer">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.UniqueIUAnalyzer"
+            name="Unique IU Analyzer">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.UnzipFeatureJarAnalyzer"
+            name="Unzip Feature Jar Analyzer">
+      </IUAnalysis>
+      <IUAnalysis
+            class="org.eclipse.equinox.p2.internal.repository.tools.analyzer.VersionAnalyzer"
+            name="Version Analyzer">
+      </IUAnalysis>
+   </extension>
+  <extension-point id="org.eclipse.equinox.p2.repository.tools.verifier" name="Metadata Verifier" schema="schema/org.eclipse.equinox.p2.repository.tools.verifier.exsd"/> 
   <extension
          point="org.eclipse.ant.core.antTasks">
      <antTask
@@ -50,5 +82,16 @@
 			id="org.eclipse.equinox.p2.repository.tools.jar.comparator">
 		</artifactComparator>
 	</extension>
+	 <extension
+       id="org.eclipse.equinox.p2.repository.metadataverifier"
+       point="org.eclipse.core.runtime.applications">
+    <application
+          cardinality="singleton-global"
+          visible="true">
+       <run
+             class="org.eclipse.equinox.p2.internal.repository.tools.RepositoryAnalyzerApplication">
+       </run>
+    </application>
+	 </extension>
 
 </plugin>
