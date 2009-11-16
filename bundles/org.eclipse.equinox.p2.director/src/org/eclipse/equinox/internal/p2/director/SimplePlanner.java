@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
 
 import java.net.URI;

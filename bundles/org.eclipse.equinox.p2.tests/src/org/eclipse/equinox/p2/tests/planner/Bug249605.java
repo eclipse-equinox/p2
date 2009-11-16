@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.util.HashMap;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug249605 extends AbstractProvisioningTest {
@@ -69,7 +70,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("2.0", plan2.getStatus());
 		assertOK("2.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan2.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("2.2", profile1, new IInstallableUnit[] {a1, p2, b2});
-		assertEquals("true", profile1.getInstallableUnitProperty(p2, IProfile.PROP_PROFILE_ROOT_IU));
+		assertTrue(UserVisibleRootQuery.isUserVisible(profile1, p2));
 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {p3});
@@ -78,6 +79,6 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("3.0", plan3.getStatus());
 		assertOK("3.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan3.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("3.2", profile1, new IInstallableUnit[] {a1, p3, b3});
-		assertEquals("true", profile1.getInstallableUnitProperty(p3, IProfile.PROP_PROFILE_ROOT_IU));
+		assertTrue(UserVisibleRootQuery.isUserVisible(profile1, p3));
 	}
 }

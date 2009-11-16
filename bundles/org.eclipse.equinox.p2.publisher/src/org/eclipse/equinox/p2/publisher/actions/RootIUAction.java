@@ -159,7 +159,7 @@ public class RootIUAction extends AbstractPublisherAction {
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
-		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		root.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
 		// TODO why is the type OSGI?
 		root.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);

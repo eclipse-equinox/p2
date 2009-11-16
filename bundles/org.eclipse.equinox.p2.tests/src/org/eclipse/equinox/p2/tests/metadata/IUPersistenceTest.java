@@ -262,7 +262,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnitPatch createPatchIU() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
+		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
@@ -279,7 +279,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnitPatch createPatchWithEmptyScope() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
+		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);

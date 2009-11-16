@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
@@ -40,9 +41,9 @@ public class UninstallOperation extends ProfileChangeOperation {
 		// We ask to remove the the profile root property in addition to removing the IU.  In theory this
 		// should be redundant, but there are cases where the planner decides not to uninstall something because
 		// it is needed by others.  We still want to remove the root in this case.
-		if (rootMarkerKey != null)
-			for (int i = 0; i < toUninstall.length; i++)
-				request.removeInstallableUnitProfileProperty(toUninstall[i], rootMarkerKey);
+		//		if (rootMarkerKey != null)
+		for (int i = 0; i < toUninstall.length; i++)
+			request.removeInstallableUnitProfileProperty(toUninstall[i], IProfile.PROP_PROFILE_ROOT_IU);
 
 	}
 

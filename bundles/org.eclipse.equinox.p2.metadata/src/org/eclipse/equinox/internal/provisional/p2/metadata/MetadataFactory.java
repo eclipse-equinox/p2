@@ -29,7 +29,30 @@ public class MetadataFactory {
 	 * the resulting immutable unit.
 	 */
 	public static class InstallableUnitDescription {
+		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+
 		protected InstallableUnit unit;
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+		 * boolean property indicating that an installable unit is a group.
+		 * 
+		 */
+		public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>) for a 
+		 * boolean property indicating that an installable unit is a fragment.
+		 * 
+		 */
+		public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
+		 * boolean property indicating that an installable unit is a category.
+		 * 
+		 */
+		public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 		public InstallableUnitDescription() {
 			super();
@@ -162,14 +185,10 @@ public class MetadataFactory {
 		}
 	}
 
-	/**
-	 * Description of an installable unit patch. The description will automatically have
-	 * the {@link IInstallableUnit#PROP_TYPE_FRAGMENT} set to <code>true</code>.
-	 */
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
 		public InstallableUnitFragmentDescription() {
 			super();
-			setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+			setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		}
 
 		public void setHost(IRequiredCapability[] hostRequirements) {
@@ -183,15 +202,11 @@ public class MetadataFactory {
 		}
 	}
 
-	/**
-	 * Description of an installable unit patch. The description will automatically have
-	 * the {@link IInstallableUnit#PROP_TYPE_PATCH} set to <code>true</code>.
-	 */
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
 		public InstallableUnitPatchDescription() {
 			super();
-			setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+			setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		}
 
 		public void setApplicabilityScope(IRequiredCapability[][] applyTo) {

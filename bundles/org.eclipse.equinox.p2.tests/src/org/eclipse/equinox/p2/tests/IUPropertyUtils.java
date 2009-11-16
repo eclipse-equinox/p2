@@ -16,6 +16,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class IUPropertyUtils {
@@ -128,8 +129,7 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		iuQuery = new PipedQuery(new IQuery[] {iuQuery, hostLocalizationQuery});
+		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
 		Collector collected = iuQuery.perform(localizationFragments.iterator(), new Collector());
 
 		if (!collected.isEmpty()) {
@@ -206,8 +206,7 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		iuQuery = new PipedQuery(new IQuery[] {iuQuery, localeFragmentQuery});
+		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), localeFragmentQuery});
 		Collector collected = queryable.query(iuQuery, new Collector(), null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;

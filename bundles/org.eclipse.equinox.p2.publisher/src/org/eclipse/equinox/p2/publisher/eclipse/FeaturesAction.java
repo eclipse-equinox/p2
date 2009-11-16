@@ -253,7 +253,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		processTouchpointAdvice(iu, null, publisherInfo);
 		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
 
@@ -351,8 +351,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setTouchpointType(ITouchpointType.NONE);
 		processTouchpointAdvice(iu, null, publisherInfo);
 		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);

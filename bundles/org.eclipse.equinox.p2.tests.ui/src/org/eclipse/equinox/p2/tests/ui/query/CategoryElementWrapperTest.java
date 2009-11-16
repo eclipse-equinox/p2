@@ -34,7 +34,7 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		iu.setId(id);
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, name);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 

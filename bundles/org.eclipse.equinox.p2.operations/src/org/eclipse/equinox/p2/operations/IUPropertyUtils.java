@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 /**
  * 
@@ -130,8 +130,7 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = iuQuery.perform(localizationFragments.iterator(), hostLocalizationCollector);
+		Collector collected = new FragmentQuery().perform(localizationFragments.iterator(), hostLocalizationCollector);
 
 		if (!collected.isEmpty()) {
 			String translation = null;
@@ -218,8 +217,7 @@ public class IUPropertyUtils {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
 			return new Collector();
 		}
-		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = profile.query(iuQuery, localeFragmentCollector, null);
+		Collector collected = profile.query(new FragmentQuery(), localeFragmentCollector, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}

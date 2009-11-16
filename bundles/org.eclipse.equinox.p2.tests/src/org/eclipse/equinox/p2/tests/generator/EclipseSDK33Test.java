@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.tests.*;
 import org.osgi.framework.Bundle;
 
@@ -96,7 +97,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 	 * Asserts that the given IU represents a group.
 	 */
 	private void assertGroup(IInstallableUnit unit) {
-		assertEquals("IU is not a group", Boolean.TRUE.toString(), unit.getProperty(IInstallableUnit.PROP_TYPE_GROUP));
+		assertEquals("IU is not a group", Boolean.TRUE.toString(), GroupQuery.isGroup(unit));
 	}
 
 	private IGeneratorInfo createGeneratorInfo() {

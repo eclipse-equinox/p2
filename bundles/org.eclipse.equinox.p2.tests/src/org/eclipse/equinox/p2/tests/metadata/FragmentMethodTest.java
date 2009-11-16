@@ -71,7 +71,7 @@ public class FragmentMethodTest extends TestCase {
 		}
 
 		//The fragment property is not set
-		assertNull(iu1.getProperty(IInstallableUnit.PROP_TYPE_FRAGMENT));
+		assertNull(iu1.getProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT));
 
 		//The fragment does not contain iu namespace
 		for (int i = 0; i < initialFragmentCapabilities.length; i++) {

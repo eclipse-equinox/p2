@@ -87,7 +87,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 			installableUnitFragmentDescription.setId("fragment number: " + i);
 			installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
 			installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
-			installableUnitFragmentDescription.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, "true");
+			installableUnitFragmentDescription.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 			IInstallableUnitFragment iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);
 			profile.addInstallableUnit(iuFragment);
 		}
@@ -101,7 +101,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		installableUnitFragmentDescription.setId("german fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
 		installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
-		installableUnitFragmentDescription.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, "true");
+		installableUnitFragmentDescription.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("de.license", germanLicense);
 		IInstallableUnitFragment iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);
 		profile.addInstallableUnit(iuFragment);
@@ -115,7 +115,7 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		installableUnitFragmentDescription.setId("cnd french fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
 		installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
-		installableUnitFragmentDescription.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, "true");
+		installableUnitFragmentDescription.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("fr_CA.license", canadianFRLicense);
 		iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);
 

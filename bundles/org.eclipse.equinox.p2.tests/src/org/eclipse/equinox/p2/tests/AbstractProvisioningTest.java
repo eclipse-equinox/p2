@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -36,6 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -205,7 +204,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(DEFAULT_VERSION);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setTouchpointType(TOUCHPOINT_OSGI);
 		fragment.addTouchpointData(NO_TP_DATA);
 		fragment.setHost(BUNDLE_REQUIREMENT);
@@ -450,7 +449,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setRequiredCapabilities(required);
 		fragment.setTouchpointType(tpType);
 		if (tpData != null)

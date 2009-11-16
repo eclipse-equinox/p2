@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 
 /**
  * A wrapper that examines available IU's and wraps them in an
@@ -142,8 +142,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	}
 
 	protected boolean isCategory(IInstallableUnit iu) {
-		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
-		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
+		return CategoryQuery.isCategory(iu);
 	}
 
 	protected boolean makeCategory() {

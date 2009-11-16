@@ -92,7 +92,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		// Create an update operation to reflect the new updates that are available.
 		operation = new UpdateOperation(getSession(), iusWithUpdates);
 		operation.setProfileId(event.getProfileId());
-		operation.setRootMarkerKey(IProfile.PROP_PROFILE_ROOT_IU);
+		//		operation.setRootMarkerKey(IProfile.PROP_PROFILE_ROOT_IU);
 		IStatus status = operation.resolveModal(new NullProgressMonitor());
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
@@ -310,7 +310,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					return Status.CANCEL_STATUS;
 				// notify that updates are available for all roots.  We don't know for sure that
 				// there are any, but this will cause everything to be rechecked
-				updatesAvailable(new UpdateEvent(profileId, getSession().getProfileRoots(profileId, IProfile.PROP_PROFILE_ROOT_IU)));
+				updatesAvailable(new UpdateEvent(profileId, getSession().getProfileRoots(profileId, false)));
 				return Status.OK_STATUS;
 			}
 		};

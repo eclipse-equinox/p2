@@ -47,6 +47,13 @@ public class PipedQuery implements IQuery {
 		this.queries = queries;
 	}
 
+	/**
+	 * Returns the queries that make up this compound query
+	 */
+	public IQuery[] getQueries() {
+		return queries;
+	}
+
 	public Collector perform(Iterator iterator, Collector result) {
 		Collector collector;
 		Iterator iter = iterator;

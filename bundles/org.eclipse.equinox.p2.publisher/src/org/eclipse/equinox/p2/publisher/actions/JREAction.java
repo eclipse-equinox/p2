@@ -74,7 +74,7 @@ public class JREAction extends AbstractPublisherAction {
 		cu.setId(configId);
 		cu.setVersion(iu.getVersion());
 		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, Version.OSGi_MAX, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();

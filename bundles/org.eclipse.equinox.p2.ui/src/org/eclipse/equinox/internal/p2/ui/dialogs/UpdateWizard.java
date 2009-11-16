@@ -134,7 +134,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		if (operation == null) {
 			operation = new UpdateOperation(ui.getSession(), getIUsToReplace(elements));
 			operation.setProfileId(getProfileId());
-			operation.setRootMarkerKey(getRootMarkerKey());
+			//			operation.setRootMarkerKey(getRootMarkerKey());
 			operation.setProvisioningContext(getProvisioningContext());
 
 		} else {

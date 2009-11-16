@@ -62,7 +62,7 @@ public class InstallAction extends ProfileModificationAction {
 	protected ProfileChangeOperation getProfileChangeOperation(IInstallableUnit[] ius) {
 		InstallOperation op = new InstallOperation(getSession(), ius);
 		op.setProfileId(profileId);
-		op.setRootMarkerKey(getPolicy().getQueryContext().getVisibleInstalledIUProperty());
+		//		op.setRootMarkerKey(getPolicy().getQueryContext().getVisibleInstalledIUProperty());
 		return op;
 	}
 }

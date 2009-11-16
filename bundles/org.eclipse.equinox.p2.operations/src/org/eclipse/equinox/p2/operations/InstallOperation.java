@@ -11,17 +11,16 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
-
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.internal.p2.operations.PlanAnalyzer;
+import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
  * @since 2.0
@@ -44,7 +43,7 @@ public class InstallOperation extends ProfileChangeOperation {
 		for (int i = 0; i < toInstall.length; i++) {
 			// If the user is installing a patch, we mark it optional.  This allows
 			// the patched IU to be updated later by removing the patch.
-			if (Boolean.toString(true).equals(toInstall[i].getProperty(IInstallableUnit.PROP_TYPE_PATCH)))
+			if (PatchQuery.isPatch(toInstall[i]))
 				request.setInstallableUnitInclusionRules(toInstall[i], PlannerHelper.createOptionalInclusionRule(toInstall[i]));
 
 			// Check to see if it is already installed.  This may alter the request.
@@ -72,30 +71,30 @@ public class InstallOperation extends ProfileChangeOperation {
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));
 						// Mark it as a root if it hasn't been already
-						if (!Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, rootMarkerKey)))
-							request.setInstallableUnitProfileProperty(toInstall[i], rootMarkerKey, Boolean.toString(true));
+						if (!UserVisibleRootQuery.isUserVisible(profile, installedIU))
+							request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, toInstall[i]));
 				} else {
-					if (rootMarkerKey != null) {
-						if (Boolean.toString(true).equals(profile.getInstallableUnitProperty(installedIU, rootMarkerKey)))
-							// It is already a root, nothing to do. We tell the user it was already installed
-							status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, toInstall[i]));
-						else {
-							// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
-							// it as a root. 
-							status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, toInstall[i]));
-							request.setInstallableUnitProfileProperty(toInstall[i], rootMarkerKey, Boolean.toString(true));
-						}
+					//					if (rootMarkerKey != null) {
+					if (UserVisibleRootQuery.isUserVisible(profile, installedIU))
+						// It is already a root, nothing to do. We tell the user it was already installed
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, toInstall[i]));
+					else {
+						// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
+						// it as a root. 
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, toInstall[i]));
+						request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
+					//					}
 				}
 			} else {
 				// Install it and mark as a root
 				request.addInstallableUnits(new IInstallableUnit[] {toInstall[i]});
-				if (rootMarkerKey != null)
-					request.setInstallableUnitProfileProperty(toInstall[i], rootMarkerKey, Boolean.toString(true));
+				//				if (rootMarkerKey != null)
+				request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			sub.worked(1);
 		}

@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class InclusionRuleTest2 extends AbstractProvisioningTest {
@@ -52,7 +53,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 
 		IProfileRegistry profileRegistry = getProfileRegistry();
 		profile = profileRegistry.getProfile(profile.getProfileId());
-		Collector c = profile.query(new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString()), new Collector(), null);
+		Collector c = profile.query(new UserVisibleRootQuery(), new Collector(), null);
 		assertEquals(c.size(), 1);
 
 		System.gc();

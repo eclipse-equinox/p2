@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -116,9 +115,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
 		if (root) {
-			String rootProp = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
-			if (rootProp != null)
-				req.setInstallableUnitProfileProperty(iu, rootProp, Boolean.toString(true));
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
 		if (lock) {
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, new Integer(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
@@ -136,7 +133,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, name);
 		if (isCategory)
-			iu.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+			iu.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 

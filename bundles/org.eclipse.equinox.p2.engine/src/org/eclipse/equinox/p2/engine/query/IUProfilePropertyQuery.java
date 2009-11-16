@@ -8,7 +8,9 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.p2.engine.query;
+
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
@@ -20,6 +22,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuer
 public class IUProfilePropertyQuery extends IUPropertyQuery {
 	private IProfile profile;
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public void setProfile(IProfile profile) {
 		this.profile = profile;
 	}

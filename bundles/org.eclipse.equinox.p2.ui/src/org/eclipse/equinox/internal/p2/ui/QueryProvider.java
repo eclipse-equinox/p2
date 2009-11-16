@@ -15,9 +15,9 @@ import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IUProfilePropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.ui.*;
 
@@ -83,8 +83,8 @@ public class QueryProvider {
 					targetProfile = ui.getSession().getProfile(profileId);
 				}
 
-				IQuery topLevelQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
-				IQuery categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+				IQuery topLevelQuery = context.getVisibleAvailableIUProperty();
+				IQuery categoryQuery = new CategoryQuery();
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
@@ -139,7 +139,7 @@ public class QueryProvider {
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					Collector collector = profile.query(new IUProfilePropertyQuery(context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), null);
+					Collector collector = profile.query(context.getVisibleInstalledIUProperty(), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
@@ -149,13 +149,13 @@ public class QueryProvider {
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					IQuery meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
-					IQuery visibleAsAvailableQuery = new IUPropertyQuery(context.getVisibleAvailableIUProperty(), Boolean.TRUE.toString());
+					IQuery visibleAsAvailableQuery = context.getVisibleAvailableIUProperty();
 					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(context.getVisibleInstalledIUProperty(), Boolean.toString(true)), new Collector(), new InstalledIUElementWrapper(profile, element));
+				return new ElementQueryDescriptor(profile, context.getVisibleInstalledIUProperty(), new Collector(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {

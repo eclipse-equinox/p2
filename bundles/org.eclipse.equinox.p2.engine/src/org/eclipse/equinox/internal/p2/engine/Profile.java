@@ -12,10 +12,11 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
@@ -160,11 +161,30 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		propagateProfileContext(query);
 		if (query instanceof IUProfilePropertyQuery) {
-			((IUProfilePropertyQuery) query).setProfile(this);
 			return query.perform(iuProperties.keySet().iterator(), collector);
 		}
 		return query.perform(ius.iterator(), collector);
+	}
+
+	private void propagateProfileContext(IQuery query) {
+		if (query instanceof IUProfilePropertyQuery) {
+			((IUProfilePropertyQuery) query).setProfile(this);
+			return;
+		}
+		IQuery[] queries = null;
+		if (query instanceof PipedQuery) {
+			queries = ((PipedQuery) query).getQueries();
+		}
+		if (query instanceof CompoundQuery) {
+			queries = ((CompoundQuery) query).getQueries();
+		}
+		if (queries != null) {
+			for (int i = 0; i < queries.length; i++) {
+				propagateProfileContext(queries[i]);
+			}
+		}
 	}
 
 	public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {

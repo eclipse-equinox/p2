@@ -12,8 +12,9 @@ package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * IUViewQueryContext defines the different ways 
@@ -31,7 +32,7 @@ public class IUViewQueryContext {
 	// Default available view to repo as this provides the fastest information
 	private int view = AVAILABLE_VIEW_BY_REPO;
 	// What property to use for choosing visible IUs
-	private String visibleAvailableIUProperty = IInstallableUnit.PROP_TYPE_GROUP;
+	private IQuery visibleAvailableIUProperty = new GroupQuery();
 	// Whether to show latest versions only, defaults to
 	// true.  Clients typically use a pref setting or dialog
 	// setting to initialize
@@ -52,7 +53,7 @@ public class IUViewQueryContext {
 	private String profileId = null;
 
 	// Installed view settings
-	private String visibleInstalledIUProperty = IProfile.PROP_PROFILE_ROOT_IU;
+	private IQuery visibleInstalledIUProperty = new UserVisibleRootQuery();
 
 	private String hidingInstalledDescription = ProvUIMessages.IUViewQueryContext_AllAreInstalledDescription;
 	private String groupingCategoriesDescription = ProvUIMessages.IUViewQueryContext_NoCategorizedItemsDescription;
@@ -107,19 +108,19 @@ public class IUViewQueryContext {
 		this.profileId = profileId;
 	}
 
-	public String getVisibleAvailableIUProperty() {
+	public IQuery getVisibleAvailableIUProperty() {
 		return visibleAvailableIUProperty;
 	}
 
-	public void setVisibleAvailableIUProperty(String propertyName) {
-		visibleAvailableIUProperty = propertyName;
+	public void setVisibleAvailableIUProperty(IQuery query) {
+		visibleAvailableIUProperty = query;
 	}
 
-	public String getVisibleInstalledIUProperty() {
+	public IQuery getVisibleInstalledIUProperty() {
 		return visibleInstalledIUProperty;
 	}
 
-	public void setVisibleInstalledIUProperty(String propertyName) {
+	public void setVisibleInstalledIUProperty(IQuery propertyName) {
 		visibleInstalledIUProperty = propertyName;
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentTest extends AbstractProvisioningTest {
@@ -82,7 +83,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testFragmentCapability() {
 		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
-		assertEquals(Boolean.TRUE.toString(), iu.getProperty(IInstallableUnit.PROP_TYPE_FRAGMENT));
+		assertTrue(FragmentQuery.isFragment(iu));
 	}
 
 	public void testDefaultIUCapability() {

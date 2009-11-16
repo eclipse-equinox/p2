@@ -13,9 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -106,11 +106,11 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		IUViewQueryContext queryContext = policy.getQueryContext();
 		RepositoryManipulator manipulator = policy.getRepositoryManipulator();
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
-			queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
+			queryContext.setVisibleAvailableIUProperty(new GroupQuery());
 		else
 			queryContext.setVisibleAvailableIUProperty(null);
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
-			queryContext.setVisibleInstalledIUProperty(IProfile.PROP_PROFILE_ROOT_IU);
+			queryContext.setVisibleInstalledIUProperty(new UserVisibleRootQuery());
 		else
 			queryContext.setVisibleInstalledIUProperty(null);
 

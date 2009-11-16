@@ -134,7 +134,7 @@ public class InstallWizard extends WizardWithLicenses {
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		InstallOperation op = new InstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());
-		op.setRootMarkerKey(getRootMarkerKey());
+		//		op.setRootMarkerKey(getRootMarkerKey());
 		return op;
 	}
 }

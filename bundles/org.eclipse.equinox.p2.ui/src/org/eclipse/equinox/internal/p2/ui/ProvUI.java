@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -214,8 +215,7 @@ public class ProvUI {
 	}
 
 	public static boolean isCategory(IInstallableUnit iu) {
-		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
-		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
+		return CategoryQuery.isCategory(iu);
 	}
 
 	private static void reportFail(String message, Throwable t) {

@@ -39,38 +39,6 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	public static final String PROP_PARTIAL_IU = "org.eclipse.equinox.p2.partial.iu"; //$NON-NLS-1$
 
 	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
-	 * boolean property indicating that an installable unit is a category.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
-
-	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>) for a 
-	 * boolean property indicating that an installable unit is a fragment.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
-
-	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.group"</code>) for a 
-	 * boolean property indicating that an installable unit is a group.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
-
-	/**
-	 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
-	 * boolean property indicating that an installable unit is a group.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
-
-	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.contact"</code>) for a 
 	 * String property containing a contact address where problems can be reported, 
 	 * such as an email address.

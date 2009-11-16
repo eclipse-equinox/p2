@@ -11,18 +11,16 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.internal.p2.operations.PlanAnalyzer;
+import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
  * @since 2.0
@@ -127,7 +125,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				boolean foundPatch = false;
 				for (int j = 0; j < updates.length; j++) {
 					String key;
-					if (Boolean.toString(true).equals(updates[j].replacement.getProperty(IInstallableUnit.PROP_TYPE_PATCH))) {
+					if (PatchQuery.isPatch(updates[j].replacement)) {
 						foundPatch = true;
 						key = updates[j].replacement.getId();
 					} else {
@@ -178,9 +176,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 					defaultUpdates.add(update);
 			}
 			request.addInstallableUnits(new IInstallableUnit[] {theUpdate});
-			if (rootMarkerKey != null)
-				request.setInstallableUnitProfileProperty(theUpdate, rootMarkerKey, Boolean.toString(true));
-			if (Boolean.toString(true).equals(theUpdate.getProperty(IInstallableUnit.PROP_TYPE_PATCH))) {
+			//			if (rootMarkerKey != null)
+			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			if (PatchQuery.isPatch(theUpdate)) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
 			} else {
 				request.removeInstallableUnits(new IInstallableUnit[] {update.toUpdate});
@@ -211,7 +209,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	protected void prepareToResolve() {
 		super.prepareToResolve();
 		if (iusToUpdate == null) {
-			iusToUpdate = session.getProfileRoots(profileId, rootMarkerKey);
+			iusToUpdate = session.getProfileRoots(profileId, false);
 		}
 	}
 

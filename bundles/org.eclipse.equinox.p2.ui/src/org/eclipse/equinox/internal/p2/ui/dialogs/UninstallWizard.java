@@ -80,7 +80,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		UninstallOperation op = new UninstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());
-		op.setRootMarkerKey(getRootMarkerKey());
+		//		op.setRootMarkerKey(getRootMarkerKey());
 		op.setProvisioningContext(getProvisioningContext());
 		return op;
 	}

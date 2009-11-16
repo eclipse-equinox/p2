@@ -40,7 +40,7 @@ public class InstallWizardTest extends WizardTest {
 		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, "true");
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, "true");
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
 		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});

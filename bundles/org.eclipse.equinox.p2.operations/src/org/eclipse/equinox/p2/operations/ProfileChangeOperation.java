@@ -11,13 +11,11 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
@@ -31,7 +29,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	protected ProvisioningSession session;
 	protected String profileId;
 	protected ProvisioningContext context;
-	protected String rootMarkerKey;
+	//	protected String rootMarkerKey;
 	MultiStatus noChangeRequest;
 	PlannerResolutionJob job;
 	ProfileChangeRequest request;
@@ -39,7 +37,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	public ProfileChangeOperation(ProvisioningSession session) {
 		this.session = session;
 		this.profileId = IProfileRegistry.SELF;
-		this.rootMarkerKey = IProfile.PROP_PROFILE_ROOT_IU;
+		//		this.rootMarkerKey = IProfile.PROP_PROFILE_ROOT_IU;
 	}
 
 	public final IStatus resolveModal(IProgressMonitor monitor) {
@@ -58,9 +56,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		this.profileId = id;
 	}
 
-	public void setRootMarkerKey(String propertyKey) {
-		this.rootMarkerKey = propertyKey;
-	}
+	//	public void setRootMarkerKey(String propertyKey) {
+	//		this.rootMarkerKey = propertyKey;
+	//	}
 
 	/**
 	 * 

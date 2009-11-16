@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 import org.eclipse.core.runtime.IStatus;

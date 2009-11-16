@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -37,6 +35,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
@@ -296,15 +295,15 @@ public class ProvisioningSession {
 		});
 	}
 
-	public IInstallableUnit[] getProfileRoots(String profileId, String rootMarkerKey) {
+	public IInstallableUnit[] getProfileRoots(String profileId, boolean all) {
 		IProfile profile = this.getProfile(profileId);
 		if (profile == null)
 			return new IInstallableUnit[0];
 		IQuery query;
-		if (rootMarkerKey == null)
+		if (all)
 			query = InstallableUnitQuery.ANY;
 		else
-			query = new IUProfilePropertyQuery(rootMarkerKey, Boolean.toString(true));
+			query = new UserVisibleRootQuery();
 		Collector collector = profile.query(query, new Collector(), null);
 		return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 	}

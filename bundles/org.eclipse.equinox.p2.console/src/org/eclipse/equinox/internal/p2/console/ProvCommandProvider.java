@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
@@ -269,8 +269,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		}
-		IQuery query = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		IInstallableUnit[] units = sort(queryable.query(query, new Collector(), null));
+		IInstallableUnit[] units = sort(queryable.query(new GroupQuery(), new Collector(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -457,8 +456,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Profile " + profileId + " not found");
 			return;
 		}
-		IQuery query = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(profile, query, new NullProgressMonitor()));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(profile, new GroupQuery(), new NullProgressMonitor()));
 		// Now print out results
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);

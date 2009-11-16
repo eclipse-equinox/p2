@@ -12,6 +12,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchIUGeneration extends AbstractProvisioningTest {
@@ -36,7 +37,7 @@ public class PatchIUGeneration extends AbstractProvisioningTest {
 		assertEquals(VersionRange.emptyRange, patchIU.getRequirementsChange()[0].applyOn().getRange());
 		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange()[0].newValue().getName());
 		assertEquals(new VersionRange("[3.2.2,3.2.2]"), patchIU.getRequirementsChange()[0].newValue().getRange());
-		assertEquals(Boolean.TRUE.toString(), patchIU.getProperty(IInstallableUnit.PROP_TYPE_PATCH));
+		assertTrue(PatchQuery.isPatch(patchIU));
 		assertEquals(1, patchIU.getRequiredCapabilities().length);
 		assertEquals(featureIU.getId(), patchIU.getRequiredCapabilities()[0].getName());
 		assertEquals("org.eclipse.jdt.feature.group", patchIU.getLifeCycle().getName());
