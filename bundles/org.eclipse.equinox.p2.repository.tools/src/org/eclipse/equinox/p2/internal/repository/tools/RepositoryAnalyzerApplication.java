@@ -47,6 +47,12 @@ public class RepositoryAnalyzerApplication implements IApplication {
 			else
 				System.out.print("[Error] ");
 			System.out.println(children[i].getMessage());
+			if (children[i].isMultiStatus() && children[i].getChildren() != null && children[i].getChildren().length > 0) {
+				IStatus[] subChildren = children[i].getChildren();
+				for (int j = 0; j < subChildren.length; j++) {
+					System.out.println("   " + subChildren[j].getMessage());
+				}
+			}
 		}
 		return IApplication.EXIT_OK;
 	}

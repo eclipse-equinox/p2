@@ -41,6 +41,10 @@ public class RepositoryAnalyzer {
 			for (int j = 0; j < config.length; j++) {
 				try {
 					IIUAnalyzer verifier = (IIUAnalyzer) config[j].createExecutableExtension("class"); //$NON-NLS-1$
+					String analyizerName = config[j].getAttribute("name"); //$NON-NLS-1$
+					if (verifier instanceof IUAnalyzer) {
+						((IUAnalyzer) verifier).setName(analyizerName);
+					}
 					verifier.preAnalysis(repositories[i]);
 					Iterator iter = queryResult.iterator();
 					while (iter.hasNext()) {
@@ -49,9 +53,9 @@ public class RepositoryAnalyzer {
 					}
 					IStatus postAnalysisResult = verifier.postAnalysis();
 					if (postAnalysisResult == null)
-						postAnalysisResult = new Status(IStatus.OK, Activator.ID, config[j].getAttribute("name"));
+						postAnalysisResult = new Status(IStatus.OK, Activator.ID, analyizerName);
 					if (postAnalysisResult.isOK() && !postAnalysisResult.isMultiStatus())
-						postAnalysisResult = new Status(IStatus.OK, Activator.ID, config[j].getAttribute("name"));
+						postAnalysisResult = new Status(IStatus.OK, Activator.ID, analyizerName);
 					result.add(postAnalysisResult);
 				} catch (CoreException e) {
 					if (e.getCause() instanceof ClassNotFoundException) {
@@ -65,5 +69,4 @@ public class RepositoryAnalyzer {
 		sub.done();
 		return result;
 	}
-
 }
