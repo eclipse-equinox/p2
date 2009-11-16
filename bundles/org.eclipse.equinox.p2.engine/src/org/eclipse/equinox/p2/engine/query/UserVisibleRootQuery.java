@@ -13,13 +13,23 @@ package org.eclipse.equinox.p2.engine.query;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
+/**
+ * A query matching all the {@link IInstallableUnit}s that are marked visible to the user. 
+ * @since 2.0
+ */
 public class UserVisibleRootQuery extends IUProfilePropertyQuery {
 
 	public UserVisibleRootQuery() {
 		super(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 	}
 
-	public static boolean isUserVisible(IProfile profile, IInstallableUnit iu) {
+	/**
+	 * Test if the {@link IInstallableUnit}, in the context of a {@link IProfile} is visible to the user 
+	 * @param iu the element being tested.
+	 * @param profile the context in which the iu is tested
+	 * @return <tt>true</tt> if the element is visible to the user.
+	 */
+	public static boolean isUserVisible(IInstallableUnit iu, IProfile profile) {
 		String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_ROOT_IU);
 		if (value != null && (value.equals(Boolean.TRUE.toString())))
 			return true;

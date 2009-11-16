@@ -70,7 +70,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("2.0", plan2.getStatus());
 		assertOK("2.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan2.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("2.2", profile1, new IInstallableUnit[] {a1, p2, b2});
-		assertTrue(UserVisibleRootQuery.isUserVisible(profile1, p2));
+		assertTrue(UserVisibleRootQuery.isUserVisible(p2, profile1));
 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {p3});
@@ -79,6 +79,6 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertOK("3.0", plan3.getStatus());
 		assertOK("3.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan3.getOperands(), null, new NullProgressMonitor()));
 		assertProfileContains("3.2", profile1, new IInstallableUnit[] {a1, p3, b3});
-		assertTrue(UserVisibleRootQuery.isUserVisible(profile1, p3));
+		assertTrue(UserVisibleRootQuery.isUserVisible(p3, profile1));
 	}
 }

@@ -71,7 +71,7 @@ public class InstallOperation extends ProfileChangeOperation {
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));
 						// Mark it as a root if it hasn't been already
-						if (!UserVisibleRootQuery.isUserVisible(profile, installedIU))
+						if (!UserVisibleRootQuery.isUserVisible(installedIU, profile))
 							request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
 				} else if (compareTo < 0) {
@@ -79,7 +79,7 @@ public class InstallOperation extends ProfileChangeOperation {
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, toInstall[i]));
 				} else {
 					//					if (rootMarkerKey != null) {
-					if (UserVisibleRootQuery.isUserVisible(profile, installedIU))
+					if (UserVisibleRootQuery.isUserVisible(installedIU, profile))
 						// It is already a root, nothing to do. We tell the user it was already installed
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, toInstall[i]));
 					else {
