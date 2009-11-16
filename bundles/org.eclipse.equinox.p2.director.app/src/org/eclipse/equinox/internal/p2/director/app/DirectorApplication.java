@@ -429,7 +429,9 @@ public class DirectorApplication implements IApplication {
 						profileId = destination;
 				}
 			}
-			if (profileId != null)
+			//note this condition is bogus but we currently rely on the property being 
+			//cleared for the director to run successfully. See bug 295269 for details.
+			if (profileId == null)
 				preservedProfile = System.setProperty(PROP_P2_PROFILE, profileId);
 			else
 				preservedProfile = (String) System.getProperties().remove(PROP_P2_PROFILE);
