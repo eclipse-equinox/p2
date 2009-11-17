@@ -294,19 +294,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		ArrayList result = new ArrayList();
-		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo current = (ChildInfo) repositoryIterator.next();
-			if (current.isGood()) {
-				IArtifactKey[] tempResult = current.repo.getArtifactKeys();
-				for (int i = 0; i < tempResult.length; i++)
-					add(result, tempResult[i]);
-			}
-		}
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
-	}
-
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
@@ -459,9 +446,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * Check the two given repositories against each other using the given comparator.
 	 */
 	private boolean isSane(IArtifactRepository one, IArtifactRepository two, IArtifactComparator comparator) {
-		IArtifactKey[] toCheckKeys = one.getArtifactKeys();
-		for (int i = 0; i < toCheckKeys.length; i++) {
-			IArtifactKey key = toCheckKeys[i];
+		Collector toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		for (Iterator iterator = toCheckKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
 			if (!two.contains(key))
 				continue;
 			IArtifactDescriptor[] toCheckDescriptors = one.getArtifactDescriptors(key);
@@ -522,7 +509,13 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
 		// Query all the all the repositories this composite repo contains
-		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
+		List repos = new ArrayList();
+		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
+			ChildInfo info = (ChildInfo) repositoryIterator.next();
+			if (info.isGood())
+				repos.add(info.repo);
+		}
+		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) repos.toArray(new IQueryable[repos.size()]));
 		return queryable.query(query, collector, monitor);
 	}
 }

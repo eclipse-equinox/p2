@@ -33,8 +33,6 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 
 	public abstract IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key);
 
-	public abstract IArtifactKey[] getArtifactKeys();
-
 	public abstract IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor);
 
 	public abstract OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;

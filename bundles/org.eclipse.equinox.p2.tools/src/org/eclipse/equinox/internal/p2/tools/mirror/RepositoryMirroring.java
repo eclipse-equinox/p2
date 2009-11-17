@@ -144,9 +144,10 @@ public class RepositoryMirroring {
 		IArtifactKey[] keys;
 		if (artifactSpecs == null)
 			return;
-		if (artifactSpecs.length == 0)
-			keys = artifactSourceRepository.getArtifactKeys();
-		else {
+		if (artifactSpecs.length == 0) {
+			Collector result = artifactSourceRepository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			keys = (IArtifactKey[]) result.toArray(IArtifactKey.class);
+		} else {
 			keys = new ArtifactKey[artifactSpecs.length];
 			for (int i = 0; i < artifactSpecs.length; i++) {
 				keys[i] = ArtifactKey.parse(artifactSpecs[i]);

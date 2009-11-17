@@ -109,10 +109,6 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return keysToLocations.get(key);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		return keysToLocations.keySet().toArray(new IArtifactKey[keysToLocations.keySet().size()]);
-	}
-
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
 		request.setSourceRepository(this);
 		request.perform(monitor);

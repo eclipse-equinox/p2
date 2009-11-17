@@ -172,7 +172,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.getArtifactKeys().length != 2)
+			if (getArtifactKeyCount(repo) != 2)
 				fail("2.1");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -188,7 +188,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.getArtifactKeys().length != 1)
+			if (getArtifactKeyCount(repo) != 1)
 				fail("2.1");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -204,7 +204,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.getArtifactKeys().length != 1)
+			if (getArtifactKeyCount(repo) != 1)
 				fail("2.1");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -218,7 +218,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		copy("1.1", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		try {
 			IArtifactRepository repo = factory.load(directory.toURI(), 0, getMonitor());
-			if (repo.getArtifactKeys().length != 2)
+			if (getArtifactKeyCount(repo) != 2)
 				fail("1.0");
 		} catch (ProvisionException e) {
 			fail("0.5", e);

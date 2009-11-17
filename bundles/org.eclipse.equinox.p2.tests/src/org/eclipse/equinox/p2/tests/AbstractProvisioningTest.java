@@ -1164,15 +1164,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		IArtifactKey[] sourceKeys = sourceRepo.getArtifactKeys();
-
-		for (int i = 0; i < sourceKeys.length; i++) {
-			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(sourceKeys[i]);
+		Collector sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		for (Iterator iterator = sourceKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
 			if (destinationDescriptors == null || destinationDescriptors.length == 0)
-				fail(message + ": unmatched key: " + sourceKeys[i].toString());
+				fail(message + ": unmatched key: " + key.toString());
 			//this implicitly verifies the keys are present
 
-			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(sourceKeys[i]);
+			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(key);
 
 			assertEquals(message, sourceDescriptors, destinationDescriptors, false); //order doesn't matter
 		}
@@ -1354,5 +1354,30 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		} catch (Throwable t) {
 			fail();
 		}
+	}
+
+	protected int getArtifactKeyCount(URI location) {
+		try {
+			return getArtifactKeyCount(getArtifactRepositoryManager().loadRepository(location, null));
+		} catch (ProvisionException e) {
+			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
+			return -1;
+		}
+	}
+
+	protected int getArtifactKeyCount(IArtifactRepository repo) {
+		return repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null).size();
+	}
+
+	protected int getArtifactDescriptorCount(URI location) {
+		int count = 0;
+		try {
+			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
+			Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+			return descriptors.size();
+		} catch (ProvisionException e) {
+			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
+		}
+		return count;
 	}
 }

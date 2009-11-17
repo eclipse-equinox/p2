@@ -188,11 +188,6 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		return artifactRepository.getArtifactDescriptors(key);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		ensureInitialized();
-		return artifactRepository.getArtifactKeys();
-	}
-
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.getArtifacts(requests, monitor);

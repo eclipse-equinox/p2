@@ -621,14 +621,12 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite240121");
 		}
-		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			if (keys[i].getId().equals("Plugin240121")) {
-				IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(keys[i])[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
-				if (!status.isOK())
-					fail("Can't get the expected artifact:" + keys[i]);
-			}
-		}
+		Collector keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), new Collector(), null);
+		assertEquals(1, keys.size());
+		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
+		if (!status.isOK())
+			fail("Can't get the expected artifact:" + key);
 	}
 
 	/**

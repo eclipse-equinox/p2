@@ -80,17 +80,6 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 		return (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		Set artifactKeys = new HashSet();
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
-			IArtifactKey[] keys = repository.getArtifactKeys();
-			if (keys != null)
-				artifactKeys.addAll(Arrays.asList(keys));
-		}
-		return (IArtifactKey[]) artifactKeys.toArray(new IArtifactKey[artifactKeys.size()]);
-	}
-
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
 	}

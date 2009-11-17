@@ -12,13 +12,14 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MD5Tests extends AbstractProvisioningTest {
@@ -33,18 +34,16 @@ public class MD5Tests extends AbstractProvisioningTest {
 	}
 
 	public void testCheckMD5() {
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] desc = repo.getArtifactDescriptors(keys[i]);
-			for (int j = 0; j < desc.length; j++) {
-				IStatus status = repo.getArtifact(desc[j], new ByteArrayOutputStream(500), new NullProgressMonitor());
-				//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
-				if (desc[j].getArtifactKey().getId().startsWith("bogus")) {
-					assertNotOK(status);
-					continue;
-				}
-				assertOK("2.1 " + desc[j], status);
+		Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+		for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
+			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
+			IStatus status = repo.getArtifact(desc, new ByteArrayOutputStream(500), new NullProgressMonitor());
+			//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
+			if (desc.getArtifactKey().getId().startsWith("bogus")) {
+				assertNotOK(status);
+				continue;
 			}
+			assertOK("2.1 " + desc, status);
 		}
 	}
 

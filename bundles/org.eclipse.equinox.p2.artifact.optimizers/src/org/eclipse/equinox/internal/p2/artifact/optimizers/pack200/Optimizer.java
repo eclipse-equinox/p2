@@ -12,12 +12,14 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.osgi.util.NLS;
 
 public class Optimizer {
@@ -29,9 +31,9 @@ public class Optimizer {
 	}
 
 	public void run() {
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		Collector keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
 			if (!key.getClassifier().equals("plugin")) //$NON-NLS-1$
 				continue;
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);

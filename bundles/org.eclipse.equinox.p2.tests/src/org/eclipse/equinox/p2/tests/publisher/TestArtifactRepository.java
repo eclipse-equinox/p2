@@ -170,15 +170,6 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[0]);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		Set/*<IArtifactKey>*/result = new HashSet/*<IArtifactKey>*/();
-		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
-			result.add(descriptor.getArtifactKey());
-		}
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[0]);
-	}
-
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
@@ -305,8 +296,14 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
 		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		if (acceptKeys)
-			collector = query.perform(Arrays.asList(getArtifactKeys()).iterator(), collector);
+		if (acceptKeys) {
+			Set/*<IArtifactKey>*/result = new HashSet/*<IArtifactKey>*/();
+			for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
+				IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+				result.add(descriptor.getArtifactKey());
+			}
+			collector = query.perform(result.iterator(), collector);
+		}
 		if (acceptDescriptors)
 			collector = query.perform(repo.keySet().iterator(), collector);
 		return collector;

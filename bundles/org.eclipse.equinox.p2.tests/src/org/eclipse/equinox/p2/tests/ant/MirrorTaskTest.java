@@ -747,38 +747,10 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Get the number of ArtifactKeys in a repository
 	 */
-	protected int getArtifactKeyCount(URI location) {
-		try {
-			return getArtifactRepositoryManager().loadRepository(location, null).getArtifactKeys().length;
-		} catch (ProvisionException e) {
-			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
-			return -1;
-		}
-	}
-
-	/*
-	 * Get the number of ArtifactKeys in a repository
-	 */
 	protected int getArtifactKeyCount(Collector ius) {
 		int count = 0;
 		for (Iterator iter = ius.iterator(); iter.hasNext();)
 			count += ((InstallableUnit) iter.next()).getArtifacts().length;
-		return count;
-	}
-
-	/*
-	 * Get the number of ArtifactDescriptors in a repository
-	 */
-	protected int getArtifactDescriptorCount(URI location) {
-		int count = 0;
-		try {
-			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
-			IArtifactKey[] keys = repo.getArtifactKeys();
-			for (int i = 0; i < keys.length; i++)
-				count += repo.getArtifactDescriptors(keys[i]).length;
-		} catch (ProvisionException e) {
-			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
-		}
 		return count;
 	}
 

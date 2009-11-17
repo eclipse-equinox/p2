@@ -58,10 +58,6 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.getArtifactDescriptors(key);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		return delegate.getArtifactKeys();
-	}
-
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		return delegate.getArtifacts(requests, monitor);
 	}

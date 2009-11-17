@@ -160,12 +160,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testPathWithSpaces() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		URI location = site.toURI();
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
-			assertEquals("1.0", 2, repository.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("=.99", e);
-		}
+		assertEquals("1.0", 2, getArtifactKeyCount(location));
 	}
 
 	/**
@@ -220,12 +215,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testUpdateSitePathWithSpaces() {
 		File site = getTestData("Repository", "/testData/updatesite/site with spaces/");
 		URI location = site.toURI();
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
-			assertEquals("1.0", 3, repository.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("=.99", e);
-		}
+		assertEquals("1.0", 3, getArtifactKeyCount(location));
 	}
 
 	/**
@@ -283,13 +273,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests parsing a repository with a duplicate element. See bug 255401.
 	 */
 	public void testDuplicateElement() {
-		try {
-			File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
-			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(duplicateElementXML.toURI(), null);
-			assertEquals("Ensure correct number of artifact keys exist", 2, repo.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("Error occured while loading repository with duplicate elements", e);
-		}
+		File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
+		assertEquals("Ensure correct number of artifact keys exist", 2, getArtifactKeyCount(duplicateElementXML.toURI()));
 	}
 
 	public void testEnablement() {

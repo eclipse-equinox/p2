@@ -12,9 +12,10 @@ package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
 import java.net.URI;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
 
@@ -63,10 +64,8 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 		assertNull(iu);
 
 		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(destinationRepo, null);
-		IArtifactKey[] keys = artifacts.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			assertFalse(keys[i].getId().equals("anotherplugin"));
-		}
+		Collector keys = artifacts.query(new ArtifactKeyQuery(null, "anotherplugin", null), new Collector(), null);
+		assertEquals(keys.size(), 0);
 		assertFalse(new File(getTestFolder(getName()), "plugins/anotherplugin_1.0.0.jar").exists());
 	}
 }

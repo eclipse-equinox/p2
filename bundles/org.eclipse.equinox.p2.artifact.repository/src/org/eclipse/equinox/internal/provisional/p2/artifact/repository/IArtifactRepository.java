@@ -91,12 +91,6 @@ public interface IArtifactRepository extends IRepository, IQueryable {
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key);
 
 	/**
-	 * Returns the list of artifact keys managed by this repository
-	 * @return list of artifact keys
-	 */
-	public IArtifactKey[] getArtifactKeys();
-
-	/**
 	 * Executes the given artifact requests on this byte server.
 	 * @param requests The artifact requests
 	 * @param monitor

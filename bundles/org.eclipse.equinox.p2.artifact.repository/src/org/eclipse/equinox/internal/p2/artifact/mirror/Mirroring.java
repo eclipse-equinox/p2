@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -31,7 +32,7 @@ public class Mirroring {
 	private boolean validate = false;
 	private IArtifactComparator comparator;
 	private String comparatorID;
-	private IArtifactKey[] keysToMirror;
+	private List keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
 
 	private IArtifactComparator getComparator() {
@@ -71,10 +72,16 @@ public class Mirroring {
 			throw new IllegalStateException(NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
 		if (compare)
 			getComparator(); //initialize the comparator. Only needed if we're comparing. Used to force error if comparatorID is invalid.
-		IArtifactKey[] keys = keysToMirror == null ? source.getArtifactKeys() : keysToMirror;
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		Iterator keys = null;
+		if (keysToMirror != null)
+			keys = keysToMirror.iterator();
+		else {
+			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			keys = result.iterator();
+		}
+		while (keys.hasNext()) {
+			IArtifactKey key = (IArtifactKey) keys.next();
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IStatus result = mirror(descriptors[j], verbose);
@@ -175,7 +182,7 @@ public class Mirroring {
 	}
 
 	public void setArtifactKeys(IArtifactKey[] keys) {
-		this.keysToMirror = keys;
+		this.keysToMirror = Arrays.asList(keys);
 	}
 
 	/*
@@ -197,11 +204,17 @@ public class Mirroring {
 		MultiStatus status = new MultiStatus(Activator.ID, 0, Messages.Mirroring_ValidationError, null);
 
 		// The keys that were mirrored in this session
-		IArtifactKey[] keys = keysToMirror == null ? source.getArtifactKeys() : keysToMirror;
-
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] srcDescriptors = source.getArtifactDescriptors(keys[i]);
-			IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(keys[i]);
+		Iterator keys = null;
+		if (keysToMirror != null) {
+			keys = keysToMirror.iterator();
+		} else {
+			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			keys = result.iterator();
+		}
+		while (keys.hasNext()) {
+			IArtifactKey artifactKey = (IArtifactKey) keys.next();
+			IArtifactDescriptor[] srcDescriptors = source.getArtifactDescriptors(artifactKey);
+			IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(artifactKey);
 
 			Arrays.sort(srcDescriptors, new ArtifactDescriptorComparator());
 			Arrays.sort(destDescriptors, new ArtifactDescriptorComparator());

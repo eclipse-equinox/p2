@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,6 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
@@ -572,11 +571,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor == null)
 			return null;
 		return getArtifactFile(descriptor);
-	}
-
-	public synchronized IArtifactKey[] getArtifactKeys() {
-		// there may be more descriptors than keys to collect up the unique keys
-		return (IArtifactKey[]) artifactMap.keySet().toArray(new IArtifactKey[artifactMap.keySet().size()]);
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {

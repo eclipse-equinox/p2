@@ -135,10 +135,11 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Set status sequence, actual Statuses added later
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
-		IArtifactKey[] keys = source.getArtifactKeys();
-		assertTrue("Unable to obtain artifact keys", keys != null && keys.length > 0);
+		Collector keys = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertTrue("Unable to obtain artifact keys", keys != null && keys.size() > 0);
 
-		MirrorRequest req = new MirrorRequest(keys[0], targetRepository, null, null);
+		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null);
 		req.setSourceRepository(source);
 		// Set Status sequence 
 		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
@@ -148,9 +149,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
-		targetRepository.removeDescriptor(keys[0]);
+		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
-		req = new MirrorRequest(keys[0], targetRepository, null, null);
+		req = new MirrorRequest(key, targetRepository, null, null);
 		req.setSourceRepository(source);
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
@@ -159,9 +160,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
-		targetRepository.removeDescriptor(keys[0]);
+		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
-		req = new MirrorRequest(keys[0], targetRepository, null, null);
+		req = new MirrorRequest(key, targetRepository, null, null);
 		req.setSourceRepository(source);
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(new NullProgressMonitor());
@@ -288,10 +289,6 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 			return delegate.getArtifactDescriptors(key);
-		}
-
-		public IArtifactKey[] getArtifactKeys() {
-			return delegate.getArtifactKeys();
 		}
 
 		public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {

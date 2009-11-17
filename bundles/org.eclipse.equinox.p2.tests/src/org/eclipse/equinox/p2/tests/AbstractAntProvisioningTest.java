@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -250,7 +251,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
 			List fromIUs = getArtifactKeys(ius);
-			List fromRepo = Arrays.asList(repo.getArtifactKeys());
+			Collection fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null).toCollection();
 			assertContains(message, fromIUs, fromRepo);
 			assertContains(message, fromRepo, fromIUs);
 		} catch (ProvisionException e) {
@@ -271,7 +272,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		}
 	}
 
-	protected static void assertContains(String message, List fromIUs, List fromRepo) {
+	protected static void assertContains(String message, Collection fromIUs, Collection fromRepo) {
 		for (Iterator iter = fromIUs.iterator(); iter.hasNext();)
 			assertTrue(message, fromRepo.contains(iter.next()));
 	}

@@ -11,12 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
@@ -63,10 +66,11 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		IArtifactRepository repository = (IArtifactRepository) getRepository(monitor);
 		if (repository == null)
 			return new ArtifactElement[0];
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		ArtifactElement[] elements = new ArtifactElement[keys.length];
-		for (int i = 0; i < keys.length; i++) {
-			elements[i] = new ArtifactElement(this, keys[i], repo);
+		int i = 0;
+		Collector keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), monitor);
+		ArtifactElement[] elements = new ArtifactElement[keys.size()];
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			elements[i++] = new ArtifactElement(this, (IArtifactKey) iterator.next(), repo);
 		}
 		return elements;
 	}

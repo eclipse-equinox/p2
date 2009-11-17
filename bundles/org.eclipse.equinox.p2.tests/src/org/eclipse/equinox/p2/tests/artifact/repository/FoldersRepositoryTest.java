@@ -13,12 +13,14 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
+import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -87,12 +89,15 @@ public class FoldersRepositoryTest extends TestCase {
 
 			repo.addDescriptor(descriptor);
 		}
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		assertEquals(2, keys.length);
-		for (int i = 0; i < keys.length; i++) {
-			repo.removeDescriptor(keys[i]);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertEquals(2, keys.size());
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			repo.removeDescriptor(key);
 		}
-		assertEquals(0, repo.getArtifactKeys().length);
+
+		keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertEquals(0, keys.size());
 		assertEquals(0, pluginsFolder.listFiles(filter).length);
 
 		manager.removeRepository(repo.getLocation());

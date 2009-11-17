@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -23,6 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 
 public class Optimizer {
 
@@ -72,8 +72,9 @@ public class Optimizer {
 	}
 
 	public void run() {
-		System.out.println("Starting delta (jardelta) optimizations (width=" + width + ", depth=" + depth + ")");
-		IArtifactKey[][] keys = getSortedRelatedArtifactKeys(repository.getArtifactKeys());
+		System.out.println("Starting delta (jardelta) optimizations (width=" + width + ", depth=" + depth + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		Collector collector = repository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		IArtifactKey[][] keys = getSortedRelatedArtifactKeys((IArtifactKey[]) collector.toArray(IArtifactKey.class));
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].length < 2)
 				// Nothing to diff here!
@@ -85,7 +86,7 @@ public class Optimizer {
 				optimize(keys[i], key);
 			}
 		}
-		System.out.println("Done.");
+		System.out.println("Done."); //$NON-NLS-1$
 
 	}
 
@@ -147,24 +148,24 @@ public class Optimizer {
 		int candidates = 0;
 		for (int ii = 0; ii < lists.length; ii++) {
 			for (int jj = 0; jj < lists[ii].length; jj++) {
-				System.out.println(lists[ii][jj] + ", ");
+				System.out.println(lists[ii][jj] + ", "); //$NON-NLS-1$
 			}
-			System.out.println("");
+			System.out.println(""); //$NON-NLS-1$
 			if (lists[ii].length > 1)
 				candidates++;
 		}
-		System.out.println("Candidates found: " + candidates);
+		System.out.println("Candidates found: " + candidates); //$NON-NLS-1$
 		return lists;
 	}
 
 	private void optimize(IArtifactDescriptor canonical, IArtifactKey[] relatedArtifactKeys) {
-		System.out.println("Optimizing " + canonical);
+		System.out.println("Optimizing " + canonical); //$NON-NLS-1$
 
 		IArtifactDescriptor[] descriptors = getSortedCompletePredecessors(canonical.getArtifactKey(), relatedArtifactKeys);
 
 		int minDepth = Math.min(depth, descriptors.length);
 		for (int i = 0; i < minDepth; i++) {
-			System.out.println("\t with jar delta against " + descriptors[i].getArtifactKey());
+			System.out.println("\t with jar delta against " + descriptors[i].getArtifactKey()); //$NON-NLS-1$
 			String predecessorData = descriptors[i].getArtifactKey().toExternalForm();
 			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(canonical);
 			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(JAR_DELTA_PATCH_STEP, predecessorData, true);

@@ -18,7 +18,6 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
@@ -89,8 +88,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		assertGroup(unit);
 
 		IArtifactRepository artifactRepo = generatorInfo.getArtifactRepository();
-		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
-		assertTrue(keys.length == 11);
+		assertTrue(getArtifactKeyCount(artifactRepo) == 11);
 	}
 
 	/**

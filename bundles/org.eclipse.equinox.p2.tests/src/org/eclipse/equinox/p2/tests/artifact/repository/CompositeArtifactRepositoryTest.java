@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestArtifactRepository;
@@ -306,7 +307,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
 		//FIXME will this work?
-		assertEquals("Assert Correct Number of Keys", repo1.getArtifactKeys().length + repo2.getArtifactKeys().length, compRepo.getArtifactKeys().length);
+		assertEquals("Assert Correct Number of Keys", getArtifactKeyCount(repo1) + getArtifactKeyCount(repo2), getArtifactKeyCount(compRepo));
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -360,11 +361,11 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the keys
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		assertTrue("Error retreaiving artifact keys", keys.length > 0);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
 
 		//test for existing key
-		assertTrue("Asserting key is in composite repo", compRepo.contains(keys[0]));
+		assertTrue("Asserting key is in composite repo", compRepo.contains((IArtifactKey) keys.iterator().next()));
 
 		//Create a new key, not found in the composite repo
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
@@ -388,9 +389,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the descriptors
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		assertTrue("Error retreaiving artifact keys", keys.length > 0);
-		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[0]);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
+		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors((IArtifactKey) keys.iterator().next());
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
 
 		//test for existing descriptor
@@ -419,12 +420,13 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error creating destination", e1);
 		}
 
-		IArtifactKey[] keys = compRepo.getArtifactKeys();
-		assertTrue("Error retreaiving artifact keys", keys.length > 0);
-		IArtifactDescriptor[] descriptors = compRepo.getArtifactDescriptors(keys[0]);
+		Collector keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
+		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IArtifactDescriptor[] descriptors = compRepo.getArtifactDescriptors(key);
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
 
-		IArtifactDescriptor newDescriptor = new ArtifactDescriptor(keys[0]);
+		IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
 		Map properties = new OrderedProperties();
 		properties.putAll(descriptors[0].getProperties());
 		properties.remove(IArtifactDescriptor.FORMAT);
@@ -447,7 +449,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error while downloading artifact", e);
 		}
 		//corresponding key should now be in the destination
-		assertTrue("Expected Key is not in destination", destinationRepo.contains(keys[0]));
+		assertTrue("Expected Key is not in destination", destinationRepo.contains(key));
 
 		IArtifactRepository repo = null;
 		try {
@@ -456,7 +458,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Unable to load repository for verification", e);
 		}
 
-		IArtifactDescriptor[] srcDescriptors = repo.getArtifactDescriptors(keys[0]);
+		IArtifactDescriptor[] srcDescriptors = repo.getArtifactDescriptors(key);
 		if (srcDescriptors == null)
 			fail("Error finding descriptors for validation");
 
@@ -502,32 +504,34 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//create a request for a descriptor from repo1
-		IArtifactKey[] keys1 = repo1.getArtifactKeys();
-		assertTrue("Error retreaiving artifact keys", keys1.length > 0);
-		IArtifactDescriptor[] descriptors1 = repo1.getArtifactDescriptors(keys1[0]);
+		Collector keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		IArtifactKey key1 = (IArtifactKey) keys1.iterator().next();
+		assertTrue("Error retreaiving artifact keys", keys1.size() > 0);
+		IArtifactDescriptor[] descriptors1 = repo1.getArtifactDescriptors(key1);
 		assertTrue("Error retreaiving artifact descriptors", descriptors1.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors1[0]));
-		IArtifactDescriptor newDescriptor1 = new ArtifactDescriptor(keys1[0]);
+		IArtifactDescriptor newDescriptor1 = new ArtifactDescriptor(key1);
 		Map properties1 = new OrderedProperties();
 		properties1.putAll(descriptors1[0].getProperties());
 		properties1.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor1).addProperties(properties1);
 		//		IArtifactRequest request1 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(keys1[0], destinationRepo, (Properties) newDescriptor1.getProperties(), (Properties) destinationRepo.getProperties());
-		IArtifactRequest request1 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(keys1[0], destinationRepo, null, null);
+		IArtifactRequest request1 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(key1, destinationRepo, null, null);
 
 		//create a request for a descriptor from repo2
-		IArtifactKey[] keys2 = repo2.getArtifactKeys();
-		assertTrue("Error retreaiving artifact keys", keys2.length > 0);
-		IArtifactDescriptor[] descriptors2 = repo2.getArtifactDescriptors(keys2[0]);
+		Collector keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		IArtifactKey key2 = (IArtifactKey) keys2.iterator().next();
+		assertTrue("Error retreaiving artifact keys", keys2.size() > 0);
+		IArtifactDescriptor[] descriptors2 = repo2.getArtifactDescriptors(key2);
 		assertTrue("Error retreaiving artifact descriptors", descriptors2.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors2[0]));
-		IArtifactDescriptor newDescriptor2 = new ArtifactDescriptor(keys2[0]);
+		IArtifactDescriptor newDescriptor2 = new ArtifactDescriptor(key2);
 		Map properties2 = new OrderedProperties();
 		properties2.putAll(descriptors2[0].getProperties());
 		properties2.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor2).addProperties(properties2);
 		//		IArtifactRequest request2 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(keys2[0], destinationRepo, (Properties) newDescriptor2.getProperties(), (Properties) destinationRepo.getProperties());
-		IArtifactRequest request2 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(keys2[0], destinationRepo, null, null);
+		IArtifactRequest request2 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(key2, destinationRepo, null, null);
 
 		IArtifactRequest[] requests = new IArtifactRequest[2];
 		requests[0] = request1;
@@ -545,8 +549,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error while downloading artifacts", e);
 		}
 		//corresponding keys should now be in the destination
-		assertTrue("Expected Key is not in destination", destinationRepo.contains(keys1[0]));
-		assertTrue("Expected Key is not in destination", destinationRepo.contains(keys2[0]));
+		assertTrue("Expected Key is not in destination", destinationRepo.contains(key1));
+		assertTrue("Expected Key is not in destination", destinationRepo.contains(key2));
 
 		//verify the file from repo1
 		File repo1File = ((SimpleArtifactRepository) repo1).getArtifactFile(descriptors1[0]);
@@ -758,7 +762,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//force composite repository to load all children
-		compRepo.getArtifactKeys();
+		compRepo.getArtifactDescriptors(new ArtifactKey("", "", Version.emptyVersion));
 
 		assertTrue("Ensuring previously loaded repo is enabled", getArtifactRepositoryManager().isEnabled(repo1Location.toURI()));
 		String repo1System = getArtifactRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
@@ -810,7 +814,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
 		//FIXME will this work?
-		assertEquals("Assert Correct Number of Keys", repo1.getArtifactKeys().length + repo2.getArtifactKeys().length, compRepo.getArtifactKeys().length);
+		assertEquals("Assert Correct Number of Keys", getArtifactKeyCount(repo1) + getArtifactKeyCount(repo2), getArtifactKeyCount(compRepo));
 	}
 
 	private CompositeArtifactRepository createRepo(boolean compressed) {
@@ -882,8 +886,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		// query the number of artifacts
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		assertEquals("2.1", 2, keys.length);
+		assertEquals("2.1", 2, getArtifactKeyCount(repository));
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();
@@ -1204,15 +1207,15 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			((TestArtifactRepository) childOne).addArtifact(key, new byte[] {});
 			source.addChild(childOne.getLocation());
 
-			assertTrue("Composite repo does not contain key", Arrays.asList(source.getArtifactKeys()).contains(key));
+			assertTrue("Composite repo does not contain key", source.contains(key));
 			markBad(source, childOne);
-			assertFalse("Composite repo contains key but child is marked bad", Arrays.asList(source.getArtifactKeys()).contains(key));
+			assertFalse("Composite repo contains key but child is marked bad", source.contains(key));
 
 			childTwo = createChild();
 			((TestArtifactRepository) childTwo).addArtifact(key, new byte[] {});
 			source.addChild(childTwo.getLocation());
 
-			assertTrue("Composite repo does not contain key, but it is available", Arrays.asList(source.getArtifactKeys()).contains(key));
+			assertTrue("Composite repo does not contain key, but it is available", source.contains(key));
 		} catch (Exception e) {
 			fail(e.getMessage(), e);
 		} finally {

@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 
 public class Optimizer {
 
@@ -74,7 +75,8 @@ public class Optimizer {
 
 	public void run() {
 		System.out.println("Starting delta (jbdiff) optimizations (width=" + width + ", depth=" + depth + ", nosar=" + nosar + ")");
-		IArtifactKey[][] keys = getSortedRelatedArtifactKeys(repository.getArtifactKeys());
+		Collector collector = repository.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		IArtifactKey[][] keys = getSortedRelatedArtifactKeys((IArtifactKey[]) collector.toArray(IArtifactKey.class));
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].length < 2)
 				// Nothing to diff here!

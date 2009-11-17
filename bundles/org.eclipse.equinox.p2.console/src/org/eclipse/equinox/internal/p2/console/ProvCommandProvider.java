@@ -294,26 +294,27 @@ public class ProvCommandProvider implements CommandProvider {
 		if (repoURL == null)
 			return;
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
-		IArtifactKey[] keys = null;
+		Collector keys = null;
 		try {
-			keys = (repo != null) ? repo.getArtifactKeys() : null;
+			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null) : null;
 		} catch (UnsupportedOperationException e) {
-			interpreter.println("Repository does not support list commands");
+			interpreter.println("Repository does not support queries.");
 			return;
 		}
-		if (keys == null || keys.length == 0) {
+		if (keys == null || keys.isEmpty()) {
 			interpreter.println("Repository has no artifacts");
 			return;
 		}
 		IFileArtifactRepository fileRepo = (IFileArtifactRepository) repo.getAdapter(IFileArtifactRepository.class);
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[i]);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IArtifactDescriptor descriptor = descriptors[j];
 				File location = null;
 				if (fileRepo != null)
 					location = fileRepo.getArtifactFile(descriptor);
-				println(interpreter, keys[i], location);
+				println(interpreter, key, location);
 			}
 
 		}

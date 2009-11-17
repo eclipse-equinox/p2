@@ -13,9 +13,9 @@ package org.eclipse.equinox.p2.tests.ant;
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -117,9 +117,9 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to load repository", e);
 		}
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (int n = 0; n < descriptors.length; n++) {
 				IArtifactDescriptor desc = descriptors[n];
@@ -134,18 +134,6 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 			}
 		}
 		return true;
-	}
-
-	/*
-	 * Count the number of ArtifactKeys in the repository at the given location 
-	 */
-	protected int getArtifactKeyCount(URI location) {
-		try {
-			return getArtifactRepositoryManager().loadRepository(location, new NullProgressMonitor()).getArtifactKeys().length;
-		} catch (ProvisionException e) {
-			fail("Failed to count keys in repository", e);
-			return -1;
-		}
 	}
 
 	/*

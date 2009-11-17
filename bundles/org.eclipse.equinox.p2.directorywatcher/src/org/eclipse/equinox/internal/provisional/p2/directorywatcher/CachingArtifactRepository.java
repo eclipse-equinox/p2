@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
@@ -19,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class CachingArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
@@ -108,14 +107,6 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			return innerRepo.getArtifactDescriptors(key);
 		result.addAll(Arrays.asList(innerRepo.getArtifactDescriptors(key)));
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
-	}
-
-	public synchronized IArtifactKey[] getArtifactKeys() {
-		// there may be more descriptors than keys to collect up the unique keys
-		HashSet result = new HashSet();
-		result.addAll(artifactMap.keySet());
-		result.addAll(Arrays.asList(innerRepo.getArtifactKeys()));
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
 	}
 
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {

@@ -232,7 +232,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		//check that the artifact is still there
 		profile = getProfile(id);
 		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(profile), getMonitor());
-		assertEquals("3.0", 1, artifacts.getArtifactKeys().length);
+		assertEquals("3.0", 1, getArtifactKeyCount(artifacts));
 
 		//check that profile property is set
 		assertProfileContains("3.1", profile, newIUs);
