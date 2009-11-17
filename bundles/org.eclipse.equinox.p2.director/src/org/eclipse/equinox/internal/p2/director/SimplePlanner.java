@@ -10,10 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -31,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
@@ -207,17 +204,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static IInstallableUnit[] findPlannerMarkedIUs(final IProfile profile) {
-		IQuery markerQuery = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				if (!(candidate instanceof IInstallableUnit))
-					return false;
-
-				IInstallableUnit iu = (IInstallableUnit) candidate;
-
-				String inclusion = profile.getInstallableUnitProperty(iu, INCLUSION_RULES);
-				return (inclusion != null);
-			}
-		};
+		IQuery markerQuery = new IUProfilePropertyQuery(INCLUSION_RULES, null);
 		return (IInstallableUnit[]) profile.query(markerQuery, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 

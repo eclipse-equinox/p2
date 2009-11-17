@@ -14,9 +14,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.p2.ui.query.AnyRequiredCapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 	public void testMatchOtherObjects() {
 		IRequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
-		AnyRequiredCapabilityQuery query = new AnyRequiredCapabilityQuery(requires);
+		CapabilityQuery query = new CapabilityQuery(requires);
 		IInstallableUnit match = createIU("test.bundle");
 		IInstallableUnit noMatch = createIU("another.bundle");
 		List items = new ArrayList();
@@ -53,7 +53,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(location);
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI().getSession(), ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator(), false);
 		IRequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
-		AnyRequiredCapabilityQuery query = new AnyRequiredCapabilityQuery(requires);
+		CapabilityQuery query = new CapabilityQuery(requires);
 		Collector result = manager.query(query, new Collector(), getMonitor());
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();

@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.NotRequirement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
@@ -723,7 +724,7 @@ public class Projector {
 	//Return IUPatches that are applicable for the given iu
 	private Collector getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
-			patches = new QueryableArray((IInstallableUnit[]) picker.query(ApplicablePatchQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class));
+			patches = new QueryableArray((IInstallableUnit[]) picker.query(new PatchQuery(), new Collector(), null).toArray(IInstallableUnit.class));
 
 		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
 	}

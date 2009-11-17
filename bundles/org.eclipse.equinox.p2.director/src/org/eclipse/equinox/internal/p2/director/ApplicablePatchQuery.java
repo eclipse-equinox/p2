@@ -12,22 +12,11 @@ package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.
  */
 public class ApplicablePatchQuery extends MatchQuery {
-
-	/**
-	 * A query that matches any patch.
-	 */
-	public static final IQuery ANY = new MatchQuery() {
-		public boolean isMatch(Object candidate) {
-			return candidate instanceof IInstallableUnitPatch;
-		}
-	};
-
 	IInstallableUnit iu;
 
 	/**
