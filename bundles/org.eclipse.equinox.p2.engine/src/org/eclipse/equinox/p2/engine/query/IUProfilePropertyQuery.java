@@ -11,13 +11,13 @@
 package org.eclipse.equinox.p2.engine.query;
 
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property associated with the specified profile, whose value matches the provided value.
+ * @since 2.0
  */
 public class IUProfilePropertyQuery extends IUPropertyQuery {
 	private IProfile profile;
