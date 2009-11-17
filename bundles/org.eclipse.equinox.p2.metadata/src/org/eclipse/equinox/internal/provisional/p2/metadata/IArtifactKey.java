@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-
-
 /**
  * Provide standardized artifact information to uniquely identify the 
  * corresponding bytes (perhaps not stored as a file). 
@@ -22,7 +20,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
-public interface IArtifactKey {
+public interface IArtifactKey extends IVersionedId {
 
 	/**
 	 * Returns the classifier for this artifact key. The returned value can be empty.
@@ -31,8 +29,8 @@ public interface IArtifactKey {
 	public String getClassifier();
 
 	/**
-	 * Returns the id for this artifact key. The returned value can be empty.
-	 * @return the classifier segment of the key.
+	 * Returns the id for this artifact key.
+	 * @return the id segment of the key.
 	 */
 	public String getId();
 
