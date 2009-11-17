@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 public class LicenseAnalyzer extends IUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
-		if (Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
+		if (Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP)).booleanValue()) {
 			if (iu.getLicenses() == null || iu.getLicenses().length == 0) {
 				// If there is no license then this is an error
 				error(iu, "[ERROR] " + iu.getId() + " has no license");

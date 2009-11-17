@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 public class CopyrightAnalyzer extends IUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
-		if (Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
+		if (Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP)).booleanValue()) {
 			if (iu.getCopyright() == null || iu.getCopyright().getBody().length() == 0) {
 				// If there is no copyright at all, this is an error
 				error(iu, "[ERROR] " + iu.getId() + " has no copyright");

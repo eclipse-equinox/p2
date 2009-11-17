@@ -26,7 +26,7 @@ public class IUCounting implements IIUAnalyzer {
 	int totalCategories = 0;
 
 	private boolean hasProperty(IInstallableUnit iu, String property) {
-		return Boolean.parseBoolean(iu.getProperty(property));
+		return Boolean.valueOf(iu.getProperty(property)).booleanValue();
 	}
 
 	public void analyzeIU(IInstallableUnit iu) {

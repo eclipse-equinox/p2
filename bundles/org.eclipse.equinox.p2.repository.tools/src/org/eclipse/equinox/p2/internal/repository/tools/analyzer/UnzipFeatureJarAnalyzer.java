@@ -9,10 +9,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 /**
  * This service checks that each Feature Jar IU has the unzip touchpoint
@@ -20,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 public class UnzipFeatureJarAnalyzer extends IUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
-		if (iu.getId().contains("feature.jar")) {
+		if (iu.getId().indexOf("feature.jar") > -1) {
 			ITouchpointData[] touchpointData = iu.getTouchpointData();
 			if (touchpointData.length == 0) {
 				error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId());
