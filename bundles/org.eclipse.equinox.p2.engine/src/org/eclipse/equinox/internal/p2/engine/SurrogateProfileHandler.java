@@ -21,6 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -28,7 +30,6 @@ import org.eclipse.osgi.util.NLS;
 public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static final String NATIVE_TOUCHPOINT_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
-	private static final String PROP_TYPE_ROOT = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 	private static final String P2_ENGINE_DIR = "p2/" + EngineActivator.ID + "/"; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String ECLIPSE_INI_IGNORED = "eclipse.ini.ignored"; //$NON-NLS-1$
@@ -45,18 +46,16 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SoftReference cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		IQuery rootIUQuery = new MatchQuery() {
+		IQuery rootIUQuery = CompoundQuery.createCompoundQuery(new IQuery[] {new UserVisibleRootQuery(), new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (Boolean.valueOf(sharedProfile.getInstallableUnitProperty(iu, PROP_TYPE_ROOT)).booleanValue())
-						return true;
 					if (iu.getTouchpointType().getId().equals(NATIVE_TOUCHPOINT_TYPE))
 						return true;
 				}
 				return false;
 			}
-		};
+		}}, false);
 		Collector rootIUs = sharedProfile.query(rootIUQuery, new Collector(), null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -68,16 +67,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		IQuery rootIUQuery = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (Boolean.valueOf(userProfile.getInstallableUnitProperty(iu, PROP_BASE)).booleanValue())
-						return true;
-				}
-				return false;
-			}
-		};
+		IQuery rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
 		Collector rootIUs = userProfile.query(rootIUQuery, new Collector(), null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -86,17 +76,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		IQuery rootIUQuery = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (Boolean.valueOf(userProfile.getInstallableUnitProperty(iu, PROP_TYPE_ROOT)).booleanValue())
-						return true;
-				}
-				return false;
-			}
-		};
-		Collector rootIUs = userProfile.query(rootIUQuery, new Collector(), null);
+		Collector rootIUs = userProfile.query(new UserVisibleRootQuery(), new Collector(), null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);
