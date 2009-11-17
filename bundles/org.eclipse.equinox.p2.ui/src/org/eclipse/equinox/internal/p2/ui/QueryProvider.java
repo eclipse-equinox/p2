@@ -106,7 +106,7 @@ public class QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					IQuery meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
+					IQuery meetsAnyRequirementQuery = new CapabilityQuery(((IIUElement) element).getRequirements());
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDown);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
@@ -148,7 +148,7 @@ public class QueryProvider {
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
-					IQuery meetsAnyRequirementQuery = new AnyRequiredCapabilityQuery(((IIUElement) element).getRequirements());
+					IQuery meetsAnyRequirementQuery = new CapabilityQuery(((IIUElement) element).getRequirements());
 					IQuery visibleAsAvailableQuery = context.getVisibleAvailableIUProperty();
 					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
 				}

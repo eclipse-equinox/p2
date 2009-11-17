@@ -43,9 +43,6 @@ public class RepositoryLocationQuery implements IQuery {
 		return QueryHelpers.getProperty(this, property);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.query.Query#perform(java.util.Iterator, org.eclipse.equinox.internal.provisional.p2.query.Collector)
-	 */
 	public Collector perform(Iterator iterator, Collector result) {
 		while (iterator.hasNext()) {
 			Object candidate = iterator.next();
