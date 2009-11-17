@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
  */
 public final class PatchQuery extends MatchQuery {
 	private static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
-	IUPropertyQuery query;
+	private IUPropertyQuery query;
 
 	public PatchQuery() {
 		query = new IUPropertyQuery(PROP_TYPE_PATCH, Boolean.TRUE.toString());
