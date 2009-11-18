@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.full;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -44,6 +44,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 	private IDirector director;
 
 	private ServiceTracker fwAdminTracker;
+
+	private static URI repositoryLocation = URI.create("http://download.eclipse.org/eclipse/updates/3.5");
 
 	protected void setUp() throws Exception {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
@@ -84,16 +86,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		//Add repository of the release
 		try {
-			URI location = new URI("http://download.eclipse.org/eclipse/updates/3.5");
-			metadataRepoManager.addRepository(location);
-			metadataRepoManager.setEnabled(location, true);
-			metadataRepoManager.loadRepository(location, new NullProgressMonitor());
-			artifactRepoManager.addRepository(location);
-			artifactRepoManager.setEnabled(location, true);
+			metadataRepoManager.addRepository(repositoryLocation);
+			metadataRepoManager.setEnabled(repositoryLocation, true);
+			metadataRepoManager.loadRepository(repositoryLocation, new NullProgressMonitor());
+			artifactRepoManager.addRepository(repositoryLocation);
+			artifactRepoManager.setEnabled(repositoryLocation, true);
 		} catch (ProvisionException e) {
 			fail("Exception loading the repository.", e);
-		} catch (URISyntaxException e) {
-			fail("Invalid repository location", e);
 		}
 
 		installPlatform35(profile2, installFolder);
@@ -150,8 +149,6 @@ public class End2EndTest extends AbstractProvisioningTest {
 		final Version version = Version.create("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
 
 		IInstallableUnit toInstall = getIU(id, version);
-		if (toInstall == null)
-			assertNotNull(toInstall);
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
@@ -186,8 +183,6 @@ public class End2EndTest extends AbstractProvisioningTest {
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		IInstallableUnit platformIU = getIU(id, version);
-		if (platformIU == null)
-			assertNotNull(platformIU);
 
 		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
@@ -201,11 +196,31 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
 	}
 
+	/**
+	 * Returns the IU corresponding to the given id and version. Fails if the IU could
+	 * not be found. Never returns null.
+	 */
 	public IInstallableUnit getIU(String id, Version v) {
-		Iterator it = metadataRepoManager.query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
+		final InstallableUnitQuery query = new InstallableUnitQuery(id, v);
+		Iterator it = metadataRepoManager.query(query, new Collector(), null).iterator();
 		if (it.hasNext())
 			return (IInstallableUnit) it.next();
-		return null;
+		//try the repository location directly - retry because eclipse.org can be flaky
+		Exception failure = null;
+		for (int i = 0; i < 3; i++) {
+			try {
+				IMetadataRepository repo = metadataRepoManager.loadRepository(repositoryLocation, null);
+				it = repo.query(query, new Collector(), null).iterator();
+				if (it.hasNext())
+					return (IInstallableUnit) it.next();
+			} catch (ProvisionException e) {
+				failure = e;
+			}
+		}
+		if (failure == null)
+			failure = new RuntimeException("IU not found");
+		fail("Failed to obtain " + id + " version: " + v + " from: " + repositoryLocation, failure);
+		return null;//will never get here
 	}
 
 	private void validateInstallContentFor35(File installFolder) {
