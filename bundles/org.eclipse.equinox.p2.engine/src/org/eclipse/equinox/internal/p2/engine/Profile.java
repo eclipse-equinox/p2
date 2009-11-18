@@ -174,9 +174,6 @@ public class Profile implements IQueryable, IProfile {
 			return;
 		}
 		IQuery[] queries = null;
-		if (query instanceof PipedQuery) {
-			queries = ((PipedQuery) query).getQueries();
-		}
 		if (query instanceof CompoundQuery) {
 			queries = ((CompoundQuery) query).getQueries();
 		}

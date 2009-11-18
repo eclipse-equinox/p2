@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * is executed in succession.  The results from the ith sub-query
  * are piped as input into the i+1th sub-query.
  */
-public class PipedQuery implements IQuery {
+public class PipedQuery implements IQuery, ICompositeQuery {
 	protected IQuery[] queries;
 
 	public PipedQuery(IQuery[] queries) {
