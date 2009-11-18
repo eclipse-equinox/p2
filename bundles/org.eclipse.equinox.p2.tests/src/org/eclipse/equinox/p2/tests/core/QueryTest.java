@@ -279,4 +279,74 @@ public class QueryTest extends TestCase {
 		assertTrue("1.1", result.contains("red"));
 	}
 
+	public void testShortCircuitWithLimit() {
+		List items = Arrays.asList("red", "green", "blue");
+		IQuery query = new AnyStringQuery();
+		IQuery limitQuery = new LimitQuery(query, 2);
+		Collector collector = new ShortCircuitCollector();
+		limitQuery.perform(items.iterator(), collector);
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 1, result.size());
+		assertTrue("1.1", result.contains("red")); // The short circuit should trump the limit
+	}
+
+	public void testLimitQuery() {
+		List items = Arrays.asList("red", "green", "blue");
+		IQuery query = new AnyStringQuery();
+		IQuery limitQuery = new LimitQuery(query, 1);
+		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 1, result.size());
+		assertTrue("1.1", result.contains("red"));
+	}
+
+	public void testLimitQuery2() {
+		List items = Arrays.asList("red", "green", "blue");
+		IQuery query = new AnyStringQuery();
+		IQuery limitQuery = new LimitQuery(query, 2);
+		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 2, result.size());
+		assertTrue("1.1", result.contains("red"));
+		assertTrue("1.2", result.contains("green"));
+	}
+
+	public void testLimitQuery3() {
+		List items = Arrays.asList("red", "green", "blue");
+		IQuery query = new AnyStringQuery();
+		IQuery limitQuery = new LimitQuery(query, 3);
+		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 3, result.size());
+		assertTrue("1.1", result.contains("red"));
+		assertTrue("1.2", result.contains("green"));
+		assertTrue("1.3", result.contains("blue"));
+	}
+
+	public void testLimitQuery0() {
+		List items = Arrays.asList("red", "green", "blue");
+		IQuery query = new AnyStringQuery();
+		IQuery limitQuery = new LimitQuery(query, 0);
+		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 0, result.size());
+	}
+
+	public void testPipedLimitQuery() {
+		List items = Arrays.asList("pink", "red", "green", "pink");
+		IQuery anyString = new AnyStringQuery();
+		IQuery containsI = new MatchQuery() {
+
+			public boolean isMatch(Object candidate) {
+				return ((String) candidate).contains("e");
+			}
+		};
+		IQuery pipedQuery = new PipedQuery(new IQuery[] {anyString, containsI});
+		IQuery limitQuery = new LimitQuery(pipedQuery, 1);
+		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+		Collection result = collector.toCollection();
+		assertEquals("1.0", 1, result.size());
+		assertTrue("1.1", result.contains("red"));
+	}
+
 }
