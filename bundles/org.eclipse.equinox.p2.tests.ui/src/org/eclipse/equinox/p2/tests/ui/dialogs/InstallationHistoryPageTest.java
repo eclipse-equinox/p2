@@ -48,9 +48,9 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 	}
 
 	/**
-	 * Hammers the background fetch
+	 * Tests the dialog
 	 */
-	public void disabledtestDialogBackgroundFetch() {
+	public void testDialogBackgroundFetch() {
 		TestDialog dialog = new TestDialog();
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -99,16 +99,5 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 		} finally {
 			dialog.close();
 		}
-	}
-
-	/**
-	 * Tests the dialog - just launches it for now
-	 */
-	public void testDialog() {
-		TestDialog dialog = new TestDialog();
-		dialog.setBlockOnOpen(false);
-		dialog.open();
-		dialog.close();
-
 	}
 }

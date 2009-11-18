@@ -43,7 +43,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		if (unit != null) {
 			Touchpoint touchpoint = getActionManager().getTouchpointPoint(unit.getTouchpointType());
 			if (touchpoint != null) {
-				parameters.put(PARM_TOUCHPOINT, touchpoint);
+				mergeStatus(status, initializeTouchpointParameters(profile, iuOperand, touchpoint, monitor));
 			}
 		}
 		mergeStatus(status, super.initializeOperand(profile, operand, parameters, monitor));

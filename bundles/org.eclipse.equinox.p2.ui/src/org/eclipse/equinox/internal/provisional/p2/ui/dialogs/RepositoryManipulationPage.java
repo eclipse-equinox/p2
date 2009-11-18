@@ -252,7 +252,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Edit the nickname
 		repositoryViewer.setCellModifier(new ICellModifier() {
 			public boolean canModify(Object element, String property) {
-				return element instanceof MetadataRepositoryElement;
+				return true;
 			}
 
 			public Object getValue(Object element, String property) {

@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
@@ -50,7 +51,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	// cache which nodes have been loaded from disk
-	private static Set loadedNodes = Collections.synchronizedSet(new HashSet());
+	private static Set loadedNodes = new HashSet();
 
 	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
 
@@ -159,11 +160,11 @@ public class ProfilePreferences extends EclipsePreferences {
 		return new ProfilePreferences(nodeParent, nodeName);
 	}
 
-	protected boolean isAlreadyLoaded(IEclipsePreferences node) {
+	protected synchronized boolean isAlreadyLoaded(IEclipsePreferences node) {
 		return loadedNodes.contains(node.absolutePath());
 	}
 
-	protected boolean isAlreadyLoaded(String path) {
+	protected synchronized boolean isAlreadyLoaded(String path) {
 		return loadedNodes.contains(path);
 	}
 
@@ -191,7 +192,7 @@ public class ProfilePreferences extends EclipsePreferences {
 		}
 	}
 
-	protected void loaded() {
+	protected synchronized void loaded() {
 		loadedNodes.add(name());
 	}
 
