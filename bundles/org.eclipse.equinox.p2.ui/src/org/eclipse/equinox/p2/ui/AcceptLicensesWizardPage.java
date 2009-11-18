@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.util.*;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.Dialog;
@@ -272,12 +271,25 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return licensesToIUs != null && licensesToIUs.size() > 0;
 	}
 
-	public void update(IInstallableUnit[] theIUs, ProfileChangeOperation operation) {
+	/**
+	 * Update the current page to show the licenses that must be approved for the
+	 * selected IUs and the provisioning plan
+	 * 
+	 * @param theIUs the installable units to be installed for which licenses must be checked
+	 * @param plan the provisioning plan for the install operation
+	 * @deprecated use {@link #update(IInstallableUnit[], ProfileChangeOperation)}
+	 */
+
+	public void updateForPlan(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
+		updateLicenses(theIUs, plan);
+	}
+
+	private void updateLicenses(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
 		this.originalIUs = theIUs;
 		if (theIUs == null)
 			licensesToIUs = new HashMap();
 		else
-			findUnacceptedLicenses(theIUs, operation);
+			findUnacceptedLicenses(theIUs, plan);
 		setDescription();
 		setPageComplete(licensesToIUs.size() == 0);
 		if (getControl() != null) {
@@ -285,6 +297,17 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			getControl().dispose();
 			createControl(parent);
 			parent.layout(true);
+		}
+	}
+
+	public void update(IInstallableUnit[] theIUs, ProfileChangeOperation operation) {
+		if (operation != null && operation.hasResolved()) {
+			int sev = operation.getResolutionResult().getSeverity();
+			if (sev != IStatus.ERROR && sev != IStatus.CANCEL) {
+				updateLicenses(theIUs, operation.getProvisioningPlan());
+			} else {
+				updateLicenses(new IInstallableUnit[0], null);
+			}
 		}
 	}
 
@@ -298,28 +321,18 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return ""; //$NON-NLS-1$
 	}
 
-	/*
-	 * Find the unaccepted licenses and update the licensesToIUs map to reflect this.
-	 */
-	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, ProfileChangeOperation operation) {
+	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, IProvisioningPlan plan) {
 		IInstallableUnit[] iusToCheck = selectedIUs;
-
-		if (operation != null && operation.hasResolved()) {
-			int sev = operation.getResolutionResult().getSeverity();
-			if (sev != IStatus.ERROR && sev != IStatus.CANCEL) {
-				IProvisioningPlan plan = operation.getProvisioningPlan();
-				if (plan != null) {
-					List allIUs = new ArrayList();
-					Operand[] operands = operation.getProvisioningPlan().getOperands();
-					for (int i = 0; i < operands.length; i++)
-						if (operands[i] instanceof InstallableUnitOperand) {
-							IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
-							if (addedIU != null)
-								allIUs.add(addedIU);
-						}
-					iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
+		if (plan != null) {
+			List allIUs = new ArrayList();
+			Operand[] operands = plan.getOperands();
+			for (int i = 0; i < operands.length; i++)
+				if (operands[i] instanceof InstallableUnitOperand) {
+					IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
+					if (addedIU != null)
+						allIUs.add(addedIU);
 				}
-			}
+			iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
 		}
 
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532
