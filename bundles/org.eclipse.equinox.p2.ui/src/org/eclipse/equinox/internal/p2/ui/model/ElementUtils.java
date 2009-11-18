@@ -42,7 +42,7 @@ public class ElementUtils {
 				IMetadataRepositoryManager metaManager = session.getMetadataRepositoryManager();
 				IArtifactRepositoryManager artManager = session.getArtifactRepositoryManager();
 				try {
-					int visibilityFlags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags();
+					int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 					URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
 					URI[] currentlyDisabled = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
 					for (int i = 0; i < elements.length; i++) {

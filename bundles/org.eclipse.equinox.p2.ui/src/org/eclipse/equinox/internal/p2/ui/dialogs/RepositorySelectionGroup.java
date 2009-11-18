@@ -18,10 +18,12 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.operations.AddRepositoryJob;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
@@ -91,7 +93,7 @@ public class RepositorySelectionGroup {
 	}
 
 	protected void createControl(Composite parent) {
-		final RepositoryManipulator manipulator = ui.getPolicy().getRepositoryManipulator();
+		final RepositoryTracker tracker = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 		// Get the possible field error indicators
 		info = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION).getImage();
 		warning = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_WARNING).getImage();
@@ -155,11 +157,11 @@ public class RepositorySelectionGroup {
 				int index = getComboIndex(text);
 				// only validate text that doesn't match existing text in combo
 				if (index < 0) {
-					location = manipulator.locationFromString(repoCombo.getText());
+					location = tracker.locationFromString(repoCombo.getText());
 					if (location == null) {
-						status = manipulator.getInvalidLocationStatus(repoCombo.getText());
+						status = tracker.getInvalidLocationStatus(repoCombo.getText());
 					} else {
-						status = manipulator.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
+						status = tracker.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
 					}
 				} else {
 					// user typed or pasted an existing location.  Select it.
@@ -201,9 +203,9 @@ public class RepositorySelectionGroup {
 		// Link to repository manipulator
 		repoManipulatorLink = createLink(comboComposite, new Action() {
 			public void runWithEvent(Event event) {
-				manipulator.manipulateRepositories(repoCombo.getShell(), ui);
+				ui.manipulateRepositories(repoCombo.getShell());
 			}
-		}, manipulator.getManipulatorLinkLabel());
+		}, getLinkLabel());
 		gd = new GridData(SWT.END, SWT.FILL, true, false);
 		gd.horizontalSpan = 3;
 		repoManipulatorLink.setLayoutData(gd);
@@ -215,6 +217,16 @@ public class RepositorySelectionGroup {
 			}
 
 		});
+	}
+
+	private String getLinkLabel() {
+		if (ui.getPolicy().getRepositoryPreferencePageId() != null) {
+			String pageName = ui.getPolicy().getRepositoryPreferencePageName();
+			if (pageName == null)
+				pageName = ProvUIMessages.RepositorySelectionGroup_PrefPageName;
+			return NLS.bind(ProvUIMessages.RepositorySelectionGroup_PrefPageLink, pageName);
+		}
+		return ProvUIMessages.RepositorySelectionGroup_GenericSiteLinkTitle;
 	}
 
 	private void setButtonLayoutData(Button button) {
@@ -285,8 +297,8 @@ public class RepositorySelectionGroup {
 	 * current selection should be preserved if applicable.
 	 */
 	void fillRepoCombo(final String selection) {
-		RepositoryManipulator manipulator = ui.getPolicy().getRepositoryManipulator();
-		URI[] sites = manipulator.getKnownRepositories(ui.getSession());
+		RepositoryTracker tracker = ui.getRepositoryTracker();
+		URI[] sites = tracker.getKnownRepositories(ui.getSession());
 		boolean hasLocalSites = getLocalSites().length > 0;
 		final String[] items;
 		if (hasLocalSites) {
@@ -406,12 +418,12 @@ public class RepositorySelectionGroup {
 
 	private URI[] getLocalSites() {
 		// use our current visibility flags plus the local filter
-		int flags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
+		int flags = ui.getRepositoryTracker().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
 		return ui.getSession().getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	String[] getComboProposals() {
-		int flags = ui.getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_DISABLED;
+		int flags = ui.getRepositoryTracker().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_DISABLED;
 		String[] items = repoCombo.getItems();
 		// Clear any previously remembered disabled repos
 		disabledRepoProposals = new HashMap();
@@ -488,7 +500,7 @@ public class RepositorySelectionGroup {
 	 *  filter as soon as the new repo is added.
 	 */
 	void addRepository(boolean alwaysPrompt) {
-		final RepositoryManipulator manipulator = ui.getPolicy().getRepositoryManipulator();
+		final RepositoryTracker manipulator = ui.getRepositoryTracker();
 		final String selectedRepo = repoCombo.getText().trim();
 		int selectionIndex = getComboIndex(selectedRepo);
 		final boolean isNewText = selectionIndex < 0;
@@ -499,7 +511,7 @@ public class RepositorySelectionGroup {
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(repoCombo.getShell(), ui) {
 				protected AddRepositoryJob getOperation(URI repositoryLocation) {
-					AddRepositoryJob op = manipulator.getAddOperation(repositoryLocation, ui);
+					AddRepositoryJob op = manipulator.getAddOperation(repositoryLocation, ui.getSession());
 					return op;
 				}
 
@@ -510,7 +522,7 @@ public class RepositorySelectionGroup {
 				}
 
 			};
-			dialog.setTitle(manipulator.getAddOperation(null, ui).getName());
+			dialog.setTitle(manipulator.getAddOperation(null, ui.getSession()).getName());
 			dialog.open();
 			URI location = dialog.getAddedLocation();
 			if (location != null)
@@ -534,7 +546,7 @@ public class RepositorySelectionGroup {
 							}
 						}
 						if (status.isOK() && location != null) {
-							AddRepositoryJob op = manipulator.getAddOperation(location, ui);
+							AddRepositoryJob op = manipulator.getAddOperation(location, ui.getSession());
 							status = op.runModal(monitor);
 							if (status.isOK())
 								fillRepoCombo(getSiteString(location));

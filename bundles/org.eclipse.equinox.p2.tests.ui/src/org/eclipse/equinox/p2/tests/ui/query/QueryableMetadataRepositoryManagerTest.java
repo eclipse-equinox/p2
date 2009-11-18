@@ -17,6 +17,7 @@ import org.eclipse.core.tests.harness.CancelingProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -24,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.tests.TestData;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -258,6 +258,6 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {
-		return new QueryableMetadataRepositoryManager(session, ui.getPolicy().getRepositoryManipulator(), false);
+		return new QueryableMetadataRepositoryManager(session, ui.getRepositoryTracker(), false);
 	}
 }

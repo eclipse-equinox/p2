@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -29,7 +29,7 @@ public class MetadataRepositories extends RootElement {
 	private boolean includeDisabled = false;
 
 	public MetadataRepositories(ProvisioningUI ui) {
-		this(ui.getPolicy().getQueryContext(), ui, null);
+		this(ProvUI.getQueryContext(ui.getPolicy()), ui, null);
 	}
 
 	public MetadataRepositories(IUViewQueryContext queryContext, ProvisioningUI ui, QueryableMetadataRepositoryManager queryable) {

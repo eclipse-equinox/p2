@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.*;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -99,8 +98,8 @@ public class InstallWizardTest extends WizardTest {
 	 * Tests the wizard
 	 */
 	public void testInstallWizardUnresolved() {
-		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getPolicy().getRepositoryManipulator());
-		getPolicy().getQueryContext().setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getProvisioningUI().getRepositoryTracker());
+		getPolicy().setGroupByCategory(false);
 		job.runModal(getMonitor());
 		InstallWizard wizard = new InstallWizard(getProvisioningUI(), null, null, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);

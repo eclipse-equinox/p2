@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 
 /**
  * An object that adds provides specialized/optimized queryable support 
@@ -33,7 +34,7 @@ import org.eclipse.equinox.p2.ui.RepositoryManipulator;
  */
 public class QueryableMetadataRepositoryManager extends QueryableRepositoryManager {
 
-	public QueryableMetadataRepositoryManager(ProvisioningSession session, RepositoryManipulator manipulator, boolean includeDisabledRepos) {
+	public QueryableMetadataRepositoryManager(ProvisioningSession session, RepositoryTracker manipulator, boolean includeDisabledRepos) {
 		super(session, manipulator, includeDisabledRepos);
 	}
 
@@ -96,7 +97,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.QueryableRepositoryManager#getRepositoryFlags(org.eclipse.equinox.p2.ui.RepositoryManipulator)
 	 */
-	protected int getRepositoryFlags(RepositoryManipulator repositoryManipulator) {
+	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getMetadataRepositoryFlags();
 	}
 }

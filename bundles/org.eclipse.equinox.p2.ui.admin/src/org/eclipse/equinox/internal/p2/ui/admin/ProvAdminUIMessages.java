@@ -26,7 +26,6 @@ public class ProvAdminUIMessages extends NLS {
 	}
 	public static String AddArtifactRepositoryDialog_OperationLabel;
 	public static String AddProfileDialog_Title;
-	public static String AddMetadataRepositoryDialog_OperationLabel;
 	public static String MetadataRepositoriesView_AddRepositoryTooltip;
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
 	public static String MetadataRepositoriesView_RemoveRepositoryTooltip;

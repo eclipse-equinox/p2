@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -48,10 +49,10 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	private MultiStatus accumulatedNotFound = null;
 	private ProvisioningSession session;
 	protected boolean includeDisabledRepos;
-	protected RepositoryManipulator manipulator;
+	protected RepositoryTracker manipulator;
 	protected int repositoryFlags;
 
-	public QueryableRepositoryManager(ProvisioningSession session, RepositoryManipulator manipulator, boolean includeDisabledRepos) {
+	public QueryableRepositoryManager(ProvisioningSession session, RepositoryTracker manipulator, boolean includeDisabledRepos) {
 		this.includeDisabledRepos = includeDisabledRepos;
 		Assert.isNotNull(manipulator);
 		this.manipulator = manipulator;
@@ -209,7 +210,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * Return the flags that should be used to access repositories given the
 	 * manipulator.
 	 */
-	protected abstract int getRepositoryFlags(RepositoryManipulator repositoryManipulator);
+	protected abstract int getRepositoryFlags(RepositoryTracker repositoryManipulator);
 
 	/**
 	 * Get an already-loaded repository at the specified location.

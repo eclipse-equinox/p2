@@ -41,7 +41,6 @@ public class ProvUIMessages extends NLS {
 	public static String ApplyProfileChangesDialog_Restart;
 	public static String ApplyProfileChangesDialog_NotYet;
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
-	public static String ColocatedRepositoryManipulator_GotoPrefs;
 	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
@@ -149,6 +148,9 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
 	public static String RepositoryNameAndLocationDialog_Title;
 
+	public static String RepositorySelectionGroup_GenericSiteLinkTitle;
+	public static String RepositorySelectionGroup_PrefPageLink;
+	public static String RepositorySelectionGroup_PrefPageName;
 	public static String ResolutionWizardPage_Canceled;
 	public static String ResolutionWizardPage_ErrorStatus;
 	public static String ResolutionWizardPage_NoSelections;
@@ -200,10 +202,9 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_InstallDialogError;
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_IdColumnTitle;
-	public static String ProvUI_LoadErrorTitle;
-	public static String ProvUI_PromptForSiteEdit;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
+	public static String ProvUIActivator_ErrorSavingPreferences;
 	public static String ProvUILicenseManager_ParsingError;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
 	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;

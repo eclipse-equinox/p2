@@ -44,7 +44,7 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		patchFora2 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change2}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, lifeCycle2);
 
 		// Ensure that all versions, not just the latest, are considered by the UI
-		getPolicy().getQueryContext().setShowLatestVersionsOnly(false);
+		getPolicy().setShowLatestVersionsOnly(false);
 	}
 
 	public void testChooseUpdateOverPatch() throws ProvisionException {

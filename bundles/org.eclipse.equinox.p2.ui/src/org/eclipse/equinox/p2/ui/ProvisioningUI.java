@@ -13,15 +13,19 @@ package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
  * @since 2.0
@@ -60,6 +64,10 @@ public class ProvisioningUI {
 
 	public ProvisioningSession getSession() {
 		return session;
+	}
+
+	public RepositoryTracker getRepositoryTracker() {
+		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
 	}
 
 	public String getProfileId() {
@@ -130,6 +138,43 @@ public class ProvisioningUI {
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
 		return dialog.open();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#manipulateRepositories(org.eclipse.swt.widgets.Shell)
+	 */
+	public boolean manipulateRepositories(Shell shell) {
+		if (policy.getRepositoryPreferencePageId() != null) {
+			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(shell, policy.getRepositoryPreferencePageId(), null, null);
+			dialog.open();
+		} else {
+			TitleAreaDialog dialog = new TitleAreaDialog(shell) {
+				RepositoryManipulationPage page;
+
+				protected Control createDialogArea(Composite parent) {
+					page = new RepositoryManipulationPage();
+					page.setProvisioningUI(ProvisioningUI.this);
+					page.init(PlatformUI.getWorkbench());
+					page.createControl(parent);
+					this.setTitle(ProvUIMessages.RepositoryManipulationPage_Title);
+					this.setMessage(ProvUIMessages.RepositoryManipulationPage_Description);
+					return page.getControl();
+				}
+
+				protected void okPressed() {
+					if (page.performOk())
+						super.okPressed();
+				}
+
+				protected void cancelPressed() {
+					if (page.performCancel())
+						super.cancelPressed();
+				}
+			};
+			dialog.open();
+		}
+		return true;
 	}
 
 	public Shell getDefaultParentShell() {

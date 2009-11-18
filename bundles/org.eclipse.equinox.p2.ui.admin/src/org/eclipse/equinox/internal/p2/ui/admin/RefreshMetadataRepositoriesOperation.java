@@ -37,7 +37,7 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryJob {
 
 	public IStatus runModal(IProgressMonitor monitor) {
 		// Clear the not found cache so that repos not found are reported again.
-		ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator().clearRepositoriesNotFound();
+		ProvisioningUI.getDefaultUI().getRepositoryTracker().clearRepositoriesNotFound();
 		getSession().refreshMetadataRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}

@@ -90,12 +90,8 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		int lock = getLock(profile, iu);
 		if ((lock & getLockConstant()) == getLockConstant())
 			return false;
-		if (profile.query(new PipedQuery(new IQuery[] {new InstallableUnitQuery(iu), getPolicy().getQueryContext().getVisibleInstalledIUProperty()}), new Collector(), null).size() == 0)
+		if (profile.query(new PipedQuery(new IQuery[] {new InstallableUnitQuery(iu), getPolicy().getVisibleInstalledIUQuery()}), new Collector(), null).size() == 0)
 			return false;
-		//		String propName = getPolicy().getQueryContext().getVisibleInstalledIUProperty();
-		//		if (propName != null && getProfileProperty(profile, iu, InstallableUnitDescription.PROP_TYPE_GROUP) == null) {
-		//			return false;
-		//		}
 		return true;
 	}
 

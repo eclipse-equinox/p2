@@ -13,8 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -32,10 +33,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class SDKPolicy extends Policy {
 
 	public SDKPolicy() {
-		setRepositoryManipulator(new SDKRepositoryManipulator());
-		// Start with the default query context and configure some settings
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		setQueryContext(queryContext);
+		// initialize for our values
+		setVisibleAvailableIUQuery(new GroupQuery());
+		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
+		setVisibleInstalledIUQuery(new UserVisibleRootQuery());
 		ProvSDKUIActivator.getDefault().updateWithPreferences(this);
 	}
 

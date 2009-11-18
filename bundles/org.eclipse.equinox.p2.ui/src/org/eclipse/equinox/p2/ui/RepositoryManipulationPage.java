@@ -93,8 +93,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	boolean changed = false;
 	MetadataRepositoryElementComparator comparator;
 	RepositoryDetailsLabelProvider labelProvider;
-	RepositoryManipulator manipulator;
-	RepositoryManipulator localCacheRepoManipulator;
+	RepositoryTracker tracker;
+	RepositoryTracker localCacheRepoManipulator;
 	CachedMetadataRepositories input;
 	Text pattern, details;
 	PatternFilter filter;
@@ -106,7 +106,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		CachedMetadataRepositories() {
 			super(ui);
-			setIncludeDisabledRepositories(manipulator.getRepositoriesVisible());
+			setIncludeDisabledRepositories(getPolicy().getRepositoriesVisible());
 		}
 
 		public int getQueryType() {
@@ -151,13 +151,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	public void setProvisioningUI(ProvisioningUI ui) {
 		this.ui = ui;
 		this.policy = ui.getPolicy();
-		manipulator = policy.getRepositoryManipulator();
+		tracker = ui.getRepositoryTracker();
 	}
 
 	protected Control createContents(Composite parent) {
 		display = parent.getDisplay();
 		// The help refers to the full-blown dialog.  No help if it's read only.
-		if (manipulator.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible())
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
 
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -165,7 +165,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		composite.setLayoutData(gd);
 
 		GridLayout layout = new GridLayout();
-		layout.numColumns = manipulator.getRepositoriesVisible() ? 2 : 1;
+		layout.numColumns = policy.getRepositoriesVisible() ? 2 : 1;
 		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
 		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
@@ -216,7 +216,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		pattern.setLayoutData(gd);
 
 		// spacer to fill other column
-		if (manipulator.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible())
 			new Label(composite, SWT.NONE);
 
 		// Table of available repositories
@@ -280,7 +280,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (manipulator.getRepositoriesVisible())
+				if (policy.getRepositoriesVisible())
 					validateButtons();
 				setDetails();
 			}
@@ -295,7 +295,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		table.setLayoutData(data);
 
 		// Drop targets and vertical buttons only if repository manipulation is provided.
-		if (manipulator.getRepositoriesVisible()) {
+		if (policy.getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 			target.addDropListener(new RepositoryManipulatorDropTarget(ui, table));
@@ -358,7 +358,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private void setTableColumns() {
 		table.setHeaderVisible(true);
 		String[] columnHeaders;
-		if (manipulator.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible())
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle, ProvUIMessages.RepositoryManipulationPage_EnabledColumnTitle};
 		else
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle};
@@ -520,11 +520,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void addRepository() {
 		AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), ui) {
-			protected RepositoryManipulator getRepositoryManipulator() {
+			protected RepositoryTracker getRepositoryTracker() {
 				return RepositoryManipulationPage.this.getRepositoryManipulator();
 			}
 		};
-		dialog.setTitle(manipulator.getAddOperation(null, ui).getName());
+		dialog.setTitle(tracker.getAddOperation(null, ui.getSession()).getName());
 		dialog.open();
 	}
 
@@ -542,14 +542,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				public void run(IProgressMonitor monitor) {
 					SubMonitor mon = SubMonitor.convert(monitor, NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 300);
 					try {
-						manipulator.clearRepositoryNotFound(location);
+						tracker.clearRepositoryNotFound(location);
 						// If the manager doesn't know this repo, refreshing it will not work.
 						// We temporarily add it, but we must remove it in case the user cancels out of this page.
-						if (!includesRepo(manipulator.getKnownRepositories(ui.getSession()), location)) {
+						if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
 							// Start a batch operation so we can swallow events
 							remove[0] = true;
 							ui.getSession().signalOperationStart();
-							AddRepositoryJob op = manipulator.getAddOperation(location, ui);
+							AddRepositoryJob op = tracker.getAddOperation(location, ui.getSession());
 							op.runModal(mon.newChild(100));
 						}
 						ui.getSession().refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
@@ -567,7 +567,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
-							RemoveRepositoryJob op = manipulator.getRemoveOperation(new URI[] {location}, ui);
+							RemoveRepositoryJob op = tracker.getRemoveOperation(new URI[] {location}, ui.getSession());
 							op.runModal(new NullProgressMonitor());
 							// stop swallowing events
 							ui.getSession().signalOperationComplete(null);
@@ -585,7 +585,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			// We are going to report problems directly to the status manager because we
 			// do not want the automatic repo location editing to kick in.
 			if (fail[0].getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
-				manipulator.addNotFound(location);
+				tracker.addNotFound(location);
 			}
 			if (!fail[0].getStatus().matches(IStatus.CANCEL)) {
 				// An error is only shown if the dialog was not canceled
@@ -772,11 +772,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	// Return a repo manipulator that only operates on the local cache.
 	// Labels and other presentation info are used from the original manipulator.
-	RepositoryManipulator getRepositoryManipulator() {
+	RepositoryTracker getRepositoryManipulator() {
 		if (localCacheRepoManipulator == null)
-			localCacheRepoManipulator = new RepositoryManipulator() {
-				public AddRepositoryJob getAddOperation(URI location, ProvisioningUI ui) {
-					return new AddRepositoryJob("Cached add repo operation", ui.getSession(), new URI[] {location}) { //$NON-NLS-1$
+			localCacheRepoManipulator = new RepositoryTracker() {
+				public AddRepositoryJob getAddOperation(URI location, ProvisioningSession session) {
+					return new AddRepositoryJob("Cached add repo operation", session, new URI[] {location}) { //$NON-NLS-1$
 						public IStatus runModal(IProgressMonitor monitor) {
 							MetadataRepositoryElement element = null;
 							for (int i = 0; i < locations.length; i++) {
@@ -805,18 +805,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					return RepositoryManipulationPage.this.getKnownRepositories();
 				}
 
-				public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningUI ui) {
-					return new RemoveRepositoryJob("Cached remove repo operation", ui.getSession(), repoLocations) { //$NON-NLS-1$
+				public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session) {
+					return new RemoveRepositoryJob("Cached remove repo operation", session, repoLocations) { //$NON-NLS-1$
 						protected IStatus doBatchedOperation(IProgressMonitor monitor) {
 							removeRepositories();
 							return Status.OK_STATUS;
 						}
 					};
-				}
-
-				public boolean manipulateRepositories(Shell shell, ProvisioningUI ui) {
-					// we are the manipulator
-					return true;
 				}
 
 				protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {

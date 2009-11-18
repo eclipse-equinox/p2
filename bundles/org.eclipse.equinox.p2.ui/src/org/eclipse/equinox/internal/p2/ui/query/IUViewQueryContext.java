@@ -8,13 +8,10 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui;
+package org.eclipse.equinox.internal.p2.ui.query;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
-import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * IUViewQueryContext defines the different ways 
@@ -31,8 +28,6 @@ public class IUViewQueryContext {
 	// Available view settings
 	// Default available view to repo as this provides the fastest information
 	private int view = AVAILABLE_VIEW_BY_REPO;
-	// What property to use for choosing visible IUs
-	private IQuery visibleAvailableIUProperty = new GroupQuery();
 	// Whether to show latest versions only, defaults to
 	// true.  Clients typically use a pref setting or dialog
 	// setting to initialize
@@ -51,9 +46,6 @@ public class IUViewQueryContext {
 	private boolean showProvisioningPlanChildren = true;
 
 	private String profileId = null;
-
-	// Installed view settings
-	private IQuery visibleInstalledIUProperty = new UserVisibleRootQuery();
 
 	private String hidingInstalledDescription = ProvUIMessages.IUViewQueryContext_AllAreInstalledDescription;
 	private String groupingCategoriesDescription = ProvUIMessages.IUViewQueryContext_NoCategorizedItemsDescription;
@@ -106,22 +98,6 @@ public class IUViewQueryContext {
 
 	public void setInstalledProfileId(String profileId) {
 		this.profileId = profileId;
-	}
-
-	public IQuery getVisibleAvailableIUProperty() {
-		return visibleAvailableIUProperty;
-	}
-
-	public void setVisibleAvailableIUProperty(IQuery query) {
-		visibleAvailableIUProperty = query;
-	}
-
-	public IQuery getVisibleInstalledIUProperty() {
-		return visibleInstalledIUProperty;
-	}
-
-	public void setVisibleInstalledIUProperty(IQuery propertyName) {
-		visibleInstalledIUProperty = propertyName;
 	}
 
 	/**

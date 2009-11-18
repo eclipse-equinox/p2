@@ -14,9 +14,9 @@ import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 
 /**
  * Abstract class to set up the mock query provider
@@ -32,14 +32,14 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		// query all repos, not just non-system repos
 		// TODO consider evolving these tests to distinguish between system
 		// and non-system
-		RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
+		RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
+		RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		ProvUI.setQueryProvider(null);

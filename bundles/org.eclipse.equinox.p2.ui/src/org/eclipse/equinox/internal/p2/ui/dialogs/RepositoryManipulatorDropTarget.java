@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.operations.AddRepositoryJob;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -36,14 +36,14 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 	ProvisioningUI ui;
-	RepositoryManipulator manipulator;
+	RepositoryTracker tracker;
 	Control control;
 
 	public RepositoryManipulatorDropTarget(ProvisioningUI ui, Control control) {
 		super(true); // convert file drops to URL
 		Assert.isNotNull(ui);
 		this.ui = ui;
-		this.manipulator = ui.getPolicy().getRepositoryManipulator();
+		this.tracker = ui.getRepositoryTracker();
 		this.control = control;
 	}
 
@@ -53,7 +53,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		try {
 			location[0] = URIUtil.fromString(urlText);
 		} catch (URISyntaxException e) {
-			ProvUI.reportStatus(manipulator.getInvalidLocationStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
+			ProvUI.reportStatus(tracker.getInvalidLocationStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
 		if (location[0] == null)
@@ -62,9 +62,9 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				IStatus status = manipulator.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
+				IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
 				if (status.isOK()) {
-					AddRepositoryJob addOperation = manipulator.getAddOperation(location[0], ui);
+					AddRepositoryJob addOperation = tracker.getAddOperation(location[0], ui.getSession());
 					ui.schedule(addOperation, StatusManager.SHOW | StatusManager.LOG);
 					event.detail = DND.DROP_LINK;
 				} else if (status.getSeverity() == IStatus.CANCEL) {

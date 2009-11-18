@@ -36,7 +36,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		// for existing repos to load so that content is available.  
 		// If the user can manipulate the repositories, then we don't wait, 
 		// because we don't know which ones they want to work with.
-		return !getProvisioningUI().getPolicy().getRepositoryManipulator().getRepositoriesVisible();
+		return !getProvisioningUI().getPolicy().getRepositoriesVisible();
 	}
 
 	protected void setLoadJobProperties(Job loadJob) {

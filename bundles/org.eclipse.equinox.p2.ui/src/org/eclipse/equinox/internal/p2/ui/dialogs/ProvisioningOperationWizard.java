@@ -227,7 +227,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return ui.getProfileId();
 	}
 
-	//	protected String getRootMarkerKey() {
-	//		return ui.getPolicy().getQueryContext().getVisibleInstalledIUProperty();
-	//	}
+	protected boolean shouldShowProvisioningPlanChildren() {
+		return ProvUI.getQueryContext(getPolicy()).getShowProvisioningPlanChildren();
+	}
 }

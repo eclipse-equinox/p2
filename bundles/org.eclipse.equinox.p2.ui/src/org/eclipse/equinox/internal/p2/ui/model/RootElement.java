@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element class that represents the root of a viewer.  It can be configured
@@ -25,7 +28,7 @@ public abstract class RootElement extends RemoteQueriedElement {
 	private ProvisioningUI ui;
 
 	public RootElement(ProvisioningUI ui) {
-		this(null, ui.getPolicy().getQueryContext(), ui);
+		this(null, ProvUI.getQueryContext(ui.getPolicy()), ui);
 	}
 
 	public RootElement(IUViewQueryContext queryContext, ProvisioningUI ui) {

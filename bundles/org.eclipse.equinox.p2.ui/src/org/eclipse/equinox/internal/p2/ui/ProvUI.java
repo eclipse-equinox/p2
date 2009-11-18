@@ -15,10 +15,12 @@ import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -95,6 +97,15 @@ public class ProvUI {
 			columnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
 		return columnConfig;
 
+	}
+
+	public static IUViewQueryContext getQueryContext(Policy policy) {
+		IUViewQueryContext queryContext = new IUViewQueryContext(policy.getGroupByCategory() ? IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY : IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		queryContext.setShowLatestVersionsOnly(policy.getShowLatestVersionsOnly());
+		queryContext.setShowInstallChildren(policy.getShowDrilldownRequirements());
+		queryContext.setShowProvisioningPlanChildren(policy.getShowDrilldownRequirements());
+		queryContext.setUseCategories(policy.getGroupByCategory());
+		return queryContext;
 	}
 
 	public static Object getAdapter(Object object, Class adapterType) {

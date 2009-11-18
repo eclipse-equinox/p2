@@ -155,6 +155,6 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 	 * @return the add operation
 	 */
 	protected AddRepositoryJob getOperation(URI repositoryLocation) {
-		return getRepositoryManipulator().getAddOperation(repositoryLocation, getProvisioningUI());
+		return getRepositoryTracker().getAddOperation(repositoryLocation, getProvisioningUI().getSession());
 	}
 }

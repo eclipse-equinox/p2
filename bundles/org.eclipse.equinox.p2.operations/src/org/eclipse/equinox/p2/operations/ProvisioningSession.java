@@ -33,6 +33,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
@@ -77,6 +78,14 @@ public class ProvisioningSession {
 	public ProvisioningSession(IProvisioningAgent agent) {
 		Assert.isNotNull(agent, Messages.ProvisioningSession_AgentNotFound);
 		this.agent = agent;
+	}
+
+	public IProvisioningAgent getProvisioningAgent() {
+		return agent;
+	}
+
+	public IAgentLocation getAgentLocation() {
+		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 	}
 
 	public IArtifactRepositoryManager getArtifactRepositoryManager() {

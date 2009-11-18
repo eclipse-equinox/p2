@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 
 /**
  * An object that adds provides query support for an artifact
@@ -33,7 +34,7 @@ import org.eclipse.equinox.p2.ui.RepositoryManipulator;
  */
 public class QueryableArtifactRepositoryManager extends QueryableRepositoryManager {
 
-	public QueryableArtifactRepositoryManager(ProvisioningSession session, RepositoryManipulator repositoryManipulator, boolean includeDisabledRepos) {
+	public QueryableArtifactRepositoryManager(ProvisioningSession session, RepositoryTracker repositoryManipulator, boolean includeDisabledRepos) {
 		super(session, repositoryManipulator, includeDisabledRepos);
 	}
 
@@ -71,7 +72,7 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.QueryableRepositoryManager#getRepositoryFlags(org.eclipse.equinox.p2.ui.RepositoryManipulator)
 	 */
-	protected int getRepositoryFlags(RepositoryManipulator repositoryManipulator) {
+	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getArtifactRepositoryFlags();
 	}
 }

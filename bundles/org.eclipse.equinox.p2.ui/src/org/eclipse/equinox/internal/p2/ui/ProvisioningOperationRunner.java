@@ -69,11 +69,11 @@ public class ProvisioningOperationRunner {
 		// Global override of restart (used in test cases).
 		if (suppressRestart)
 			return;
-		if (restartPolicy == Policy.FORCE_RESTART) {
+		if (restartPolicy == Policy.RESTART_POLICY_FORCE) {
 			PlatformUI.getWorkbench().restart();
 			return;
 		}
-		if (restartPolicy == Policy.FORCE_APPLY) {
+		if (restartPolicy == Policy.RESTART_POLICY_FORCE_APPLY) {
 			applyProfileChanges();
 			return;
 		}
@@ -82,7 +82,7 @@ public class ProvisioningOperationRunner {
 			public void run() {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
-				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.PROMPT_RESTART);
+				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.RESTART_POLICY_PROMPT);
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
 					applyProfileChanges();
 				} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
@@ -116,11 +116,11 @@ public class ProvisioningOperationRunner {
 					}
 					int globalRestartPolicy = ui.getPolicy().getRestartPolicy();
 					// If the global policy allows apply changes, check the job policy to see if it supports it.
-					if (globalRestartPolicy == Policy.PROMPT_RESTART_OR_APPLY) {
+					if (globalRestartPolicy == Policy.RESTART_POLICY_PROMPT_RESTART_OR_APPLY) {
 						if (jobRestartPolicy == ProvisioningJob.RESTART_OR_APPLY)
-							requestRestart(Policy.PROMPT_RESTART_OR_APPLY);
+							requestRestart(Policy.RESTART_POLICY_PROMPT_RESTART_OR_APPLY);
 						else
-							requestRestart(Policy.PROMPT_RESTART);
+							requestRestart(Policy.RESTART_POLICY_PROMPT);
 					} else
 						requestRestart(globalRestartPolicy);
 				}

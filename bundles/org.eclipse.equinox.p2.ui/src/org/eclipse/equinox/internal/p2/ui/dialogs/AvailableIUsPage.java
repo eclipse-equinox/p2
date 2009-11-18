@@ -14,11 +14,11 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.IUPropertyUtils;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -95,7 +95,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Now the available group 
 		// If repositories are visible, we want to default to showing no repos.  Otherwise all.
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
-		if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible())
+		if (!getPolicy().getRepositoriesVisible())
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
 		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
@@ -206,7 +206,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}, ProvUIMessages.AvailableIUsPage_GotoInstallInfo);
 		installLink.setLayoutData(gd);
 
-		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+		if (getPolicy().getRepositoriesVisible()) {
 			// Checkbox
 			resolveAllCheckbox = new Button(parent, SWT.CHECK);
 			resolveAllCheckbox.setText(ProvUIMessages.AvailableIUsPage_ResolveAllCheckbox);
@@ -219,7 +219,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private void createRepoArea(Composite parent) {
 		// Site controls are only available if a repository manipulator
 		// is specified.
-		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+		if (getPolicy().getRepositoriesVisible()) {
 			repoSelector = new RepositorySelectionGroup(getProvisioningUI(), getContainer(), parent, queryContext);
 			repoSelector.addRepositorySelectionListener(new IRepositorySelectionListener() {
 				public void repositorySelectionChanged(int repoChoice, URI repoLocation) {
@@ -283,7 +283,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	private void setDropTarget(Control control) {
-		if (getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+		if (getPolicy().getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 			target.addDropListener(new RepositoryManipulatorDropTarget(getProvisioningUI(), control));
@@ -332,7 +332,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	private void makeQueryContext() {
 		// Make a local query context that is based on the default.
-		IUViewQueryContext defaultQueryContext = getPolicy().getQueryContext();
+		IUViewQueryContext defaultQueryContext = ProvUI.getQueryContext(getPolicy());
 		queryContext = new IUViewQueryContext(defaultQueryContext.getViewType());
 		if (defaultQueryContext.getHideAlreadyInstalled()) {
 			queryContext.hideAlreadyInstalled(getProfileId());
@@ -340,8 +340,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			queryContext.setInstalledProfileId(getProfileId());
 		}
 		queryContext.setShowLatestVersionsOnly(defaultQueryContext.getShowLatestVersionsOnly());
-		queryContext.setVisibleAvailableIUProperty(defaultQueryContext.getVisibleAvailableIUProperty());
-		queryContext.setVisibleInstalledIUProperty(defaultQueryContext.getVisibleInstalledIUProperty());
 		// Now check for saved away dialog settings
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
@@ -560,7 +558,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	public ProvisioningContext getProvisioningContext() {
 		// If the user can't manipulate repos, always resolve against everything
-		if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible() || repoSelector == null) {
+		if (!getPolicy().getRepositoriesVisible() || repoSelector == null) {
 			return new ProvisioningContext();
 		}
 		// Consult the checkbox to see if we should resolve against everything,

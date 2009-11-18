@@ -14,11 +14,12 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.ui.ElementWrapper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -65,7 +66,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			// is empty and the parent is an IU, then being empty is not a big deal, it means
 			// we are in drilldown.
 			if (parent instanceof MetadataRepositoryElement) {
-				RepositoryManipulator manipulator = ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator();
+				RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
 				if (manipulator.hasNotFoundStatusBeenReported(repo.getLocation())) {
 					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), ""); //$NON-NLS-1$
@@ -75,7 +76,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 				QueriedElement element = (QueriedElement) parent;
 				IUViewQueryContext context = element.getQueryContext();
 				if (context == null)
-					context = element.getPolicy().getQueryContext();
+					context = ProvUI.getQueryContext(element.getPolicy());
 				if (parent instanceof MetadataRepositoryElement || parent instanceof MetadataRepositories) {
 					if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
 						return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());

@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.ui;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -23,7 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * The Policy class is used to locate application specific policies that
+ * The Policy class is used to specify application specific policies that
  * should be used in the standard p2 UI class libraries.   The default policy
  * is acquired using the OSGi service model.
  * 
@@ -46,40 +49,39 @@ public class Policy {
 	 * A constant indicating that restart should be forced (without
 	 * confirmation) immediately after completion of a provisioning operation.
 	 * 
-	 * @since 3.6
-	 */
-	public static final int FORCE_RESTART = 1;
+	*/
+	public static final int RESTART_POLICY_FORCE = 1;
 
 	/**
 	 * A constant indicating that the changes should be applied dynamically
 	 * to the profile (without confirmation) immediately after completion of 
 	 * a provisioning operation.
-	 * 
-	 * @since 3.6
 	 */
-	public static final int FORCE_APPLY = 2;
+	public static final int RESTART_POLICY_FORCE_APPLY = 2;
 
 	/**
 	 * A constant indicating that the user should be prompted to
 	 * restart after completion of a provisioning operation.
-	 * 
-	 * @since 3.6
 	 */
-	public static final int PROMPT_RESTART = 3;
+	public static final int RESTART_POLICY_PROMPT = 3;
 
 	/**
 	 * A constant indicating that, where possible, the user should 
 	 * be given the option to restart or dynamically apply the changes
 	 * after completion of a provisioning operation.
-	 * 
-	 * @since 3.6
 	 */
-	public static final int PROMPT_RESTART_OR_APPLY = 4;
+	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
 	private LicenseManager licenseManager;
-	private IUViewQueryContext queryContext;
-	private RepositoryManipulator repositoryManipulator;
-	private int restartPolicy = PROMPT_RESTART_OR_APPLY;
+	private IQuery visibleAvailableIUQuery = new GroupQuery();
+	private IQuery visibleInstalledIUQuery = new UserVisibleRootQuery();
+	private boolean groupByCategory = true;
+	private boolean allowDrilldown = true;
+	private boolean repositoriesVisible = true;
+	private boolean showLatestVersionsOnly = true;
+	private int restartPolicy = RESTART_POLICY_PROMPT_RESTART_OR_APPLY;
+	private String repoPrefPageId;
+	private String repoPrefPageName;
 
 	/**
 	 * Returns the license manager used to remember accepted licenses
@@ -104,65 +106,10 @@ public class Policy {
 	}
 
 	/**
-	 * Returns the plan validator used to validate a proposed provisioning
-	 * plan
-	 * 
-	 * @return the plan validator
-	 */
-	/**
-	 * Get the query context that is used to drive the filtering and 
-	 * traversal of any IU views
-	 * 
-	 * @return the queryContext
-	 */
-	public IUViewQueryContext getQueryContext() {
-		if (queryContext == null) {
-			queryContext = getDefaultQueryContext();
-		}
-		return queryContext;
-	}
-
-	/**
-	 * Set the query context that is used to drive the filtering and
-	 * traversal of any IU views
-	 * 
-	 * @param context the context to use, or <code>null</code> to use 
-	 * the default context
-	 */
-	public void setQueryContext(IUViewQueryContext context) {
-		queryContext = context;
-	}
-
-	/**
-	 * Get the repository manipulator that is used to perform repository
-	 * operations given a URL.
-	 * 
-	 * @return the repository manipulator
-	 */
-	public RepositoryManipulator getRepositoryManipulator() {
-		if (repositoryManipulator == null)
-			repositoryManipulator = getDefaultRepositoryManipulator();
-		return repositoryManipulator;
-	}
-
-	/**
-	 * Set the repository manipulator that is used to perform repository
-	 * operations given a URL.
-	 * 
-	 * @param manipulator the manipulator to use, or <code>null</code> to use 
-	 * the default manipulator
-	 */
-	public void setRepositoryManipulator(RepositoryManipulator manipulator) {
-		repositoryManipulator = manipulator;
-	}
-
-	/**
 	 * Reset all of the policies to their default values
 	 */
 	public void reset() {
 		licenseManager = null;
-		queryContext = null;
-		repositoryManipulator = null;
 	}
 
 	/**
@@ -222,17 +169,6 @@ public class Policy {
 		return new SimpleLicenseManager();
 	}
 
-	/*
-	 * Returns an IUViewQueryContext with default values
-	 */
-	private IUViewQueryContext getDefaultQueryContext() {
-		return new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
-	}
-
-	private RepositoryManipulator getDefaultRepositoryManipulator() {
-		return new ColocatedRepositoryManipulator(null);
-	}
-
 	/**
 	 * Return a status that can be used to describe the failure to
 	 * retrieve a profile.
@@ -243,36 +179,75 @@ public class Policy {
 		return null;
 	}
 
-	/**
-	 * Return a constant that indicates how restarts are handled after
-	 * completion of a provisioning operation.
-	 * 
-	 * @return an integer constant indicating how restarts are to be
-	 * handled.  
-	 * 
-	 * @see #FORCE_RESTART
-	 * @see #FORCE_APPLY
-	 * @see #PROMPT_RESTART
-	 * @see #PROMPT_RESTART_OR_APPLY
-	 */
+	public IQuery getVisibleAvailableIUQuery() {
+		return visibleAvailableIUQuery;
+	}
+
+	public void setVisibleAvailableIUQuery(IQuery query) {
+		visibleAvailableIUQuery = query;
+	}
+
+	public IQuery getVisibleInstalledIUQuery() {
+		return visibleInstalledIUQuery;
+	}
+
+	public void setVisibleInstalledIUQuery(IQuery query) {
+		visibleInstalledIUQuery = query;
+	}
+
 	public int getRestartPolicy() {
 		return restartPolicy;
 	}
 
-	/**
-	 * Set a constant that indicates how restarts are handled after
-	 * completion of a provisioning operation.
-	 * 
-	 * @param policy an integer constant indicating how restarts are to be
-	 * handled.  Should be one of <code>FORCE_RESTART</code>, <code>FORCE_APPLY</code>, 
-	 * <code>PROMPT_RESTART</code>, or <code>PROMPT_RESTART_OR_APPLY</code>.
-	 * 
-	 * @see #FORCE_RESTART
-	 * @see #FORCE_APPLY
-	 * @see #PROMPT_RESTART
-	 * @see #PROMPT_RESTART_OR_APPLY
-	 */
-	public void setRestartPolicy(int policy) {
-		restartPolicy = policy;
+	public void setRestartPolicy(int restartPolicy) {
+		this.restartPolicy = restartPolicy;
+	}
+
+	public boolean getRepositoriesVisible() {
+		return repositoriesVisible;
+	}
+
+	public void setRepositoriesVisible(boolean visible) {
+		this.repositoriesVisible = visible;
+	}
+
+	public boolean getShowLatestVersionsOnly() {
+		return showLatestVersionsOnly;
+	}
+
+	public void setShowLatestVersionsOnly(boolean showLatest) {
+		this.showLatestVersionsOnly = showLatest;
+	}
+
+	public boolean getShowDrilldownRequirements() {
+		return allowDrilldown;
+	}
+
+	public void setShowDrilldownRequirements(boolean drilldown) {
+		this.allowDrilldown = drilldown;
+	}
+
+	public boolean getGroupByCategory() {
+		return groupByCategory;
+	}
+
+	public void setGroupByCategory(boolean group) {
+		this.groupByCategory = group;
+	}
+
+	public String getRepositoryPreferencePageId() {
+		return repoPrefPageId;
+	}
+
+	public void setRepositoryPreferencePageId(String id) {
+		this.repoPrefPageId = id;
+	}
+
+	public String getRepositoryPreferencePageName() {
+		return repoPrefPageName;
+	}
+
+	public void setRepositoryPreferencePageName(String name) {
+		this.repoPrefPageName = name;
 	}
 }

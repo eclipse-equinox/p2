@@ -38,7 +38,6 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
 	public static String ProvSDKUIActivator_Question;
-	public static String ProvSDKUIActivator_SitePrefLink;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
 }

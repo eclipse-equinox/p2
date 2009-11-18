@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.ui.admin.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -27,19 +26,14 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 
-	class ArtifactRepositoryManipulator extends RepositoryManipulator {
+	class ArtifactRepositoryTracker extends RepositoryTracker {
 
-		public AddRepositoryJob getAddOperation(URI location, ProvisioningUI ui) {
-			return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, ui.getSession(), location);
+		public AddRepositoryJob getAddOperation(URI location, ProvisioningSession session) {
+			return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, session, location);
 		}
 
-		public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningUI ui) {
-			return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, ui.getSession(), repoLocations);
-		}
-
-		public boolean manipulateRepositories(Shell shell, ProvisioningUI ui) {
-			// Not used in this dialog
-			return false;
+		public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session) {
+			return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, session, repoLocations);
 		}
 
 		public URI[] getKnownRepositories(ProvisioningSession session) {
@@ -51,17 +45,17 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		}
 	}
 
-	RepositoryManipulator manipulator;
+	RepositoryTracker tracker;
 
 	public AddArtifactRepositoryDialog(Shell parentShell, ProvisioningUI ui) {
 		super(parentShell, ui);
 	}
 
-	protected RepositoryManipulator getRepositoryManipulator() {
-		if (manipulator == null) {
-			manipulator = new ArtifactRepositoryManipulator();
+	protected RepositoryTracker getRepositoryTracker() {
+		if (tracker == null) {
+			tracker = new ArtifactRepositoryTracker();
 		}
-		return manipulator;
+		return tracker;
 	}
 
 }

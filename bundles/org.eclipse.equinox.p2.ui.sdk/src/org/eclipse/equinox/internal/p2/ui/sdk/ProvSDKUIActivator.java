@@ -17,9 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -160,14 +157,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	void updateWithPreferences(Policy policy) {
-		IUViewQueryContext queryContext = policy.getQueryContext();
-		RepositoryManipulator manipulator = policy.getRepositoryManipulator();
-		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
-		queryContext.setVisibleAvailableIUProperty(new GroupQuery());
-		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
-		queryContext.setVisibleInstalledIUProperty(new UserVisibleRootQuery());
-		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		policy.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 	}
 
 	/*

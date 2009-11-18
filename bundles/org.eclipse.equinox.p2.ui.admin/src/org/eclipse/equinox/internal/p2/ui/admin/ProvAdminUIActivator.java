@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -103,35 +108,37 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	}
 
 	void updateForPreferences() {
-		IUViewQueryContext queryContext = policy.getQueryContext();
-		RepositoryManipulator manipulator = policy.getRepositoryManipulator();
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
-			queryContext.setVisibleAvailableIUProperty(new GroupQuery());
-		else
-			queryContext.setVisibleAvailableIUProperty(null);
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
-			queryContext.setVisibleInstalledIUProperty(new UserVisibleRootQuery());
-		else
-			queryContext.setVisibleInstalledIUProperty(null);
 
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
+			policy.setVisibleAvailableIUQuery(new GroupQuery());
+		else
+			policy.setVisibleAvailableIUQuery(InstallableUnitQuery.ANY);
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
+			policy.setVisibleInstalledIUQuery(new UserVisibleRootQuery());
+		else
+			policy.setVisibleInstalledIUQuery(InstallableUnitQuery.ANY);
+
+		RepositoryTracker tracker = getRepositoryTracker();
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {
-			manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-			manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			tracker.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			tracker.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		} else {
-			manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
-			manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+			tracker.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+			tracker.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		}
-		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
-		queryContext.setUseCategories(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
+		// store in ui prefs
+		policy.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
+		policy.setGroupByCategory(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
+	}
+
+	private RepositoryTracker getRepositoryTracker() {
+		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
 	}
 
 	void initializePolicy() {
 		policy = new Policy();
 		// Manipulate the default query context according to our preferences
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
-		policy.setQueryContext(queryContext);
 		updateForPreferences();
-		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(null));
 	}
 
 	public Policy getPolicy() {

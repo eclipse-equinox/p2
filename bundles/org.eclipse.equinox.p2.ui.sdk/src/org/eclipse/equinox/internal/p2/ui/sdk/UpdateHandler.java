@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 /**
@@ -26,11 +24,10 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	protected void doExecute(PreloadMetadataRepositoryJob job) {
 		if (hasNoRepos) {
-			RepositoryManipulator repoManipulator = getProvisioningUI().getPolicy().getRepositoryManipulator();
-			if (repoManipulator.getRepositoriesVisible()) {
+			if (getProvisioningUI().getPolicy().getRepositoriesVisible()) {
 				boolean goToSites = MessageDialog.openQuestion(getShell(), ProvSDKMessages.UpdateHandler_NoSitesTitle, ProvSDKMessages.UpdateHandler_NoSitesMessage);
 				if (goToSites) {
-					getProvisioningUI().getPolicy().getRepositoryManipulator().manipulateRepositories(getShell(), getProvisioningUI());
+					getProvisioningUI().manipulateRepositories(getShell());
 				}
 			}
 			return;
@@ -45,7 +42,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	protected boolean preloadRepositories() {
 		hasNoRepos = false;
-		RepositoryManipulator repoMan = getProvisioningUI().getPolicy().getRepositoryManipulator();
+		RepositoryTracker repoMan = getProvisioningUI().getRepositoryTracker();
 		if (repoMan.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
 			hasNoRepos = true;
 			return false;

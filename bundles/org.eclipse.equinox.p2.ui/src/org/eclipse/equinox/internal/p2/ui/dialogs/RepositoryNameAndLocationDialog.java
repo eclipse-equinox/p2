@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -73,14 +73,13 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	}
 
 	/**
-	 * Return a RepositoryManipulator appropriate for validating and adding the
+	 * Return a RepositoryTracker appropriate for validating and adding the
 	 * repository.
 	 * 
-	 * The default manipulator is described by the policy.  Subclasses may override.
-	 * @return the repository manipulator
+	 * @return the Repository Tracker
 	 */
-	protected RepositoryManipulator getRepositoryManipulator() {
-		return ui.getPolicy().getRepositoryManipulator();
+	protected RepositoryTracker getRepositoryTracker() {
+		return ui.getRepositoryTracker();
 	}
 
 	protected void okPressed() {
@@ -102,7 +101,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	 * @return the URL currently typed in by the user.
 	 */
 	protected URI getUserLocation() {
-		return getRepositoryManipulator().locationFromString(url.getText().trim());
+		return getRepositoryTracker().locationFromString(url.getText().trim());
 	}
 
 	/**
@@ -135,7 +134,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
-		status[0] = getRepositoryManipulator().getInvalidLocationStatus(url.getText().trim());
+		status[0] = getRepositoryTracker().getInvalidLocationStatus(url.getText().trim());
 		final URI userLocation = getUserLocation();
 		if (url.getText().length() == 0)
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvisioningSession.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryGroup_URLRequired, null);
@@ -144,7 +143,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		else {
 			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 				public void run() {
-					status[0] = getRepositoryManipulator().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
+					status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
 				}
 			});
 		}

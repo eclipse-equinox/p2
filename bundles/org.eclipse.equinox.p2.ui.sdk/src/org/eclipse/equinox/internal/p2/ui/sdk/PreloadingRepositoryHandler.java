@@ -45,7 +45,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		if (preloadRepositories()) {
 			//cancel any load that is already running
 			Job.getJobManager().cancel(PreloadMetadataRepositoryJob.LOAD_FAMILY);
-			final PreloadMetadataRepositoryJob loadJob = new PreloadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getPolicy().getRepositoryManipulator());
+			final PreloadMetadataRepositoryJob loadJob = new PreloadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getRepositoryTracker());
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {

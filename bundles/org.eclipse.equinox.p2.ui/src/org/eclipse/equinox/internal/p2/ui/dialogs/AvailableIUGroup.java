@@ -16,12 +16,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -113,11 +113,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		super(ui, parent, font, columnConfig);
 		this.display = parent.getDisplay();
 		if (queryContext == null)
-			this.queryContext = getPolicy().getQueryContext();
+			this.queryContext = ProvUI.getQueryContext(getPolicy());
 		else
 			this.queryContext = queryContext;
-		repoFlags = getPolicy().getRepositoryManipulator().getMetadataRepositoryFlags();
-		this.queryableManager = new QueryableMetadataRepositoryManager(getSession(), getPolicy().getRepositoryManipulator(), false);
+		repoFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
+		this.queryableManager = new QueryableMetadataRepositoryManager(getSession(), ui.getRepositoryTracker(), false);
 		this.filterConstant = filterConstant;
 		this.filter = new AvailableIUPatternFilter(getColumnConfig());
 		this.filter.setIncludeLeadingWildcard(true);
@@ -216,7 +216,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 					String description;
 					String name;
 					int severity;
-					if (!getPolicy().getRepositoryManipulator().getRepositoriesVisible()) {
+					if (!getPolicy().getRepositoriesVisible()) {
 						// shouldn't get here ideally.  No sites and no way to add any.
 						severity = IStatus.ERROR;
 						name = ProvUIMessages.AvailableIUGroup_NoSitesConfiguredExplanation;

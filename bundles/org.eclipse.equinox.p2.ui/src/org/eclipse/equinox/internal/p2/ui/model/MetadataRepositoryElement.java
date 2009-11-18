@@ -15,13 +15,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element wrapper class for a metadata repository that gets its
@@ -69,7 +71,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			//only invoke super if we successfully loaded the repository
 			return super.fetchChildren(o, sub.newChild(100));
 		} catch (ProvisionException e) {
-			getPolicy().getRepositoryManipulator().reportLoadFailure(location, e.getStatus());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e.getStatus());
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
 			return new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
 		}
@@ -106,7 +108,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		try {
 			return getMetadataRepository(monitor);
 		} catch (ProvisionException e) {
-			getPolicy().getRepositoryManipulator().reportLoadFailure(location, e.getStatus());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e.getStatus());
 		}
 		return null;
 	}
@@ -166,7 +168,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 */
 	public String getDescription() {
 		ProvisioningSession session = getProvisioningUI().getSession();
-		if (getPolicy().getRepositoryManipulator().hasNotFoundStatusBeenReported(location))
+		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
 		String description = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)

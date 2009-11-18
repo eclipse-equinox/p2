@@ -19,7 +19,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Provides a default set of queries to drive the provisioning UI.
@@ -56,11 +58,12 @@ public class QueryProvider {
 		int queryType = element.getQueryType();
 		IUViewQueryContext context = element.getQueryContext();
 		if (context == null) {
-			context = policy.getQueryContext();
+			context = ProvUI.getQueryContext(policy);
 		}
+		RepositoryTracker tracker = ui.getRepositoryTracker();
 		switch (queryType) {
 			case ARTIFACT_REPOS :
-				queryable = new QueryableArtifactRepositoryManager(ui.getSession(), policy.getRepositoryManipulator(), false);
+				queryable = new QueryableArtifactRepositoryManager(ui.getSession(), tracker, false);
 				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector() {
 					public boolean accept(Object object) {
 						if (object instanceof URI)
@@ -83,7 +86,7 @@ public class QueryProvider {
 					targetProfile = ui.getSession().getProfile(profileId);
 				}
 
-				IQuery topLevelQuery = context.getVisibleAvailableIUProperty();
+				IQuery topLevelQuery = policy.getVisibleAvailableIUQuery();
 				IQuery categoryQuery = new CategoryQuery();
 
 				// Showing child IU's of a group of repositories, or of a single repository
@@ -139,7 +142,7 @@ public class QueryProvider {
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					Collector collector = profile.query(context.getVisibleInstalledIUProperty(), new Collector(), null);
+					Collector collector = profile.query(policy.getVisibleInstalledIUQuery(), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
@@ -149,18 +152,18 @@ public class QueryProvider {
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					IQuery meetsAnyRequirementQuery = new CapabilityQuery(((IIUElement) element).getRequirements());
-					IQuery visibleAsAvailableQuery = context.getVisibleAvailableIUProperty();
+					IQuery visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				return new ElementQueryDescriptor(profile, context.getVisibleInstalledIUProperty(), new Collector(), new InstalledIUElementWrapper(profile, element));
+				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {
-						queryable = new QueryableMetadataRepositoryManager(ui.getSession(), policy.getRepositoryManipulator(), ((MetadataRepositories) element).getIncludeDisabledRepositories());
+						queryable = new QueryableMetadataRepositoryManager(ui.getSession(), tracker, ((MetadataRepositories) element).getIncludeDisabledRepositories());
 						element.setQueryable(queryable);
 					}
 					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector(), new MetadataRepositoryElementWrapper(element.getQueryable(), element));

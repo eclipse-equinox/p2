@@ -51,7 +51,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		}
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI().getSession(), ProvisioningUI.getDefaultUI().getPolicy().getRepositoryManipulator(), false);
+		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI().getSession(), ProvisioningUI.getDefaultUI().getRepositoryTracker(), false);
 		IRequiredCapability[] requires = createRequiredCapabilities("org.eclipse.equinox.p2.iu", "test.bundle", null);
 		CapabilityQuery query = new CapabilityQuery(requires);
 		Collector result = manager.query(query, new Collector(), getMonitor());

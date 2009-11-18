@@ -84,12 +84,12 @@ public class UpdateWizard extends WizardWithLicenses {
 		for (int i = 0; i < selectedElements.length; i++) {
 			if (selectedElements[i] instanceof AvailableUpdateElement) {
 				AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
-				AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), shouldShowProvisioningPlanChildren());
 				list.add(newElement);
 				selected.add(newElement);
 			} else if (selectedElements[i] instanceof Update) {
 				Update update = (Update) selectedElements[i];
-				AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), getPolicy().getQueryContext().getShowProvisioningPlanChildren());
+				AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
 				list.add(newElement);
 				selected.add(newElement);
 			}

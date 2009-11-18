@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.operations.Activator;
-import org.eclipse.equinox.internal.p2.operations.Messages;
+import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -141,4 +138,16 @@ public abstract class RepositoryTracker {
 	public void reportLoadFailure(final URI location, IStatus status) {
 		LogHelper.log(status);
 	}
+
+	/**
+	 * Return an operation that could be used to add the specified URI as
+	 * a repository.
+	 */
+	public abstract AddRepositoryJob getAddOperation(URI repoLocation, ProvisioningSession session);
+
+	/**
+	 * Return an operation that could be used to remove the specified URL as
+	 * a repositories.
+	 */
+	public abstract RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session);
 }
