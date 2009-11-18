@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
- * Tests for {@link AnyRequiredCapabilityQuery}.
+ * Tests for {@link CapabilityQuery}.
  */
 public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 	public void testMatchOtherObjects() {
