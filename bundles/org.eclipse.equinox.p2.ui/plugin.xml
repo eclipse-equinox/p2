@@ -47,9 +47,4 @@
           </enabledWhen>
       </page>    
       </extension>
-        	<extension 
-   		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
-		<initializer class="org.eclipse.equinox.internal.p2.ui.PreferenceInitializer"/>
-	</extension>
- 
-</plugin>
+ </plugin>
