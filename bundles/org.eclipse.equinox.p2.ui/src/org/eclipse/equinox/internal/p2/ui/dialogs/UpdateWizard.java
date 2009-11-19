@@ -138,7 +138,7 @@ public class UpdateWizard extends WizardWithLicenses {
 			operation.setProvisioningContext(getProvisioningContext());
 
 		} else {
-			((UpdateOperation) operation).setDefaultUpdates(makeUpdatesFromElements(elements));
+			((UpdateOperation) operation).setSelectedUpdates(makeUpdatesFromElements(elements));
 		}
 		return operation;
 	}

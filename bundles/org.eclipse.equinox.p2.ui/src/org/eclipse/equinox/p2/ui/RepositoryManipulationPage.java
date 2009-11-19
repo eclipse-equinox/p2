@@ -554,10 +554,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						}
 						ui.getSession().refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
 						ui.getSession().refreshMetadataRepositories(new URI[] {location}, mon.newChild(100));
-					} catch (ProvisionException e) {
-						// Need to report after dialog is closed or the error dialog will disappear when progress
-						// disappears
-						fail[0] = e;
 					} catch (OperationCanceledException e) {
 						// Catch canceled login attempts
 						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e));

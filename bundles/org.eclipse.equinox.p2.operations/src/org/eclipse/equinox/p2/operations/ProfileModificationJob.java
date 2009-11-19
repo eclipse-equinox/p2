@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-
 /**
- * A job that modifies a profile according to a specified plan.
+ * A job that modifies a profile according to a specified provisioning
+ * plan.  
  * 
  * @since 2.0
  */
@@ -25,37 +24,50 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	IProvisioningPlan plan;
 	String profileId;
-	PhaseSet phaseSet;
-	boolean isUser = true;
+	PhaseSet phaseSet = new DefaultPhaseSet();
 	ProvisioningContext provisioningContext;
 	int restartPolicy = ProvisioningJob.RESTART_OR_APPLY;
 	private String taskName;
 
-	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, IProvisioningPlan plan, ProvisioningContext context) {
-		this(label, session, profileId, plan, context, null, true);
-	}
-
-	public ProfileModificationJob(String label, ProvisioningSession session, String profileId, IProvisioningPlan plan, ProvisioningContext context, PhaseSet set, boolean isUser) {
-		super(label, session);
+	/**
+	 * Create a job that will update a profile according to the specified provisioning plan.
+	 * 
+	 * @param name the name of the job
+	 * @param session the provisioning session to use to obtain provisioning services
+	 * @param profileId the id of the profile to be altered
+	 * @param plan the provisioning plan describing how the profile is to be altered
+	 * @param context the provisioning context describing how the operation is to be performed
+	 */
+	public ProfileModificationJob(String name, ProvisioningSession session, String profileId, IProvisioningPlan plan, ProvisioningContext context) {
+		super(name, session);
 		this.plan = plan;
 		this.profileId = profileId;
 		this.provisioningContext = context;
-		this.isUser = isUser;
-		if (set == null)
-			phaseSet = new DefaultPhaseSet();
-		else
-			phaseSet = set;
 	}
 
+	/**
+	 * Set the phase set to be used when running the provisioning plan.  This method need only
+	 * be used when the default phase set is not sufficient.  For example, clients could 
+	 * use this method to perform a sizing or to download artifacts without provisioning them.
+	 * 
+	 * @param phaseSet the provisioning phases to be run during provisioning.
+	 */
+	public void setPhaseSet(PhaseSet phaseSet) {
+		this.phaseSet = phaseSet;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.IProfileChangeJob#getProfileId()
+	 */
 	public String getProfileId() {
 		return profileId;
 	}
 
-	protected IProfile getProfile() {
-		return getSession().getProfile(profileId);
-
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IStatus runModal(IProgressMonitor monitor) {
 		String task = taskName;
 		IStatus status = Status.OK_STATUS;
@@ -64,30 +76,38 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 		monitor.beginTask(task, 1000);
 		try {
 			status = getSession().performProvisioningPlan(plan, phaseSet, provisioningContext, new SubProgressMonitor(monitor, 1000));
-		} catch (ProvisionException e) {
-			status = getErrorStatus(null, e);
 		} finally {
 			monitor.done();
 		}
 		return status;
 	}
 
-	public boolean runInBackground() {
-		return true;
-	}
-
 	/**
 	 * Sets the top level task name for progress when running this operation.
-	 * @param label
+	 * 
+	 * @param label the label to be used for the task name
 	 */
 	public void setTaskName(String label) {
 		this.taskName = label;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#getRestartPolicy()
+	 */
 	public int getRestartPolicy() {
 		return restartPolicy;
 	}
 
+	/**
+	 * Set the restart policy that describes whether restart is needed after
+	 * performing this job.
+	 * 
+	 * @param policy an integer describing the restart policy
+	 * @see ProvisioningJob#RESTART_NONE
+	 * @see ProvisioningJob#RESTART_ONLY
+	 * @see ProvisioningJob#RESTART_OR_APPLY
+	 */
 	public void setRestartPolicy(int policy) {
 		restartPolicy = policy;
 	}

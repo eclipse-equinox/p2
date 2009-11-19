@@ -23,6 +23,39 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
+ * 
+ * An UpdateOperation describes an operation that updates IInstallableUnits in
+ * a profile.
+ * 
+ * The following snippet shows how one might use an UpdateOperation to check for updates
+ * to the profile and then install them in the background.
+ * 
+ * <pre>
+ * UpdateOperation op = new UpdateOperation(session);
+ * IStatus result = op.resolveModal(monitor);
+ * if (result.isOK()) {
+ *   op.getProvisioningJob(monitor).schedule;
+ * }
+ * </pre>
+ * 
+ * The life cycle of an UpdateOperation is different than that of the other
+ * operations.  Since assembling the list of possible updates may be costly,
+ * clients should not have to create a new update operation if the desired updates
+ * to be applied need to change.  In this case, the client can set a new set of
+ * chosen updates on the update operation and resolve again.
+ * 
+ * <pre>
+ * UpdateOperation op = new UpdateOperation(session);
+ * IStatus result = op.resolveModal(monitor);
+ * if (result.isOK()) {
+ *   op.getProvisioningJob(monitor).schedule;
+ * } else if (result.getSeverity() == IStatus.ERROR) {
+ *   Update [] chosenUpdates = letUserPickFrom(op.getPossibleUpdates());
+ *   op.setSelectedUpdates(chosenUpdates);
+ *   IStatus result = op.resolveModal(monitor);
+ * }
+ * </pre>
+ * 
  * @since 2.0
  *
  */
@@ -32,25 +65,60 @@ public class UpdateOperation extends ProfileChangeOperation {
 	private HashMap possibleUpdatesByIU = new HashMap();
 	private List defaultUpdates;
 
+	/**
+	 * Create an update operation on the specified provisioning session that updates
+	 * the specified IInstallableUnits.  Unless otherwise specified, the operation will
+	 * be associated with the currently running profile.
+	 * 
+	 * @param session the session to use for obtaining provisioning services
+	 * @param toBeUpdated the IInstallableUnits to be updated.
+	 */
 	public UpdateOperation(ProvisioningSession session, IInstallableUnit[] toBeUpdated) {
 		super(session);
 		this.iusToUpdate = toBeUpdated;
 	}
 
+	/**
+	 * Create an update operation that will update all of the user-visible installable
+	 * units in the profile (the profile roots).
+	 * 
+	 * @param session the session providing the provisioning services
+	 */
 	public UpdateOperation(ProvisioningSession session) {
 		this(session, null);
 	}
 
-	public void setDefaultUpdates(Update[] defaultUpdates) {
+	/**
+	 * Set the updates that should be selected from the set of available updates.
+	 * If the selected updates are not specified, then the latest available update
+	 * for each IInstallableUnit with updates will be chosen.
+	 * 
+	 * @param defaultUpdates the updates that should be chosen from all of the available
+	 * updates. 
+	 */
+	public void setSelectedUpdates(Update[] defaultUpdates) {
 		this.defaultUpdates = Arrays.asList(defaultUpdates);
 	}
 
-	public Update[] getDefaultUpdates() {
+	/**
+	 * Get the updates that have been selected from the set of available updates.
+	 * If none have been specified by the client, then the latest available update
+	 * for each IInstallableUnit with updates will be chosen.
+	 * 
+	 * @return the updates that should be chosen from all of the available updates
+	 */
+	public Update[] getSelectedUpdates() {
 		if (defaultUpdates == null)
 			return new Update[0];
 		return (Update[]) defaultUpdates.toArray(new Update[defaultUpdates.size()]);
 	}
 
+	/**
+	 * Get the list of all possible updates.  This list may include multiple versions
+	 * of updates for the same IInstallableUnit, as well as patches to the IInstallableUnit.
+	 * 
+	 * @return an array of all possible updates
+	 */
 	public Update[] getPossibleUpdates() {
 		ArrayList all = new ArrayList();
 		Iterator iter = possibleUpdatesByIU.values().iterator();
@@ -209,7 +277,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	protected void prepareToResolve() {
 		super.prepareToResolve();
 		if (iusToUpdate == null) {
-			iusToUpdate = session.getProfileRoots(profileId, false);
+			iusToUpdate = session.getInstalledIUs(profileId, false);
 		}
 	}
 

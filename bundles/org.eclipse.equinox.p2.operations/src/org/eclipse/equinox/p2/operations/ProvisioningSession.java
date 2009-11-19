@@ -25,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
@@ -38,12 +37,11 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * ProvisioningSession provides the context for a provisioning session, including
- * the profile that is being provisioned, the repository managers in use, the
- * provisioning engine, and the planner.
+ * the provisioning services that should be used.  It also provides utility
+ * methods for commonly performed provisioning tasks.
  * 
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
@@ -55,62 +53,114 @@ public class ProvisioningSession {
 	HashSet scheduledJobs = new HashSet();
 
 	/**
-	 * Indicates that there was nothing to size (there
+	 * A constant indicating that there was nothing to size (there
 	 * was no valid plan that could be used to compute
 	 * size).
 	 */
 	public static final long SIZE_NOTAPPLICABLE = -3L;
-
 	/**
 	 * Indicates that the size is unavailable (an
 	 * attempt was made to compute size but it failed)
 	 */
 	public static final long SIZE_UNAVAILABLE = -2L;
-
 	/**
 	 * Indicates that the size is currently unknown
 	 */
 	public static final long SIZE_UNKNOWN = -1L;
 
+	/**
+	 * A status code used to indicate that there were no updates found when
+	 * looking for updates.
+	 */
 	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
+
+	/**
+	 * A status code used to indicate that a repository location was not valid.
+	 */
 	public static final int STATUS_INVALID_REPOSITORY_LOCATION = IStatusCodes.INVALID_REPOSITORY_LOCATION;
 
+	/**
+	 * Create a provisioning session using the services of the supplied agent.
+	 * @param agent the provisioning agent that supplies services.  Must not be <code>null</code>.
+	 */
 	public ProvisioningSession(IProvisioningAgent agent) {
 		Assert.isNotNull(agent, Messages.ProvisioningSession_AgentNotFound);
 		this.agent = agent;
 	}
 
+	/**
+	 * Return the provisioning agent used to retrieve provisioning services.
+	 * @return the provisioning agent
+	 */
 	public IProvisioningAgent getProvisioningAgent() {
 		return agent;
 	}
 
+	/**
+	 * Return the agent location for this session
+	 * @return the agent location
+	 */
 	public IAgentLocation getAgentLocation() {
 		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the artifact repository manager for this session
+	 * @return the repository manager
+	 */
 	public IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the metadata repository manager for this session
+	 * @return the repository manager
+	 */
 	public IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the profile registry for this session
+	 * @return the profile registry
+	 */
 	public IProfileRegistry getProfileRegistry() {
 		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the provisioning engine for this session
+	 * @return the provisioning engine
+	 */
 	public IEngine getEngine() {
 		return (IEngine) agent.getService(IEngine.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the provisioning event bus used for dispatching events.
+	 * @return the event bus
+	 */
 	public IProvisioningEventBus getProvisioningEventBus() {
 		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 	}
 
+	/**
+	 * Return the planner used for this session
+	 * @return the planner
+	 */
 	public IPlanner getPlanner() {
 		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 	}
+
+	/**
+	 * Load the specified metadata repository, signaling an operation start event
+	 * before loading, and an operation complete event after loading.
+	 * 
+	 * @param location the location of the repository
+	 * @param monitor the progress monitor to be used
+	 * @return the repository
+	 * @throws ProvisionException if the repository could not be loaded
+	 */
 
 	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepository repo;
@@ -131,71 +181,99 @@ public class ProvisioningSession {
 		return repo;
 	}
 
-	public void refreshMetadataRepositories(URI[] urls, IProgressMonitor monitor) {
+	/**
+	 * Refresh the specified metadata repositories, signaling an operation start event
+	 * before refreshing, and an operation complete event after refreshing.
+	 * 
+	 * @param locations an array of repository locations that should be refreshed
+	 * @param monitor the progress monitor to be used
+	 */
+	public void refreshMetadataRepositories(URI[] locations, IProgressMonitor monitor) {
 		signalOperationStart();
-		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
-		for (int i = 0; i < urls.length; i++) {
+		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
+		for (int i = 0; i < locations.length; i++) {
 			try {
-				getMetadataRepositoryManager().refreshRepository(urls[i], mon.newChild(100));
+				getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
 			} catch (ProvisionException e) {
 				//ignore problematic repositories when refreshing
 			}
 		}
-		if (urls.length == 1)
-			signalOperationComplete(urls[0]);
+		if (locations.length == 1)
+			signalOperationComplete(locations[0]);
 		else
 			signalOperationComplete(null);
 	}
 
+	/**
+	 * Load the specified artifact repository, signaling an operation start event
+	 * before loading, and an operation complete event after loading.
+	 * 
+	 * @param location the location of the repository
+	 * @param monitor the progress monitor to be used
+	 * @return the repository
+	 * @throws ProvisionException if the repository could not be loaded
+	 */
+
 	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, monitor);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(Messages.ProvisioningSession_LoadRepositoryFailure, location));
-		}
-		// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
-		// This will keep the name in the manager even when the repo is not loaded
-		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-		if (name == null) {
-			name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name != null)
-				getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+		IArtifactRepository repo;
+		signalOperationStart();
+		try {
+			repo = getArtifactRepositoryManager().loadRepository(location, monitor);
+
+			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// This will keep the name in the manager even when the repo is not loaded
+			String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			if (name == null) {
+				name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+				if (name != null)
+					getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+			}
+		} finally {
+			signalOperationComplete(location);
 		}
 		return repo;
 	}
 
-	public void refreshArtifactRepositories(URI[] urls, IProgressMonitor monitor) throws ProvisionException {
-		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
-		for (int i = 0; i < urls.length; i++) {
-			getArtifactRepositoryManager().refreshRepository(urls[i], mon.newChild(100));
+	public void refreshArtifactRepositories(URI[] locations, IProgressMonitor monitor) {
+		signalOperationStart();
+		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
+		for (int i = 0; i < locations.length; i++) {
+			try {
+				getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
+			} catch (ProvisionException e) {
+				//ignore problematic repositories when refreshing
+			}
 		}
+		if (locations.length == 1)
+			signalOperationComplete(locations[0]);
+		else
+			signalOperationComplete(null);
 	}
 
+	/**
+	 * Return the profile associated with the specified id.
+	 * @param id the profile id
+	 * 
+	 * @return the profile, or <code>null</code> if the profile
+	 * does not exist
+	 */
 	public IProfile getProfile(String id) {
 		return getProfileRegistry().getProfile(id);
 	}
 
-	/*
-	 * Get the plan for the specified install operation
-	 */
-	public IProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
-		try {
-			return getPlanner().getProvisioningPlan(request, context, monitor);
-		} catch (OperationCanceledException e) {
-			return null;
-		}
-	}
-
-	/*
-	 * Get a plan for reverting to a specified profile snapshot
-	 */
-	public IProvisioningPlan getRevertPlan(IProfile currentProfile, IProfile snapshot, IProgressMonitor monitor) {
-		Assert.isNotNull(currentProfile);
-		Assert.isNotNull(snapshot);
-		return getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
-	}
-
-	/*
-	 * Get sizing info for the specified plan
+	/**
+	 * Get sizing information about the specified plan.
+	 * 
+	 * @param plan the provisioning plan
+	 * @param profileId the profile id to which the plan is applied
+	 * @param context the provisioning context to be used for the sizing
+	 * @param monitor the progress monitor
+	 * 
+	 * @return a long integer describing the disk size required for the provisioning plan.
+	 * 
+	 * @see #SIZE_UNKNOWN
+	 * @see #SIZE_UNAVAILABLE
+	 * @see #SIZE_NOTAPPLICABLE
 	 */
 	public long getSize(IProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) {
 		// If there is nothing to size, return 0
@@ -220,7 +298,16 @@ public class ProvisioningSession {
 		return SIZE_UNAVAILABLE;
 	}
 
-	public IStatus performProvisioningPlan(IProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
+	/**
+	 * Perform the specified provisioning plan.
+	 * 
+	 * @param plan the provisioning plan to be performed
+	 * @param phaseSet the phase set to be used for the plan
+	 * @param context the provisioning context to be used during provisioning
+	 * @param monitor the progress monitor to use while performing the plan
+	 * @return a status describing the result of performing the plan
+	 */
+	public IStatus performProvisioningPlan(IProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) {
 		PhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();
@@ -271,14 +358,33 @@ public class ProvisioningSession {
 		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
 	}
 
+	/**
+	 * Signal that an operation is about to begin.  This allows clients to ignore intermediate
+	 * events until the operation is completed.  Callers are responsible for ensuring that
+	 * a corresponding operation ending event is signaled.
+	 */
 	public void signalOperationStart() {
 		getProvisioningEventBus().publishEvent(new OperationBeginningEvent(this));
 	}
 
+	/**
+	 * Signal that an operation has completed.
+	 * 
+	 * @param item the last object known to be affected by this operation.  May be <code>null</code>.
+	 * It is up to clients to interpret this object.
+	 */
 	public void signalOperationComplete(Object item) {
 		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item));
 	}
 
+	/**
+	 * Return a boolean indicating whether any other provisioning operations are
+	 * scheduled for the specified profile.
+	 * 
+	 * @param profileId the id of the profile in question
+	 * @return <code>true</code> if there are pending provisioning operations for
+	 * this profile, <code>false</code> if there are not.
+	 */
 	public boolean hasScheduledOperationsFor(String profileId) {
 		Job[] jobs = getScheduledJobs();
 		for (int i = 0; i < jobs.length; i++) {
@@ -295,7 +401,14 @@ public class ProvisioningSession {
 		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 	}
 
-	public void manageJob(Job job) {
+	/**
+	 * Remember the specified job.  Remembered jobs are
+	 * checked when callers want to know what work is scheduled for
+	 * a particular profile.
+	 * 
+	 * @param job the job to be remembered
+	 */
+	public void rememberJob(Job job) {
 		scheduledJobs.add(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
@@ -304,7 +417,17 @@ public class ProvisioningSession {
 		});
 	}
 
-	public IInstallableUnit[] getProfileRoots(String profileId, boolean all) {
+	/**
+	 * Get the IInstallable units for the specified profile
+	 * 
+	 * @param profileId the profile in question
+	 * @param all <code>true</code> if all IInstallableUnits in the profile should
+	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
+	 * should be returned.
+	 * 
+	 * @return an array of IInstallableUnits installed in the profile.
+	 */
+	public IInstallableUnit[] getInstalledIUs(String profileId, boolean all) {
 		IProfile profile = this.getProfile(profileId);
 		if (profile == null)
 			return new IInstallableUnit[0];

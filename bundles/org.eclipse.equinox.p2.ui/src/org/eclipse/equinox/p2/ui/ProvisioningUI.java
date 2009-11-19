@@ -134,7 +134,7 @@ public class ProvisioningUI {
 	}
 
 	public int openUpdateWizard(Shell shell, boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
-		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getDefaultUpdates(), job);
+		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getSelectedUpdates(), job);
 		wizard.setSkipSelectionsPage(skipSelectionsPage);
 		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
 		dialog.create();

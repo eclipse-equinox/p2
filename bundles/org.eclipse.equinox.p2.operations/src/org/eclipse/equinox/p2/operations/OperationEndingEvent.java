@@ -32,7 +32,7 @@ public class OperationEndingEvent extends EventObject {
 	 * 
 	 * @param source the source of the event
 	 * 
-	 * @item the object that was involved in the operation.  May be
+	 * @param item the object that was involved in the operation.  May be
 	 * <code>null</code>.  This item may be used by clients to determine
 	 * what should be updated after an operation completes.
 	 */

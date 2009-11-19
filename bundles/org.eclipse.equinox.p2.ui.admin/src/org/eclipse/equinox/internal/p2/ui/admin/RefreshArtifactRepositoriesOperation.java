@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryJob;
 
@@ -37,11 +36,7 @@ public class RefreshArtifactRepositoriesOperation extends RepositoryJob {
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {
-		try {
-			getSession().refreshArtifactRepositories(locations, monitor);
-		} catch (ProvisionException e) {
-			return getErrorStatus(null, e);
-		}
+		getSession().refreshArtifactRepositories(locations, monitor);
 		return Status.OK_STATUS;
 	}
 }

@@ -64,7 +64,7 @@ public class UpdateWizardTest extends WizardTest {
 	public void testUpdateWizardResolved() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -97,7 +97,7 @@ public class UpdateWizardTest extends WizardTest {
 	public void testUpdateWizardResolvedWithLicense() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -128,8 +128,8 @@ public class UpdateWizardTest extends WizardTest {
 	public void testUpdateWizardResolvedError() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
-		op.setDefaultUpdates(op.getPossibleUpdates());
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		op.setSelectedUpdates(op.getPossibleUpdates());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -148,7 +148,7 @@ public class UpdateWizardTest extends WizardTest {
 	public void testUpdateWizardResolvedSkipSelections() {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		wizard.setSkipSelectionsPage(true);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
@@ -195,7 +195,7 @@ public class UpdateWizardTest extends WizardTest {
 
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
 		op.resolveModal(getMonitor());
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getDefaultUpdates(), null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();

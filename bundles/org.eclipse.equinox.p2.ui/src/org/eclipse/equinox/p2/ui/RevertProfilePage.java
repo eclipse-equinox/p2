@@ -336,7 +336,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			public void run(IProgressMonitor monitor) {
 				IProfile currentProfile;
 				currentProfile = getSession().getProfile(profileId);
-				plan[0] = getSession().getRevertPlan(currentProfile, snapshot, monitor);
+				plan[0] = getSession().getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
 			}
 		};
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
@@ -357,7 +357,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			if (plan[0].getStatus().isOK()) {
 				// We use a default provisioning context (all repos) because we have no other
 				// way currently to figure out which sites the user wants to contact
-				ProfileModificationJob op = new ProfileModificationJob(ProvUIMessages.RevertDialog_RevertOperationLabel, getSession(), profileId, plan[0], new ProvisioningContext(), new DefaultPhaseSet(), true);
+				ProfileModificationJob op = new ProfileModificationJob(ProvUIMessages.RevertDialog_RevertOperationLabel, getSession(), profileId, plan[0], new ProvisioningContext());
 				// we want to force a restart (not allow apply changes)
 				op.setRestartPolicy(ProvisioningJob.RESTART_ONLY);
 				ui.schedule(op, StatusManager.SHOW | StatusManager.LOG);

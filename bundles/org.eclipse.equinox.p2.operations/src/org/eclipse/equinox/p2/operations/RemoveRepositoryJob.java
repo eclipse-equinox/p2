@@ -19,8 +19,14 @@ import java.net.URI;
  */
 public abstract class RemoveRepositoryJob extends SignallingRepositoryJob {
 
-	public RemoveRepositoryJob(String label, ProvisioningSession session, URI[] locations) {
-		super(label, session, locations);
+	/** 
+	 * Create a job that removes the specified repositories.
+	 * @param name the name of the job
+	 * @param session the provisioning session used to retrieve services
+	 * @param locations the locations of the repositories to be removed
+	 */
+	public RemoveRepositoryJob(String name, ProvisioningSession session, URI[] locations) {
+		super(name, session, locations);
 	}
 
 }

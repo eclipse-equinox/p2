@@ -121,7 +121,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, new Integer(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
 		}
 		// Use an empty provisioning context to prevent repo access
-		IProvisioningPlan plan = getSession().getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
+		IProvisioningPlan plan = getSession().getPlanner().getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
 		return getSession().performProvisioningPlan(plan, new DefaultPhaseSet(), new ProvisioningContext(), getMonitor());

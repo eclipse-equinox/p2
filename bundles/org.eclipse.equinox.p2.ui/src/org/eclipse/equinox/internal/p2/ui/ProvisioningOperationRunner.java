@@ -105,7 +105,7 @@ public class ProvisioningOperationRunner {
 	}
 
 	public void manageJob(Job job, final int jobRestartPolicy) {
-		ui.getSession().manageJob(job);
+		ui.getSession().rememberJob(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				int severity = event.getResult().getSeverity();

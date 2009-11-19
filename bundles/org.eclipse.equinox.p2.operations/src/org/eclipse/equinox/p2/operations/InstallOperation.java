@@ -23,18 +23,45 @@ import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
+ * An InstallOperation describes an operation that installs IInstallableUnits into
+ * a profile.
+ * 
+ * The following snippet shows how one might use an InstallOperation to perform a synchronous resolution and
+ * then kick off an install in the background:
+ * 
+ * <pre>
+ * InstallOperation op = new InstallOperation(session, new IInstallableUnit [] { myIU });
+ * IStatus result = op.resolveModal(monitor);
+ * if (result.isOK()) {
+ *   op.getProvisioningJob(monitor).schedule;
+ * }
+ * </pre>
+ * 
  * @since 2.0
+ * @see ProfileChangeOperation
  * @noextend
  */
 public class InstallOperation extends ProfileChangeOperation {
 
 	private IInstallableUnit[] toInstall;
 
+	/**
+	 * Create an install operation on the specified provisioning session that installs
+	 * the supplied IInstallableUnits.  Unless otherwise specified, the operation will
+	 * be associated with the currently running profile.
+	 * 
+	 * @param session the session to use for obtaining provisioning services
+	 * @param toInstall the IInstallableUnits to be installed into the profile.
+	 */
 	public InstallOperation(ProvisioningSession session, IInstallableUnit[] toInstall) {
 		super(session);
 		this.toInstall = toInstall;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.MultiStatus, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(profileId);
 		IProfile profile;

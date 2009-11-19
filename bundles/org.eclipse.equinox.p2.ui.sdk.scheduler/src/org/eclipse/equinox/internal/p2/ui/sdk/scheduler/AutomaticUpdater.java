@@ -103,7 +103,10 @@ public class AutomaticUpdater implements IUpdateListener {
 		// preference dictates.
 
 		if (download) {
-			Job job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext(), new DownloadPhaseSet(), false);
+			ProfileModificationJob job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext());
+			job.setPhaseSet(new DownloadPhaseSet());
+			job.setUser(false);
+			job.setSystem(true);
 			job.addJobChangeListener(new JobChangeAdapter() {
 				public void done(IJobChangeEvent jobEvent) {
 					IStatus jobStatus = jobEvent.getResult();
@@ -310,7 +313,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					return Status.CANCEL_STATUS;
 				// notify that updates are available for all roots.  We don't know for sure that
 				// there are any, but this will cause everything to be rechecked
-				updatesAvailable(new UpdateEvent(profileId, getSession().getProfileRoots(profileId, false)));
+				updatesAvailable(new UpdateEvent(profileId, getSession().getInstalledIUs(profileId, false)));
 				return Status.OK_STATUS;
 			}
 		};

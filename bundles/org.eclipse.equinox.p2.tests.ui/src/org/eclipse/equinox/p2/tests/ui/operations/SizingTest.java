@@ -27,7 +27,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		IProvisioningPlan plan = null;
-		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
 		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
@@ -43,7 +43,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1});
 		IProvisioningPlan plan = null;
-		plan = getSession().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
 		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);

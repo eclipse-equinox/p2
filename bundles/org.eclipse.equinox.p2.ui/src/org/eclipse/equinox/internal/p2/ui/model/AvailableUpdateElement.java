@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.Update;
 
 /**
@@ -45,7 +44,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
-		return ProvUIActivator.getDefault().getSession().getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return ProvUIActivator.getDefault().getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
 
 	public boolean equals(Object obj) {

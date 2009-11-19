@@ -22,8 +22,8 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Abstract class for a mechanism that tracks the repositories and reports
- * on their status.
+ * RepositoryTracker defines a service that retrieves repositories, tracks their status, and
+ * reports errors.
  * 
  * @since 2.0
  * 
@@ -40,14 +40,28 @@ public abstract class RepositoryTracker {
 	private final List reposNotFound = Collections.synchronizedList(new ArrayList());
 
 	/**
-	 * Return an array of URLs containing the repositories already known.
+	 * Return an array of repository locations known for the specified provisioning session.
+	 * 
+	 * @param session the provisioning session providing the provisioning services
+	 * @return an array of repository locations known by this tracker
 	 */
 	public abstract URI[] getKnownRepositories(ProvisioningSession session);
 
-	public IStatus getInvalidLocationStatus(String urlText) {
-		return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, NLS.bind(Messages.RepositoryTracker_InvalidLocation, urlText), null);
+	/**
+	 * Return a status appropriate for reporting an invalid repository location.
+	 * @param locationText the text representation of the location
+	 * @return a status that describes an invalid location
+	 */
+	public IStatus getInvalidLocationStatus(String locationText) {
+		return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, NLS.bind(Messages.RepositoryTracker_InvalidLocation, locationText), null);
 	}
 
+	/**
+	 * Return a repository location represented by the supplied string
+	 * @param locationString a text representation of the location
+	 * @return a repository location URI, or <code>null</code> if the
+	 * text could not be interpreted.
+	 */
 	public URI locationFromString(String locationString) {
 		URI userLocation;
 		try {
@@ -61,6 +75,18 @@ public abstract class RepositoryTracker {
 			return RepositoryHelper.localRepoURIHelper(userLocation);
 		return userLocation;
 	}
+
+	/**
+	 * Validate the specified repository location.
+	 * 
+	 * @param session the provisioning session providing the repository services
+	 * @param location the location in question
+	 * @param contactRepositories <code>true</code> if the appropriate repository manager(s) should be
+	 * consulted regarding the validity of the location, or <code>false</code> if the repository manager
+	 * should not be consulted.
+	 * @param monitor the progress monitor
+	 * @return a status indicating the current status of the repository
+	 */
 
 	public IStatus validateRepositoryLocation(ProvisioningSession session, URI location, boolean contactRepositories, IProgressMonitor monitor) {
 		// First validate syntax issues
@@ -96,58 +122,133 @@ public abstract class RepositoryTracker {
 		return localValidationStatus;
 	}
 
+	/**
+	 * Validate the specified repository location using the appropriate repository manager.
+	 * 
+	 * @param session the provisioning session providing the repository services
+	 * @param location the location in question
+	 * @param monitor the progress monitor
+	 * @return a status indicating the current status of the repository
+	 */
 	protected abstract IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor);
 
-	// This assumes that callers already checked whether it *should*
-	// be reported so that we don't need to loop through the list
-	// when the caller just has done so in order to know whether to report.
+	/**
+	 * Add the specified location to the list of "not found" repositories.
+	 * This list is used to ensure that errors are not reported multiple times
+	 * for the same repository.
+	 * 
+	 * The caller is already assumed to have reported any errors if necessary.
+	 * 
+	 * @param location the location of the repository that cannot be found
+	 */
 	public void addNotFound(URI location) {
 		reposNotFound.add(location);
 	}
 
-	// We don't check for things like case variants or end slash variants
-	// because we know that the repository managers already did this.
+	/**
+	 * Answer a boolean indicating whether not found status has already been
+	 * reported for the specified location.
+	 * 
+	 * @param location the location in question
+	 * @return <code>true</code> if the repository has already been reported as
+	 * being not found, <code>false</code> if no status has been reported for this
+	 * location.
+	 */
 	public boolean hasNotFoundStatusBeenReported(URI location) {
+		// We don't check for things like case variants or end slash variants
+		// because we know that the repository managers already did this.
 		return reposNotFound.contains(location);
 	}
 
+	/**
+	 * Clear the list of repositories that have already been reported as not found.
+	 */
 	public void clearRepositoriesNotFound() {
 		reposNotFound.clear();
 	}
 
+	/**
+	 * Remove the specified repository from the list of repositories that
+	 * have already been reported as not found.  This method has no effect
+	 * if the repository has never been reported as not found.
+	 * 
+	 * @param location the location in question
+	 */
 	public void clearRepositoryNotFound(URI location) {
 		reposNotFound.remove(location);
 	}
 
+	/**
+	 * Return the repository flags suitable for retrieving known repositories from 
+	 * a repository manager
+	 * 
+	 * @return the repository flags
+	 * 
+	 */
 	public int getArtifactRepositoryFlags() {
 		return artifactRepositoryFlags;
 	}
 
+	/**
+	 * Set the repository flags suitable for retrieving known repositories from 
+	 * a repository manager
+	 * 
+	 * @param flags the repository flags
+	 * 
+	 */
 	public void setArtifactRepositoryFlags(int flags) {
 		artifactRepositoryFlags = flags;
 	}
 
+	/**
+	 * Return the repository flags suitable for retrieving known repositories from 
+	 * a repository manager
+	 * 
+	 * @return the repository flags
+	 * 
+	 */
 	public int getMetadataRepositoryFlags() {
 		return metadataRepositoryFlags;
 	}
+
+	/**
+	 * Set the repository flags suitable for retrieving known repositories from 
+	 * a repository manager
+	 * 
+	 * @param flags the repository flags
+	 * 
+	 */
 
 	public void setMetadataRepositoryFlags(int flags) {
 		metadataRepositoryFlags = flags;
 	}
 
+	/**
+	 * Report a failure to load the specified repository
+	 * @param location the location of the failed repository
+	 * @param status the status of the repository
+	 */
 	public void reportLoadFailure(final URI location, IStatus status) {
 		LogHelper.log(status);
 	}
 
 	/**
-	 * Return an operation that could be used to add the specified URI as
-	 * a repository.
+	 * Return an operation that could be used to add a repository at the specified
+	 * location.
+	 *
+	 * @param repoLocation the location
+	 * @param session the session to use for provisioning services
+	 * @return a job that adds the repository
 	 */
 	public abstract AddRepositoryJob getAddOperation(URI repoLocation, ProvisioningSession session);
 
 	/**
-	 * Return an operation that could be used to remove the specified URL as
-	 * a repositories.
+	 * Return an operation that could be used to remove the repositories at the specified
+	 * locations.
+	 *
+	 * @param repoLocations the locations
+	 * @param session the session to use for provisioning services
+	 * @return a job that removes the repositories
 	 */
 	public abstract RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session);
 }
