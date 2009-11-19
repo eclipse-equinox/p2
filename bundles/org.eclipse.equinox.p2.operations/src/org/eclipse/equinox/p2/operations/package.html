@@ -17,15 +17,15 @@ components during the operation.
 Package Specification</h2>
 <p>
 This package consists of several kinds of operations and supporting classes:
-<ol>
+<ul>
 <li><b>Profile Change Operations</b> describe high level provisioning operations that
 modify a profile.  These operations generally are performed in two phases, the resolution
 of the operation, followed by the provisioning of the resolved operation.  Both the
-resolution and the provisioning tasks can be performed either modally or as jobs.
+resolution and the provisioning tasks can be performed either synchronously or as jobs.
 </li>
 <li><b>Repository Jobs</b> manage the addition, removal, loading, or refreshing of one
 or more repositories.  The jobs provide all the necessary infrastructure for progress
-monitor management and high-level event notification.  The jobs can be run modally
+monitor management and high-level event notification.  The jobs can be run synchronously
 or scheduled as a platform job.
 </li>
 <li><b>Operation Events</b> are published as operations start and complete.  Clients
@@ -36,7 +36,7 @@ core events as a way of batching their response to the intermediate events.
 system.  It provides access to all of the p2 core services as well as utility methods
 for commonly performed provisioning tasks.
 </li>
-</ol>
+</ul>
 <p>
 @since 2.0
 </body>
