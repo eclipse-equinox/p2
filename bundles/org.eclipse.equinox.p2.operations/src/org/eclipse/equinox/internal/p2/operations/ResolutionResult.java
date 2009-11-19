@@ -11,11 +11,10 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-
 import java.util.HashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.common.TranslationSupport;
 
 /**
  * ResolutionResult describes problems in a provisioning plan in a structured
@@ -58,7 +57,7 @@ public class ResolutionResult {
 		if (iu == null)
 			return Messages.PlanAnalyzer_Items;
 		// Get the iu name in the default locale
-		String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String name = new TranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
 		if (name != null)
 			return name;
 		return iu.getId();

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,13 +29,16 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.common.TranslationSupport;
+import org.eclipse.equinox.p2.tests.IUPropertyUtils;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * Tests for {@link IUPropertyUtils}.
  */
-public class IUPropertyUtilsTest extends AbstractQueryTest {
+public class TranslationSupportTests extends AbstractQueryTest {
 	public void testFeatureProperties() {
+		TranslationSupport translations = new TranslationSupport();
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
 		URI location = site.toURI();
@@ -52,16 +53,16 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 
-		ICopyright copyright = IUPropertyUtils.getCopyright(unit);
+		ICopyright copyright = translations.getCopyright(unit);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
-		ILicense license = IUPropertyUtils.getLicenses(unit)[0];
+		ILicense license = translations.getLicenses(unit)[0];
 		assertEquals("1.2", "Test License", license.getBody());
 		//		assertEquals("1.3", "license.html", license.getURL().toExternalForm());
-		String name = IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME);
+		String name = translations.getIUProperty(unit, IInstallableUnit.PROP_NAME);
 		assertEquals("1.4", "Test Feature Name", name);
-		String description = IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION);
+		String description = translations.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION);
 		assertEquals("1.5", "Test Description", description);
-		String provider = IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER);
+		String provider = translations.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER);
 		assertEquals("1.6", "Test Provider Name", provider);
 	}
 
@@ -124,20 +125,24 @@ public class IUPropertyUtilsTest extends AbstractQueryTest {
 
 		profileRegistry.updateProfile(profile);
 		profileRegistry.unlockProfile(profile);
-
-		ILicense license = IUPropertyUtils.getLicenses(iu, Locale.GERMAN)[0];
+		TranslationSupport german = new TranslationSupport();
+		german.setLocale(Locale.GERMAN);
+		ILicense license = german.getLicenses(iu)[0];
 		assertEquals("1.0", germanLicense, license.getBody());
-		license = IUPropertyUtils.getLicenses(iu, Locale.CANADA_FRENCH)[0];
+		TranslationSupport french = new TranslationSupport();
+		french.setLocale(Locale.CANADA_FRENCH);
+		license = french.getLicenses(iu)[0];
 		assertEquals("1.1", canadianFRLicense, license.getBody());
 	}
 
 	public void testBasicIU() {
 		IInstallableUnit unit = createIU("f1");
+		TranslationSupport translations = new TranslationSupport();
 
-		assertNull("1.1", IUPropertyUtils.getCopyright(unit));
-		assertEquals("1.2", 0, IUPropertyUtils.getLicenses(unit).length);;
-		assertNull("1.3", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_NAME));
-		assertNull("1.4", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION));
-		assertNull("1.5", IUPropertyUtils.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER));
+		assertNull("1.1", translations.getCopyright(unit));
+		assertEquals("1.2", 0, translations.getLicenses(unit).length);;
+		assertNull("1.3", translations.getIUProperty(unit, IInstallableUnit.PROP_NAME));
+		assertNull("1.4", translations.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION));
+		assertNull("1.5", translations.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER));
 	}
 }

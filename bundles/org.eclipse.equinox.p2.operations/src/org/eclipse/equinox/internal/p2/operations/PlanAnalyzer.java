@@ -11,14 +11,14 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
+import org.eclipse.equinox.p2.common.TranslationSupport;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -146,7 +146,7 @@ public class PlanAnalyzer {
 		if (iu == null)
 			return Messages.PlanAnalyzer_Items;
 		// Get the iu name in the default locale
-		String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String name = new TranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
 		if (name != null)
 			return name;
 		return iu.getId();

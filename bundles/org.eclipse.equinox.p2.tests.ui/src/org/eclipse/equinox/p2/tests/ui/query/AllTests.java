@@ -22,7 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AnyRequiredCapabilityTest.class);
 		suite.addTestSuite(AvailableIUWrapperTest.class);
 		suite.addTestSuite(CategoryElementWrapperTest.class);
-		suite.addTestSuite(IUPropertyUtilsTest.class);
+		suite.addTestSuite(TranslationSupportTests.class);
 		suite.addTestSuite(LatestIUVersionElementWrapperTest.class);
 		suite.addTestSuite(QueryDescriptorTest.class);
 		suite.addTestSuite(QueryableMetadataRepositoryManagerTest.class);
