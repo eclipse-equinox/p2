@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.engine.CertificateChecker;
@@ -54,6 +53,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		serviceUI = new CertificateTestService();
 		testAgent = new ProvisioningAgent();
 		testAgent.registerService(IServiceUI.SERVICE_NAME, serviceUI);
+		testAgent.setBundleContext(TestActivator.getContext());
 		checker = new CertificateChecker(new EngineSession(testAgent, null, null));
 		try {
 			unsigned = TestData.getFile("CertificateChecker", "unsigned.jar");
@@ -146,13 +146,10 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 	 */
 	public void testBug291049() {
 		try {
-
-			// Intentionally replace our service with the default service ui available in the SDK
-			IServiceUI realServiceUI = (IServiceUI) ServiceHelper.getService(TestActivator.context, IServiceUI.SERVICE_NAME);
-			testAgent.registerService(IServiceUI.SERVICE_NAME, realServiceUI);
+			// Intentionally replace our service with a null service
+			testAgent.registerService(IServiceUI.SERVICE_NAME, null);
 			checker.add(unsigned);
 			// TODO need to add some untrusted files here, too.  To prove that we treated them as trusted temporarily
-
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			IStatus result = checker.start();
 			assertTrue("1.0", result.isOK());
