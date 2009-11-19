@@ -28,6 +28,10 @@ import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
+ * TranslationSupport provides string translations for properties of an 
+ * IInstallableUnit.  Clients can specify a queryable that should be used
+ * to obtain the translation fragment IU's, as well as the locale that
+ * should be used for translations.
  * 
  * @since 2.0
  */
@@ -45,8 +49,10 @@ public class TranslationSupport {
 	private Map LocaleCollectorCache = new HashMap(2);
 
 	/**
-	 * Create an instance of TranslationSupport which will translate strings for the current locale,
-	 * using the currently running profile as the source for translation fragments.
+	 * Create an instance of TranslationSupport for the current locale.
+	 * Unless otherwise specified, the currently running profile will serve
+	 * as the source of the translation fragments.
+	 * 
 	 * @since 2.0
 	 */
 	public TranslationSupport() {
@@ -55,15 +61,32 @@ public class TranslationSupport {
 		fragmentSource = getSelfProfile();
 	}
 
+	/**
+	 * Set the queryable that should be used to obtain translation fragment
+	 * IUs.
+	 * 
+	 * @param queryable a queryable that can supply the appropriate NLS
+	 * translation fragments
+	 */
 	public void setTranslationSource(IQueryable queryable) {
 		this.fragmentSource = queryable;
 	}
 
+	/**
+	 * Set the locale that should be used when obtaining translations.
+	 * @param locale the locale for which translations should be retrieved.
+	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
-	// Get the licenses in the default locale.
+	/**
+	 * Return an array of licenses for the specified IInstallableUnit, 
+	 * localized for the receiver's locale.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @return the localized licenses defined by the IInstallableUnit
+	 */
 	public ILicense[] getLicenses(IInstallableUnit iu) {
 		ILicense[] licenses = iu.getLicenses();
 		ILicense[] translatedLicenses = new ILicense[licenses.length];
@@ -73,7 +96,13 @@ public class TranslationSupport {
 		return translatedLicenses;
 	}
 
-	// Get the copyright in the default locale.
+	/**
+	 * Return the copyright for the specified IInstallableUnit, 
+	 * localized for the receiver's locale.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @return the localized copyright defined by the IInstallableUnit
+	 */
 	public ICopyright getCopyright(IInstallableUnit iu) {
 		ICopyright copyright = iu.getCopyright();
 		String body = (copyright != null ? copyright.getBody() : null);
@@ -84,7 +113,15 @@ public class TranslationSupport {
 		return MetadataFactory.createCopyright(copyright.getLocation(), body);
 	}
 
-	// Get a property in the default locale
+	/**
+	 * Return the localized value for the specified IInstallableUnit
+	 * property.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @param propertyKey the name of the property to be retrieved
+	 * @return the localized property value, or <code>null</code> if no
+	 * such property is defined.
+	 */
 	public String getIUProperty(IInstallableUnit iu, String propertyKey) {
 		String value = iu.getProperty(propertyKey);
 		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
@@ -116,7 +153,7 @@ public class TranslationSupport {
 		if (localizedValue != null)
 			return localizedValue;
 
-		final List locales = buildLocaleVariants(locale);
+		final List locales = buildLocaleVariants();
 		final IInstallableUnit theUnit = iu;
 
 		Collector localizationFragments = getLocalizationFragments(locales);
@@ -231,7 +268,7 @@ public class TranslationSupport {
 
 	/**
 	 */
-	private List buildLocaleVariants(Locale locale) {
+	private List buildLocaleVariants() {
 		String nl = locale.toString();
 		ArrayList result = new ArrayList(4);
 		int lastSeparator;
