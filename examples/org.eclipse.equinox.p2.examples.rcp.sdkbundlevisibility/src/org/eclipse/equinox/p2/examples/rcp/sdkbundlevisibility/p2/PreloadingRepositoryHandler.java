@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -44,8 +44,8 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	void doExecuteAndLoad() {
 		if (preloadRepositories()) {
 			//cancel any load that is already running
-			Job.getJobManager().cancel(PreloadMetadataRepositoryJob.LOAD_FAMILY);
-			final PreloadMetadataRepositoryJob loadJob = new PreloadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getPolicy().getRepositoryManipulator());
+			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
+			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getRepositoryTracker());
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
@@ -74,7 +74,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		}
 	}
 
-	protected abstract void doExecute(PreloadMetadataRepositoryJob job);
+	protected abstract void doExecute(LoadMetadataRepositoryJob job);
 
 	protected boolean preloadRepositories() {
 		return true;
@@ -85,7 +85,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	}
 
 	protected void setLoadJobProperties(Job loadJob) {
-		loadJob.setProperty(PreloadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS, Boolean.toString(true));
+		loadJob.setProperty(LoadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS, Boolean.toString(true));
 	}
 
 	protected ProvisioningUI getProvisioningUI() {

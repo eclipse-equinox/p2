@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
-import org.eclipse.equinox.p2.ui.IUViewQueryContext;
 import org.eclipse.equinox.p2.ui.Policy;
 
 /**
@@ -22,11 +21,9 @@ import org.eclipse.equinox.p2.ui.Policy;
 public class CloudPolicy extends Policy {
 	public CloudPolicy() {
 		// XXX User has no visibility for repos
-		getRepositoryManipulator().setRepositoriesVisible(false);
+		setRepositoriesVisible(false);
 		
 		// XXX Default view is by category
-		IUViewQueryContext queryContext = new IUViewQueryContext(
-				IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		setQueryContext(queryContext);
+		setGroupByCategory(true);
 	}
 }

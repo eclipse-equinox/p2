@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
-import org.eclipse.equinox.p2.ui.RepositoryManipulator;
 
 /**
  * UpdateHandler invokes the check for updates UI
  */
 public class UpdateHandler extends PreloadingRepositoryHandler {
 
-	protected void doExecute(PreloadMetadataRepositoryJob job) {
+	protected void doExecute(LoadMetadataRepositoryJob job) {
 		UpdateOperation operation = getProvisioningUI().getUpdateOperation(null, null);
 		// check for updates
 		operation.resolveModal(null);
@@ -29,8 +29,8 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 	}
 
 	protected boolean preloadRepositories() {
-		RepositoryManipulator repoMan = getProvisioningUI().getPolicy().getRepositoryManipulator();
-		if (repoMan.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
+		RepositoryTracker tracker = getProvisioningUI().getRepositoryTracker();
+		if (tracker.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
 			return false;
 		}
 		return super.preloadRepositories();
