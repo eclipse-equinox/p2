@@ -27,7 +27,7 @@ public class AddArtifactRepositoryOperation extends AddRepositoryJob {
 		super(label, session, new URI[] {location});
 	}
 
-	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
+	protected IStatus doSignaledWork(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			getSession().getArtifactRepositoryManager().addRepository(locations[i]);

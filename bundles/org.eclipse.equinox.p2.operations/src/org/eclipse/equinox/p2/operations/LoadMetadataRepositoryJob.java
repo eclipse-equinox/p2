@@ -21,20 +21,45 @@ import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
+ * A job that loads a set of metadata repositories and caches the loaded repositories.
+ * This job can be used when repositories are loaded by a client who wishes to 
+ * maintain (and pass along) the in-memory references to the repositories.  For example,
+ * repositories can be loaded in the background and then passed to another
+ * component, thus ensuring that the repositories remain loaded in memory.
+ * 
  * @since 2.0
  *
  */
-public class PreloadMetadataRepositoryJob extends RepositoryJob {
+public class LoadMetadataRepositoryJob extends RepositoryJob {
 
+	/**
+	 * An object representing the family of jobs that load repositories.
+	 */
 	public static final Object LOAD_FAMILY = new Object();
+
+	/**
+	 * The key that should be used to set a property on a repository load job to indicate
+	 * that authentication should be suppressed when loading the repositories.
+	 */
 	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(Activator.ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
+
+	/**
+	 * The key that should be used to set a property on a repository load job to indicate
+	 * that load errors should be accumulated into a single status rather than reported
+	 * as they occur.
+	 */
 	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(Activator.ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
 	private List repoCache = new ArrayList();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 
-	public PreloadMetadataRepositoryJob(ProvisioningSession session, RepositoryTracker tracker) {
+	/**
+	 * Create a job that loads the metadata repositories known by the specified RepositoryTracker.
+	 * @param session the provisioning session providing the necessary services
+	 * @param tracker the tracker that knows which repositories should be loaded
+	 */
+	public LoadMetadataRepositoryJob(ProvisioningSession session, RepositoryTracker tracker) {
 		super(Messages.PreloadRepositoryJob_LoadJobName, session, tracker.getKnownRepositories(session));
 		this.tracker = tracker;
 	}
@@ -58,31 +83,44 @@ public class PreloadMetadataRepositoryJob extends RepositoryJob {
 		return getCurrentStatus();
 	}
 
-	protected void handleLoadFailure(ProvisionException e, URI location) {
+	private void handleLoadFailure(ProvisionException e, URI location) {
 		int code = e.getStatus().getCode();
-		// special handling when the repo is bad.  We don't want to continually report it
+		// special handling when the repo location is bad.  We don't want to continually report it
 		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
 			if (tracker.hasNotFoundStatusBeenReported(location))
 				return;
 			tracker.addNotFound(location);
 		}
 
-		// Some ProvisionExceptions include an empty multi status with a message.  
-		// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
-		// this well.  We correct this by recreating a status with error severity
-		// so that the platform status handler does the right thing.
-		IStatus status = e.getStatus();
-		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
-			status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
-		if (accumulatedStatus == null) {
-			accumulatedStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, Messages.PreloadMetadataRepositoryJob_SomeSitesNotFound, null);
+		if (shouldAccumulateFailures()) {
+			// Some ProvisionExceptions include an empty multi status with a message.  
+			// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
+			// this well.  We correct this by recreating a status with error severity
+			// so that the platform status handler does the right thing.
+			IStatus status = e.getStatus();
+			if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
+				status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
+			if (accumulatedStatus == null) {
+				accumulatedStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, Messages.PreloadMetadataRepositoryJob_SomeSitesNotFound, null);
+			} else {
+				accumulatedStatus.add(status);
+			}
+			// Always log the complete exception so the detailed stack trace is in the log.  
+			LogHelper.log(e);
 		} else {
-			accumulatedStatus.add(status);
+			tracker.reportLoadFailure(location, getErrorStatus(null, e));
 		}
-		// Always log the complete exception so the detailed stack trace is in the log.  
-		LogHelper.log(e);
 	}
 
+	private boolean shouldAccumulateFailures() {
+		return getProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER) != null;
+	}
+
+	/**
+	 * Report the accumulated status to the repository tracker.  If there has been
+	 * no status accumulated, or if the job has been cancelled, do not report
+	 * anything.
+	 */
 	public void reportAccumulatedStatus() {
 		IStatus status = getCurrentStatus();
 		if (status.isOK() || status.getSeverity() == IStatus.CANCEL)
@@ -103,12 +141,11 @@ public class PreloadMetadataRepositoryJob extends RepositoryJob {
 		return Status.OK_STATUS;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
+	 */
 	public boolean belongsTo(Object family) {
 		return family == LOAD_FAMILY;
 	}
-
-	public Object getRepositoryReferenceCache() {
-		return repoCache;
-	}
-
 }

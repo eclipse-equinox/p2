@@ -27,7 +27,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
 
-	public PreselectedIUInstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob job) {
+	public PreselectedIUInstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));

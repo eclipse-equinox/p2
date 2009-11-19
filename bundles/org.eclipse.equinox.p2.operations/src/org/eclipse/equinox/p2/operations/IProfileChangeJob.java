@@ -12,11 +12,19 @@
 package org.eclipse.equinox.p2.operations;
 
 /**
+ * Interface for a provisioning job that operates on a
+ * profile.
+ * 
  * @since 2.0
  *
  */
 public interface IProfileChangeJob {
 
+	/**
+	 * Return the string id of the profile involved in this job.
+	 * 
+	 * @return the id of the profile
+	 */
 	public String getProfileId();
 
 }

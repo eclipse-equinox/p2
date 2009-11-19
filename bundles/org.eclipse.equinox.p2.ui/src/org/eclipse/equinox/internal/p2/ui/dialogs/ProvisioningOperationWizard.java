@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -46,12 +46,12 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected IResolutionErrorReportingPage errorPage;
 	protected ResolutionResultsWizardPage resolutionPage;
 	private ProvisioningContext provisioningContext;
-	protected PreloadMetadataRepositoryJob repoPreloadJob;
+	protected LoadMetadataRepositoryJob repoPreloadJob;
 	IStatus couldNotResolveStatus = Status.OK_STATUS; // we haven't tried and failed
 
 	boolean waitingForOtherJobs = false;
 
-	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, PreloadMetadataRepositoryJob job) {
+	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob job) {
 		super();
 		this.ui = ui;
 		initializeResolutionModelElements(initialSelections);
@@ -85,7 +85,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return resolutionPage.performFinish();
 	}
 
-	protected PreloadMetadataRepositoryJob getRepositoryPreloadJob() {
+	protected LoadMetadataRepositoryJob getRepositoryPreloadJob() {
 		return repoPreloadJob;
 	}
 

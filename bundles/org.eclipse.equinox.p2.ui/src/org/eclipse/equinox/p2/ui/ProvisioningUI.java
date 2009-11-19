@@ -118,7 +118,7 @@ public class ProvisioningUI {
 		return new ProvisioningContext();
 	}
 
-	public int openInstallWizard(Shell shell, IInstallableUnit[] initialSelections, InstallOperation operation, PreloadMetadataRepositoryJob job) {
+	public int openInstallWizard(Shell shell, IInstallableUnit[] initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
 			WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
@@ -133,7 +133,7 @@ public class ProvisioningUI {
 		return dialog.open();
 	}
 
-	public int openUpdateWizard(Shell shell, boolean skipSelectionsPage, UpdateOperation operation, PreloadMetadataRepositoryJob job) {
+	public int openUpdateWizard(Shell shell, boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
 		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getDefaultUpdates(), job);
 		wizard.setSkipSelectionsPage(skipSelectionsPage);
 		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
@@ -142,7 +142,7 @@ public class ProvisioningUI {
 		return dialog.open();
 	}
 
-	public int openUninstallWizard(Shell shell, IInstallableUnit[] initialSelections, UninstallOperation operation, PreloadMetadataRepositoryJob job) {
+	public int openUninstallWizard(Shell shell, IInstallableUnit[] initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
 		UninstallWizard wizard = new UninstallWizard(this, operation, initialSelections, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
 		dialog.create();

@@ -17,7 +17,7 @@ import java.net.URI;
  * 
  * @since 2.0
  */
-public abstract class RemoveRepositoryJob extends BatchedRepositoryJob {
+public abstract class RemoveRepositoryJob extends SignallingRepositoryJob {
 
 	public RemoveRepositoryJob(String label, ProvisioningSession session, URI[] locations) {
 		super(label, session, locations);

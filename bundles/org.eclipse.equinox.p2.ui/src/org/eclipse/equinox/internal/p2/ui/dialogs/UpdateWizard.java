@@ -59,7 +59,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		return (Update[]) updates.toArray(new Update[updates.size()]);
 	}
 
-	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, PreloadMetadataRepositoryJob preloadJob) {
+	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));

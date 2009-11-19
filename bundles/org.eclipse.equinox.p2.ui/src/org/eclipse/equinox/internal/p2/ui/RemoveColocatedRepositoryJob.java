@@ -26,7 +26,7 @@ public class RemoveColocatedRepositoryJob extends RemoveRepositoryJob {
 		super(label, session, repoLocations);
 	}
 
-	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
+	protected IStatus doSignaledWork(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
 
 		for (int i = 0; i < locations.length; i++) {

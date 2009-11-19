@@ -32,7 +32,7 @@ public class InstallWizard extends WizardWithLicenses {
 	SelectableIUsPage errorReportingPage;
 	IUElementListRoot originalRoot;
 
-	public InstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob preloadJob) {
+	public InstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));

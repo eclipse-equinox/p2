@@ -13,7 +13,8 @@ package org.eclipse.equinox.p2.operations;
 import java.net.URI;
 
 /**
- * Abstract class representing provisioning repository jobs
+ * Abstract class representing jobs that manipulate 
+ * provisioning repositories.
  * 
  * @since 2.0
  */
@@ -21,13 +22,15 @@ public abstract class RepositoryJob extends ProvisioningJob {
 
 	protected URI[] locations;
 
-	public RepositoryJob(String label, ProvisioningSession session, URI[] locations) {
-		super(label, session);
+	/**
+	 * Create a repository job that can be used to manipulate the specified 
+	 * repository locations.
+	 * @param name the name of the job
+	 * @param session the provisioning session to be used
+	 * @param locations the locations of the repositories to be manipulated.
+	 */
+	protected RepositoryJob(String name, ProvisioningSession session, URI[] locations) {
+		super(name, session);
 		this.locations = locations;
 	}
-
-	public boolean runInBackground() {
-		return true;
-	}
-
 }

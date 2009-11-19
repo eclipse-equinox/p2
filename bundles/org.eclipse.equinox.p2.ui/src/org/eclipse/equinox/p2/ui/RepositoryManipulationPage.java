@@ -781,6 +781,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							MetadataRepositoryElement element = null;
 							for (int i = 0; i < locations.length; i++) {
 								element = new MetadataRepositoryElement(getInput(), locations[i], true);
+								String[] nicknames = getNicknames();
 								if (nicknames != null)
 									element.setNickname(nicknames[i]);
 								getInput().cachedElements.put(URIUtil.toUnencodedString(locations[i]), element);
@@ -790,13 +791,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							return Status.OK_STATUS;
 						}
 
-						protected IStatus doBatchedOperation(IProgressMonitor monitor) {
-							// Not called due to override of doExecute
+						protected IStatus doSignaledWork(IProgressMonitor monitor) {
+							// Not called due to override of runModal
 							return null;
 						}
 
 						protected void setNickname(URI loc, String nickname) {
-							// Not called due to override of doExecute
+							// Not called due to override of runModal
 						}
 					};
 				}
@@ -807,7 +808,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session) {
 					return new RemoveRepositoryJob("Cached remove repo operation", session, repoLocations) { //$NON-NLS-1$
-						protected IStatus doBatchedOperation(IProgressMonitor monitor) {
+						protected IStatus doSignaledWork(IProgressMonitor monitor) {
 							removeRepositories();
 							return Status.OK_STATUS;
 						}

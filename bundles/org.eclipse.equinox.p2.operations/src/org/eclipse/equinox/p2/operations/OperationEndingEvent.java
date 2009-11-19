@@ -14,29 +14,40 @@ package org.eclipse.equinox.p2.operations;
 import java.util.EventObject;
 
 /**
- * Internal UI event used to signify that a batch change in which
- * we were ignoring listeners is done.
+ * Event used to signal that a provisioning operation has completed.  
  * 
- * @since 3.4
+ * @since 2.0
  */
 public class OperationEndingEvent extends EventObject {
 
 	private static final long serialVersionUID = -4513769756968621852L;
 
 	/**
-	 * The last item touched in the batch.  Can help indicate what should be updated.
+	 * The last item touched in the operation.  Can help indicate what should be updated.
 	 */
 	private Object item;
 
 	/**
 	 * Construct a new instance of this event.
+	 * 
 	 * @param source the source of the event
+	 * 
+	 * @item the object that was involved in the operation.  May be
+	 * <code>null</code>.  This item may be used by clients to determine
+	 * what should be updated after an operation completes.
 	 */
 	public OperationEndingEvent(Object source, Object item) {
 		super(source);
 		this.item = item;
 	}
 
+	/**
+	 * Return the object that was involved in the operation that is completing.
+	 * @return the object that was involved in the operation.  May be
+	 * <code>null</code>.  This item may be used by clients to determine
+	 * what should be updated after an operation completes.
+
+	 */
 	public Object getItem() {
 		return item;
 	}

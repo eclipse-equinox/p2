@@ -29,7 +29,6 @@ public class AddColocatedRepositoryOperationTest extends AbstractProvisioningUIT
 			fail("0.99", e);
 		}
 		AddColocatedRepositoryJob op = new AddColocatedRepositoryJob("label", getSession(), repoLocation);
-		assertTrue("1.0", op.runInBackground());
 
 		IStatus status = op.runModal(getMonitor());
 		assertTrue("1.1", status.isOK());

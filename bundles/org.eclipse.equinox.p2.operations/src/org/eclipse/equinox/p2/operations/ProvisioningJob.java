@@ -92,46 +92,61 @@ public abstract class ProvisioningJob extends Job {
 	}
 
 	/**
-	 * Constant which indicates that the operation or job being managed does
-	 * not require a restart upon completion.  This constant is typically used
-	 * for operations that do not modify the running profile.
+	 * Constant which indicates that the job does not require a restart
+	 * upon completion.  This constant is typically used for operations that 
+	 * do not modify the running profile.
 	 * 
-	 * @since 3.6
+	 * @since 2.0
 	 */
 	public static final int RESTART_NONE = 1;
 
 	/**
-	 * Constant which indicates that the operation or job being managed requires
-	 * the user to either restart or apply the configuration changes in order to 
-	 * pick up the provisioning changes.  This constant is typically used for
+	 * Constant which indicates that the job requires the user to either
+	 * restart or apply the configuration changes in order to pick up the
+	 * changes performed by the job.  This constant is typically used for
 	 * operations that modify the running profile.
 	 * 
-	 * @since 3.6
+	 * @since 2.0
 	 */
 	public static final int RESTART_OR_APPLY = 2;
 	/**
-	 * Constant which indicates that the operation or job being managed requires
-	 * the user to restart in order to pick up the provisioning changes.  This constant
+	 * Constant which indicates that the job requires the user to restart
+	 * in order to pick up the changes performed by the job.  This constant
 	 * is typically used for operations that modify the running profile but don't 
 	 * handle dynamic changes without restarting the workbench.
 	 * 
-	 * @since 3.6
+	 * @since 2.0
 	 */
 	public static final int RESTART_ONLY = 3;
 
 	private ProvisioningSession session;
 	private IProgressMonitor additionalMonitor;
 
+	/**
+	 * Create a provisioning job with the given name that uses the
+	 * provided provisioning session for retrieving any services
+	 * needed.
+	 * 
+	 * @param name the name of the job
+	 * @param session the session providing the services
+	 */
 	public ProvisioningJob(String name, ProvisioningSession session) {
 		super(name);
 		this.session = session;
 	}
 
+	/**
+	 * Return the provisioning session that is used by the receiver
+	 * when retrieving necessary provisioning services.
+	 * 
+	 * @return the session
+	 * @see {@link ProvisioningSession}
+	 */
 	protected ProvisioningSession getSession() {
 		return session;
 	}
 
-	protected IProgressMonitor getCombinedProgressMonitor(IProgressMonitor mon1, IProgressMonitor mon2) {
+	private IProgressMonitor getCombinedProgressMonitor(IProgressMonitor mon1, IProgressMonitor mon2) {
 		if (mon1 == null)
 			return mon2;
 		if (mon2 == null)
@@ -164,18 +179,39 @@ public abstract class ProvisioningJob extends Job {
 	}
 
 	/**
-	 * Perform the specific work involved in running this job.
+	 * Perform the specific work involved in running this job in
+	 * the current thread.  This method can be called directly by
+	 * clients, or in the course of running the job in the
+	 * background.
 	 * 
 	 * @param monitor
 	 *            the progress monitor to use for the operation
+	 *            
+	 * @return a status indicating the result of the operation.
 	 * 
 	 */
 	public abstract IStatus runModal(IProgressMonitor monitor);
 
+	/**
+	 * Return the restart policy that is appropriate for this job.
+	 * 
+	 * @return a constant indicating the restart policy
+	 * 
+	 * @see #RESTART_NONE
+	 * @see #RESTART_ONLY
+	 * @see #RESTART_OR_APPLY
+	 */
 	public int getRestartPolicy() {
 		return RESTART_NONE;
 	}
 
+	/**
+	 * Return an error status that can be used to report the specified exception.
+	 * 
+	 * @param message the message that should be used in the status
+	 * @param e the exception to be reported
+	 * @return a status that can be used to describe the exception
+	 */
 	protected IStatus getErrorStatus(String message, ProvisionException e) {
 		if (message == null)
 			if (e == null)

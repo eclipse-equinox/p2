@@ -26,7 +26,7 @@ public class RemoveArtifactRepositoryOperation extends RemoveRepositoryJob {
 		super(label, session, repoLocations);
 	}
 
-	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
+	protected IStatus doSignaledWork(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			getSession().getArtifactRepositoryManager().removeRepository(locations[i]);

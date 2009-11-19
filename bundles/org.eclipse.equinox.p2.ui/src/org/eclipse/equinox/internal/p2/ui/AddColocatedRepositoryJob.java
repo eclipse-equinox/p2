@@ -31,7 +31,7 @@ public class AddColocatedRepositoryJob extends AddRepositoryJob {
 		super(label, session, uris);
 	}
 
-	protected IStatus doBatchedOperation(IProgressMonitor monitor) {
+	protected IStatus doSignaledWork(IProgressMonitor monitor) {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 2);
 
 		for (int i = 0; i < locations.length; i++) {

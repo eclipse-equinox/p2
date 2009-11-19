@@ -22,7 +22,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	boolean hasNoRepos = false;
 
-	protected void doExecute(PreloadMetadataRepositoryJob job) {
+	protected void doExecute(LoadMetadataRepositoryJob job) {
 		if (hasNoRepos) {
 			if (getProvisioningUI().getPolicy().getRepositoriesVisible()) {
 				boolean goToSites = MessageDialog.openQuestion(getShell(), ProvSDKMessages.UpdateHandler_NoSitesTitle, ProvSDKMessages.UpdateHandler_NoSitesMessage);

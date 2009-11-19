@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard
@@ -27,7 +27,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		super();
 	}
 
-	protected void doExecute(PreloadMetadataRepositoryJob job) {
+	protected void doExecute(LoadMetadataRepositoryJob job) {
 		getProvisioningUI().openInstallWizard(getShell(), null, null, job);
 	}
 
@@ -44,7 +44,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		// If we are doing a background load, we do not wish to authenticate, as the
 		// user is unaware that loading was needed
 		if (!waitForPreload()) {
-			loadJob.setProperty(PreloadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
+			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
 		}
 	}
 }

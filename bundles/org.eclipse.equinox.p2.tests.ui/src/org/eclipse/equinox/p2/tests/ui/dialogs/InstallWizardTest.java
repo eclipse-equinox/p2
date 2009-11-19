@@ -98,7 +98,7 @@ public class InstallWizardTest extends WizardTest {
 	 * Tests the wizard
 	 */
 	public void testInstallWizardUnresolved() {
-		PreloadMetadataRepositoryJob job = new PreloadMetadataRepositoryJob(getSession(), getProvisioningUI().getRepositoryTracker());
+		LoadMetadataRepositoryJob job = new LoadMetadataRepositoryJob(getSession(), getProvisioningUI().getRepositoryTracker());
 		getPolicy().setGroupByCategory(false);
 		job.runModal(getMonitor());
 		InstallWizard wizard = new InstallWizard(getProvisioningUI(), null, null, job);

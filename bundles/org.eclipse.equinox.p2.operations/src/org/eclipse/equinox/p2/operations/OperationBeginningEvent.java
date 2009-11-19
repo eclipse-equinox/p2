@@ -14,12 +14,11 @@ package org.eclipse.equinox.p2.operations;
 import java.util.EventObject;
 
 /**
- *
- * Event used to signify that a batch change is about
- * to begin.  We should ignore listeners until it is
- * done.
- * 
- * @since 3.4
+ * Event used to signal that a provisioning operation is about
+ * to begin.  This event can be used to ignore lower-level events
+ * until the operation is complete.
+ *  
+ * @since 2.0
  */
 public class OperationBeginningEvent extends EventObject {
 

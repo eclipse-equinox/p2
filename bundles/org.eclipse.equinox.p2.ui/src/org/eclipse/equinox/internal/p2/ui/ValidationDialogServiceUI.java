@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.p2.operations.PreloadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
@@ -76,7 +76,7 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	private boolean suppressAuthentication() {
 		Job job = Job.getJobManager().currentJob();
 		if (job != null) {
-			return job.getProperty(PreloadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER) != null;
+			return job.getProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER) != null;
 		}
 		return false;
 	}

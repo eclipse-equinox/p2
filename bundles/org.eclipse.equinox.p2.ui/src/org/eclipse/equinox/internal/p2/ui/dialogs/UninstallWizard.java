@@ -24,7 +24,7 @@ import org.eclipse.jface.wizard.IWizardPage;
  */
 public class UninstallWizard extends ProvisioningOperationWizard {
 
-	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, IInstallableUnit[] initialSelections, PreloadMetadataRepositoryJob job) {
+	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
