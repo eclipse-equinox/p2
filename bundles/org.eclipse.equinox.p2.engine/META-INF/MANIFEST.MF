@@ -7,7 +7,8 @@ Bundle-Localization: plugin
 Bundle-Version: 2.0.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.natives",
  org.eclipse.equinox.internal.provisional.p2.engine;
-  x-friends:="org.eclipse.equinox.p2.console,
+  x-friends:="org.eclipse.equinox.p2.common,
+   org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.director.app,
    org.eclipse.equinox.p2.extensionlocation,
