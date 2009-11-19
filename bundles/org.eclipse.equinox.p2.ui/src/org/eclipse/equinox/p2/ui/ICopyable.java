@@ -13,11 +13,17 @@ package org.eclipse.equinox.p2.ui;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * ICopyable defines an interface for UI elements that provide
- * copy support.
+ * ICopyable defines an interface for elements that provide
+ * copy support in a UI.  The active control in the UI determines
+ * what should be copied.
  * 
  * @since 2.0
  */
 public interface ICopyable {
+	/**
+	 * Copy text related to the active control to the clipboard.
+	 * 
+	 * @param activeControl the active control
+	 */
 	public void copyToClipboard(Control activeControl);
 }

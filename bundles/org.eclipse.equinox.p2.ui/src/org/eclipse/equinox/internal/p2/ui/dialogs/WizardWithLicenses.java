@@ -48,6 +48,11 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		return new AcceptLicensesWizardPage(ui.getLicenseManager(), ui.getTranslationSupport(), ius, operation);
 	}
 
+	/*
+	 * Overridden to determine whether the license page should be shown.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
+	 */
 	public IWizardPage getNextPage(IWizardPage page) {
 		// If the license page is supposed to be the next page,
 		// ensure there are actually licenses that need acceptance.
@@ -64,6 +69,10 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		licensePage.update(ElementUtils.elementsToIUs(planSelections), operation);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#performFinish()
+	 */
 	public boolean performFinish() {
 		licensePage.performFinish();
 		return super.performFinish();

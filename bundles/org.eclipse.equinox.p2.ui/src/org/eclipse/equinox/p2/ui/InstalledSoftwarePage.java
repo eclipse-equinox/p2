@@ -35,6 +35,14 @@ import org.eclipse.ui.menus.AbstractContributionFactory;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
+ * InstalledSoftwarePage displays a profile's IInstallableUnits in
+ * an Installation Page.  Clients can use this class as the implementation
+ * class for an installationPages extension.
+ * 
+ * @see InstallationPage
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0
  *
  */
@@ -101,6 +109,10 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		setControl(composite);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
@@ -210,6 +222,10 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		return totalWidth + 20; // buffer for surrounding composites
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
+	 */
 	public void copyToClipboard(Control activeControl) {
 		Object[] elements = installedIUGroup.getSelectedIUElements();
 		if (elements.length == 0)

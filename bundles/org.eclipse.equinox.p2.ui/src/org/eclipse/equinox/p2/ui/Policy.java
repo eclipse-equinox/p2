@@ -142,73 +142,210 @@ public class Policy {
 		return null;
 	}
 
+	/**
+	 * Return a query that can be used to obtain the IInstallableUnits that
+	 * should be presented to the user from the software repositories.
+	 * 
+	 * @return the query used to retrieve user visible available IUs
+	 */
 	public IQuery getVisibleAvailableIUQuery() {
 		return visibleAvailableIUQuery;
 	}
 
+	/**
+	 * Set the query that can be used to obtain the IInstallableUnits that
+	 * should be presented to the user.
+	 * 
+	 * @param query the query used to retrieve user visible available IUs
+	 */
 	public void setVisibleAvailableIUQuery(IQuery query) {
 		visibleAvailableIUQuery = query;
 	}
 
+	/**
+	 * Return a query that can be used to obtain the IInstallableUnits in
+	 * the profile that should be presented to the user.
+	 * 
+	 * @return the query used to retrieve user visible installed IUs
+	 */
 	public IQuery getVisibleInstalledIUQuery() {
 		return visibleInstalledIUQuery;
 	}
 
+	/**
+	 * Set the query that can be used to obtain the IInstallableUnits in
+	 * the profile that should be presented to the user.
+	 * 
+	 * @param query the query used to retrieve user visible installed IUs
+	 */
 	public void setVisibleInstalledIUQuery(IQuery query) {
 		visibleInstalledIUQuery = query;
 	}
 
+	/**
+	 * Get the restart policy that should be used when the provisioning UI
+	 * determines that a restart is required.
+	 * 
+	 * @return an integer constant describing the restart policy
+	 * 
+	 * @see #RESTART_POLICY_FORCE
+	 * @see #RESTART_POLICY_FORCE_APPLY
+	 * @see #RESTART_POLICY_PROMPT
+	 * @see #RESTART_POLICY_PROMPT_RESTART_OR_APPLY
+	 */
 	public int getRestartPolicy() {
 		return restartPolicy;
 	}
 
+	/**
+	 * Set the restart policy that should be used when the provisioning UI
+	 * determines that a restart is required.
+	 * 
+	 * @param restartPolicy an integer constant describing the restart policy
+	 * 
+	 * @see #RESTART_POLICY_FORCE
+	 * @see #RESTART_POLICY_FORCE_APPLY
+	 * @see #RESTART_POLICY_PROMPT
+	 * @see #RESTART_POLICY_PROMPT_RESTART_OR_APPLY
+	 */
 	public void setRestartPolicy(int restartPolicy) {
 		this.restartPolicy = restartPolicy;
 	}
 
+	/**
+	 * Return a boolean indicating whether the repositories should
+	 * be visible to the user, such that the user can add, remove, and
+	 * otherwise manipulate the software site list.
+	 * 
+	 * @return <code>true</code> if repositories are visible to the end
+	 * user, <code>false</code> if they are not.
+	 */
 	public boolean getRepositoriesVisible() {
 		return repositoriesVisible;
 	}
 
+	/**
+	 * Set a boolean indicating whether the repositories should
+	 * be visible to the user, such that the user can add, remove, and
+	 * otherwise manipulate the software site list.
+	 * 
+	 * @param visible <code>true</code> if repositories are visible to the end
+	 * user, <code>false</code> if they are not.
+	 */
 	public void setRepositoriesVisible(boolean visible) {
 		this.repositoriesVisible = visible;
 	}
 
+	/**
+	 * Return a boolean indicating whether only the latest versions of
+	 * updates and available software should be shown to the user.
+	 * 
+	 * @return <code>true</code> if only the latest versions are shown,
+	 * <code>false</code> if all versions should be shown.
+	 */
 	public boolean getShowLatestVersionsOnly() {
 		return showLatestVersionsOnly;
 	}
 
+	/**
+	 * Set a boolean indicating whether only the latest versions of
+	 * updates and available software should be shown to the user.
+	 * 
+	 * @param showLatest <code>true</code> if only the latest versions are shown,
+	 * <code>false</code> if all versions should be shown.
+	 */
 	public void setShowLatestVersionsOnly(boolean showLatest) {
 		this.showLatestVersionsOnly = showLatest;
 	}
 
+	/**
+	 * Return a boolean indicating whether the user should be allowed drill
+	 * down from a visible update or installed item into the requirements.
+	 * 
+	 * @return <code>true</code> if drilldown is allowed,
+	 * <code>false</code> if it is not.
+	 */
 	public boolean getShowDrilldownRequirements() {
 		return allowDrilldown;
 	}
 
+	/**
+	 * Set a boolean indicating whether the user should be allowed drill
+	 * down from a visible update or installed item into the requirements.
+	 * 
+	 * @param drilldown <code>true</code> if drilldown is allowed,
+	 * <code>false</code> if it is not.
+	 */
 	public void setShowDrilldownRequirements(boolean drilldown) {
 		this.allowDrilldown = drilldown;
 	}
 
+	/**
+	 * Return a boolean indicating whether available software should be
+	 * grouped by category.
+	 * 
+	 * @return <code>true</code> if items should be grouped by category,
+	 * <code>false</code> if categories should not be shown.
+	 */
 	public boolean getGroupByCategory() {
 		return groupByCategory;
 	}
 
+	/**
+	 * Set a boolean indicating whether available software should be
+	 * grouped by category.
+	 * 
+	 * @param group <code>true</code> if items should be grouped by category,
+	 * <code>false</code> if categories should not be shown.
+	 */
 	public void setGroupByCategory(boolean group) {
 		this.groupByCategory = group;
 	}
 
+	/**
+	 * Get the id of the preference page that should be used to link to the
+	 * software sites page.
+	 * 
+	 * @return the preference page id, or <code>null</code> if there is no
+	 * preference page id showing the software sites.
+	 */
 	public String getRepositoryPreferencePageId() {
 		return repoPrefPageId;
 	}
+
+	/**
+	 * Set the id of the preference page that should be used to link to the
+	 * software sites page.
+	 * 
+	 * @param id the preference page id, or <code>null</code> if there is no
+	 * preference page id showing the software sites.
+	 */
 
 	public void setRepositoryPreferencePageId(String id) {
 		this.repoPrefPageId = id;
 	}
 
+	/**
+	 * Get the localized name of the preference page that should be displayed in
+	 * links to the software sites page.
+	 * 
+	 * @return the preference page name, or <code>null</code> if there is no
+	 * preference page.
+	 */
 	public String getRepositoryPreferencePageName() {
 		return repoPrefPageName;
 	}
+
+	/**
+	 * Set the localized name of the preference page that should be displayed in
+	 * links to the software sites page.  This name is ignored if no id is specified
+	 * for the preference page.
+	 * 
+	 * @param name the preference page name, or <code>null</code> if there is no
+	 * preference page.
+	 * 
+	 * @see Policy#setRepositoryPreferencePageId(String)
+	 */
 
 	public void setRepositoryPreferencePageName(String name) {
 		this.repoPrefPageName = name;

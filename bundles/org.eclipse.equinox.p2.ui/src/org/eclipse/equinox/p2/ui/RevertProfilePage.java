@@ -47,7 +47,16 @@ import org.eclipse.ui.menus.AbstractContributionFactory;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
+ * RevertProfilePage displays a profile's configuration history in
+ * an Installation Page.  Clients can use this class as the implementation
+ * class for an installationPages extension.
+ * 
+ * @see InstallationPage
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0
+ *
  */
 public class RevertProfilePage extends InstallationPage implements ICopyable {
 
@@ -65,6 +74,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	InstalledIUGroup installedIUGroup;
 	ProvisioningUI ui;
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
@@ -79,6 +92,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		revertButton.setEnabled(revertAction.isEnabled());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createControl(Composite parent) {
 		ui = ProvisioningUI.getDefaultUI();
 		profileId = ui.getProfileId();
@@ -483,6 +500,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
+	 */
 	public void copyToClipboard(Control activeControl) {
 		String text = ""; //$NON-NLS-1$
 		if (activeControl == configContentsViewer.getControl()) {

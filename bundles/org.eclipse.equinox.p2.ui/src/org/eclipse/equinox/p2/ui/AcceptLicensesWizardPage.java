@@ -42,7 +42,8 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * AcceptLicensesWizardPage shows a list of the IU's that have
- * licenses that have not been approved by the user.
+ * licenses that have not been approved by the user, and allows the
+ * user to approve them.
  * 
  * @since 2.0
  */
@@ -158,6 +159,14 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return buf.toString();
 	}
 
+	/**
+	 * Create a license acceptance page for showing licenses to the user.
+	 * 
+	 * @param manager the license manager that should be used to check for already accepted licenses.  May be <code>null</code>.
+	 * @param translationSupport the translation support to use for retrieving localized licenses and other properties
+	 * @param ius the IInstallableUnits for which licenses should be checked
+	 * @param operation the provisioning operation describing what changes are to take place on the profile
+	 */
 	public AcceptLicensesWizardPage(LicenseManager manager, TranslationSupport translationSupport, IInstallableUnit[] ius, ProfileChangeOperation operation) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
@@ -166,6 +175,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		update(ius, operation);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		ArrayList ius;
@@ -296,11 +309,24 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		}
 	}
 
+	/**
+	 * The wizard is finishing.  Perform any necessary processing.
+	 * 
+	 * @return <code>true</code> if the finish can proceed, 
+	 * <code>false</code> if it should not.
+	 */
 	public boolean performFinish() {
 		rememberAcceptedLicenses();
 		return true;
 	}
 
+	/**
+	 * Return a boolean indicating whether there are licenses that must be accepted
+	 * by the user.
+	 * 
+	 * @return <code>true</code> if there are licenses that must be accepted, and
+	 * <code>false</code> if there are no licenses that must be accepted.
+	 */
 	public boolean hasLicensesToAccept() {
 		return licensesToIUs != null && licensesToIUs.size() > 0;
 	}
@@ -334,6 +360,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		}
 	}
 
+	/**
+	 * Update the page for the specified IInstallableUnits and operation.
+	 * 
+	 * @param theIUs the IInstallableUnits for which licenses should be checked
+	 * @param operation the operation describing the pending profile change
+	 */
 	public void update(IInstallableUnit[] theIUs, ProfileChangeOperation operation) {
 		if (operation != null && operation.hasResolved()) {
 			int sev = operation.getResolutionResult().getSeverity();
@@ -424,6 +456,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
+	/**
+	 * Save any settings related to the current size and location of the wizard page.
+	 */
 	public void saveBoundsRelatedSettings() {
 		if (iuViewer == null || iuViewer.getTree().isDisposed())
 			return;

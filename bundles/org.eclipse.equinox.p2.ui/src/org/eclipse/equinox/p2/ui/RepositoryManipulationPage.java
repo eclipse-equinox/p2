@@ -48,26 +48,28 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * Page that allows users to update, add, remove, import, and
  * export repositories.  This page can be hosted inside a preference
- * dialog or inside its own dialog.  When hosting this page inside
- * a non-preference dialog, some of the dialog methods will likely 
- * have to call page methods.  The following snippet shows how to host
- * this page inside a TitleAreaDialog.
+ * dialog or inside its own dialog.  
+ * 
+ * When hosting this page inside a non-preference dialog, some of the 
+ * dialog methods will likely have to call page methods.  The following 
+ * snippet shows how to host this page inside a TitleAreaDialog.
  * <pre>
  *		TitleAreaDialog dialog = new TitleAreaDialog(shell) {
  *
  *			RepositoryManipulationPage page;
  *
  *			protected Control createDialogArea(Composite parent) {
- *				page = new RepositoryManipulationPage(policy);
+ *				page = new RepositoryManipulationPage();
+ *              page.setProvisioningUI(ProvisioningUI.getDefaultUI());
  *				page.createControl(parent);
  *				this.setTitle("Software Sites");
- *				this.setMessage("The enabled sites will be searched for software.  Disabled sites are ignored.);
+ *				this.setMessage("The enabled sites will be searched for software.  Disabled sites are ignored.");
  *				return page.getControl();
  *			}
  *
  *			protected void okPressed() {
  *				if (page.performOk())
-*					super.okPressed();
+ *					super.okPressed();
  *			}
  *
  *			protected void cancelPressed() {
@@ -77,6 +79,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
  *		};
  *		dialog.open();
  * </pre>
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
  * 
  * @since 2.0
  */
@@ -145,8 +149,19 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	/**
-	 * This method must be called before the contents are created.
-	 * @param ui
+	 * Create a repository manipulation page that will display the repositories
+	 * available to the user.
+	 */
+	public RepositoryManipulationPage() {
+		this.setProvisioningUI(ProvisioningUI.getDefaultUI());
+	}
+
+	/**
+	 * Set the provisioning UI that provides the session, policy, and other
+	 * services for the UI.  This method must be called before the contents are 
+	 * created or it will have no effect.
+	 * 
+	 * @param ui the provisioning UI to use for this page.
 	 */
 	public void setProvisioningUI(ProvisioningUI ui) {
 		this.ui = ui;
@@ -468,6 +483,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		return input;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
+	 */
 	public boolean performOk() {
 		if (changed)
 			ElementUtils.updateRepositoryUsingElements(getElements(), getShell());
@@ -818,6 +837,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		return localCacheRepoManipulator;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
+	 */
 	public void copyToClipboard(Control activeControl) {
 		MetadataRepositoryElement[] elements = getSelectedElements();
 		if (elements.length == 0)
