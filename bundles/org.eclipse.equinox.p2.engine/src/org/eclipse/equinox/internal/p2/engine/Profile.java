@@ -169,13 +169,14 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	private void propagateProfileContext(IQuery query) {
+		// FIXME
 		if (query instanceof IUProfilePropertyQuery) {
 			((IUProfilePropertyQuery) query).setProfile(this);
 			return;
 		}
 		IQuery[] queries = null;
-		if (query instanceof CompoundQuery) {
-			queries = ((CompoundQuery) query).getQueries();
+		if (query instanceof ICompositeQuery) {
+			queries = ((ICompositeQuery) query).getQueries();
 		}
 		if (queries != null) {
 			for (int i = 0; i < queries.length; i++) {
