@@ -17,7 +17,9 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.common.LicenseManager;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -105,7 +107,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private LicenseManager getLicenseManager() {
-		return getProvisioningUI().getPolicy().getLicenseManager();
+		return getProvisioningUI().getLicenseManager();
 	}
 
 	private void readLicenseRegistry() {
