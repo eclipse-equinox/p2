@@ -24,7 +24,7 @@ public abstract class SignallingRepositoryJob extends RepositoryJob {
 	/**
 	 * Create a repository job that can be used to manipulate the specified 
 	 * repository locations.
-	 * @param name the name of the job
+	 * @param label the name of the job
 	 * @param session the provisioning session to be used
 	 * @param locations the locations of the repositories to be manipulated.
 	 */
@@ -60,7 +60,7 @@ public abstract class SignallingRepositoryJob extends RepositoryJob {
 	 * operation start.  The completion of the operation is signalled after
 	 * this method is called.  This method may be called from any thread.
 	 * 
-	 * @param IProgressMonitor the monitor to use in the course of performing
+	 * @param monitor the monitor to use in the course of performing
 	 * the operation.
 	 * 
 	 * @return a status indicating the result of the operation

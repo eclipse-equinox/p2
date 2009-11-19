@@ -25,7 +25,6 @@ import org.eclipse.osgi.util.NLS;
  * 
  * @since 2.0
  */
-
 public abstract class ProvisioningJob extends Job {
 
 	private class DoubleProgressMonitor extends ProgressMonitorWrapper {
@@ -140,7 +139,7 @@ public abstract class ProvisioningJob extends Job {
 	 * when retrieving necessary provisioning services.
 	 * 
 	 * @return the session
-	 * @see {@link ProvisioningSession}
+	 * @see ProvisioningSession
 	 */
 	protected ProvisioningSession getSession() {
 		return session;
