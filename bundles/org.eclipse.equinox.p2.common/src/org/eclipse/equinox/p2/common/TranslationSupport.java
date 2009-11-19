@@ -22,8 +22,10 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * 
@@ -35,63 +37,73 @@ public class TranslationSupport {
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 
+	private IQueryable fragmentSource;
+	private Locale locale;
+
 	// Cache the IU fragments that provide localizations for a given locale.
 	//    map: locale => soft reference to a collector
-	private static Map LocaleCollectorCache = new HashMap(2);
+	private Map LocaleCollectorCache = new HashMap(2);
+
+	/**
+	 * Create an instance of TranslationSupport which will translate strings for the current locale,
+	 * using the currently running profile as the source for translation fragments.
+	 * @since 2.0
+	 */
+	public TranslationSupport() {
+		locale = getCurrentLocale();
+		//Due to performance problems, by default we restrict locale lookup to the current profile (see bug 233958)
+		fragmentSource = getSelfProfile();
+	}
+
+	public void setTranslationSource(IQueryable queryable) {
+		this.fragmentSource = queryable;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 
 	// Get the licenses in the default locale.
-	public static ILicense[] getLicenses(IInstallableUnit iu) {
-		return getLicenses(iu, getCurrentLocale());
-	}
-
-	// Get the copyright in the default locale.
-	public static ICopyright getCopyright(IInstallableUnit iu) {
-		return getCopyright(iu, getCurrentLocale());
-	}
-
-	// Get a property in the default locale
-	public static String getIUProperty(IInstallableUnit iu, String propertyKey) {
-		return getIUProperty(iu, propertyKey, getCurrentLocale());
-	}
-
-	private static ILicense getLicense(IInstallableUnit iu, ILicense license, Locale locale) {
-		String body = (license != null ? license.getBody() : null);
-		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
-			return license;
-		final String actualKey = body.substring(1); // Strip off the %
-		body = getLocalizedIUProperty(iu, actualKey, locale);
-		return MetadataFactory.createLicense(license.getLocation(), body);
-	}
-
-	public static ILicense[] getLicenses(IInstallableUnit iu, Locale locale) {
+	public ILicense[] getLicenses(IInstallableUnit iu) {
 		ILicense[] licenses = iu.getLicenses();
 		ILicense[] translatedLicenses = new ILicense[licenses.length];
 		for (int i = 0; i < licenses.length; i++) {
-			translatedLicenses[i] = getLicense(iu, licenses[i], locale);
+			translatedLicenses[i] = getLicense(iu, licenses[i]);
 		}
 		return translatedLicenses;
 	}
 
-	public static ICopyright getCopyright(IInstallableUnit iu, Locale locale) {
+	// Get the copyright in the default locale.
+	public ICopyright getCopyright(IInstallableUnit iu) {
 		ICopyright copyright = iu.getCopyright();
 		String body = (copyright != null ? copyright.getBody() : null);
 		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
 			return copyright;
 		final String actualKey = body.substring(1); // Strip off the %
-		body = getLocalizedIUProperty(iu, actualKey, locale);
+		body = getLocalizedIUProperty(iu, actualKey);
 		return MetadataFactory.createCopyright(copyright.getLocation(), body);
 	}
 
-	public static String getIUProperty(IInstallableUnit iu, String propertyKey, Locale locale) {
+	// Get a property in the default locale
+	public String getIUProperty(IInstallableUnit iu, String propertyKey) {
 		String value = iu.getProperty(propertyKey);
 		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
 			return value;
 		// else have a localizable property
 		final String actualKey = value.substring(1); // Strip off the %
-		return getLocalizedIUProperty(iu, actualKey, locale);
+		return getLocalizedIUProperty(iu, actualKey);
 	}
 
-	private static String getLocalizedIUProperty(IInstallableUnit iu, String actualKey, Locale locale) {
+	private ILicense getLicense(IInstallableUnit iu, ILicense license) {
+		String body = (license != null ? license.getBody() : null);
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+			return license;
+		final String actualKey = body.substring(1); // Strip off the %
+		body = getLocalizedIUProperty(iu, actualKey);
+		return MetadataFactory.createLicense(license.getLocation(), body);
+	}
+
+	private String getLocalizedIUProperty(IInstallableUnit iu, String actualKey) {
 		String localizedKey = makeLocalizedKey(actualKey, locale.toString());
 		String localizedValue = null;
 
@@ -107,10 +119,10 @@ public class TranslationSupport {
 		final List locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
 
-		Collector localizationFragments = getLocalizationFragments(locale, locales);
+		Collector localizationFragments = getLocalizationFragments(locales);
 
-		Collector hostLocalizationCollector = new Collector() {
-			public boolean accept(Object object) {
+		MatchQuery hostLocalizationQuery = new MatchQuery() {
+			public boolean isMatch(Object object) {
 				boolean haveHost = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
@@ -126,12 +138,12 @@ public class TranslationSupport {
 						}
 					}
 				}
-				return (haveHost ? super.accept(object) : true);
+				return haveHost;
 			}
 		};
 
-		Collector collected = new FragmentQuery().perform(localizationFragments.iterator(), hostLocalizationCollector);
-
+		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
+		Collector collected = iuQuery.perform(localizationFragments.iterator(), new Collector());
 		if (!collected.isEmpty()) {
 			String translation = null;
 			for (Iterator iter = collected.iterator(); iter.hasNext() && translation == null;) {
@@ -162,7 +174,7 @@ public class TranslationSupport {
 	 * we should push support for localized property retrieval into IInstallableUnit
 	 * so we aren't required to reach around the API here.
 	 */
-	private static String cacheResult(IInstallableUnit iu, String localizedKey, String localizedValue) {
+	private String cacheResult(IInstallableUnit iu, String localizedKey, String localizedValue) {
 		if (iu instanceof InstallableUnit)
 			((InstallableUnit) iu).setLocalizedProperty(localizedKey, localizedValue);
 		return localizedValue;
@@ -171,7 +183,12 @@ public class TranslationSupport {
 	/**
 	 * Collects the installable unit fragments that contain locale data for the given locales.
 	 */
-	private static synchronized Collector getLocalizationFragments(Locale locale, List localeVariants) {
+	private synchronized Collector getLocalizationFragments(List localeVariants) {
+		if (fragmentSource == null) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
+			return new Collector();
+		}
+
 		SoftReference collectorRef = (SoftReference) LocaleCollectorCache.get(locale);
 		if (collectorRef != null) {
 			Collector cached = (Collector) collectorRef.get();
@@ -181,8 +198,8 @@ public class TranslationSupport {
 
 		final List locales = localeVariants;
 
-		Collector localeFragmentCollector = new Collector() {
-			public boolean accept(Object object) {
+		MatchQuery hostLocalizationQuery = new MatchQuery() {
+			public boolean isMatch(Object object) {
 				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
@@ -202,29 +219,19 @@ public class TranslationSupport {
 						}
 					}
 				}
-				return (haveLocale ? super.accept(object) : true);
+				return haveLocale;
 			}
 		};
 
-		//Due to performance problems we restrict locale lookup to the current profile (see bug 233958)
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
-		if (profileRegistry == null) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
-			return new Collector();
-		}
-		IProfile profile = profileRegistry.getProfile(IProfileRegistry.SELF);
-		if (profile == null) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
-			return new Collector();
-		}
-		Collector collected = profile.query(new FragmentQuery(), localeFragmentCollector, null);
+		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
+		Collector collected = fragmentSource.query(iuQuery, new Collector(), null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}
 
 	/**
 	 */
-	private static List buildLocaleVariants(Locale locale) {
+	private List buildLocaleVariants(Locale locale) {
 		String nl = locale.toString();
 		ArrayList result = new ArrayList(4);
 		int lastSeparator;
@@ -240,12 +247,23 @@ public class TranslationSupport {
 		return result;
 	}
 
-	private static String makeLocalizedKey(String actualKey, String localeImage) {
+	private String makeLocalizedKey(String actualKey, String localeImage) {
 		return localeImage + '.' + actualKey;
 	}
 
-	private static Locale getCurrentLocale() {
+	private Locale getCurrentLocale() {
 		return Locale.getDefault();
 	}
 
+	private IProfile getSelfProfile() {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		if (agent == null)
+			return null;
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		if (registry == null) {
+			return null;
+		}
+		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
+		return profile;
+	}
 }

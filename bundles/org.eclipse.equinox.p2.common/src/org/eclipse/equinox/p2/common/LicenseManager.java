@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.common;
 
 import java.io.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 
 /**
@@ -22,11 +21,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
  */
 public abstract class LicenseManager {
 
-	public abstract boolean accept(IInstallableUnit iu);
+	public abstract boolean accept(ILicense license);
 
-	public abstract boolean reject(IInstallableUnit iu);
+	public abstract boolean reject(ILicense license);
 
-	public abstract ILicense[] isAccepted(IInstallableUnit iu);
+	public abstract boolean isAccepted(ILicense license);
 
 	public abstract boolean hasAcceptedLicenses();
 
