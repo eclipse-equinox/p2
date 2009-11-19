@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +27,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -466,7 +465,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		public String getName() {
 			if (iu != null) {
-				return IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+				return ui.getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
 			}
 			return pe.getLabel(null);
 		}

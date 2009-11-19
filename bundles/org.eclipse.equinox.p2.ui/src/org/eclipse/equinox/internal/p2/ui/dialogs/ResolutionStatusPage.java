@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -92,7 +91,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	protected String getIUDescription(IInstallableUnit iu) {
 		// Get the iu description in the default locale
-		String description = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
+		String description = getProvisioningUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
 		if (description == null)
 			description = ""; //$NON-NLS-1$
 		return description;

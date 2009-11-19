@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.io.IOException;
 import java.net.URL;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -43,7 +42,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	private ProvisioningSession session;
 	private ProvisioningUI ui;
-	private ScopedPreferenceStore preferenceStore;
+	private TranslationSupport translationSupport;
 
 	public static BundleContext getContext() {
 		return context;
@@ -167,22 +166,9 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		return session;
 	}
 
-	/*
-	 * Overridden to use a profile scoped preference store.
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
-	 */
-	public IPreferenceStore getPreferenceStore() {
-		// Create the preference store lazily.
-		return preferenceStore;
-	}
-
-	public void savePreferences() {
-		if (preferenceStore != null)
-			try {
-				preferenceStore.save();
-			} catch (IOException e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvUIMessages.ProvUIActivator_ErrorSavingPreferences, e), StatusManager.LOG | StatusManager.SHOW);
-			}
+	public TranslationSupport getTranslationSupport() {
+		if (translationSupport == null)
+			translationSupport = new TranslationSupport();
+		return translationSupport;
 	}
 }

@@ -22,8 +22,9 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.common.LicenseManager;
+import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -52,14 +53,37 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private static final String NAME_COLUMN_WIDTH = "NameColumnWidth"; //$NON-NLS-1$
 	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
 
+	class IUWithLicenseParent {
+		IInstallableUnit iu;
+		ILicense license;
+
+		IUWithLicenseParent(ILicense license, IInstallableUnit iu) {
+			this.license = license;
+			this.iu = iu;
+		}
+	}
+
 	class LicenseContentProvider implements ITreeContentProvider {
 		public Object[] getChildren(Object parentElement) {
-			if (licensesToIUs.containsKey(parentElement))
-				return ((ArrayList) licensesToIUs.get(parentElement)).toArray();
+			if (!(parentElement instanceof ILicense))
+				return new Object[0];
+
+			if (licensesToIUs.containsKey(parentElement)) {
+				List iusWithLicense = (List) licensesToIUs.get(parentElement);
+				IInstallableUnit[] ius = (IInstallableUnit[]) iusWithLicense.toArray(new IInstallableUnit[iusWithLicense.size()]);
+				IUWithLicenseParent[] children = new IUWithLicenseParent[ius.length];
+				for (int i = 0; i < ius.length; i++) {
+					children[i] = new IUWithLicenseParent((ILicense) parentElement, ius[i]);
+				}
+				return children;
+			}
 			return null;
 		}
 
 		public Object getParent(Object element) {
+			if (element instanceof IUWithLicenseParent) {
+				return ((IUWithLicenseParent) element).license;
+			}
 			return null;
 		}
 
@@ -88,6 +112,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		public String getText(Object element) {
 			if (element instanceof License) {
 				return getFirstLine(((License) element).getBody());
+			} else if (element instanceof IUWithLicenseParent) {
+				return getIUName(((IUWithLicenseParent) element).iu);
 			} else if (element instanceof IInstallableUnit) {
 				return getIUName((IInstallableUnit) element);
 			}
@@ -115,13 +141,14 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	SashForm sashForm;
 	private IInstallableUnit[] originalIUs;
 	HashMap licensesToIUs; // License -> IU Name
-	private Policy policy;
+	private LicenseManager manager;
+	private TranslationSupport translations;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
 
 	static String getIUName(IInstallableUnit iu) {
 		StringBuffer buf = new StringBuffer();
-		String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String name = ProvisioningUI.getDefaultUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
 		if (name != null)
 			buf.append(name);
 		else
@@ -131,10 +158,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return buf.toString();
 	}
 
-	public AcceptLicensesWizardPage(Policy policy, IInstallableUnit[] ius, ProfileChangeOperation operation) {
+	public AcceptLicensesWizardPage(LicenseManager manager, TranslationSupport translationSupport, IInstallableUnit[] ius, ProfileChangeOperation operation) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
-		this.policy = policy;
+		this.manager = manager;
+		this.translations = translationSupport;
 		update(ius, operation);
 	}
 
@@ -247,9 +275,15 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		createLicenseAcceptSection(composite, licensesToIUs.size() > 1);
 
 		if (singleIU != null) {
-			licenseTextBox.setText(getLicenseBody(singleIU));
-			setControl(composite);
+			String licenseBody = ""; //$NON-NLS-1$
+			// We've already established before calling this method that it's a single IU with a single license
+			ILicense[] licenses = translations.getLicenses(singleIU);
+			if (licenses.length > 0 && licenses[0].getBody() != null) {
+				licenseBody = licenses[0].getBody();
+			}
+			licenseTextBox.setText(licenseBody);
 		}
+		setControl(composite);
 	}
 
 	void handleSelectionChanged(IStructuredSelection selection) {
@@ -257,8 +291,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			Object selected = selection.getFirstElement();
 			if (selected instanceof License)
 				licenseTextBox.setText(((License) selected).getBody());
-			else if (selected instanceof IInstallableUnit)
-				licenseTextBox.setText(getLicenseBody((IInstallableUnit) selected));
+			else if (selected instanceof IUWithLicenseParent)
+				licenseTextBox.setText(((IUWithLicenseParent) selected).license.getBody());
 		}
 	}
 
@@ -311,16 +345,6 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		}
 	}
 
-	private String getLicenseBody(IInstallableUnit iu) {
-		//FIXME
-		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
-		if (licenses.length > 0 && licenses[0].getBody() != null)
-			return licenses[0].getBody();
-		// shouldn't happen because we already reduced the list to those
-		// that have licenses and bodies are required.
-		return ""; //$NON-NLS-1$
-	}
-
 	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, IProvisioningPlan plan) {
 		IInstallableUnit[] iusToCheck = selectedIUs;
 		if (plan != null) {
@@ -343,40 +367,40 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		HashMap namesSeen = new HashMap(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
-			// Have the licenses been already accepted?
-			ILicense[] notAccepted = policy.getLicenseManager().isAccepted(iu);
-			for (int k = 0; k < notAccepted.length; k++) {
-				String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
-				if (name == null)
-					name = iu.getId();
-				// Have we already found this license?  
-				if (licensesToIUs.containsKey(notAccepted[k])) {
-					HashSet names = (HashSet) namesSeen.get(notAccepted[k]);
-					if (!names.contains(name)) {
+			ILicense[] licenses = translations.getLicenses(iu);
+			for (int k = 0; k < licenses.length; k++) {
+				ILicense license = licenses[k];
+				if (manager != null && !manager.isAccepted(license)) {
+					String name = translations.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+					if (name == null)
+						name = iu.getId();
+					// Have we already found this license?  
+					if (licensesToIUs.containsKey(license)) {
+						HashSet names = (HashSet) namesSeen.get(license);
+						if (!names.contains(name)) {
+							names.add(name);
+							((ArrayList) licensesToIUs.get(license)).add(iu);
+						}
+					} else {
+						ArrayList list = new ArrayList(1);
+						list.add(iu);
+						licensesToIUs.put(license, list);
+						HashSet names = new HashSet(1);
 						names.add(name);
-						((ArrayList) licensesToIUs.get(notAccepted[k])).add(iu);
+						namesSeen.put(license, names);
 					}
-				} else {
-					ArrayList list = new ArrayList(1);
-					list.add(iu);
-					licensesToIUs.put(notAccepted[k], list);
-					HashSet names = new HashSet(1);
-					names.add(name);
-					namesSeen.put(notAccepted[k], names);
 				}
 			}
 		}
 	}
 
 	private void rememberAcceptedLicenses() {
-		if (licensesToIUs == null)
+		if (licensesToIUs == null || manager == null)
 			return;
 		Iterator iter = licensesToIUs.keySet().iterator();
 		while (iter.hasNext()) {
 			License license = (License) iter.next();
-			ArrayList iusWithThisLicense = (ArrayList) licensesToIUs.get(license);
-			for (int i = 0; i < iusWithThisLicense.size(); i++)
-				policy.getLicenseManager().accept((IInstallableUnit) iusWithThisLicense.get(i));
+			manager.accept(license);
 		}
 	}
 

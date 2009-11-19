@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -445,11 +444,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		IInstallableUnit[] selected = getSelectedIUs();
 		if (selected.length == 1) {
 			StringBuffer result = new StringBuffer();
-			String description = IUPropertyUtils.getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
+			String description = getProvisioningUI().getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
 			if (description != null) {
 				result.append(description);
 			} else {
-				String name = IUPropertyUtils.getIUProperty(selected[0], IInstallableUnit.PROP_NAME);
+				String name = getProvisioningUI().getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_NAME);
 				if (name != null)
 					result.append(name);
 				else

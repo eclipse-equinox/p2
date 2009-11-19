@@ -22,9 +22,9 @@ import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
-import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.Window;
@@ -167,7 +167,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected LicenseManager getLicenseManager() {
-		return getPolicy().getLicenseManager();
+		return getProvisioningUI().getLicenseManager();
 	}
 
 	protected QueryProvider getQueryProvider() {

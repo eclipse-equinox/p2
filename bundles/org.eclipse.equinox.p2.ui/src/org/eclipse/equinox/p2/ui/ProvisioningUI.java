@@ -19,6 +19,8 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.common.LicenseManager;
+import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -66,12 +68,20 @@ public class ProvisioningUI {
 		return session;
 	}
 
+	public LicenseManager getLicenseManager() {
+		return (LicenseManager) ServiceHelper.getService(ProvUIActivator.getContext(), LicenseManager.class.getName());
+	}
+
 	public RepositoryTracker getRepositoryTracker() {
 		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
 	}
 
 	public String getProfileId() {
 		return profileId;
+	}
+
+	public TranslationSupport getTranslationSupport() {
+		return ProvUIActivator.getDefault().getTranslationSupport();
 	}
 
 	public InstallOperation getInstallOperation(IInstallableUnit[] iusToInstall, URI[] repositories) {

@@ -72,7 +72,6 @@ public class Policy {
 	 */
 	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
-	private LicenseManager licenseManager;
 	private IQuery visibleAvailableIUQuery = new GroupQuery();
 	private IQuery visibleInstalledIUQuery = new UserVisibleRootQuery();
 	private boolean groupByCategory = true;
@@ -82,35 +81,6 @@ public class Policy {
 	private int restartPolicy = RESTART_POLICY_PROMPT_RESTART_OR_APPLY;
 	private String repoPrefPageId;
 	private String repoPrefPageName;
-
-	/**
-	 * Returns the license manager used to remember accepted licenses
-	 * 
-	 * @return the licenseManager
-	 */
-	public LicenseManager getLicenseManager() {
-		if (licenseManager == null) {
-			licenseManager = getDefaultLicenseManager();
-		}
-		return licenseManager;
-	}
-
-	/**
-	 * Set the license manager used to remember accepted licenses.
-	 * 
-	 * @param manager the manager to use, or <code>null</code> to use 
-	 * the default manager
-	 */
-	public void setLicenseManager(LicenseManager manager) {
-		licenseManager = manager;
-	}
-
-	/**
-	 * Reset all of the policies to their default values
-	 */
-	public void reset() {
-		licenseManager = null;
-	}
 
 	/**
 	 * Answer a boolean indicating whether the caller should continue to work with the
@@ -160,13 +130,6 @@ public class Policy {
 		}
 		// Allow the wizard to open otherwise.
 		return true;
-	}
-
-	/*
-	 * Returns the license manager to use if none has been set.
-	 */
-	private LicenseManager getDefaultLicenseManager() {
-		return new SimpleLicenseManager();
 	}
 
 	/**

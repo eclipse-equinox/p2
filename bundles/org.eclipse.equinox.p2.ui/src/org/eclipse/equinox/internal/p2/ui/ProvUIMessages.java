@@ -205,7 +205,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
 	public static String ProvUIActivator_ErrorSavingPreferences;
-	public static String ProvUILicenseManager_ParsingError;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
 	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;
 	public static String OptionalPlatformRestartMessage;

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
-
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,7 +32,7 @@ public class IULicensePropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the license in the default locale
-		ILicense[] licenses = IUPropertyUtils.getLicenses(iu);
+		ILicense[] licenses = ProvisioningUI.getDefaultUI().getTranslationSupport().getLicenses(iu);
 		final ILicense license;
 		//FIXME
 		if (licenses.length > 0 && licenses[0].getBody() != null && licenses[0].getBody().length() > 0) {

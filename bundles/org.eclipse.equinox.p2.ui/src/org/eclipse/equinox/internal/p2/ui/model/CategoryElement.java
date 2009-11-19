@@ -16,8 +16,8 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -95,7 +95,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	}
 
 	private String getMergeKey(IInstallableUnit iu) {
-		String mergeKey = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String mergeKey = ProvisioningUI.getDefaultUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
 		if (mergeKey == null || mergeKey.length() == 0) {
 			mergeKey = iu.getId();
 		}

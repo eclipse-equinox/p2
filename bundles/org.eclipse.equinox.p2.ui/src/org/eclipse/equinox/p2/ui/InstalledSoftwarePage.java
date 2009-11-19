@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.IUPropertyUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
@@ -176,7 +175,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	void updateDetailsArea() {
 		IInstallableUnit[] selected = installedIUGroup.getSelectedIUs();
 		if (selected.length == 1) {
-			String description = IUPropertyUtils.getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
+			String description = ui.getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
 			if (description != null) {
 				detailsArea.setText(description);
 				return;
