@@ -55,7 +55,11 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Return a repository location represented by the supplied string
+	 * Return a repository location represented by the supplied string. The provided
+	 * string should either be an unencoded string representation of a URI, or a
+	 * local file system path. This method is generally suitable for converting a 
+	 * location string entered by an end user into a suitable URI representation.
+	 * 
 	 * @param locationString a text representation of the location
 	 * @return a repository location URI, or <code>null</code> if the
 	 * text could not be interpreted.
@@ -222,7 +226,11 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Report a failure to load the specified repository
+	 * Report a failure to load the specified repository.
+	 * <p>
+	 * This default implementation simply logs the failure. Subclasses may override
+	 * to provide additional error reporting.
+	 * </p>
 	 * @param location the location of the failed repository
 	 * @param status the status of the repository
 	 */
