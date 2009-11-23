@@ -50,7 +50,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
-	HashSet scheduledJobs = new HashSet();
+	private Set scheduledJobs = Collections.synchronizedSet(new HashSet());
 
 	/**
 	 * A constant indicating that there was nothing to size (there
@@ -234,6 +234,13 @@ public class ProvisioningSession {
 		return repo;
 	}
 
+	/**
+	 * Refresh the specified artifact repositories, signalling an operation start event
+	 * before refreshing, and an operation complete event after refreshing.
+	 * 
+	 * @param locations an array of repository locations that should be refreshed
+	 * @param monitor the progress monitor to be used
+	 */
 	public void refreshArtifactRepositories(URI[] locations, IProgressMonitor monitor) {
 		signalOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
@@ -384,6 +391,7 @@ public class ProvisioningSession {
 	 * @param profileId the id of the profile in question
 	 * @return <code>true</code> if there are pending provisioning operations for
 	 * this profile, <code>false</code> if there are not.
+	 * @see #rememberJob(Job)
 	 */
 	public boolean hasScheduledOperationsFor(String profileId) {
 		Job[] jobs = getScheduledJobs();
@@ -398,7 +406,9 @@ public class ProvisioningSession {
 	}
 
 	private Job[] getScheduledJobs() {
-		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
+		synchronized (scheduledJobs) {
+			return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
+		}
 	}
 
 	/**
@@ -407,6 +417,7 @@ public class ProvisioningSession {
 	 * a particular profile.
 	 * 
 	 * @param job the job to be remembered
+	 * @see #hasScheduledOperationsFor(String)
 	 */
 	public void rememberJob(Job job) {
 		scheduledJobs.add(job);
