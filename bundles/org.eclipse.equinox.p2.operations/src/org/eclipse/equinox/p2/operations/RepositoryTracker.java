@@ -26,9 +26,7 @@ import org.eclipse.osgi.util.NLS;
  * reports errors.
  * 
  * @since 2.0
- * 
  */
-
 public abstract class RepositoryTracker {
 
 	// What repositories to show

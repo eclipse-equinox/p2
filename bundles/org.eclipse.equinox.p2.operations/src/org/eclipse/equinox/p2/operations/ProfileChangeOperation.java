@@ -202,7 +202,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * resolving has not occurred yet.
 	 * 
 	 * @return the status of the resolution, or <code>null</code>
-	 * if no attempt has been made to resolve.
+	 * if resolution has not yet occurred.
 	 */
 	public IStatus getResolutionResult() {
 		if (job != null && job.getResolutionResult() != null)
@@ -231,13 +231,13 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	}
 
 	/**
-	 * Return a string that can be used to describe the specific resolution results
-	 * related to the supplied IInstallableUnit.
+	 * Return a string that describes the specific resolution results
+	 * related to the supplied {@link IInstallableUnit}.
 	 * 
 	 * @param iu the IInstallableUnit for which resolution details are requested
 	 * 
-	 * @return a string describing the results for the iu, or <code>null</code> if
-	 * there are no specific results available for the iu.
+	 * @return a string describing the results for the installable unit, or <code>null</code> if
+	 * there are no specific results available for the installable unit.
 	 */
 	public String getResolutionDetails(IInstallableUnit iu) {
 		if (job != null && job.getResolutionResult() != null)

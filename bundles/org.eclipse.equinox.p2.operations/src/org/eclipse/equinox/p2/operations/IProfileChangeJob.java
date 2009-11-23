@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.operations;
  * profile.
  * 
  * @since 2.0
- *
  */
 public interface IProfileChangeJob {
 

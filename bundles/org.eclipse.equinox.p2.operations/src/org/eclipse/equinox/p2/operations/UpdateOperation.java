@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
- * 
- * An UpdateOperation describes an operation that updates IInstallableUnits in
+ * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
  * a profile.
  * 
  * The following snippet shows how one might use an UpdateOperation to check for updates
@@ -34,7 +33,7 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
  * UpdateOperation op = new UpdateOperation(session);
  * IStatus result = op.resolveModal(monitor);
  * if (result.isOK()) {
- *   op.getProvisioningJob(monitor).schedule;
+ *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
  * 
@@ -48,7 +47,7 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
  * UpdateOperation op = new UpdateOperation(session);
  * IStatus result = op.resolveModal(monitor);
  * if (result.isOK()) {
- *   op.getProvisioningJob(monitor).schedule;
+ *   op.getProvisioningJob(monitor).schedule();
  * } else if (result.getSeverity() == IStatus.ERROR) {
  *   Update [] chosenUpdates = letUserPickFrom(op.getPossibleUpdates());
  *   op.setSelectedUpdates(chosenUpdates);
@@ -57,7 +56,6 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
  * </pre>
  * 
  * @since 2.0
- *
  */
 public class UpdateOperation extends ProfileChangeOperation {
 

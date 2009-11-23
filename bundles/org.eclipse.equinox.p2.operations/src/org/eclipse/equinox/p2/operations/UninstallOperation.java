@@ -19,8 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
- * 
- * An UninstallOperation describes an operation that uninstalls IInstallableUnits from
+ * An UninstallOperation describes an operation that uninstalls {@link IInstallableUnit}s from
  * a profile.
  * 
  * The following snippet shows how one might use an UninstallOperation to perform a synchronous resolution and
@@ -30,11 +29,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
  * UninstallOperation op = new UninstallOperation(session, new IInstallableUnit [] { removeThisIU });
  * IStatus result = op.resolveModal(monitor);
  * if (result.isOK()) {
- *   op.getProvisioningJob(monitor).schedule;
+ *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
  * @since 2.0
- *
  */
 public class UninstallOperation extends ProfileChangeOperation {
 
