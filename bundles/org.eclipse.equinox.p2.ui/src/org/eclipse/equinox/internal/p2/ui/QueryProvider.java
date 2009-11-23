@@ -17,8 +17,7 @@ import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -109,7 +108,7 @@ public class QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					IQuery meetsAnyRequirementQuery = new CapabilityQuery(((IIUElement) element).getRequirements());
+					IQuery memberOfCategoryQuery = new CategoryMemberQuery(((IIUElement) element).getIU());
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDown);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
@@ -117,10 +116,10 @@ public class QueryProvider {
 					// be visible in the category.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							meetsAnyRequirementQuery = new PipedQuery(new IQuery[] {meetsAnyRequirementQuery, new LatestIUVersionQuery()});
-						return new ElementQueryDescriptor(queryable, meetsAnyRequirementQuery, new Collector(), availableIUWrapper);
+							memberOfCategoryQuery = new PipedQuery(new IQuery[] {memberOfCategoryQuery, new LatestIUVersionQuery()});
+						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector(), availableIUWrapper);
 					}
-					IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, meetsAnyRequirementQuery}, true);
+					IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, memberOfCategoryQuery}, true);
 					if (showLatest)
 						query = new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()});
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
