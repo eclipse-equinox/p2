@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.osgi.util.NLS;
 
 public class Install extends InstallableUnitPhase {
@@ -67,7 +68,7 @@ public class Install extends InstallableUnitPhase {
 		}
 	}
 
-	private static final String PHASE_ID = "install"; //$NON-NLS-1$
+	private static final String PHASE_ID = IPhaseSet.PHASE_INSTALL;
 
 	public Install(int weight) {
 		super(PHASE_ID, weight);

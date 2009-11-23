@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 public class PlanExecutionHelper {
 	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {
@@ -30,7 +31,7 @@ public class PlanExecutionHelper {
 			return result.getStatus();
 
 		if (result.getInstallerPlan() != null) {
-			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan().getProfile(), phaseSet, result.getInstallerPlan().getOperands(), context, progress);
+			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan(), phaseSet, progress);
 			if (!installerPlanStatus.isOK())
 				return installerPlanStatus;
 			Configurator configChanger = (Configurator) ServiceHelper.getService(DirectorActivator.context, Configurator.class.getName());
@@ -40,6 +41,6 @@ public class PlanExecutionHelper {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_error_applying_configuration, e);
 			}
 		}
-		return engine.perform(result.getProfile(), phaseSet, result.getOperands(), context, progress);
+		return engine.perform(result, phaseSet, progress);
 	}
 }

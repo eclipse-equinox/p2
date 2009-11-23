@@ -8,18 +8,18 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AddIUProperty extends AbstractProvisioningTest {
@@ -65,7 +65,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
 		Collector allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
 		assertEquals(allProfileIUs.size(), 1);
@@ -84,7 +84,8 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);
 
-		engine.perform(profile, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
+		profile = getProfile(profile.getProfileId());
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
 		assertEquals(allProfileIUs.size(), 1);
@@ -97,7 +98,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		req3.removeInstallableUnitInclusionRules(a1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile, new DefaultPhaseSet(), plan3.getOperands(), null, null);
+		engine.perform(plan3, null);
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
 		assertEquals(allProfileIUs.size(), 1);

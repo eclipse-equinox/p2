@@ -34,6 +34,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -271,7 +272,6 @@ public class ProvisioningSession {
 	 * Get sizing information about the specified plan.
 	 * 
 	 * @param plan the provisioning plan
-	 * @param profileId the profile id to which the plan is applied
 	 * @param context the provisioning context to be used for the sizing
 	 * @param monitor the progress monitor
 	 * 
@@ -281,7 +281,7 @@ public class ProvisioningSession {
 	 * @see #SIZE_UNAVAILABLE
 	 * @see #SIZE_NOTAPPLICABLE
 	 */
-	public long getSize(IProvisioningPlan plan, String profileId, ProvisioningContext context, IProgressMonitor monitor) {
+	public long getSize(IProvisioningPlan plan, ProvisioningContext context, IProgressMonitor monitor) {
 		// If there is nothing to size, return 0
 		if (plan == null)
 			return SIZE_NOTAPPLICABLE;
@@ -291,14 +291,14 @@ public class ProvisioningSession {
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
 		if (plan.getInstallerPlan() != null) {
 			SizingPhaseSet set = new SizingPhaseSet();
-			IStatus status = getEngine().perform(getProfile(profileId), set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			IStatus status = getEngine().perform(plan.getInstallerPlan(), set, mon.newChild(100));
 			if (status.isOK())
 				installPlanSize = set.getSizing().getDiskSize();
 		} else {
 			mon.worked(100);
 		}
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), context, mon.newChild(200));
+		IStatus status = getEngine().perform(plan, set, mon.newChild(200));
 		if (status.isOK())
 			return installPlanSize + set.getSizing().getDiskSize();
 		return SIZE_UNAVAILABLE;
@@ -337,8 +337,10 @@ public class ProvisioningSession {
 				List allOperands = new ArrayList();
 				allOperands.addAll(Arrays.asList(plan.getOperands()));
 				allOperands.addAll(Arrays.asList(plan.getInstallerPlan().getOperands()));
+				Operand[] downloadOperands = (Operand[]) allOperands.toArray(new Operand[allOperands.size()]);
 				PhaseSet download = new DownloadPhaseSet();
-				IStatus downloadStatus = getEngine().perform(profile, download, (Operand[]) allOperands.toArray(new Operand[allOperands.size()]), context, mon.newChild(300));
+				IProvisioningPlan downloadPlan = getEngine().createCustomPlan(profile, downloadOperands, context);
+				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));
 				if (!downloadStatus.isOK()) {
 					mon.done();
 					return downloadStatus;
@@ -346,7 +348,7 @@ public class ProvisioningSession {
 				ticksUsed = 300;
 			}
 			// we pre-downloaded if necessary.  Now perform the plan against the original phase set.
-			IStatus installerPlanStatus = getEngine().perform(profile, set, plan.getInstallerPlan().getOperands(), context, mon.newChild(100));
+			IStatus installerPlanStatus = getEngine().perform(plan.getInstallerPlan(), set, mon.newChild(100));
 			if (!installerPlanStatus.isOK()) {
 				mon.done();
 				return installerPlanStatus;
@@ -361,7 +363,7 @@ public class ProvisioningSession {
 				return new Status(IStatus.ERROR, Activator.ID, Messages.ProvisioningSession_InstallPlanConfigurationError, e);
 			}
 		}
-		return getEngine().perform(profile, set, plan.getOperands(), context, mon.newChild(500 - ticksUsed));
+		return getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));
 	}
 
 	/**

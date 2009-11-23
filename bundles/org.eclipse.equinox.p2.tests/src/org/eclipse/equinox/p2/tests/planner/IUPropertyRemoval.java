@@ -8,15 +8,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class IUPropertyRemoval extends AbstractProvisioningTest {
@@ -49,7 +50,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		req1.setInstallableUnitProfileProperty(b1, "FOO", "BAR");
 		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
-		engine.perform(profile, new DefaultPhaseSet(), pp1.getOperands(), null, null);
+		engine.perform(pp1, null);
 		Collector res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), new Collector(), null);
 		assertEquals(2, res.size());
 
@@ -57,7 +58,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");
 		IProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(1, pp2.getOperands().length);
-		engine.perform(getProfile(profileId), new DefaultPhaseSet(), pp2.getOperands(), null, null);
+		engine.perform(pp2, null);
 		Collector res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), new Collector(), null);
 		assertEquals(1, res2.size());
 	}

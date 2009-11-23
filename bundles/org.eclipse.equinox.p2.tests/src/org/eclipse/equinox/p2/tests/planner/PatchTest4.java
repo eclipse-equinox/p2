@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTest4 extends AbstractProvisioningTest {
@@ -67,7 +68,7 @@ public class PatchTest4 extends AbstractProvisioningTest {
 		assertInstallOperand(plan1, b1);
 		assertInstallOperand(plan1, a1);
 		assertInstallOperand(plan1, f1);
-		engine.perform(profile1, new DefaultPhaseSet(), plan1.getOperands(), null, null);
+		engine.perform(plan1, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
 		assertProfileContainsAll("B1 is missing", profile1, new IInstallableUnit[] {b1});
 		assertProfileContainsAll("C1 is missing", profile1, new IInstallableUnit[] {c1});
@@ -81,7 +82,7 @@ public class PatchTest4 extends AbstractProvisioningTest {
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, b2);
 		assertInstallOperand(plan2, d2);
-		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
 		assertProfileContainsAll("B2 is missing", profile1, new IInstallableUnit[] {b2});
 		assertProfileContainsAll("P1 is missing", profile1, new IInstallableUnit[] {p1});
@@ -100,7 +101,7 @@ public class PatchTest4 extends AbstractProvisioningTest {
 		assertInstallOperand(plan1, b1);
 		assertInstallOperand(plan1, a1);
 		assertInstallOperand(plan1, f1);
-		engine.perform(profile1, new DefaultPhaseSet(), plan1.getOperands(), null, null);
+		engine.perform(plan1, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
 		assertProfileContainsAll("B1 is missing", profile1, new IInstallableUnit[] {b1});
 		assertProfileContainsAll("C1 is missing", profile1, new IInstallableUnit[] {c1});
@@ -114,7 +115,7 @@ public class PatchTest4 extends AbstractProvisioningTest {
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, b2);
 		assertInstallOperand(plan2, d2);
-		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
 		assertProfileContainsAll("A1 is missing", profile1, new IInstallableUnit[] {a1});
 		assertProfileContainsAll("B2 is missing", profile1, new IInstallableUnit[] {b2});
 		assertProfileContainsAll("P1 is missing", profile1, new IInstallableUnit[] {p1});

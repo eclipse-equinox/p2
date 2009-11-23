@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -947,7 +949,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		return engine.perform(plan, null);
 	}
 
 	protected IStatus uninstall(IProfile profile, IInstallableUnit[] ius, IPlanner planner, IEngine engine) {
@@ -955,7 +957,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		req.removeInstallableUnits(ius);
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		return engine.perform(plan, null);
 	}
 
 	protected static void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 import java.net.URI;

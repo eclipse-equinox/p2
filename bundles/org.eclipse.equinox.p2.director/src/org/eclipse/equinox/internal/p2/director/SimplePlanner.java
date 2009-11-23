@@ -44,7 +44,7 @@ public class SimplePlanner implements IPlanner {
 	private final IMetadataRepositoryManager repoManager;
 	private final IProfileRegistry profileRegistry;
 
-	private ProvisioningPlan generateProvisioningPlan(Collection fromState, Collection toState, ProfileChangeRequest changeRequest, IProvisioningPlan installerPlan) {
+	private ProvisioningPlan generateProvisioningPlan(Collection fromState, Collection toState, ProfileChangeRequest changeRequest, IProvisioningPlan installerPlan, ProvisioningContext context) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
 		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
 
@@ -57,7 +57,7 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, changeRequest), null, installerPlan, changeRequest.getProfile(), new QueryableArray((IInstallableUnit[]) toState.toArray(new IInstallableUnit[toState.size()])));
+		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, changeRequest), null, installerPlan, changeRequest.getProfile(), new QueryableArray((IInstallableUnit[]) toState.toArray(new IInstallableUnit[toState.size()])), context);
 	}
 
 	private Map[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
@@ -313,21 +313,21 @@ public class SimplePlanner implements IPlanner {
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null)
-				return new ProvisioningPlan(slicer.getStatus(), profile, null);
+				return new ProvisioningPlan(slicer.getStatus(), profile, null, context);
 			Projector projector = new Projector(slice, newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
-				return new ProvisioningPlan(s, profile, null);
+				return new ProvisioningPlan(s, profile, null, context);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
-					return new ProvisioningPlan(s, profile, null);
+					return new ProvisioningPlan(s, profile, null, context);
 
 				//Extract the explanation
 				Set explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
 				IStatus explanationStatus = convertExplanationToStatus(explanation);
-				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profile, null);
+				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profile, null, context);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
@@ -354,12 +354,12 @@ public class SimplePlanner implements IPlanner {
 			fullState.addAll(newState);
 			newState = AttachmentHelper.attachFragments(newState, ((Projector) resolutionResult).getFragmentAssociation());
 
-			ProvisioningPlan temporaryPlan = generatePlan((Projector) resolutionResult, newState, profileChangeRequest);
+			ProvisioningPlan temporaryPlan = generatePlan((Projector) resolutionResult, newState, profileChangeRequest, context);
 
 			//Create a plan for installing necessary pieces to complete the installation (e.g touchpoint actions)
 			return createInstallerPlan(profileChangeRequest.getProfile(), profileChangeRequest, fullState, newState, temporaryPlan, context, sub.newChild(ExpandWork / 2));
 		} catch (OperationCanceledException e) {
-			return new ProvisioningPlan(Status.CANCEL_STATUS, profileChangeRequest.getProfile(), null);
+			return new ProvisioningPlan(Status.CANCEL_STATUS, profileChangeRequest.getProfile(), null, context);
 		} finally {
 			sub.done();
 		}
@@ -403,7 +403,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			sub.setTaskName(Messages.Director_Task_installer_plan);
 			if (profileRegistry == null)
-				return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry), profile, null);
+				return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry), profile, null, initialContext);
 
 			IProfile agentProfile = profileRegistry.getProfile(IProfileRegistry.SELF);
 			if (agentProfile == null)
@@ -411,7 +411,7 @@ public class SimplePlanner implements IPlanner {
 
 			if (profile.getProfileId().equals(agentProfile.getProfileId())) {
 				if (profile.getTimestamp() != agentProfile.getTimestamp())
-					return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())), profile, null);
+					return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())), profile, null, initialContext);
 				return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState, expectedState, initialContext, sub);
 			}
 
@@ -425,7 +425,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private ProvisioningPlan createInstallerPlanForCohostedCaseFromExternalInstaller(IProfile profile, ProfileChangeRequest initialRequest, IProvisioningPlan initialPlan, Collection newState, ProvisioningContext initialContext, IProfile agentProfile, SubMonitor sub) {
-		ProvisioningPlan planForProfile = generatePlan(null, newState, initialRequest);
+		ProvisioningPlan planForProfile = generatePlan(null, newState, initialRequest, initialContext);
 		return createInstallerPlanForExternalInstaller(profile, initialRequest, planForProfile, newState, initialContext, agentProfile, sub);
 	}
 
@@ -446,10 +446,10 @@ public class SimplePlanner implements IPlanner {
 		if (externalInstallerPlan instanceof IProvisioningPlan && ((IProvisioningPlan) externalInstallerPlan).getStatus().getSeverity() == IStatus.ERROR) {
 			MultiStatus externalInstallerStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_can_not_install_preq, null);
 			externalInstallerStatus.add(((IProvisioningPlan) externalInstallerPlan).getStatus());
-			return new ProvisioningPlan(externalInstallerStatus, initialRequest.getProfile(), new ProvisioningPlan(externalInstallerStatus, agentProfile, null));
+			return new ProvisioningPlan(externalInstallerStatus, initialRequest.getProfile(), new ProvisioningPlan(externalInstallerStatus, agentProfile, null, initialContext), initialContext);
 		}
 
-		initialPlan.setInstallerPlan(generatePlan((Projector) externalInstallerPlan, null, agentRequest));
+		initialPlan.setInstallerPlan(generatePlan((Projector) externalInstallerPlan, null, agentRequest, initialContext));
 		return initialPlan;
 	}
 
@@ -494,7 +494,7 @@ public class SimplePlanner implements IPlanner {
 		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
 			MultiStatus agentStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_actions_and_software_incompatible, null);
 			agentStatus.add(((IProvisioningPlan) agentSolution).getStatus());
-			return new ProvisioningPlan(agentStatus, initialRequest.getProfile(), new ProvisioningPlan(agentStatus, agentRequest.getProfile(), null));
+			return new ProvisioningPlan(agentStatus, initialRequest.getProfile(), new ProvisioningPlan(agentStatus, agentRequest.getProfile(), null, initialContext), initialContext);
 		}
 
 		//Compute the installer plan. It is the difference between what is currently in the profile and the solution we just computed
@@ -512,14 +512,14 @@ public class SimplePlanner implements IPlanner {
 		Collection initialState = initialRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
-		IProvisioningPlan agentPlan = generateProvisioningPlan(initialState, agentState, initialRequest, null);
+		IProvisioningPlan agentPlan = generateProvisioningPlan(initialState, agentState, initialRequest, null, initialContext);
 
 		//Compute the installation plan. It is the difference between the state after the installer plan has run and the expectedState.
-		return generateProvisioningPlan(agentState, expectedState, initialRequest, agentPlan);
+		return generateProvisioningPlan(agentState, expectedState, initialRequest, agentPlan, initialContext);
 	}
 
 	//Compute the set of operands based on the solution obtained previously
-	private ProvisioningPlan generatePlan(Projector newSolution, Collection newState, ProfileChangeRequest request) {
+	private ProvisioningPlan generatePlan(Projector newSolution, Collection newState, ProfileChangeRequest request, ProvisioningContext context) {
 		//Compute the attachment of the new state if not provided
 		if (newState == null) {
 			newState = newSolution.extractSolution();
@@ -537,7 +537,7 @@ public class SimplePlanner implements IPlanner {
 		initialState = AttachmentHelper.attachFragments(initialState, ((Projector) initialSolution).getFragmentAssociation());
 
 		//Generate the plan
-		return generateProvisioningPlan(initialState, newState, request, null);
+		return generateProvisioningPlan(initialState, newState, request, null, context);
 	}
 
 	private ProvisioningContext createNoRepoContext(ProfileChangeRequest request) {

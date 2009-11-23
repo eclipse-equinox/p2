@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 public class BeginOperationEvent extends TransactionEvent {
 
 	private static final long serialVersionUID = 6389318375739324865L;

@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 //Failing to install something optionally should indicate the failure in the request status for the IU being installed.
@@ -45,7 +46,7 @@ public class Bug252638 extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1});
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		engine.perform(profile1, new DefaultPhaseSet(), plan1.getOperands(), null, null);
+		engine.perform(plan1, null);
 		assertProfileContainsAll("1.0", profile1, new IInstallableUnit[] {a1});
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 

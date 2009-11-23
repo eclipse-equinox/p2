@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug255984 extends AbstractProvisioningTest {
@@ -52,7 +52,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
 		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
@@ -63,7 +63,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		req2.setInstallableUnitProfileProperty(a, "foo", "bar");
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
@@ -73,7 +73,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		req3.removeInstallableUnitProfileProperty(b, "foo");
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan3.getOperands(), null, null);
+		engine.perform(plan3, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(1, profile1.query(new IUProfilePropertyQuery("foo", "bar"), new Collector(), new NullProgressMonitor()).size());
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());

@@ -29,7 +29,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProvisioningPlan plan = null;
 		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
-		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
+		size = getSession().getSize(plan, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 
@@ -45,7 +45,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProvisioningPlan plan = null;
 		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
-		size = getSession().getSize(plan, profileId, new ProvisioningContext(), getMonitor());
+		size = getSession().getSize(plan, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.io.File;
 import java.net.*;
 import java.util.*;
@@ -190,14 +192,12 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Iterator iterator = profile.query(new InstallableUnitQuery(iu.getId()), new Collector(), null).iterator();
 		assertFalse(iterator.hasNext());
 
-		PhaseSet phaseSet = new DefaultPhaseSet();
-
 		InstallableUnitOperand op = new InstallableUnitOperand(null, iu);
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 		ServiceReference engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) TestActivator.getContext().getService(engineRef);
 
-		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
 		engine = null;
 		TestActivator.getContext().ungetService(engineRef);
@@ -233,7 +233,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue("1.0", plan.getStatus().isOK());
-		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), getMonitor());
+		IStatus result = createEngine().perform(plan, getMonitor());
 		assertFalse("2.0", result.isOK());
 	}
 

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;

@@ -308,7 +308,8 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Set the provisioning context that should be used to resolve and perform the provisioning for
-	 * the operation.  This must be set before an attempt is made to resolve the operation.
+	 * the operation.  This must be set before an attempt is made to resolve the operation
+	 * for it to have any effect.
 	 * 
 	 * @param context the provisioning context.
 	 */

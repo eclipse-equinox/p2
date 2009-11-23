@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -141,7 +143,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);
 	}
@@ -151,7 +154,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializePhase);
 		assertEquals(1, testTouchpoint.completePhase);
 	}

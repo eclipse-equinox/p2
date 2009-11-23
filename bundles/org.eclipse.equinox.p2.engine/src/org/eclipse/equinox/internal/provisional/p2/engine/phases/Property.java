@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 
 public class Property extends Phase {
 
@@ -133,7 +134,7 @@ public class Property extends Phase {
 		}
 	}
 
-	private static final String PHASE_ID = "property"; //$NON-NLS-1$
+	private static final String PHASE_ID = IPhaseSet.PHASE_PROPERTY;
 
 	public Property(int weight) {
 		super(PHASE_ID, weight);

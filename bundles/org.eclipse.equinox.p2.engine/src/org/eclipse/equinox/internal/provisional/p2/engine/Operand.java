@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
+
 /**
  * The common base class for engine operands.
  * 
- * @see IEngine#perform(IProfile, PhaseSet, Operand[], ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)
+ * @see IEngine#createCustomPlan(IProfile, Operand[], ProvisioningContext)
  */
 public class Operand {
 	// marker class

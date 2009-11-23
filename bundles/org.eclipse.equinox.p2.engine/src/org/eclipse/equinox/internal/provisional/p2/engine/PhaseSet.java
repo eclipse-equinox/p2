@@ -15,9 +15,10 @@ import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.osgi.util.NLS;
 
-public abstract class PhaseSet {
+public abstract class PhaseSet implements IPhaseSet {
 	private final Phase[] phases;
 
 	public PhaseSet(Phase[] phases) {
@@ -143,6 +144,14 @@ public abstract class PhaseSet {
 				count++;
 		}
 		return count;
+	}
+
+	public String[] getPhaseIds() {
+		String[] ids = new String[phases.length];
+		for (int i = 0; i < ids.length; i++) {
+			ids[i] = phases[i].phaseId;
+		}
+		return ids;
 	}
 
 	public Phase[] getPhases() {

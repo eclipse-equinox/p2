@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.util.EventObject;
 
 public abstract class TransactionEvent extends EventObject {

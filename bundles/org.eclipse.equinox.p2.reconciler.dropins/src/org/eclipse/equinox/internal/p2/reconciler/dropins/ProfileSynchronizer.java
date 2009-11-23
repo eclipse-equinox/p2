@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import java.io.*;
 import java.net.URI;
@@ -31,7 +31,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.BundleContext;
@@ -446,8 +448,9 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
-			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
-			return engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
+			IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
+			IProvisioningPlan plan = engine.createCustomPlan(profile, operands, provisioningContext);
+			return engine.perform(plan, phaseSet, monitor);
 		} finally {
 			context.ungetService(reference);
 		}
@@ -458,16 +461,16 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
-			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_COLLECT | DefaultPhaseSet.PHASE_CHECK_TRUST);
+			IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
 
 			if (plan.getInstallerPlan() != null) {
-				IStatus installerPlanStatus = engine.perform(profile, phaseSet, plan.getInstallerPlan().getOperands(), provisioningContext, monitor);
+				IStatus installerPlanStatus = engine.perform(plan.getInstallerPlan(), phaseSet, monitor);
 				if (!installerPlanStatus.isOK())
 					return installerPlanStatus;
 
 				applyConfiguration(true);
 			}
-			return engine.perform(profile, phaseSet, plan.getOperands(), provisioningContext, monitor);
+			return engine.perform(plan, phaseSet, monitor);
 		} finally {
 			context.ungetService(reference);
 		}

@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 
 public class Uninstall extends InstallableUnitPhase {
 
@@ -64,10 +65,8 @@ public class Uninstall extends InstallableUnitPhase {
 		}
 	}
 
-	private static final String PHASE_ID = "uninstall"; //$NON-NLS-1$
-
 	public Uninstall(int weight, boolean forced) {
-		super(PHASE_ID, weight, forced);
+		super(IPhaseSet.PHASE_UNINSTALL, weight, forced);
 	}
 
 	public Uninstall(int weight) {

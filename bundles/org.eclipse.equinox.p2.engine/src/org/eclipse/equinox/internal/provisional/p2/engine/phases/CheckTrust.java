@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts
@@ -23,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
  */
 public class CheckTrust extends InstallableUnitPhase {
 
-	private static final String PHASE_ID = "checkTrust"; //$NON-NLS-1$
+	private static final String PHASE_ID = IPhaseSet.PHASE_CHECK_TRUST;
 	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 
 	public CheckTrust(int weight) {

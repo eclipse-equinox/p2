@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
@@ -55,7 +56,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
@@ -73,7 +74,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		assertNotNull(m.get(a));
 		assertEquals(IStatus.INFO, ((RequestStatus) m.get(a)).getSeverity());
 		assertEquals(RequestStatus.REMOVED, ((RequestStatus) m.get(a)).getInitialRequestType());
-		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {b2});
 		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 

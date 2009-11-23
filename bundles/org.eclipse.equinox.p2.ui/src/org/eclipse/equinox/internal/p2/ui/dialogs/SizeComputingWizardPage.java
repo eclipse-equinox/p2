@@ -41,13 +41,13 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
 		if (initialResolution != null && initialResolution.hasResolved())
-			computeSizing(initialResolution.getProvisioningPlan(), getProfileId(), initialResolution.getProvisioningContext());
+			computeSizing(initialResolution.getProvisioningPlan(), initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
 			size = ProvisioningSession.SIZE_NOTAPPLICABLE;
 	}
 
-	protected void computeSizing(final IProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
+	protected void computeSizing(final IProvisioningPlan plan, final ProvisioningContext provisioningContext) {
 		if (plan == lastComputedPlan)
 			return;
 		lastComputedPlan = plan;
@@ -57,7 +57,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			protected IStatus run(IProgressMonitor monitor) {
-				size = getProvisioningUI().getSession().getSize(plan, id, provisioningContext, monitor);
+				size = getProvisioningUI().getSession().getSize(plan, provisioningContext, monitor);
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				if (display != null) {
@@ -120,7 +120,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	public void updateStatus(IUElementListRoot root, ProfileChangeOperation op) {
 		super.updateStatus(root, op);
 		if (op != null && op.getProvisioningPlan() != null)
-			computeSizing(op.getProvisioningPlan(), getProfileId(), op.getProvisioningContext());
+			computeSizing(op.getProvisioningPlan(), op.getProvisioningContext());
 	}
 
 	protected IQueryable getQueryable(IProvisioningPlan plan) {

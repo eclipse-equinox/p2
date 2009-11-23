@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 import java.io.*;

@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ActualChangeRequestTest extends AbstractProvisioningTest {
@@ -51,7 +52,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
 		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 
@@ -66,7 +67,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		Map m = plan2.getSideEffectChanges();
 		m.toString();
 		assertEquals(IStatus.OK, plan2.getRequestStatus(a).getSeverity());
-		engine.perform(profile1, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
 

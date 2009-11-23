@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.io.*;
 import java.net.URI;
 import org.eclipse.core.runtime.*;

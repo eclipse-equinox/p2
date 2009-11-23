@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 import org.eclipse.core.runtime.*;

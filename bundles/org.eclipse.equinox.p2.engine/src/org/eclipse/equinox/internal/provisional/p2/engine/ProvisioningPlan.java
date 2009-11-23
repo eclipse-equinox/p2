@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
@@ -31,12 +30,17 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	IStatus globalRequestStatus;
 	IProfile profile;
 	IQueryable completeState;
+	private final ProvisioningContext context;
 
-	public ProvisioningPlan(IStatus status, IProfile profile, IProvisioningPlan installerPlan) {
-		this(status, new Operand[0], null, null, installerPlan, profile, null);
+	public ProvisioningPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {
+		this(Status.OK_STATUS, operands, null, Status.OK_STATUS, null, profile, null, context);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, IStatus globalStatus, IProvisioningPlan installerPlan, IProfile profile, IQueryable futureState) {
+	public ProvisioningPlan(IStatus status, IProfile profile, IProvisioningPlan installerPlan, ProvisioningContext context) {
+		this(status, new Operand[0], null, null, installerPlan, profile, null, null);
+	}
+
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, IStatus globalStatus, IProvisioningPlan installerPlan, IProfile profile, IQueryable futureState, ProvisioningContext context) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
@@ -54,6 +58,9 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			};
 		}
 		completeState = futureState;
+		if (context == null)
+			context = new ProvisioningContext();
+		this.context = context;
 	}
 
 	/* (non-Javadoc)
@@ -141,6 +148,10 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	 */
 	public IProvisioningPlan getInstallerPlan() {
 		return installerPlan;
+	}
+
+	public ProvisioningContext getContext() {
+		return context;
 	}
 
 	public void setInstallerPlan(IProvisioningPlan p) {

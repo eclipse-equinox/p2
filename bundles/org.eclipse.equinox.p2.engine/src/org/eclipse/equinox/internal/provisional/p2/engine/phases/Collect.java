@@ -20,12 +20,13 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
  */
 public class Collect extends InstallableUnitPhase {
-	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
+	private static final String PHASE_ID = IPhaseSet.PHASE_COLLECT;
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 
 	public Collect(int weight) {

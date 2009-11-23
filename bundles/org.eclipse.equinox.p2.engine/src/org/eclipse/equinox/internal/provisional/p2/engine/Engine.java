@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 /**
  * TODO Move concrete class to non-API package
@@ -40,7 +44,16 @@ public class Engine implements IEngine {
 			throw new IllegalArgumentException(Messages.null_operands);
 	}
 
-	public IStatus perform(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	public IStatus perform(IProvisioningPlan plan, IPhaseSet phaseSet, IProgressMonitor monitor) {
+		return perform(plan.getProfile(), phaseSet, plan.getOperands(), plan.getContext(), monitor);
+	}
+
+	public IStatus perform(IProvisioningPlan plan, IProgressMonitor monitor) {
+		return perform(plan.getProfile(), new DefaultPhaseSet(), plan.getOperands(), plan.getContext(), monitor);
+	}
+
+	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		PhaseSet phaseSet = (PhaseSet) phases;
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
@@ -104,5 +117,17 @@ public class Engine implements IEngine {
 
 		ActionManager actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
+	}
+
+	public IPhaseSet createPhaseSetExcluding(String[] excludes) {
+		return null;
+	}
+
+	public IPhaseSet createPhaseSetIncluding(String[] includes) {
+		return null;
+	}
+
+	public IProvisioningPlan createCustomPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {
+		return new ProvisioningPlan(profile, operands, context);
 	}
 }

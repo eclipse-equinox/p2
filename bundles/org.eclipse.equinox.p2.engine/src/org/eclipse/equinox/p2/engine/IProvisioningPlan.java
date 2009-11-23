@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
@@ -34,6 +33,13 @@ public interface IProvisioningPlan {
 	 * @return The proposed profile additions
 	 */
 	public abstract IQueryable getAdditions();
+
+	/**
+	 * Returns the provisioning context in which this plan was created.
+	 * 
+	 * @return The plan's provisioning context
+	 */
+	public ProvisioningContext getContext();
 
 	/**
 	 * Returns a plan describing the proposed set of changes to the provisioning infrastructure

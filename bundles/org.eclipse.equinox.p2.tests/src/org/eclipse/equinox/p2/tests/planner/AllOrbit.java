@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 import java.util.ArrayList;

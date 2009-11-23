@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -44,19 +46,23 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveUnresolvedIU() {
-		assertEquals(IStatus.OK, engine.perform(profile, new DefaultPhaseSet(), new Operand[] {new InstallableUnitOperand(null, a1), new InstallableUnitPropertyOperand(a1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")}, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
+		final Operand[] operands = new Operand[] {new InstallableUnitOperand(null, a1), new InstallableUnitPropertyOperand(a1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")};
+		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		assertEquals(IStatus.OK, engine.perform(engine.createCustomPlan(profile, operands, context), new NullProgressMonitor()).getSeverity());
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan, engine, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
+		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan, engine, context, new NullProgressMonitor()).getSeverity());
 		assertFalse(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
 	}
 
 	public void testAvailableVsQueryInProfile() {
-		assertEquals(IStatus.OK, engine.perform(profile, new DefaultPhaseSet(), new Operand[] {new InstallableUnitOperand(null, c1), new InstallableUnitPropertyOperand(c1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")}, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
+		final Operand[] operands = new Operand[] {new InstallableUnitOperand(null, c1), new InstallableUnitPropertyOperand(c1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")};
+		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		assertEquals(IStatus.OK, engine.perform(engine.createCustomPlan(profile, operands, context), new NullProgressMonitor()).getSeverity());
 		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(c1));
 
 		IProfile availableWrapper = new IProfile() {

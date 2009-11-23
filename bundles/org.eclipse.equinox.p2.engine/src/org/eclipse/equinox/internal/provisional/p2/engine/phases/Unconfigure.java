@@ -15,11 +15,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 
 public class Unconfigure extends InstallableUnitPhase {
 
 	public Unconfigure(int weight, boolean forced) {
-		super("unconfigure", weight, forced); //$NON-NLS-1$
+		super(IPhaseSet.PHASE_UNCONFIGURE, weight, forced);
 	}
 
 	public Unconfigure(int weight) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.osgi.util.NLS;
 
 public class Configure extends InstallableUnitPhase {
 
 	public Configure(int weight) {
-		super("configure", weight); //$NON-NLS-1$
+		super(IPhaseSet.PHASE_CONFIGURE, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

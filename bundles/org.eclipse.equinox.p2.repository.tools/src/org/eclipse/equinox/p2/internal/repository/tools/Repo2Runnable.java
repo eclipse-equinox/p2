@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -27,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 /**
  * The transformer takes an existing p2 repository (local or remote), iterates over 
@@ -129,8 +132,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
 
-			IStatus result = engine.perform(profile, getPhaseSet(), operands, context, progress.newChild(1));
-			engine.perform(profile, getNativePhase(), operands, context, progress.newChild(1));
+			IProvisioningPlan plan = engine.createCustomPlan(profile, operands, context);
+			IStatus result = engine.perform(plan, getPhaseSet(), progress.newChild(1));
+			engine.perform(plan, getNativePhase(), progress.newChild(1));
 
 			// publish the metadata to a destination - if requested
 			publishMetadata(progress.newChild(1));

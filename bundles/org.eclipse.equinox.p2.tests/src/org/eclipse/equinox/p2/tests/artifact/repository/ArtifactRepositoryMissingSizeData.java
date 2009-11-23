@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -26,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -62,7 +64,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		Sizing sizing = new Sizing(100, "");
 		PhaseSet set = new SPhaseSet(sizing);
 
-		IStatus status = engine.perform(profile1, set, plan.getOperands(), null, new NullProgressMonitor());
+		IStatus status = engine.perform(plan, set, new NullProgressMonitor());
 		if (!status.matches(IStatus.ERROR)) {
 			fail("Incorrect status for missing artifact during Sizing.");
 		}
@@ -80,7 +82,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		Sizing sizing = new Sizing(100, "");
 		PhaseSet set = new SPhaseSet(sizing);
 
-		IStatus status = engine.perform(profile1, set, plan.getOperands(), null, new NullProgressMonitor());
+		IStatus status = engine.perform(plan, set, new NullProgressMonitor());
 		if (!status.matches(IStatus.WARNING) && status.getCode() != ProvisionException.ARTIFACT_INCOMPLETE_SIZING) {
 			fail("Incorrect status for missing file size during Sizing");
 		}

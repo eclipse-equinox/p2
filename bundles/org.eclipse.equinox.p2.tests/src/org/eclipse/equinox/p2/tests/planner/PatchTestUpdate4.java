@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTestUpdate4 extends AbstractProvisioningTest {
@@ -73,7 +74,7 @@ public class PatchTestUpdate4 extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(true, IStatus.ERROR != plan.getStatus().getSeverity());
 
-		engine.perform(profile1, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContains("The profile contains unexpected IUs", profile1, new IInstallableUnit[] {p2Feature20, p1b, p2, pp1});
 	}
 }

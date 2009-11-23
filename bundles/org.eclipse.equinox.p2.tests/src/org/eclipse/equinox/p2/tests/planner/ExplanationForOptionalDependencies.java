@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -38,7 +38,7 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {sdk});
-		engine.perform(profile, new DefaultPhaseSet(), planner.getProvisioningPlan(pcr, null, null).getOperands(), null, null);
+		engine.perform(planner.getProvisioningPlan(pcr, null, null), null);
 
 	}
 

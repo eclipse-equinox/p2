@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.engine.IEngine;
+
 import java.util.HashMap;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
@@ -60,7 +62,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		req1.setInstallableUnitProfileProperty(p1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
-		assertOK("1.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan1.getOperands(), null, new NullProgressMonitor()));
+		assertOK("1.1", engine.perform(plan1, new NullProgressMonitor()));
 		assertProfileContains("1.2", profile1, new IInstallableUnit[] {a1, p1, b1});
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
@@ -68,7 +70,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		req2.removeInstallableUnits(new IInstallableUnit[] {p1});
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, new NullProgressMonitor());
 		assertOK("2.0", plan2.getStatus());
-		assertOK("2.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan2.getOperands(), null, new NullProgressMonitor()));
+		assertOK("2.1", engine.perform(plan2, new NullProgressMonitor()));
 		assertProfileContains("2.2", profile1, new IInstallableUnit[] {a1, p2, b2});
 		assertTrue(UserVisibleRootQuery.isUserVisible(p2, profile1));
 
@@ -77,7 +79,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		req3.removeInstallableUnits(new IInstallableUnit[] {p2});
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, new NullProgressMonitor());
 		assertOK("3.0", plan3.getStatus());
-		assertOK("3.1", engine.perform(profile1, DefaultPhaseSet.createDefaultPhaseSet(0), plan3.getOperands(), null, new NullProgressMonitor()));
+		assertOK("3.1", engine.perform(plan3, new NullProgressMonitor()));
 		assertProfileContains("3.2", profile1, new IInstallableUnit[] {a1, p3, b3});
 		assertTrue(UserVisibleRootQuery.isUserVisible(p3, profile1));
 	}

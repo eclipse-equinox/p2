@@ -86,7 +86,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return;
 		SubMonitor mon = SubMonitor.convert(monitor, 100);
 		IProvisioningPlan plan = getSizingPlan(mon.newChild(50));
-		size = getProvisioningUI().getSession().getSize(plan, profileID, getProvisioningContext(), mon.newChild(50));
+		size = getProvisioningUI().getSession().getSize(plan, getProvisioningContext(), mon.newChild(50));
 	}
 
 	protected IProfile getProfile() {
