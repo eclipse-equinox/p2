@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Collections;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -54,7 +53,7 @@ public class UtilTest extends AbstractProvisioningTest {
 		Properties props = new Properties();
 		File cacheDir = new File(System.getProperty("java.io.tmpdir"), "cache");
 		props.put(IProfile.PROP_CACHE, cacheDir.toString());
-		IProfile profile = createProfile("test", null, props);
+		IProfile profile = createProfile("test", props);
 		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(profile).toString());
 	}
 

@@ -38,7 +38,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		//		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		//		File zipTarget = new File(installFolder, "a.zip");

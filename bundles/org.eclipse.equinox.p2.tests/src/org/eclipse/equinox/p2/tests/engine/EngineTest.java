@@ -264,7 +264,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		IProfile profile = createProfile("testPerformSizing", null, properties);
+		IProfile profile = createProfile("testPerformSizing", properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
@@ -285,7 +285,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		IProfile profile = createProfile("testPerformInstallOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
@@ -303,7 +303,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		IProfile profile = createProfile("testPerformInstallOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
@@ -322,7 +322,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformUpdateOSGiFramework() {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformUpdateOSGiFramework", properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		IInstallableUnit iu33 = createOSGiIU("3.3");
@@ -346,7 +346,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		IProfile profile = createProfile("testPerformUninstallOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformUninstallOSGiFramework", properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), null)};
 		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
@@ -358,7 +358,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformRollback", null, properties);
+		IProfile profile = createProfile("testPerformRollback", properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		Iterator ius = getInstallableUnits(profile);
@@ -376,7 +376,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformRollback", null, properties);
+		IProfile profile = createProfile("testPerformRollback", properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		Iterator ius = getInstallableUnits(profile);
@@ -396,7 +396,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformMissingAction", null, properties);
+		IProfile profile = createProfile("testPerformMissingAction", properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		Iterator ius = getInstallableUnits(profile);
@@ -413,7 +413,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformRollbackOnError", null, properties);
+		IProfile profile = createProfile("testPerformRollbackOnError", properties);
 		NPEPhase phase = new NPEPhase();
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
@@ -432,7 +432,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformRollbackOnError", null, properties);
+		IProfile profile = createProfile("testPerformRollbackOnError", properties);
 		ActionNPEPhase phase = new ActionNPEPhase();
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
@@ -450,7 +450,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformForcedPhaseWithActionError() {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformForceWithActionError", null, properties);
+		IProfile profile = createProfile("testPerformForceWithActionError", properties);
 		ActionNPEPhase phase = new ActionNPEPhase(true);
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
@@ -468,7 +468,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformForcedUninstallWithBadUninstallIUActionThrowsException() {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionThrowsException", null, properties);
+		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionThrowsException", properties);
 
 		// forcedUninstall is false by default
 		PhaseSet phaseSet = new DefaultPhaseSet();
@@ -500,7 +500,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformForcedUninstallWithBadUninstallIUActionReturnsError() {
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionReturnsError", null, properties);
+		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionReturnsError", properties);
 
 		// forcedUninstall is false by default
 		PhaseSet phaseSet = new DefaultPhaseSet();
@@ -696,18 +696,6 @@ public class EngineTest extends AbstractProvisioningTest {
 				return null;
 			}
 
-			public Map getLocalProperties() {
-				return null;
-			}
-
-			public String getLocalProperty(String key) {
-				return null;
-			}
-
-			public IProfile getParentProfile() {
-				return null;
-			}
-
 			public String getProfileId() {
 				return null;
 			}
@@ -720,20 +708,8 @@ public class EngineTest extends AbstractProvisioningTest {
 				return null;
 			}
 
-			public String[] getSubProfileIds() {
-				return null;
-			}
-
 			public long getTimestamp() {
 				return 0;
-			}
-
-			public boolean hasSubProfiles() {
-				return false;
-			}
-
-			public boolean isRootProfile() {
-				return false;
 			}
 
 			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {

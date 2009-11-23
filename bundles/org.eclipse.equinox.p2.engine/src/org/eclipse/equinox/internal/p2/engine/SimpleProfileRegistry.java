@@ -748,21 +748,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			lock = new ProfileLock(this, new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
 			profileLocks.put(profile.getProfileId(), lock);
 		}
-		if (!lock.lock())
-			return false;
-
-		if (profile.getParentProfile() == null)
-			return true;
-
-		boolean locked = false;
-		try {
-			locked = internalLockProfile(profile.getParentProfile());
-		} finally {
-			// this check is done here to ensure we unlock even if a runtime exception is thrown
-			if (!locked)
-				lock.unlock();
-		}
-		return locked;
+		return lock.lock();
 	}
 
 	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
@@ -782,9 +768,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				resetProfiles();
 			return false;
 		}
-
-		if (profile.getParentProfile() != null)
-			return checkTimestamps(profile.getParentProfile(), internalProfile.getParentProfile());
 
 		return true;
 	}
@@ -827,9 +810,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private void internalUnlockProfile(IProfile profile) {
-		if (profile.getParentProfile() != null)
-			internalUnlockProfile(profile.getParentProfile());
-
 		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
 		lock.unlock();
 	}

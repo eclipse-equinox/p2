@@ -75,7 +75,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 			if (info != null)
 				properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 
-			p = createProfile(installFolder, null, properties);
+			p = createProfile(installFolder, properties);
 		}
 
 		IInstallableUnit[] allRoots = new IInstallableUnit[1];

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.File;
 import java.net.*;
 import java.util.*;
@@ -21,13 +19,15 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -98,7 +98,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		URL location = site.toURL();
 
 		properties.put("org.eclipse.equinox.p2.cache.extensions", location.toString() + "|" + spacesLocation.toString());
-		IProfile profile = createProfile("testBug262073", null, properties);
+		IProfile profile = createProfile("testBug262073", properties);
 		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(profile);
 		Collection repos = repo.testGetBundleRepositories();
 		assertEquals("1.0", 3, repos.size());
@@ -120,7 +120,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
@@ -158,7 +158,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
@@ -215,7 +215,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();
 		getMetadataRepositoryManager().addRepository(site);
@@ -224,7 +224,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
 		IInstallableUnit iu = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor()).iterator().next();
 		assertNotNull(iu);
-		profile = createProfile("test", null, profileProperties);
+		profile = createProfile("test", profileProperties);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {iu};

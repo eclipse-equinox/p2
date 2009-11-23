@@ -34,7 +34,7 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

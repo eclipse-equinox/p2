@@ -39,7 +39,7 @@ public class NativeTouchpointTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profile = createProfile("test", null, profileProperties);
+		profile = createProfile("test", profileProperties);
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		touchpoint.completePhase(null, profile, "test", parameters);

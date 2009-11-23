@@ -61,7 +61,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//Install into a profile in which the filter is satisfied
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "FilterKey=true");
-		IProfile satisfied = createProfile("Satisfied." + getName(), null, properties);
+		IProfile satisfied = createProfile("Satisfied." + getName(), properties);
 		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
 		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
@@ -145,7 +145,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//try again with the filter satisfied
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
-		IProfile profile2 = createProfile("TestProfile2." + getName(), null, properties);
+		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
 		request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(toInstallArray);
 		result = director.provision(request, null, null);
@@ -172,7 +172,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//try again with the filter satisfied
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
-		IProfile profile2 = createProfile("TestProfile2." + getName(), null, properties);
+		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
 		request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(toInstallArray);
 		result = director.provision(request, null, null);

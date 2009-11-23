@@ -700,7 +700,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * in the tearDown method.
 	 */
 	protected IProfile createProfile(String name) {
-		return createProfile(name, null, null);
+		return createProfile(name, null);
 	}
 
 	/**
@@ -708,18 +708,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	protected IProfile createProfile(String name, String parentId) {
-		return createProfile(name, parentId, null);
-	}
-
-	protected IProfile createProfile(String name, String parentId, Map properties) {
+	protected IProfile createProfile(String name, Map properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = getProfileRegistry();
 		profileRegistry.removeProfile(name);
 		profilesToRemove.add(name);
 		//create and return a new profile
 		try {
-			return profileRegistry.addProfile(name, properties, parentId);
+			return profileRegistry.addProfile(name, properties);
 		} catch (ProvisionException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -78,18 +77,6 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getInstallableUnitProperty(iu, key);
 			}
 
-			public Map getLocalProperties() {
-				return profile.getLocalProperties();
-			}
-
-			public String getLocalProperty(String key) {
-				return profile.getLocalProperty(key);
-			}
-
-			public IProfile getParentProfile() {
-				return profile.getParentProfile();
-			}
-
 			public String getProfileId() {
 				return profile.getProfileId();
 			}
@@ -102,20 +89,8 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getProperty(key);
 			}
 
-			public String[] getSubProfileIds() {
-				return profile.getSubProfileIds();
-			}
-
 			public long getTimestamp() {
 				return profile.getTimestamp();
-			}
-
-			public boolean hasSubProfiles() {
-				return profile.hasSubProfiles();
-			}
-
-			public boolean isRootProfile() {
-				return profile.isRootProfile();
 			}
 
 			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {

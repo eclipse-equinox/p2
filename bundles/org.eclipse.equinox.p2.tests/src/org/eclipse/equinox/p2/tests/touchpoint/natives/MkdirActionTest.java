@@ -30,7 +30,7 @@ public class MkdirActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

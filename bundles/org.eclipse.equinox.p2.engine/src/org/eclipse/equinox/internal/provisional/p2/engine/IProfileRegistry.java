@@ -82,18 +82,6 @@ public interface IProfileRegistry {
 	IProfile addProfile(String id, Map properties) throws ProvisionException;
 
 	/**
-	 * Add the given profile to this profile registry.
-	 * 
-	 * @param id the profile id
-	 * @param properties the profile properties
-	 * @param parentId the id of a parent profile
-	 * 
-	 * @throws ProvisionException if a profile
-	 *         with the same id is already present in the registry or the parentId is not a registered Profile.
-	 */
-	IProfile addProfile(String id, Map properties, String parentId) throws ProvisionException;
-
-	/**
 	 * Returns whether this profile registry contains a profile with the given id.
 	 * 
 	 * @param profileId The id of the profile to search for

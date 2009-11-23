@@ -725,18 +725,6 @@ public class SimplePlanner implements IPlanner {
 			return profile.getInstallableUnitProperty(iu, key);
 		}
 
-		public Map getLocalProperties() {
-			return profile.getLocalProperties();
-		}
-
-		public String getLocalProperty(String key) {
-			return profile.getLocalProperty(key);
-		}
-
-		public IProfile getParentProfile() {
-			return profile.getParentProfile();
-		}
-
 		public String getProfileId() {
 			return profile.getProfileId();
 		}
@@ -749,20 +737,8 @@ public class SimplePlanner implements IPlanner {
 			return profile.getProperty(key);
 		}
 
-		public String[] getSubProfileIds() {
-			return profile.getSubProfileIds();
-		}
-
 		public long getTimestamp() {
 			return profile.getTimestamp();
-		}
-
-		public boolean hasSubProfiles() {
-			return profile.hasSubProfiles();
-		}
-
-		public boolean isRootProfile() {
-			return profile.isRootProfile();
 		}
 
 		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {

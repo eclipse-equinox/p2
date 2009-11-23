@@ -52,7 +52,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		properties.put("osgi.os", "win32");
 		properties.put("osgi.ws", "win32");
 		properties.put("osgi.arch", "x86");
-		IProfile p = createProfile("repoValidator", null, properties);
+		IProfile p = createProfile("repoValidator", properties);
 
 		IQuery q;
 

@@ -77,7 +77,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 			properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 		properties.put("org.eclipse.update.install.features", "true");
 		properties.put(IProfile.PROP_CACHE, installFolder);
-		return createProfile(profileId, null, properties);
+		return createProfile(profileId, properties);
 	}
 
 	public void testInstallSDK35() {
