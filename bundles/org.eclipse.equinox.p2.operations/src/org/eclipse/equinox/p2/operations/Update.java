@@ -16,19 +16,27 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 /**
  * A simple data structure describing a possible update.
  * 
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
- *
  */
 public class Update {
 
 	public IInstallableUnit toUpdate;
 	public IInstallableUnit replacement;
 
+	/**
+	 * Creates a new update description.
+	 * @param toUpdate The installable unit to update
+	 * @param replacement The replacement installable unit
+	 */
 	public Update(IInstallableUnit toUpdate, IInstallableUnit replacement) {
 		this.toUpdate = toUpdate;
 		this.replacement = replacement;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -44,6 +52,9 @@ public class Update {
 		return toUpdate.equals(other.toUpdate) && replacement.equals(other.replacement);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -52,8 +63,10 @@ public class Update {
 		return result;
 	}
 
+	/*(non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		return "Update " + toUpdate.toString() + " ==> " + replacement.toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
 }

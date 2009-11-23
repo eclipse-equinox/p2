@@ -28,7 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  * component, thus ensuring that the repositories remain loaded in memory.
  * 
  * @since 2.0
- *
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class LoadMetadataRepositoryJob extends RepositoryJob {
 

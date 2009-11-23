@@ -33,13 +33,13 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
  * InstallOperation op = new InstallOperation(session, new IInstallableUnit [] { myIU });
  * IStatus result = op.resolveModal(monitor);
  * if (result.isOK()) {
- *   op.getProvisioningJob(monitor).schedule;
+ *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
  * 
  * @since 2.0
  * @see ProfileChangeOperation
- * @noextend
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class InstallOperation extends ProfileChangeOperation {
 

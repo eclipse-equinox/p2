@@ -15,10 +15,10 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 
 /**
- * A job that modifies a profile according to a specified provisioning
- * plan.  
+ * A job that modifies a profile according to a specified provisioning plan.  
  * 
  * @since 2.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ProfileModificationJob extends ProvisioningJob implements IProfileChangeJob {
 

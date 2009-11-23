@@ -55,6 +55,7 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
  * }
  * </pre>
  * 
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class UpdateOperation extends ProfileChangeOperation {

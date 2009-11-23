@@ -32,6 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
  *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class UninstallOperation extends ProfileChangeOperation {

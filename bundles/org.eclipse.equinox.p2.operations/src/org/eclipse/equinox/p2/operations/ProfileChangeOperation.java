@@ -75,9 +75,8 @@ import org.eclipse.equinox.p2.engine.IProvisioningPlan;
  * run by the platform job manager, both the platform job manager progress indicator 
  * and the monitor supplied by the client will be updated.
  * 
- * @noextend
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
- *
  */
 public abstract class ProfileChangeOperation implements IProfileChangeJob {
 

@@ -45,7 +45,6 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * 
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
- *
  */
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
