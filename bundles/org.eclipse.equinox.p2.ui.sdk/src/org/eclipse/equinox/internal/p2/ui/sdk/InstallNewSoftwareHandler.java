@@ -45,6 +45,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		// user is unaware that loading was needed
 		if (!waitForPreload()) {
 			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
+			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
 		}
 	}
 }
