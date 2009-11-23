@@ -27,7 +27,10 @@ import org.eclipse.osgi.util.NLS;
  */
 public abstract class ProvisioningJob extends Job {
 
-	private class DoubleProgressMonitor extends ProgressMonitorWrapper {
+	/**
+	 * Class for multiplexing progress across multiple progress monitors.
+	 */
+	private static class DoubleProgressMonitor extends ProgressMonitorWrapper {
 
 		IProgressMonitor additionalMonitor;
 
