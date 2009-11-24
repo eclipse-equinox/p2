@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 
 /**
@@ -25,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IMetadataRepositoryManager extends IRepositoryManager, IQueryable {
+public interface IMetadataRepositoryManager extends IRepositoryManager {
 	/**
 	 * The name used for obtaining a reference to the metadata repository manager service
 	 */

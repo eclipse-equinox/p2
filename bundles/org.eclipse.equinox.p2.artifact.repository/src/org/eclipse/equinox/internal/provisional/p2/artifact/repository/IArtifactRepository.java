@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
@@ -28,7 +27,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
  * </p>
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IArtifactRepository extends IRepository, IQueryable {
+public interface IArtifactRepository extends IRepository {
 
 	/** 
 	 * The return code to use when a client could/should retry a failed getArtifact() operation.

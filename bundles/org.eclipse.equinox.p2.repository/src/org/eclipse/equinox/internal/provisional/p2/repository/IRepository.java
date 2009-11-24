@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.repository;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * Base interface that defines common properties that may be provided by 
@@ -20,7 +21,7 @@ import org.eclipse.core.runtime.IAdaptable;
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IRepository extends IAdaptable {
+public interface IRepository extends IAdaptable, IQueryable {
 	/** 
 	 * The key for a boolean property indicating that the repository
 	 * is a system repository.  System repositories are implementation details

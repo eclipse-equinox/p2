@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.repository;
 
 import java.net.URI;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * The common base class for metadata and artifact repository managers.
@@ -26,7 +27,7 @@ import java.net.URI;
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IRepositoryManager {
+public interface IRepositoryManager extends IQueryable {
 	/**
 	 * Constant used to indicate that all enabled repositories are of interest.
 	 */

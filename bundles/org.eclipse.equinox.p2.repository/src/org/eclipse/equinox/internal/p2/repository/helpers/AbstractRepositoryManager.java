@@ -20,8 +20,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
@@ -1041,4 +1043,46 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		return suffixes;
 	}
 
+	/**
+	 * Performs a query against all of the installable units of each known 
+	 * repository, accumulating any objects that satisfy the query in the 
+	 * provided collector.
+	 * <p>
+	 * Note that using this method can be quite expensive, as every known
+	 * metadata repository will be loaded in order to query each one.  If a
+	 * client wishes to query only certain repositories, it is better to use
+	 * {@link #getKnownRepositories(int)} to filter the list of repositories
+	 * loaded and then query each of the returned repositories.
+	 * <p>
+	 * This method is long-running; progress and cancellation are provided
+	 * by the given progress monitor. 
+	 * 
+	 * @param query The query to perform against each installable unit in each known repository
+	 * @param collector Collects the results of the query
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The collector argument
+	 */
+	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
+		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
+		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
+		for (int i = 0; i < locations.length; i++) {
+			try {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				queryables.add(loadRepository(locations[i], sub.newChild(9), null, 0));
+			} catch (ProvisionException e) {
+				//ignore this repository for this query
+			}
+		}
+		try {
+			IQueryable[] queryablesArray = (IQueryable[]) queryables.toArray(new IQueryable[queryables.size()]);
+			CompoundQueryable compoundQueryable = new CompoundQueryable(queryablesArray);
+			compoundQueryable.query(query, collector, sub.newChild(locations.length * 1));
+		} finally {
+			sub.done();
+		}
+		return collector;
+	}
 }

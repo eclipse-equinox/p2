@@ -12,16 +12,14 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -82,58 +80,12 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return IRepository.TYPE_METADATA;
 	}
 
-	/**
-	 * @deprecated see {@link #loadRepository(URI, int, IProgressMonitor)}
-	 */
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return loadRepository(location, 0, monitor);
 	}
 
 	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return (IMetadataRepository) loadRepository(location, monitor, null, flags);
-	}
-
-	/**
-	 * Performs a query against all of the installable units of each known 
-	 * repository, accumulating any objects that satisfy the query in the 
-	 * provided collector.
-	 * <p>
-	 * Note that using this method can be quite expensive, as every known
-	 * metadata repository will be loaded in order to query each one.  If a
-	 * client wishes to query only certain repositories, it is better to use
-	 * {@link #getKnownRepositories(int)} to filter the list of repositories
-	 * loaded and then query each of the returned repositories.
-	 * <p>
-	 * This method is long-running; progress and cancellation are provided
-	 * by the given progress monitor. 
-	 * 
-	 * @param query The query to perform against each installable unit in each known repository
-	 * @param collector Collects the results of the query
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 * @return The collector argument
-	 */
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
-		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
-		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
-		for (int i = 0; i < locations.length; i++) {
-			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				queryables.add(loadRepository(locations[i], sub.newChild(9)));
-			} catch (ProvisionException e) {
-				//ignore this repository for this query
-			}
-		}
-		try {
-			IQueryable[] queryablesArray = (IQueryable[]) queryables.toArray(new IQueryable[queryables.size()]);
-			CompoundQueryable compoundQueryable = new CompoundQueryable(queryablesArray);
-			compoundQueryable.query(query, collector, sub.newChild(locations.length * 1));
-		} finally {
-			sub.done();
-		}
-		return collector;
 	}
 
 	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
