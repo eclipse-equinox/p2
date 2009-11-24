@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ParameterizedProvisioningActionTest extends AbstractProvisioningTest {

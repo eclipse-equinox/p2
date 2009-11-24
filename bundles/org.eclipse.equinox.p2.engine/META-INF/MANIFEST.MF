@@ -33,7 +33,8 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.equinox.p2.director.app",
  org.eclipse.equinox.p2.engine,
- org.eclipse.equinox.p2.engine.query
+ org.eclipse.equinox.p2.engine.query,
+ org.eclipse.equinox.p2.engine.spi
 Import-Package: javax.xml.parsers,
  org.eclipse.core.internal.preferences,
  org.eclipse.core.runtime.preferences,

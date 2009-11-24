@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+
 import org.eclipse.equinox.p2.engine.IEngine;
 
 import java.io.File;

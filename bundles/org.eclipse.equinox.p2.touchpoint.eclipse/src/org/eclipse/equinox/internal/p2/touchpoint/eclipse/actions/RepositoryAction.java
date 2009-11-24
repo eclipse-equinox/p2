@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+
 import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
 
 import java.net.URI;

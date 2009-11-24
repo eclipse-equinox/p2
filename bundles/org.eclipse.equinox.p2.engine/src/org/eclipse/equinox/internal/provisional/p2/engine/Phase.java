@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;

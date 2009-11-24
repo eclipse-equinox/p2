@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.*;

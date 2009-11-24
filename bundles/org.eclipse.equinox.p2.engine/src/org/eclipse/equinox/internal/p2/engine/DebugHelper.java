@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
