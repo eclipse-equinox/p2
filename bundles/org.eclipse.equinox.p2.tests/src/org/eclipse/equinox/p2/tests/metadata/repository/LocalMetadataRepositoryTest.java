@@ -137,10 +137,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.addInstallableUnits(new IInstallableUnit[] {iu, iu2});
 		Collector result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
 		assertTrue("1.0", result.size() == 2);
-		repo.removeInstallableUnits(new InstallableUnitQuery("foo"), getMonitor());
+		repo.removeInstallableUnits(new IInstallableUnit[] {iu}, getMonitor());
 		result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
 		assertTrue("1.1", result.size() == 1);
-		repo.removeInstallableUnits(new InstallableUnitQuery("bar"), getMonitor());
+		repo.removeInstallableUnits(new IInstallableUnit[] {iu2}, getMonitor());
 		result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
 		assertTrue("1.2", result.isEmpty());
 

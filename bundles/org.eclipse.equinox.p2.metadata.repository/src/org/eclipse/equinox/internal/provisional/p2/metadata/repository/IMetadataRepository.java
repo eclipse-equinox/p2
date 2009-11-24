@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A metadata repository stores information about a set of installable units
@@ -68,7 +67,7 @@ public interface IMetadataRepository extends IRepository {
 	 * @return <code>true</code> if any units were actually removed, and
 	 * <code>false</code> otherwise
 	 */
-	public boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor);
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor);
 
 	/**
 	 * Remove all installable units from this repository.  

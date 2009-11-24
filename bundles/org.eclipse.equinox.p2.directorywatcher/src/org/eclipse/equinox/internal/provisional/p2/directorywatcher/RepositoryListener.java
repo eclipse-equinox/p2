@@ -209,14 +209,14 @@ public class RepositoryListener extends DirectoryChangeListener {
 		final Collection changes = iusToChange.getIUs(null, null);
 		// first remove any IUs that have changed or that are associated with removed files
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
-			// create a query that will identify all ius related to removed files or ius that have changed
+			metadataRepository.removeInstallableUnits((IInstallableUnit[]) changes.toArray(new IInstallableUnit[changes.size()]), null);
+
+			// create a query that will identify all ius related to removed files
 			IMatchQuery removeQuery = new MatchQuery() {
 				public boolean isMatch(Object candidate) {
 					if (!(candidate instanceof IInstallableUnit))
 						return false;
 					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (changes.contains(iu))
-						return true;
 					String filename = iu.getProperty(FILE_NAME);
 					if (filename == null) {
 						String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
@@ -227,7 +227,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 					return removedFiles.contains(iuFile);
 				}
 			};
-			metadataRepository.removeInstallableUnits(removeQuery, null);
+			Collector toRemove = metadataRepository.query(removeQuery, new Collector(), null);
+			metadataRepository.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(IInstallableUnit.class), null);
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
 		Collection additions = iusToAdd.getIUs(null, null);

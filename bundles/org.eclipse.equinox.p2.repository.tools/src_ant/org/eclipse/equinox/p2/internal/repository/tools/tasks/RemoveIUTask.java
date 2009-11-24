@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -106,12 +105,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			}
 
 			if (toRemove.size() > 0) {
-				IQuery removeQuery = new MatchQuery() {
-					public boolean isMatch(Object candidate) {
-						return toRemove.contains(candidate);
-					}
-				};
-				repository.removeInstallableUnits(removeQuery, null);
+				repository.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]), null);
 			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);

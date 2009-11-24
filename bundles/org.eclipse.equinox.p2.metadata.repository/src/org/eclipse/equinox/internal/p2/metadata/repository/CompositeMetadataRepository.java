@@ -201,7 +201,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 
-	public synchronized boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 

@@ -96,7 +96,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeInstallableUnits(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 

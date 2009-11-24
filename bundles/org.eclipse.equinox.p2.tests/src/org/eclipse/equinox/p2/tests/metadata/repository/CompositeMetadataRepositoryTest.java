@@ -114,7 +114,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			compRepo.removeInstallableUnits(InstallableUnitQuery.ANY, null);
+			Collector collector = compRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+			compRepo.removeInstallableUnits((IInstallableUnit[]) collector.toArray(IInstallableUnit.class), null);
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through

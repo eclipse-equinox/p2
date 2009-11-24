@@ -152,12 +152,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public synchronized boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		boolean changed = false;
-		Collector results = query.perform(units.iterator(), new Collector());
-		if (results.size() > 0) {
+		if (installableUnits != null && installableUnits.length > 0) {
 			changed = true;
-			units.removeAll(results.toCollection());
+			units.removeAll(Arrays.asList(installableUnits));
 		}
 		if (changed)
 			save();

@@ -43,7 +43,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	public boolean removeInstallableUnits(IQuery query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
