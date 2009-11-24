@@ -332,21 +332,21 @@ public class QueryTest extends TestCase {
 		assertEquals("1.0", 0, result.size());
 	}
 
-	public void testPipedLimitQuery() {
-		List items = Arrays.asList("pink", "red", "green", "pink");
-		IQuery anyString = new AnyStringQuery();
-		IQuery containsI = new MatchQuery() {
-
-			public boolean isMatch(Object candidate) {
-				return ((String) candidate).contains("e");
-			}
-		};
-		IQuery pipedQuery = new PipedQuery(new IQuery[] {anyString, containsI});
-		IQuery limitQuery = new LimitQuery(pipedQuery, 1);
-		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 1, result.size());
-		assertTrue("1.1", result.contains("red"));
-	}
+	//	public void testPipedLimitQuery() {
+	//		List items = Arrays.asList("pink", "red", "green", "pink");
+	//		IQuery anyString = new AnyStringQuery();
+	//		IQuery containsI = new MatchQuery() {
+	//
+	//			public boolean isMatch(Object candidate) {
+	//				return ((String) candidate).contains("e");
+	//			}
+	//		};
+	//		IQuery pipedQuery = new PipedQuery(new IQuery[] {anyString, containsI});
+	//		IQuery limitQuery = new LimitQuery(pipedQuery, 1);
+	//		Collector collector = limitQuery.perform(items.iterator(), new Collector());
+	//		Collection result = collector.toCollection();
+	//		assertEquals("1.0", 1, result.size());
+	//		assertTrue("1.1", result.contains("red"));
+	//	}
 
 }
