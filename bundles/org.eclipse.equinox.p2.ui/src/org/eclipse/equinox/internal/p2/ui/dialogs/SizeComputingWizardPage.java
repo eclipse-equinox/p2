@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.operations.RepositoryTracker;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 
 /**
  * An object that adds provides specialized/optimized queryable support 
@@ -52,7 +51,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 
 	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (manager instanceof IMetadataRepositoryManager) {
-			return getSession().loadMetadataRepository(location, monitor);
+			((IMetadataRepositoryManager) manager).loadRepository(location, monitor);
 		}
 		return null;
 	}

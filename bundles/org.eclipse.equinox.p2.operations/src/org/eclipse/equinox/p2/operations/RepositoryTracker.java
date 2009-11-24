@@ -241,17 +241,25 @@ public abstract class RepositoryTracker {
 	/**
 	 * Add a repository at the specified location.
 	 *
-	 * @param repoLocation the location of the new repository
+	 * @param location the location of the new repository
 	 * @param nickname the nickname for the repository, or <code>null</code> if there is no nickname
 	 * @param session the session to use for provisioning services
 	 */
-	public abstract void addRepository(URI repoLocation, String nickname, ProvisioningSession session);
+	public abstract void addRepository(URI location, String nickname, ProvisioningSession session);
 
 	/**
 	 * Remove the repositories at the specified locations
 	 *
-	 * @param repoLocations the locations
+	 * @param locations the locations
 	 * @param session the session to use for provisioning services
 	 */
-	public abstract void removeRepositories(URI[] repoLocations, ProvisioningSession session);
+	public abstract void removeRepositories(URI[] locations, ProvisioningSession session);
+
+	/**
+	 * Refresh the repositories at the specified locations
+	 * @param locations the locations
+	 * @param session the session to use for provisioning services
+	 * @param monitor the progress monitor to use
+	 */
+	public abstract void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor);
 }

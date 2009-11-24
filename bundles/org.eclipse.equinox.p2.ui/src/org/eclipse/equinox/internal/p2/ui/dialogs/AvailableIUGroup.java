@@ -208,7 +208,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	Object getNewInput() {
 		if (repositoryFilter != null) {
-			return new MetadataRepositoryElement(queryContext, getUI(), repositoryFilter, true);
+			return new MetadataRepositoryElement(queryContext, getProvisioningUI(), repositoryFilter, true);
 		} else if (filterConstant == AVAILABLE_NONE) {
 			// Dummy object that explains empty site list
 			return new ProvElement(null) {
@@ -236,7 +236,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			};
 		} else {
 			queryableManager.setRespositoryFlags(repoFlags);
-			return new MetadataRepositories(queryContext, getUI(), queryableManager);
+			return new MetadataRepositories(queryContext, getProvisioningUI(), queryableManager);
 		}
 	}
 
@@ -355,7 +355,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, URIUtil.toUnencodedString(location))) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					getSession().loadMetadataRepository(location, monitor);
+					getProvisioningUI().loadMetadataRepository(location, monitor);
 					return Status.OK_STATUS;
 				} catch (ProvisionException e) {
 					return e.getStatus();

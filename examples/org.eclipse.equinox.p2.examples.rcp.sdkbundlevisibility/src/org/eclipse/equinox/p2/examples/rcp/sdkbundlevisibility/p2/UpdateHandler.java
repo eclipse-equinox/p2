@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 
-import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
-import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 /**
@@ -44,8 +44,8 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	protected boolean preloadRepositories() {
 		hasNoRepos = false;
-		RepositoryTracker tracker = getProvisioningUI().getRepositoryTracker();
-		if (tracker.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
+		RepositoryTracker repoMan = getProvisioningUI().getRepositoryTracker();
+		if (repoMan.getKnownRepositories(getProvisioningUI().getSession()).length == 0) {
 			hasNoRepos = true;
 			return false;
 		}

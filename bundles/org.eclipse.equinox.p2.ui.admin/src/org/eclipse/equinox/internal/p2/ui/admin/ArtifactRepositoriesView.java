@@ -15,7 +15,6 @@ import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDia
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositories;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This view allows users to interact with artifact repositories
@@ -61,20 +60,12 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return ProvUIProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
-	 */
-	protected void refreshUnderlyingModel() {
-		getProvisioningUI().schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getProvisioningUI().getSession(), 0), StatusManager.SHOW | StatusManager.LOG);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getRepositoryTracker()
 	 */
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null)
-			tracker = new ArtifactRepositoryTracker();
+			tracker = new ArtifactRepositoryTracker(getProvisioningUI());
 		return tracker;
 	}
 

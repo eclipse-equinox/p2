@@ -12,13 +12,19 @@
 package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.operations.*;
@@ -345,5 +351,90 @@ public class ProvisioningUI {
 	 */
 	public ProvisioningOperationRunner getOperationRunner() {
 		return runner;
+	}
+
+	/**
+	 * Signal that a repository operation is about to begin.  This allows clients to ignore intermediate
+	 * events until the operation is completed.  Callers are responsible for ensuring that
+	 * a corresponding operation ending event is signaled.
+	 */
+	public void signalRepositoryOperationStart() {
+		getSession().getProvisioningEventBus().publishEvent(new RepositoryOperationBeginningEvent(this));
+	}
+
+	/**
+	 * Signal that a repository operation has completed.
+	 * 
+	 * @param event a {@link RepositoryEvent} that describes the overall operation.  May be <code>null</code>, which
+	 * indicates that there was no single event that can describe the operation.  
+	 * @param update <code>true</code> if the event should be reflected in the UI, false if it should be ignored.
+	 */
+	public void signalRepositoryOperationComplete(RepositoryEvent event, boolean update) {
+		getSession().getProvisioningEventBus().publishEvent(new RepositoryOperationEndingEvent(this, update, event));
+	}
+
+	/**
+	 * Load the specified metadata repository, signaling a repository operation start event
+	 * before loading, and a repository operation complete event after loading.
+	 * 
+	 * @param location the location of the repository
+	 * @param monitor the progress monitor to be used
+	 * @return the repository
+	 * @throws ProvisionException if the repository could not be loaded
+	 */
+
+	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		IMetadataRepository repo;
+		try {
+			signalRepositoryOperationStart();
+			repo = session.getMetadataRepositoryManager().loadRepository(location, monitor);
+			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// This will keep the name in the manager even when the repo is not loaded
+			String name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			if (name == null || name.length() == 0) {
+				name = repo.getName();
+				if (name != null && name.length() > 0)
+					session.getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+			}
+		} finally {
+			// We have no idea how many repos may have been touched as a result of loading this one,
+			// so in theory we would not use a specific repository event to represent it.  
+			// In practice this can cause problems in the UI like losing selections in the repo combo.
+			// So we signal an add event.
+			signalRepositoryOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), true);
+		}
+		return repo;
+	}
+
+	/**
+	 * Load the specified artifact repository, signaling a repository operation start event
+	 * before loading, and a repository operation complete event after loading.
+	 * 
+	 * @param location the location of the repository
+	 * @param monitor the progress monitor to be used
+	 * @return the repository
+	 * @throws ProvisionException if the repository could not be loaded
+	 */
+
+	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepository repo;
+		signalRepositoryOperationStart();
+		try {
+			repo = session.getArtifactRepositoryManager().loadRepository(location, monitor);
+
+			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// This will keep the name in the manager even when the repo is not loaded
+			String name = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			if (name == null) {
+				name = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+				if (name != null)
+					session.getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+			}
+		} finally {
+			// We have no idea how many repos may have been touched as a result of loading this one,
+			// so we do not use a specific repository event to represent it.
+			signalRepositoryOperationComplete(null, true);
+		}
+		return repo;
 	}
 }

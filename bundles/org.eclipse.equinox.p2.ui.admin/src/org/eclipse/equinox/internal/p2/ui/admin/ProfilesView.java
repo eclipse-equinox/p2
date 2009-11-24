@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.internal.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
@@ -82,7 +81,7 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
+		listener = new StructuredViewerProvisioningListener(viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUI.addProvisioningListener(listener);
 	}
 

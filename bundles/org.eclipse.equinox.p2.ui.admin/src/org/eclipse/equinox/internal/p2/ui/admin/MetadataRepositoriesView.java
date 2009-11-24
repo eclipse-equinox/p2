@@ -26,7 +26,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.PluginTransfer;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This view allows users to interact with metadata repositories
@@ -99,14 +98,6 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
-	 */
-	protected void refreshUnderlyingModel() {
-		getProvisioningUI().schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getProvisioningUI().getSession(), getRepoFlags()), StatusManager.SHOW | StatusManager.LOG);
-	}
-
 	protected List getVisualProperties() {
 		List list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
@@ -119,7 +110,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	 */
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null)
-			tracker = new MetadataRepositoryTracker();
+			tracker = new MetadataRepositoryTracker(getProvisioningUI());
 		return tracker;
 	}
 }

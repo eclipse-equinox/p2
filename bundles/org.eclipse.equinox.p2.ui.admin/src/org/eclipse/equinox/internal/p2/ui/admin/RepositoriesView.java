@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
@@ -22,12 +25,15 @@ import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningLi
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.action.*;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This class supports the common characteristics for views that manipulate
@@ -196,5 +202,23 @@ abstract class RepositoriesView extends ProvView {
 		List list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		return list;
+	}
+
+	protected void refreshUnderlyingModel() {
+		IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
+		if (service != null) {
+			try {
+				service.run(true, false, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), monitor);
+					}
+				});
+			} catch (InvocationTargetException e) {
+				ProvUI.handleException(e, null, StatusManager.SHOW);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		} else
+			getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), new NullProgressMonitor());
 	}
 }

@@ -143,7 +143,7 @@ public abstract class StructuredIUGroup {
 		return ui.getSession();
 	}
 
-	protected ProvisioningUI getUI() {
+	protected ProvisioningUI getProvisioningUI() {
 		return ui;
 	}
 

@@ -9,16 +9,18 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.p2.operations;
+package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.operations.Activator;
-import org.eclipse.equinox.internal.p2.operations.Messages;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 
 /**
  * A job that loads a set of metadata repositories and caches the loaded repositories.
@@ -41,36 +43,37 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 * The key that should be used to set a property on a repository load job to indicate
 	 * that authentication should be suppressed when loading the repositories.
 	 */
-	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(Activator.ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
+	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
 
 	/**
 	 * The key that should be used to set a property on a repository load job to indicate
 	 * that repository events triggered by this job should be suppressed so that clients
 	 * will ignore all events related to the load.
 	 */
-	public static final QualifiedName SUPPRESS_REPOSITORY_EVENTS = new QualifiedName(Activator.ID, "SUPRESS_REPOSITORY_EVENTS"); //$NON-NLS-1$
+	public static final QualifiedName SUPPRESS_REPOSITORY_EVENTS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPRESS_REPOSITORY_EVENTS"); //$NON-NLS-1$
 
 	/**
 	 * The key that should be used to set a property on a repository load job to indicate
 	 * that load errors should be accumulated into a single status rather than reported
 	 * as they occur.
 	 */
-	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(Activator.ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
+	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
 	private List repoCache = new ArrayList();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 	private URI[] locations;
+	private ProvisioningUI ui;
 
 	/**
 	 * Create a job that loads the metadata repositories known by the specified RepositoryTracker.
-	 * @param session the provisioning session providing the necessary services
-	 * @param tracker the tracker that knows which repositories should be loaded
+	 * @param ui the ProvisioningUI providing the necessary services
 	 */
-	public LoadMetadataRepositoryJob(ProvisioningSession session, RepositoryTracker tracker) {
-		super(Messages.PreloadRepositoryJob_LoadJobName, session);
-		this.tracker = tracker;
-		this.locations = tracker.getKnownRepositories(session);
+	public LoadMetadataRepositoryJob(ProvisioningUI ui) {
+		super(ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, ui.getSession());
+		this.ui = ui;
+		this.tracker = ui.getRepositoryTracker();
+		this.locations = tracker.getKnownRepositories(ui.getSession());
 	}
 
 	/*
@@ -83,24 +86,24 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 
 		// We batch all the time as a way of distinguishing client-initiated repository 
 		// jobs from low level repository manipulation.
-		getSession().signalOperationStart();
+		ui.signalRepositoryOperationStart();
 		try {
 			doLoad(monitor);
 		} finally {
-			getSession().signalOperationComplete(null, getProperty(SUPPRESS_REPOSITORY_EVENTS) != null);
+			ui.signalRepositoryOperationComplete(null, getProperty(SUPPRESS_REPOSITORY_EVENTS) == null);
 		}
 		return Status.OK_STATUS;
 	}
 
 	private IStatus doLoad(IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.PreloadMetadataRepositoryJob_ContactingSites, locations.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, locations.length * 100);
 		if (sub.isCanceled())
 			return Status.CANCEL_STATUS;
 		for (int i = 0; i < locations.length; i++) {
 			if (sub.isCanceled())
 				return Status.CANCEL_STATUS;
 			try {
-				repoCache.add(getSession().loadMetadataRepository(locations[i], sub.newChild(100)));
+				repoCache.add(getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
 			} catch (ProvisionException e) {
 				handleLoadFailure(e, locations[i]);
 			}
@@ -126,7 +129,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 			if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
 				status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
 			if (accumulatedStatus == null) {
-				accumulatedStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, Messages.PreloadMetadataRepositoryJob_SomeSitesNotFound, null);
+				accumulatedStatus = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, ProvUIMessages.LoadMetadataRepositoryJob_SitesMissingError, null);
 			} else {
 				accumulatedStatus.add(status);
 			}

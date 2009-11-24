@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -45,7 +45,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		if (preloadRepositories()) {
 			//cancel any load that is already running
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
-			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI().getSession(), getProvisioningUI().getRepositoryTracker());
+			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI());
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {

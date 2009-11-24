@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.MetadataRepositoryTracker;
-
 import org.eclipse.equinox.internal.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -33,7 +32,7 @@ public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null) {
-			tracker = new MetadataRepositoryTracker();
+			tracker = new MetadataRepositoryTracker(getProvisioningUI());
 		}
 		return tracker;
 	}

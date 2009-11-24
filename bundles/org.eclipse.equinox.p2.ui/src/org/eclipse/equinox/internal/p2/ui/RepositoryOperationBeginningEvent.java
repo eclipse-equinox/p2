@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.p2.operations;
+package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.EventObject;
 

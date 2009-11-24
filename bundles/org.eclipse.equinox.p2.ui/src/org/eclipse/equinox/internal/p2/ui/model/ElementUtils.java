@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 
@@ -37,10 +36,9 @@ public class ElementUtils {
 		Job job = new Job(ProvUIMessages.ElementUtils_UpdateJobTitle) {
 			public IStatus run(IProgressMonitor monitor) {
 				final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
-				final ProvisioningSession session = ui.getSession();
-				session.signalOperationStart();
-				IMetadataRepositoryManager metaManager = session.getMetadataRepositoryManager();
-				IArtifactRepositoryManager artManager = session.getArtifactRepositoryManager();
+				ui.signalRepositoryOperationStart();
+				IMetadataRepositoryManager metaManager = ui.getSession().getMetadataRepositoryManager();
+				IArtifactRepositoryManager artManager = ui.getSession().getArtifactRepositoryManager();
 				try {
 					int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 					URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
@@ -91,7 +89,7 @@ public class ElementUtils {
 						}
 					}
 				} finally {
-					session.signalOperationComplete(null, false);
+					ui.signalRepositoryOperationComplete(null, true);
 				}
 				return Status.OK_STATUS;
 			}

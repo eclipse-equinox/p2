@@ -11,11 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Provides a repository tracker that interprets URLs as colocated
@@ -26,7 +27,10 @@ import org.eclipse.equinox.p2.operations.RepositoryTracker;
 
 public class ColocatedRepositoryTracker extends RepositoryTracker {
 
-	public ColocatedRepositoryTracker() {
+	ProvisioningUI ui;
+
+	public ColocatedRepositoryTracker(ProvisioningUI ui) {
+		this.ui = ui;
 		setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}
@@ -44,7 +48,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	}
 
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
-		session.signalOperationStart();
+		ui.signalRepositoryOperationStart();
 		try {
 			session.getMetadataRepositoryManager().addRepository(repoLocation);
 			session.getArtifactRepositoryManager().addRepository(repoLocation);
@@ -55,7 +59,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 			}
 		} finally {
 			// We know that the UI only responds to metadata repo events so we cheat...
-			session.signalOperationComplete(new RepositoryEvent(repoLocation, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), false);
+			ui.signalRepositoryOperationComplete(new RepositoryEvent(repoLocation, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), true);
 		}
 	}
 
@@ -63,14 +67,34 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
 	 */
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
-		session.signalOperationStart();
+		ui.signalRepositoryOperationStart();
 		try {
 			for (int i = 0; i < repoLocations.length; i++) {
 				session.getMetadataRepositoryManager().removeRepository(repoLocations[i]);
 				session.getArtifactRepositoryManager().removeRepository(repoLocations[i]);
 			}
 		} finally {
-			session.signalOperationComplete(null, false);
+			ui.signalRepositoryOperationComplete(null, true);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
+		ui.signalRepositoryOperationStart();
+		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
+		for (int i = 0; i < locations.length; i++) {
+			try {
+				session.getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
+				session.getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
+			} catch (ProvisionException e) {
+				//ignore problematic repositories when refreshing
+			}
+		}
+		// We have no idea how many repos may have been added/removed as a result of 
+		// refreshing these, this one, so we do not use a specific repository event to represent it.
+		ui.signalRepositoryOperationComplete(null, true);
 	}
 }

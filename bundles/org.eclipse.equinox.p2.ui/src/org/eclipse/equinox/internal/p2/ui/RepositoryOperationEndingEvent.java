@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.operations;
+package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -29,23 +29,24 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	private RepositoryEvent event;
 
 	/**
-	 * A boolean indicating whether the entire operation event should
-	 * be suppressed.
+	 * A boolean indicating whether the UI should be updated in response
+	 * to this event.
 	 */
-	private boolean suppress;
+	private boolean update;
 
 	/**
 	 * Construct a new instance of this event.
 	 * 
 	 * @param source the source of the event
-	 * 
-	 * @param item the object that was involved in the operation.  May be
-	 * <code>null</code>.  This item may be used by clients to determine
+	 * @param update a boolean indicating whether the UI should be updated in response
+	 * to this event.
+	 * @param event a {@link RepositoryEvent} describing the underlying event, or <code>null</code>
+	 * if no single event can describe the operation. This event may be used by clients to determine
 	 * what should be updated after an operation completes.
 	 */
-	public RepositoryOperationEndingEvent(Object source, boolean suppress, RepositoryEvent event) {
+	public RepositoryOperationEndingEvent(Object source, boolean update, RepositoryEvent event) {
 		super(source);
-		this.suppress = suppress;
+		this.update = update;
 		this.event = event;
 	}
 
@@ -64,14 +65,15 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	}
 
 	/**
-	 * Return a boolean that indicates whether the client should respond to this
+	 * Return a boolean that indicates whether the client should update the UI in response
+	 * to this event.
 	 * event.
 	 * 
-	 * @return <code>true</code> if clients should respond to this event, <code>false</code>
+	 * @return <code>true</code> if clients should update to reflect to this event, <code>false</code>
 	 * if the client should ignore the entire operation.
 	 */
-	public boolean ignoreEvent() {
-		return suppress;
+	public boolean update() {
+		return update;
 	}
 
 }

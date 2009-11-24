@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.operations;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
@@ -20,19 +19,14 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IEngine;
@@ -154,115 +148,6 @@ public class ProvisioningSession {
 	}
 
 	/**
-	 * Load the specified metadata repository, signaling an operation start event
-	 * before loading, and an operation complete event after loading.
-	 * 
-	 * @param location the location of the repository
-	 * @param monitor the progress monitor to be used
-	 * @return the repository
-	 * @throws ProvisionException if the repository could not be loaded
-	 */
-
-	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepository repo;
-		try {
-			signalOperationStart();
-			repo = getMetadataRepositoryManager().loadRepository(location, monitor);
-			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
-			// This will keep the name in the manager even when the repo is not loaded
-			String name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null || name.length() == 0) {
-				name = repo.getName();
-				if (name != null && name.length() > 0)
-					getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
-			}
-		} finally {
-			// We have no idea how many repos may have been touched as a result of loading this one,
-			// so in theory we would not use a specific repository event to represent it.  
-			// In practice this can cause problems in the UI like losing selections in the repo combo.
-			// So we signal an add event.
-			signalOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), false);
-		}
-		return repo;
-	}
-
-	/**
-	 * Refresh the specified metadata repositories, signaling an operation start event
-	 * before refreshing, and an operation complete event after refreshing.
-	 * 
-	 * @param locations an array of repository locations that should be refreshed
-	 * @param monitor the progress monitor to be used
-	 */
-	public void refreshMetadataRepositories(URI[] locations, IProgressMonitor monitor) {
-		signalOperationStart();
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
-		for (int i = 0; i < locations.length; i++) {
-			try {
-				getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
-			} catch (ProvisionException e) {
-				//ignore problematic repositories when refreshing
-			}
-		}
-		// We have no idea how many repos may have been added/removed as a result of 
-		// refreshing these, this one, so we do not use a specific repository event to represent it.
-		signalOperationComplete(null, false);
-	}
-
-	/**
-	 * Load the specified artifact repository, signaling an operation start event
-	 * before loading, and an operation complete event after loading.
-	 * 
-	 * @param location the location of the repository
-	 * @param monitor the progress monitor to be used
-	 * @return the repository
-	 * @throws ProvisionException if the repository could not be loaded
-	 */
-
-	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepository repo;
-		signalOperationStart();
-		try {
-			repo = getArtifactRepositoryManager().loadRepository(location, monitor);
-
-			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
-			// This will keep the name in the manager even when the repo is not loaded
-			String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null) {
-				name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
-				if (name != null)
-					getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
-			}
-		} finally {
-			// We have no idea how many repos may have been touched as a result of loading this one,
-			// so we do not use a specific repository event to represent it.
-			signalOperationComplete(null, false);
-		}
-		return repo;
-	}
-
-	/**
-	 * Refresh the specified artifact repositories, signalling an operation start event
-	 * before refreshing, and an operation complete event after refreshing.
-	 * 
-	 * @param locations an array of repository locations that should be refreshed
-	 * @param monitor the progress monitor to be used
-	 */
-	public void refreshArtifactRepositories(URI[] locations, IProgressMonitor monitor) {
-		signalOperationStart();
-		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
-		for (int i = 0; i < locations.length; i++) {
-			try {
-				getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
-			} catch (ProvisionException e) {
-				//ignore problematic repositories when refreshing
-			}
-		}
-		// We have no idea how many repos may have been added/removed as a result of 
-		// refreshing these, this one, so we do not use a specific repository event to represent it.
-		signalOperationComplete(null, false);
-	}
-
-	/**
 	 * Return the profile associated with the specified id.
 	 * @param id the profile id
 	 * 
@@ -369,25 +254,6 @@ public class ProvisioningSession {
 			}
 		}
 		return getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));
-	}
-
-	/**
-	 * Signal that an operation is about to begin.  This allows clients to ignore intermediate
-	 * events until the operation is completed.  Callers are responsible for ensuring that
-	 * a corresponding operation ending event is signaled.
-	 */
-	public void signalOperationStart() {
-		getProvisioningEventBus().publishEvent(new RepositoryOperationBeginningEvent(this));
-	}
-
-	/**
-	 * Signal that an operation has completed.
-	 * 
-	 * @param item the last object known to be affected by this operation.  May be <code>null</code>.
-	 * It is up to clients to interpret this object.
-	 */
-	public void signalOperationComplete(RepositoryEvent event, boolean ignore) {
-		getProvisioningEventBus().publishEvent(new RepositoryOperationEndingEvent(this, ignore, event));
 	}
 
 	/**

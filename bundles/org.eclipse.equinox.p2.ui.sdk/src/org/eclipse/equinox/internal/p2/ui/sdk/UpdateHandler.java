@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 

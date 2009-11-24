@@ -16,8 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningLis
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.operations.RepositoryOperationBeginningEvent;
-import org.eclipse.equinox.p2.operations.RepositoryOperationEndingEvent;
 
 /**
  * ProvisioningListener which handles event batching and other
@@ -48,9 +46,9 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 			// A batch operation completed.  Refresh.
 			if (batchCount <= 0) {
 				RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
-				if (event.getEvent() == null && !event.ignoreEvent())
+				if (event.getEvent() == null && event.update())
 					refreshAll();
-				else
+				else if (event.update())
 					notify(event.getEvent());
 			}
 		} else if (batchCount > 0) {

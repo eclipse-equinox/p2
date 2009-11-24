@@ -86,7 +86,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	public IRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
-				repo = ui.getSession().loadArtifactRepository(location, monitor);
+				repo = ui.loadArtifactRepository(location, monitor);
 			} catch (ProvisionException e) {
 				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 			} catch (OperationCanceledException e) {

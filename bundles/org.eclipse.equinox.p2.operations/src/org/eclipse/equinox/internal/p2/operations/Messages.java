@@ -25,11 +25,6 @@ public class Messages extends NLS {
 	public static String InstallOperation_InstallJobName;
 	public static String InstallOperation_ResolveJobName;
 
-	public static String PreloadMetadataRepositoryJob_ContactingSites;
-
-	public static String PreloadMetadataRepositoryJob_SomeSitesNotFound;
-	public static String PreloadRepositoryJob_LoadJobName;
-
 	public static String ProfileChangeOperation_NoProfileChangeRequest;
 	public static String ProfileChangeOperation_ResolveTaskName;
 

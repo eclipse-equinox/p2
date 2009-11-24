@@ -560,7 +560,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		try {
 			dialog.run(true, true, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
-					SubMonitor mon = SubMonitor.convert(monitor, NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 300);
+					monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
 					try {
 						tracker.clearRepositoryNotFound(location);
 						// If the manager doesn't know this repo, refreshing it will not work.
@@ -568,23 +568,22 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
 							// Start a batch operation so we can swallow events
 							remove[0] = true;
-							ui.getSession().signalOperationStart();
+							ui.signalRepositoryOperationStart();
 							tracker.addRepository(location, selected[0].getName(), ui.getSession());
 						}
-						ui.getSession().refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
-						ui.getSession().refreshMetadataRepositories(new URI[] {location}, mon.newChild(100));
+						tracker.refreshRepositories(new URI[] {location}, ui.getSession(), monitor);
 					} catch (OperationCanceledException e) {
 						// Catch canceled login attempts
 						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e));
 					} finally {
 						// Check if the monitor was canceled
-						if (fail[0] == null && mon.isCanceled())
+						if (fail[0] == null && monitor.isCanceled())
 							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
 							tracker.removeRepositories(new URI[] {location}, ui.getSession());
 							// stop swallowing events
-							ui.getSession().signalOperationComplete(null, true);
+							ui.signalRepositoryOperationComplete(null, false);
 						}
 					}
 				}
@@ -811,6 +810,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
 					return session.getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
+				}
+
+				public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
+					// Nothing to refresh in the local cache
 				}
 			};
 		return localCacheRepoManipulator;

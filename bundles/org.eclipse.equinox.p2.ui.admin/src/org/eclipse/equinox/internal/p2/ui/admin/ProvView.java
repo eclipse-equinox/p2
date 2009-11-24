@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
@@ -188,11 +187,7 @@ abstract class ProvView extends ViewPart {
 		if (service != null)
 			service.schedule(job);
 		else
-			job.runModal(getProgressMonitor());
-	}
-
-	protected IProgressMonitor getProgressMonitor() {
-		return new NullProgressMonitor();
+			job.runModal(new NullProgressMonitor());
 	}
 
 	protected void configureViewer(final TreeViewer treeViewer) {
@@ -225,7 +220,7 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected void refreshUnderlyingModel() {
-		// Default is to do nothing
+		// do nothing by default
 	}
 
 	protected List getVisualProperties() {

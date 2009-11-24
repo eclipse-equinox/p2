@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard

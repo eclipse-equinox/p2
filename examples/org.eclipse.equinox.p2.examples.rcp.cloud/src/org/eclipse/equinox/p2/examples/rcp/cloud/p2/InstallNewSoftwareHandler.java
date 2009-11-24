@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.p2.operations.LoadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard
@@ -45,6 +46,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 		// user is unaware that loading was needed
 		if (!waitForPreload()) {
 			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
+			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
 		}
 	}
 }

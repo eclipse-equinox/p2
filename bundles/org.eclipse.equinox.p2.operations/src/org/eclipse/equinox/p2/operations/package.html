@@ -8,11 +8,7 @@
 </head>
 <body>
 Describes high level provisioning operations that can be resolved and performed
-either modally or in the background.  Additional operations are defined for 
-lower level provisioning tasks such as managing provisioning repositories.
-Operation-level events are published so that clients can respond to the operation
-as a whole rather than the fine-grained events that are published by the core
-components during the operation.
+either modally or in the background.  
 <h2>
 Package Specification</h2>
 <p>
@@ -23,14 +19,8 @@ modify a profile.  These operations generally are performed in two phases, the r
 of the operation, followed by the provisioning of the resolved operation.  Both the
 resolution and the provisioning tasks can be performed either synchronously or as jobs.
 </li>
-<li><b>Repository Jobs</b> manage the addition, removal, loading, or refreshing of one
-or more repositories.  The jobs provide all the necessary infrastructure for progress
-monitor management and high-level event notification.  The jobs can be run synchronously
-or scheduled as a platform job.
-</li>
-<li><b>Operation Events</b> are published as operations start and complete.  Clients
-of p2 that perform operations can listen to these events rather than the corresponding
-core events as a way of batching their response to the intermediate events.
+<li><b>Provisioning Jobs</b> describe lower level provisioning tasks that can
+be performed synchronously or in the background.
 </li>
 <li><b>ProvisioningSession</b> represents a particular instance of a p2 provisioning
 system.  It provides access to all of the p2 core services as well as utility methods

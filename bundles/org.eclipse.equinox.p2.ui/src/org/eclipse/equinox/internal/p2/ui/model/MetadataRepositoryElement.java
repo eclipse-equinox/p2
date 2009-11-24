@@ -115,7 +115,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
 		if (queryable == null)
-			queryable = getProvisioningUI().getSession().loadMetadataRepository(location, monitor);
+			queryable = getProvisioningUI().loadMetadataRepository(location, monitor);
 		return (IMetadataRepository) queryable;
 
 	}
