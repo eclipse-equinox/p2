@@ -82,7 +82,7 @@ public class QueryProvider {
 				IProfile targetProfile = null;
 				String profileId = context.getInstalledProfileId();
 				if (profileId != null) {
-					targetProfile = ui.getSession().getProfile(profileId);
+					targetProfile = ui.getSession().getProfileRegistry().getProfile(profileId);
 				}
 
 				IQuery topLevelQuery = policy.getVisibleAvailableIUQuery();
@@ -133,7 +133,7 @@ public class QueryProvider {
 				IProfile profile;
 				IInstallableUnit[] toUpdate = null;
 				if (element instanceof Updates) {
-					profile = ui.getSession().getProfile(((Updates) element).getProfileId());
+					profile = ui.getSession().getProfileRegistry().getProfile(((Updates) element).getProfileId());
 					toUpdate = ((Updates) element).getIUs();
 				} else {
 					profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);

@@ -75,6 +75,6 @@ public class IUProfilePropertiesGroup extends IUGroup {
 	}
 
 	private IProfile getProfile(InstalledIUElement element) {
-		return ProvisioningUI.getDefaultUI().getSession().getProfile(element.getProfileId());
+		return ProvisioningUI.getDefaultUI().getSession().getProfileRegistry().getProfile(element.getProfileId());
 	}
 }

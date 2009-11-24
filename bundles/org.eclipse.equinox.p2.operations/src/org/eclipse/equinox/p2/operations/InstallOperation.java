@@ -65,7 +65,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(profileId);
 		IProfile profile;
-		profile = session.getProfile(profileId);
+		profile = session.getProfileRegistry().getProfile(profileId);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.length);
 		for (int i = 0; i < toInstall.length; i++) {
 			// If the user is installing a patch, we mark it optional.  This allows

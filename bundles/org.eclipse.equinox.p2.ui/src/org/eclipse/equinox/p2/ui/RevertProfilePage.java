@@ -352,7 +352,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				IProfile currentProfile;
-				currentProfile = getSession().getProfile(profileId);
+				currentProfile = getSession().getProfileRegistry().getProfile(profileId);
 				plan[0] = getSession().getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
 			}
 		};

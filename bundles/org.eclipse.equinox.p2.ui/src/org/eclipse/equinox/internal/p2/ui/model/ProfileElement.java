@@ -52,7 +52,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	public IQueryable getQueryable() {
-		return getProvisioningUI().getSession().getProfile(profileId);
+		return getProvisioningUI().getSession().getProfileRegistry().getProfile(profileId);
 	}
 
 	/*

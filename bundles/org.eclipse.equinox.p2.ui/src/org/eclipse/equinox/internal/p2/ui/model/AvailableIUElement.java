@@ -90,7 +90,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	}
 
 	protected IProfile getProfile() {
-		return getProvisioningUI().getSession().getProfile(profileID);
+		return getProvisioningUI().getSession().getProfileRegistry().getProfile(profileID);
 	}
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {

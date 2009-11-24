@@ -163,7 +163,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 		Set toBeUpdated = new HashSet();
 		HashSet elementsToPlan = new HashSet();
 		boolean selectionSpecified = false;
-		IProfile profile = session.getProfile(profileId);
+		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		if (profile == null)
 			return;
 

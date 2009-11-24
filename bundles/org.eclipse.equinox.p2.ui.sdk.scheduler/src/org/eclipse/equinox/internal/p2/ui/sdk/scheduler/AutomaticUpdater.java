@@ -65,10 +65,10 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	private boolean sameProfile(String another) {
 		if (another.equals(IProfileRegistry.SELF)) {
-			another = getSession().getProfile(another).getProfileId();
+			another = getSession().getProfileRegistry().getProfile(another).getProfileId();
 		}
 		if (profileId.equals(IProfileRegistry.SELF)) {
-			profileId = getSession().getProfile(profileId).getProfileId();
+			profileId = getSession().getProfileRegistry().getProfile(profileId).getProfileId();
 		}
 		return profileId.equals(another);
 	}
@@ -152,7 +152,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void validateIusToUpdate() {
 		ArrayList list = new ArrayList();
-		IProfile profile = getSession().getProfile(profileId);
+		IProfile profile = getSession().getProfileRegistry().getProfile(profileId);
 
 		for (int i = 0; i < iusWithUpdates.length; i++) {
 			try {

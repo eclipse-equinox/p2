@@ -148,17 +148,6 @@ public class ProvisioningSession {
 	}
 
 	/**
-	 * Return the profile associated with the specified id.
-	 * @param id the profile id
-	 * 
-	 * @return the profile, or <code>null</code> if the profile
-	 * does not exist
-	 */
-	public IProfile getProfile(String id) {
-		return getProfileRegistry().getProfile(id);
-	}
-
-	/**
 	 * Get sizing information about the specified plan.
 	 * 
 	 * @param plan the provisioning plan
@@ -311,7 +300,7 @@ public class ProvisioningSession {
 	 * @return an array of IInstallableUnits installed in the profile.
 	 */
 	public IInstallableUnit[] getInstalledIUs(String profileId, boolean all) {
-		IProfile profile = this.getProfile(profileId);
+		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
 			return new IInstallableUnit[0];
 		IQuery query;
