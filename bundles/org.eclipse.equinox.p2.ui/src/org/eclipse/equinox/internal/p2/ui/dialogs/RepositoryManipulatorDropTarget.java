@@ -15,7 +15,6 @@ import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.p2.operations.AddRepositoryJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
@@ -64,8 +63,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
 				if (status.isOK()) {
-					AddRepositoryJob addOperation = tracker.getAddOperation(location[0], ui.getSession());
-					ui.schedule(addOperation, StatusManager.SHOW | StatusManager.LOG);
+					tracker.addRepository(location[0], null, ui.getSession());
 					event.detail = DND.DROP_LINK;
 				} else if (status.getSeverity() == IStatus.CANCEL) {
 					event.detail = DND.DROP_NONE;

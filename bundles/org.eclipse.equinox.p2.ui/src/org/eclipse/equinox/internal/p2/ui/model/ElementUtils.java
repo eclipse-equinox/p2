@@ -91,7 +91,7 @@ public class ElementUtils {
 						}
 					}
 				} finally {
-					session.signalOperationComplete(null);
+					session.signalOperationComplete(null, false);
 				}
 				return Status.OK_STATUS;
 			}

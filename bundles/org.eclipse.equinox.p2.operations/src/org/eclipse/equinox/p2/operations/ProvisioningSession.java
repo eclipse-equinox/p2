@@ -32,9 +32,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -176,7 +176,11 @@ public class ProvisioningSession {
 					getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} finally {
-			signalOperationComplete(location);
+			// We have no idea how many repos may have been touched as a result of loading this one,
+			// so in theory we would not use a specific repository event to represent it.  
+			// In practice this can cause problems in the UI like losing selections in the repo combo.
+			// So we signal an add event.
+			signalOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), false);
 		}
 		return repo;
 	}
@@ -198,10 +202,9 @@ public class ProvisioningSession {
 				//ignore problematic repositories when refreshing
 			}
 		}
-		if (locations.length == 1)
-			signalOperationComplete(locations[0]);
-		else
-			signalOperationComplete(null);
+		// We have no idea how many repos may have been added/removed as a result of 
+		// refreshing these, this one, so we do not use a specific repository event to represent it.
+		signalOperationComplete(null, false);
 	}
 
 	/**
@@ -229,7 +232,9 @@ public class ProvisioningSession {
 					getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} finally {
-			signalOperationComplete(location);
+			// We have no idea how many repos may have been touched as a result of loading this one,
+			// so we do not use a specific repository event to represent it.
+			signalOperationComplete(null, false);
 		}
 		return repo;
 	}
@@ -251,10 +256,9 @@ public class ProvisioningSession {
 				//ignore problematic repositories when refreshing
 			}
 		}
-		if (locations.length == 1)
-			signalOperationComplete(locations[0]);
-		else
-			signalOperationComplete(null);
+		// We have no idea how many repos may have been added/removed as a result of 
+		// refreshing these, this one, so we do not use a specific repository event to represent it.
+		signalOperationComplete(null, false);
 	}
 
 	/**
@@ -372,7 +376,7 @@ public class ProvisioningSession {
 	 * a corresponding operation ending event is signaled.
 	 */
 	public void signalOperationStart() {
-		getProvisioningEventBus().publishEvent(new OperationBeginningEvent(this));
+		getProvisioningEventBus().publishEvent(new RepositoryOperationBeginningEvent(this));
 	}
 
 	/**
@@ -381,8 +385,8 @@ public class ProvisioningSession {
 	 * @param item the last object known to be affected by this operation.  May be <code>null</code>.
 	 * It is up to clients to interpret this object.
 	 */
-	public void signalOperationComplete(Object item) {
-		getProvisioningEventBus().publishEvent(new OperationEndingEvent(this, item));
+	public void signalOperationComplete(RepositoryEvent event, boolean ignore) {
+		getProvisioningEventBus().publishEvent(new RepositoryOperationEndingEvent(this, ignore, event));
 	}
 
 	/**

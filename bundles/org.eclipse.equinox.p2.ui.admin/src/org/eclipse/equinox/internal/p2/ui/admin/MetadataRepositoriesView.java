@@ -11,18 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -39,6 +36,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class MetadataRepositoriesView extends RepositoriesView {
 
 	private InstallAction installAction;
+	private RepositoryTracker tracker;
 
 	/**
 	 * The constructor.
@@ -65,15 +63,6 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected int openAddRepositoryDialog(Shell shell) {
 		return new AddMetadataRepositoryDialog(shell, getProvisioningUI()).open();
-	}
-
-	protected RemoveRepositoryJob getRemoveOperation(Object[] elements) {
-		ArrayList locations = new ArrayList();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof IRepositoryElement)
-				locations.add(((IRepositoryElement) elements[i]).getLocation());
-		}
-		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, getProvisioningUI().getSession(), (URI[]) locations.toArray(new URI[locations.size()]));
 	}
 
 	protected void makeActions() {
@@ -123,5 +112,14 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
 		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		return list;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getRepositoryTracker()
+	 */
+	protected RepositoryTracker getRepositoryTracker() {
+		if (tracker == null)
+			tracker = new MetadataRepositoryTracker();
+		return tracker;
 	}
 }

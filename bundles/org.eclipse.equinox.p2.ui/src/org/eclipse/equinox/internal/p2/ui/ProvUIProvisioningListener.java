@@ -11,14 +11,13 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.net.URI;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.operations.OperationBeginningEvent;
-import org.eclipse.equinox.p2.operations.OperationEndingEvent;
+import org.eclipse.equinox.p2.operations.RepositoryOperationBeginningEvent;
+import org.eclipse.equinox.p2.operations.RepositoryOperationEndingEvent;
 
 /**
  * ProvisioningListener which handles event batching and other
@@ -42,17 +41,17 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 	}
 
 	public void notify(EventObject o) {
-		if (o instanceof OperationBeginningEvent) {
+		if (o instanceof RepositoryOperationBeginningEvent) {
 			batchCount++;
-		} else if (o instanceof OperationEndingEvent) {
+		} else if (o instanceof RepositoryOperationEndingEvent) {
 			batchCount--;
 			// A batch operation completed.  Refresh.
 			if (batchCount <= 0) {
-				OperationEndingEvent event = (OperationEndingEvent) o;
-				if (event.getItem() == null)
+				RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
+				if (event.getEvent() == null && !event.ignoreEvent())
 					refreshAll();
 				else
-					refreshItem(event.getItem());
+					notify(event.getEvent());
 			}
 		} else if (batchCount > 0) {
 			// We are in the middle of a batch operation
@@ -191,20 +190,6 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 	 */
 	protected void refreshAll() {
 		// Do nothing by default.
-	}
-
-	/**
-	 * An event requiring a partial refresh of the listener's state has
-	 * been received.  The item indicates what has changed.  May be called from a 
-	 * non-UI thread.
-	 */
-	protected void refreshItem(Object item) {
-		// Something has changed after a batch operation.  
-		// If a repo has been refreshed, behave as if the URI has just been
-		// added, so that all related views will refresh.
-		if (item instanceof URI) {
-			repositoryAdded(new RepositoryEvent((URI) item, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true));
-		}
 	}
 
 	public int getEventTypes() {

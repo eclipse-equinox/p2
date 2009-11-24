@@ -41,7 +41,6 @@ public class ProvUIMessages extends NLS {
 	public static String ApplyProfileChangesDialog_Restart;
 	public static String ApplyProfileChangesDialog_NotYet;
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
-	public static String ColocatedRepositoryManipulator_RemoveSiteOperationLabel;
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
 	public static String RevertProfilePage_Delete;
@@ -107,7 +106,6 @@ public class ProvUIMessages extends NLS {
 	public static String RefreshAction_Label;
 	public static String RefreshAction_Tooltip;
 	public static String RemoveColocatedRepositoryAction_Label;
-	public static String RemoveColocatedRepositoryAction_OperationLabel;
 	public static String RemoveColocatedRepositoryAction_Tooltip;
 	public static String RevertIUCommandLabel;
 	public static String RevertIUCommandTooltip;
@@ -204,7 +202,6 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_IdColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
-	public static String ProvUIActivator_ErrorSavingPreferences;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
 	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;
 	public static String OptionalPlatformRestartMessage;

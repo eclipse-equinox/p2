@@ -21,7 +21,8 @@ import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -540,10 +541,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	void addRepository() {
 		AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), ui) {
 			protected RepositoryTracker getRepositoryTracker() {
-				return RepositoryManipulationPage.this.getRepositoryManipulator();
+				return RepositoryManipulationPage.this.getLocalCacheRepoTracker();
 			}
 		};
-		dialog.setTitle(tracker.getAddOperation(null, ui.getSession()).getName());
+		dialog.setTitle(ProvUIMessages.ColocatedRepositoryManipulator_AddSiteOperationLabel);
 		dialog.open();
 	}
 
@@ -568,8 +569,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							// Start a batch operation so we can swallow events
 							remove[0] = true;
 							ui.getSession().signalOperationStart();
-							AddRepositoryJob op = tracker.getAddOperation(location, ui.getSession());
-							op.runModal(mon.newChild(100));
+							tracker.addRepository(location, selected[0].getName(), ui.getSession());
 						}
 						ui.getSession().refreshArtifactRepositories(new URI[] {location}, mon.newChild(100));
 						ui.getSession().refreshMetadataRepositories(new URI[] {location}, mon.newChild(100));
@@ -582,10 +582,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
-							RemoveRepositoryJob op = tracker.getRemoveOperation(new URI[] {location}, ui.getSession());
-							op.runModal(new NullProgressMonitor());
+							tracker.removeRepositories(new URI[] {location}, ui.getSession());
 							// stop swallowing events
-							ui.getSession().signalOperationComplete(null);
+							ui.getSession().signalOperationComplete(null, true);
 						}
 					}
 				}
@@ -787,47 +786,27 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	// Return a repo manipulator that only operates on the local cache.
 	// Labels and other presentation info are used from the original manipulator.
-	RepositoryTracker getRepositoryManipulator() {
+	RepositoryTracker getLocalCacheRepoTracker() {
 		if (localCacheRepoManipulator == null)
 			localCacheRepoManipulator = new RepositoryTracker() {
-				public AddRepositoryJob getAddOperation(URI location, ProvisioningSession session) {
-					return new AddRepositoryJob("Cached add repo operation", session, new URI[] {location}) { //$NON-NLS-1$
-						public IStatus runModal(IProgressMonitor monitor) {
-							MetadataRepositoryElement element = null;
-							for (int i = 0; i < locations.length; i++) {
-								element = new MetadataRepositoryElement(getInput(), locations[i], true);
-								String[] nicknames = getNicknames();
-								if (nicknames != null)
-									element.setNickname(nicknames[i]);
-								getInput().cachedElements.put(URIUtil.toUnencodedString(locations[i]), element);
-							}
-							changed = true;
-							safeRefresh(element);
-							return Status.OK_STATUS;
-						}
-
-						protected IStatus doSignaledWork(IProgressMonitor monitor) {
-							// Not called due to override of runModal
-							return null;
-						}
-
-						protected void setNickname(URI loc, String nickname) {
-							// Not called due to override of runModal
-						}
-					};
+				public void addRepository(URI location, String nickname, ProvisioningSession session) {
+					MetadataRepositoryElement element = (MetadataRepositoryElement) getInput().cachedElements.get(URIUtil.toUnencodedString(location));
+					if (element == null) {
+						element = new MetadataRepositoryElement(getInput(), location, true);
+						getInput().cachedElements.put(URIUtil.toUnencodedString(location), element);
+					}
+					if (nickname != null)
+						element.setNickname(nickname);
+					changed = true;
+					safeRefresh(element);
 				}
 
 				public URI[] getKnownRepositories(ProvisioningSession session) {
 					return RepositoryManipulationPage.this.getKnownRepositories();
 				}
 
-				public RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session) {
-					return new RemoveRepositoryJob("Cached remove repo operation", session, repoLocations) { //$NON-NLS-1$
-						protected IStatus doSignaledWork(IProgressMonitor monitor) {
-							removeRepositories();
-							return Status.OK_STATUS;
-						}
-					};
+				public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
+					RepositoryManipulationPage.this.removeRepositories();
 				}
 
 				protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {

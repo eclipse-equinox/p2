@@ -15,10 +15,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.p2.operations.RepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 
@@ -27,12 +25,6 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 		setToolTipText(tooltipText);
 		init();
 	}
-
-	public void run() {
-		ui.schedule(getOperation(), StatusManager.SHOW | StatusManager.LOG);
-	}
-
-	protected abstract RepositoryJob getOperation();
 
 	protected URI[] getSelectedLocations(Object[] selectionArray) {
 		List urls = new ArrayList();

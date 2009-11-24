@@ -239,22 +239,19 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Return an operation that could be used to add a repository at the specified
-	 * location.
+	 * Add a repository at the specified location.
 	 *
-	 * @param repoLocation the location
+	 * @param repoLocation the location of the new repository
+	 * @param nickname the nickname for the repository, or <code>null</code> if there is no nickname
 	 * @param session the session to use for provisioning services
-	 * @return a job that adds the repository
 	 */
-	public abstract AddRepositoryJob getAddOperation(URI repoLocation, ProvisioningSession session);
+	public abstract void addRepository(URI repoLocation, String nickname, ProvisioningSession session);
 
 	/**
-	 * Return an operation that could be used to remove the repositories at the specified
-	 * locations.
+	 * Remove the repositories at the specified locations
 	 *
 	 * @param repoLocations the locations
 	 * @param session the session to use for provisioning services
-	 * @return a job that removes the repositories
 	 */
-	public abstract RemoveRepositoryJob getRemoveOperation(URI[] repoLocations, ProvisioningSession session);
+	public abstract void removeRepositories(URI[] repoLocations, ProvisioningSession session);
 }

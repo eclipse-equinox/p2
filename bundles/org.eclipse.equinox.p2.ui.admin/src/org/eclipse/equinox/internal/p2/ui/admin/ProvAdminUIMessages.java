@@ -24,7 +24,6 @@ public class ProvAdminUIMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvAdminUIMessages.class);
 	}
-	public static String AddArtifactRepositoryDialog_OperationLabel;
 	public static String AddProfileDialog_Title;
 	public static String MetadataRepositoriesView_AddRepositoryTooltip;
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
@@ -32,7 +31,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ArtifactRepositoriesView_AddRepositoryTooltip;
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;
-	public static String ArtifactRepositoriesView_RemoveRepositoryOperationLabel;
 	public static String ProfilesView_AddProfileTooltip;
 	public static String ProfilesView_AddProfileLabel;
 	public static String ProfilesView_RemoveProfileLabel;

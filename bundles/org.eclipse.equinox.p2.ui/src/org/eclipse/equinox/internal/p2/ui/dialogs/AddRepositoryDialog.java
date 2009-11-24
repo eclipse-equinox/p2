@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.operations.AddRepositoryJob;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
@@ -29,7 +28,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
@@ -138,23 +136,11 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
 			addedLocation = getUserLocation();
-			AddRepositoryJob op = getOperation(addedLocation);
 			String nick = nickname.getText().trim();
-			if (nick.length() > 0)
-				op.setNicknames(new String[] {nick});
-			getProvisioningUI().schedule(op, StatusManager.SHOW | StatusManager.LOG);
+			if (nick.length() == 0)
+				nick = null;
+			getRepositoryTracker().addRepository(addedLocation, nick, getProvisioningUI().getSession());
 		}
 		return status;
-	}
-
-	/**
-	 * Get an add operation appropriate for this dialog.  The default behavior
-	 * is to retrieve it from the policy, but subclasses may override.
-	 * 
-	 * @param repositoryLocation to be added
-	 * @return the add operation
-	 */
-	protected AddRepositoryJob getOperation(URI repositoryLocation) {
-		return getRepositoryTracker().getAddOperation(repositoryLocation, getProvisioningUI().getSession());
 	}
 }

@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.p2.operations.RemoveRepositoryJob;
-
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
@@ -21,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
@@ -47,7 +47,14 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			RepositoriesView.this.run(getRemoveOperation(getSelection().toArray()));
+			RepositoryTracker tracker = RepositoriesView.this.getRepositoryTracker();
+			Object[] elements = getSelection().toArray();
+			ArrayList uris = new ArrayList(elements.length);
+			for (int i = 0; i < elements.length; i++) {
+				if (elements[i] instanceof IRepositoryElement)
+					uris.add(((IRepositoryElement) elements[i]).getLocation());
+			}
+			tracker.removeRepositories((URI[]) uris.toArray(new URI[uris.size()]), RepositoriesView.this.getProvisioningUI().getSession());
 		}
 	}
 
@@ -165,9 +172,9 @@ abstract class RepositoriesView extends ProvView {
 
 	}
 
-	protected abstract int openAddRepositoryDialog(Shell shell);
+	protected abstract RepositoryTracker getRepositoryTracker();
 
-	protected abstract RemoveRepositoryJob getRemoveOperation(Object[] elements);
+	protected abstract int openAddRepositoryDialog(Shell shell);
 
 	protected abstract String getAddCommandLabel();
 

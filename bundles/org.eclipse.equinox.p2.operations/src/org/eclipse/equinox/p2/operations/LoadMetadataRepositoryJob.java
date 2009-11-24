@@ -45,6 +45,13 @@ public class LoadMetadataRepositoryJob extends RepositoryJob {
 
 	/**
 	 * The key that should be used to set a property on a repository load job to indicate
+	 * that repository events triggered by this job should be suppressed so that clients
+	 * will ignore all events related to the load.
+	 */
+	public static final QualifiedName SUPPRESS_REPOSITORY_EVENTS = new QualifiedName(Activator.ID, "SUPRESS_REPOSITORY_EVENTS"); //$NON-NLS-1$
+
+	/**
+	 * The key that should be used to set a property on a repository load job to indicate
 	 * that load errors should be accumulated into a single status rather than reported
 	 * as they occur.
 	 */
@@ -64,10 +71,26 @@ public class LoadMetadataRepositoryJob extends RepositoryJob {
 		this.tracker = tracker;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus runModal(IProgressMonitor monitor) {
+		if (locations == null || locations.length == 0)
+			return Status.OK_STATUS;
+
+		// We batch all the time as a way of distinguishing client-initiated repository 
+		// jobs from low level repository manipulation.
+		getSession().signalOperationStart();
+		try {
+			doLoad(monitor);
+		} finally {
+			getSession().signalOperationComplete(null, getProperty(SUPPRESS_REPOSITORY_EVENTS) != null);
+		}
+		return Status.OK_STATUS;
+	}
+
+	private IStatus doLoad(IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.PreloadMetadataRepositoryJob_ContactingSites, locations.length * 100);
 		if (sub.isCanceled())
 			return Status.CANCEL_STATUS;

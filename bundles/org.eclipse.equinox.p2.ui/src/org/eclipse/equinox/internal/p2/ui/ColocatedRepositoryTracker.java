@@ -13,8 +13,9 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 
 /**
  * Provides a repository tracker that interprets URLs as colocated
@@ -30,10 +31,6 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}
 
-	public AddRepositoryJob getAddOperation(URI repoLocation, ProvisioningSession session) {
-		return new AddColocatedRepositoryJob(ProvUIMessages.ColocatedRepositoryManipulator_AddSiteOperationLabel, session, repoLocation);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
@@ -42,11 +39,38 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		return session.getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
 	}
 
-	public RemoveRepositoryJob getRemoveOperation(URI[] reposToRemove, ProvisioningSession session) {
-		return new RemoveColocatedRepositoryJob(ProvUIMessages.ColocatedRepositoryManipulator_RemoveSiteOperationLabel, session, reposToRemove);
-	}
-
 	protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
 		return session.getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
+	}
+
+	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
+		session.signalOperationStart();
+		try {
+			session.getMetadataRepositoryManager().addRepository(repoLocation);
+			session.getArtifactRepositoryManager().addRepository(repoLocation);
+			if (nickname != null) {
+				session.getMetadataRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+				session.getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+
+			}
+		} finally {
+			// We know that the UI only responds to metadata repo events so we cheat...
+			session.signalOperationComplete(new RepositoryEvent(repoLocation, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), false);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
+	 */
+	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
+		session.signalOperationStart();
+		try {
+			for (int i = 0; i < repoLocations.length; i++) {
+				session.getMetadataRepositoryManager().removeRepository(repoLocations[i]);
+				session.getArtifactRepositoryManager().removeRepository(repoLocations[i]);
+			}
+		} finally {
+			session.signalOperationComplete(null, false);
+		}
 	}
 }

@@ -12,8 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.actions;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.RemoveColocatedRepositoryJob;
-import org.eclipse.equinox.p2.operations.RepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
 
@@ -24,7 +22,7 @@ public class RemoveColocatedRepositoryAction extends ColocatedRepositoryAction {
 
 	}
 
-	protected RepositoryJob getOperation() {
-		return new RemoveColocatedRepositoryJob(ProvUIMessages.RemoveColocatedRepositoryAction_OperationLabel, ui.getSession(), getSelectedLocations(getStructuredSelection().toArray()));
+	public void run() {
+		ui.getRepositoryTracker().removeRepositories(getSelectedLocations(getStructuredSelection().toArray()), ui.getSession());
 	}
 }

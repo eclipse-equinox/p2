@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
-import org.eclipse.equinox.p2.operations.AddRepositoryJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
@@ -41,7 +40,6 @@ import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * A RepositorySelectionGroup is a reusable UI component that displays 
@@ -510,10 +508,6 @@ public class RepositorySelectionGroup {
 			repoComboSelectionChanged();
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(repoCombo.getShell(), ui) {
-				protected AddRepositoryJob getOperation(URI repositoryLocation) {
-					AddRepositoryJob op = manipulator.getAddOperation(repositoryLocation, ui.getSession());
-					return op;
-				}
 
 				protected String getInitialLocationText() {
 					if (isNewText)
@@ -522,7 +516,7 @@ public class RepositorySelectionGroup {
 				}
 
 			};
-			dialog.setTitle(manipulator.getAddOperation(null, ui.getSession()).getName());
+			dialog.setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 			dialog.open();
 			URI location = dialog.getAddedLocation();
 			if (location != null)
@@ -546,15 +540,7 @@ public class RepositorySelectionGroup {
 							}
 						}
 						if (status.isOK() && location != null) {
-							AddRepositoryJob op = manipulator.getAddOperation(location, ui.getSession());
-							status = op.runModal(monitor);
-							if (status.isOK())
-								fillRepoCombo(getSiteString(location));
-							else {
-								if (status.getSeverity() == IStatus.CANCEL)
-									return;
-								ProvUI.reportStatus(status, StatusManager.SHOW);
-							}
+							manipulator.addRepository(location, null, ui.getSession());
 						}
 						setRepoComboDecoration(status);
 					}

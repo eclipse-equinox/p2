@@ -37,7 +37,6 @@ public class Messages extends NLS {
 	public static String ProvisioningSession_AgentNotFound;
 
 	public static String ProvisioningSession_InstallPlanConfigurationError;
-	public static String ProvisioningSession_LoadRepositoryFailure;
 
 	public static String PlanAnalyzer_IgnoringInstall;
 	public static String PlanAnalyzer_LockedImpliedUpdate0;
