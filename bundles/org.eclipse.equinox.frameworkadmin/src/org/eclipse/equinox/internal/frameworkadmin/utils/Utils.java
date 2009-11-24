@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class Utils {
@@ -85,13 +87,15 @@ public class Utils {
 
 			// It is not a manifest, but a plugin or a fragment
 			try {
-				Manifest m = new Manifest(manifestStream);
-				Dictionary manifest = manifestToProperties(m.getMainAttributes());
+				Map manifest = ManifestElement.parseBundleManifest(manifestStream, null);
 				// add this check to handle the case were we read a non-OSGi manifest
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
 					return convertPluginManifest(bundleLocation, true);
-				return manifest;
+				return manifestToProperties(manifest);
 			} catch (IOException ioe) {
+				System.out.println(ioe);
+				return null;
+			} catch (BundleException be) {
 				return null;
 			}
 		} finally {
@@ -498,12 +502,12 @@ public class Utils {
 		return new URL(fromSt + "/" + path);
 	}
 
-	private static Properties manifestToProperties(Attributes d) {
+	private static Properties manifestToProperties(Map d) {
 		Iterator iter = d.keySet().iterator();
 		Properties result = new Properties();
 		while (iter.hasNext()) {
-			Attributes.Name key = (Attributes.Name) iter.next();
-			result.put(key.toString(), d.get(key));
+			String key = (String) iter.next();
+			result.put(key, d.get(key));
 		}
 		return result;
 	}
