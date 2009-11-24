@@ -13,26 +13,30 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.operations.RepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * @since 3.4
  *
  */
-public class RefreshMetadataRepositoriesOperation extends RepositoryJob {
+public class RefreshMetadataRepositoriesOperation extends ProvisioningJob {
+
+	private URI[] locations;
 
 	/**
 	 * @param label
 	 * @param locations
 	 */
 	public RefreshMetadataRepositoriesOperation(String label, ProvisioningSession session, URI[] locations) {
-		super(label, session, locations);
+		super(label, session);
+		this.locations = locations;
 	}
 
 	public RefreshMetadataRepositoriesOperation(String label, ProvisioningSession session, int flags) {
-		super(label, session, session.getMetadataRepositoryManager().getKnownRepositories(flags));
+		super(label, session);
+		this.locations = session.getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {

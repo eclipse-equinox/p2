@@ -13,25 +13,28 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.operations.RepositoryJob;
 
 /**
  * @since 3.4
  *
  */
-public class RefreshArtifactRepositoriesOperation extends RepositoryJob {
+public class RefreshArtifactRepositoriesOperation extends ProvisioningJob {
+
+	private URI[] locations;
 
 	/**
 	 * @param label
 	 * @param locations
 	 */
 	public RefreshArtifactRepositoriesOperation(String label, ProvisioningSession session, URI[] locations) {
-		super(label, session, locations);
+		super(label, session);
+		this.locations = locations;
 	}
 
 	public RefreshArtifactRepositoriesOperation(String label, ProvisioningSession session, int flags) {
-		super(label, session, new URI[0]);
+		super(label, session);
 		this.locations = session.getArtifactRepositoryManager().getKnownRepositories(flags);
 	}
 

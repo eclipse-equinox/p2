@@ -30,7 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class LoadMetadataRepositoryJob extends RepositoryJob {
+public class LoadMetadataRepositoryJob extends ProvisioningJob {
 
 	/**
 	 * An object representing the family of jobs that load repositories.
@@ -60,6 +60,7 @@ public class LoadMetadataRepositoryJob extends RepositoryJob {
 	private List repoCache = new ArrayList();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
+	private URI[] locations;
 
 	/**
 	 * Create a job that loads the metadata repositories known by the specified RepositoryTracker.
@@ -67,8 +68,9 @@ public class LoadMetadataRepositoryJob extends RepositoryJob {
 	 * @param tracker the tracker that knows which repositories should be loaded
 	 */
 	public LoadMetadataRepositoryJob(ProvisioningSession session, RepositoryTracker tracker) {
-		super(Messages.PreloadRepositoryJob_LoadJobName, session, tracker.getKnownRepositories(session));
+		super(Messages.PreloadRepositoryJob_LoadJobName, session);
 		this.tracker = tracker;
+		this.locations = tracker.getKnownRepositories(session);
 	}
 
 	/*
