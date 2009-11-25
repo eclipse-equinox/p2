@@ -137,7 +137,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			IStatus result = engine.perform(profile, getPhaseSet(), operands, context, progress.newChild(1));
 			PhaseSet nativeSet = getNativePhase();
 			if (nativeSet != null)
-				engine.perform(profile, getNativePhase(), operands, context, progress.newChild(1));
+				engine.perform(profile, nativeSet, operands, context, progress.newChild(1));
 
 			// publish the metadata to a destination - if requested
 			publishMetadata(progress.newChild(1));
