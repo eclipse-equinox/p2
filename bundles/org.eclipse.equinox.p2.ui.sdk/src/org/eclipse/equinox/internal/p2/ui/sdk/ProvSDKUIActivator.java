@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -107,7 +108,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private LicenseManager getLicenseManager() {
-		return getProvisioningUI().getLicenseManager();
+		return (LicenseManager) ServiceHelper.getService(getContext(), LicenseManager.class.getName());
 	}
 
 	private void readLicenseRegistry() {
