@@ -53,6 +53,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();

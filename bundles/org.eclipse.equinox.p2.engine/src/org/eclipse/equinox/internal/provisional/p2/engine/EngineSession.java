@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -60,8 +59,18 @@ public class EngineSession {
 		this.agent = agent;
 		this.profile = profile;
 		this.context = context;
-		sessionServices.put(ProvisioningContext.class.getName(), context);
-		sessionServices.put(IProfile.class.getName(), profile);
+	}
+
+	public IProfile getProfile() {
+		return profile;
+	}
+
+	public IProvisioningAgent getAgent() {
+		return agent;
+	}
+
+	public ProvisioningContext getProvisioningContext() {
+		return context;
 	}
 
 	public File getProfileDataDirectory() {
@@ -74,7 +83,7 @@ public class EngineSession {
 	 * @param serviceName The name of the service to obtain
 	 * @return The service instance, or <code>null</code> if no such service is available
 	 */
-	public Object getService(String serviceName) {
+	public Object getxService(String serviceName) {
 		Object result = sessionServices.get(serviceName);
 		if (result != null)
 			return result;
@@ -208,7 +217,7 @@ public class EngineSession {
 	private IStatus rollBackPhase(Phase phase, List actionRecords) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		try {
-			phase.actionManager = (ActionManager) getService(ActionManager.SERVICE_NAME);
+			phase.actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
 
 			if (!currentPhaseActive)
 				phase.prePerform(result, this, new NullProgressMonitor());

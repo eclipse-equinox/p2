@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
-import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -27,6 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -253,11 +251,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 		return key;
 	}
 
-	protected EngineSession getSession(Map parameters) throws CoreException {
+	protected IProvisioningAgent getAgent(Map parameters) throws CoreException {
 		//We shouldn't really know about the session parameter
-		EngineSession session = (EngineSession) parameters.get("session"); //$NON-NLS-1$
-		if (session == null)
-			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, "session", getId()))); //$NON-NLS-1$
-		return session;
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get("agent"); //$NON-NLS-1$
+		if (agent == null)
+			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, "agent", getId()))); //$NON-NLS-1$
+		return agent;
 	}
 }

@@ -33,6 +33,7 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 		tempDir.mkdirs();
 
 		parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());

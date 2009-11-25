@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts
@@ -39,10 +39,10 @@ public class CheckTrust extends InstallableUnitPhase {
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_FILES);
-		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 
 		// Instantiate a check trust manager
-		CertificateChecker certificateChecker = new CertificateChecker(session);
+		CertificateChecker certificateChecker = new CertificateChecker(agent);
 		certificateChecker.add(artifactRequests.toArray());
 		IStatus status = certificateChecker.start();
 

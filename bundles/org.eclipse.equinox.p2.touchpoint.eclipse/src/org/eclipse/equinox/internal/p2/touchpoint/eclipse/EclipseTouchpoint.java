@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -22,9 +20,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.osgi.util.NLS;
 
 public class EclipseTouchpoint extends Touchpoint {
@@ -35,6 +36,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_LOCATION = "artifact.location"; //$NON-NLS-1$
+	private static final Object PARM_AGENT = "agent"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$
@@ -45,10 +47,10 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static Map sourceManipulators = new WeakHashMap();
 	private static Map preparedIUs = new WeakHashMap();
 
-	private static synchronized LazyManipulator getManipulator(IProfile profile) {
+	private static synchronized LazyManipulator getManipulator(IProvisioningAgent agent, IProfile profile) {
 		LazyManipulator manipulator = (LazyManipulator) manipulators.get(profile);
 		if (manipulator == null) {
-			manipulator = new LazyManipulator(profile);
+			manipulator = new LazyManipulator(agent, profile);
 			manipulators.put(profile, manipulator);
 		}
 		return manipulator;
@@ -60,11 +62,11 @@ public class EclipseTouchpoint extends Touchpoint {
 			manipulator.save(false);
 	}
 
-	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProfile profile, LazyManipulator manipulator) {
+	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProvisioningAgent agent, IProfile profile, LazyManipulator manipulator) {
 		PlatformConfigurationWrapper wrapper = (PlatformConfigurationWrapper) wrappers.get(profile);
 		if (wrapper == null) {
 			File configLocation = Util.getConfigurationFolder(profile);
-			URI poolURI = Util.getBundlePoolLocation(profile);
+			URI poolURI = Util.getBundlePoolLocation(agent, profile);
 			wrapper = new PlatformConfigurationWrapper(configLocation, poolURI, manipulator);
 			wrappers.put(profile, wrapper);
 		}
@@ -168,18 +170,20 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		LazyManipulator manipulator = getManipulator(profile);
+		IProvisioningAgent agent = (IProvisioningAgent) touchpointParameters.get(PARM_AGENT);
+		LazyManipulator manipulator = getManipulator(agent, profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, getSourceManipulator(profile));
-		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, getPlatformConfigurationWrapper(profile, manipulator));
+		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, getPlatformConfigurationWrapper(agent, profile, manipulator));
 		return null;
 	}
 
 	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		if (iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue()) {
-			IInstallableUnit preparedIU = prepareIU(iu, artifactKey, profile);
+			IInstallableUnit preparedIU = prepareIU(agent, profile, iu, artifactKey);
 			if (preparedIU == null)
 				return Util.createError(NLS.bind(Messages.failed_prepareIU, iu));
 
@@ -187,14 +191,14 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
-			File fileLocation = Util.getArtifactFile(artifactKey, profile);
+			File fileLocation = Util.getArtifactFile(agent, artifactKey, profile);
 			if (fileLocation != null && fileLocation.exists())
 				parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
 		}
 		return Status.OK_STATUS;
 	}
 
-	public IInstallableUnit prepareIU(IInstallableUnit iu, IArtifactKey artifactKey, IProfile profile) {
+	public IInstallableUnit prepareIU(IProvisioningAgent agent, IProfile profile, IInstallableUnit iu, IArtifactKey artifactKey) {
 		IInstallableUnit preparedIU = getPreparedIU(profile, iu);
 		if (preparedIU != null)
 			return preparedIU;
@@ -213,7 +217,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			if (artifactKey == null)
 				return iu;
 
-			File bundleFile = Util.getArtifactFile(artifactKey, profile);
+			File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 			if (bundleFile == null) {
 				LogHelper.log(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey.toString())));
 				return null;

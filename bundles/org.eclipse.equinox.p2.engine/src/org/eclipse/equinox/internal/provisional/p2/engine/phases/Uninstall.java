@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
@@ -20,7 +17,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 
 public class Uninstall extends InstallableUnitPhase {
 
@@ -29,8 +29,8 @@ public class Uninstall extends InstallableUnitPhase {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
-			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-			((IProvisioningEventBus) session.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
+			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
 			return null;
 		}
 
@@ -40,8 +40,8 @@ public class Uninstall extends InstallableUnitPhase {
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.addInstallableUnit(iu);
-			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-			((IProvisioningEventBus) session.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, getTouchpoint()));
+			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, getTouchpoint()));
 			return null;
 		}
 	}
@@ -53,8 +53,8 @@ public class Uninstall extends InstallableUnitPhase {
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.removeInstallableUnit(iu);
-			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-			((IProvisioningEventBus) session.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
+			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
 			return null;
 		}
 
@@ -62,8 +62,8 @@ public class Uninstall extends InstallableUnitPhase {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
-			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-			((IProvisioningEventBus) session.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, getTouchpoint()));
+			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, getTouchpoint()));
 			return null;
 		}
 	}

@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -19,6 +17,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class RemoveSourceBundleAction extends ProvisioningAction {
@@ -33,6 +33,7 @@ public class RemoveSourceBundleAction extends ProvisioningAction {
 	}
 
 	public static IStatus removeSourceBundle(Map parameters) {
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(EclipseTouchpoint.PARM_SOURCE_BUNDLES);
@@ -55,7 +56,7 @@ public class RemoveSourceBundleAction extends ProvisioningAction {
 			throw new IllegalArgumentException(NLS.bind(Messages.no_matching_artifact, bundleId));
 
 		// the bundleFile might be null here, that's OK.
-		File bundleFile = Util.getArtifactFile(artifactKey, profile);
+		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 
 		try {
 			manipulator.removeBundle(bundleFile, artifactKey.getId(), artifactKey.getVersion());

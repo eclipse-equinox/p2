@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,6 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 public class Sizing extends InstallableUnitPhase {
 	private static final String PHASE_ID = "sizing"; //$NON-NLS-1$
@@ -71,7 +71,7 @@ public class Sizing extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		int statusCode = 0;
 
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
@@ -88,7 +88,7 @@ public class Sizing extends InstallableUnitPhase {
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		URI[] repositories = null;
 		if (context == null || context.getArtifactRepositories() == null)
 			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);

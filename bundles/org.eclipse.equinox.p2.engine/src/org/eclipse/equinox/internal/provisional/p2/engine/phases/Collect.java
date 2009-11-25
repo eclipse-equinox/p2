@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -22,7 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
@@ -68,8 +68,8 @@ public class Collect extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-		EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 
 		DownloadManager dm = new DownloadManager(context, repositoryManager);
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {

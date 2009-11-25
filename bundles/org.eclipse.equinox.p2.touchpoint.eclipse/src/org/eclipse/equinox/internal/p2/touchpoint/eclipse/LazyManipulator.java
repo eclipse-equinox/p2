@@ -14,6 +14,7 @@ import java.io.IOException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -26,9 +27,11 @@ public class LazyManipulator implements Manipulator {
 
 	private Manipulator manipulator;
 	private final IProfile profile;
+	private final IProvisioningAgent agent;
 
-	public LazyManipulator(IProfile profile) {
+	public LazyManipulator(IProvisioningAgent agent, IProfile profile) {
 		this.profile = profile;
+		this.agent = agent;
 	}
 
 	private void loadDelegate() {
@@ -59,7 +62,7 @@ public class LazyManipulator implements Manipulator {
 		}
 		//TODO These values should be inserted by a configuration unit (bug 204124)
 		manipulator.getConfigData().setProperty("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$
-		manipulator.getConfigData().setProperty("eclipse.p2.data.area", Util.getAgentLocation().getRootLocation().toString()); //$NON-NLS-1$
+		manipulator.getConfigData().setProperty("eclipse.p2.data.area", Util.getAgentLocation(agent).getRootLocation().toString()); //$NON-NLS-1$
 	}
 
 	public static FrameworkAdmin getFrameworkAdmin() {

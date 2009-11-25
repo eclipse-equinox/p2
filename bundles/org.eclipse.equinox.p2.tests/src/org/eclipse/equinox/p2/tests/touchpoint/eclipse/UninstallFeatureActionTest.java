@@ -50,7 +50,7 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File featureSource = getTestData("1.0", "/testData/eclipseTouchpoint/features/org.eclipse.rcp_3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG");
 		File targetPlugins = new File(installFolder, "features");
 		assertTrue(targetPlugins.mkdir());
@@ -68,6 +68,7 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

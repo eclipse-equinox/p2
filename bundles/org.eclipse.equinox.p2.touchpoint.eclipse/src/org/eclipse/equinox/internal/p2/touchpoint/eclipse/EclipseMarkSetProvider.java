@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -34,9 +35,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private Collection artifactKeyList = null;
 
-	public MarkSet[] getMarkSets(IProfile inProfile) {
+	public MarkSet[] getMarkSets(IProvisioningAgent agent, IProfile inProfile) {
 		artifactKeyList = new HashSet();
-		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(inProfile);
+		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(agent, inProfile);
 		if (repositoryToGC == null)
 			return new MarkSet[0];
 		addArtifactKeys(inProfile);
@@ -100,8 +101,8 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		}
 	}
 
-	public IArtifactRepository getRepository(IProfile aProfile) {
-		return Util.getBundlePoolRepository(aProfile);
+	public IArtifactRepository getRepository(IProvisioningAgent agent, IProfile aProfile) {
+		return Util.getBundlePoolRepository(agent, aProfile);
 	}
 
 	private void addRunningBundles(IArtifactRepository repo) {

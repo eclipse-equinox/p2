@@ -46,7 +46,7 @@ public class UtilTest extends AbstractProvisioningTest {
 	public void testDefaultBundlePool() {
 		IProfile profile = createProfile("test");
 		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
-		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse"), Util.getBundlePoolLocation(profile));
+		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse"), Util.getBundlePoolLocation(getAgent(), profile));
 	}
 
 	public void testExplicitBundlePool() throws MalformedURLException {
@@ -54,7 +54,7 @@ public class UtilTest extends AbstractProvisioningTest {
 		File cacheDir = new File(System.getProperty("java.io.tmpdir"), "cache");
 		props.put(IProfile.PROP_CACHE, cacheDir.toString());
 		IProfile profile = createProfile("test", props);
-		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(profile).toString());
+		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(getAgent(), profile).toString());
 	}
 
 	public void testMissingManifest() {

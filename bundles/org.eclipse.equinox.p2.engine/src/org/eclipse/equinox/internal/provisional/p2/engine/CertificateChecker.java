@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.TrustInfo;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -29,14 +30,14 @@ import org.osgi.framework.ServiceReference;
 
 public class CertificateChecker {
 	private ArrayList artifacts;
-	private final EngineSession session;
+	private final IProvisioningAgent agent;
 
 	public CertificateChecker() {
 		this(null);
 	}
 
-	public CertificateChecker(EngineSession session) {
-		this.session = session;
+	public CertificateChecker(IProvisioningAgent agent) {
+		this.agent = agent;
 		artifacts = new ArrayList();
 	}
 
@@ -55,7 +56,7 @@ public class CertificateChecker {
 	}
 
 	private IStatus checkCertificates(TrustEngine trustEngine, SignedContentFactory verifierFactory) {
-		IServiceUI serviceUI = (IServiceUI) session.getService(IServiceUI.SERVICE_NAME);
+		IServiceUI serviceUI = (IServiceUI) agent.getService(IServiceUI.SERVICE_NAME);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
 		ArrayList untrusted = new ArrayList();

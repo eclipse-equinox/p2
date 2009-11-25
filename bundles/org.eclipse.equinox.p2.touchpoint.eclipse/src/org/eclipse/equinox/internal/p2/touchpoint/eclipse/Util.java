@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -25,6 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
@@ -54,29 +54,29 @@ public class Util {
 	 */
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
-	public static IAgentLocation getAgentLocation() {
-		return (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
+	public static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
+		return (IAgentLocation) agent.getService(IAgentLocation.class.getName());
 	}
 
-	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
-	public static URI getBundlePoolLocation(IProfile profile) {
+	public static URI getBundlePoolLocation(IProvisioningAgent agent, IProfile profile) {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			return new File(path).toURI();
-		IAgentLocation location = getAgentLocation();
+		IAgentLocation location = getAgentLocation(agent);
 		if (location == null)
 			return null;
 		return location.getDataArea(Activator.ID);
 	}
 
-	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
-		URI location = getBundlePoolLocation(profile);
+	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProvisioningAgent agent, IProfile profile) {
+		URI location = getBundlePoolLocation(agent, profile);
 		if (location == null)
 			return null;
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		try {
 			return (IFileArtifactRepository) manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
@@ -93,15 +93,15 @@ public class Util {
 		}
 	}
 
-	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
-		return getAggregatedBundleRepository(profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile) {
+		return getAggregatedBundleRepository(agent, profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
 	}
 
-	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile, int repoFilter) {
 		List bundleRepositories = new ArrayList();
 
 		// we check for a shared bundle pool first as it should be preferred over the user bundle pool in a shared install
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
 			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 			if (sharedCache != null) {
@@ -117,7 +117,7 @@ public class Util {
 		}
 
 		if ((repoFilter & AGGREGATE_CACHE) != 0) {
-			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(agent, profile);
 			if (bundlePool != null)
 				bundleRepositories.add(bundlePool);
 		}
@@ -196,8 +196,8 @@ public class Util {
 		return bundleInfo;
 	}
 
-	public static File getArtifactFile(IArtifactKey artifactKey, IProfile profile) {
-		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
+	public static File getArtifactFile(IProvisioningAgent agent, IArtifactKey artifactKey, IProfile profile) {
+		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(agent, profile);
 		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;
 	}

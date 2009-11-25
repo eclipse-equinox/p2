@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
 public class ActionConstants {
 
+	public static final String PARM_AGENT = "agent"; //$NON-NLS-1$
 	public static final String PARM_PATH = "path"; //$NON-NLS-1$
 	public static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
 	public static final String PARM_PERMISSIONS = "permissions"; //$NON-NLS-1$

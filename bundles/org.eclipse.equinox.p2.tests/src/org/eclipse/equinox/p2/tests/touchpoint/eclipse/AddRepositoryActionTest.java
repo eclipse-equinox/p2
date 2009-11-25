@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -67,7 +68,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testInvalidEnablement() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		args.put("enabled", "bogus enablement");
 		IStatus result = action.execute(args);
 		//Any value other than "true" for enablement results in a disabled repository
@@ -75,13 +76,13 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));
 	}
 
-	private void addSession(Map args) {
-		args.put("session", new EngineSession(getAgent(), null, null));
+	private void addAgent(Map args) {
+		args.put(ActionConstants.PARM_AGENT, getAgent());
 	}
 
 	public void testInvalidLocation() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		args.put("location", "bogus location");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -89,7 +90,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testInvalidType() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		args.put("type", "bogus type");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -98,7 +99,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	public void testMissingEnablement() {
 		//note enablement is optional, defaults to true
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		args.remove("enabled");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
@@ -106,7 +107,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testMissingType() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		args.remove("type");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -119,7 +120,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testUndo() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -129,7 +130,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testMultipleActionAdd() {
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -151,7 +152,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		}
 
 		Map args = getValidArguments();
-		addSession(args);
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -231,7 +232,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//check that the artifact is still there
 		profile = getProfile(id);
-		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(profile), getMonitor());
+		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(getAgent(), profile), getMonitor());
 		assertEquals("3.0", 1, getArtifactKeyCount(artifacts));
 
 		//check that profile property is set

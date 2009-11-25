@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
-import org.eclipse.equinox.p2.engine.IEngine;
-
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -31,7 +27,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 /**
  * The transformer takes an existing p2 repository (local or remote), iterates over 
@@ -92,8 +91,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			List artifactRequests = (List) parameters.get(NATIVE_ARTIFACTS);
 			ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-			EngineSession session = (EngineSession) parameters.get(PARM_SESSION);
-			IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) session.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			DownloadManager dm = new DownloadManager(context, repositoryManager);
 			for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
 				dm.add((IArtifactRequest) it.next());

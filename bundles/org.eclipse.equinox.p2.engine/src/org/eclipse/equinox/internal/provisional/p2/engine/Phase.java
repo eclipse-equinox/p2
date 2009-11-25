@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
@@ -30,7 +29,7 @@ public abstract class Phase {
 	/**
 	 * Internal property.
 	 */
-	protected static final String PARM_SESSION = "session"; //$NON-NLS-1$
+	protected static final String PARM_AGENT = "agent"; //$NON-NLS-1$
 	protected static final String PARM_FORCED = "forced"; //$NON-NLS-1$
 	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 
@@ -68,7 +67,7 @@ public abstract class Phase {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
-	public final void perform(MultiStatus status, EngineSession session, Operand[] operands, IProgressMonitor monitor) {
+	void perform(MultiStatus status, EngineSession session, Operand[] operands, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
 		session.recordPhaseEnter(this);
 		prePerform(status, session, subMonitor.newChild(prePerformWork));
@@ -92,18 +91,18 @@ public abstract class Phase {
 	}
 
 	void prePerform(MultiStatus status, EngineSession session, IProgressMonitor monitor) {
-		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
+		IProfile profile = session.getProfile();
 		phaseParameters.put(PARM_PROFILE, profile);
 		phaseParameters.put(PARM_PROFILE_DATA_DIRECTORY, session.getProfileDataDirectory());
-		phaseParameters.put(PARM_CONTEXT, session.getService(ProvisioningContext.class.getName()));
+		phaseParameters.put(PARM_CONTEXT, session.getProvisioningContext());
 		phaseParameters.put(PARM_PHASE_ID, phaseId);
 		phaseParameters.put(PARM_FORCED, Boolean.toString(forced));
-		phaseParameters.put(PARM_SESSION, session);
+		phaseParameters.put(PARM_AGENT, session.getAgent());
 		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 	}
 
 	private void mainPerform(MultiStatus status, EngineSession session, Operand[] operands, SubMonitor subMonitor) {
-		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
+		IProfile profile = session.getProfile();
 		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
@@ -213,7 +212,7 @@ public abstract class Phase {
 	}
 
 	void postPerform(MultiStatus status, EngineSession session, IProgressMonitor monitor) {
-		IProfile profile = (IProfile) session.getService(IProfile.class.getName());
+		IProfile profile = session.getProfile();
 		mergeStatus(status, touchpointCompletePhase(monitor, profile, phaseParameters));
 		mergeStatus(status, completePhase(monitor, profile, phaseParameters));
 	}

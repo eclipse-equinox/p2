@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 
 /**
  * The main control point for the p2 garbage collector.  Takes a Profile and runs the CoreGarbageCollector with the
@@ -37,6 +38,12 @@ public class GarbageCollector {
 	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
 	 */
 	private Map markSet;
+	final IProvisioningAgent agent;
+
+	public GarbageCollector() {
+		// we need to use DS to create an Agent Listener here
+		agent = (IProvisioningAgent) GCActivator.getContext().getService(GCActivator.getContext().getServiceReference(IProvisioningAgent.class.getName()));
+	}
 
 	public void runGC(IProfile profile) {
 		markSet = new HashMap();
@@ -122,7 +129,7 @@ public class GarbageCollector {
 				aProfileMarkSets = null;
 				return;
 			}
-			aProfileMarkSets = aMarkSetProvider.getMarkSets(aProfile);
+			aProfileMarkSets = aMarkSetProvider.getMarkSets(agent, aProfile);
 		}
 
 		public MarkSet[] getResult() {

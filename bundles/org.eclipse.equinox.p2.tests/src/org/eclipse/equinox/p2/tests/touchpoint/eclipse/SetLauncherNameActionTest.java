@@ -31,6 +31,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 
 	public void testExecuteUndo() {
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
@@ -57,6 +58,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 
 	public void testEmptyName() {
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
 		File tempFolder = getTempFolder();
@@ -98,6 +100,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		writeBuffer(eclipseIni, ini);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

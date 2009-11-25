@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class PhaseSet implements IPhaseSet {
@@ -42,7 +41,7 @@ public abstract class PhaseSet implements IPhaseSet {
 					return status;
 				}
 				Phase phase = phases[i];
-				phase.actionManager = (ActionManager) session.getService(ActionManager.SERVICE_NAME);
+				phase.actionManager = (ActionManager) session.getAgent().getService(ActionManager.SERVICE_NAME);
 				try {
 					phase.perform(status, session, operands, pm.newChild(weights[i]));
 				} catch (OperationCanceledException e) {

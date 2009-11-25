@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.engine.IEngine;
-
 import java.io.File;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -52,6 +52,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		IProfile profile = createProfile("test");
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		Object manipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
@@ -62,6 +63,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		// checking that the manipulator is carried from phases to phase
 		parameters.clear();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		touchpoint.initializePhase(null, profile, "test2", parameters);
 		Object testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertEquals(manipulator, testManipulator);
@@ -70,6 +72,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		// re: "uninstall" this is necessary for now for coverage until we have formal commit and rollback events
 		// this test should be revisited then
 		parameters.clear();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		touchpoint.initializePhase(null, profile, "uninstall", parameters);
 		testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertEquals(manipulator, testManipulator);
@@ -101,7 +104,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		properties.put("org.eclipse.equinox.p2.cache.extensions", location.toString() + "|" + spacesLocation.toString());
 		IProfile profile = createProfile("testBug262073", properties);
-		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(profile);
+		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(getAgent(), profile);
 		Collection repos = repo.testGetBundleRepositories();
 		assertEquals("1.0", 3, repos.size());
 	}
@@ -124,7 +127,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -151,7 +154,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		IInstallableUnit fullIU = touchpoint.prepareIU(iu, key, profile);
+		IInstallableUnit fullIU = touchpoint.prepareIU(getAgent(), profile, iu, key);
 		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 	}
 
@@ -162,7 +165,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());

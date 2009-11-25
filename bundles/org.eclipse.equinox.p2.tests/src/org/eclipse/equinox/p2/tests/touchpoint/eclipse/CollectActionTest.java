@@ -44,7 +44,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("test", profileProperties);
 
 		// still want side-effect
-		Util.getBundlePoolRepository(profile);
+		Util.getBundlePoolRepository(getAgent(), profile);
 
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
@@ -60,6 +60,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();

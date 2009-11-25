@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 
 /**
  * An action that adds a repository to the list of known repositories.
@@ -26,9 +26,9 @@ public class AddRepositoryAction extends RepositoryAction {
 
 	public IStatus execute(Map parameters) {
 		try {
-			EngineSession session = getSession(parameters);
-			IProfileRegistry registry = (IProfileRegistry) session.getService(IProfileRegistry.SERVICE_NAME);
-			IAgentLocation agentLocation = (IAgentLocation) session.getService(IAgentLocation.SERVICE_NAME);
+			IProvisioningAgent agent = getAgent(parameters);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
@@ -48,9 +48,9 @@ public class AddRepositoryAction extends RepositoryAction {
 
 	public IStatus undo(Map parameters) {
 		try {
-			EngineSession session = getSession(parameters);
-			IProfileRegistry registry = (IProfileRegistry) session.getService(IProfileRegistry.SERVICE_NAME);
-			IAgentLocation agentLocation = (IAgentLocation) session.getService(IAgentLocation.SERVICE_NAME);
+			IProvisioningAgent agent = getAgent(parameters);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)

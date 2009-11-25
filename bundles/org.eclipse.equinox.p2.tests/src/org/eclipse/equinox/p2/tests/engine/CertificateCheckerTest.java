@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.engine.CertificateChecker;
-import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -54,7 +53,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		testAgent = new ProvisioningAgent();
 		testAgent.registerService(IServiceUI.SERVICE_NAME, serviceUI);
 		testAgent.setBundleContext(TestActivator.getContext());
-		checker = new CertificateChecker(new EngineSession(testAgent, null, null));
+		checker = new CertificateChecker(testAgent);
 		try {
 			unsigned = TestData.getFile("CertificateChecker", "unsigned.jar");
 		} catch (IOException e) {
